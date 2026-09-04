@@ -7,8 +7,15 @@
     "@2dayai/core": "*",
     "@2dayai/db": "*",
     "@anthropic-ai/sdk": "^0.123.0",
+    "@mozilla/readability": "^0.6.0",
+    "linkedom": "^0.18.13",
+    "resend": "^6.26.0",
     "rss-parser": "^3.13.0",
     "yaml": "^2.9.0",
-    "zod": "^4.0.0"
+    "zod": "^4.0.0",
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
   }
 }

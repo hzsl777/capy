@@ -1,7 +1,7 @@
 name: Daily run
 on:
   schedule:
-    # 09:00 UTC, which is 05:00 Eastern in summer and 04:00 in winter. Ingest window closes here (core/dates.ts).
+    # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs hourly in deliver.yml.
     - cron: "0 9 * * *"
   workflow_dispatch:
     inputs:
@@ -11,13 +11,14 @@ on:
 jobs:
   day:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       MODEL: claude-sonnet-5
+      LLM_BATCH: "true"
       DAILY_SPEND_CEILING_USD: "1.00"
+      WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

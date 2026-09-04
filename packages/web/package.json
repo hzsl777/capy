@@ -5,6 +5,9 @@
   "type": "module",
   "dependencies": {
     "@2dayai/core": "*",
+    "@2dayai/db": "^0.1.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.13.0"
   }
 }

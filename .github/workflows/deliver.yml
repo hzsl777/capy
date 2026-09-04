@@ -1,0 +1,23 @@
+name: Deliver
+on:
+  schedule:
+    # Every hour. Sends editions whose reader's local hour has reached their delivery hour. Idempotent.
+    - cron: "5 * * * *"
+  workflow_dispatch:
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+      MAIL_FROM: ${{ vars.MAIL_FROM }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run stage -- deliver

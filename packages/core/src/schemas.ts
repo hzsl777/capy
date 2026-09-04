@@ -37,8 +37,9 @@ export const ClusterEventSchema = z.object({
 });
 
 export const ClusterResultSchema = z.object({
+  /** Every article lands in exactly one event or in skipped. A single-article event is normal. */
   events: z.array(ClusterEventSchema),
-  singletonArticleIds: z.array(z.number().int()),
+  skipped: z.array(z.object({ articleId: z.number().int(), reason: z.string().min(1).max(120) })),
 });
 export type ClusterResult = z.infer<typeof ClusterResultSchema>;
 
@@ -67,6 +68,7 @@ export type Explanation = z.infer<typeof ExplanationSchema>;
 
 export const ReaderProfileSchema = z.object({
   id: z.string().regex(/^r\d{2}$/),
+  email: z.string().email(),
   timezone: z.string().min(1),
   deliveryHour: z.number().int().min(0).max(23),
   topics: z.array(z.object({ name: z.string().min(1), weight: z.number().int().min(1).max(5) })).min(1),

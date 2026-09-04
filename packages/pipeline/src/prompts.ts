@@ -13,7 +13,8 @@ export type Prompt = {
   label: string;
 };
 
-const PROMPTS_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "prompts");
+/** Prompt files live in packages/core/prompts so they stay pure content; this loader is Node-only. */
+const PROMPTS_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "core", "prompts");
 
 /** Prompts are versioned files, never strings in code. Editing a prompt in place is a bug. */
 export function loadPrompt(name: PromptName, version: number): Prompt {

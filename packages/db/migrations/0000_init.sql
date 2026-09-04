@@ -5,8 +5,10 @@ CREATE TABLE "articles" (
 	"title" text NOT NULL,
 	"lead" text DEFAULT '' NOT NULL,
 	"body" text DEFAULT '' NOT NULL,
+	"body_source" text DEFAULT 'none' NOT NULL,
 	"published_at" timestamp with time zone NOT NULL,
-	"fetched_at" timestamp with time zone DEFAULT now() NOT NULL
+	"fetched_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"enriched_at" timestamp with time zone
 );
 --> statement-breakpoint
 CREATE TABLE "citations" (
@@ -20,7 +22,9 @@ CREATE TABLE "citations" (
 CREATE TABLE "deliveries" (
 	"edition_id" integer PRIMARY KEY NOT NULL,
 	"provider_id" text,
-	"status" text NOT NULL
+	"status" text NOT NULL,
+	"detail" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "edition_items" (
@@ -29,6 +33,7 @@ CREATE TABLE "edition_items" (
 	"event_id" integer NOT NULL,
 	"rank" integer NOT NULL,
 	"selected" boolean NOT NULL,
+	"outside_interests" boolean DEFAULT false NOT NULL,
 	"reason_code" text,
 	"line" text,
 	"stake_paragraph" text
@@ -41,6 +46,7 @@ CREATE TABLE "editions" (
 	"headline" text NOT NULL,
 	"quiet_day" boolean NOT NULL,
 	"prompt_version" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"sent_at" timestamp with time zone
 );
 --> statement-breakpoint
@@ -53,6 +59,8 @@ CREATE TABLE "event_explanations" (
 	"event_id" integer PRIMARY KEY NOT NULL,
 	"sentences" jsonb NOT NULL,
 	"usable" boolean NOT NULL,
+	"survivors" integer NOT NULL,
+	"dropped" integer NOT NULL,
 	"prompt_version" text NOT NULL
 );
 --> statement-breakpoint
@@ -68,7 +76,9 @@ CREATE TABLE "events" (
 CREATE TABLE "feedback" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"reader_id" text NOT NULL,
-	"event_id" integer NOT NULL,
+	"event_id" integer,
+	"event_title" text NOT NULL,
+	"run_date" date NOT NULL,
 	"kind" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -79,6 +89,7 @@ CREATE TABLE "llm_calls" (
 	"stage" text NOT NULL,
 	"model" text NOT NULL,
 	"prompt_version" text NOT NULL,
+	"batch" boolean DEFAULT false NOT NULL,
 	"input_tokens" integer NOT NULL,
 	"output_tokens" integer NOT NULL,
 	"cache_read_tokens" integer DEFAULT 0 NOT NULL,
@@ -102,6 +113,16 @@ CREATE TABLE "readers" (
 	"profile_version" integer DEFAULT 1 NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "runs" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"run_date" date NOT NULL,
+	"stage" text NOT NULL,
+	"status" text NOT NULL,
+	"detail" jsonb,
+	"started_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"finished_at" timestamp with time zone
+);
+--> statement-breakpoint
 CREATE TABLE "sources" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -111,17 +132,17 @@ CREATE TABLE "sources" (
 );
 --> statement-breakpoint
 ALTER TABLE "articles" ADD CONSTRAINT "articles_source_id_sources_id_fk" FOREIGN KEY ("source_id") REFERENCES "public"."sources"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "citations" ADD CONSTRAINT "citations_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "citations" ADD CONSTRAINT "citations_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "citations" ADD CONSTRAINT "citations_article_id_articles_id_fk" FOREIGN KEY ("article_id") REFERENCES "public"."articles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "deliveries" ADD CONSTRAINT "deliveries_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "edition_items" ADD CONSTRAINT "edition_items_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "edition_items" ADD CONSTRAINT "edition_items_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "deliveries" ADD CONSTRAINT "deliveries_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "edition_items" ADD CONSTRAINT "edition_items_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "edition_items" ADD CONSTRAINT "edition_items_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "editions" ADD CONSTRAINT "editions_reader_id_readers_id_fk" FOREIGN KEY ("reader_id") REFERENCES "public"."readers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "event_articles" ADD CONSTRAINT "event_articles_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_articles" ADD CONSTRAINT "event_articles_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "event_articles" ADD CONSTRAINT "event_articles_article_id_articles_id_fk" FOREIGN KEY ("article_id") REFERENCES "public"."articles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "event_explanations" ADD CONSTRAINT "event_explanations_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_explanations" ADD CONSTRAINT "event_explanations_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "feedback" ADD CONSTRAINT "feedback_reader_id_readers_id_fk" FOREIGN KEY ("reader_id") REFERENCES "public"."readers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "feedback" ADD CONSTRAINT "feedback_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "feedback" ADD CONSTRAINT "feedback_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reader_profiles" ADD CONSTRAINT "reader_profiles_reader_id_readers_id_fk" FOREIGN KEY ("reader_id") REFERENCES "public"."readers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "articles_url_idx" ON "articles" USING btree ("url");--> statement-breakpoint
 CREATE UNIQUE INDEX "editions_reader_date_idx" ON "editions" USING btree ("reader_id","run_date");--> statement-breakpoint

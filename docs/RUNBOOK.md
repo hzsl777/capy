@@ -8,19 +8,43 @@
 4. Run `npm run db:migrate` once locally to create the tables.
 5. Run `npm run stage -- sources check` and remove any feed that fails from `config/sources.yaml`.
 
+## First real run, for Davis
+
+1. `.env` with `DATABASE_URL`, `ANTHROPIC_API_KEY`, `LLM_BATCH=false`.
+2. Write `config/readers/r01.yaml` from `r00.example.yaml` with your real email and profile.
+3. `npm run stage -- sources check` and prune the list.
+4. `npm run stage -- day` and read the JSON report: articles in, events, usable explanations, sentences dropped, editions, spend.
+5. `npm run stage -- show --reader r01` and judge the headline, the lines, the explanations, and the sources.
+6. `npm run stage -- deliver --dry-run` to see what would go out, then without the flag once Resend is set up.
+
+Judge every day on the three phase-one conditions in SPEC.md section 1. When a prompt needs to change, copy it to the next version and re-run the same date, so the two outputs sit side by side.
+
 ## Run a day locally
 
 ```
 npm run stage -- day --date 2026-09-04
 ```
 
-Every stage is idempotent per date. Re-run it and it overwrites its own output for that date.
+Every stage is idempotent per date. Re-run it and it overwrites its own output for that date. Feedback is kept.
 
 ## Re-run one stage
 
 ```
 npm run stage -- ingest --date 2026-09-04
+npm run stage -- cluster --date 2026-09-04
+npm run stage -- explain --date 2026-09-04
+npm run stage -- select --date 2026-09-04
 ```
+
+## Deploy the Worker
+
+```
+cd packages/web
+npx wrangler secret put DATABASE_URL
+npx wrangler deploy
+```
+
+Set the repository variable `WEB_BASE_URL` to the Worker URL so email links point at it, and `MAIL_FROM` to the verified Resend sender.
 
 ## Change the schema
 
