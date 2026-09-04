@@ -1,7 +1,7 @@
 // Stage 6.3. One request per event, batched. Every sentence is checked against the cited article text and dropped
 // when the excerpt is not there. This is the hallucination control and it is not optional.
 import { eq, inArray } from "drizzle-orm";
-import { ExplanationSchema, verifyExplanation, type RunDate } from "@2dayai/core";
+import { citationValid, ExplanationSchema, verifyExplanation, type RunDate } from "@2dayai/core";
 import { loadPrompt } from "../prompts.js";
 import { articles, citations, eventArticles, eventExplanations, events, sources, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
@@ -66,7 +66,7 @@ export async function runExplain(db: Db, config: Config, llm: Llm, date: RunDate
     const r = results.get(`event-${ev.id}`);
     if (!r || !r.ok) {
       failed += 1;
-      await db.insert(eventExplanations).values({ eventId: ev.id, sentences: { whatHappened: [], whyItMatters: [], whatChangesNext: [], error: r?.error ?? "missing" }, usable: false, survivors: 0, dropped: 0, promptVersion: prompt.label });
+      await db.insert(eventExplanations).values({ eventId: ev.id, sentences: { whatHappened: [], whyItMatters: [], whatChangesNext: [], error: r?.error ?? "missing" }, usable: false, failed: true, survivors: 0, dropped: 0, promptVersion: prompt.label });
       continue;
     }
     const texts = (perEvent.get(ev.id) ?? []).map((a) => ({ id: a.id, text: a.text }));
@@ -82,15 +82,14 @@ export async function runExplain(db: Db, config: Config, llm: Llm, date: RunDate
       dropped: verified.dropped,
       promptVersion: prompt.label,
     });
-    // Audit trail: every citation the model offered, verified or not.
+    // Audit trail: every citation the model offered, each checked on its own.
     const all = [...r.value.whatHappened, ...r.value.whyItMatters, ...r.value.whatChangesNext];
     const allowed = new Set(texts.map((t) => t.id));
-    const rows = all.flatMap((s) =>
-      s.citations
-        .filter((c) => allowed.has(c.articleId))
-        .map((c) => ({ eventId: ev.id, articleId: c.articleId, excerpt: c.excerpt, verified: verified.whatHappened.concat(verified.whyItMatters, verified.whatChangesNext).some((v) => v.text === s.text) })),
-    );
+    const textMap = new Map(texts.map((t) => [t.id, t.text]));
+    const rows = all.flatMap((s) => s.citations.filter((c) => allowed.has(c.articleId)).map((c) => ({ eventId: ev.id, articleId: c.articleId, excerpt: c.excerpt, verified: citationValid(c, textMap) })));
     if (rows.length) await db.insert(citations).values(rows);
   }
+  // A dead model stage must stop the day, not turn into a quiet day for every reader (spec section 6).
+  if (failed > 0 && usable === 0) throw new Error(`explain: ${failed} of ${evs.length} model requests failed and nothing is usable; stopping the day`);
   return { events: evs.length, usable, unusable, failed, sentencesDropped };
 }

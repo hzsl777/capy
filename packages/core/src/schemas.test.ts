@@ -8,8 +8,12 @@ describe("schemas", () => {
     });
     expect(r.success).toBe(true);
   });
+  it("rejects a bad timezone", () => {
+    const r = ReaderProfileSchema.safeParse({ id: "r01", email: "a@b.co", timezone: "Eastern", deliveryHour: 6, topics: [{ name: "tax", weight: 5 }], stake: ["x"] });
+    expect(r.success).toBe(false);
+  });
   it("rejects a reader profile without a stake", () => {
-    const r = ReaderProfileSchema.safeParse({ id: "r01", timezone: "America/New_York", deliveryHour: 6, topics: [{ name: "tax", weight: 5 }], stake: [] });
+    const r = ReaderProfileSchema.safeParse({ id: "r01", email: "a@b.co", timezone: "America/New_York", deliveryHour: 6, topics: [{ name: "tax", weight: 5 }], stake: [] });
     expect(r.success).toBe(false);
   });
   it("caps selection at five and rejection at five", () => {

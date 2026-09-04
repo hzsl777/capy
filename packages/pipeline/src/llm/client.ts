@@ -5,7 +5,7 @@ import type { z } from "zod";
 import type { RunDate } from "@2dayai/core";
 import { llmCalls, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
-import { costUsd } from "./pricing.js";
+import { costUsd, type Usage } from "./pricing.js";
 import { assertUnderCeiling } from "./spend.js";
 import { LlmParseError, type Llm, type ParseOutcome, type ParseRequest } from "./types.js";
 
@@ -13,10 +13,8 @@ const MAX_TOKENS = 16000;
 const BATCH_POLL_MS = 30_000;
 const BATCH_MAX_WAIT_MS = 3 * 60 * 60 * 1000;
 
-type Usage = { input: number; output: number; cacheRead: number };
-
 function usageOf(m: Anthropic.Message): Usage {
-  return { input: m.usage.input_tokens, output: m.usage.output_tokens, cacheRead: m.usage.cache_read_input_tokens ?? 0 };
+  return { input: m.usage.input_tokens, output: m.usage.output_tokens, cacheRead: m.usage.cache_read_input_tokens ?? 0, cacheWrite: m.usage.cache_creation_input_tokens ?? 0 };
 }
 
 function textOf(m: Anthropic.Message): string {
@@ -40,6 +38,7 @@ export function createLlm(config: Config, db: Db, sleep: (ms: number) => Promise
       inputTokens: usage.input,
       outputTokens: usage.output,
       cacheReadTokens: usage.cacheRead,
+      cacheWriteTokens: usage.cacheWrite,
       costUsd: costUsd(config.model, usage, batch).toFixed(6),
     });
   }

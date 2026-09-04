@@ -13,14 +13,14 @@ import { runExplain } from "./stages/explain.js";
 import { runIngest, type FeedFetcher } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
 
-export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; sourcesPath?: string; readersDir?: string };
+export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; sourcesPath?: string; readersDir?: string; force?: boolean };
 
 export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, deps: DayDeps = {}): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {};
   out["ingest"] = await recorded(db, date, "ingest", () => runIngest(db, loadSources(deps.sourcesPath), date, deps.fetchFeed));
   out["enrich"] = await recorded(db, date, "enrich", () => runEnrich(db, date, deps.fetchPage));
   out["readers"] = await recorded(db, date, "readers", () => syncReaders(db, loadProfiles(deps.readersDir)));
-  out["cluster"] = await recorded(db, date, "cluster", () => runCluster(db, config, llm, date));
+  out["cluster"] = await recorded(db, date, "cluster", () => runCluster(db, config, llm, date, { force: deps.force ?? false }));
   out["explain"] = await recorded(db, date, "explain", () => runExplain(db, config, llm, date));
   out["select"] = await recorded(db, date, "select", () => runSelect(db, config, llm, date));
   out["spendUsd"] = await spentToday(db, date);

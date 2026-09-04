@@ -1,5 +1,5 @@
 {
-  "id": "9b2498cf-2663-4066-a122-2e0900c46a9d",
+  "id": "0f1ec94b-b4cc-4592-b8c8-05802c47702e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -528,6 +528,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "failed": {
+          "name": "failed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "survivors": {
           "name": "survivors",
           "type": "integer",
@@ -756,6 +763,13 @@
         },
         "cache_read_tokens": {
           "name": "cache_read_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "cache_write_tokens": {
+          "name": "cache_write_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,

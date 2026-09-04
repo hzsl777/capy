@@ -1,6 +1,6 @@
 // Stages 6.4 and 6.5. One request per reader, batched. Validates the model's choices against the usable events
 // and the headline against the rules. One retry with the errors spelled out, then the reader's edition fails loudly.
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { headlineViolations, SelectionSchema, type RunDate, type Selection, type VerifiedSentence } from "@2dayai/core";
 import { loadPrompt } from "../prompts.js";
 import { editionItems, editions, eventExplanations, events, readerProfiles, readers, type Db } from "@2dayai/db";
@@ -10,7 +10,7 @@ import type { Llm, ParseRequest } from "../llm/types.js";
 export const SELECT_PROMPT_VERSION = 1;
 export const QUIET_HEADLINE = "Nothing today needs you.";
 
-export type SelectReport = { readers: number; editions: number; quiet: number; failed: number; retried: number };
+export type SelectReport = { readers: number; editions: number; quiet: number; failed: number; retried: number; skippedSent: number };
 
 type UsableEvent = { id: number; title: string; importance: number; sentences: string[] };
 
@@ -54,8 +54,13 @@ async function writeEdition(db: Db, readerId: string, date: RunDate, promptLabel
 }
 
 export async function runSelect(db: Db, config: Config, llm: Llm, date: RunDate): Promise<SelectReport> {
-  const rs = await db.select().from(readers);
-  const report: SelectReport = { readers: rs.length, editions: 0, quiet: 0, failed: 0, retried: 0 };
+  const all = await db.select().from(readers);
+  const report: SelectReport = { readers: all.length, editions: 0, quiet: 0, failed: 0, retried: 0, skippedSent: 0 };
+  if (all.length === 0) return report;
+  // A sent edition is final. Re-running select never replaces what a reader already received.
+  const sent = new Set((await db.select({ readerId: editions.readerId }).from(editions).where(and(eq(editions.runDate, date), isNotNull(editions.sentAt)))).map((r) => r.readerId));
+  const rs = all.filter((r) => !sent.has(r.id));
+  report.skippedSent = all.length - rs.length;
   if (rs.length === 0) return report;
 
   const evs = await db
@@ -71,6 +76,8 @@ export async function runSelect(db: Db, config: Config, llm: Llm, date: RunDate)
   const prompt = loadPrompt("select", SELECT_PROMPT_VERSION);
 
   if (usable.length === 0) {
+    const anyFailed = (await db.select({ id: eventExplanations.eventId }).from(eventExplanations).innerJoin(events, eq(events.id, eventExplanations.eventId)).where(and(eq(events.runDate, date), eq(eventExplanations.failed, true)))).length;
+    if (anyFailed > 0) throw new Error(`select: no usable events and ${anyFailed} explanations failed; refusing to write quiet editions`);
     for (const r of rs) {
       await writeEdition(db, r.id, date, prompt.label, null);
       report.editions += 1;

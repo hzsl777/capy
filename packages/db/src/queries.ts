@@ -77,11 +77,23 @@ export async function loadEditionView(db: Db, where: { readerToken: string; runD
   };
 }
 
+/** The event must belong to this reader's edition for this date; anything else is a 404, not a write. */
+export async function findEditionEvent(db: Db, args: { readerToken: string; runDate: string; eventId: number }): Promise<{ readerId: string; eventId: number; title: string } | null> {
+  const row = (
+    await db
+      .select({ readerId: t.readers.id, eventId: t.events.id, title: t.events.title })
+      .from(t.editionItems)
+      .innerJoin(t.editions, eq(t.editions.id, t.editionItems.editionId))
+      .innerJoin(t.readers, eq(t.readers.id, t.editions.readerId))
+      .innerJoin(t.events, eq(t.events.id, t.editionItems.eventId))
+      .where(and(eq(t.readers.token, args.readerToken), eq(t.editions.runDate, args.runDate), eq(t.editionItems.eventId, args.eventId)))
+  )[0];
+  return row ?? null;
+}
+
 export async function recordFeedback(db: Db, args: { readerToken: string; runDate: string; eventId: number; kind: string }): Promise<{ title: string } | null> {
-  const reader = (await db.select().from(t.readers).where(eq(t.readers.token, args.readerToken)))[0];
-  if (!reader) return null;
-  const event = (await db.select().from(t.events).where(eq(t.events.id, args.eventId)))[0];
-  if (!event) return null;
-  await db.insert(t.feedback).values({ readerId: reader.id, eventId: event.id, eventTitle: event.title, runDate: args.runDate, kind: args.kind });
-  return { title: event.title };
+  const found = await findEditionEvent(db, args);
+  if (!found) return null;
+  await db.insert(t.feedback).values({ readerId: found.readerId, eventId: found.eventId, eventTitle: found.title, runDate: args.runDate, kind: args.kind });
+  return { title: found.title };
 }

@@ -12,14 +12,17 @@ function normalize(s: string): string {
 }
 
 /** A citation is valid when its excerpt appears verbatim (whitespace and quote-normalized) in the cited article. */
+export function citationValid(citation: { articleId: number; excerpt: string }, articles: Map<number, string>): boolean {
+  const body = articles.get(citation.articleId);
+  if (!body) return false;
+  const excerpt = normalize(citation.excerpt);
+  return excerpt.length >= 12 && normalize(body).includes(excerpt);
+}
+
+/** Keeps only the citations that pass. A sentence with none left is unverified. An invalid excerpt never survives beside a valid one. */
 export function verifySentence(sentence: Sentence, articles: Map<number, string>): VerifiedSentence {
-  const ok = sentence.citations.some((c) => {
-    const body = articles.get(c.articleId);
-    if (!body) return false;
-    const excerpt = normalize(c.excerpt);
-    return excerpt.length >= 12 && normalize(body).includes(excerpt);
-  });
-  return { ...sentence, verified: ok };
+  const kept = sentence.citations.filter((c) => citationValid(c, articles));
+  return { ...sentence, citations: kept, verified: kept.length > 0 };
 }
 
 export type VerifiedExplanation = {

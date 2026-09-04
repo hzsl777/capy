@@ -1,6 +1,6 @@
 // Stage 6.6. Sends every unsent edition whose reader's local hour has reached their delivery hour.
 // Runs hourly; the day pipeline runs once. Idempotent: a sent edition is never sent twice.
-import { and, eq, isNull } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import { renderEditionText, renderEmailHtml, type RunDate } from "@2dayai/core";
 import { deliveries, editions, loadEditionView, readers, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
@@ -14,15 +14,25 @@ export function localHour(now: Date, timezone: string): number {
   return Number(h) % 24;
 }
 
-export async function runDeliver(db: Db, config: Config, date: RunDate, send: Sender, now: Date = new Date()): Promise<DeliverReport> {
-  const rows = await db
-    .select({ edition: editions, reader: readers })
-    .from(editions)
-    .innerJoin(readers, eq(readers.id, editions.readerId))
-    .where(and(eq(editions.runDate, date), isNull(editions.sentAt)));
+/** The reader's local calendar date, YYYY-MM-DD. */
+export function localDate(now: Date, timezone: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+}
+
+/** Due once the reader's local clock has passed the delivery hour on the run date, or any time after that date. */
+export function isDue(runDate: string, deliveryHour: number, timezone: string, now: Date): boolean {
+  const ld = localDate(now, timezone);
+  if (ld > runDate) return true;
+  if (ld < runDate) return false;
+  return localHour(now, timezone) >= deliveryHour;
+}
+
+/** Every unsent edition, whatever its date, so an evening delivery hour in the Americas still goes out after UTC midnight. */
+export async function runDeliver(db: Db, config: Config, _date: RunDate, send: Sender, now: Date = new Date()): Promise<DeliverReport> {
+  const rows = await db.select({ edition: editions, reader: readers }).from(editions).innerJoin(readers, eq(readers.id, editions.readerId)).where(isNull(editions.sentAt));
   const report: DeliverReport = { due: 0, sent: 0, failed: 0, waiting: 0 };
   for (const { edition, reader } of rows) {
-    if (localHour(now, reader.timezone) < reader.deliveryHour) {
+    if (!isDue(edition.runDate, reader.deliveryHour, reader.timezone, now)) {
       report.waiting += 1;
       continue;
     }

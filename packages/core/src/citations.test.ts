@@ -30,6 +30,17 @@ describe("verifySentence", () => {
   });
 });
 
+describe("verifySentence drops the bad citation beside a good one", () => {
+  it("keeps the sentence but not the invented excerpt", () => {
+    const s = verifySentence(
+      { text: "x", citations: [{ articleId: 1, excerpt: "held its benchmark rate steady" }, { articleId: 2, excerpt: "an invented quote that is not there" }] },
+      new Map(articles.map((a) => [a.id, a.text])),
+    );
+    expect(s.verified).toBe(true);
+    expect(s.citations).toEqual([{ articleId: 1, excerpt: "held its benchmark rate steady" }]);
+  });
+});
+
 describe("verifyExplanation", () => {
   it("drops unsupported sentences and marks usability by survivor count", () => {
     const good = { text: "a", citations: [{ articleId: 1, excerpt: "held its benchmark rate steady" }] };

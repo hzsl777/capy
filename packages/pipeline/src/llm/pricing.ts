@@ -5,9 +5,12 @@ export const PRICES: Record<string, { input: number; output: number; cacheRead: 
   "claude-haiku-4-5": { input: 1, output: 5, cacheRead: 0.1 },
 };
 
-export function costUsd(model: string, usage: { input: number; output: number; cacheRead: number }, batch = false): number {
+export type Usage = { input: number; output: number; cacheRead: number; cacheWrite: number };
+
+/** Cache writes bill at 1.25 times the input rate. input_tokens from the API excludes both cache figures. */
+export function costUsd(model: string, usage: Usage, batch = false): number {
   const p = PRICES[model];
   if (!p) throw new Error(`No price table entry for model ${model}; add it to pricing.ts`);
-  const raw = (usage.input * p.input + usage.output * p.output + usage.cacheRead * p.cacheRead) / 1_000_000;
+  const raw = (usage.input * p.input + usage.output * p.output + usage.cacheRead * p.cacheRead + usage.cacheWrite * p.input * 1.25) / 1_000_000;
   return batch ? raw / 2 : raw;
 }

@@ -25,7 +25,7 @@ Judge every day on the three phase-one conditions in SPEC.md section 1. When a p
 npm run stage -- day --date 2026-09-04
 ```
 
-Every stage is idempotent per date. Re-run it and it overwrites its own output for that date. Feedback is kept.
+Every stage is idempotent per date. Re-run it and it overwrites its own output for that date. Feedback is kept. Two guards: select never replaces an edition that was already sent, and cluster refuses to run for a date with a sent edition unless you pass `--force`, because re-clustering breaks the links in that email.
 
 ## Re-run one stage
 

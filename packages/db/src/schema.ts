@@ -52,6 +52,8 @@ export const eventExplanations = pgTable("event_explanations", {
   /** VerifiedExplanation from core, minus the unverified sentences. */
   sentences: jsonb("sentences").notNull(),
   usable: boolean("usable").notNull(),
+  /** The model request itself failed (batch error, refusal, schema mismatch). Distinct from usable=false after verification. */
+  failed: boolean("failed").notNull().default(false),
   survivors: integer("survivors").notNull(),
   dropped: integer("dropped").notNull(),
   promptVersion: text("prompt_version").notNull(),
@@ -144,6 +146,7 @@ export const llmCalls = pgTable("llm_calls", {
   inputTokens: integer("input_tokens").notNull(),
   outputTokens: integer("output_tokens").notNull(),
   cacheReadTokens: integer("cache_read_tokens").notNull().default(0),
+  cacheWriteTokens: integer("cache_write_tokens").notNull().default(0),
   costUsd: numeric("cost_usd", { precision: 10, scale: 6 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

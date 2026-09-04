@@ -39,3 +39,18 @@ The paragraph on why an event matters to this reader is written from the profile
 ## 21. Selection is validated and retried once (September 4, 2026)
 
 The model's selection is checked in code: every id must be a usable event, no duplicates, no overlap between selected and rejected, at most one outside-interests slot, at least three chosen when three exist, and the headline rules. Problems are sent back once with the errors spelled out. A second failure fails that reader's edition loudly rather than shipping a bad one.
+
+## 22. First adversarial review, eight findings fixed (September 4, 2026)
+
+An independent review of the whole tree found eight real defects before any live run. All are fixed and each has a test.
+
+1. A sentence citing one real passage and one invented passage kept both; the invented excerpt would have been quoted on the page. Now every citation is checked on its own and only the passing ones survive.
+2. Evening delivery hours in American time zones never sent, because delivery filtered by the UTC run date. Delivery now considers every unsent edition and sends once the reader's local date and hour have passed the run date's delivery hour.
+3. A dead model stage turned into a quiet day for every reader. Explain now stops the day when requests fail and nothing is usable, and select refuses to write quiet editions while failed explanations exist.
+4. Re-running select replaced an edition already in a reader's inbox and sent it again; re-running cluster broke its links. Select skips readers with a sent edition. Cluster refuses to run after a send unless forced, and says so.
+5. Spend under-counted: cache writes were never priced. They are now, at 1.25 times the input rate.
+6. An unset GitHub Actions variable arrives as an empty string and broke config defaults. Empty strings are treated as absent.
+7. The Worker accepted non-numeric ids and impossible dates, and recorded feedback for any event. Ids and dates are validated, and feedback is accepted only for an event in that reader's edition on that date.
+8. Feedback links were plain GETs, which mail link scanners would trigger. GET now shows a one-button form; POST records.
+
+Also from the review: the Worker was excluded from the CI typecheck. It is included now.

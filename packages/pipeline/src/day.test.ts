@@ -4,11 +4,12 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { toRunDate } from "@2dayai/core";
-import { articles, citations, editions, eventExplanations, events, llmCalls, loadEditionView, runs, type Db } from "@2dayai/db";
+import { articles, citations, editions, eventExplanations, events, feedback, llmCalls, loadEditionView, recordFeedback, runs, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
 import { FEED_XML, PROFILE_YAML } from "./fixtures/day.js";
 import { FakeLlm } from "./llm/fake.js";
-import { runDeliver } from "./stages/deliver.js";
+import { isDue, runDeliver } from "./stages/deliver.js";
+import { runExplain } from "./stages/explain.js";
 import { selectionProblems } from "./stages/select.js";
 import { createTestDb } from "./test/db.js";
 import { testConfig } from "./test/config.js";
@@ -93,7 +94,7 @@ describe("a full day on a real Postgres engine", () => {
     expect(out["ingest"]).toEqual([{ source: "fixture-wire", fetched: 3, inserted: 0 }]);
     expect(out["cluster"]).toEqual({ articles: 3, events: 2, skipped: 0, unknownIds: 1, unassigned: 0 });
     expect(out["explain"]).toEqual({ events: 2, usable: 2, unusable: 0, failed: 0, sentencesDropped: 1 });
-    expect(out["select"]).toEqual({ readers: 1, editions: 1, quiet: 0, failed: 0, retried: 1 });
+    expect(out["select"]).toEqual({ readers: 1, editions: 1, quiet: 0, failed: 0, retried: 1, skippedSent: 0 });
 
     const evs = await db.select().from(events).where(eq(events.runDate, date));
     expect(evs.map((e) => e.title)).not.toContain("Phantom event");
@@ -106,6 +107,7 @@ describe("a full day on a real Postgres engine", () => {
     expect(ex.dropped).toBe(1);
     const cites = await db.select().from(citations).where(eq(citations.eventId, basis.id));
     expect(cites.filter((c) => !c.verified).map((c) => c.excerpt)).toEqual(["take effect immediately for all partnerships"]);
+    expect(cites.filter((c) => c.verified)).toHaveLength(4);
 
     const ed = (await db.select().from(editions))[0]!;
     expect(ed.headline).toMatch(/^Basis-shifting rules arrive/);
@@ -140,17 +142,48 @@ describe("a full day on a real Postgres engine", () => {
     expect(sent).toEqual(["reader@example.test|Basis-shifting rules arrive; your related-party partnerships now have a form."]);
   });
 
-  it("re-running cluster for the date replaces events and cascades derived rows", async () => {
+  it("records feedback only for an event in that reader's edition on that date", async () => {
+    const view = (await loadEditionView(db, { editionId: (await db.select().from(editions))[0]!.id }))!;
+    const eventId = view.items[0]!.eventId;
+    expect(await recordFeedback(db, { readerToken: view.readerToken, runDate: view.runDate, eventId, kind: "more" })).toEqual({ title: view.items[0]!.title });
+    expect(await recordFeedback(db, { readerToken: "not-a-token", runDate: view.runDate, eventId, kind: "more" })).toBeNull();
+    expect(await recordFeedback(db, { readerToken: view.readerToken, runDate: "2026-01-01", eventId, kind: "more" })).toBeNull();
+    expect(await recordFeedback(db, { readerToken: view.readerToken, runDate: view.runDate, eventId: 999999, kind: "more" })).toBeNull();
+    expect(await db.select().from(feedback)).toHaveLength(1);
+  });
+
+  it("refuses to re-cluster a date with a sent edition unless forced, and never re-selects for a sent reader", async () => {
     const rows = await db.select({ id: articles.id, url: articles.url }).from(articles);
     const idOf = (part: string) => rows.find((r) => r.url.includes(part))!.id;
     const ids = { treasury: idOf("treasury-basis"), journal: idOf("journal-basis"), chip: idOf("chip-plant") };
+    const deps = { fetchFeed: async () => FEED_XML, fetchPage: async () => "", sourcesPath: join(dir, "sources.yaml"), readersDir: dir };
+    await expect(runDay(db, testConfig(), fakeLlm(ids), date, deps)).rejects.toThrow(/already sent/);
+
     const before = (await db.select().from(events)).map((e) => e.id);
-    const out = await runDay(db, testConfig(), fakeLlm(ids), date, { fetchFeed: async () => FEED_XML, fetchPage: async () => "", sourcesPath: join(dir, "sources.yaml"), readersDir: dir });
-    expect(out["select"]).toEqual({ readers: 1, editions: 1, quiet: 0, failed: 0, retried: 0 });
+    const out = await runDay(db, testConfig(), fakeLlm(ids), date, { ...deps, force: true });
+    expect(out["select"]).toEqual({ readers: 1, editions: 0, quiet: 0, failed: 0, retried: 0, skippedSent: 1 });
     const after = (await db.select().from(events)).map((e) => e.id);
     expect(after.some((id) => before.includes(id))).toBe(false);
     expect(await db.select().from(eventExplanations)).toHaveLength(2);
-    expect(await db.select().from(editions)).toHaveLength(1);
+    const eds = await db.select().from(editions);
+    expect(eds).toHaveLength(1);
+    expect(eds[0]!.sentAt).not.toBeNull();
+    expect(await db.select().from(feedback)).toHaveLength(1); // feedback survives the cascade
+  });
+
+  it("stops the day instead of writing quiet editions when the explain stage dies", async () => {
+    const dead = new FakeLlm({ explain: () => { throw new Error("api down"); } });
+    await expect(runExplain(db, testConfig(), dead, date)).rejects.toThrow(/model requests failed/);
+  });
+});
+
+describe("isDue", () => {
+  it("sends an evening New York edition after UTC midnight and not before its hour", () => {
+    expect(isDue("2026-09-04", 20, "America/New_York", new Date("2026-09-04T23:30:00Z"))).toBe(false); // 19:30 local
+    expect(isDue("2026-09-04", 20, "America/New_York", new Date("2026-09-05T00:30:00Z"))).toBe(true); // 20:30 local, still Sept 4
+    expect(isDue("2026-09-04", 20, "America/New_York", new Date("2026-09-06T00:30:00Z"))).toBe(true); // a day late still sends
+    expect(isDue("2026-09-04", 6, "Asia/Tokyo", new Date("2026-09-03T22:00:00Z"))).toBe(true); // 07:00 Sept 4 in Tokyo
+    expect(isDue("2026-09-04", 6, "Asia/Tokyo", new Date("2026-09-03T20:00:00Z"))).toBe(false); // 05:00 Sept 4 in Tokyo
   });
 });
 

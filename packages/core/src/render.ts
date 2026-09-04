@@ -116,14 +116,22 @@ export function renderEditionPage(v: EditionView, links: Links): string {
   return renderEmailHtml(v, links);
 }
 
+const FEEDBACK_TEXT: Record<string, { ask: string; done: string }> = {
+  more: { ask: "More like this?", done: "Noted. More like this." },
+  less: { ask: "Less of this?", done: "Noted. Less of this." },
+  wrong: { ask: "Something here is wrong?", done: "Noted. This one gets a human look." },
+  promote: { ask: "This should have been in?", done: "Noted. This should have been in." },
+};
+
+/** GET shows a one-button form so link scanners in mail clients do not record feedback. POST records it. */
+export function renderFeedbackConfirm(kind: string, title: string, actionUrl: string): string {
+  const t = FEEDBACK_TEXT[kind] ?? { ask: "Confirm?", done: "Noted." };
+  return page(t.ask, `<h1>${escapeHtml(t.ask)}</h1><p class="muted">${escapeHtml(title)}</p><form method="post" action="${escapeHtml(actionUrl)}"><button type="submit" style="font:inherit;padding:8px 16px">Yes</button></form>`);
+}
+
 export function renderFeedbackPage(kind: string, title: string): string {
-  const text: Record<string, string> = {
-    more: "Noted. More like this.",
-    less: "Noted. Less of this.",
-    wrong: "Noted. This one gets a human look.",
-    promote: "Noted. This should have been in.",
-  };
-  return page("Thanks", `<h1>${escapeHtml(text[kind] ?? "Noted.")}</h1><p class="muted">${escapeHtml(title)}</p>`);
+  const t = FEEDBACK_TEXT[kind] ?? { ask: "", done: "Noted." };
+  return page("Thanks", `<h1>${escapeHtml(t.done)}</h1><p class="muted">${escapeHtml(title)}</p>`);
 }
 
 export function renderNotFound(): string {

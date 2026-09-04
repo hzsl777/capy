@@ -59,6 +59,7 @@ CREATE TABLE "event_explanations" (
 	"event_id" integer PRIMARY KEY NOT NULL,
 	"sentences" jsonb NOT NULL,
 	"usable" boolean NOT NULL,
+	"failed" boolean DEFAULT false NOT NULL,
 	"survivors" integer NOT NULL,
 	"dropped" integer NOT NULL,
 	"prompt_version" text NOT NULL
@@ -93,6 +94,7 @@ CREATE TABLE "llm_calls" (
 	"input_tokens" integer NOT NULL,
 	"output_tokens" integer NOT NULL,
 	"cache_read_tokens" integer DEFAULT 0 NOT NULL,
+	"cache_write_tokens" integer DEFAULT 0 NOT NULL,
 	"cost_usd" numeric(10, 6) NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );

@@ -1,9 +1,9 @@
 // Stage 6.2. One model call groups the day's articles into events. Idempotent per date: existing events for the date
 // are deleted first, and the cascade removes everything derived from them.
-import { and, eq, gte, lt } from "drizzle-orm";
+import { and, eq, gte, isNotNull, lt } from "drizzle-orm";
 import { ClusterResultSchema, ingestWindow, type RunDate } from "@2dayai/core";
 import { loadPrompt } from "../prompts.js";
-import { articles, eventArticles, events, sources, type Db } from "@2dayai/db";
+import { articles, editions, eventArticles, events, sources, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
 import type { Llm } from "../llm/types.js";
 
@@ -20,7 +20,10 @@ export function clusterUserContent(rows: { id: number; source: string; tier: str
   return `Articles for today, ${rows.length} in total. Each starts with its id in brackets.\n\n${lines.join("\n\n")}`;
 }
 
-export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate): Promise<ClusterReport> {
+export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate, opts: { force?: boolean } = {}): Promise<ClusterReport> {
+  // Re-clustering deletes the date's events, and with them the items of any edition already in a reader's inbox.
+  const sent = await db.select({ id: editions.id }).from(editions).where(and(eq(editions.runDate, date), isNotNull(editions.sentAt)));
+  if (sent.length > 0 && !opts.force) throw new Error(`cluster: ${sent.length} edition(s) for ${date} were already sent; pass --force to re-cluster anyway and break their links`);
   const { from, to } = ingestWindow(date);
   const rows = await db
     .select({ id: articles.id, source: sources.name, tier: sources.tier, title: articles.title, lead: articles.lead, body: articles.body })

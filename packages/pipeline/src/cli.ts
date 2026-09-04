@@ -1,9 +1,9 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
 import { renderEditionText, todayRunDate, toRunDate, type VerifiedSentence } from "@2dayai/core";
-import { editions, loadEditionView, readers } from "@2dayai/db";
+import { editions, feedback, loadEditionView, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
 import { runDay } from "./day.js";
 import { createLlm } from "./llm/client.js";
@@ -18,6 +18,10 @@ import { runEnrich } from "./stages/enrich.js";
 import { runExplain } from "./stages/explain.js";
 import { checkSources, runIngest, type IngestReport } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
+import { FEED_XML } from "./fixtures/day.js";
+import { writeFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -27,6 +31,8 @@ const { values, positionals } = parseArgs({
     readers: { type: "string", default: "config/readers" },
     reader: { type: "string" },
     "dry-run": { type: "boolean", default: false },
+    fixture: { type: "boolean", default: false },
+    force: { type: "boolean", default: false },
   },
 });
 
@@ -52,13 +58,14 @@ const HELP = `Commands:
   ingest                 feeds into the database
   enrich                 fetch article pages for the day's articles
   readers sync           config/readers/*.yaml into the database
-  cluster                group the day's articles into events (model)
+  cluster [--force]      group the day's articles into events (model); refuses after editions were sent unless forced
   explain                explain each event with verified citations (model, batched)
   select                 one edition per reader with the headline (model, batched)
   show [--reader r01]    print a reader's edition for the date
   deliver [--dry-run]    send unsent editions whose delivery hour has arrived
-  day                    ingest, enrich, readers sync, cluster, explain, select
+  day [--fixture]        ingest, enrich, readers sync, cluster, explain, select (fixture: bundled feed, real model)
   spend                  model spend for the date
+  feedback [--reader r01] reader feedback from the last 14 days, newest first
 Options: --date YYYY-MM-DD  --sources path  --readers dir`;
 
 switch (command) {
@@ -83,7 +90,7 @@ switch (command) {
   }
   case "cluster": {
     const d = db();
-    console.log(await recorded(d, date, "cluster", () => runCluster(d, config, createLlm(config, d), date)));
+    console.log(await recorded(d, date, "cluster", () => runCluster(d, config, createLlm(config, d), date, { force: values.force })));
     break;
   }
   case "explain": {
@@ -136,8 +143,25 @@ switch (command) {
   }
   case "day": {
     const d = db();
-    const out = await runDay(d, config, createLlm(config, d), date);
+    // --fixture: the bundled three-article day instead of live feeds, so the real model can be exercised offline.
+    let deps = {};
+    if (values.fixture) {
+      const dir = mkdtempSync(join(tmpdir(), "2dayai-fixture-"));
+      writeFileSync(join(dir, "sources.yaml"), "sources:\n  - { id: fixture-wire, name: Fixture wire, url: https://fixture.test/feed.xml, topic: tax, tier: primary }\n");
+      deps = { fetchFeed: async () => FEED_XML, fetchPage: async () => "", sourcesPath: join(dir, "sources.yaml"), readersDir: values.readers, force: values.force };
+      console.log("Running against the fixture feed (three articles, two events). Fixture dates are September 3, 2026, so pass --date 2026-09-04.");
+    }
+    const out = await runDay(d, config, createLlm(config, d), date, { ...deps, force: values.force });
     console.log(JSON.stringify(out, null, 2));
+    break;
+  }
+  case "feedback": {
+    const d = db();
+    const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const where = values.reader ? and(gte(feedback.createdAt, since), eq(feedback.readerId, values.reader)) : gte(feedback.createdAt, since);
+    const rows = await d.select().from(feedback).where(where).orderBy(desc(feedback.createdAt));
+    if (rows.length === 0) console.log("No feedback in the last 14 days.");
+    for (const r of rows) console.log(`${r.createdAt.toISOString().slice(0, 16)}  ${r.readerId}  ${r.kind.padEnd(7)}  ${r.eventTitle}`);
     break;
   }
   case "spend": {

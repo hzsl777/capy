@@ -66,10 +66,19 @@ export type Explanation = z.infer<typeof ExplanationSchema>;
 
 /* Reader profile (stage 6.4), hand-written YAML in version 0. */
 
+function isTimezone(tz: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const ReaderProfileSchema = z.object({
   id: z.string().regex(/^r\d{2}$/),
   email: z.string().email(),
-  timezone: z.string().min(1),
+  timezone: z.string().min(1).refine(isTimezone, "not an IANA timezone, for example America/New_York"),
   deliveryHour: z.number().int().min(0).max(23),
   topics: z.array(z.object({ name: z.string().min(1), weight: z.number().int().min(1).max(5) })).min(1),
   muted: z.array(z.string()).default([]),

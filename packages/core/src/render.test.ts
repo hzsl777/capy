@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { EditionView } from "./edition.js";
-import { renderEditionText, renderEmailHtml, renderEventPage } from "./render.js";
+import { renderEditionText, renderEmailHtml, renderEventPage, renderFeedbackConfirm } from "./render.js";
 
 const view: EditionView = {
   editionId: 1,
@@ -43,6 +43,10 @@ describe("render", () => {
     expect(h).toContain("Sports &lt;b&gt;thing&lt;/b&gt;");
     expect(h).toContain("https://w.test/f/tok/2026-09-04/7/wrong");
     expect(h).not.toContain("\u2014");
+  });
+  it("feedback confirm page posts back to the same path", () => {
+    const h = renderFeedbackConfirm("wrong", "Fed holds", "/f/tok/2026-09-04/7/wrong");
+    expect(h).toContain('<form method="post" action="/f/tok/2026-09-04/7/wrong">');
   });
   it("event page numbers citations and quotes excerpts under sources", () => {
     const h = renderEventPage(view, view.items[0]!, links);

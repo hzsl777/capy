@@ -33,7 +33,8 @@ export type Config = {
 };
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const e = EnvSchema.parse(env);
+  // An unset GitHub Actions variable arrives as "", which a default would not cover.
+  const e = EnvSchema.parse(Object.fromEntries(Object.entries(env).filter(([, v]) => v !== "")));
   return {
     databaseUrl: e.DATABASE_URL,
     anthropicApiKey: e.ANTHROPIC_API_KEY,
