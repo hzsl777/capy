@@ -1,0 +1,14 @@
+{
+  "name": "@2dayai/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@2dayai/core": "*",
+    "@2dayai/db": "*",
+    "@anthropic-ai/sdk": "^0.123.0",
+    "rss-parser": "^3.13.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.0.0"
+  }
+}

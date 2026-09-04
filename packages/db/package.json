@@ -1,0 +1,14 @@
+{
+  "name": "@2dayai/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@2dayai/core": "*",
+    "drizzle-orm": "^0.45.0",
+    "postgres": "^3.4.0"
+  }
+}

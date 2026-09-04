@@ -1,0 +1,18 @@
+# Template for a reader profile (spec 6.4). Real profiles are r01.yaml onward and are gitignored.
+# Davis writes r01 with Claude at milestone 2; it becomes the template for every profile after it.
+id: r00
+timezone: America/New_York
+deliveryHour: 6
+topics:
+  - { name: international tax, weight: 5 }
+  - { name: fixed assets and depreciation, weight: 4 }
+  - { name: ASC 606 revenue recognition, weight: 4 }
+  - { name: semiconductors and AI infrastructure, weight: 3 }
+  - { name: family offices and private capital, weight: 3 }
+muted:
+  - celebrity
+  - sports
+stake:
+  - Works in multi-entity accounting and tax at a manufacturer.
+  - Relocating to New York City in 2026.
+  - Sitting for the CPA exam.
