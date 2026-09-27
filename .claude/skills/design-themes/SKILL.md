@@ -5,6 +5,8 @@ description: Change the look of Capy's three designs (Morning Edition, Cabinet M
 
 # Designs
 
+Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
+
 Each design has two halves that must stay in step:
 
 1. **Canvas** (`src/themes.ts`): a `Theme` object with ocean/land colours, land texture (`halftone`, `matrix`, `none`), number of engraved water lines, graticule, rivers, relief ink, dot colours, and the flat projection. The globe always uses the orthographic projection.
@@ -19,7 +21,7 @@ Masthead text per design is in `THEMES[id].masthead` and `renderMasthead()` in `
 3. Check the look in both views and at phone width with the `run-app` skill's screenshot flow.
 
 ## Rules that don't change between designs
-- No text on the map canvas, no borders (see AGENTS.md "Neutrality rules").
+- No text on the map canvas, no borders (see packages/map/AGENTS.md "Neutrality rules").
 - "Fresh" must stay distinguishable from ordinary dots: by colour, or, for monochrome designs, by an outer ring (set `fresh` equal to `dot` and `drawDots` adds the ring).
 - Keep text contrast readable: body text at least 4.5:1 against `--panel`.
 - Respect `prefers-reduced-motion` for anything animated.

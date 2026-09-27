@@ -5,7 +5,9 @@ description: Review a change to Capy's UI, copy, basemap or story-selection logi
 
 # Neutrality review
 
-Capy is public and shows news from contested places. Go through each check against the diff (`git diff` against the base branch) and the running app. Report each as pass, fail, or not applicable, with the file and line for any failure. Fix failures before finishing.
+Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
+
+Capy is public and shows news from contested places. Go through each check against the diff (`git diff` against the base branch, limited to `packages/map/`) and the running app. Report each as pass, fail, or not applicable, with the file and line for any failure. Fix failures before finishing.
 
 ## Map
 - [ ] No political boundary data added: search for `admin_`, `boundary`, `countries`, `disputed` in `scripts/` and `public/basemap/`.

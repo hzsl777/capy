@@ -5,6 +5,8 @@ description: Add a hand-picked local news outlet (RSS or Atom feed) to Capy's pi
 
 # Add a news source
 
+Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
+
 GDELT already covers many outlets in about 65 languages. Hand-picked sources fill gaps, usually places where GDELT's coverage is thin. Each source is pinned to its home city, so all its stories appear there.
 
 ## Steps
@@ -26,7 +28,7 @@ GDELT already covers many outlets in about 65 languages. Hand-picked sources fil
    }
    ```
    `lang` is a two-letter code. `place.name` is the city only, never a country. Coordinates to two decimals are enough.
-5. **Test.** `npm test`, then if the network allows, `npm run ingest -- --no-enrich --out /tmp/out.json` and check that the log line `[rss] N items from M sources` counts the new source.
+5. **Test.** `npm run check`, then if the network allows, `npm run map:ingest -- --no-enrich --out /tmp/out.json` and check that the log line `[rss] N items from M sources` counts the new source.
 6. Run the `neutrality-review` skill's pipeline section.
 
 ## Don't

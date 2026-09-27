@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+<title>Sample press releases</title>
+<link>https://example.gov/news</link>
+<item>
+  <title>Agency issues guidance on &lt;b&gt;deferred revenue&lt;/b&gt; timing</title>
+  <link>https://example.gov/news/2026-09-03-deferred-revenue</link>
+  <pubDate>Wed, 03 Sep 2026 14:05:00 GMT</pubDate>
+  <description>The agency released guidance clarifying the timing of deferred revenue recognition for multi-year contracts.</description>
+  <content:encoded><![CDATA[<p>The agency released guidance clarifying the timing of deferred revenue recognition for multi-year contracts. The notice applies to tax years beginning after December 31, 2026.</p>]]></content:encoded>
+</item>
+<item>
+  <title>Old item outside the window</title>
+  <link>https://example.gov/news/2026-08-01-old</link>
+  <pubDate>Sat, 01 Aug 2026 10:00:00 GMT</pubDate>
+  <description>Should be excluded.</description>
+</item>
+<item>
+  <title>Item with no link</title>
+  <pubDate>Wed, 03 Sep 2026 15:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Future item after the window closes</title>
+  <link>https://example.gov/news/2026-09-04-late</link>
+  <pubDate>Fri, 04 Sep 2026 12:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>

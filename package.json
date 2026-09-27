@@ -1,0 +1,40 @@
+{
+  "name": "2dayai",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "News, compressed and sourced: 2DayAI (one headline a day) and a public news map, over one repository.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "npm run lint && npm run typecheck && npm test",
+    "lint": "node tools/check-boundaries.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/web/tsconfig.json --noEmit && tsc -p packages/map/tsconfig.json --noEmit",
+    "test": "vitest run",
+    "stage": "tsx packages/pipeline/src/cli.ts",
+    "db:generate": "drizzle-kit generate --config packages/db/drizzle.config.ts",
+    "db:migrate": "tsx packages/db/src/migrate.ts",
+    "web:dev": "wrangler dev --config packages/web/wrangler.toml",
+    "map:dev": "npm run dev -w @capy/map --",
+    "map:build": "npm run build -w @capy/map --",
+    "map:preview": "npm run preview -w @capy/map --",
+    "map:ingest": "npm run ingest -w @capy/map --",
+    "map:sample": "npm run sample -w @capy/map --",
+    "map:basemap": "npm run basemap -w @capy/map --",
+    "map:screenshots": "npm run screenshots -w @capy/map --"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260903.1",
+    "@types/node": "^22.0.0",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.7",
+    "wrangler": "^4.0.0"
+  }
+}

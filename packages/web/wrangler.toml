@@ -1,0 +1,5 @@
+name = "2dayai"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+# Secrets (set with `wrangler secret put`): DATABASE_URL

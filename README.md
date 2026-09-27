@@ -1,60 +1,65 @@
-# Capy
+# capy
 
-World news by place. Turn a flat map or a globe, and whatever sits under the crosshair is what you're tuned to: a list of what outlets there are reporting, newest first. Tap a headline to read the outlet's preview in the app, open the full page inside the app when the outlet allows it, or read it on the outlet's site.
+News, compressed and sourced. Two products in one repository.
 
-It works like Radio Garden, but for news. It costs nothing to run: free data, a static site, and one scheduled GitHub Action.
+- **2DayAI**: one headline per reader per day, from a hand-written interest profile, with the stories, explanations, and sources one click down. Delivered by email. Built and tested; not yet run live. Code in `packages/core`, `db`, `pipeline`, `web`.
+- **The map**: a public news map in the spirit of Radio Garden. Turn a flat map or a globe; the place under the crosshair lists what is being reported there, newest first, with an in-app reader. No borders, no country names, no labels on the map. Built and runnable with placeholder data; not yet deployed. Code in `packages/map`.
+
+Decision 23 in docs/DECISIONS.md plans for both products to share one pipeline and one database. Today the map runs on its own free pipeline (GDELT, static JSON). How the two meet is open; see decision 24.
+
+## 2DayAI
+
+See docs/SPEC.md for the design, docs/DECISIONS.md for what changed after the spec, docs/RUNBOOK.md to operate it.
+
+### How it does not lie
+
+Every explanation sentence carries a citation: an article id and a passage. Code checks that the passage appears verbatim in that article. A sentence that fails is removed before anything downstream sees it. An event with fewer than three surviving sentences is unusable and cannot be selected for anyone. The headline is generated from the selected events' verified sentences, never from raw articles. The one paragraph written from a reader's profile rather than the sources is labeled as such on the page.
+
+## The map
 
 | Morning Edition | Cabinet Map | Wire Room |
 |---|---|---|
-| ![Morning Edition](docs/screenshots/desktop-morning-2d.jpg) | ![Cabinet Map](docs/screenshots/desktop-cabinet-3d.jpg) | ![Wire Room](docs/screenshots/desktop-wire-3d.jpg) |
+| ![Morning Edition](docs/map/screenshots/desktop-morning-2d.jpg) | ![Cabinet Map](docs/map/screenshots/desktop-cabinet-3d.jpg) | ![Wire Room](docs/map/screenshots/desktop-wire-3d.jpg) |
 
-Screenshots use placeholder sample data.
+Three designs, each in flat or globe view, over a physical-only basemap (Natural Earth coastlines, rivers, lakes, relief, ice). Screenshots use placeholder sample data. The neutrality rules and the map's layout are in packages/map/AGENTS.md.
 
-## Features
-
-- Three designs, each in flat or globe view: newsprint, an engraved cabinet map, and a dark wire room with a ticker.
-- A physical map only: coastlines, rivers, lakes, mountains, deserts and ice. No borders, no country names, no labels on the map.
-- An in-app reader with the outlet's headline, image and preview. It shows the full page inside the app when the outlet permits framing.
-- "Also reported in N other places": the same story in other cities and languages, drawn as arcs on the map.
-- A 24-hour replay slider, topic filters, shuffle, pinned places, and keyboard controls (arrows, +/-, S, Esc).
-- Headline translation through the browser's built-in, on-device translator. Nothing is sent anywhere.
-
-## How it's built
-
-```
-GDELT GKG (every 15 min, 65+ languages) + optional RSS
-  -> one place per article (first city mentioned; country-only articles dropped)
-  -> balanced selection (outlets take turns; per-outlet caps)
-  -> story grouping across places
-  -> outlet preview metadata (robots.txt respected, no article text stored)
-  -> public/data/latest.json -> static site on GitHub Pages
-```
-
-- Data: [GDELT Project](https://www.gdeltproject.org/) (free, no key) and hand-picked feeds in `pipeline/sources.json`.
-- Map: [Natural Earth](https://www.naturalearthdata.com/) physical layers, public domain, prebuilt into `public/basemap/`.
-- App: TypeScript, Vite, d3-geo on canvas. No framework, no backend.
+Its current pipeline, `packages/map/pipeline`, reads the free GDELT index every hour, places each article at the first city it mentions, balances outlets, groups the same story across places, and writes one static JSON file. No model calls and no database.
 
 ## Run it
 
+Requires Node 22. Copy `.env.example` to `.env` for 2DayAI.
+
 ```
 npm install
-npm run dev          # uses public/data/sample.json (placeholder data, with a banner)
-npm test
-npm run ingest       # live data into public/data/latest.json (needs access to data.gdeltproject.org)
+npm run check                          # boundaries, typecheck, tests for every package. No network, no key.
+
+# 2DayAI
+npm run stage -- sources check         # fetch every feed in config/sources.yaml and report
+npm run db:migrate                     # apply migrations to DATABASE_URL
+npm run stage -- day --date 2026-09-04 # ingest, enrich, readers sync, cluster, explain, select
+npm run stage -- show --reader r01     # print that reader's edition for the date
+npm run stage -- deliver --dry-run     # what would be sent right now
+npm run stage -- spend                 # model spend for the date
+
+# The map
+npm run map:dev                        # http://localhost:5173 with placeholder data and a banner
+npm run map:build
+npm run map:ingest                     # live GDELT data (needs data.gdeltproject.org)
 ```
 
-## Deploy
+`LLM_BATCH=false` in `.env` makes a local 2DayAI run immediate instead of waiting on the Batches API.
 
-1. Make the repository public. GitHub Pages and Actions minutes are free for public repositories. A private repo needs a paid plan for Pages, and an hourly job would use more than the free Actions minutes.
-2. In Settings, go to Pages and set Source to "GitHub Actions".
-3. Push to `main`. `.github/workflows/deploy.yml` runs every hour at :17, pulls the latest GDELT files, rebuilds and deploys. If an ingest fails, nothing is deployed and the previous site stays up.
+## Layout
 
-GitHub pauses scheduled workflows in public repos after 60 days without commits. Re-enable the workflow from the Actions tab if that happens.
+- `packages/core`: pure code. Types, Zod schemas, validators, renderers, versioned prompts. Imports nothing else in the workspace.
+- `packages/db`: Drizzle schema, migrations, shared read models. Imports core. `@2dayai/db/node` holds the postgres-js client.
+- `packages/pipeline`: stages, the CLI, the model module in `src/llm/` (the only place the SDK is imported). Imports core and db.
+- `packages/web`: Cloudflare Worker for reader pages and feedback. Imports core and db.
+- `packages/map`: the map app, its GDELT pipeline and basemap build. Imports nothing else in the workspace yet.
+- `config/sources.yaml`: the 2DayAI feed list. `config/readers/`: reader profiles, gitignored except the example.
 
-## Neutrality
+`npm run lint` fails on any import that crosses those lines.
 
-The app is meant to be something anyone can look at without being told what to think. The rules (no borders, no ranking, no rewriting, balanced outlets, no copied articles) are in [AGENTS.md](AGENTS.md#neutrality-rules-hard-rules), and the "How this works" dialog explains them to visitors.
+## Hosting
 
-## Credits
-
-News index: GDELT Project. Map data: Natural Earth. Headlines, images and previews belong to their publishers.
+The repository is private. On a free plan, GitHub Pages does not serve private repositories and Actions has 2,000 minutes a month, so the map's deploy workflow (`.github/workflows/map-deploy.yml`) runs only when started by hand. Making the repository public, or hosting the map elsewhere, is open.

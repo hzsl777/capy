@@ -1,14 +1,18 @@
-# Pulls fresh reports from GDELT every hour and redeploys the site to GitHub Pages.
-# Pipeline state (last file read, 24h pool, preview cache) is carried between runs
-# with actions/cache. If ingest fails, nothing is deployed and the last good site stays up.
-name: Update map
+# Builds the map with fresh GDELT data and deploys it to GitHub Pages.
+#
+# Manual only for now: capy is private, and on a free plan GitHub Pages doesn't
+# serve private repositories and Actions has 2,000 minutes a month, most of which
+# 2DayAI's daily and delivery jobs need. Once the map has a public home, add:
+#
+#   schedule:
+#     - cron: "17 * * * *"   # hourly; GDELT publishes every 15 minutes
+#
+# Pipeline state (last file read, 24h pool, preview cache) is carried between
+# runs with actions/cache. If ingest fails, nothing is deployed.
+name: Map deploy
 
 on:
-  schedule:
-    - cron: "17 * * * *"
   workflow_dispatch:
-  push:
-    branches: [main]
 
 permissions:
   contents: read
@@ -30,35 +34,32 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-      - run: npm test
 
       - uses: actions/cache/restore@v4
         with:
-          path: .cache/ingest
-          key: ingest-${{ github.run_id }}
-          restore-keys: ingest-
+          path: packages/map/.cache/ingest
+          key: map-ingest-${{ github.run_id }}
+          restore-keys: map-ingest-
 
-      - run: npm run ingest
+      - run: npm run map:ingest
 
       - uses: actions/cache/save@v4
         if: always()
         with:
-          path: .cache/ingest
-          key: ingest-${{ github.run_id }}
+          path: packages/map/.cache/ingest
+          key: map-ingest-${{ github.run_id }}
 
       - name: Keep placeholder data out of the public site
-        run: rm -f public/data/sample.json
+        run: rm -f packages/map/public/data/sample.json
 
-      - run: npm run build
+      - run: npm run map:build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: packages/map/dist
 
   deploy:
     needs: build

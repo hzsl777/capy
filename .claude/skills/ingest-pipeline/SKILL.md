@@ -5,6 +5,8 @@ description: Run, debug or change Capy's news ingest pipeline (GDELT GKG downloa
 
 # Ingest pipeline
 
+Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
+
 `pipeline/ingest.ts` runs hourly in `.github/workflows/deploy.yml`:
 
 ```
@@ -26,7 +28,7 @@ State lives in `$CAPY_STATE_DIR` (default `.cache/ingest`): `state.json` (last G
 Cloud sessions often can't reach `data.gdeltproject.org`. Use the fixture:
 
 ```
-CAPY_STATE_DIR=/tmp/capy-state npm run ingest -- --fixture test/fixtures/gkg-sample.csv --out /tmp/out.json
+CAPY_STATE_DIR=/tmp/capy-state npm run map:ingest -- --fixture test/fixtures/gkg-sample.csv --out /tmp/out.json
 ```
 
 To build a new fixture row, use `gkgRow()` in `test/helpers.ts`. The GKG 2.1 column indexes are in `COL` in `pipeline/gkg.ts`. Location blocks are `type#name#country#adm1#adm2#lat#lon#featureId#offset`, where type 3/4 is a city and 2/5 a province.

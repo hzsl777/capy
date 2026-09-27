@@ -1,7 +1,14 @@
 node_modules/
 dist/
-.cache/
-public/data/latest.json
-docs/screenshots/*.tmp.*
+.env
+.env.*
+!.env.example
+.wrangler/
 *.log
 .DS_Store
+config/readers/*.yaml
+!config/readers/r00.example.yaml
+
+# Map
+.cache/
+packages/map/public/data/latest.json
