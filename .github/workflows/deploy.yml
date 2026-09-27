@@ -1,0 +1,71 @@
+# Pulls fresh reports from GDELT every hour and redeploys the site to GitHub Pages.
+# Pipeline state (last file read, 24h pool, preview cache) is carried between runs
+# with actions/cache. If ingest fails, nothing is deployed and the last good site stays up.
+name: Update map
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      - run: npm test
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: .cache/ingest
+          key: ingest-${{ github.run_id }}
+          restore-keys: ingest-
+
+      - run: npm run ingest
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .cache/ingest
+          key: ingest-${{ github.run_id }}
+
+      - name: Keep placeholder data out of the public site
+        run: rm -f public/data/sample.json
+
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
