@@ -2,6 +2,8 @@ name: CI
 on:
   push:
   pull_request:
+permissions:
+  contents: read
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -16,7 +18,16 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run map:build
+      # The gitleaks CLI scans the whole history. The gitleaks action scanned only
+      # the pushed range, which breaks on history with more than one root commit
+      # (capy merges 2DayAI's), and needed a token that can read pull requests.
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.24.3
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          file="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfLO "$base/$file"
+          curl -sSfL "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" | grep " $file\$" | sha256sum -c -
+          tar -xzf "$file" gitleaks
+          ./gitleaks git --redact --verbose --exit-code 1 .
