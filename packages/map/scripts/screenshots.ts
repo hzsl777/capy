@@ -5,9 +5,9 @@
  */
 import { mkdir } from "node:fs/promises";
 import { preview } from "vite";
-import { chromium } from "playwright";
+import { chromium } from "playwright-core";
 
-const OUT = process.env.SHOT_DIR ?? "docs/screenshots";
+const OUT = process.env.SHOT_DIR ?? "../../docs/map/screenshots";
 const themes = ["morning", "cabinet", "wire"] as const;
 const views = ["2d", "3d"] as const;
 
