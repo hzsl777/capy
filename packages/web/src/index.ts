@@ -35,21 +35,33 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
 
   app.get("/health", (c) => c.json({ ok: true, service: "2dayai-web" }));
 
-  // The public map's data (decision 25). Cached briefly at the edge: the pipeline writes once a day.
+  // The public map's data (decision 25). Cached for five minutes at the edge with the Cache API, so a busy
+  // day costs the database one read per location per five minutes, not one per visitor.
   const MAP_CACHE = "public, max-age=300, s-maxage=300";
+  const edgeCache = (): Cache | null => (typeof caches !== "undefined" ? (caches as unknown as { default: Cache }).default : null);
+  async function cachedJson(req: Request, build: () => Promise<Response>): Promise<Response> {
+    const cache = edgeCache();
+    const hit = cache ? await cache.match(req) : undefined;
+    if (hit) return hit;
+    const res = await build();
+    if (cache && res.status === 200) await cache.put(req, res.clone());
+    return res;
+  }
 
-  app.get("/data/latest.json", async (c) => {
-    const db = dbOf(c.env);
-    const date = await latestMapDate(db);
-    if (!date) return c.json({ error: "no map data yet" }, 404);
-    return c.json(await loadMapView(db, date), 200, { "Cache-Control": MAP_CACHE });
-  });
+  app.get("/data/latest.json", (c) =>
+    cachedJson(c.req.raw, async () => {
+      const db = dbOf(c.env);
+      const date = await latestMapDate(db);
+      if (!date) return c.json({ error: "no map data yet" }, 404);
+      return c.json(await loadMapView(db, date), 200, { "Cache-Control": MAP_CACHE });
+    }),
+  );
 
   app.get("/data/:file", async (c) => {
     const m = /^(\d{4}-\d{2}-\d{2})\.json$/.exec(c.req.param("file"));
     const date = m ? validDate(m[1]!) : null;
     if (!date) return c.json({ error: "not found" }, 404);
-    return c.json(await loadMapView(dbOf(c.env), date), 200, { "Cache-Control": MAP_CACHE });
+    return cachedJson(c.req.raw, async () => c.json(await loadMapView(dbOf(c.env), date), 200, { "Cache-Control": MAP_CACHE }));
   });
 
   app.get("/r/:token/:date", async (c) => {
