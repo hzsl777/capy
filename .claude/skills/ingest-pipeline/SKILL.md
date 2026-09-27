@@ -5,6 +5,8 @@ description: Run, debug or change Capy's news ingest pipeline (GDELT GKG downloa
 
 # Ingest pipeline
 
+This is the map prototype's stand-in pipeline. Decision 24 retires it when the map moves onto the shared 2DayAI pipeline; fix it, but don't grow it.
+
 Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
 
 `pipeline/ingest.ts` runs hourly in `.github/workflows/deploy.yml`:

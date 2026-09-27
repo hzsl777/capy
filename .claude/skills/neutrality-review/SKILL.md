@@ -20,14 +20,14 @@ Capy is public and shows news from contested places. Go through each check again
 - [ ] Place names use `Place.name` only, with no country appended.
 - [ ] Lists are newest first. No new sort key.
 - [ ] Headlines are shown as published. Any translation is labelled "Translated from X" and is opt-in.
-- [ ] No generated text about a story, place or outlet (summaries, labels like "breaking" or "developing", sentiment).
+- [ ] The only generated text is decision 23's telegram line, built from verified sentences and labeled as generated. No other summaries, no labels like "breaking" or "developing", no sentiment.
 - [ ] New UI copy is descriptive and plain: no adjectives about events, places or groups, no em dashes.
 - [ ] Topic names stay neutral nouns ("Conflict & security", not loaded terms).
 
 ## Pipeline
 - [ ] Balance caps in `pipeline/balance.ts` are not loosened without the owner's say-so.
 - [ ] No new ranking signal (tone, shares, source "authority") feeds selection or order.
-- [ ] Country-only articles are still dropped (`choosePlace` in `pipeline/place.ts`).
+- [ ] While the prototype's GDELT placement exists, country-only articles are still dropped (`choosePlace` in `pipeline/place.ts`). Decision 24 replaces it with publisher pins.
 - [ ] `enrich.ts` still stores only preview metadata, honours robots.txt, and never stores article body text.
 - [ ] New outlets in `sources.json` went through `add-news-source`, and the list isn't tilting toward one region or language.
 

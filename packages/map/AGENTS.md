@@ -1,17 +1,19 @@
 # The map: agent guide
 
-The map is one of two products in capy (the other is 2DayAI; see the root AGENTS.md). It is a public web app that shows world news on a map by place, in the spirit of Radio Garden. You turn a flat map or a globe, the place under the crosshair is "tuned", and the side panel lists what outlets there are reporting. Tapping a headline opens an in-app reader.
+The map is one of two products in capy (the other is 2DayAI; see the root AGENTS.md and CONTEXT.md). It is a public web app that shows world news on a map by place, in the spirit of Radio Garden. You turn a flat map or a globe, the place under the crosshair is "tuned", and the side panel lists what outlets there are reporting. Tapping a headline opens an in-app reader.
 
-Everything must stay free to run: free data (GDELT, Natural Earth, optional RSS), a static site, and a scheduled GitHub Actions job. There is no server and no database. Don't add a paid API, a hosted backend, or anything that needs a secret unless the owner asks for it. How the map meets the 2DayAI pipeline and database (decision 23) is open; see decision 24 in docs/DECISIONS.md before changing that.
+**Status: design prototype.** Decision 23 is the plan of record: publisher pins, a telegram line per region, one shared pipeline and database, and map work after 2DayAI's milestone 4. This package was built ahead of that on stand-in GDELT data. Decision 24 in docs/DECISIONS.md lists what changes before it ships. Don't extend the GDELT pipeline; new data work goes through the shared pipeline when the map work starts.
+
+The prototype costs nothing to run: free data (GDELT, Natural Earth, optional RSS) and a static site, with no server, no database and no secrets. Keep it that way while it is a prototype. When the map moves onto the shared pipeline it takes on 2DayAI's database and model budget (docs/SPEC.md), as decision 23 plans.
 
 ## Neutrality rules (hard rules)
 
 The app is public and covers contested places. These rules apply to every change. Run the `neutrality-review` skill before finishing any change to the UI, the basemap, or the pipeline's selection logic.
 
 1. **No political geography.** The basemap has land, coastlines, lakes, rivers, relief and ice. No borders, no disputed-area lines, no country fills, no country names anywhere in the UI. Never add a Natural Earth `admin_*` or `boundary_*` layer.
-2. **No labels on the map.** The map shows dots only. A place name appears only in the panel, as the short name GDELT gives (first segment, e.g. "Nairobi"). Don't append a country.
-3. **No ranking.** Lists are newest first. Don't sort, size or colour by popularity, tone, sentiment, "importance" or engagement. Dot size reflects report count and nothing else. The "fresh" colour means "reported in the last hour" and nothing else.
-4. **No rewriting.** Show headlines as published. No generated summaries, no generated headlines, no editorial labels on stories or places. Translation is on-device, opt-in, and always marked "Translated from X".
+2. **No labels on the map.** The map shows dots only. A place name appears only in the panel, as a short city or area name (e.g. "Nairobi"). Don't append a country.
+3. **No ranking.** Lists are newest first. The one exception is decision 23's telegram line, whose events the region stage picks. Don't sort, size or colour by popularity, tone, sentiment, "importance" or engagement. Dot size reflects report count and nothing else. The "fresh" colour means "reported in the last hour" and nothing else.
+4. **No unverified text.** Headlines appear as published. The only generated text is decision 23's telegram line per region, built by the shared pipeline from verified sentences only and labeled as generated. No other summaries, no editorial labels on stories or places. Translation is on-device, opt-in, and always marked "Translated from X".
 5. **Balance by construction.** Outlets take turns within a place and each outlet is capped across the map (`pipeline/balance.ts`). Don't loosen these caps to fill the map.
 6. **No full article text.** The reader shows the outlet's own preview (og:description, og:image). The full page opens in an iframe only when the outlet's headers allow framing; otherwise it links out. Never scrape or store article bodies.
 7. **Neutral copy.** UI text is plain and descriptive. No adjectives about events or places. No em dashes in UI copy or docs.

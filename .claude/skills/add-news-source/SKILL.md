@@ -5,6 +5,8 @@ description: Add a hand-picked local news outlet (RSS or Atom feed) to Capy's pi
 
 # Add a news source
 
+This adds to the map prototype's `pipeline/sources.json`. When the map moves onto the shared pipeline (decision 24), publisher pins come from `config/sources.yaml` at the repository root, which gains coordinates; add new outlets there with coordinates from then on.
+
 Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
 
 GDELT already covers many outlets in about 65 languages. Hand-picked sources fill gaps, usually places where GDELT's coverage is thin. Each source is pinned to its home city, so all its stories appear there.

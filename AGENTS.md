@@ -5,7 +5,7 @@ Two products in one npm-workspaces repository:
 - **2DayAI** (`packages/core`, `db`, `pipeline`, `web`): one sourced headline per reader per day, delivered by email. The design is docs/SPEC.md, later changes are docs/DECISIONS.md, operations are docs/RUNBOOK.md. Read SPEC.md section 9 (engineering rules) before touching these packages.
 - **The map** (`packages/map`): a public news map by place. Its guide, including hard neutrality rules, is packages/map/AGENTS.md. Read it before touching the map.
 
-Decision 23 plans for the two to share one pipeline and one database. The map currently runs on its own GDELT pipeline. Decision 24 lists what is still open between them; don't settle those questions in code without Davis.
+Read CONTEXT.md first: it is the whole picture and what Davis has decided. Decision 23 is the plan of record: one pipeline and one database, publisher pins, a telegram line per region, and map work after milestone 4. `packages/map` is a design prototype built ahead of that on stand-in GDELT data; decision 24 lists what it changes before it ships.
 
 ## Rules for the whole repository
 
