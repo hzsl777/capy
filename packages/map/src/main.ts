@@ -10,11 +10,15 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/special-elite/400.css";
 import "./style.css";
 
-import type { Item, NewsFile } from "./types.ts";
+import type { MapEvent, MapFile, MapItem } from "./types.ts";
+
+type Item = MapItem;
+type NewsFile = MapFile;
 import {
   FILTERS,
   TOPIC_LABEL,
   formatCoords,
+  formatRunDate,
   groupByPlace,
   languageName,
   loadNews,
@@ -56,6 +60,10 @@ const state = {
   tuned: null as number | null,
   reader: null as Item | null,
   framed: false,
+  /** The telegram panel: the word and the events it stands for (levels 0 and 1). */
+  telegram: false,
+  /** One event's explanation and sources (levels 2 and 3), and where Back returns to. */
+  event: null as { id: number; back: "telegram" | "reader" } | null,
   pins: loadPins(),
   playing: 0,
 };
@@ -75,7 +83,7 @@ function filters(): Filters {
 const map = new MapView($("map"), THEMES[state.theme], {
   onTune(index) {
     state.tuned = index;
-    if (!state.reader) renderPanel();
+    if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
   },
 });
@@ -253,7 +261,7 @@ function onFiltersChanged() {
 let renderToken = 0;
 
 function metaLine(it: Item, now: number): HTMLElement {
-  const parts = [it.domain, timeAgo(it.t, now)];
+  const parts = [it.publisher, timeAgo(it.t, now)];
   const lang = languageName(it.lang);
   if (lang && it.lang !== "en") parts.push(lang);
   if (it.topics[0]) parts.push(TOPIC_LABEL[it.topics[0]]);
@@ -291,12 +299,15 @@ function storyButton(it: Item, now: number, showPlace = false): HTMLElement {
 function renderPanel() {
   renderToken++;
   const panel = $("panel");
-  panel.classList.toggle("reading", !!state.reader);
+  panel.classList.toggle("reading", !!(state.reader || state.telegram || state.event));
   panel.classList.toggle("framed", state.framed);
   if (!state.file) {
     panel.replaceChildren(h("p", { class: "muted pad" }, "Loading the wire..."));
     return;
   }
+  const ev = state.event ? state.file.events[String(state.event.id)] : undefined;
+  if (state.event && ev) return renderEvent(panel, ev);
+  if (state.telegram) return renderTelegram(panel);
   if (state.reader) return renderReader(panel, state.reader);
   if (state.tuned === null) return renderIdle(panel);
   renderPlace(panel, state.tuned);
@@ -382,6 +393,12 @@ function renderReader(panel: HTMLElement, it: Item) {
   const related = it.story ? (state.stories.get(it.story) ?? []).filter((s) => s.place !== it.place) : [];
   const image = safeUrl(it.image, true);
   const actions = h("div", { class: "actions" });
+  const explained = it.event !== undefined ? file.events[String(it.event)] : undefined;
+  if (explained) {
+    const open = h("button", { type: "button", class: "tool primary" }, "Explained, with sources");
+    open.addEventListener("click", () => openEvent(explained.id, "reader"));
+    actions.append(open);
+  }
   if (it.embed && url) {
     const here = h("button", { type: "button", class: "tool primary" }, "Read it here");
     here.addEventListener("click", () => {
@@ -392,7 +409,7 @@ function renderReader(panel: HTMLElement, it: Item) {
   }
   if (url) {
     actions.append(
-      h("a", { class: it.embed ? "tool" : "tool primary", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.domain}`),
+      h("a", { class: it.embed || explained ? "tool" : "tool primary", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.publisher}`),
     );
   }
 
@@ -412,12 +429,12 @@ function renderReader(panel: HTMLElement, it: Item) {
         [place.name, it.topics[0] ? TOPIC_LABEL[it.topics[0]] : "", timeAgo(it.t, file.generatedAt)].filter(Boolean).join(" · "),
       ),
       headline(it, "h2"),
-      h("p", { class: "byline" }, [it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
+      h("p", { class: "byline" }, [it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
       fig,
       it.excerpt
         ? h("p", { class: "excerpt" }, it.excerpt)
         : h("p", { class: "excerpt muted" }, "The outlet didn't publish a preview for this story."),
-      h("p", { class: "fine" }, it.embed ? "Preview supplied by the outlet. The full page can open inside Capy." : "Preview supplied by the outlet. This outlet doesn't allow its pages to open inside other sites."),
+      h("p", { class: "fine" }, it.embed ? "Preview supplied by the outlet. The full page can open inside Capy." : "Preview from the outlet's own feed."),
       actions,
       related.length
         ? h(
@@ -434,6 +451,9 @@ function renderReader(panel: HTMLElement, it: Item) {
 function openReader(it: Item) {
   state.reader = it;
   state.framed = false;
+  state.telegram = false;
+  state.event = null;
+  applyHighlight();
   const file = state.file!;
   const from = file.places[it.place];
   const to = it.story
@@ -451,6 +471,182 @@ function closeReader() {
   state.reader = null;
   state.framed = false;
   map.setArcs(null);
+}
+
+// ---- telegram and explanations (2DayAI) ---------------------------------------
+
+/** Places behind whatever the panel shows, ringed on the map. */
+function applyHighlight() {
+  const file = state.file;
+  if (!file) return map.setHighlight([]);
+  const ev = state.event ? file.events[String(state.event.id)] : undefined;
+  if (ev) return map.setHighlight(ev.places);
+  if (state.telegram && file.telegram) {
+    return map.setHighlight(file.telegram.items.flatMap((i) => file.events[String(i.eventId)]?.places ?? []));
+  }
+  map.setHighlight([]);
+}
+
+function renderTelegramStrip() {
+  const el = $("telegram");
+  const file = state.file;
+  if (!file) {
+    el.replaceChildren(h("span", { class: "telegram-kicker" }, "Loading today's word..."));
+    return;
+  }
+  const t = file.telegram;
+  const kicker = h("span", { class: "telegram-kicker" }, `Conflict reporting worldwide, ${formatRunDate(file.runDate)}, in one word`);
+  if (!t) {
+    el.replaceChildren(kicker, h("span", { class: "telegram-none" }, "No verified conflict reporting for this date yet."));
+    return;
+  }
+  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open what it stands for.` }, t.word);
+  word.addEventListener("click", openTelegram);
+  const n = t.items.reduce((sum, i) => sum + (file.events[String(i.eventId)]?.sources.length ?? 0), 0);
+  const note = t.quietDay
+    ? "No conflict reporting above routine importance today."
+    : `Chosen by AI from ${t.items.length} ${t.items.length === 1 ? "event" : "events"} and ${n} checked ${n === 1 ? "source" : "sources"}.`;
+  const more = h("button", { type: "button", class: "telegram-open" }, t.quietDay ? "How this works" : "What it stands for");
+  more.addEventListener("click", t.quietDay ? () => ($("about") as HTMLDialogElement).showModal() : openTelegram);
+  el.replaceChildren(kicker, word, h("span", { class: "telegram-note" }, note), more);
+}
+
+function openTelegram() {
+  if (!state.file?.telegram || state.file.telegram.quietDay) return;
+  state.telegram = true;
+  state.event = null;
+  state.reader = null;
+  state.framed = false;
+  map.setArcs(null);
+  applyHighlight();
+  renderPanel();
+  $("panel").scrollTop = 0;
+}
+
+function closeTelegram() {
+  state.telegram = false;
+  state.event = null;
+  applyHighlight();
+}
+
+function placesText(ev: MapEvent): string {
+  const names = [...new Set(ev.places.map((p) => state.file!.places[p]?.name).filter(Boolean))];
+  return names.length ? `Reported from ${names.join(", ")}` : "";
+}
+
+function renderTelegram(panel: HTMLElement) {
+  const file = state.file!;
+  const t = file.telegram!;
+  const back = h("button", { type: "button", class: "tool back" }, "Back to the map");
+  back.addEventListener("click", () => {
+    closeTelegram();
+    renderPanel();
+  });
+  const items = t.items.flatMap((item) => {
+    const ev = file.events[String(item.eventId)];
+    if (!ev) return [];
+    const b = h(
+      "button",
+      { type: "button", class: "story" },
+      h("span", { class: "headline" }, item.line),
+      h("span", { class: "meta" }, [placesText(ev), `${ev.sources.length} ${ev.sources.length === 1 ? "source" : "sources"}`].filter(Boolean).join(" · ")),
+      h("span", { class: "related" }, "Explanation and sources"),
+    );
+    b.addEventListener("click", () => openEvent(ev.id, "telegram"));
+    return [h("li", {}, b)];
+  });
+  panel.replaceChildren(
+    h(
+      "article",
+      { class: "reader telegram-view" },
+      back,
+      h("p", { class: "kicker" }, `Conflict reporting worldwide · ${formatRunDate(t.runDate)}`),
+      h("h2", { class: "telegram-big" }, t.word),
+      h(
+        "p",
+        { class: "fine" },
+        "An AI model chose this word and the events below from sentences that were checked word for word against the reporting. The word had to appear in those sentences, and it never names a place, person or side. Open an event to see every sentence with the source passage it rests on.",
+      ),
+      h("h3", { class: "rule-head" }, "What it stands for"),
+      h("ol", { class: "stories" }, ...items),
+    ),
+  );
+}
+
+function openEvent(id: number, back: "telegram" | "reader") {
+  const ev = state.file?.events[String(id)];
+  if (!ev) return;
+  state.event = { id, back };
+  applyHighlight();
+  const first = ev.places[0];
+  if (first !== undefined && state.tuned !== first && back === "telegram") flyToPlace(first);
+  renderPanel();
+  $("panel").scrollTop = 0;
+}
+
+function renderEvent(panel: HTMLElement, ev: MapEvent) {
+  const file = state.file!;
+  const backTo = state.event!.back;
+  const back = h("button", { type: "button", class: "tool back" }, backTo === "telegram" ? `Back to "${file.telegram?.word ?? "today"}"` : "Back to the article");
+  back.addEventListener("click", () => {
+    state.event = null;
+    applyHighlight();
+    renderPanel();
+  });
+  const section = (label: string, list: MapEvent["whatHappened"]) =>
+    list.length
+      ? h(
+          "section",
+          { class: "explain-part" },
+          h("h3", { class: "rule-head" }, label),
+          h(
+            "p",
+            { class: "explain-text" },
+            ...list.flatMap((s) => [
+              s.text,
+              ...s.cites.map((i) => {
+                const a = h("a", { class: "cite", href: `#src-${ev.id}-${i + 1}`, "aria-label": `Source ${i + 1}` }, String(i + 1));
+                a.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  document.getElementById(`src-${ev.id}-${i + 1}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                });
+                return a;
+              }),
+              " ",
+            ]),
+          ),
+        )
+      : null;
+  const sources = ev.sources.map((src, i) => {
+    const url = safeUrl(src.url);
+    return h(
+      "li",
+      { id: `src-${ev.id}-${i + 1}`, class: "source" },
+      h("span", { class: "source-num" }, String(i + 1)),
+      h(
+        "div",
+        {},
+        h("p", { class: "meta" }, `${src.publisher} · ${new Date(src.publishedAt * 1000).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`),
+        url ? h("a", { class: "source-title", href: url, target: "_blank", rel: "noopener noreferrer" }, src.title) : h("span", { class: "source-title" }, src.title),
+        ...src.excerpts.map((x) => h("blockquote", { class: "excerpt-quote" }, x)),
+      ),
+    );
+  });
+  panel.replaceChildren(
+    h(
+      "article",
+      { class: "reader event-view" },
+      back,
+      h("p", { class: "kicker" }, [TOPIC_LABEL[ev.topic], placesText(ev)].filter(Boolean).join(" · ")),
+      h("h2", { class: "reader-headline" }, ev.title),
+      section("What happened", ev.whatHappened),
+      section("Why it matters", ev.whyItMatters),
+      section("What changes next", ev.whatChangesNext),
+      h("h3", { class: "rule-head" }, "Sources"),
+      h("ol", { class: "sources" }, ...sources),
+      h("p", { class: "fine" }, "Written by an AI model from these sources. Every sentence is backed by the quoted passage it marks; sentences that could not be matched to a passage were removed before publishing. The title and headlines are the outlets' own."),
+    ),
+  );
 }
 
 // ---- time bar ---------------------------------------------------------------
@@ -552,6 +748,7 @@ function shuffle() {
   const keys = [...state.byPlace.keys()];
   if (!keys.length) return;
   closeReader();
+  closeTelegram();
   flyToPlace(keys[Math.floor(Math.random() * keys.length)]);
 }
 
@@ -568,8 +765,11 @@ function bindGlobal() {
   document.addEventListener("keydown", (e) => {
     const target = e.target as HTMLElement;
     if (target.closest("input, textarea, select, dialog")) return;
-    if (e.key === "Escape" && state.reader) {
-      closeReader();
+    if (e.key === "Escape" && (state.event || state.telegram || state.reader)) {
+      if (state.event) state.event = null;
+      else if (state.telegram) closeTelegram();
+      else closeReader();
+      applyHighlight();
       renderPanel();
     } else if (e.key === "s" || e.key === "S") {
       shuffle();
@@ -589,6 +789,7 @@ async function start() {
   document.documentElement.dataset.theme = state.theme;
   renderMasthead();
   renderToolbar();
+  renderTelegramStrip();
   renderPanel();
   bindTimebar();
   bindGlobal();
@@ -608,9 +809,10 @@ async function start() {
   if (state.file.source === "sample") {
     const banner = $("banner");
     banner.hidden = false;
-    banner.textContent = "Sample data: placeholder headlines for testing the design. Not real news.";
+    banner.textContent = "Sample data: fictional outlets and places, run through the real pipeline to show how the site works. Not real news.";
   }
   refreshDots();
+  renderTelegramStrip();
   renderMasthead();
   renderTimeLabel();
   renderTicker();

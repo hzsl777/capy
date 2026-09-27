@@ -4,17 +4,41 @@ import { z } from "zod";
 
 export const SourceTier = z.enum(["primary", "trade", "general"]);
 
+/** briefing feeds 2DayAI's reader editions; world feeds the public map and its telegram (decision 25). */
+export const Desk = z.enum(["briefing", "world"]);
+export type Desk = z.infer<typeof Desk>;
+
+/** Where a publisher publishes from. The map pins publishers, never events (decision 23). */
+export const SourcePlaceSchema = z.object({
+  name: z.string().min(1),
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+});
+export type SourcePlace = z.infer<typeof SourcePlaceSchema>;
+
 export const SourceSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   name: z.string().min(1),
   url: z.string().url(),
   topic: z.string().min(1),
   tier: SourceTier,
+  desk: Desk.default("briefing"),
+  /** Required for world sources: a world source without a place could not be pinned. */
+  place: SourcePlaceSchema.optional(),
+  /** BCP 47 language of the feed, for the map's language label and translation. */
+  lang: z.string().min(2).max(8).default("en"),
 });
 export type Source = z.infer<typeof SourceSchema>;
 
 export const SourcesFileSchema = z.object({
-  sources: z.array(SourceSchema).min(1),
+  sources: z
+    .array(SourceSchema)
+    .min(1)
+    .superRefine((list, ctx) => {
+      list.forEach((s, i) => {
+        if (s.desk === "world" && !s.place) ctx.addIssue({ code: "custom", path: [i, "place"], message: `world source ${s.id} needs a place` });
+      });
+    }),
 });
 
 export const ArticleSchema = z.object({

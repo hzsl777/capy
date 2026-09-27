@@ -1,0 +1,90 @@
+// The contract between the database and the public map. The Worker builds it from the database with
+// loadMapView; the site renders it. Type-only, so the site imports it without pulling in zod.
+import type { WorldTopic } from "./world.js";
+
+export type MapPlace = {
+  /** Stable across runs, used for pins: "ll:<lat>,<lon>" of the publisher's place. */
+  id: string;
+  /** City or area where the publishers publish from. Shown in the panel, never on the map. */
+  name: string;
+  lat: number;
+  lon: number;
+};
+
+export type MapItem = {
+  id: string;
+  /** Unix seconds, publication time. */
+  t: number;
+  /** Headline as the outlet published it. */
+  title: string;
+  url: string;
+  domain: string;
+  publisher: string;
+  lang: string;
+  topics: WorldTopic[];
+  /** Index into MapFile.places: the publisher's place. */
+  place: number;
+  /** Set when the article's event was reported from two or more places. */
+  story?: string;
+  /** Event id with a verified explanation the reader can open (MapFile.events). */
+  event?: number;
+  /** The outlet's own short summary from its feed, at most 300 characters. Never article body text. */
+  excerpt?: string;
+  image?: string;
+  embed?: boolean;
+};
+
+export type MapSource = {
+  title: string;
+  url: string;
+  publisher: string;
+  /** Unix seconds. */
+  publishedAt: number;
+  /** The verbatim passages the explanation quotes from this article. */
+  excerpts: string[];
+};
+
+export type MapSentence = {
+  text: string;
+  /** Indexes into MapEvent.sources, shown as numbered marks. */
+  cites: number[];
+};
+
+/** Level 2 and 3 for one event: sentences checked against the sources, and the sources with their quoted passages. */
+export type MapEvent = {
+  id: number;
+  title: string;
+  topic: WorldTopic;
+  /** Indexes into MapFile.places of the publishers that reported it. */
+  places: number[];
+  whatHappened: MapSentence[];
+  whyItMatters: MapSentence[];
+  whatChangesNext: MapSentence[];
+  sources: MapSource[];
+};
+
+/** Level 0 and 1: the word, and the events it stands for with one line each. */
+export type MapTelegram = {
+  word: string;
+  quietDay: boolean;
+  runDate: string;
+  items: { eventId: number; line: string }[];
+};
+
+export type MapFile = {
+  version: 2;
+  /** "live" from the database, "sample" for the placeholder demo data (the site shows a banner). */
+  source: "live" | "sample";
+  /** Unix seconds. Time filters are relative to this, not the viewer's clock. */
+  generatedAt: number;
+  runDate: string;
+  places: MapPlace[];
+  items: MapItem[];
+  events: Record<string, MapEvent>;
+  /** Null when no telegram was written for the date (no verified conflict reporting, or the stage failed). */
+  telegram: MapTelegram | null;
+};
+
+export function placeIdFor(lat: number, lon: number): string {
+  return `ll:${lat.toFixed(2)},${lon.toFixed(2)}`;
+}

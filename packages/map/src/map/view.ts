@@ -69,6 +69,8 @@ export class MapView {
   private tuned: number | null = null;
   private pinned = new Set<number>();
   private arcs: { from: [number, number]; to: [number, number][] } | null = null;
+  /** Places tied to what the panel shows (the telegram's events, or one event). Drawn with a dashed ring. */
+  private highlight = new Set<number>();
 
   private interacting = false;
   private anim: Anim | null = null;
@@ -125,6 +127,11 @@ export class MapView {
 
   setPinned(indices: Iterable<number>) {
     this.pinned = new Set(indices);
+    this.request();
+  }
+
+  setHighlight(indices: Iterable<number>) {
+    this.highlight = new Set(indices);
     this.request();
   }
 
@@ -709,6 +716,17 @@ export class MapView {
         ctx.lineWidth = 1;
         ctx.strokeStyle = t.tuned;
         ctx.stroke();
+      }
+      if (this.highlight.has(d.index)) {
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.arc(x, y, r + 6, 0, Math.PI * 2);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = t.arc;
+        ctx.stroke();
+        ctx.restore();
       }
       if (d.index === this.tuned) tunedAt = { x, y, r };
     }

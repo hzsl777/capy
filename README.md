@@ -3,9 +3,9 @@
 News, compressed and sourced. Two products in one repository.
 
 - **2DayAI**: one headline per reader per day, from a hand-written interest profile, with the stories, explanations, and sources one click down. Delivered by email. Built and tested; not yet run live. Code in `packages/core`, `db`, `pipeline`, `web`.
-- **The map**: a public news map in the spirit of Radio Garden. Turn a flat map or a globe; the place under the crosshair lists what is being reported there, newest first, with an in-app reader. No borders, no country names, no labels on the map. A runnable design prototype with placeholder data; not deployed. Code in `packages/map`.
+- **The map**: a public news map in the spirit of Radio Garden, headed by one word for the day's conflict reporting worldwide. Turn a flat map or a globe; the place under the crosshair lists what its outlets reported, newest first. Open the word to see the events it stands for, their sourced explanations, and the sources. No borders, no country names, no labels on the map. Code in `packages/map`, served by the Worker in `packages/web`.
 
-Start with CONTEXT.md. Decision 23 in docs/DECISIONS.md is the plan: one pipeline and one database for both products, publisher pins, and a telegram line per region, with map work after 2DayAI's milestone 4. The map in `packages/map` is a design prototype built ahead of that on stand-in GDELT data; decision 24 lists what it changes before it ships.
+Start with CONTEXT.md. Both products read one database written by one pipeline (decisions 23 and 25 in docs/DECISIONS.md).
 
 ## 2DayAI
 
@@ -19,11 +19,14 @@ Every explanation sentence carries a citation: an article id and a passage. Code
 
 | Morning Edition | Cabinet Map | Wire Room |
 |---|---|---|
-| ![Morning Edition](docs/map/screenshots/desktop-morning-2d.jpg) | ![Cabinet Map](docs/map/screenshots/desktop-cabinet-3d.jpg) | ![Wire Room](docs/map/screenshots/desktop-wire-3d.jpg) |
+| ![Morning Edition](docs/map/screenshots/desktop-morning-telegram.jpg) | ![Cabinet Map](docs/map/screenshots/desktop-cabinet-3d.jpg) | ![Wire Room](docs/map/screenshots/desktop-wire-explained.jpg) |
 
-Three designs, each in flat or globe view, over a physical-only basemap (Natural Earth coastlines, rivers, lakes, relief, ice). Screenshots use placeholder sample data. The neutrality rules and the map's layout are in packages/map/AGENTS.md.
+Screenshots use the fictional sample: invented outlets and places, run through the real pipeline.
 
-Its stand-in pipeline, `packages/map/pipeline`, reads the free GDELT index, places each article at the first city it mentions, balances outlets, groups the same story across places, and writes one static JSON file. It is retired when the map moves onto the shared pipeline (decision 24).
+- **Pins are publishers**, at the city they publish from (the `desk: world` entries in `config/sources.yaml`). Nothing is geocoded, so the map never draws or names a disputed place.
+- **The word.** Each day the `telegram` stage picks one to five conflict events and one word for them. Code rejects the word unless it is a single word that appears in the verified sentences of those events, is not a name, and is not a contested or alarm word. "Quiet" is for a routine day; no verified reporting means no word.
+- **One content model, four depths.** The word, the events with one line each, each event's explanation with numbered citations, and the sources with the passages quoted. Headlines appear as the outlets published them.
+- Three designs, flat or globe, a 24-hour replay, topic filters, pinned places, and on-device translation.
 
 ## Run it
 
@@ -42,9 +45,10 @@ npm run stage -- deliver --dry-run     # what would be sent right now
 npm run stage -- spend                 # model spend for the date
 
 # The map
-npm run map:dev                        # http://localhost:5173 with placeholder data and a banner
-npm run map:build
-npm run map:ingest                     # live GDELT data (needs data.gdeltproject.org)
+npm run map:sample                     # fictional world day through the real stages, in memory, into the sample data
+npm run map:dev                        # http://localhost:5173 on the sample, with a banner
+npm run stage -- map export            # the latest real day from DATABASE_URL, as the site sees it
+npm run web:deploy                     # build the map and deploy it with the Worker (Cloudflare)
 ```
 
 `LLM_BATCH=false` in `.env` makes a local 2DayAI run immediate instead of waiting on the Batches API.
@@ -54,12 +58,12 @@ npm run map:ingest                     # live GDELT data (needs data.gdeltprojec
 - `packages/core`: pure code. Types, Zod schemas, validators, renderers, versioned prompts. Imports nothing else in the workspace.
 - `packages/db`: Drizzle schema, migrations, shared read models. Imports core. `@2dayai/db/node` holds the postgres-js client.
 - `packages/pipeline`: stages, the CLI, the model module in `src/llm/` (the only place the SDK is imported). Imports core and db.
-- `packages/web`: Cloudflare Worker for reader pages and feedback. Imports core and db.
-- `packages/map`: the map's design prototype, its stand-in GDELT pipeline and basemap build. Imports nothing else in the workspace yet.
-- `config/sources.yaml`: the 2DayAI feed list. `config/readers/`: reader profiles, gitignored except the example.
+- `packages/web`: Cloudflare Worker: the map site and its data, reader pages, feedback. Imports core and db.
+- `packages/map`: the map site. Imports core's types only and reads its data from the Worker.
+- `config/sources.yaml`: every feed, on the briefing desk (2DayAI) or the world desk (the map, with a place per outlet). `config/readers/`: reader profiles, gitignored except the example.
 
 `npm run lint` fails on any import that crosses those lines.
 
 ## Hosting
 
-The repository is private. On a free plan, GitHub Pages does not serve private repositories and Actions has 2,000 minutes a month, so the map's deploy workflow (`.github/workflows/map-deploy.yml`) runs only when started by hand. Making the repository public, or hosting the map elsewhere, is open.
+The Worker serves the map, its data and the reader pages on Cloudflare's free plan, so the repository can stay private. `.github/workflows/deploy-site.yml` deploys on code changes once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set; the daily run needs no deploy because the Worker reads the database. Actions has 2,000 free minutes a month on a private repository: the daily run, delivery every two hours, and CI fit inside it.

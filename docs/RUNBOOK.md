@@ -34,17 +34,38 @@ npm run stage -- ingest --date 2026-09-04
 npm run stage -- cluster --date 2026-09-04
 npm run stage -- explain --date 2026-09-04
 npm run stage -- select --date 2026-09-04
+npm run stage -- cluster world --date 2026-09-04
+npm run stage -- telegram --date 2026-09-04
 ```
 
-## Deploy the Worker
+## Deploy the site
+
+The Worker in `packages/web` serves three things: the public map (the static build of `packages/map`), the map's data at `/data/latest.json` and `/data/<date>.json` (read from the database on each request, cached five minutes), and the 2DayAI reader pages.
+
+Once, on a free Cloudflare account:
 
 ```
 cd packages/web
 npx wrangler secret put DATABASE_URL
-npx wrangler deploy
 ```
 
+Then add the repository secrets `CLOUDFLARE_API_TOKEN` (a token with the "Edit Cloudflare Workers" template) and `CLOUDFLARE_ACCOUNT_ID`. From then on `.github/workflows/deploy-site.yml` deploys on every code change to `main`. By hand: `npm run web:deploy` (builds the map, drops the sample data from the build, deploys).
+
 Set the repository variable `WEB_BASE_URL` to the Worker URL so email links point at it, and `MAIL_FROM` to the verified Resend sender.
+
+The daily run needs no deploy: the Worker reads the new day from the database.
+
+## The world desk and the telegram
+
+World sources are the `desk: world` entries in `config/sources.yaml`, each with the city it publishes from. The daily run clusters them (`cluster world`), explains conflict events and events of importance 4 or 5 (at most `WORLD_EXPLAIN_MAX`, default 25), and writes the telegram (`telegram`). To look at a day without the site:
+
+```
+npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
+```
+
+To see the whole site with no database, no key and no network, `npm run map:sample` runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`; then `npm run map:dev`.
+
+If the telegram stage fails twice on the rules (one word, found in the verified sentences, not a name, not a contested word), the run fails loudly and the site shows no word for that day. Look at the `runs` table detail for the reason before changing the prompt.
 
 ## Change the schema
 

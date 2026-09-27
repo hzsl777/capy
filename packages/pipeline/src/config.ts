@@ -15,6 +15,8 @@ const EnvSchema = z.object({
   /** Public base URL of the Worker, for links in email. */
   WEB_BASE_URL: z.string().url().default("https://2dayai.workers.dev"),
   MAIL_FROM: z.string().default("2DayAI <edition@2dayai.example>"),
+  /** World events explained per day: conflict events and importance 4 or 5, highest importance first (decision 25). */
+  WORLD_EXPLAIN_MAX: z.coerce.number().int().min(0).default(25),
 });
 
 export type Effort = "low" | "medium" | "high";
@@ -28,8 +30,9 @@ export type Config = {
   llmBatch: boolean;
   webBaseUrl: string;
   mailFrom: string;
+  worldExplainMax: number;
   /** Effort per stage (decision 8). */
-  effort: { cluster: Effort; explain: Effort; select: Effort };
+  effort: { cluster: Effort; explain: Effort; select: Effort; telegram: Effort };
 };
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -44,7 +47,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     llmBatch: e.LLM_BATCH,
     webBaseUrl: e.WEB_BASE_URL.replace(/\/$/, ""),
     mailFrom: e.MAIL_FROM,
-    effort: { cluster: "low", explain: "medium", select: "high" },
+    worldExplainMax: e.WORLD_EXPLAIN_MAX,
+    effort: { cluster: "low", explain: "medium", select: "high", telegram: "high" },
   };
 }
 

@@ -1,6 +1,6 @@
 // Enforces the dependency rules in docs/SPEC.md section 8.
 // core imports nothing from the workspace. db imports core. pipeline and web import core and db.
-// map imports nothing from the workspace until decision 24's open questions are settled.
+// map imports core's types only (the MapFile contract); it reads data over HTTP from the Worker, never the database.
 // Only packages/pipeline/src/llm/ may import the Anthropic SDK.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -11,7 +11,7 @@ const ALLOWED = {
   db: ["core"],
   pipeline: ["core", "db"],
   web: ["core", "db"],
-  map: [],
+  map: ["core"],
 };
 
 function walk(dir, out = []) {

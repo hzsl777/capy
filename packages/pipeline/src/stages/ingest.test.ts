@@ -7,7 +7,7 @@ import { articlesFromFeed, checkSources } from "./ingest.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const xml = readFileSync(join(here, "..", "fixtures", "sample-feed.xml"), "utf8");
-const source: Source = { id: "sample", name: "Sample", url: "https://example.gov/feed.xml", topic: "tax", tier: "primary" };
+const source: Source = { id: "sample", name: "Sample", url: "https://example.gov/feed.xml", topic: "tax", tier: "primary", desk: "briefing", lang: "en" };
 
 describe("articlesFromFeed", () => {
   it("keeps only linked items inside the 24 hour window ending 09:00 UTC on the run date", async () => {

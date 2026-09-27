@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-export type PromptName = "cluster" | "explain" | "select";
+export type PromptName = "cluster" | "cluster-world" | "explain" | "select" | "telegram";
 
 export type Prompt = {
   name: PromptName;

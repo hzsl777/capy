@@ -48,7 +48,18 @@ export type IngestReport = { source: string; fetched: number; inserted: number; 
 export async function runIngest(db: Db, sources: Source[], date: RunDate, fetchFeed: FeedFetcher = defaultFetcher): Promise<IngestReport[]> {
   const reports: IngestReport[] = [];
   for (const source of sources) {
-    await db.insert(sourcesTable).values(source).onConflictDoUpdate({ target: sourcesTable.id, set: { name: source.name, url: source.url, topic: source.topic, tier: source.tier } });
+    const row = {
+      name: source.name,
+      url: source.url,
+      topic: source.topic,
+      tier: source.tier,
+      desk: source.desk,
+      placeName: source.place?.name ?? null,
+      lat: source.place?.lat ?? null,
+      lon: source.place?.lon ?? null,
+      lang: source.lang,
+    };
+    await db.insert(sourcesTable).values({ id: source.id, ...row }).onConflictDoUpdate({ target: sourcesTable.id, set: row });
     try {
       const xml = await fetchFeed(source.url);
       const found = await articlesFromFeed(source, xml, date);

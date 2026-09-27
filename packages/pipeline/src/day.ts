@@ -7,11 +7,12 @@ import { spentToday } from "./llm/spend.js";
 import { loadProfiles, syncReaders } from "./profiles.js";
 import { recorded } from "./runs.js";
 import { loadSources } from "./sources.js";
-import { runCluster } from "./stages/cluster.js";
+import { runCluster, runClusterWorld } from "./stages/cluster.js";
 import { runEnrich, type PageFetcher } from "./stages/enrich.js";
 import { runExplain } from "./stages/explain.js";
 import { runIngest, type FeedFetcher } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
+import { runTelegram } from "./stages/telegram.js";
 
 export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; sourcesPath?: string; readersDir?: string; force?: boolean };
 
@@ -21,8 +22,10 @@ export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, de
   out["enrich"] = await recorded(db, date, "enrich", () => runEnrich(db, date, deps.fetchPage));
   out["readers"] = await recorded(db, date, "readers", () => syncReaders(db, loadProfiles(deps.readersDir)));
   out["cluster"] = await recorded(db, date, "cluster", () => runCluster(db, config, llm, date, { force: deps.force ?? false }));
+  out["clusterWorld"] = await recorded(db, date, "cluster-world", () => runClusterWorld(db, config, llm, date));
   out["explain"] = await recorded(db, date, "explain", () => runExplain(db, config, llm, date));
   out["select"] = await recorded(db, date, "select", () => runSelect(db, config, llm, date));
+  out["telegram"] = await recorded(db, date, "telegram", () => runTelegram(db, config, llm, date));
   out["spendUsd"] = await spentToday(db, date);
   return out;
 }

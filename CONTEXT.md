@@ -38,7 +38,12 @@ September 27, 2026, the fold:
 - The map draws coastlines only. No borders, no country names.
 - 2D paper map first, a globe later if wanted. Capy is not bound by Three Angle Press's zero-JS rule.
 
-Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 24 in DECISIONS.md). A reversal is a new entry, never an edit.
+September 27, 2026, later the same day (decision 25):
+
+- Build the working site now, integrated with 2DayAI. This reverses the "after milestone 4" timing above.
+- The site is headed by one word that sums up the day's conflict reporting worldwide (the telegram), with the events it stands for, their sourced explanations, and the sources one click down.
+
+Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 25 in DECISIONS.md). A reversal is a new entry, never an edit.
 
 ## 4. What the product is
 
@@ -76,7 +81,7 @@ Three runtimes on free tiers, one language, one database as the contract between
 |---|---|---|
 | Pipeline | GitHub Actions cron, 09:00 UTC daily; delivery every two hours | ingest, enrich, readers sync, cluster, explain, select, deliver |
 | Database | Neon Postgres | every artifact of every run, plus feedback and spend |
-| Web | Cloudflare Worker (Hono, server-rendered HTML, no client JS) | reader pages for levels 1 to 3, feedback endpoints |
+| Web | Cloudflare Worker (Hono) | the public map (static build of packages/map) and its data from the database; 2DayAI reader pages and feedback (server-rendered, no client JS) |
 
 Packages, with import boundaries enforced by tools/check-boundaries.mjs:
 
@@ -84,7 +89,7 @@ Packages, with import boundaries enforced by tools/check-boundaries.mjs:
 - packages/db: Drizzle schema, migrations, shared read models (loadEditionView, recordFeedback). Imports core. @2dayai/db/node holds the postgres-js client.
 - packages/pipeline: stages, CLI, the model module in src/llm/ (the only place the Anthropic SDK is imported). Imports core and db.
 - packages/web: the Worker. Imports core and db.
-- packages/map: the map's design prototype and its stand-in GDELT pipeline. Imports nothing from the workspace until the map work starts.
+- packages/map: the public map site (Vite, canvas, d3-geo). Imports core's types only; reads its data from the Worker over HTTP.
 
 Model layer: every call declares a Zod schema and uses structured outputs, so a bad response fails at the boundary. Effort per stage: cluster low, explain medium, select high. Batches API for per-event and per-reader calls in production (half price, up to an hour of latency); LLM_BATCH=false for immediate local runs. Every call logged with tokens, cache reads and writes, and cost; the day fails loudly past DAILY_SPEND_CEILING_USD. Prompts are versioned files in packages/core/prompts; editing one in place is a bug; outputs record the version.
 
@@ -102,8 +107,10 @@ Milestones 0 through 3, three build commits plus a review round, merged onto cap
 - Select per reader, validated in code (ids exist, no duplicates, no overlap, one outside-interests slot, at least three when three exist, headline rules), one retry with the problems spelled out, then a loud failure.
 - Deliver by the reader's local date and hour through Resend; every unsent edition considered, so evening hours in American time zones send after UTC midnight.
 - Worker: edition page, event page with numbered citations and quoted excerpts, feedback as a GET confirmation form and a POST write, scoped to the reader's own edition.
-- CLI: sources check, ingest, enrich, readers sync, cluster [--force], explain, select, show, deliver [--dry-run], day [--fixture], spend, feedback.
-- CI: boundaries, typecheck including the Worker, tests, secret scan. Tests run the whole day on PGlite (a real Postgres engine) with the real migrations and a scripted model. 34 tests, all green, no network, no key.
+- World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, explanations for conflict events and importance 4 or 5 (capped), and the telegram: one word checked in code (a single word, present in the verified sentences, not a proper noun, not a contested word; "Quiet" only on a routine day; no word at all without verified conflict reporting).
+- The map site (packages/map): three designs, flat and globe, the telegram strip under the masthead, and the drill-down from word to events to explanations with numbered citations to the quoted sources. The Worker serves it and builds its data from the database (`/data/latest.json`).
+- CLI: sources check, ingest, enrich, readers sync, cluster [--force], cluster world, explain, select, telegram, show, deliver [--dry-run], day [--fixture], map export, demo, spend, feedback.
+- CI: boundaries, typecheck including the Worker and the map, tests, the map build, secret scan. Tests run whole days on PGlite (a real Postgres engine) with the real migrations and a scripted model, including the world desk, the telegram retry and the Worker's map endpoints. No network, no key.
 
 An independent adversarial review found eight real defects before any live run (fabricated excerpt beside a verified one, evening delivery never sending, dead stage shipping as a quiet day, re-runs resending, spend undercount, empty env strings, Worker input handling, feedback on GET). All fixed with tests; decision 22.
 
@@ -115,7 +122,9 @@ An independent adversarial review found eight real defects before any live run (
 - No Neon database, no Resend account, no Worker deployment yet.
 - The prompts (cluster.v1, explain.v1, select.v1) have never produced output. Expect a v2 of each after the first real week.
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
-- The map exists only as a design prototype in packages/map, built ahead of schedule on stand-in GDELT data (three looks, flat and globe, reader, replay, filters). Decision 24 lists what it changes to meet decision 23 before it ships.
+- The world-desk feeds in config/sources.yaml (eighteen outlets) are unverified, like the briefing list. Run sources check and prune.
+- The telegram and world-cluster prompts (telegram.v1, cluster-world.v1) have never produced output. Judge the first real words before trusting them.
+- No Cloudflare secrets yet, so deploy-site skips. The site has only run locally on the fictional sample.
 
 ## 9. Milestones
 
@@ -127,7 +136,7 @@ An independent adversarial review found eight real defects before any live run (
 | M3 | Resend delivery, Worker pages, feedback | code done; accounts and deploy pending |
 | M4 | Tuning loop: Davis rates headlines and drill-downs daily for a week; prompts revised by version | not started |
 | M5 | Nine more readers, two weeks | not started |
-| Map | Regions as a sibling of select, source coordinates, 2D paper map front end | design prototype in packages/map (decision 24); real work after M4 |
+| Map | World desk, publisher pins, the conflict telegram, map site served by the Worker | code done (decision 25); feeds, secrets and first live run pending |
 
 After M5 the decision is: build the learned interest model, or stop.
 
@@ -139,7 +148,7 @@ After M5 the decision is: build the learned interest model, or stop.
 4. npm run stage -- sources check; remove what fails.
 5. npm run db:migrate, then npm run stage -- day --fixture --date 2026-09-04, then npm run stage -- show --reader r01. That is the first real headline on three known articles, for a few cents.
 6. A real day: npm run stage -- day, then show. Judge on the three phase-one conditions: the headline reads as true and worth the glance; the drill-down holds without a false claim; the aggregation catches what Davis wanted and leaves out what Davis would skip.
-7. Deploy the Worker (docs/RUNBOOK.md), then deliver for real.
+7. Deploy the site and Worker: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID, then push to main (docs/RUNBOOK.md, "Deploy the site"). Then deliver for real.
 8. Hand docs/SPEC.md and the three prompts to Codex and Grok for the defined review passes (spec section 11). Record accepted changes as new decisions.
 
 ## 11. How to work in this repository

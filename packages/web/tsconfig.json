@@ -1,6 +1,1 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": { "types": ["@cloudflare/workers-types"], "lib": ["ES2022", "WebWorker"] },
-  "include": ["src/**/*.ts"],
-  "exclude": []
-}
+{"extends": "../../tsconfig.json", "compilerOptions": {"types": ["@cloudflare/workers-types"], "lib": ["ES2022", "WebWorker"]}, "include": ["src/**/*.ts"], "exclude": ["src/**/*.test.ts"]}

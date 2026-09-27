@@ -27,6 +27,8 @@
       <button class="tool" id="about-btn" type="button">How this works</button>
     </nav>
 
+    <div class="telegram" id="telegram" aria-live="polite"></div>
+
     <p class="banner" id="banner" hidden></p>
 
     <main class="stage">
@@ -62,23 +64,23 @@
     <dialog id="about">
       <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
       <h2>How this works</h2>
-      <p>Capy puts the world's news on a map by place. Turn the map; whatever sits under the crosshair is what you're tuned to.</p>
+      <p>Capy puts the world's news on a map by where it is published. Turn the map; the place under the crosshair is what you're tuned to, and the panel lists what its outlets reported, newest first.</p>
       <h3>Where the reports come from</h3>
-      <p>Articles come from the <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener">GDELT Project</a>, a free open dataset that monitors news outlets worldwide in more than 65 languages, plus a short list of hand-picked local outlets. The map is updated about once an hour.</p>
-      <h3>How a story gets its dot</h3>
-      <p>Each article is placed at the first city or province it mentions, which is usually its dateline. Articles that only name a country are left off, since a dot in the middle of a country isn't a real place. Placement is automatic and sometimes wrong.</p>
+      <p>A hand-picked list of outlets from every region. Each outlet is a pin at the city it publishes from, the way Radio Garden places stations. Nothing is placed by guessing where an event happened, so the map never draws or names a disputed place. The map is updated once a day.</p>
+      <h3>The word at the top</h3>
+      <p>Each day an AI model reads the day's conflict reporting and sums it up in one word, then lists the events that word stands for. The word is checked by a program before it is published: it must appear in the verified sentences about those events, it must not name a place, person or side, and it must not be a contested or alarm word. When nothing rises above routine, the word is "Quiet".</p>
+      <h3>Explanations and sources</h3>
+      <p>Some events have an explanation written by the same model. Every sentence must quote a passage from one of the source articles, and a program checks that the passage is really there, word for word. Sentences that fail are removed before anything is published. Each sentence links to its source and the quoted passage.</p>
       <h3>What we don't do</h3>
       <ul>
         <li>No borders and no country names. The map shows coastlines, rivers, lakes, mountains and ice.</li>
-        <li>No ranking. Stories are listed newest first. Nothing is ordered by popularity, tone or "importance".</li>
-        <li>No rewriting. Headlines appear as the outlet wrote them. There are no generated summaries.</li>
-        <li>No single outlet can fill a place: outlets take turns, and each one is capped across the map.</li>
+        <li>No ranking of headlines. Lists are newest first. The only choice made for you is the day's word and its events, and you can see exactly what it rests on.</li>
+        <li>No rewriting of headlines. They appear as the outlet published them.</li>
+        <li>No copied articles. The panel shows the outlet's own feed summary and links to the full story.</li>
       </ul>
-      <h3>Reading in the app</h3>
-      <p>The reader shows the headline, image and short description the outlet publishes for link previews. If the outlet allows it, you can open the full page inside the app; otherwise read it on the outlet's site. Full articles are never copied here.</p>
       <h3>Translation</h3>
       <p>Translate uses your browser's built-in, on-device translator where available. Nothing is sent anywhere.</p>
-      <p class="fine">Map data: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> (public domain). News index: GDELT Project. Headlines and previews belong to their publishers.</p>
+      <p class="fine">Map data: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> (public domain). Headlines, summaries and articles belong to their publishers.</p>
     </dialog>
 
     <script type="module" src="/src/main.ts"></script>

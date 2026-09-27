@@ -72,3 +72,26 @@ sources:
     url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
     topic: markets
     tier: general
+
+# World desk (decision 25): the public map and its conflict telegram. Each outlet is a pin at the city it
+# publishes from. UNVERIFIED as of September 27, 2026: the build environment could not reach these hosts.
+# Run `npm run stage -- sources check` and remove what fails. Keep the list balanced across regions, and
+# don't add an outlet from one side of a conflict without an equivalent from the other.
+  - { id: bbc-world, name: BBC World, url: "https://feeds.bbci.co.uk/news/world/rss.xml", topic: world, tier: general, desk: world, place: { name: London, lat: 51.51, lon: -0.13 } }
+  - { id: guardian-world, name: The Guardian World, url: "https://www.theguardian.com/world/rss", topic: world, tier: general, desk: world, place: { name: London, lat: 51.51, lon: -0.13 } }
+  - { id: france24-en, name: France 24, url: "https://www.france24.com/en/rss", topic: world, tier: general, desk: world, place: { name: Paris, lat: 48.86, lon: 2.35 } }
+  - { id: dw-en, name: Deutsche Welle, url: "https://rss.dw.com/rdf/rss-en-all", topic: world, tier: general, desk: world, place: { name: Bonn, lat: 50.74, lon: 7.1 } }
+  - { id: reliefweb, name: ReliefWeb, url: "https://reliefweb.int/updates/rss.xml", topic: world, tier: primary, desk: world, place: { name: Geneva, lat: 46.2, lon: 6.14 } }
+  - { id: un-news, name: UN News, url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml", topic: world, tier: primary, desk: world, place: { name: New York, lat: 40.75, lon: -73.97 } }
+  - { id: npr-world, name: NPR World, url: "https://feeds.npr.org/1004/rss.xml", topic: world, tier: general, desk: world, place: { name: Washington, lat: 38.9, lon: -77.04 } }
+  - { id: cbc-world, name: CBC World, url: "https://www.cbc.ca/cmlink/rss-world", topic: world, tier: general, desk: world, place: { name: Toronto, lat: 43.65, lon: -79.38 } }
+  - { id: mercopress, name: MercoPress, url: "https://en.mercopress.com/rss", topic: world, tier: general, desk: world, place: { name: Montevideo, lat: -34.9, lon: -56.16 } }
+  - { id: aljazeera-en, name: Al Jazeera English, url: "https://www.aljazeera.com/xml/rss/all.xml", topic: world, tier: general, desk: world, place: { name: Doha, lat: 25.29, lon: 51.53 } }
+  - { id: premium-times, name: Premium Times, url: "https://www.premiumtimesng.com/feed", topic: world, tier: general, desk: world, place: { name: Abuja, lat: 9.08, lon: 7.4 } }
+  - { id: africanews, name: Africanews, url: "https://www.africanews.com/feed/rss", topic: world, tier: general, desk: world, place: { name: Pointe-Noire, lat: -4.78, lon: 11.86 } }
+  - { id: dawn, name: Dawn, url: "https://www.dawn.com/feeds/home", topic: world, tier: general, desk: world, place: { name: Karachi, lat: 24.86, lon: 67.01 } }
+  - { id: the-hindu-intl, name: The Hindu, url: "https://www.thehindu.com/news/international/feeder/default.rss", topic: world, tier: general, desk: world, place: { name: Chennai, lat: 13.08, lon: 80.27 } }
+  - { id: scmp-world, name: South China Morning Post, url: "https://www.scmp.com/rss/91/feed", topic: world, tier: general, desk: world, place: { name: Hong Kong, lat: 22.32, lon: 114.17 } }
+  - { id: rappler, name: Rappler, url: "https://www.rappler.com/feed/", topic: world, tier: general, desk: world, place: { name: Manila, lat: 14.6, lon: 120.98 } }
+  - { id: japan-times, name: The Japan Times, url: "https://www.japantimes.co.jp/feed/", topic: world, tier: general, desk: world, place: { name: Tokyo, lat: 35.68, lon: 139.69 } }
+  - { id: abc-au, name: ABC News Australia, url: "https://www.abc.net.au/news/feed/51120/rss.xml", topic: world, tier: general, desk: world, place: { name: Sydney, lat: -33.87, lon: 151.21 } }

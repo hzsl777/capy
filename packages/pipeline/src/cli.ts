@@ -1,7 +1,7 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
 import { renderEditionText, todayRunDate, toRunDate, type VerifiedSentence } from "@2dayai/core";
-import { editions, feedback, loadEditionView, readers } from "@2dayai/db";
+import { editions, feedback, latestMapDate, loadEditionView, loadMapView, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
@@ -12,16 +12,17 @@ import { createResendSender } from "./mail.js";
 import { loadProfiles, syncReaders } from "./profiles.js";
 import { recorded } from "./runs.js";
 import { loadSources } from "./sources.js";
-import { runCluster } from "./stages/cluster.js";
+import { runCluster, runClusterWorld } from "./stages/cluster.js";
 import { runDeliver } from "./stages/deliver.js";
 import { runEnrich } from "./stages/enrich.js";
 import { runExplain } from "./stages/explain.js";
 import { checkSources, runIngest, type IngestReport } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
+import { runTelegram } from "./stages/telegram.js";
 import { FEED_XML } from "./fixtures/day.js";
-import { writeFileSync, mkdtempSync } from "node:fs";
+import { writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -33,6 +34,7 @@ const { values, positionals } = parseArgs({
     "dry-run": { type: "boolean", default: false },
     fixture: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
+    out: { type: "string" },
   },
 });
 
@@ -61,9 +63,13 @@ const HELP = `Commands:
   cluster [--force]      group the day's articles into events (model); refuses after editions were sent unless forced
   explain                explain each event with verified citations (model, batched)
   select                 one edition per reader with the headline (model, batched)
+  cluster world          group the world desk's articles into events with a topic (model)
+  telegram               the one-word conflict telegram from verified sentences (model)
+  map export [--out f]   the public map's data for the date (default: latest) as JSON
+  demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
   show [--reader r01]    print a reader's edition for the date
   deliver [--dry-run]    send unsent editions whose delivery hour has arrived
-  day [--fixture]        ingest, enrich, readers sync, cluster, explain, select (fixture: bundled feed, real model)
+  day [--fixture]        ingest, enrich, readers sync, cluster, cluster world, explain, select, telegram
   spend                  model spend for the date
   feedback [--reader r01] reader feedback from the last 14 days, newest first
 Options: --date YYYY-MM-DD  --sources path  --readers dir`;
@@ -101,6 +107,54 @@ switch (command) {
   case "select": {
     const d = db();
     console.log(await recorded(d, date, "select", () => runSelect(d, config, createLlm(config, d), date)));
+    break;
+  }
+  case "cluster world": {
+    const d = db();
+    console.log(await recorded(d, date, "cluster-world", () => runClusterWorld(d, config, createLlm(config, d), date)));
+    break;
+  }
+  case "telegram": {
+    const d = db();
+    console.log(await recorded(d, date, "telegram", () => runTelegram(d, config, createLlm(config, d), date)));
+    break;
+  }
+  case "map export": {
+    const d = db();
+    const day = values.date ?? (await latestMapDate(d));
+    if (!day) {
+      console.error("No world-desk run yet; nothing to export.");
+      process.exit(1);
+    }
+    const map = await loadMapView(d, day);
+    const out = values.out ?? "packages/map/public/data/latest.json";
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, JSON.stringify(map));
+    console.log(`${out}: ${map.items.length} items, ${map.places.length} places, ${Object.keys(map.events).length} explained events, telegram ${map.telegram ? `"${map.telegram.word}"` : "none"}`);
+    break;
+  }
+  case "demo": {
+    // Everything real except the model and the network: PGlite, the migrations, every stage, every validator,
+    // the read model. The model answers from the fictional world fixture's script.
+    const { createTestDb } = await import("./test/db.js");
+    const { FakeLlm } = await import("./llm/fake.js");
+    const { worldAnswers, worldFeedFor, worldSourcesYaml } = await import("./fixtures/world.js");
+    const { db: memory, close } = await createTestDb();
+    const dir = mkdtempSync(join(tmpdir(), "capy-demo-"));
+    writeFileSync(join(dir, "sources.yaml"), worldSourcesYaml());
+    const report = await runDay(memory, config, new FakeLlm(worldAnswers()), date, {
+      fetchFeed: async (url) => worldFeedFor(url, date),
+      fetchPage: async () => "",
+      sourcesPath: join(dir, "sources.yaml"),
+      readersDir: dir,
+    });
+    const map = { ...(await loadMapView(memory, date)), source: "sample" as const };
+    await close();
+    const out = values.out ?? "packages/map/public/data/sample.json";
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, JSON.stringify(map));
+    console.log(JSON.stringify({ clusterWorld: report["clusterWorld"], explain: report["explain"], telegram: report["telegram"] }));
+    console.log(`${out}: ${map.items.length} items, ${map.places.length} places, telegram ${map.telegram ? `"${map.telegram.word}"` : "none"}`);
     break;
   }
   case "show": {

@@ -1,7 +1,7 @@
 // The data model from docs/SPEC.md section 7. This file is the source of truth; the spec is the map.
 // Cascades exist so that re-running a stage for a date can delete its own output and everything derived from it
 // (spec decision 6). Feedback is never cascaded away: it keeps the event title and drops the id.
-import { boolean, date, integer, jsonb, numeric, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, date, doublePrecision, integer, jsonb, numeric, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const sources = pgTable("sources", {
   id: text("id").primaryKey(),
@@ -9,6 +9,13 @@ export const sources = pgTable("sources", {
   url: text("url").notNull(),
   topic: text("topic").notNull(),
   tier: text("tier").notNull(),
+  /** briefing (2DayAI editions) or world (the public map). Decision 25. */
+  desk: text("desk").notNull().default("briefing"),
+  /** Where the publisher publishes from; the map's pin. Null for briefing sources. */
+  placeName: text("place_name"),
+  lat: doublePrecision("lat"),
+  lon: doublePrecision("lon"),
+  lang: text("lang").notNull().default("en"),
 });
 
 export const articles = pgTable(
@@ -36,6 +43,9 @@ export const events = pgTable("events", {
   importance: integer("importance").notNull(),
   importanceReason: text("importance_reason").notNull(),
   promptVersion: text("prompt_version").notNull(),
+  desk: text("desk").notNull().default("briefing"),
+  /** World desk only: one of WORLD_TOPICS. */
+  topic: text("topic"),
 });
 
 export const eventArticles = pgTable(
@@ -160,4 +170,28 @@ export const runs = pgTable("runs", {
   detail: jsonb("detail"),
   startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
+});
+
+/** The conflict telegram for a run date (decision 25): one word, written from verified sentences only. */
+export const telegrams = pgTable(
+  "telegrams",
+  {
+    id: serial("id").primaryKey(),
+    runDate: date("run_date").notNull(),
+    /** What the word summarizes. "conflict" is the only scope today. */
+    scope: text("scope").notNull(),
+    word: text("word").notNull(),
+    quietDay: boolean("quiet_day").notNull(),
+    promptVersion: text("prompt_version").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("telegrams_date_scope_idx").on(t.runDate, t.scope)],
+);
+
+export const telegramItems = pgTable("telegram_items", {
+  id: serial("id").primaryKey(),
+  telegramId: integer("telegram_id").notNull().references(() => telegrams.id, { onDelete: "cascade" }),
+  eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+  rank: integer("rank").notNull(),
+  line: text("line").notNull(),
 });
