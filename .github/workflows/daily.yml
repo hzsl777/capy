@@ -1,0 +1,36 @@
+name: Daily run
+on:
+  schedule:
+    # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs hourly in deliver.yml.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: Run date (YYYY-MM-DD). Defaults to today.
+        required: false
+jobs:
+  day:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      MODEL: claude-sonnet-5
+      LLM_BATCH: "true"
+      DAILY_SPEND_CEILING_USD: "1.00"
+      WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - name: Run the day
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            npm run stage -- day --date "${{ inputs.date }}"
+          else
+            npm run stage -- day
+          fi

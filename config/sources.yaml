@@ -1,0 +1,74 @@
+# Starter source list. UNVERIFIED as of September 4, 2026: the build environment could not reach these hosts.
+# Run `npm run stage -- sources check` locally, remove anything that fails, and edit freely. Davis owns this list.
+# tier: primary (the agency or filing itself), trade (practitioner press), general (wires and papers).
+sources:
+  - id: sec-press
+    name: SEC press releases
+    url: https://www.sec.gov/news/pressreleases.rss
+    topic: securities
+    tier: primary
+  - id: fed-press
+    name: Federal Reserve press releases
+    url: https://www.federalreserve.gov/feeds/press_all.xml
+    topic: monetary-policy
+    tier: primary
+  - id: treasury-press
+    name: Treasury press releases
+    url: https://home.treasury.gov/rss/press.xml
+    topic: tax-policy
+    tier: primary
+  - id: irs-news
+    name: IRS news releases
+    url: https://www.irs.gov/rss/irs-news-releases
+    topic: tax
+    tier: primary
+  - id: federal-register-irs
+    name: Federal Register, IRS documents
+    url: https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bagencies%5D%5B%5D=internal-revenue-service
+    topic: tax
+    tier: primary
+  - id: pcaob-news
+    name: PCAOB news
+    url: https://pcaobus.org/rss/news
+    topic: audit
+    tier: primary
+  - id: journal-of-accountancy
+    name: Journal of Accountancy
+    url: https://www.journalofaccountancy.com/rss/all-news.xml
+    topic: accounting
+    tier: trade
+  - id: accounting-today
+    name: Accounting Today
+    url: https://www.accountingtoday.com/feed
+    topic: accounting
+    tier: trade
+  - id: cfo-dive
+    name: CFO Dive
+    url: https://www.cfodive.com/feeds/news/
+    topic: finance
+    tier: trade
+  - id: tax-foundation
+    name: Tax Foundation
+    url: https://taxfoundation.org/feed/
+    topic: tax-policy
+    tier: trade
+  - id: npr-news
+    name: NPR news
+    url: https://feeds.npr.org/1001/rss.xml
+    topic: general
+    tier: general
+  - id: nyt-business
+    name: New York Times business
+    url: https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+    topic: business
+    tier: general
+  - id: bbc-business
+    name: BBC business
+    url: https://feeds.bbci.co.uk/news/business/rss.xml
+    topic: business
+    tier: general
+  - id: wsj-markets
+    name: Wall Street Journal markets
+    url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+    topic: markets
+    tier: general
