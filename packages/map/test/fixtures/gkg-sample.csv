@@ -1,0 +1,6 @@
+f1	20260927020000	1	example-news.org	https://example-news.org/sport/regatta						4#Mombasa, Coast, Kenya#KE#KE02##-4.05#39.6667#-1473306#40																<PAGE_TITLE>Regatta entries reach record</PAGE_TITLE>
+f2	20260927021500	1	coast-times.example	https://coast-times.example/a			GENERAL_GOVERNMENT;LEGISLATION			1#Kenya#KE#KE##1#38#KE#10;4#Mombasa, Coast, Kenya#KE#KE02##-4.05#39.6667#-1473306#40																<PAGE_TITLE>Council reviews ferry timetable</PAGE_TITLE>
+f3	20260927023000	1	daily.example	https://daily.example/b						4#Nairobi, Nairobi Area, Kenya#KE#KE05##-1.28333#36.8167#-1473298#120	ana ruiz;li wen		sky survey													<PAGE_TITLE>Observatory opens for meteor shower</PAGE_TITLE>
+f4	20260927024500	1	ouest.example	https://ouest.example/c						4#Dakar, Dakar, Senegal#SG#SG01##14.6708#-17.4381#-2395059#15	ana ruiz;li wen														srclc:fra;eng:GT-FRA 1.0	<PAGE_TITLE>L'observatoire ouvre ses portes</PAGE_TITLE>
+f5	20260927030000	1	andes.example	https://andes.example/d						4#Lima, Lima, Peru#PE#PE15##-12.05#-77.05#-1476000#22	ana ruiz;li wen														srclc:spa;eng:GT-SPA 1.0	<PAGE_TITLE>Observatorio abre sus puertas</PAGE_TITLE>
+f6	20260927030000	1	country-only.example	https://country-only.example/e						1#Kenya#KE#KE##1#38#KE#10																<PAGE_TITLE>Country-level story</PAGE_TITLE>

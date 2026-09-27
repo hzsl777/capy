@@ -1,0 +1,72 @@
+# Builds the map with fresh GDELT data and deploys it to GitHub Pages.
+#
+# Manual only for now: capy is private, and on a free plan GitHub Pages doesn't
+# serve private repositories and Actions has 2,000 minutes a month, most of which
+# 2DayAI's daily and delivery jobs need. Once the map has a public home, add:
+#
+#   schedule:
+#     - cron: "17 * * * *"   # hourly; GDELT publishes every 15 minutes
+#
+# Pipeline state (last file read, 24h pool, preview cache) is carried between
+# runs with actions/cache. If ingest fails, nothing is deployed.
+name: Map deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: packages/map/.cache/ingest
+          key: map-ingest-${{ github.run_id }}
+          restore-keys: map-ingest-
+
+      - run: npm run map:ingest
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: packages/map/.cache/ingest
+          key: map-ingest-${{ github.run_id }}
+
+      - name: Keep placeholder data out of the public site
+        run: rm -f packages/map/public/data/sample.json
+
+      - run: npm run map:build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/map/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

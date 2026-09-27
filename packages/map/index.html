@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" data-theme="morning">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Capy News Map</title>
+    <meta name="description" content="World news by place. Turn the map, tune into a city, read what its outlets are reporting." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23f3efe4' stroke='%23151515' stroke-width='2'/%3E%3Cpath d='M2 16h28M16 2c-6 7-6 21 0 28M16 2c6 7 6 21 0 28' fill='none' stroke='%23151515' stroke-width='1.5'/%3E%3Ccircle cx='21' cy='12' r='3' fill='%23151515'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <a class="skip" href="#panel">Skip to stories</a>
+    <header class="masthead" id="masthead"></header>
+
+    <nav class="toolbar" aria-label="Map controls">
+      <div class="seg" role="radiogroup" aria-label="Design" id="theme-seg"></div>
+      <div class="seg" role="radiogroup" aria-label="View" id="view-seg"></div>
+      <details class="menu" id="topics-menu">
+        <summary>Topics <span id="topics-count"></span></summary>
+        <div class="menu-body chips" id="topics"></div>
+      </details>
+      <button class="tool" id="translate" aria-pressed="false" type="button">Translate</button>
+      <button class="tool" id="shuffle" type="button" title="Jump to a random place (S)">Shuffle</button>
+      <details class="menu" id="pins-menu">
+        <summary>Pinned <span id="pins-count"></span></summary>
+        <div class="menu-body" id="pins"></div>
+      </details>
+      <button class="tool" id="about-btn" type="button">How this works</button>
+    </nav>
+
+    <p class="banner" id="banner" hidden></p>
+
+    <main class="stage">
+      <div class="map" id="map">
+        <div class="crosshair" aria-hidden="true"></div>
+        <div class="zoom">
+          <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+          <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+        </div>
+        <svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1" />
+          <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" stroke-width="0.6" />
+          <path d="M50 8 L56 50 L50 92 L44 50 Z" fill="currentColor" opacity="0.85" />
+          <path d="M8 50 L50 44 L92 50 L50 56 Z" fill="currentColor" opacity="0.55" />
+          <path d="M50 8 L56 50 L50 50 Z" fill="var(--page)" />
+          <text x="50" y="7" text-anchor="middle" font-size="9" fill="currentColor">N</text>
+        </svg>
+      </div>
+      <aside class="panel" id="panel" tabindex="-1" aria-label="Stories"></aside>
+    </main>
+
+    <footer class="timebar">
+      <button class="tool" id="play" type="button" aria-label="Replay the last 24 hours">Replay</button>
+      <label class="slider">
+        <span class="sr">Time</span>
+        <input type="range" id="time" min="0" max="96" step="1" value="96" />
+      </label>
+      <span class="time-label" id="time-label">Last 24 hours</span>
+      <button class="tool" id="live" type="button" hidden>Live</button>
+    </footer>
+    <div class="ticker" id="ticker" aria-label="Latest reports"><div class="ticker-track" id="ticker-track"></div></div>
+
+    <dialog id="about">
+      <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
+      <h2>How this works</h2>
+      <p>Capy puts the world's news on a map by place. Turn the map; whatever sits under the crosshair is what you're tuned to.</p>
+      <h3>Where the reports come from</h3>
+      <p>Articles come from the <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener">GDELT Project</a>, a free open dataset that monitors news outlets worldwide in more than 65 languages, plus a short list of hand-picked local outlets. The map is updated about once an hour.</p>
+      <h3>How a story gets its dot</h3>
+      <p>Each article is placed at the first city or province it mentions, which is usually its dateline. Articles that only name a country are left off, since a dot in the middle of a country isn't a real place. Placement is automatic and sometimes wrong.</p>
+      <h3>What we don't do</h3>
+      <ul>
+        <li>No borders and no country names. The map shows coastlines, rivers, lakes, mountains and ice.</li>
+        <li>No ranking. Stories are listed newest first. Nothing is ordered by popularity, tone or "importance".</li>
+        <li>No rewriting. Headlines appear as the outlet wrote them. There are no generated summaries.</li>
+        <li>No single outlet can fill a place: outlets take turns, and each one is capped across the map.</li>
+      </ul>
+      <h3>Reading in the app</h3>
+      <p>The reader shows the headline, image and short description the outlet publishes for link previews. If the outlet allows it, you can open the full page inside the app; otherwise read it on the outlet's site. Full articles are never copied here.</p>
+      <h3>Translation</h3>
+      <p>Translate uses your browser's built-in, on-device translator where available. Nothing is sent anywhere.</p>
+      <p class="fine">Map data: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> (public domain). News index: GDELT Project. Headlines and previews belong to their publishers.</p>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

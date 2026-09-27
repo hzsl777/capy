@@ -38,7 +38,7 @@ September 27, 2026, the fold:
 - The map draws coastlines only. No borders, no country names.
 - 2D paper map first, a globe later if wanted. Capy is not bound by Three Angle Press's zero-JS rule.
 
-Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 23 in DECISIONS.md). A reversal is a new entry, never an edit.
+Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 24 in DECISIONS.md). A reversal is a new entry, never an edit.
 
 ## 4. What the product is
 
@@ -84,6 +84,7 @@ Packages, with import boundaries enforced by tools/check-boundaries.mjs:
 - packages/db: Drizzle schema, migrations, shared read models (loadEditionView, recordFeedback). Imports core. @2dayai/db/node holds the postgres-js client.
 - packages/pipeline: stages, CLI, the model module in src/llm/ (the only place the Anthropic SDK is imported). Imports core and db.
 - packages/web: the Worker. Imports core and db.
+- packages/map: the map's design prototype and its stand-in GDELT pipeline. Imports nothing from the workspace until the map work starts.
 
 Model layer: every call declares a Zod schema and uses structured outputs, so a bad response fails at the boundary. Effort per stage: cluster low, explain medium, select high. Batches API for per-event and per-reader calls in production (half price, up to an hour of latency); LLM_BATCH=false for immediate local runs. Every call logged with tokens, cache reads and writes, and cost; the day fails loudly past DAILY_SPEND_CEILING_USD. Prompts are versioned files in packages/core/prompts; editing one in place is a bug; outputs record the version.
 
@@ -114,7 +115,7 @@ An independent adversarial review found eight real defects before any live run (
 - No Neon database, no Resend account, no Worker deployment yet.
 - The prompts (cluster.v1, explain.v1, select.v1) have never produced output. Expect a v2 of each after the first real week.
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
-- The map has no code. Only its three fixed design points exist (decision 23).
+- The map exists only as a design prototype in packages/map, built ahead of schedule on stand-in GDELT data (three looks, flat and globe, reader, replay, filters). Decision 24 lists what it changes to meet decision 23 before it ships.
 
 ## 9. Milestones
 
@@ -126,7 +127,7 @@ An independent adversarial review found eight real defects before any live run (
 | M3 | Resend delivery, Worker pages, feedback | code done; accounts and deploy pending |
 | M4 | Tuning loop: Davis rates headlines and drill-downs daily for a week; prompts revised by version | not started |
 | M5 | Nine more readers, two weeks | not started |
-| Map | Regions as a sibling of select, source coordinates, 2D paper map front end | after M4 |
+| Map | Regions as a sibling of select, source coordinates, 2D paper map front end | design prototype in packages/map (decision 24); real work after M4 |
 
 After M5 the decision is: build the learned interest model, or stop.
 

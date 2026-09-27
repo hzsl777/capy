@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Your day, in one line. One headline per reader, with the stories, explanations, and sources one click down.",
+  "description": "News, compressed and sourced: 2DayAI (one headline a day) and a public news map, over one repository.",
   "workspaces": [
     "packages/*"
   ],
@@ -13,12 +13,19 @@
   "scripts": {
     "check": "npm run lint && npm run typecheck && npm test",
     "lint": "node tools/check-boundaries.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/web/tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/web/tsconfig.json --noEmit && tsc -p packages/map/tsconfig.json --noEmit",
     "test": "vitest run",
     "stage": "tsx packages/pipeline/src/cli.ts",
     "db:generate": "drizzle-kit generate --config packages/db/drizzle.config.ts",
     "db:migrate": "tsx packages/db/src/migrate.ts",
-    "web:dev": "wrangler dev --config packages/web/wrangler.toml"
+    "web:dev": "wrangler dev --config packages/web/wrangler.toml",
+    "map:dev": "npm run dev -w @capy/map --",
+    "map:build": "npm run build -w @capy/map --",
+    "map:preview": "npm run preview -w @capy/map --",
+    "map:ingest": "npm run ingest -w @capy/map --",
+    "map:sample": "npm run sample -w @capy/map --",
+    "map:basemap": "npm run basemap -w @capy/map --",
+    "map:screenshots": "npm run screenshots -w @capy/map --"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260903.1",
