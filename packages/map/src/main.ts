@@ -8,6 +8,14 @@ import "@fontsource/im-fell-english-sc/400.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/special-elite/400.css";
+import "@fontsource/vt323/400.css";
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-sans-condensed/500.css";
+import "@fontsource/ibm-plex-sans-condensed/600.css";
+import "@fontsource/architects-daughter/400.css";
+import "@fontsource/barlow/400.css";
+import "@fontsource/barlow/600.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -20,9 +28,11 @@ import {
   formatCoords,
   formatRunDate,
   groupByPlace,
+  hasTiers,
   languageName,
   loadNews,
   storyIndex,
+  tierOf,
   timeAgo,
   type Filters,
   type TopicFilter,
@@ -58,7 +68,13 @@ const state = {
   slot: SLOTS,
   live: true,
   translate: false,
-  tuned: null as number | null,
+  tuned: null as number[] | null,
+  /** Zoom level from MapView.level(): which stories show (decision 30). */
+  level: 0,
+  /** False when the file has no event data, so every place shows at every zoom. */
+  tiered: false,
+  /** The reader asked to see every report at the tuned place, not only this zoom level's. */
+  showAll: false,
   reader: null as Item | null,
   framed: false,
   /** The telegram panel: the word and the events it stands for (levels 0 and 1). */
@@ -81,12 +97,34 @@ function filters(): Filters {
 
 // ---- map --------------------------------------------------------------------
 
+const IDLE_SPIN_MS = 60_000;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let idleTimer = 0;
+
+/** After a minute without input, and nothing open to read, the map starts turning again. */
+function armIdleSpin() {
+  clearTimeout(idleTimer);
+  if (reducedMotion) return;
+  idleTimer = window.setTimeout(() => {
+    const menuOpen = document.querySelector("details.menu[open], dialog[open]");
+    if (state.reader || state.telegram || state.event || menuOpen || !state.live) return armIdleSpin();
+    map.startSpin();
+  }, IDLE_SPIN_MS);
+}
+
 const map = new MapView($("map"), THEMES[state.theme], {
-  onTune(index) {
-    state.tuned = index;
+  onTune(indices) {
+    state.tuned = indices;
+    state.showAll = false;
     if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
   },
+  onLevel(level) {
+    state.level = level;
+    if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
+  },
+  onInteract: armIdleSpin,
+  onLand: armIdleSpin,
 });
 map.setMode(viewOf());
 
@@ -97,7 +135,8 @@ function refreshDots() {
   const dots: Dot[] = [];
   for (const [index, items] of state.byPlace) {
     const p = state.file.places[index];
-    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, fresh: items[0].t >= f.to - 3600 });
+    const tier = Math.min(...items.map((it) => tierOf(it, state.tiered)));
+    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, fresh: items[0].t >= f.to - 3600, tier });
   }
   map.setDots(dots);
   map.setPinned(pinnedIndices());
@@ -130,6 +169,11 @@ function renderMasthead() {
   if (t.id === "wire") {
     const utc = gen.toISOString().slice(11, 16);
     row = [`FEED ${file?.source.toUpperCase() ?? "..."}`, `${n} ITEMS / ${places} PLACES`, `UPD ${utc}Z`];
+  } else if (t.id === "ops") {
+    const dtg = `${String(gen.getUTCDate()).padStart(2, "0")}${gen.toISOString().slice(11, 16).replace(":", "")}Z ${gen.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase()} ${String(gen.getUTCFullYear()).slice(2)}`;
+    row = [`DTG ${dtg}`, `${places} STATIONS`, `${n} REPORTS`];
+  } else if (t.id === "blueprint") {
+    row = [`Sheet ${day}`, date, `Rev. ${time}`];
   } else if (t.id === "cabinet") {
     row = [`Plate ${day}`, date, `Corrected to ${time}`];
   } else {
@@ -137,7 +181,7 @@ function renderMasthead() {
   }
   el.replaceChildren(
     h("div", { class: "mast-row" }, ...row.map((r) => h("span", {}, r))),
-    h("h1", { class: "mast-title" }, t.id === "wire" ? SITE_NAME.toUpperCase() : SITE_NAME),
+    h("h1", { class: "mast-title" }, t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME),
     h("p", { class: "mast-tag" }, SITE_TAGLINE),
   );
 }
@@ -155,20 +199,24 @@ function segmented<T extends string>(el: HTMLElement, options: [T, string][], cu
 }
 
 function renderToolbar() {
-  segmented(
-    $("theme-seg"),
-    THEME_IDS.map((id) => [id, THEMES[id].label]),
-    state.theme,
-    (id) => {
-      state.theme = id;
-      setPref("theme", id);
-      applyTheme();
-    },
+  // Five designs sit in one menu, so the toolbar stays short.
+  $("design-current").textContent = THEMES[state.theme].label;
+  $("designs").replaceChildren(
+    ...THEME_IDS.map((id) => {
+      const b = h("button", { type: "button", class: "menu-item", role: "menuitemradio", "aria-checked": String(id === state.theme) }, THEMES[id].label);
+      b.addEventListener("click", () => {
+        ($("design-menu") as HTMLDetailsElement).open = false;
+        state.theme = id;
+        setPref("theme", id);
+        applyTheme();
+      });
+      return b;
+    }),
   );
   segmented(
     $("view-seg"),
     [
-      ["2d", "Flat"],
+      ["2d", "Map"],
       ["3d", "Globe"],
     ],
     viewOf(),
@@ -204,25 +252,20 @@ function renderToolbar() {
   );
   $("topics-count").textContent = state.topics.size === FILTERS.length ? "" : `(${state.topics.size})`;
 
+  // Only offered where the browser can translate on the device.
   const tr = $("translate");
+  tr.hidden = !translationSupported();
   tr.setAttribute("aria-pressed", String(state.translate));
-  if (!translationSupported()) {
-    tr.setAttribute("disabled", "");
-    tr.title = "Needs a browser with built-in translation, such as a recent Chrome";
-  } else {
-    tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
-  }
+  tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
 
   renderPins();
 }
 
 function renderPins() {
   const box = $("pins");
+  // The menu appears once there is something in it; the Pin button in a place's panel adds the first.
+  $("pins-menu").hidden = state.pins.length === 0;
   $("pins-count").textContent = state.pins.length ? `(${state.pins.length})` : "";
-  if (!state.pins.length) {
-    box.replaceChildren(h("p", { class: "muted" }, "Pin a place from its panel to find it again here."));
-    return;
-  }
   box.replaceChildren(
     ...state.pins.map((pin) => {
       const b = h("button", { type: "button", class: "menu-item" }, pin.name);
@@ -307,7 +350,7 @@ function renderPanel() {
   if (state.telegram) return renderTelegram(panel);
   if (state.reader) return renderReader(panel, state.reader);
   if (state.tuned === null) return renderIdle(panel);
-  renderPlace(panel, state.tuned);
+  renderPlaces(panel, state.tuned);
 }
 
 function renderIdle(panel: HTMLElement) {
@@ -321,36 +364,51 @@ function renderIdle(panel: HTMLElement) {
       "div",
       { class: "idle" },
       h("h2", { class: "panel-title" }, "Turn the map"),
-      h("p", { class: "muted" }, "Drag to turn, scroll or pinch to zoom. The place under the crosshair is the one you're tuned to."),
+      h("p", { class: "muted" }, "Drag to turn, scroll or pinch to zoom. The place under the cross in the middle is the one you're tuned to. Zoom in to see more places."),
       h("h3", { class: "rule-head" }, "Latest across the map"),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
     ),
   );
 }
 
-function renderPlace(panel: HTMLElement, index: number) {
+/** One place, or nearby places merged at this zoom: their reports together, newest first. */
+function renderPlaces(panel: HTMLElement, indices: number[]) {
   const file = state.file!;
-  const place = file.places[index];
-  const items = state.byPlace.get(index) ?? [];
-  const pinned = state.pins.some((p) => p.id === place.id);
-  const pin = h("button", { type: "button", class: "tool pin", "aria-pressed": String(pinned) }, pinned ? "Pinned" : "Pin");
-  pin.addEventListener("click", () => {
-    state.pins = pinned ? state.pins.filter((p) => p.id !== place.id) : [...state.pins, { id: place.id, name: place.name } as Pin];
-    savePins(state.pins);
-    renderPins();
-    map.setPinned(pinnedIndices());
-    renderPanel();
-  });
+  const all = indices.flatMap((i) => state.byPlace.get(i) ?? []).sort((a, b) => b.t - a.t);
+  const items = state.showAll ? all : all.filter((it) => tierOf(it, state.tiered) <= state.level);
+  const hidden = all.length - items.length;
+  const place = file.places[indices[0]];
+  let head: HTMLElement;
+  if (indices.length === 1) {
+    const pinned = state.pins.some((p) => p.id === place.id);
+    const pin = h("button", { type: "button", class: "tool pin", "aria-pressed": String(pinned) }, pinned ? "Pinned" : "Pin");
+    pin.addEventListener("click", () => {
+      state.pins = pinned ? state.pins.filter((p) => p.id !== place.id) : [...state.pins, { id: place.id, name: place.name } as Pin];
+      savePins(state.pins);
+      renderPins();
+      map.setPinned(pinnedIndices());
+      renderPanel();
+    });
+    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, place.name), h("span", { class: "coords" }, formatCoords(place.lat, place.lon)), pin);
+  } else {
+    const names = indices.map((i) => file.places[i].name);
+    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, `${names.length} places`), h("span", { class: "coords" }, names.join(" · ")));
+  }
+  const more = hidden
+    ? (() => {
+        const b = h("button", { type: "button", class: "link" }, `Show ${hidden} more`);
+        b.addEventListener("click", () => {
+          state.showAll = true;
+          renderPanel();
+        });
+        return h("p", { class: "count" }, `${hidden} more ${hidden === 1 ? "report shows" : "reports show"} as you zoom in. `, b);
+      })()
+    : null;
   panel.replaceChildren(
-    h(
-      "div",
-      { class: "dateline" },
-      h("h2", { class: "place-name" }, place.name),
-      h("span", { class: "coords" }, formatCoords(place.lat, place.lon)),
-      pin,
-    ),
+    head,
     h("p", { class: "count" }, `${items.length} ${items.length === 1 ? "report" : "reports"} in this window`),
-    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt))),
+    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt, indices.length > 1))),
+    ...(more ? [more] : []),
   );
 }
 
@@ -459,7 +517,7 @@ function openReader(it: Item) {
         .map((p) => [file.places[p].lon, file.places[p].lat] as [number, number])
     : [];
   map.setArcs([from.lon, from.lat], to);
-  if (state.tuned !== it.place) flyToPlace(it.place);
+  if (!state.tuned?.includes(it.place)) flyToPlace(it.place);
   renderPanel();
   $("panel").scrollTop = 0;
 }
@@ -514,9 +572,7 @@ function renderTelegramStrip() {
   }
   const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
   word.addEventListener("click", openTelegram);
-  const more = h("button", { type: "button", class: "telegram-open" }, "Why this word");
-  more.addEventListener("click", openTelegram);
-  el.replaceChildren(kicker, word, scale(t.band), h("span", { class: "telegram-note" }, `Chosen by AI from ${t.scores.length} scored ${t.scores.length === 1 ? "event" : "events"}.`), more);
+  el.replaceChildren(kicker, word, scale(t.band), h("span", { class: "telegram-note" }, `Chosen by AI from ${t.scores.length} scored ${t.scores.length === 1 ? "event" : "events"}. Open the word to see why.`));
 }
 
 function openTelegram() {
@@ -600,7 +656,7 @@ function openEvent(id: number, back: "telegram" | "reader") {
   state.event = { id, back };
   applyHighlight();
   const first = ev.places[0];
-  if (first !== undefined && state.tuned !== first && back === "telegram") flyToPlace(first);
+  if (first !== undefined && !state.tuned?.includes(first) && back === "telegram") flyToPlace(first);
   renderPanel();
   $("panel").scrollTop = 0;
 }
@@ -762,21 +818,20 @@ function syncUrl() {
   const p = new URLSearchParams();
   p.set("theme", state.theme);
   if (state.view) p.set("view", state.view);
-  const place = state.tuned !== null ? state.file?.places[state.tuned] : null;
+  const place = state.tuned ? state.file?.places[state.tuned[0]] : null;
   if (place) p.set("place", place.id);
   history.replaceState(null, "", `${location.pathname}?${p}`);
 }
 
-function shuffle() {
-  const keys = [...state.byPlace.keys()];
-  if (!keys.length) return;
+/** S: turn the map until it lands somewhere new. */
+function spin() {
   closeReader();
   closeTelegram();
-  flyToPlace(keys[Math.floor(Math.random() * keys.length)]);
+  renderPanel();
+  map.startSpin();
 }
 
 function bindGlobal() {
-  $("shuffle").addEventListener("click", shuffle);
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
   $("about-btn").addEventListener("click", () => ($("about") as HTMLDialogElement).showModal());
@@ -795,7 +850,7 @@ function bindGlobal() {
       applyHighlight();
       renderPanel();
     } else if (e.key === "s" || e.key === "S") {
-      shuffle();
+      spin();
     }
   });
   // Close open menus when clicking elsewhere.
@@ -831,6 +886,7 @@ async function start() {
     return;
   }
   state.stories = storyIndex(state.file);
+  state.tiered = hasTiers(state.file);
   if (state.file.source !== "live") {
     const banner = $("banner");
     banner.hidden = false;
@@ -849,6 +905,13 @@ async function start() {
   const start = params.get("place");
   const idx = start ? state.file.places.findIndex((p) => p.id === start) : -1;
   if (idx >= 0) flyToPlace(idx);
+  // Like a radio dial: the map turns on its own until a place lands under the cross.
+  else if (!reducedMotion) {
+    // A different stretch of the world each visit, a little north of the equator where most places are.
+    map.setCenter(Math.random() * 360 - 180, 18);
+    map.startSpin();
+  }
+  armIdleSpin();
 }
 
 start();

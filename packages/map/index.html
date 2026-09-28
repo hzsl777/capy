@@ -12,19 +12,21 @@
     <header class="masthead" id="masthead"></header>
 
     <nav class="toolbar" aria-label="Map controls">
-      <div class="seg" role="radiogroup" aria-label="Design" id="theme-seg"></div>
       <div class="seg" role="radiogroup" aria-label="View" id="view-seg"></div>
+      <details class="menu" id="design-menu">
+        <summary><span class="sr">Design: </span><span id="design-current"></span></summary>
+        <div class="menu-body" id="designs" role="menu" aria-label="Design"></div>
+      </details>
       <details class="menu" id="topics-menu">
         <summary>Topics <span id="topics-count"></span></summary>
         <div class="menu-body chips" id="topics"></div>
       </details>
       <button class="tool" id="translate" aria-pressed="false" type="button">Translate</button>
-      <button class="tool" id="shuffle" type="button" title="Jump to a random place (S)">Shuffle</button>
-      <details class="menu" id="pins-menu">
+      <details class="menu" id="pins-menu" hidden>
         <summary>Pinned <span id="pins-count"></span></summary>
         <div class="menu-body" id="pins"></div>
       </details>
-      <button class="tool" id="about-btn" type="button">How this works</button>
+      <button class="tool quiet" id="about-btn" type="button">About</button>
     </nav>
 
     <div class="telegram" id="telegram" aria-live="polite"></div>
@@ -64,7 +66,9 @@
     <dialog id="about">
       <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
       <h2>How this works</h2>
-      <p><span data-site-name>GlobalGist</span> puts the world's news on a map by where it is published. Drag the map to turn it. The place under the crosshair is the one you're tuned to. The panel lists what its outlets reported, newest first.</p>
+      <p><span data-site-name>GlobalGist</span> puts the world's news on a map by where it is published. When you open it, the map turns until a place lands under the cross in the middle. Drag to turn it yourself. The panel lists what that place's outlets reported, newest first.</p>
+      <h3>What shows at each zoom</h3>
+      <p>Zoomed out, the map shows places with a story reported from three or more places, or one the AI model rated 4 or 5 for importance. Zoom in and the rest appear. Nearby places merge into one dot until you zoom in far enough to separate them. A dot's size depends only on how many reports it holds.</p>
       <h3>Where the reports come from</h3>
       <p>The reports come from a hand-picked list of outlets in every region. Each outlet is a pin at the city it publishes from, the way Radio Garden places stations. The site never guesses where an event happened, so the map never draws or names a disputed place. The data updates once a day.</p>
       <h3>The word at the top</h3>

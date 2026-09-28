@@ -26,6 +26,12 @@ export type MapItem = {
   place: number;
   /** Set when the article's event was reported from two or more places. */
   story?: string;
+  /**
+   * How many places reported this article's event, and the grouping model's 1 to 5 importance for it. Both
+   * decide only the zoom level at which the article's place appears (decision 30), never order or dot size.
+   */
+  reach?: number;
+  importance?: number;
   /** Event id with a verified explanation the reader can open (MapFile.events). */
   event?: number;
   /** The outlet's own short summary from its feed, at most 300 characters. Never article body text. */

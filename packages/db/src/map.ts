@@ -81,6 +81,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     eventPlaces.set(l.eventId, set);
   }
   const topicOf = new Map(worldEvents.map((e) => [e.id, asTopic(e.topic)]));
+  const importanceOf = new Map(worldEvents.map((e) => [e.id, e.importance]));
 
   const items: MapItem[] = [];
   for (const { article, source } of rows) {
@@ -98,7 +99,12 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
       topics: eventId !== undefined ? [topicOf.get(eventId) ?? "other"] : [],
       place,
     };
-    if (eventId !== undefined && (eventPlaces.get(eventId)?.size ?? 0) >= 2) item.story = `e${eventId}`;
+    if (eventId !== undefined) {
+      const reach = eventPlaces.get(eventId)?.size ?? 1;
+      item.reach = reach;
+      item.importance = importanceOf.get(eventId) ?? 1;
+      if (reach >= 2) item.story = `e${eventId}`;
+    }
     if (eventId !== undefined && explained.has(eventId)) item.event = eventId;
     if (article.lead) item.excerpt = clip(article.lead, EXCERPT_MAX);
     items.push(item);

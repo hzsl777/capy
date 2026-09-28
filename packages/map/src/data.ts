@@ -33,6 +33,24 @@ export function passes(item: MapItem, f: Filters): boolean {
 }
 
 /** Items per place index that pass the filters, newest first. */
+/**
+ * The zoom level from which an article's place shows (decision 30): 0 when its story is reported in three or
+ * more places or the model rated it 4 or 5, 1 for two places or importance 3, otherwise 2. A file without
+ * event data (a demo, or a day before grouping ran) shows everything from the start.
+ */
+export function tierOf(item: MapItem, tiered: boolean): number {
+  if (!tiered) return 0;
+  const reach = item.reach ?? 1;
+  const importance = item.importance ?? 1;
+  if (reach >= 3 || importance >= 4) return 0;
+  if (reach >= 2 || importance >= 3) return 1;
+  return 2;
+}
+
+export function hasTiers(file: MapFile): boolean {
+  return file.items.some((i) => i.reach !== undefined || i.importance !== undefined);
+}
+
 export function groupByPlace(file: MapFile, f: Filters): Map<number, MapItem[]> {
   const out = new Map<number, MapItem[]>();
   for (const it of file.items) {

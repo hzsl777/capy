@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GlobalGist: three looks over one layout.
+   GlobalGist: five looks over one layout.
    Canvas colours live in src/themes.ts; keep them in step with these tokens.
    ========================================================================== */
 
@@ -52,21 +52,64 @@
 /* ---- Wire Room: teleprinter on a dark desk ------------------------------ */
 :root[data-theme="wire"] {
   color-scheme: dark;
-  --page: #0d0e0c;
-  --panel: #121411;
-  --ink: #e9e4d4;
-  --ink-2: #c9c3b1;
-  --muted: #8a867a;
-  --rule: #3a3b35;
-  --accent: #ffb000;
-  --on-accent: #0d0e0c;
-  --hover: rgba(255, 176, 0, 0.08);
-  --grain-opacity: 0.1;
+  --page: #030805;
+  --panel: #06100a;
+  --ink: #b9f7cc;
+  --ink-2: #8fe0a8;
+  --muted: #5f9f72;
+  --rule: #1d4a2c;
+  --accent: #4dff88;
+  --on-accent: #021006;
+  --hover: rgba(77, 255, 136, 0.08);
+  --reticle: var(--accent);
+  --grain-opacity: 0.12;
   --grain-blend: screen;
-  --font-mast: "Special Elite", "Courier New", monospace;
+  --font-mast: "VT323", "IBM Plex Mono", monospace;
   --font-head: "IBM Plex Mono", ui-monospace, monospace;
   --font-body: "IBM Plex Mono", ui-monospace, monospace;
   --font-ui: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* ---- Ops Room: a situation display, slate and one cyan ------------------ */
+:root[data-theme="ops"] {
+  color-scheme: dark;
+  --page: #0b0e12;
+  --panel: #11151b;
+  --ink: #d8dee6;
+  --ink-2: #aeb8c4;
+  --muted: #818c9b;
+  --rule: #2a323d;
+  --accent: #43c1d3;
+  --on-accent: #071217;
+  --hover: rgba(67, 193, 211, 0.08);
+  --reticle: var(--accent);
+  --grain-opacity: 0.05;
+  --grain-blend: screen;
+  --font-mast: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-head: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+}
+
+/* ---- Blueprint: cobalt drafting sheet, white linework ------------------- */
+:root[data-theme="blueprint"] {
+  color-scheme: dark;
+  --page: #15356f;
+  --panel: #183b7a;
+  --ink: #f1f5fc;
+  --ink-2: #d3def3;
+  --muted: #a9bee2;
+  --rule: #7f9ccf;
+  --accent: #ff8a52;
+  --on-accent: #15356f;
+  --hover: rgba(241, 245, 252, 0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0.12;
+  --grain-blend: overlay;
+  --font-mast: "Architects Daughter", "Comic Sans MS", cursive;
+  --font-head: "Architects Daughter", "Comic Sans MS", cursive;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
 }
 
 /* ---- base --------------------------------------------------------------- */
@@ -397,17 +440,6 @@ summary {
   font: italic 13px/1.3 var(--font-body);
   color: var(--muted);
 }
-.telegram-open {
-  margin-left: auto;
-  border: 1px solid var(--rule);
-  background: transparent;
-  padding: 5px 10px;
-  cursor: pointer;
-  font: 13px/1 var(--font-ui);
-}
-.telegram-open:hover {
-  background: var(--hover);
-}
 :root[data-theme="morning"] .telegram-word {
   font-family: var(--font-mast);
   text-transform: none;
@@ -583,45 +615,24 @@ summary {
   outline: 4px double var(--rule);
   outline-offset: 4px;
 }
+/* The reticle: four short arms around an open centre. */
 .crosshair {
+  --arm: 7px;
+  --weight: 1.5px;
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 44px;
-  height: 44px;
-  margin: -22px 0 0 -22px;
-  border: 1.5px solid var(--ink);
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
   pointer-events: none;
   z-index: 2;
-  opacity: 0.8;
-}
-.crosshair::before,
-.crosshair::after {
-  content: "";
-  position: absolute;
-  background: var(--ink);
-}
-.crosshair::before {
-  left: 50%;
-  top: -9px;
-  bottom: -9px;
-  width: 1px;
-  mask: linear-gradient(to bottom, #000 0 9px, transparent 9px calc(100% - 9px), #000 calc(100% - 9px));
-}
-.crosshair::after {
-  top: 50%;
-  left: -9px;
-  right: -9px;
-  height: 1px;
-  mask: linear-gradient(to right, #000 0 9px, transparent 9px calc(100% - 9px), #000 calc(100% - 9px));
-}
-:root[data-theme="wire"] .crosshair {
-  border-color: var(--accent);
-}
-:root[data-theme="wire"] .crosshair::before,
-:root[data-theme="wire"] .crosshair::after {
-  background: var(--accent);
+  background:
+    linear-gradient(var(--reticle, var(--ink)), var(--reticle, var(--ink))) center top / var(--weight) var(--arm) no-repeat,
+    linear-gradient(var(--reticle, var(--ink)), var(--reticle, var(--ink))) center bottom / var(--weight) var(--arm) no-repeat,
+    linear-gradient(var(--reticle, var(--ink)), var(--reticle, var(--ink))) left center / var(--arm) var(--weight) no-repeat,
+    linear-gradient(var(--reticle, var(--ink)), var(--reticle, var(--ink))) right center / var(--arm) var(--weight) no-repeat;
+  filter: drop-shadow(0 0 1px var(--page)) drop-shadow(0 0 1px var(--page));
 }
 .zoom {
   position: absolute;
@@ -1050,7 +1061,234 @@ dialog .close {
   .telegram .scale {
     display: none;
   }
-  .telegram-open {
-    margin-left: 0;
+}
+
+/* ---- Wire Room: phosphor on black --------------------------------------- */
+:root[data-theme="wire"] .mast-title {
+  font-size: clamp(36px, 4.8vw, 54px);
+  line-height: 0.9;
+  text-shadow: 0 0 10px rgba(77, 255, 136, 0.45);
+}
+:root[data-theme="wire"] .telegram-big {
+  text-shadow: 0 0 8px rgba(77, 255, 136, 0.35);
+}
+:root[data-theme="wire"] body {
+  background: radial-gradient(ellipse at 50% 40%, #061309 0%, var(--page) 70%);
+}
+
+/* ---- Ops Room ------------------------------------------------------------ */
+:root[data-theme="ops"] .masthead {
+  text-align: left;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "title row" "title tag";
+  column-gap: 24px;
+  align-items: end;
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="ops"] .mast-title {
+  grid-area: title;
+  font: 600 clamp(24px, 3vw, 34px) / 1 var(--font-mast);
+  letter-spacing: 0.14em;
+}
+:root[data-theme="ops"] .mast-row {
+  grid-area: row;
+  justify-content: flex-end;
+  border: 0;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  font-family: var(--font-ui);
+}
+:root[data-theme="ops"] .mast-tag {
+  grid-area: tag;
+  text-align: right;
+  font: 12px/1.3 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="ops"] .toolbar,
+:root[data-theme="ops"] .timebar,
+:root[data-theme="ops"] .kicker,
+:root[data-theme="ops"] .rule-head {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+}
+:root[data-theme="ops"] .rule-head {
+  text-align: left;
+  color: var(--accent);
+  border-top: 0;
+}
+:root[data-theme="ops"] .panel {
+  border-left: 1px solid var(--rule);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+:root[data-theme="ops"] .panel-title,
+:root[data-theme="ops"] .place-name {
+  font: 600 22px/1.05 var(--font-head);
+  letter-spacing: 0.08em;
+}
+:root[data-theme="ops"] .dateline {
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="ops"] .headline {
+  font: 600 15px/1.3 var(--font-body);
+}
+:root[data-theme="ops"] .reader-headline {
+  font: 600 24px/1.2 var(--font-body);
+}
+:root[data-theme="ops"] .meta,
+:root[data-theme="ops"] .byline {
+  font-style: normal;
+  font-size: 12px;
+}
+:root[data-theme="ops"] .excerpt {
+  font-size: 15px;
+}
+:root[data-theme="ops"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="ops"] .telegram-word {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-bottom-width: 1px;
+  padding: 3px 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+:root[data-theme="ops"] .telegram-big {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+:root[data-theme="ops"] .scale .step.on,
+:root[data-theme="blueprint"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="ops"] .map {
+  /* A fine plotting grid behind the sheet. */
+  background:
+    linear-gradient(rgba(170, 186, 204, 0.05) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(170, 186, 204, 0.05) 1px, transparent 1px) 0 0 / 32px 32px;
+}
+
+/* ---- Blueprint ----------------------------------------------------------- */
+:root[data-theme="blueprint"] body {
+  background:
+    linear-gradient(rgba(241, 245, 252, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(241, 245, 252, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--page);
+}
+:root[data-theme="blueprint"] .mast-title {
+  font: 400 clamp(30px, 4vw, 46px) / 1 var(--font-mast);
+  letter-spacing: 0.04em;
+}
+:root[data-theme="blueprint"] .mast-tag {
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+:root[data-theme="blueprint"] .masthead {
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 3px 0 -1px var(--page), 0 4px 0 -1px var(--rule);
+}
+:root[data-theme="blueprint"] .toolbar,
+:root[data-theme="blueprint"] .timebar {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+:root[data-theme="blueprint"] .map {
+  margin: 10px;
+  border: 1px solid var(--rule);
+}
+:root[data-theme="blueprint"] .panel {
+  margin: 10px 10px 10px 0;
+  border: 1px solid var(--rule);
+}
+:root[data-theme="blueprint"] .panel-title,
+:root[data-theme="blueprint"] .place-name,
+:root[data-theme="blueprint"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+}
+:root[data-theme="blueprint"] .headline {
+  font: 600 16px/1.25 var(--font-body);
+}
+:root[data-theme="blueprint"] .meta,
+:root[data-theme="blueprint"] .byline {
+  font-style: normal;
+}
+:root[data-theme="blueprint"] .excerpt::first-letter {
+  font-family: var(--font-head);
+  font-weight: 400;
+}
+:root[data-theme="blueprint"] .telegram-word,
+:root[data-theme="blueprint"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  color: var(--accent);
+}
+:root[data-theme="blueprint"] .lead img {
+  filter: grayscale(1) contrast(1.1) brightness(1.05);
+  mix-blend-mode: screen;
+}
+
+/* ---- Toolbar: one row, quieter controls ---------------------------------- */
+.tool.quiet {
+  margin-left: auto;
+  border-color: transparent;
+}
+.tool.quiet:hover {
+  border-color: var(--rule);
+}
+#design-menu > summary::after,
+#topics-menu > summary::after,
+#pins-menu > summary::after {
+  content: " \25BE";
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+.menu-item[aria-checked="true"] {
+  font-weight: 700;
+}
+.menu-item[aria-checked="true"]::before {
+  content: "\2713  ";
+}
+.telegram-word {
+  cursor: pointer;
+}
+.telegram-word:hover,
+.telegram-word:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+button.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="ops"] .masthead {
+    grid-template-areas: "title row";
+  }
+  :root[data-theme="ops"] .mast-tag {
+    display: none;
+  }
+  :root[data-theme="blueprint"] .map {
+    margin: 8px;
+  }
+  :root[data-theme="blueprint"] .panel {
+    margin: 0 8px 8px;
   }
 }

@@ -8,7 +8,7 @@ import { preview } from "vite";
 import { chromium } from "playwright-core";
 
 const OUT = process.env.SHOT_DIR ?? "../../docs/map/screenshots";
-const themes = ["morning", "cabinet", "wire"] as const;
+const themes = ["morning", "cabinet", "wire", "ops", "blueprint"] as const;
 const views = ["2d", "3d"] as const;
 
 const server = await preview({ preview: { port: 4179, strictPort: true }, logLevel: "warn" });
