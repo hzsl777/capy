@@ -46,11 +46,11 @@ describe("the Worker's map data", () => {
     expect(res.headers.get("cache-control")).toContain("max-age=300");
     const map = (await res.json()) as MapFile;
     expect(map).toMatchObject({ version: 2, source: "live", runDate: date });
-    expect(map.telegram?.word).toBe("Ceasefire");
+    expect(map.telegram).toMatchObject({ word: "Unease", band: -1 });
     expect(map.places).toHaveLength(12);
 
     const dated = await app.request(`/data/${date}.json`, {}, env);
-    expect(((await dated.json()) as MapFile).telegram?.word).toBe("Ceasefire");
+    expect(((await dated.json()) as MapFile).telegram?.word).toBe("Unease");
     expect((await app.request("/data/2026-13-40.json", {}, env)).status).toBe(404);
     expect((await app.request("/data/latest.jsonx", {}, env)).status).toBe(404);
   });

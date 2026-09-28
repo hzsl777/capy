@@ -64,7 +64,7 @@ const HELP = `Commands:
   explain                explain each event with verified citations (model, batched)
   select                 one edition per reader with the headline (model, batched)
   cluster world          group the world desk's articles into events with a topic (model)
-  telegram               the one-word conflict telegram from verified sentences (model)
+  telegram               score the day's world events and pick the one-word mood (model, two calls)
   map export [--out f]   the public map's data for the date (default: latest) as JSON
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
   show [--reader r01]    print a reader's edition for the date

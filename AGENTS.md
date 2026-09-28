@@ -5,7 +5,7 @@ Two products in one npm-workspaces repository:
 - **2DayAI** (`packages/core`, `db`, `pipeline`, `web`): one sourced headline per reader per day, delivered by email. The design is docs/SPEC.md, later changes are docs/DECISIONS.md, operations are docs/RUNBOOK.md. Read SPEC.md section 9 (engineering rules) before touching these packages.
 - **The map** (`packages/map`): a public news map by place. Its guide, including hard neutrality rules, is packages/map/AGENTS.md. Read it before touching the map.
 
-Read CONTEXT.md first: it is the whole picture and what Davis has decided. Both products run on one pipeline and one database (decisions 23 and 25). Sources are on the briefing desk (2DayAI editions) or the world desk (the map and its one-word conflict telegram). The Worker serves the map and builds its data from the database.
+Read CONTEXT.md first: it is the whole picture and what Davis has decided. Both products run on one pipeline and one database (decisions 23, 25 and 26). Sources are on the briefing desk (2DayAI editions) or the world desk (the map and its one-word mood telegram). The Worker serves the map and builds its data from the database.
 
 ## Rules for the whole repository
 

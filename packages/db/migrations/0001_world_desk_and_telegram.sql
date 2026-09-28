@@ -6,12 +6,20 @@ CREATE TABLE "telegram_items" (
 	"line" text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "telegram_scores" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"telegram_id" integer NOT NULL,
+	"event_id" integer NOT NULL,
+	"score" integer NOT NULL,
+	"because" text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "telegrams" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"run_date" date NOT NULL,
 	"scope" text NOT NULL,
 	"word" text NOT NULL,
-	"quiet_day" boolean NOT NULL,
+	"band" integer NOT NULL,
 	"prompt_version" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -25,4 +33,6 @@ ALTER TABLE "sources" ADD COLUMN "lon" double precision;--> statement-breakpoint
 ALTER TABLE "sources" ADD COLUMN "lang" text DEFAULT 'en' NOT NULL;--> statement-breakpoint
 ALTER TABLE "telegram_items" ADD CONSTRAINT "telegram_items_telegram_id_telegrams_id_fk" FOREIGN KEY ("telegram_id") REFERENCES "public"."telegrams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "telegram_items" ADD CONSTRAINT "telegram_items_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "telegram_scores" ADD CONSTRAINT "telegram_scores_telegram_id_telegrams_id_fk" FOREIGN KEY ("telegram_id") REFERENCES "public"."telegrams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "telegram_scores" ADD CONSTRAINT "telegram_scores_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "telegrams_date_scope_idx" ON "telegrams" USING btree ("run_date","scope");

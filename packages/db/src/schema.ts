@@ -172,16 +172,17 @@ export const runs = pgTable("runs", {
   finishedAt: timestamp("finished_at", { withTimezone: true }),
 });
 
-/** The conflict telegram for a run date (decision 25): one word, written from verified sentences only. */
+/** The telegram for a run date (decision 26): one emotion word from a fixed list, for the band the scores set. */
 export const telegrams = pgTable(
   "telegrams",
   {
     id: serial("id").primaryKey(),
     runDate: date("run_date").notNull(),
-    /** What the word summarizes. "conflict" is the only scope today. */
+    /** What the word reads from. "world" today. */
     scope: text("scope").notNull(),
     word: text("word").notNull(),
-    quietDay: boolean("quiet_day").notNull(),
+    /** -2 to 2, from dayBand over telegram_scores. */
+    band: integer("band").notNull(),
     promptVersion: text("prompt_version").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -194,4 +195,13 @@ export const telegramItems = pgTable("telegram_items", {
   eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
   rank: integer("rank").notNull(),
   line: text("line").notNull(),
+});
+
+/** One score per explained world event, with the verified sentence the model gave as its reason. */
+export const telegramScores = pgTable("telegram_scores", {
+  id: serial("id").primaryKey(),
+  telegramId: integer("telegram_id").notNull().references(() => telegrams.id, { onDelete: "cascade" }),
+  eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+  score: integer("score").notNull(),
+  because: text("because").notNull(),
 });

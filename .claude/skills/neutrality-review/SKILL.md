@@ -1,6 +1,6 @@
 ---
 name: neutrality-review
-description: Review a change to Capy's map UI, copy, basemap, world sources, the one-word conflict telegram or how world events are chosen against the project's neutrality rules (no borders, no country names, no ranking of headlines, no unverified text, a checked word, balanced outlets, no full article text). Use before finishing any such change, and whenever someone asks whether something is neutral or could be controversial.
+description: Review a change to Capy's map UI, copy, basemap, world sources, the one-word mood telegram (scores, scale, word lists) or how world events are chosen against the project's neutrality rules (no borders, no country names, no ranking of headlines, no unverified text, a checked word, balanced outlets, no full article text). Use before finishing any such change, and whenever someone asks whether something is neutral or could be controversial.
 ---
 
 # Neutrality review
@@ -20,14 +20,15 @@ Capy is public and shows news from contested places. Go through each check again
 - [ ] Place names use `Place.name` only, with no country appended.
 - [ ] Lists are newest first. No new sort key.
 - [ ] Headlines are shown as published. Any translation is labelled "Translated from X" and is opt-in.
-- [ ] Generated text appears only in the telegram and event explanations, both built from verified sentences and both labelled as written by AI. No other summaries, no labels like "breaking" or "developing", no sentiment.
+- [ ] Generated text appears only in the telegram (word, scores, lines) and event explanations, all built from verified sentences and labelled as written by AI. No other summaries, no labels like "breaking" or "developing", no sentiment.
 - [ ] Nothing decorative around the word changes how it reads (no suffixes, no icons that imply a verdict).
 - [ ] New UI copy is descriptive and plain: no adjectives about events, places or groups, no em dashes.
 - [ ] Topic names stay neutral nouns ("Conflict & security", not loaded terms).
 
 ## Pipeline
-- [ ] `wordViolations` and `CONTESTED_WORDS` in `packages/core/src/world.ts` are not loosened without Davis. A day without a word is acceptable.
-- [ ] The telegram prompt still asks for breadth across conflicts and forbids names, sides and verdicts.
+- [ ] `dayBand`, `scoreProblems`, `wordProblems` and `MOOD_WORDS` in `packages/core/src/world.ts` are not loosened or edited without a decision. The worst significant event still sets a bad day. A day without a word is acceptable.
+- [ ] The scoring prompt still scores outcomes for people, never which side gained, and the word prompt still asks for breadth and forbids verdicts.
+- [ ] The mood score never orders headlines or changes how a pin looks, and every score is shown with its reason.
 - [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Pins are still publishers; nothing is geocoded.
 - [ ] The site shows only feed summaries (at most 300 characters) and quoted citation passages, never article text.
 - [ ] New outlets in `config/sources.yaml` went through `add-news-source`, and the world list isn't tilting toward one region, language or side.

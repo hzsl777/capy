@@ -446,6 +446,55 @@ summary {
   color: var(--accent);
   font-weight: 500;
 }
+.scale {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  font: 11px/1 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  align-self: center;
+}
+.scale .step {
+  padding: 4px 6px;
+  color: var(--muted);
+}
+.scale .step + .step {
+  border-left: 1px solid var(--rule);
+}
+.scale .step.on {
+  background: var(--ink);
+  color: var(--page);
+}
+:root[data-theme="wire"] .scale .step.on,
+:root[data-theme="cabinet"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.telegram-view .scale {
+  margin: 0 0 10px;
+}
+.score-chip {
+  display: inline-block;
+  min-width: 2.2em;
+  text-align: center;
+  font: 700 12px/1.5 var(--font-ui);
+  border: 1px solid var(--rule);
+  padding: 0 4px;
+  vertical-align: 2px;
+}
+.score-chip.s0,
+.score-chip.s1 {
+  background: var(--ink);
+  color: var(--page);
+}
+.event-score {
+  font: 14px/1.45 var(--font-body);
+  color: var(--ink-2);
+  margin: 0 0 8px;
+}
+.telegram-view .story .excerpt-quote {
+  font-size: 13px;
+}
 .explain-text {
   font: 16px/1.6 var(--font-body);
   margin: 6px 0 4px;
@@ -997,7 +1046,8 @@ dialog .close {
   .telegram {
     gap: 4px 10px;
   }
-  .telegram-note {
+  .telegram-note,
+  .telegram .scale {
     display: none;
   }
   .telegram-open {

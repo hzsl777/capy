@@ -27,8 +27,11 @@ type Story = {
   topic: WorldTopic;
   importance: number;
   title: string;
-  /** Telegram line, for conflict stories. */
+  /** Telegram line. */
   line?: string;
+  /** Scripted mood score, -2 to 2, with the index of the sentence given as its reason. */
+  score?: number;
+  because?: number;
   articles: { outlet: string; hour: number; headline: string; body: string }[];
   /** Explanation sentences. `cite` is [article index in this story, verbatim excerpt from its body]. */
   sentences: { part: Part; text: string; cite: [number, string] }[];
@@ -41,6 +44,8 @@ export const WORLD_STORIES: Story[] = [
     importance: 5,
     title: "Ceasefire talks over Kestrel Valley resume in Port Lenn",
     line: "Delegations resumed ceasefire talks over Kestrel Valley in Port Lenn, with a draft that includes a prisoner exchange.",
+    score: 1,
+    because: 0,
     articles: [
       { outlet: "northgate-wire", hour: 11, headline: "Kestrel Valley ceasefire talks resume in Port Lenn", body: "Delegations resumed ceasefire talks in Port Lenn on Tuesday after a pause of three weeks. Mediators said a draft ceasefire would include a prisoner exchange and a monitoring mission. Both delegations confirmed they would meet again on Friday." },
       { outlet: "gulf-courier", hour: 13, headline: "Mediators present draft text as Kestrel Valley talks restart", body: "Mediators presented a draft text to both delegations in Port Lenn. The draft calls for a halt to shelling along the valley road within 72 hours of signing. Aid agencies said access to the valley has been limited since August." },
@@ -58,14 +63,16 @@ export const WORLD_STORIES: Story[] = [
     key: "highlands",
     topic: "conflict",
     importance: 4,
-    title: "Shelling in the Oren highlands displaces families",
-    line: "Shelling near two villages in the Oren highlands displaced about 1,200 families, according to local officials.",
+    title: "Families leave Oren highland villages after nearby shelling",
+    line: "About 300 families left two villages in the Oren highlands as a precaution after overnight shelling nearby, officials said.",
+    score: -1,
+    because: 0,
     articles: [
-      { outlet: "indus-herald", hour: 9, headline: "Families leave Oren highland villages after shelling", body: "Local officials said about 1,200 families left two villages in the Oren highlands after overnight shelling. A school in the district town is being used as a shelter. Officials said they had asked for tents and water tanks." },
+      { outlet: "indus-herald", hour: 9, headline: "Families leave Oren highland villages after shelling", body: "Local officials said about 300 families left two villages in the Oren highlands as a precaution after overnight shelling nearby. A school in the district town is being used as a shelter. Officials said they had asked for tents and water tanks." },
       { outlet: "baltic-observer", hour: 14, headline: "Relief agencies send supplies to Oren highlands", body: "Relief agencies said a first convoy with tents and water tanks reached the district town on Wednesday. The agencies said the road into the highlands remains closed to civilian traffic." },
     ],
     sentences: [
-      { part: "whatHappened", text: "About 1,200 families left two villages in the Oren highlands after overnight shelling.", cite: [0, "about 1,200 families left two villages in the Oren highlands after overnight shelling"] },
+      { part: "whatHappened", text: "About 300 families left two villages in the Oren highlands as a precaution after nearby shelling.", cite: [0, "about 300 families left two villages in the Oren highlands as a precaution"] },
       { part: "whatHappened", text: "A school in the district town is being used as a shelter.", cite: [0, "A school in the district town is being used as a shelter"] },
       { part: "whyItMatters", text: "The road into the highlands is closed to civilian traffic.", cite: [1, "the road into the highlands remains closed to civilian traffic"] },
       { part: "whatChangesNext", text: "A first convoy with tents and water tanks reached the district town.", cite: [1, "a first convoy with tents and water tanks reached the district town"] },
@@ -77,6 +84,8 @@ export const WORLD_STORIES: Story[] = [
     importance: 3,
     title: "Prisoner exchange completed at the Varda crossing",
     line: "Both sides completed an exchange of 60 prisoners at the Varda crossing, overseen by an international observer team.",
+    score: 2,
+    because: 0,
     articles: [
       { outlet: "harbor-daily", hour: 10, headline: "Sixty prisoners exchanged at Varda crossing", body: "An exchange of 60 prisoners was completed at the Varda crossing on Tuesday morning. An international observer team oversaw the handover, which lasted about two hours." },
       { outlet: "atlas-review", hour: 12, headline: "Observers confirm Varda prisoner handover", body: "The observer team said the handover at the Varda crossing followed the agreed list of names. The team said a further exchange had been discussed but no date was set." },
@@ -93,6 +102,9 @@ export const WORLD_STORIES: Story[] = [
     topic: "environment",
     importance: 4,
     title: "Floods close roads across the delta region",
+    line: "Floodwater closed three main roads in the delta region, and emergency teams moved 900 residents from low-lying streets.",
+    score: -1,
+    because: 0,
     articles: [
       { outlet: "mekong-times", hour: 21, headline: "Delta floods close main roads", body: "Floodwater closed three main roads across the delta region after two days of heavy rain. The weather service said river levels would peak on Thursday." },
       { outlet: "pacific-record", hour: 15, headline: "Delta rain eases but rivers still rising", body: "Rain eased across the delta region on Wednesday but river levels were still rising. Emergency teams moved 900 residents from low-lying streets." },
@@ -108,8 +120,15 @@ export const WORLD_STORIES: Story[] = [
     topic: "economy",
     importance: 3,
     title: "Grain port reopens after quay repairs",
-    articles: [{ outlet: "andes-ledger", hour: 12, headline: "Grain port reopens after four months of repairs", body: "The grain port reopened on Wednesday after four months of quay repairs. The port authority said the first two ships would load this week." }],
-    sentences: [],
+    line: "The grain port reopened after four months of quay repairs, with the first two ships due to load this week.",
+    score: 1,
+    because: 0,
+    articles: [{ outlet: "andes-ledger", hour: 12, headline: "Grain port reopens after four months of repairs", body: "The grain port reopened on Wednesday after four months of quay repairs. The port authority said the first two ships would load this week. Dock workers returned to full shifts for the first time since spring." }],
+    sentences: [
+      { part: "whatHappened", text: "The grain port reopened after four months of quay repairs.", cite: [0, "The grain port reopened on Wednesday after four months of quay repairs"] },
+      { part: "whyItMatters", text: "Dock workers returned to full shifts for the first time since spring.", cite: [0, "Dock workers returned to full shifts for the first time since spring"] },
+      { part: "whatChangesNext", text: "The first two ships are due to load this week.", cite: [0, "the first two ships would load this week"] },
+    ],
   },
   {
     key: "budget",
@@ -124,8 +143,30 @@ export const WORLD_STORIES: Story[] = [
     topic: "health",
     importance: 3,
     title: "Clinics extend hours for vaccination drive",
-    articles: [{ outlet: "meridian-post", hour: 9, headline: "Clinics open on weekends for vaccination drive", body: "Clinics will open on weekends for the next month to support a vaccination drive, health officials said." }],
-    sentences: [],
+    line: "Clinics will open on weekends for a month to support a vaccination drive.",
+    score: 1,
+    because: 0,
+    articles: [{ outlet: "meridian-post", hour: 9, headline: "Clinics open on weekends for vaccination drive", body: "Clinics will open on weekends for the next month to support a vaccination drive, health officials said. Officials said 30 clinics would take part. Parents can book online or walk in." }],
+    sentences: [
+      { part: "whatHappened", text: "Clinics will open on weekends for the next month to support a vaccination drive.", cite: [0, "Clinics will open on weekends for the next month to support a vaccination drive"] },
+      { part: "whatHappened", text: "Officials said 30 clinics would take part.", cite: [0, "Officials said 30 clinics would take part"] },
+      { part: "whatChangesNext", text: "Parents can book online or walk in.", cite: [0, "Parents can book online or walk in"] },
+    ],
+  },
+  {
+    key: "rescue",
+    topic: "other",
+    importance: 3,
+    title: "Eleven miners rescued after three days underground in Serra Alta",
+    line: "Rescuers brought eleven miners to the surface in Serra Alta after three days underground; all were taken to hospital in stable condition.",
+    score: 2,
+    because: 0,
+    articles: [{ outlet: "cordillera-news", hour: 20, headline: "All eleven Serra Alta miners brought to the surface", body: "Rescuers brought all eleven miners to the surface in Serra Alta on Wednesday night after three days underground. Medics said all eleven were taken to hospital in stable condition. The mine operator said an inquiry into the collapse would begin next week." }],
+    sentences: [
+      { part: "whatHappened", text: "Rescuers brought all eleven miners to the surface after three days underground.", cite: [0, "Rescuers brought all eleven miners to the surface in Serra Alta on Wednesday night after three days underground"] },
+      { part: "whatHappened", text: "All eleven were taken to hospital in stable condition.", cite: [0, "all eleven were taken to hospital in stable condition"] },
+      { part: "whatChangesNext", text: "An inquiry into the collapse begins next week.", cite: [0, "an inquiry into the collapse would begin next week"] },
+    ],
   },
   {
     key: "festival",
@@ -169,7 +210,7 @@ export function worldFeedFor(url: string, runDate: string): string {
   const items = WORLD_STORIES.flatMap((s) => s.articles.filter((a) => a.outlet === outlet)).map((a) => {
     const when = new Date(day);
     when.setUTCHours(a.hour, 0, 0, 0);
-    return `<item><title>${esc(a.headline)}</title><link>${worldArticleUrl(a.outlet, a.headline)}</link><pubDate>${when.toUTCString()}</pubDate><description>${esc(a.body.split(". ")[0]!)}.</description><content:encoded><![CDATA[<p>${a.body}</p>]]></content:encoded></item>`;
+    return `<item><title>${esc(a.headline)}</title><link>${worldArticleUrl(a.outlet, a.headline)}</link><pubDate>${when.toUTCString()}</pubDate><description>${esc(a.body.split(". ")[0]!.replace(/\.$/, ""))}.</description><content:encoded><![CDATA[<p>${a.body}</p>]]></content:encoded></item>`;
   });
   return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>${outlet}</title>${items.join("")}</channel></rss>`;
 }
@@ -221,11 +262,20 @@ export function worldAnswers(opts: { badWordFirst?: string } = {}): Record<strin
       }
       return out;
     },
-    telegram: ({ user, attempt }) => {
-      const found = [...user.matchAll(/^\[event (\d+)\] (.+)$/gm)].map((m) => ({ id: Number(m[1]), story: WORLD_STORIES.find((s) => s.title === m[2]) }));
-      const chosen = found.filter((f) => f.story && f.story.importance >= 3).sort((a, b) => b.story!.importance - a.story!.importance);
-      const word = opts.badWordFirst && attempt === 1 ? opts.badWordFirst : "Ceasefire";
-      return { word, quietDay: false, events: chosen.slice(0, 3).map((f) => ({ eventId: f.id, line: f.story!.line ?? f.story!.title })) };
+    "telegram-score": ({ user }) => {
+      const scores = [...user.matchAll(/^\[event (\d+)\] (.+)$/gm)].flatMap((m) => {
+        const story = WORLD_STORIES.find((s) => s.title === m[2]);
+        if (!story || story.score === undefined) return [];
+        return [{ eventId: Number(m[1]), score: story.score, because: story.sentences[story.because ?? 0]!.text }];
+      });
+      return { scores };
+    },
+    "telegram-word": ({ user, attempt }) => {
+      const allowed = /^Allowed words for this band: (.+)\.$/m.exec(user)?.[1]?.split(", ") ?? [];
+      const found = [...user.matchAll(/^\[event (\d+)\] (.+)$/gm)].map((m) => ({ id: Number(m[1]), story: WORLD_STORIES.find((s) => s.title === m[2])! }));
+      const chosen = found.filter((f) => f.story).sort((a, b) => b.story.importance - a.story.importance).slice(0, 5);
+      const word = opts.badWordFirst && attempt === 1 ? opts.badWordFirst : allowed[0];
+      return { word, events: chosen.map((f) => ({ eventId: f.id, line: f.story.line ?? f.story.title })) };
     },
   };
 }

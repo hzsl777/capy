@@ -27,11 +27,12 @@ export function explainUserContent(event: { title: string }, rows: ArticleRow[])
 
 export async function runExplain(db: Db, config: Config, llm: Llm, date: RunDate): Promise<ExplainReport> {
   const dated = await db.select().from(events).where(eq(events.runDate, date));
-  // Briefing events are all explained. World events are many and only some are opened: conflict events feed the
-  // telegram, importance 4 and 5 are what readers open most. The rest keep headlines and links (decision 25).
+  // Briefing events are all explained. World events are many: those of importance 3 or more are explained, most
+  // important first, up to the cap. They are what the telegram reads and what readers open; the rest keep their
+  // headlines and links (decisions 25 and 26).
   const world = dated
-    .filter((e) => e.desk === "world" && (e.topic === "conflict" || e.importance >= 4))
-    .sort((a, b) => b.importance - a.importance || Number(b.topic === "conflict") - Number(a.topic === "conflict"))
+    .filter((e) => e.desk === "world" && e.importance >= 3)
+    .sort((a, b) => b.importance - a.importance)
     .slice(0, config.worldExplainMax);
   const evs = [...dated.filter((e) => e.desk !== "world"), ...world];
   if (evs.length === 0) return { events: 0, usable: 0, unusable: 0, failed: 0, sentencesDropped: 0 };

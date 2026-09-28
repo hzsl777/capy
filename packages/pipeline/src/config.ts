@@ -15,7 +15,7 @@ const EnvSchema = z.object({
   /** Public base URL of the Worker, for links in email. */
   WEB_BASE_URL: z.string().url().default("https://2dayai.workers.dev"),
   MAIL_FROM: z.string().default("2DayAI <edition@2dayai.example>"),
-  /** World events explained per day: conflict events and importance 4 or 5, highest importance first (decision 25). */
+  /** World events explained per day: importance 3 or more, highest first (decisions 25 and 26). */
   WORLD_EXPLAIN_MAX: z.coerce.number().int().min(0).default(25),
 });
 

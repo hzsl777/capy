@@ -43,7 +43,12 @@ September 27, 2026, later the same day (decision 25):
 - Build the working site now, integrated with 2DayAI. This reverses the "after milestone 4" timing above.
 - The site is headed by one word that sums up the day's conflict reporting worldwide (the telegram), with the events it stands for, their sourced explanations, and the sources one click down.
 
-Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 25 in DECISIONS.md). A reversal is a new entry, never an edit.
+September 28, 2026 (decision 26):
+
+- The word is the emotion the day's stories evoke, read from all world news, not only conflict.
+- It is set formulaically: each event scored -2 to 2 by what happened to people, and the worst significant event decides a bad day (Davis: "we have to be very careful here"). The model picks the word from a fixed list for the resulting step, from Grave to Good.
+
+Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 26 in DECISIONS.md). A reversal is a new entry, never an edit.
 
 ## 4. What the product is
 
@@ -107,7 +112,7 @@ Milestones 0 through 3, three build commits plus a review round, merged onto cap
 - Select per reader, validated in code (ids exist, no duplicates, no overlap, one outside-interests slot, at least three when three exist, headline rules), one retry with the problems spelled out, then a loud failure.
 - Deliver by the reader's local date and hour through Resend; every unsent edition considered, so evening hours in American time zones send after UTC midnight.
 - Worker: edition page, event page with numbered citations and quoted excerpts, feedback as a GET confirmation form and a POST write, scoped to the reader's own edition.
-- World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, explanations for conflict events and importance 4 or 5 (capped), and the telegram: one word checked in code (a single word, present in the verified sentences, not a proper noun, not a contested word; "Quiet" only on a routine day; no word at all without verified conflict reporting).
+- World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, explanations for events of importance 3 or more (capped), and the telegram: every explained event scored by the model with a quoted reason, the day's band computed in code (worst significant event decides a bad day), and the word picked from that band's fixed list, all checked in code (decision 26).
 - The map site (packages/map): three designs, flat and globe, the telegram strip under the masthead, and the drill-down from word to events to explanations with numbered citations to the quoted sources. The Worker serves it and builds its data from the database (`/data/latest.json`).
 - CLI: sources check, ingest, enrich, readers sync, cluster [--force], cluster world, explain, select, telegram, show, deliver [--dry-run], day [--fixture], map export, demo, spend, feedback.
 - CI: boundaries, typecheck including the Worker and the map, tests, the map build, secret scan. Tests run whole days on PGlite (a real Postgres engine) with the real migrations and a scripted model, including the world desk, the telegram retry and the Worker's map endpoints. No network, no key.
@@ -123,7 +128,7 @@ An independent adversarial review found eight real defects before any live run (
 - The prompts (cluster.v1, explain.v1, select.v1) have never produced output. Expect a v2 of each after the first real week.
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
 - The world-desk feeds in config/sources.yaml (eighteen outlets) are unverified, like the briefing list. Run sources check and prune.
-- The telegram and world-cluster prompts (telegram.v1, cluster-world.v1) have never produced output. Judge the first real words before trusting them.
+- The telegram and world-cluster prompts (telegram-score.v1, telegram-word.v1, cluster-world.v1) have never produced output. Judge the first real scores and words before trusting them.
 - No Cloudflare secrets yet, so deploy-site skips. The site has only run locally on the fictional sample.
 
 ## 9. Milestones
@@ -136,7 +141,7 @@ An independent adversarial review found eight real defects before any live run (
 | M3 | Resend delivery, Worker pages, feedback | code done; accounts and deploy pending |
 | M4 | Tuning loop: Davis rates headlines and drill-downs daily for a week; prompts revised by version | not started |
 | M5 | Nine more readers, two weeks | not started |
-| Map | World desk, publisher pins, the conflict telegram, map site served by the Worker | code done (decision 25); feeds, secrets and first live run pending |
+| Map | World desk, publisher pins, the mood telegram, map site served by the Worker | code done (decisions 25 and 26); feeds, secrets and first live run pending |
 
 After M5 the decision is: build the learned interest model, or stop.
 

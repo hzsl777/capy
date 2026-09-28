@@ -1,5 +1,5 @@
 {
-  "id": "47114b0b-9998-4b03-b75d-30c2f39aab9c",
+  "id": "081f22a1-2066-4f94-ace2-9f9d4f9ba0f0",
   "prevId": "0f1ec94b-b4cc-4592-b8c8-05802c47702e",
   "version": "7",
   "dialect": "postgresql",
@@ -1151,6 +1151,76 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.telegram_scores": {
+      "name": "telegram_scores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "telegram_id": {
+          "name": "telegram_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "because": {
+          "name": "because",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "telegram_scores_telegram_id_telegrams_id_fk": {
+          "name": "telegram_scores_telegram_id_telegrams_id_fk",
+          "tableFrom": "telegram_scores",
+          "tableTo": "telegrams",
+          "columnsFrom": [
+            "telegram_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "telegram_scores_event_id_events_id_fk": {
+          "name": "telegram_scores_event_id_events_id_fk",
+          "tableFrom": "telegram_scores",
+          "tableTo": "events",
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.telegrams": {
       "name": "telegrams",
       "schema": "",
@@ -1179,9 +1249,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "quiet_day": {
-          "name": "quiet_day",
-          "type": "boolean",
+        "band": {
+          "name": "band",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },

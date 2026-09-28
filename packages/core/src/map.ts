@@ -63,12 +63,15 @@ export type MapEvent = {
   sources: MapSource[];
 };
 
-/** Level 0 and 1: the word, and the events it stands for with one line each. */
+/** Level 0 and 1: the word, where the day sits on the scale and why, and the events that shaped it. */
 export type MapTelegram = {
   word: string;
-  quietDay: boolean;
+  /** -2 (grave) to 2 (good), computed from the event scores by dayBand in core. */
+  band: -2 | -1 | 0 | 1 | 2;
   runDate: string;
   items: { eventId: number; line: string }[];
+  /** Every explained event's score, with the verified sentence given as the reason. Worst first. */
+  scores: { eventId: number; score: number; because: string }[];
 };
 
 export type MapFile = {
@@ -81,7 +84,7 @@ export type MapFile = {
   places: MapPlace[];
   items: MapItem[];
   events: Record<string, MapEvent>;
-  /** Null when no telegram was written for the date (no verified conflict reporting, or the stage failed). */
+  /** Null when no telegram was written for the date (no explained world events, or the stage failed). */
   telegram: MapTelegram | null;
 };
 

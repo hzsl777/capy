@@ -57,7 +57,7 @@ The daily run needs no deploy: the Worker reads the new day from the database.
 
 ## The world desk and the telegram
 
-World sources are the `desk: world` entries in `config/sources.yaml`, each with the city it publishes from. The daily run clusters them (`cluster world`), explains conflict events and events of importance 4 or 5 (at most `WORLD_EXPLAIN_MAX`, default 25), and writes the telegram (`telegram`). To look at a day without the site:
+World sources are the `desk: world` entries in `config/sources.yaml`, each with the city it publishes from. The daily run clusters them (`cluster world`), explains events of importance 3 or more (at most `WORLD_EXPLAIN_MAX`, default 25), and writes the telegram (`telegram`): it scores each explained event, computes the day's band, and picks the word from that band's list (decision 26). To look at a day without the site:
 
 ```
 npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
@@ -65,7 +65,7 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 
 To see the whole site with no database, no key and no network, `npm run map:sample` runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`; then `npm run map:dev`.
 
-If the telegram stage fails twice on the rules (one word, found in the verified sentences, not a name, not a contested word), the run fails loudly and the site shows no word for that day. Look at the `runs` table detail for the reason before changing the prompt.
+If either telegram call fails twice on its rules (every event scored with a copied sentence; a word from the band's list naming the event that set a bad day), the run fails loudly and the site shows no word for that day. Look at the `runs` table detail for the reason before changing a prompt. `telegram_scores` holds every score and its reason.
 
 ## Change the schema
 

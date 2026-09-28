@@ -1,4 +1,4 @@
-// The world desk: clustering with a topic, and the conflict telegram (decision 25).
+// The world desk: clustering with a topic (decision 25), and the mood telegram (decision 26).
 import { z } from "zod";
 import type { VerifiedSentence } from "./citations.js";
 
@@ -21,96 +21,109 @@ export const WorldClusterResultSchema = z.object({
 });
 export type WorldClusterResult = z.infer<typeof WorldClusterResultSchema>;
 
-/** The telegram: one word for the day's conflict reporting, and the events it stands for. */
-export const TelegramSchema = z.object({
-  word: z.string().min(1).max(40),
-  quietDay: z.boolean(),
-  events: z
-    .array(z.object({ eventId: z.number().int(), line: z.string().min(1).max(220) }))
-    .max(5),
+/*
+ * The telegram (decision 26): one word for the emotion the day's world reporting evokes.
+ *
+ * 1. The model scores each explained event from -2 to 2 by what happened to people, citing one of the event's
+ *    verified sentences as the reason. Harm counts as harm whichever side it falls on.
+ * 2. Code, not the model, turns the scores into the day's band: if any significant event (importance 3 or more)
+ *    scored below zero, the worst of them sets the day, so good news never averages a tragedy away. Otherwise
+ *    the day is the importance-weighted average, rounded.
+ * 3. The model picks the word from that band's fixed list, and the events that shaped the day.
+ */
+
+export const MOOD_BANDS = [-2, -1, 0, 1, 2] as const;
+export type MoodBand = (typeof MOOD_BANDS)[number];
+
+/** Names for the scale's steps, shown beside the word. */
+export const MOOD_BAND_LABEL: Record<MoodBand, string> = { [-2]: "Grave", [-1]: "Hard", 0: "Mixed", 1: "Hopeful", 2: "Good" };
+
+/**
+ * The only words the telegram can use, per band. Emotions a reader might feel on reading the day's reporting,
+ * never verdicts about who is right. Changing a list is a decision (docs/DECISIONS.md), not a tweak.
+ */
+export const MOOD_WORDS: Record<MoodBand, readonly string[]> = {
+  [-2]: ["Grief", "Mourning", "Sorrow", "Anguish"],
+  [-1]: ["Unease", "Strain", "Worry", "Heaviness"],
+  0: ["Watchful", "Uncertain", "Unsettled", "Wary"],
+  1: ["Relief", "Hope", "Reassurance", "Encouragement"],
+  2: ["Joy", "Gratitude", "Gladness", "Elation"],
+};
+
+/** Events of this importance or more can set a bad day on their own. */
+export const SIGNIFICANT_IMPORTANCE = 3;
+
+export const TelegramScoresSchema = z.object({
+  scores: z.array(
+    z.object({
+      eventId: z.number().int(),
+      score: z.number().int().min(-2).max(2),
+      /** Verbatim copy of one of the event's verified sentences: the reason for the score. */
+      because: z.string().min(1),
+    }),
+  ),
 });
-export type Telegram = z.infer<typeof TelegramSchema>;
+export type TelegramScores = z.infer<typeof TelegramScoresSchema>;
 
-export const QUIET_WORD = "Quiet";
+export const TelegramWordSchema = z.object({
+  word: z.string().min(1).max(40),
+  /** One to five events that shaped the day, each with one line restating its verified sentences. */
+  events: z.array(z.object({ eventId: z.number().int(), line: z.string().min(1).max(220) })).min(1).max(5),
+});
+export type TelegramWord = z.infer<typeof TelegramWordSchema>;
 
-/**
- * Words that carry a verdict one side disputes, or that sell alarm instead of describing what happened.
- * The telegram is public and read by everyone, so it never uses them, even when a source does.
- */
-export const CONTESTED_WORDS = new Set([
-  "genocide", "massacre", "terror", "terrorism", "terrorist", "terrorists", "martyr", "martyrs", "martyrdom",
-  "aggression", "aggressor", "occupation", "occupier", "occupiers", "liberation", "liberated", "apartheid",
-  "atrocity", "atrocities", "slaughter", "carnage", "bloodbath", "chaos", "horror", "catastrophe", "victory",
-  "defeat", "surrender", "heroes", "invaders", "regime", "puppet", "annexation", "provocation", "crisis",
-]);
+export type ScoredEvent = { eventId: number; importance: number; score: number };
 
-const WORD_RE = /^\p{L}[\p{L}'-]{1,23}$/u;
-
-/** Crude stemmer, enough to match "Ceasefires" to "ceasefire" and "Talks" to "talks". */
-export function stem(word: string): string {
-  let w = word.toLowerCase().replace(/[’']s$/, "");
-  for (const suffix of ["ing", "ed", "es", "s"]) {
-    if (w.endsWith(suffix) && w.length - suffix.length >= 3) {
-      w = w.slice(0, -suffix.length);
-      break;
-    }
-  }
-  return w;
+/** The formula. Worst significant event decides a bad day; an all-good day is the weighted average. */
+export function dayBand(scored: ScoredEvent[]): MoodBand | null {
+  if (scored.length === 0) return null;
+  const significant = scored.filter((e) => e.importance >= SIGNIFICANT_IMPORTANCE);
+  const pool = significant.length ? significant : scored;
+  const worst = Math.min(...pool.map((e) => e.score));
+  if (worst < 0) return worst as MoodBand;
+  const weight = pool.reduce((sum, e) => sum + e.importance, 0);
+  const avg = pool.reduce((sum, e) => sum + e.importance * e.score, 0) / weight;
+  return Math.max(0, Math.min(2, Math.round(avg))) as MoodBand;
 }
 
-type Token = { raw: string; sentenceStart: boolean };
+const norm = (s: string) => s.replace(/\s+/g, " ").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').trim().toLowerCase();
 
-function tokens(text: string): Token[] {
-  const out: Token[] = [];
-  let start = true;
-  for (const m of text.matchAll(/[\p{L}][\p{L}'’-]*|[.!?;:]/gu)) {
-    const t = m[0];
-    if (/^[.!?;:]$/.test(t)) {
-      start = true;
-      continue;
-    }
-    out.push({ raw: t, sentenceStart: start });
-    start = false;
-  }
-  return out;
-}
-
-/**
- * Rules for the telegram word. Returns the violations; an empty list means the word passes.
- * The word must be lifted from the verified sentences it stands for, so the model cannot supply a verdict
- * the sources did not state, and it must not name a place, person or group.
- */
-export function wordViolations(word: string, quietDay: boolean, sentences: string[]): string[] {
-  const w = word.trim();
-  const out: string[] = [];
-  if (!WORD_RE.test(w)) return [`"${w}" is not a single word of letters (2 to 24 characters, hyphen allowed)`];
-  if (quietDay) return w === QUIET_WORD ? [] : [`on a quiet day the word is "${QUIET_WORD}"`];
-  if (w === QUIET_WORD) out.push(`"${QUIET_WORD}" is reserved for quiet days`);
-  if (CONTESTED_WORDS.has(w.toLowerCase())) out.push(`"${w}" is a contested or alarm word; describe what happened instead`);
-  const target = stem(w);
-  const matches = sentences.flatMap(tokens).filter((t) => {
-    const s = stem(t.raw);
-    return s === target || (target.length >= 5 && (s.startsWith(target) || target.startsWith(s)) && Math.min(s.length, target.length) >= 5);
-  });
-  if (matches.length === 0) out.push(`"${w}" does not appear in the verified sentences of the chosen events`);
-  else if (matches.every((t) => !t.sentenceStart && /^\p{Lu}/u.test(t.raw))) out.push(`"${w}" is a proper noun in the sources; the word must not name a place, person or group`);
-  return out;
-}
-
-/** Everything the telegram needs checked beyond the word itself. */
-export function telegramProblems(t: Telegram, usable: Map<number, VerifiedSentence[]>): string[] {
+/** Every candidate scored exactly once, each with a reason copied from its own verified sentences. */
+export function scoreProblems(sc: TelegramScores, usable: Map<number, VerifiedSentence[]>): string[] {
   const problems: string[] = [];
   const seen = new Set<number>();
-  for (const e of t.events) {
-    if (!usable.has(e.eventId)) problems.push(`event ${e.eventId} is not in the list`);
+  for (const s of sc.scores) {
+    const sentences = usable.get(s.eventId);
+    if (!sentences) {
+      problems.push(`event ${s.eventId} is not in the list`);
+      continue;
+    }
+    if (seen.has(s.eventId)) problems.push(`event ${s.eventId} scored twice`);
+    seen.add(s.eventId);
+    if (!sentences.some((v) => norm(v.text) === norm(s.because))) problems.push(`the reason for event ${s.eventId} is not one of its sentences; copy one exactly`);
+  }
+  for (const id of usable.keys()) if (!seen.has(id)) problems.push(`event ${id} was not scored`);
+  return problems;
+}
+
+/** The word must come from the band's list, and a bad day must name the event that set it. */
+export function wordProblems(w: TelegramWord, band: MoodBand, scored: ScoredEvent[]): string[] {
+  const problems: string[] = [];
+  const allowed = MOOD_WORDS[band];
+  if (!allowed.includes(w.word.trim())) problems.push(`word "${w.word.trim()}" is not one of: ${allowed.join(", ")}`);
+  const ids = new Map(scored.map((e) => [e.eventId, e]));
+  const seen = new Set<number>();
+  for (const e of w.events) {
+    if (!ids.has(e.eventId)) problems.push(`event ${e.eventId} is not in the list`);
     if (seen.has(e.eventId)) problems.push(`event ${e.eventId} chosen twice`);
     seen.add(e.eventId);
     if (e.line.split(/\s+/).length > 25) problems.push(`line for event ${e.eventId} is over 25 words`);
     if (/\u2014/.test(e.line)) problems.push(`line for event ${e.eventId} has an em dash`);
   }
-  if (!t.quietDay && t.events.length === 0) problems.push("choose at least one event unless it is a quiet day");
-  if (t.quietDay && t.events.length > 0) problems.push("a quiet day lists no events");
-  const sentences = t.events.flatMap((e) => (usable.get(e.eventId) ?? []).map((s) => s.text));
-  for (const v of wordViolations(t.word, t.quietDay, sentences)) problems.push(`word: ${v}`);
+  if (band < 0) {
+    const setters = scored.filter((e) => e.importance >= SIGNIFICANT_IMPORTANCE && e.score === band).map((e) => e.eventId);
+    const pool = setters.length ? setters : scored.filter((e) => e.score === band).map((e) => e.eventId);
+    if (!w.events.some((e) => pool.includes(e.eventId))) problems.push(`include the event that set the day (one of: ${pool.join(", ")})`);
+  }
   return problems;
 }

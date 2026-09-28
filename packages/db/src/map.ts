@@ -25,6 +25,10 @@ function hostOf(url: string): string {
   }
 }
 
+function isBand(n: number): n is -2 | -1 | 0 | 1 | 2 {
+  return Number.isInteger(n) && n >= -2 && n <= 2;
+}
+
 function asTopic(v: string | null): WorldTopic {
   return (WORLD_TOPICS as readonly string[]).includes(v ?? "") ? (v as WorldTopic) : "other";
 }
@@ -136,13 +140,25 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     };
   }
 
-  const tg = (await db.select().from(t.telegrams).where(and(eq(t.telegrams.runDate, date), eq(t.telegrams.scope, "conflict"))))[0];
+  const tg = (await db.select().from(t.telegrams).where(and(eq(t.telegrams.runDate, date), eq(t.telegrams.scope, "world"))))[0];
   let telegram: MapFile["telegram"] = null;
   if (tg) {
     const tItems = (await db.select().from(t.telegramItems).where(eq(t.telegramItems.telegramId, tg.id))).sort((a, b) => a.rank - b.rank);
+    const tScores = await db.select().from(t.telegramScores).where(eq(t.telegramScores.telegramId, tg.id));
     const kept = tItems.filter((i) => events[String(i.eventId)]);
     // A telegram whose events were re-clustered away is stale; show nothing rather than a word without its evidence.
-    if (tg.quietDay || kept.length > 0) telegram = { word: tg.word, quietDay: tg.quietDay, runDate: date, items: kept.map((i) => ({ eventId: i.eventId, line: i.line })) };
+    if (kept.length > 0 && isBand(tg.band)) {
+      telegram = {
+        word: tg.word,
+        band: tg.band,
+        runDate: date,
+        items: kept.map((i) => ({ eventId: i.eventId, line: i.line })),
+        scores: tScores
+          .filter((sc) => events[String(sc.eventId)])
+          .sort((a, b) => a.score - b.score)
+          .map((sc) => ({ eventId: sc.eventId, score: sc.score, because: sc.because })),
+      };
+    }
   }
 
   return { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), to.getTime()) / 1000), runDate: date, places, items, events, telegram };

@@ -487,6 +487,21 @@ function applyHighlight() {
   map.setHighlight([]);
 }
 
+const BAND_LABEL: Record<number, string> = { [-2]: "Grave", [-1]: "Hard", 0: "Mixed", 1: "Hopeful", 2: "Good" };
+
+function signed(n: number): string {
+  return n > 0 ? `+${n}` : n < 0 ? `\u2212${-n}` : "0";
+}
+
+/** The five-step scale with the day's step marked. Text labels, so it reads without colour. */
+function scale(band: number): HTMLElement {
+  return h(
+    "div",
+    { class: "scale", role: "img", "aria-label": `The day scored ${BAND_LABEL[band]}, on a scale from Grave to Good` },
+    ...[-2, -1, 0, 1, 2].map((b) => h("span", { class: b === band ? "step on" : "step" }, BAND_LABEL[b]!)),
+  );
+}
+
 function renderTelegramStrip() {
   const el = $("telegram");
   const file = state.file;
@@ -495,24 +510,20 @@ function renderTelegramStrip() {
     return;
   }
   const t = file.telegram;
-  const kicker = h("span", { class: "telegram-kicker" }, `Conflict reporting worldwide, ${formatRunDate(file.runDate)}, in one word`);
+  const kicker = h("span", { class: "telegram-kicker" }, `The world's reporting, ${formatRunDate(file.runDate)}, in one word`);
   if (!t) {
-    el.replaceChildren(kicker, h("span", { class: "telegram-none" }, "No verified conflict reporting for this date yet."));
+    el.replaceChildren(kicker, h("span", { class: "telegram-none" }, "No word yet for this date: the day's reporting hasn't been explained and scored."));
     return;
   }
-  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open what it stands for.` }, t.word);
+  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
   word.addEventListener("click", openTelegram);
-  const n = t.items.reduce((sum, i) => sum + (file.events[String(i.eventId)]?.sources.length ?? 0), 0);
-  const note = t.quietDay
-    ? "No conflict reporting above routine importance today."
-    : `Chosen by AI from ${t.items.length} ${t.items.length === 1 ? "event" : "events"} and ${n} checked ${n === 1 ? "source" : "sources"}.`;
-  const more = h("button", { type: "button", class: "telegram-open" }, t.quietDay ? "How this works" : "What it stands for");
-  more.addEventListener("click", t.quietDay ? () => ($("about") as HTMLDialogElement).showModal() : openTelegram);
-  el.replaceChildren(kicker, word, h("span", { class: "telegram-note" }, note), more);
+  const more = h("button", { type: "button", class: "telegram-open" }, "Why this word");
+  more.addEventListener("click", openTelegram);
+  el.replaceChildren(kicker, word, scale(t.band), h("span", { class: "telegram-note" }, `Chosen by AI from ${t.scores.length} scored ${t.scores.length === 1 ? "event" : "events"}.`), more);
 }
 
 function openTelegram() {
-  if (!state.file?.telegram || state.file.telegram.quietDay) return;
+  if (!state.file?.telegram) return;
   state.telegram = true;
   state.event = null;
   state.reader = null;
@@ -534,6 +545,10 @@ function placesText(ev: MapEvent): string {
   return names.length ? `Reported from ${names.join(", ")}` : "";
 }
 
+function scoreChip(score: number): HTMLElement {
+  return h("span", { class: `score-chip s${score + 2}`, title: BAND_LABEL[score] }, signed(score));
+}
+
 function renderTelegram(panel: HTMLElement) {
   const file = state.file!;
   const t = file.telegram!;
@@ -542,33 +557,42 @@ function renderTelegram(panel: HTMLElement) {
     closeTelegram();
     renderPanel();
   });
-  const items = t.items.flatMap((item) => {
-    const ev = file.events[String(item.eventId)];
+  const scoreOf = new Map(t.scores.map((sc) => [sc.eventId, sc]));
+  const eventButton = (eventId: number, text: string, extra: HTMLElement | null) => {
+    const ev = file.events[String(eventId)];
     if (!ev) return [];
+    const sc = scoreOf.get(eventId);
     const b = h(
       "button",
       { type: "button", class: "story" },
-      h("span", { class: "headline" }, item.line),
+      h("span", { class: "headline" }, sc ? scoreChip(sc.score) : null, " ", text),
+      extra,
       h("span", { class: "meta" }, [placesText(ev), `${ev.sources.length} ${ev.sources.length === 1 ? "source" : "sources"}`].filter(Boolean).join(" · ")),
-      h("span", { class: "related" }, "Explanation and sources"),
     );
     b.addEventListener("click", () => openEvent(ev.id, "telegram"));
     return [h("li", {}, b)];
-  });
+  };
   panel.replaceChildren(
     h(
       "article",
       { class: "reader telegram-view" },
       back,
-      h("p", { class: "kicker" }, `Conflict reporting worldwide · ${formatRunDate(t.runDate)}`),
+      h("p", { class: "kicker" }, `The world's reporting · ${formatRunDate(t.runDate)}`),
       h("h2", { class: "telegram-big" }, t.word),
+      scale(t.band),
       h(
         "p",
         { class: "fine" },
-        "An AI model chose this word and the events below from sentences that were checked word for word against the reporting. The word had to appear in those sentences, and it never names a place, person or side. Open an event to see every sentence with the source passage it rests on.",
+        "An AI model scored each explained event from \u22122 to +2 by what happened to people, never by which side gained, and quoted the checked sentence each score rests on. A formula, not the model, placed the day on the scale: when a significant event scored below zero, the worst of them sets the day, so good news never averages a tragedy away. The model then chose the word from a fixed list for that step.",
       ),
-      h("h3", { class: "rule-head" }, "What it stands for"),
-      h("ol", { class: "stories" }, ...items),
+      h("h3", { class: "rule-head" }, "What shaped the day"),
+      h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
+      h("h3", { class: "rule-head" }, "Every event's score"),
+      h(
+        "ol",
+        { class: "stories" },
+        ...t.scores.flatMap((sc) => eventButton(sc.eventId, file.events[String(sc.eventId)]?.title ?? "", h("blockquote", { class: "excerpt-quote" }, sc.because))),
+      ),
     ),
   );
 }
@@ -588,6 +612,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
   const file = state.file!;
   const backTo = state.event!.back;
   const back = h("button", { type: "button", class: "tool back" }, backTo === "telegram" ? `Back to "${file.telegram?.word ?? "today"}"` : "Back to the article");
+  const sc = file.telegram?.scores.find((x) => x.eventId === ev.id);
   back.addEventListener("click", () => {
     state.event = null;
     applyHighlight();
@@ -639,6 +664,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       back,
       h("p", { class: "kicker" }, [TOPIC_LABEL[ev.topic], placesText(ev)].filter(Boolean).join(" · ")),
       h("h2", { class: "reader-headline" }, ev.title),
+      sc ? h("p", { class: "event-score" }, scoreChip(sc.score), ` Scored ${BAND_LABEL[sc.score]} for today's word, because: `, h("q", {}, sc.because)) : null,
       section("What happened", ev.whatHappened),
       section("Why it matters", ev.whyItMatters),
       section("What changes next", ev.whatChangesNext),

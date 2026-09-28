@@ -3,7 +3,7 @@
 News, compressed and sourced. Two products in one repository.
 
 - **2DayAI**: one headline per reader per day, from a hand-written interest profile, with the stories, explanations, and sources one click down. Delivered by email. Built and tested; not yet run live. Code in `packages/core`, `db`, `pipeline`, `web`.
-- **The map**: a public news map in the spirit of Radio Garden, headed by one word for the day's conflict reporting worldwide. Turn a flat map or a globe; the place under the crosshair lists what its outlets reported, newest first. Open the word to see the events it stands for, their sourced explanations, and the sources. No borders, no country names, no labels on the map. Code in `packages/map`, served by the Worker in `packages/web`.
+- **The map**: a public news map in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scale from Grave to Good. Turn a flat map or a globe; the place under the crosshair lists what its outlets reported, newest first. Open the word to see the scale, every event's score and reason, their sourced explanations, and the sources. No borders, no country names, no labels on the map. Code in `packages/map`, served by the Worker in `packages/web`.
 
 Start with CONTEXT.md. Both products read one database written by one pipeline (decisions 23 and 25 in docs/DECISIONS.md).
 
@@ -24,7 +24,7 @@ Every explanation sentence carries a citation: an article id and a passage. Code
 Screenshots use the fictional sample: invented outlets and places, run through the real pipeline.
 
 - **Pins are publishers**, at the city they publish from (the `desk: world` entries in `config/sources.yaml`). Nothing is geocoded, so the map never draws or names a disputed place.
-- **The word.** Each day the `telegram` stage picks one to five conflict events and one word for them. Code rejects the word unless it is a single word that appears in the verified sentences of those events, is not a name, and is not a contested or alarm word. "Quiet" is for a routine day; no verified reporting means no word.
+- **The word.** Each day the `telegram` stage scores every explained world event from -2 to 2 by what happened to people, quoting the sentence each score rests on. Code places the day on a five-step scale, and the worst significant event sets a bad day, so good news never averages a tragedy away. The model then picks the word from that step's fixed list. The site shows every score and its reason.
 - **One content model, four depths.** The word, the events with one line each, each event's explanation with numbered citations, and the sources with the passages quoted. Headlines appear as the outlets published them.
 - Three designs, flat or globe, a 24-hour replay, topic filters, pinned places, and on-device translation.
 
