@@ -1,6 +1,8 @@
 # Template for a reader profile (spec 6.4). Real profiles are r01.yaml onward and are gitignored.
 # Davis writes r01 with Claude at milestone 2; it becomes the template for every profile after it.
 id: r00
+# Where the edition goes. Profiles with real emails live in the READER_PROFILES secret, never in the repository.
+email: reader@example.com
 timezone: America/New_York
 deliveryHour: 6
 topics:

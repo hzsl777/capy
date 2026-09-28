@@ -17,7 +17,8 @@ const EnvSchema = z.object({
   MODEL_TELEGRAM: z.string().optional(),
   /**
    * Which stages let the model think before answering. Thinking costs output tokens and time, and helps judgment
-   * more than bulk work, so the default is the telegram only. Sent to providers with a known switch.
+   * more than bulk work, so the default ("telegram") covers the judgment stages only: the telegram's two calls
+   * and 2DayAI's per-reader select. Sent to providers with a known switch.
    */
   LLM_THINKING: z.enum(["off", "telegram", "all"]).default("telegram"),
   /**
@@ -47,6 +48,14 @@ const EnvSchema = z.object({
   WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(15),
   /** Most articles in one cluster world call. A larger day is split into batches, then merged across them. */
   WORLD_CLUSTER_BATCH: z.coerce.number().int().min(1).default(300),
+  /** Times the telegram's score call runs; each event keeps its middle score (decision 36). Odd, so there is a middle. */
+  TELEGRAM_SCORE_RUNS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(5)
+    .refine((n) => n % 2 === 1, "an odd number: 1, 3 or 5")
+    .default(3),
 });
 
 export type Effort = "low" | "medium" | "high";
@@ -88,6 +97,7 @@ export type Config = {
   worldRetentionDays: number;
   worldPerSource: number;
   worldClusterBatch: number;
+  telegramScoreRuns: number;
   /** Effort per stage (decision 8). */
   effort: { cluster: Effort; explain: Effort; select: Effort; telegram: Effort };
 };
@@ -120,6 +130,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     worldRetentionDays: e.WORLD_RETENTION_DAYS,
     worldPerSource: e.WORLD_PER_SOURCE,
     worldClusterBatch: e.WORLD_CLUSTER_BATCH,
+    telegramScoreRuns: e.TELEGRAM_SCORE_RUNS,
     effort: { cluster: "low", explain: "medium", select: "high", telegram: "high" },
   };
 }

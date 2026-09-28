@@ -85,7 +85,7 @@ export async function takeSnapshot(db: Db, date: RunDate): Promise<Snapshot> {
 
 export async function restoreSnapshot(db: Db, snap: Snapshot): Promise<void> {
   const dated = (v: Date | string | null) => (v === null ? null : new Date(v));
-  if (snap.sources.length) await db.insert(sources).values(snap.sources);
+  if (snap.sources.length) await db.insert(sources).values(snap.sources.map((s) => ({ ...s, lastOkAt: dated(s.lastOkAt ?? null) })));
   for (let i = 0; i < snap.articles.length; i += 200) {
     await db.insert(articles).values(
       snap.articles.slice(i, i + 200).map((a) => ({ ...a, publishedAt: dated(a.publishedAt)!, fetchedAt: dated(a.fetchedAt)!, enrichedAt: dated(a.enrichedAt) })),

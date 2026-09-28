@@ -17,8 +17,8 @@ import { runTelegram } from "./stages/telegram.js";
 
 export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; sourcesPath?: string; readersDir?: string; force?: boolean };
 
-export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, deps: DayDeps = {}): Promise<Record<string, unknown>> {
-  const out: Record<string, unknown> = {};
+/** `out` fills as stages finish, so a caller still has the finished ones when a later stage throws. */
+export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, deps: DayDeps = {}, out: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   out["ingest"] = await recorded(db, date, "ingest", () => runIngest(db, loadSources(deps.sourcesPath), date, deps.fetchFeed));
   const readers = await recorded(db, date, "readers", () => syncReaders(db, loadProfiles(deps.readersDir)));
   out["readers"] = readers;

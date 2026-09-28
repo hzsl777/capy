@@ -1,6 +1,13 @@
 import type { Config } from "../config.js";
 
-/** The telegram's two calls may use a stronger model than the bulk stages (decision 28). */
+/**
+ * Stages that are judgment rather than bulk work: the telegram's two calls and 2DayAI's per-reader headline.
+ * Few tokens, the most care. They use MODEL_TELEGRAM and may reason (decisions 28 and 35).
+ */
+export function isJudgment(stage: string): boolean {
+  return stage.startsWith("telegram") || stage === "select";
+}
+
 export function modelFor(config: Pick<Config, "model" | "telegramModel">, stage: string): string {
-  return stage.startsWith("telegram") ? config.telegramModel : config.model;
+  return isJudgment(stage) ? config.telegramModel : config.model;
 }

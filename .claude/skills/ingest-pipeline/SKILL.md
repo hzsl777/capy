@@ -19,7 +19,8 @@ config/sources.yaml (desk: world, with place)
                                          events that are the same story; code checks the keys and joins them.
   -> explain         stages/explain.ts   world events of importance 3 or more, at most WORLD_EXPLAIN_MAX (25).
                                          every sentence's quoted passage checked against the article text
-  -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems), dayBand in code,
+  -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems) TELEGRAM_SCORE_RUNS
+                                         times and keep the middle (medianScores, decision 36), dayBand in code,
                                          word from MOOD_WORDS[band] (telegram-word.v1, wordProblems). Decision 26.
   -> loadMapView     db/src/map.ts       what the Worker serves at /data/latest.json
 ```
@@ -47,12 +48,13 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 ## Debugging checklist
 
 - **No word today:** `runs` for stage `telegram`. `reason: no explained world events` means nothing had a usable explanation. Check `cluster-world`, then the `usable` count in `explain`. A thrown error names the call (`telegram-score` or `telegram-word`) and the rule broken twice.
-- **Why this word:** the `telegram_scores` rows hold every score and its reason. `dayBand` in core turns them into the band. The worst significant (importance 3+) negative score sets a bad day by design.
+- **Why this word:** the `telegram_scores` rows hold every score (the middle of the runs) and its reason. The run report's `split` counts events the runs disagreed on. `dayBand` in core turns them into the band. The worst significant (importance 3+) negative score sets a bad day by design.
 - **Rejected answers:** code enforces these rules: every event scored once with a copied sentence, a word from `MOOD_WORDS[band]`, and on a bad day the setting event listed. Fix the prompt (new version file) before touching the rules, and never loosen them without Davis.
 - **Place empty or missing:** the source has no `place`, its feed failed at ingest, or its articles fall outside the 24-hour window ending 09:00 UTC.
 - **Event not explained:** it is below importance 3, or it fell below the cap. Raise `WORLD_EXPLAIN_MAX` only with the spend ceiling in mind.
 - **Cluster world failed:** the error names each failed batch. Nothing is written, and the date keeps the events it had.
 - **One story shows as two events:** the merge call did not group them, or code dropped the group. The `cluster-world` run report has `batches`, `merged` and `mergeDropped`. A group is dropped when a key is unknown, a key is in two groups, or it has fewer than two events.
+- **A feed keeps failing or is paused:** the daily run's summary page lists it with its streak. `sources.fail_streak` and `last_ok_at` hold the state; after 7 failed days it is only tried on Sundays (decision 36).
 - **Stale word after a re-run:** `cluster world` deletes the date's telegram. Run `telegram` again.
 
 ## Choosing or changing the model

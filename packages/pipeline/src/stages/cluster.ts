@@ -9,9 +9,10 @@ import {
   WorldClusterResultSchema,
   type RunDate,
   type WorldClusterMerge,
+  type WorldClusterResult,
   type WorldTopic,
 } from "@2dayai/core";
-import { loadPrompt } from "../prompts.js";
+import { loadPrompt, type Prompt } from "../prompts.js";
 import { articles, editions, eventArticles, events, sources, telegrams, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
 import type { Llm } from "../llm/types.js";
@@ -107,6 +108,35 @@ export function worldClusterUserContent(rows: WorldRow[]): string {
   return `World articles for today, ${rows.length} in total. Each starts with its id in brackets.\n\n${lines.join("\n\n")}`;
 }
 
+/** How many times a batch whose answer ran past the output limit is halved and asked again (decision 36). */
+const MAX_SPLITS = 3;
+
+/**
+ * Every batch through the cluster-world prompt. A batch whose answer hit max_tokens is halved and asked again,
+ * up to MAX_SPLITS times, so a busy day costs a few more calls instead of the whole stage. Any other failure,
+ * or one that still fails after splitting, fails the stage before anything is written.
+ */
+async function answerBatches(llm: Llm, config: Config, prompt: Prompt, batches: { id: string; batch: WorldRow[] }[], date: RunDate, depth = 0): Promise<{ batch: WorldRow[]; result: WorldClusterResult }[]> {
+  const answers = await llm.parseMany(
+    batches.map(({ id, batch }) => ({ id, stage: "cluster-world", prompt, schema: WorldClusterResultSchema, user: worldClusterUserContent(batch), effort: config.effort.cluster })),
+    date,
+  );
+  const out: { batch: WorldRow[]; result: WorldClusterResult }[] = [];
+  const retry: { id: string; batch: WorldRow[] }[] = [];
+  const failures: string[] = [];
+  for (const { id, batch } of batches) {
+    const answer = answers.get(id);
+    if (answer?.ok) out.push({ batch, result: answer.value });
+    else if (answer && /max_tokens/.test(answer.error) && batch.length >= 2 && depth < MAX_SPLITS) {
+      const half = Math.ceil(batch.length / 2);
+      retry.push({ id: `${id}.1`, batch: batch.slice(0, half) }, { id: `${id}.2`, batch: batch.slice(half) });
+    } else failures.push(`${id}: ${answer ? answer.error : "no answer"}`);
+  }
+  // A dead batch fails the stage before anything is written. A partial day would leave places empty without saying why.
+  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} of ${batches.length} batches failed, nothing written. ${failures.join("; ")}`);
+  return retry.length ? [...out, ...(await answerBatches(llm, config, prompt, retry, date, depth + 1))] : out;
+}
+
 /** Even batches of at most `max`, in the order given. */
 export function splitBatches<T>(rows: T[], max: number): T[][] {
   if (rows.length === 0) return [];
@@ -148,28 +178,17 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   }
 
   const prompt = loadPrompt("cluster-world", CLUSTER_WORLD_PROMPT_VERSION);
-  const batches = splitBatches(rows, config.worldClusterBatch);
-  const batchId = (i: number) => `batch-${i + 1}`;
-  const answers = await llm.parseMany(
-    batches.map((batch, i) => ({ id: batchId(i), stage: "cluster-world", prompt, schema: WorldClusterResultSchema, user: worldClusterUserContent(batch), effort: config.effort.cluster })),
-    date,
-  );
+  const answered = await answerBatches(llm, config, prompt, splitBatches(rows, config.worldClusterBatch).map((batch, i) => ({ id: `batch-${i + 1}`, batch })), date);
 
   const assigned = new Set<number>();
   const batchEvents: BatchEvent[] = [];
-  const failures: string[] = [];
   let unknownIds = 0;
   let skipped = 0;
   let unassigned = 0;
-  batches.forEach((batch, i) => {
-    const answer = answers.get(batchId(i));
-    if (!answer?.ok) {
-      failures.push(`${batchId(i)}: ${answer ? answer.error : "no answer"}`);
-      return;
-    }
-    const result = answer.value;
+  answered.forEach(({ batch, result }, i) => {
     // An id is known only inside the batch that carried it; the model never saw the others.
     const known = new Set(batch.map((r) => r.id));
+    const skippedIds = new Set(result.skipped.map((x) => x.articleId));
     let n = 0;
     for (const ev of result.events) {
       const ids = ev.articleIds.filter((id) => {
@@ -184,11 +203,10 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
       n += 1;
       batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label });
     }
-    skipped += result.skipped.filter((s) => known.has(s.articleId)).length;
-    unassigned += batch.filter((r) => !assigned.has(r.id) && !result.skipped.some((s) => s.articleId === r.id)).length;
+    skipped += [...skippedIds].filter((id) => known.has(id)).length;
+    unassigned += batch.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id)).length;
   });
-  // A dead batch fails the stage before anything is written. A partial day would leave places empty without saying why.
-  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} of ${batches.length} batches failed, nothing written. ${failures.join("; ")}`);
+  const batches = answered;
 
   let final = batchEvents;
   let merged = 0;

@@ -181,3 +181,25 @@ Davis may not have time to run anything, so the launch and every day after it mu
 2. A finished deploy starts "Daily run" with `day --if-missing`, which skips when the date's map already exists. Going live is the secrets and one merge. Later deploys don't pay for a second run.
 3. Each daily run starts with `llm check`, so a bad key or model id fails in seconds with a plain message instead of midway.
 4. Neon's free plan holds 0.5 GB. At 237 outlets a day adds several megabytes, mostly fetched page text, so the database would fill in months. A last `prune` stage deletes world-desk days older than `WORLD_RETENTION_DAYS` (default 30) and clears page text older than two days, which explain no longer needs. 2DayAI's briefing history is not touched. A failed prune never costs the day its map.
+
+## 35. 2DayAI runs on the daily workflow, with readers in a secret (September 28, 2026)
+
+Davis asked for 2DayAI to be wired up for production. The code for every stage was done (milestones 2 and 3), but the daily workflow could never see a reader: profiles live in `config/readers/`, which is gitignored because they hold emails.
+
+1. The daily run reads reader profiles from the `READER_PROFILES` secret as well as from `config/readers/`. The secret holds YAML documents separated by `---`, one per reader, in the format of `r00.example.yaml`. A reader defined in both places is refused, so there is never a doubt which profile is live. An invalid document is named by its position, never printed, because it holds an email.
+2. With profiles present, the briefing stages run by themselves (decision 33). Without them the map runs alone, as before.
+3. `deliver` refuses to send while `WEB_BASE_URL` or `MAIL_FROM` still hold their placeholder defaults, and names the variable to set. An email with links to a placeholder host would reach a reader and could not be taken back.
+4. 2DayAI's select stage counts as a judgment stage with the telegram: it runs on `MODEL_TELEGRAM` (`gpt-5.4-mini`) with reasoning on. Picking a reader's three to five events and writing the day's headline is the product (SPEC.md section 1), and one call per reader is cheap.
+5. The example profile gains an `email` line, so it passes validation when copied, and a test keeps it valid.
+
+## 36. Feeds that look after themselves, a steadier word, and a run summary (September 28, 2026)
+
+Davis asked for the first week's and the later sprint items in todo.txt to be done in code where they can be. This answers point 7 of decision 29, which left the median score for Davis to decide: Davis asked for the later sprint to be covered.
+
+1. Feed health, in new columns on `sources`. A feed found behind a homepage (decision 31) is remembered and fetched directly on later days; changing the URL in `sources.yaml` forgets it. A source that fails 7 days running is paused and retried on Sundays; one success resets it. A day run twice counts one failure.
+2. A cluster-world batch whose answer runs past the output limit is split in half and asked again, up to three times, before the stage fails. The advice to lower `WORLD_CLUSTER_BATCH` by hand is no longer needed for that case.
+3. Once OpenAI refuses the flex tier in a run, the rest of that run asks for the default tier straight away, instead of trying flex and failing on every call.
+4. The telegram's score call runs `TELEGRAM_SCORE_RUNS` times (default 3) and each event keeps its middle score, with the reason from a run that gave it. Every run must pass the same checks. The three calls run one after another so the provider's cache bills most of the repeated input at a tenth. Estimated extra cost: two to three cents a day on gpt-5.4-mini flex. The scale, the word lists and the band formula are unchanged. The About page says the day is scored three times.
+5. Each daily run writes a summary to its GitHub Actions page: the word, feed counts, stories, explanations, spend, and tables of failing, paused and discovered feeds. A failed run names the failure and lists the stages that finished.
+6. The map sends a Content-Security-Policy header. Everything loads from the site itself, except publisher images and the article reader's frame of the publisher's page. It was tested in Chromium across the designs with no violations (the bundled fonts need `data:`).
+7. On phones, the toolbar keeps Map / Globe and Topics in the row and moves Design, Translate, Pinned and About into a "More" menu, instead of scrolling sideways.

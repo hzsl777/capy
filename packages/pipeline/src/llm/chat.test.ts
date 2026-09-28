@@ -99,6 +99,13 @@ describe("the OpenAI-format client", () => {
     expect(sent.map((x) => (x.body as unknown as Record<string, unknown>)["service_tier"])).toEqual(["flex", undefined]);
   });
 
+  it("stops asking for flex for the rest of the run once it is refused", async () => {
+    const client = llm([new Response("flex not available", { status: 400 }), reply('{"word":"a"}'), reply('{"word":"b"}')], { LLM_PROVIDER: "openai" });
+    await client.parse(req("explain"), DATE);
+    await client.parse(req("explain"), DATE);
+    expect(sent.map((x) => (x.body as unknown as Record<string, unknown>)["service_tier"])).toEqual(["flex", undefined, undefined]);
+  });
+
   it("never sends a service tier to other providers", async () => {
     await llm([reply('{"word":"c"}')]).parse(req("explain"), DATE);
     expect((sent[0]!.body as unknown as Record<string, unknown>)["service_tier"]).toBeUndefined();

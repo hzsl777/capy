@@ -5,7 +5,7 @@
 Going live is secrets and one merge. Everything after that runs by itself (decision 34). Secrets go in GitHub under Settings, then Secrets and variables, then Actions.
 
 1. **Database.** Create a free Neon project (one Postgres database, nothing else) and copy its pooled connection string. Add it as the secret `DATABASE_URL`.
-2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Set a monthly limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`.
+2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Set a hard monthly spend limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`. docs/OPENAI.md walks through the dashboard: the project, the key, billing, limits, and what to ignore.
 3. **Cloudflare.** On a free Cloudflare account, create an API token from the "Edit Cloudflare Workers" template. Add it as `CLOUDFLARE_API_TOKEN`, and the account id as `CLOUDFLARE_ACCOUNT_ID`.
 4. **Merge the pull request into `main`.**
 
@@ -20,18 +20,32 @@ What happens on its own:
 
 "Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page.
 
+Each "Daily run" writes a short summary on its page in the Actions tab: the word, how many feeds were read, failed or paused, the stories and explanations, the model spend, and a table of the feeds that need a person. A failed run says which stage failed and lists the stages that finished.
+
+## Turn on 2DayAI
+
+The email briefing uses the same database, model key and daily run as the map. It turns on by itself once it has readers and a way to send mail (decision 35).
+
+1. **Readers.** Copy `config/readers/r00.example.yaml` for each reader and fill in the real email, timezone, delivery hour, topics and stake sentences. Ids are `r01`, `r02` and so on. Put all of them in one secret, `READER_PROFILES`, separated by a line with `---`. The profiles hold emails, so they never go in the repository. The next daily run adds the readers and makes their editions.
+2. **Mail.** Open a free Resend account, verify a sending domain, and add the API key as the secret `RESEND_API_KEY`.
+3. **Two repository variables** (the Variables tab next to Secrets). `WEB_BASE_URL` is the site's address, `https://globalgist.<account>.workers.dev` or the custom domain, so links in the email open the edition and its feedback buttons. `MAIL_FROM` is the sender, for example `2DayAI <edition@yourdomain.com>` on the domain Resend verified.
+
+"Deliver" runs every two hours and sends each edition once its reader's local delivery hour has passed. It refuses to send while `WEB_BASE_URL` or `MAIL_FROM` still hold the placeholder defaults, and says which one to set. To check an edition before any email goes out, run "Deliver" locally with `--dry-run`.
+
+Removing a reader: take their document out of `READER_PROFILES`. They get no new editions from the next run.
+
 ## First-time setup
 
 1. Open a free Neon project. Copy the connection string to the `DATABASE_URL` secret in this repository and to `.env` locally.
 2. Create a model API key. OpenAI is the default (decision 29). Add the key as the `LLM_API_KEY` secret. To use another provider, set the repository variable `LLM_PROVIDER` too. See "Choose a model" below. Not needed for milestone 0.
-3. Open a free Resend account and verify a sending domain. Add `RESEND_API_KEY`. Not needed until milestone 3.
+3. Open a free Resend account and verify a sending domain. Add `RESEND_API_KEY`. Only 2DayAI needs it; see "Turn on 2DayAI".
 4. Run `npm run db:migrate` once locally to create the tables.
 5. Run `npm run stage -- sources check` and remove any feed that fails from `config/sources.yaml`.
 
 ## First real run, for Davis
 
 1. `.env` with `DATABASE_URL` and `LLM_API_KEY` (and `LLM_PROVIDER` if not OpenAI).
-2. Write `config/readers/r01.yaml` from `r00.example.yaml` with your real email and profile.
+2. Write `config/readers/r01.yaml` from `r00.example.yaml` with your real email and profile. The file is gitignored and read only on your machine; the daily workflow reads the `READER_PROFILES` secret.
 3. `npm run stage -- sources check` and prune the list.
 4. `npm run stage -- day` and read the JSON report: articles in, events, usable explanations, sentences dropped, editions, spend.
 5. `npm run stage -- show --reader r01` and judge the headline, the lines, the explanations, and the sources.
@@ -87,6 +101,14 @@ World sources are the `desk: world` entries in `config/sources.yaml`. Each one h
 2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
 3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
 
+Feeds look after themselves (decision 36):
+
+- A feed found behind a homepage is remembered in the `sources` table, so later days fetch it directly. Changing the outlet's URL in `sources.yaml` forgets it.
+- A feed that fails 7 days running is paused and tried again each Sunday. One success resets it. `fail_streak` and `last_ok_at` in `sources` show where each outlet stands.
+- The daily summary lists failing feeds worst first. Replace or remove an outlet that stays paused, and keep the list balanced (see the add-news-source skill).
+
+If a busy day's grouping answer runs past the model's output limit, that batch is split in half and asked again, up to three times, before the stage fails.
+
 To look at a day without the site:
 
 ```
@@ -95,9 +117,9 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 
 To see the whole site with no database, no key and no network, run `npm run map:sample`, then `npm run map:dev`. The first command runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`.
 
-The telegram makes two model calls, and code checks each one:
+The telegram makes a score call and a word call, and code checks each one:
 
-- The score call must score every event and copy one of its verified sentences as the reason.
+- The score call must score every event and copy one of its verified sentences as the reason. It runs `TELEGRAM_SCORE_RUNS` times (default 3), one after another, and each event keeps its middle score with the reason from a run that gave it (decision 36). The run report's `split` counts events the runs disagreed on. Set the repository variable to 1 to save about two cents a day.
 - The word call must pick from the band's list and, on a bad day, name the event that set it.
 
 If a call fails its check twice, the run fails and the site shows no word for that day. Read the reason in the `runs` table detail before you change a prompt. `telegram_scores` holds every score and its reason.
@@ -141,7 +163,7 @@ Edit `packages/db/src/schema.ts`, then `npm run db:generate`. Commit the migrati
 
 ## Change a prompt
 
-Copy `packages/core/prompts/<name>.v<n>.md` to `v<n+1>`, edit the copy, point the stage at the new version. Attach a before-and-after run on the same past date to the pull request.
+Copy `packages/core/prompts/<name>.v<n>.md` to `v<n+1>`, edit the copy, point the stage at the new version. Attach a before-and-after run on the same past date to the pull request. docs/PROMPTS.md explains each prompt, what is sent around it, and what code checks after it.
 
 ## Rotate a key
 

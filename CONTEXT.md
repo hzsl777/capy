@@ -156,9 +156,9 @@ After M5 the decision is: build the learned interest model, or stop.
 
 To put GlobalGist live, follow docs/RUNBOOK.md, "Launch": four secrets and one merge, then it runs itself (decision 34). The list below is the 2DayAI path.
 
-1. Add repository secrets: DATABASE_URL (free Neon project), LLM_API_KEY (OpenAI by default, decision 29), RESEND_API_KEY (free Resend account with a verified sender). Set repository variables WEB_BASE_URL and MAIL_FROM once the Worker is deployed.
+1. Add repository secrets: DATABASE_URL (free Neon project), LLM_API_KEY (OpenAI by default, decision 29; docs/OPENAI.md covers the dashboard), RESEND_API_KEY (free Resend account with a verified sender), and READER_PROFILES (the reader profiles, decision 35). Set repository variables WEB_BASE_URL and MAIL_FROM once the Worker is deployed. docs/RUNBOOK.md, "Turn on 2DayAI", has the steps.
 2. Locally: copy .env.example to .env with the same values. Then choose the model by measurement: run the "Model eval" workflow on two or three real days and read the reports (docs/RUNBOOK.md, "Choose a model").
-3. Write config/readers/r01.yaml with a real email, timezone, delivery hour, weighted topics, muted topics, and stake sentences.
+3. Write config/readers/r01.yaml with a real email, timezone, delivery hour, weighted topics, muted topics, and stake sentences. The file is for local runs; the same YAML goes in the READER_PROFILES secret for the daily workflow.
 4. npm run stage -- sources check; remove what fails.
 5. npm run db:migrate, then npm run stage -- day --fixture --date 2026-09-04, then npm run stage -- show --reader r01. That is the first real headline on three known articles, for a few cents.
 6. A real day: npm run stage -- day, then show. Judge on the three phase-one conditions: the headline reads as true and worth the glance; the drill-down holds without a false claim; the aggregation catches what Davis wanted and leaves out what Davis would skip.
