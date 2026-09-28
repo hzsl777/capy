@@ -1,0 +1,66 @@
+GlobalGist and 2DayAI: what's left to do
+Last updated September 28, 2026. Details for each item are in docs/RUNBOOK.md and docs/DECISIONS.md.
+
+
+HOW IT RUNS NOW
+
+- Every day at 09:00 UTC, GitHub Actions runs "Daily run". It reads the news feeds, groups the stories,
+  explains the big ones, picks the day's word, and saves it all in the database.
+- The site reads the database, so it updates by itself. Nobody deploys anything day to day.
+- Each run ends by deleting world data older than 30 days, so the free database never fills up.
+- If a run fails, GitHub emails the repo owner and the site keeps showing the last good day.
+
+
+TO GO LIVE (Davis)
+
+[ ] Add four secrets in GitHub (Settings, then Secrets and variables, then Actions):
+    DATABASE_URL (the Neon pooled connection string), LLM_API_KEY (OpenAI),
+    CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+[ ] Set a monthly spending limit in the OpenAI dashboard.
+[ ] After the secrets are in, re-run the "Deploy site" workflow once (the merge already ran it
+    without Cloudflare, so it skipped). The first day then builds itself.
+[ ] Open https://globalgist.<account>.workers.dev and check that a map and a word show up.
+
+
+FIRST WEEK (dev team)
+
+[ ] Feeds. Run the "Preflight" workflow and read its Feeds section.
+    - About 150 outlets in config/sources.yaml point at a homepage ("feed unconfirmed").
+      Where Preflight says "feed found at", put that URL in sources.yaml.
+    - Remove outlets that fail every day. Keep the list balanced: if you drop one side of a
+      conflict, drop or replace the other side too (see the add-news-source skill).
+[ ] Model names and prices. The defaults (gpt-5.4-nano, gpt-5.4-mini) came from web research,
+    not OpenAI's own pages. Confirm them, and fix packages/pipeline/src/llm/pricing.ts if the
+    prices differ.
+[ ] Cheaper tier. The daily log says whether OpenAI served "flex (half price)". If it never does,
+    set the repository variable LLM_SERVICE_TIER to "default" to skip the extra attempt.
+[ ] Cost. Compare the llm_calls table with the OpenAI bill after a few days. The estimate is
+    $0.10 to $0.20 a day.
+[ ] Model choice. Run the "Model eval" workflow on two or three real days, including one busy news
+    day. It compares the default models with a few cheaper and stronger ones on the same articles.
+    Read the scores and reasons, not just the cost column.
+[ ] Read the word every day. Does it match the day? Do the scores fit their quoted reasons?
+    Write down any day that looks wrong, with the date.
+[ ] Busy days. Check the runs table for "output hit max_tokens" on the grouping stage. If it shows
+    up, lower WORLD_CLUSTER_BATCH (default 300).
+
+
+LATER
+
+[ ] Coverage gaps: no outlet based inside Sudan, and none for Belarus, Moldova or Nicaragua.
+    Outlets in exile are pinned where they publish, not where they report on.
+[ ] Decide whether to score each event two or three times and take the middle score. Models
+    sometimes give different scores on repeat runs (decision 29).
+[ ] Zoom levels use the model's importance rating to choose what shows first (decision 30).
+    Watch for complaints that this looks like ranking.
+[ ] On phones the control row scrolls sideways to reach Translate. Fold it into a menu.
+[ ] Add a Content-Security-Policy header once the embedded article reader has been tested with it.
+[ ] Optional: a custom domain for the site instead of workers.dev.
+
+
+2DAYAI (the email product, not live yet)
+
+[ ] Write reader profiles in config/readers/ (see r00.example.yaml). The briefing stages turn on
+    by themselves once a profile exists.
+[ ] Set up Resend: add RESEND_API_KEY, and set the variables WEB_BASE_URL and MAIL_FROM.
+    Email delivery then turns on by itself.

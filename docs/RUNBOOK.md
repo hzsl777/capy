@@ -9,6 +9,8 @@ Going live is secrets and one merge. Everything after that runs by itself (decis
 3. **Cloudflare.** On a free Cloudflare account, create an API token from the "Edit Cloudflare Workers" template. Add it as `CLOUDFLARE_API_TOKEN`, and the account id as `CLOUDFLARE_ACCOUNT_ID`.
 4. **Merge the pull request into `main`.**
 
+If `main` was merged before the secrets existed, the deploy skipped. Run "Deploy site" once from the Actions tab after adding them. Everything below then follows on its own.
+
 What happens on its own:
 
 - "Deploy site" publishes the site at `https://globalgist.<account>.workers.dev` and copies `DATABASE_URL` into the Worker.
