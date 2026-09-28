@@ -49,20 +49,37 @@ describe("the OpenAI-format client", () => {
     const out = await llm([reply('{"word":"Unease"}')]).parse(req("cluster-world"), DATE);
     expect(out).toEqual({ word: "Unease" });
     expect(sent[0]!.url).toBe("https://api.deepseek.com/chat/completions");
-    expect(sent[0]!.body.model).toBe("deepseek-chat");
+    expect(sent[0]!.body.model).toBe("deepseek-flash");
+    // Bulk stages run without thinking by default; DeepSeek needs the explicit switch.
+    expect((sent[0]!.body as unknown as { thinking: unknown }).thinking).toEqual({ type: "disabled" });
     expect(sent[0]!.body.response_format).toEqual({ type: "json_object" });
     expect(sent[0]!.body.messages[0]!.content).toContain('"word"');
     const [call] = await db.select().from(llmCalls);
-    expect(call).toMatchObject({ model: "deepseek-chat", inputTokens: 600, cacheReadTokens: 400, outputTokens: 100 });
-    // 600 * 0.28 + 400 * 0.028 + 100 * 0.42 per million, stored to six places.
-    expect(Number(call!.costUsd)).toBeCloseTo(0.000221, 6);
+    expect(call).toMatchObject({ model: "deepseek-flash", inputTokens: 600, cacheReadTokens: 400, outputTokens: 100 });
+    // 600 * 0.30 + 400 * 0.006 + 100 * 1.20 per million, stored to six places.
+    expect(Number(call!.costUsd)).toBeCloseTo(0.000302, 6);
   });
 
   it("sends the telegram calls to MODEL_TELEGRAM and everything else to MODEL", async () => {
-    const client = llm([reply('{"word":"a"}'), reply('{"word":"b"}')], { MODEL_TELEGRAM: "deepseek-reasoner" });
+    const client = llm([reply('{"word":"a"}'), reply('{"word":"b"}')], { MODEL_TELEGRAM: "deepseek-v4-pro" });
     await client.parse(req("explain"), DATE);
     await client.parse(req("telegram-score"), DATE);
-    expect(sent.map((s) => s.body.model)).toEqual(["deepseek-chat", "deepseek-reasoner"]);
+    expect(sent.map((s) => s.body.model)).toEqual(["deepseek-flash", "deepseek-v4-pro"]);
+    expect((sent[1]!.body as unknown as { reasoning_effort: unknown }).reasoning_effort).toBe("high");
+  });
+
+  it("defaults to OpenAI's nano for bulk and mini for the word, with max_completion_tokens", async () => {
+    const client = llm([reply('{"word":"a"}'), reply('{"word":"b"}')], { LLM_PROVIDER: "openai" });
+    await client.parse(req("cluster-world"), DATE);
+    await client.parse(req("telegram-word"), DATE);
+    expect(sent[0]!.url).toBe("https://api.openai.com/v1/chat/completions");
+    const bodies = sent.map((s) => s.body as unknown as Record<string, unknown>);
+    expect(bodies.map((b) => [b["model"], b["reasoning_effort"]])).toEqual([
+      ["gpt-5.4-nano", "low"],
+      ["gpt-5.4-mini", "high"],
+    ]);
+    expect(bodies[0]!["max_completion_tokens"]).toBeGreaterThan(8192);
+    expect(bodies[0]!["max_tokens"]).toBeUndefined();
   });
 
   it("waits and retries on a rate limit", async () => {

@@ -53,7 +53,7 @@ September 28, 2026 (decision 28):
 
 - Keep it as cheap as possible, with no paid Anthropic key, while the word stays a reliable read of the day. Test models side by side on real days and pick the cheapest one that reads the day right.
 
-Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 28 in DECISIONS.md). A reversal is a new entry, never an edit.
+Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 29 in DECISIONS.md). A reversal is a new entry, never an edit.
 
 ## 4. What the product is
 
@@ -101,7 +101,7 @@ Packages, with import boundaries enforced by tools/check-boundaries.mjs:
 - packages/web: the Worker. Imports core and db.
 - packages/map: the public map site (Vite, canvas, d3-geo). Imports core's types only and reads its data from the Worker over HTTP.
 
-Model layer: every call declares a Zod schema, and a bad response fails at the boundary. The provider is config (decision 28): DeepSeek by default, over the OpenAI chat format with the schema in the prompt and Zod checking the answer. Anthropic stays available with structured outputs, effort per stage (cluster low, explain medium, select high) and the Batches API (half price, up to an hour of latency, LLM_BATCH=false for immediate local runs). Every call logged with tokens, cache reads and writes, and cost; the day fails loudly past DAILY_SPEND_CEILING_USD. Prompts are versioned files in packages/core/prompts; editing one in place is a bug; outputs record the version.
+Model layer: every call declares a Zod schema, and a bad response fails at the boundary. The provider is config (decisions 28 and 29): OpenAI's gpt-5.4-nano with gpt-5.4-mini for the word by default, over the OpenAI chat format with the schema in the prompt and Zod checking the answer. Anthropic stays available with structured outputs, effort per stage (cluster low, explain medium, select high) and the Batches API (half price, up to an hour of latency, LLM_BATCH=false for immediate local runs). Every call logged with tokens, cache reads and writes, and cost; the day fails loudly past DAILY_SPEND_CEILING_USD. Prompts are versioned files in packages/core/prompts; editing one in place is a bug; outputs record the version.
 
 Idempotency: every stage re-runs per date and overwrites its own output. Two guards: select never replaces an edition already sent; cluster refuses to run for a date with a sent edition unless forced, because re-clustering breaks the links in that email. Feedback survives every re-run.
 
@@ -135,7 +135,7 @@ An independent adversarial review found eight real defects before any live run (
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
 - The world-desk feeds in config/sources.yaml (eighteen outlets) are unverified, like the briefing list. Run sources check and prune.
 - The telegram and world-cluster prompts (telegram-score.v1, telegram-word.v1, cluster-world.v1) have never produced output. Judge the first real scores and words before trusting them.
-- No model has been chosen. The default is DeepSeek, and decision 28 says to pick from eval reports on real days first.
+- No model has been chosen. The default is OpenAI (decision 29, from a research pass), and decision 28 says to confirm it with eval reports on real days first.
 - No Cloudflare secrets yet, so the deploy-site workflow skips. The site has run only locally, on the fictional sample.
 
 ## 9. Milestones
@@ -154,7 +154,7 @@ After M5 the decision is: build the learned interest model, or stop.
 
 ## 10. Davis's next steps, in order
 
-1. Add repository secrets: DATABASE_URL (free Neon project), LLM_API_KEY (DeepSeek by default, decision 28), RESEND_API_KEY (free Resend account with a verified sender). Set repository variables WEB_BASE_URL and MAIL_FROM once the Worker is deployed.
+1. Add repository secrets: DATABASE_URL (free Neon project), LLM_API_KEY (OpenAI by default, decision 29), RESEND_API_KEY (free Resend account with a verified sender). Set repository variables WEB_BASE_URL and MAIL_FROM once the Worker is deployed.
 2. Locally: copy .env.example to .env with the same values. Then choose the model by measurement: run the "Model eval" workflow on two or three real days and read the reports (docs/RUNBOOK.md, "Choose a model").
 3. Write config/readers/r01.yaml with a real email, timezone, delivery hour, weighted topics, muted topics, and stake sentences.
 4. npm run stage -- sources check; remove what fails.

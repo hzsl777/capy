@@ -11,10 +11,20 @@ import { LlmParseError, type Llm, type ParseOutcome, type ParseRequest } from ".
 import { modelFor } from "./models.js";
 
 /**
- * Output caps as the providers last published them. deepseek-chat stops at 8K, which a busy day's cluster world
- * answer can pass (every article id appears once): the stage then fails loudly, and `eval` shows it.
+ * max_tokens per model. Always sent: DeepSeek otherwise stops at 8K without thinking, which a busy day's cluster
+ * world answer can pass (every article id appears once). With thinking, reasoning tokens count against it too.
  */
-const MAX_OUTPUT: Record<string, number> = { "deepseek-chat": 8192, "deepseek-reasoner": 65536, "gemini-2.5-flash": 65536, "gemini-2.5-flash-lite": 65536 };
+const MAX_OUTPUT: Record<string, number> = {
+  "deepseek-flash": 65536,
+  "deepseek-v4-pro": 65536,
+  "gpt-6-luna": 65536,
+  "gpt-5.4-nano": 65536,
+  "gpt-5.4-mini": 65536,
+  "gemini-3.5-flash-lite": 65536,
+  "gemini-3.8-flash": 65536,
+  "openai/gpt-oss-120b": 32768,
+  "mistral-small-2603": 65536,
+};
 const DEFAULT_MAX_OUTPUT = 16000;
 const REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
 /** No batch API here, so per-event calls run a few at a time instead of one after another. */
@@ -76,11 +86,13 @@ export function createChatLlm(
   async function parse<T extends z.ZodType>(req: Omit<ParseRequest<T>, "id">, date: RunDate): Promise<z.infer<T>> {
     await assertUnderCeiling(db, date, config.dailySpendCeilingUsd);
     const model = modelFor(config, req.stage);
-    // Effort has no equivalent here. A stage that needs more judgment gets a stronger model instead (MODEL_TELEGRAM).
+    const think = config.thinking === "all" || (config.thinking === "telegram" && req.stage.startsWith("telegram"));
     const response = await post(
       {
         model,
-        max_tokens: MAX_OUTPUT[model] ?? DEFAULT_MAX_OUTPUT,
+        ...thinkingParams(config.provider, think),
+        // OpenAI's reasoning models reject max_tokens and take max_completion_tokens instead.
+        [config.provider === "openai" ? "max_completion_tokens" : "max_tokens"]: MAX_OUTPUT[model] ?? DEFAULT_MAX_OUTPUT,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemWithSchema(req.prompt.system, req.schema) },
@@ -136,6 +148,19 @@ export function createChatLlm(
   }
 
   return { parse, parseMany };
+}
+
+/**
+ * DeepSeek, Gemini 3 and OpenAI's GPT-5 line reason by default, and bill thinking as output. Gemini's OpenAI
+ * endpoint rejects some levels on some models, so "low" rather than "none" when off. Other providers get
+ * nothing, so their own defaults apply, until a switch is confirmed for them.
+ */
+export function thinkingParams(provider: Config["provider"], think: boolean): Record<string, unknown> {
+  if (provider === "deepseek") return think ? { reasoning_effort: "high" } : { thinking: { type: "disabled" } };
+  if (provider === "gemini") return { reasoning_effort: think ? "high" : "low" };
+  // GPT-5.x reasons at "medium" by default; "low" is accepted by every GPT-5 model.
+  if (provider === "openai") return { reasoning_effort: think ? "high" : "low" };
+  return {};
 }
 
 /** Some models wrap JSON in a Markdown fence even in JSON mode. */

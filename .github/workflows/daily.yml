@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 180
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      # Decision 28. Unset variables fall back to DeepSeek's cheap model for every stage.
+      # Decisions 28 and 29. Unset variables mean OpenAI: gpt-5.4-nano for the bulk stages, gpt-5.4-mini for the word.
       LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       MODEL: ${{ vars.MODEL }}

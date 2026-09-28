@@ -27,18 +27,18 @@ async function fixtureSnapshot(): Promise<Snapshot> {
 
 describe("parseSetups", () => {
   it("reads provider defaults, explicit models, OpenRouter ids and a telegram model", () => {
-    const s = parseSetups("deepseek; gemini:gemini-2.5-flash-lite; openrouter:deepseek/deepseek-chat-v3.1:free; deepseek:deepseek-chat,telegram=deepseek-reasoner");
+    const s = parseSetups("deepseek; gemini:gemini-3.5-flash-lite; openrouter:qwen/qwen3.8-27b:free; deepseek:deepseek-flash,telegram=deepseek-v4-pro");
     expect(s.map((x) => [x.provider, x.model, x.telegramModel])).toEqual([
-      ["deepseek", "deepseek-chat", "deepseek-chat"],
-      ["gemini", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite"],
-      ["openrouter", "deepseek/deepseek-chat-v3.1:free", "deepseek/deepseek-chat-v3.1:free"],
-      ["deepseek", "deepseek-chat", "deepseek-reasoner"],
+      ["deepseek", "deepseek-flash", "deepseek-flash"],
+      ["gemini", "gemini-3.5-flash-lite", "gemini-3.5-flash-lite"],
+      ["openrouter", "qwen/qwen3.8-27b:free", "qwen/qwen3.8-27b:free"],
+      ["deepseek", "deepseek-flash", "deepseek-v4-pro"],
     ]);
   });
   it("rejects an unknown provider, a missing model and an unknown option", () => {
     expect(() => parseSetups("mystery:model")).toThrow(/Unknown provider/);
     expect(() => parseSetups("openrouter")).toThrow(/needs a model/);
-    expect(() => parseSetups("deepseek:deepseek-chat,effort=high")).toThrow(/Unknown option/);
+    expect(() => parseSetups("deepseek:deepseek-flash,effort=high")).toThrow(/Unknown option/);
   });
 });
 
@@ -73,7 +73,7 @@ describe("runEval", () => {
     expect(broken!.telegram).toEqual({ ok: false, error: "skipped: explain failed" });
 
     const md = renderReport(snap, results);
-    expect(md).toContain("| deepseek:deepseek-chat | $0.0000 |");
+    expect(md).toContain("| deepseek:deepseek-flash | $0.0000 |");
     expect(md).toContain("**cluster world failed:**");
     expect(md).toContain("Is the worst-scored event really the worst thing");
     expect(md).not.toMatch(/\u2014/);

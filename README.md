@@ -52,7 +52,7 @@ npm run stage -- map export            # the latest real day from DATABASE_URL, 
 npm run web:deploy                     # build the map and deploy it with the Worker (Cloudflare)
 ```
 
-The model provider is config (decision 28). DeepSeek is the default. `npm run stage -- eval` compares models on one real day: cost, the code checks, and every score with its reason. See docs/RUNBOOK.md, "Choose a model".
+The model provider is config (decisions 28 and 29). OpenAI's gpt-5.4-nano, with gpt-5.4-mini for the word, is the default. `npm run stage -- eval` compares models on one real day: cost, the code checks, and every score with its reason. See docs/RUNBOOK.md, "Choose a model".
 
 ## Layout
 

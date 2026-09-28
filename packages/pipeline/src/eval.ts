@@ -14,8 +14,8 @@ import { runTelegram } from "./stages/telegram.js";
 export type Setup = { label: string; provider: Provider; model: string; telegramModel: string };
 
 /**
- * "deepseek:deepseek-chat; deepseek:deepseek-chat,telegram=deepseek-reasoner; gemini". Setups split on ";".
- * The provider comes before the first ":", so OpenRouter ids like "deepseek/deepseek-chat-v3.1:free" survive.
+ * "deepseek; deepseek:deepseek-flash,telegram=deepseek-v4-pro; gemini". Setups split on ";".
+ * The provider comes before the first ":", so OpenRouter ids like "qwen/qwen3.8-27b:free" survive.
  */
 export function parseSetups(spec: string): Setup[] {
   return spec
@@ -42,7 +42,16 @@ export function parseSetups(spec: string): Setup[] {
 
 /** The API key for a provider: its own variable first, so one run can compare providers, then LLM_API_KEY. */
 export function keyFor(provider: Provider, env: NodeJS.ProcessEnv): string | undefined {
-  const own = { deepseek: "DEEPSEEK_API_KEY", gemini: "GEMINI_API_KEY", openrouter: "OPENROUTER_API_KEY", anthropic: "ANTHROPIC_API_KEY", "openai-compatible": "LLM_API_KEY" }[provider];
+  const own = {
+    deepseek: "DEEPSEEK_API_KEY",
+    openai: "OPENAI_API_KEY",
+    gemini: "GEMINI_API_KEY",
+    groq: "GROQ_API_KEY",
+    mistral: "MISTRAL_API_KEY",
+    openrouter: "OPENROUTER_API_KEY",
+    anthropic: "ANTHROPIC_API_KEY",
+    "openai-compatible": "LLM_API_KEY",
+  }[provider];
   return env[own] || env["LLM_API_KEY"] || undefined;
 }
 

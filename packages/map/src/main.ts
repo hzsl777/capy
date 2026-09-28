@@ -831,10 +831,13 @@ async function start() {
     return;
   }
   state.stories = storyIndex(state.file);
-  if (state.file.source === "sample") {
+  if (state.file.source !== "live") {
     const banner = $("banner");
     banner.hidden = false;
-    banner.textContent = "Sample data: fictional outlets and places, run through the real pipeline to show how the site works. Not real news.";
+    banner.textContent =
+      state.file.source === "demo"
+        ? (state.file.note ?? "Demo data: real headlines gathered outside the pipeline.")
+        : "Sample data: fictional outlets and places, run through the real pipeline to show how the site works. Not real news.";
   }
   refreshDots();
   renderTelegramStrip();

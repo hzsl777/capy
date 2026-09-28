@@ -1,6 +1,6 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
-import { renderEditionText, todayRunDate, toRunDate, type VerifiedSentence } from "@2dayai/core";
+import { placeIdFor, renderEditionText, todayRunDate, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import { editions, feedback, latestMapDate, loadEditionView, loadMapView, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
@@ -36,6 +36,7 @@ const { values, positionals } = parseArgs({
     fixture: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
     out: { type: "string" },
+    in: { type: "string" },
     setups: { type: "string" },
     snapshot: { type: "string" },
     fake: { type: "boolean", default: false },
@@ -70,6 +71,7 @@ const HELP = `Commands:
   cluster world          group the world desk's articles into events with a topic (model)
   telegram               score the day's world events and pick the one-word mood (model, two calls)
   map export [--out f]   the public map's data for the date (default: latest) as JSON
+  map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
   eval [--setups s]      compare models on one day's world articles: cost, the code checks, every score (decision 28)
                          --snapshot f reuses a saved day; --fixture uses the fictional day; --fake skips the model
@@ -123,6 +125,60 @@ switch (command) {
   case "telegram": {
     const d = db();
     console.log(await recorded(d, date, "telegram", () => runTelegram(d, config, createLlm(config, d), date)));
+    break;
+  }
+  case "map headlines": {
+    // A preview from real headlines when the feeds can't be reached: publisher pins from sources.yaml, headlines
+    // as given, no summaries, no events, no word. The banner says what is missing.
+    if (!values.in) throw new Error("--in <headlines.json> is required");
+    type Headline = { sourceId: string; title: string; url: string; topic?: string };
+    const input = JSON.parse(readFileSync(values.in, "utf8")) as { collectedAt: string; items: Headline[] };
+    const world = new Map(loadSources(values.sources).filter((s) => s.desk === "world" && s.place).map((s) => [s.id, s]));
+    const collected = Math.floor(new Date(input.collectedAt).getTime() / 1000);
+    const places: MapFile["places"] = [];
+    const placeIndex = new Map<string, number>();
+    const rank = new Map<string, number>();
+    const seen = new Set<string>();
+    const items: MapFile["items"] = [];
+    for (const h of input.items) {
+      const src = world.get(h.sourceId);
+      if (!src?.place || seen.has(h.url)) continue;
+      seen.add(h.url);
+      const id = placeIdFor(src.place.lat, src.place.lon);
+      if (!placeIndex.has(id)) placeIndex.set(id, places.push({ id, name: src.place.name, lat: src.place.lat, lon: src.place.lon }) - 1);
+      const r = rank.get(src.id) ?? 0;
+      rank.set(src.id, r + 1);
+      const named = ({ climate: "environment", society: "other" } as Record<string, string>)[h.topic ?? ""] ?? h.topic ?? "";
+      const topic = (WORLD_TOPICS as readonly string[]).includes(named) ? (named as WorldTopic) : "other";
+      items.push({
+        id: `demo-${items.length}`,
+        // Search results carry no reliable publish time: two hours before collection, in result order.
+        t: collected - 2 * 3600 - r * 60,
+        title: h.title,
+        url: h.url,
+        domain: new URL(h.url).hostname.replace(/^www\./, ""),
+        publisher: src.name,
+        lang: src.lang,
+        topics: [topic],
+        place: placeIndex.get(id)!,
+      });
+    }
+    const when = new Date(collected * 1000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+    const file: MapFile = {
+      version: 2,
+      source: "demo",
+      note: `Demo: real headlines found by web search on ${when}, not through the daily pipeline. Times are when they were collected. There are no summaries, explanations or word yet.`,
+      generatedAt: collected,
+      runDate: input.collectedAt.slice(0, 10),
+      places,
+      items: items.sort((a, b) => b.t - a.t),
+      events: {},
+      telegram: null,
+    };
+    const out = values.out ?? "packages/map/public/data/latest.json";
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, JSON.stringify(file));
+    console.log(`${out}: ${items.length} headlines from ${new Set(items.map((i) => i.publisher)).size} outlets at ${places.length} places`);
     break;
   }
   case "map export": {
@@ -197,7 +253,7 @@ switch (command) {
     }
     const all = parseSetups(
       values.setups ??
-        "deepseek:deepseek-chat; deepseek:deepseek-chat,telegram=deepseek-reasoner; gemini:gemini-2.5-flash-lite; gemini:gemini-2.5-flash",
+        "openai:gpt-5.4-mini; openai; openai:gpt-6-luna,telegram=gpt-5.4-mini; mistral; deepseek",
     );
     const setups = values.fake ? all : all.filter((s) => keyFor(s.provider, process.env));
     for (const s of all) if (!setups.includes(s)) console.log(`Skipping ${s.label}: no API key (set ${s.provider.toUpperCase().replace(/-/g, "_")}_API_KEY or LLM_API_KEY).`);

@@ -76,8 +76,12 @@ export type MapTelegram = {
 
 export type MapFile = {
   version: 2;
-  /** "live" from the database, "sample" for the placeholder demo data (the site shows a banner). */
-  source: "live" | "sample";
+  /**
+   * "live" from the database. "sample" is the fictional day. "demo" is real headlines gathered without the
+   * pipeline, for a preview. The site shows a banner for both, with `note` as the demo's text.
+   */
+  source: "live" | "sample" | "demo";
+  note?: string;
   /** Unix seconds. Time filters are relative to this, not the viewer's clock. */
   generatedAt: number;
   runDate: string;
