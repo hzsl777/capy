@@ -1,0 +1,51 @@
+# Builds the public map and deploys it with the Worker (packages/web), which serves the map's static files
+# and its data (/data/latest.json) straight from the database. The daily run changes the data, not the code,
+# so this runs only when code changes or by hand. Cloudflare's free plan hosts it; the repository can stay private.
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "package-lock.json"
+      - ".github/workflows/deploy-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Skip until Cloudflare is set up
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::notice::CLOUDFLARE_API_TOKEN is not set; skipping the deploy. See docs/RUNBOOK.md, 'Deploy the site'."
+      - uses: actions/checkout@v4
+        if: env.CLOUDFLARE_API_TOKEN != ''
+      - uses: actions/setup-node@v4
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        with:
+          node-version: 22
+          cache: npm
+      - if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npm ci
+      - if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npm run check
+      - if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npm run web:deploy
+      # The Worker reads the map from the database. Copying the repository secret on every deploy keeps the two
+      # in step with no manual wrangler command.
+      - name: Give the Worker the database
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.DATABASE_URL != ''
+        run: printf '%s' "$DATABASE_URL" | npx wrangler secret put DATABASE_URL --config packages/web/wrangler.toml

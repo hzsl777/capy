@@ -67,7 +67,7 @@ export async function runSelect(db: Db, config: Config, llm: Llm, date: RunDate)
     .select({ id: events.id, title: events.title, importance: events.importance, sentences: eventExplanations.sentences })
     .from(events)
     .innerJoin(eventExplanations, eq(eventExplanations.eventId, events.id))
-    .where(and(eq(events.runDate, date), eq(eventExplanations.usable, true)));
+    .where(and(eq(events.runDate, date), eq(events.desk, "briefing"), eq(eventExplanations.usable, true)));
   const usable: UsableEvent[] = evs.map((e) => {
     const s = e.sentences as { whatHappened: VerifiedSentence[]; whyItMatters: VerifiedSentence[]; whatChangesNext: VerifiedSentence[] };
     return { id: e.id, title: e.title, importance: e.importance, sentences: [...s.whatHappened, ...s.whyItMatters, ...s.whatChangesNext].map((x) => x.text) };
@@ -76,7 +76,7 @@ export async function runSelect(db: Db, config: Config, llm: Llm, date: RunDate)
   const prompt = loadPrompt("select", SELECT_PROMPT_VERSION);
 
   if (usable.length === 0) {
-    const anyFailed = (await db.select({ id: eventExplanations.eventId }).from(eventExplanations).innerJoin(events, eq(events.id, eventExplanations.eventId)).where(and(eq(events.runDate, date), eq(eventExplanations.failed, true)))).length;
+    const anyFailed = (await db.select({ id: eventExplanations.eventId }).from(eventExplanations).innerJoin(events, eq(events.id, eventExplanations.eventId)).where(and(eq(events.runDate, date), eq(events.desk, "briefing"), eq(eventExplanations.failed, true)))).length;
     if (anyFailed > 0) throw new Error(`select: no usable events and ${anyFailed} explanations failed; refusing to write quiet editions`);
     for (const r of rs) {
       await writeEdition(db, r.id, date, prompt.label, null);

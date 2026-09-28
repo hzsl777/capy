@@ -1,7 +1,7 @@
-import { TOPICS, type Item, type NewsFile, type Topic } from "./types.ts";
+import { TOPICS, type MapFile, type MapItem, type Topic } from "./types.ts";
 
-export type TopicFilter = Topic | "other";
-export const FILTERS: TopicFilter[] = [...TOPICS, "other"];
+export type TopicFilter = Topic;
+export const FILTERS: TopicFilter[] = [...TOPICS];
 
 export interface Filters {
   topics: Set<TopicFilter>;
@@ -10,21 +10,27 @@ export interface Filters {
   to: number;
 }
 
-export async function loadNews(base = import.meta.env.BASE_URL): Promise<NewsFile> {
+export const NO_DAY_YET = "no day yet";
+
+/** Live data from the Worker (data/latest.json), else the placeholder sample made by `npm run map:sample`. */
+export async function loadNews(base = import.meta.env.BASE_URL): Promise<MapFile> {
+  let noDayYet = false;
   for (const name of ["latest.json", "sample.json"]) {
     try {
       const res = await fetch(`${base}data/${name}`, { cache: "no-cache" });
+      // The Worker answers 404 until the first daily run has written a day.
+      if (res.status === 404 && name === "latest.json") noDayYet = true;
       if (!res.ok) continue;
-      const file = (await res.json()) as NewsFile;
-      if (file.version === 1 && Array.isArray(file.items)) return file;
+      const file = (await res.json()) as MapFile;
+      if (file.version === 2 && Array.isArray(file.items)) return file;
     } catch {
       /* try the next file */
     }
   }
-  throw new Error("No news data found");
+  throw new Error(noDayYet ? NO_DAY_YET : "No news data found");
 }
 
-export function passes(item: Item, f: Filters): boolean {
+export function passes(item: MapItem, f: Filters): boolean {
   if (item.t < f.from || item.t > f.to) return false;
   if (f.topics.size === FILTERS.length) return true;
   if (item.topics.length === 0) return f.topics.has("other");
@@ -32,8 +38,26 @@ export function passes(item: Item, f: Filters): boolean {
 }
 
 /** Items per place index that pass the filters, newest first. */
-export function groupByPlace(file: NewsFile, f: Filters): Map<number, Item[]> {
-  const out = new Map<number, Item[]>();
+/**
+ * The zoom level from which an article's place shows (decision 30): 0 when its story is reported in three or
+ * more places or the model rated it 4 or 5, 1 for two places or importance 3, otherwise 2. A file without
+ * event data (a demo, or a day before grouping ran) shows everything from the start.
+ */
+export function tierOf(item: MapItem, tiered: boolean): number {
+  if (!tiered) return 0;
+  const reach = item.reach ?? 1;
+  const importance = item.importance ?? 1;
+  if (reach >= 3 || importance >= 4) return 0;
+  if (reach >= 2 || importance >= 3) return 1;
+  return 2;
+}
+
+export function hasTiers(file: MapFile): boolean {
+  return file.items.some((i) => i.reach !== undefined || i.importance !== undefined);
+}
+
+export function groupByPlace(file: MapFile, f: Filters): Map<number, MapItem[]> {
+  const out = new Map<number, MapItem[]>();
   for (const it of file.items) {
     if (!passes(it, f)) continue;
     const list = out.get(it.place);
@@ -44,8 +68,8 @@ export function groupByPlace(file: NewsFile, f: Filters): Map<number, Item[]> {
   return out;
 }
 
-export function storyIndex(file: NewsFile): Map<string, Item[]> {
-  const out = new Map<string, Item[]>();
+export function storyIndex(file: MapFile): Map<string, MapItem[]> {
+  const out = new Map<string, MapItem[]>();
   for (const it of file.items) {
     if (!it.story) continue;
     const list = out.get(it.story);
@@ -74,9 +98,12 @@ export function formatCoords(lat: number, lon: number): string {
   return `${f(lat, "N", "S")}  ${f(lon, "E", "W")}`;
 }
 
-const langNames = typeof Intl !== "undefined" && "DisplayNames" in Intl
-  ? new Intl.DisplayNames(undefined, { type: "language" })
-  : null;
+export function formatRunDate(runDate: string): string {
+  const d = new Date(`${runDate}T12:00:00Z`);
+  return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
+}
+
+const langNames = typeof Intl !== "undefined" && "DisplayNames" in Intl ? new Intl.DisplayNames(undefined, { type: "language" }) : null;
 
 export function languageName(code: string): string {
   if (!code || code === "und") return "";

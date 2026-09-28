@@ -12,3 +12,9 @@ config/readers/*.yaml
 # Map
 .cache/
 packages/map/public/data/latest.json
+
+# Model evals: snapshots hold third-party article text
+.eval/
+
+# Agent worktrees
+.claude/worktrees/

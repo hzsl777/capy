@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "News, compressed and sourced: 2DayAI (one headline a day) and a public news map, over one repository.",
+  "description": "News, compressed and sourced: 2DayAI (one sourced headline a day) and a public news map with a one-word conflict telegram.",
   "workspaces": [
     "packages/*"
   ],
@@ -22,10 +22,10 @@
     "map:dev": "npm run dev -w @capy/map --",
     "map:build": "npm run build -w @capy/map --",
     "map:preview": "npm run preview -w @capy/map --",
-    "map:ingest": "npm run ingest -w @capy/map --",
-    "map:sample": "npm run sample -w @capy/map --",
+    "map:sample": "npm run stage -- demo",
     "map:basemap": "npm run basemap -w @capy/map --",
-    "map:screenshots": "npm run screenshots -w @capy/map --"
+    "map:screenshots": "npm run screenshots -w @capy/map --",
+    "web:deploy": "npm run map:build && rm -f packages/map/dist/data/sample.json packages/map/dist/data/latest.json && wrangler deploy --config packages/web/wrangler.toml"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260903.1",

@@ -1,16 +1,36 @@
 # Runbook
 
+## Launch
+
+Going live is secrets and one merge. Everything after that runs by itself (decision 34). Secrets go in GitHub under Settings, then Secrets and variables, then Actions.
+
+1. **Database.** Create a free Neon project (one Postgres database, nothing else) and copy its pooled connection string. Add it as the secret `DATABASE_URL`.
+2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Set a monthly limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`.
+3. **Cloudflare.** On a free Cloudflare account, create an API token from the "Edit Cloudflare Workers" template. Add it as `CLOUDFLARE_API_TOKEN`, and the account id as `CLOUDFLARE_ACCOUNT_ID`.
+4. **Merge the pull request into `main`.**
+
+If `main` was merged before the secrets existed, the deploy skipped. Run "Deploy site" once from the Actions tab after adding them. Everything below then follows on its own.
+
+What happens on its own:
+
+- "Deploy site" publishes the site at `https://globalgist.<account>.workers.dev` and copies `DATABASE_URL` into the Worker.
+- When the deploy finishes, "Daily run" starts if today's map doesn't exist yet. It checks the model key first, then builds the day in ten to twenty minutes. Until then the site says the first map is being made.
+- Every day at 09:00 UTC "Daily run" builds the next day, then deletes world data older than 30 days and fetched page text older than two, so the free database never fills.
+- GitHub emails you when a scheduled run fails. A failed day leaves the previous map up.
+
+"Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page.
+
 ## First-time setup
 
 1. Open a free Neon project. Copy the connection string to the `DATABASE_URL` secret in this repository and to `.env` locally.
-2. Create an Anthropic API key. Add it as the `ANTHROPIC_API_KEY` secret. Not needed for milestone 0.
+2. Create a model API key. OpenAI is the default (decision 29). Add the key as the `LLM_API_KEY` secret. To use another provider, set the repository variable `LLM_PROVIDER` too. See "Choose a model" below. Not needed for milestone 0.
 3. Open a free Resend account and verify a sending domain. Add `RESEND_API_KEY`. Not needed until milestone 3.
 4. Run `npm run db:migrate` once locally to create the tables.
 5. Run `npm run stage -- sources check` and remove any feed that fails from `config/sources.yaml`.
 
 ## First real run, for Davis
 
-1. `.env` with `DATABASE_URL`, `ANTHROPIC_API_KEY`, `LLM_BATCH=false`.
+1. `.env` with `DATABASE_URL` and `LLM_API_KEY` (and `LLM_PROVIDER` if not OpenAI).
 2. Write `config/readers/r01.yaml` from `r00.example.yaml` with your real email and profile.
 3. `npm run stage -- sources check` and prune the list.
 4. `npm run stage -- day` and read the JSON report: articles in, events, usable explanations, sentences dropped, editions, spend.
@@ -34,17 +54,86 @@ npm run stage -- ingest --date 2026-09-04
 npm run stage -- cluster --date 2026-09-04
 npm run stage -- explain --date 2026-09-04
 npm run stage -- select --date 2026-09-04
+npm run stage -- cluster world --date 2026-09-04
+npm run stage -- telegram --date 2026-09-04
 ```
 
-## Deploy the Worker
+## Deploy the site
+
+The Worker in `packages/web` serves three things:
+
+- the public map, which is the static build of `packages/map`
+- the map's data at `/data/latest.json` and `/data/<date>.json`, read from the database and cached for five minutes
+- the 2DayAI reader pages
+
+Once, on a free Cloudflare account:
 
 ```
 cd packages/web
 npx wrangler secret put DATABASE_URL
-npx wrangler deploy
 ```
 
+Then add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Create the token from the "Edit Cloudflare Workers" template. After that, `.github/workflows/deploy-site.yml` deploys on every code change to `main`. To deploy by hand, run `npm run web:deploy`. It builds the map, removes the sample data from the build, and deploys.
+
 Set the repository variable `WEB_BASE_URL` to the Worker URL so email links point at it, and `MAIL_FROM` to the verified Resend sender.
+
+The daily run needs no deploy: the Worker reads the new day from the database.
+
+## The world desk and the telegram
+
+World sources are the `desk: world` entries in `config/sources.yaml`. Each one has the city it publishes from. The daily run does three things with them:
+
+1. `cluster world` groups their articles into events. It keeps the newest `WORLD_PER_SOURCE` (default 15) articles per source and sends them in batches of at most `WORLD_CLUSTER_BATCH` (default 300), newest first so each batch mixes places. With more than one batch, one merge call names the batch events that report the same story, and code joins them after checking every key. The run report counts `batches`, `merged` and `mergeDropped`. If any batch fails, the stage fails and writes nothing.
+2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
+3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
+
+To look at a day without the site:
+
+```
+npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
+```
+
+To see the whole site with no database, no key and no network, run `npm run map:sample`, then `npm run map:dev`. The first command runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`.
+
+The telegram makes two model calls, and code checks each one:
+
+- The score call must score every event and copy one of its verified sentences as the reason.
+- The word call must pick from the band's list and, on a bad day, name the event that set it.
+
+If a call fails its check twice, the run fails and the site shows no word for that day. Read the reason in the `runs` table detail before you change a prompt. `telegram_scores` holds every score and its reason.
+
+## Choose a model
+
+The provider and model are repository variables, read by the daily workflow (decision 28):
+
+| Variable | Default | Example |
+|---|---|---|
+| `LLM_PROVIDER` | `openai` | `mistral`, `deepseek`, `groq`, `anthropic` |
+| `MODEL` | the provider's cheap general model (`gpt-5.4-nano` for OpenAI) | `gpt-6-luna` |
+| `MODEL_TELEGRAM` | `gpt-5.4-mini` for OpenAI, otherwise same as `MODEL` | `gpt-5.4-mini` |
+| `LLM_THINKING` | `telegram` | `off`, `all` |
+| `LLM_SERVICE_TIER` | `flex` for OpenAI (half price, slower; falls back to the default tier when refused) | `default` |
+| `DAILY_SPEND_CEILING_USD` | `1.00` | |
+
+The key is always the `LLM_API_KEY` secret.
+
+Pick by measurement, not by price alone:
+
+1. Add a key for each provider you want to compare as its own secret: `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`. The default comparison needs only the OpenAI key; setups without a key are skipped.
+2. Run the "Model eval" workflow from the Actions tab. Leave the setups empty for the default comparison, or list your own.
+3. Download the `model-eval` artifact and read `report-<date>.md`.
+4. Repeat on two or three different days, at least one of them a heavy news day.
+5. Set `LLM_PROVIDER`, `MODEL` and `MODEL_TELEGRAM` to the cheapest setup whose reports you would publish.
+
+Locally, the same run is `npm run stage -- eval --setups "openai:gpt-5.4-mini; openai; mistral"`. It saves the day's articles to `.eval/snapshot-<date>.json` (gitignored) and reuses them, so later runs compare setups on the same articles. To see the report's layout with no key and no network, run `npm run stage -- eval --fixture --fake`.
+
+In the report:
+
+- **Cost for the day** is the model spend, from the rates in `packages/pipeline/src/llm/pricing.ts`. Check them against the provider's price page.
+- **Sentences kept** is the share of explanation sentences whose quoted passage was found in the article. A low share means the model misquotes its sources.
+- **Score retry** and **Word retry** mean the first answer broke a rule in code. Frequent retries mean a day without a word is likely.
+- **Same band as first** compares each setup with the first one listed. Put the setup you trust most first.
+- Below the table, each setup lists every score with its reason. Read these. The code checks cannot tell whether the model judged the day correctly.
 
 ## Change the schema
 

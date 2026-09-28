@@ -1,0 +1,13 @@
+# Cloudflare static-asset headers (the Worker's own /data responses set theirs in packages/web).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  X-Frame-Options: SAMEORIGIN
+
+# Built files carry a content hash in their names, so they never change under the same URL.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/basemap/*
+  Cache-Control: public, max-age=604800

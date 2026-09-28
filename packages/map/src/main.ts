@@ -8,17 +8,32 @@ import "@fontsource/im-fell-english-sc/400.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/special-elite/400.css";
+import "@fontsource/vt323/400.css";
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-sans-condensed/500.css";
+import "@fontsource/ibm-plex-sans-condensed/600.css";
+import "@fontsource/architects-daughter/400.css";
+import "@fontsource/barlow/400.css";
+import "@fontsource/barlow/600.css";
 import "./style.css";
 
-import type { Item, NewsFile } from "./types.ts";
+import type { MapEvent, MapFile, MapItem } from "./types.ts";
+
+type Item = MapItem;
+type NewsFile = MapFile;
 import {
   FILTERS,
   TOPIC_LABEL,
   formatCoords,
+  formatRunDate,
   groupByPlace,
+  hasTiers,
   languageName,
   loadNews,
+  NO_DAY_YET,
   storyIndex,
+  tierOf,
   timeAgo,
   type Filters,
   type TopicFilter,
@@ -29,6 +44,7 @@ import { loadHigh, loadLow } from "./map/basemap.ts";
 import { needsTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
 import { loadPins, prefs, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
+import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -53,9 +69,19 @@ const state = {
   slot: SLOTS,
   live: true,
   translate: false,
-  tuned: null as number | null,
+  tuned: null as number[] | null,
+  /** Zoom level from MapView.level(): which stories show (decision 30). */
+  level: 0,
+  /** False when the file has no event data, so every place shows at every zoom. */
+  tiered: false,
+  /** The reader asked to see every report at the tuned place, not only this zoom level's. */
+  showAll: false,
   reader: null as Item | null,
   framed: false,
+  /** The telegram panel: the word and the events it stands for (levels 0 and 1). */
+  telegram: false,
+  /** One event's explanation and sources (levels 2 and 3), and where Back returns to. */
+  event: null as { id: number; back: "telegram" | "reader" } | null,
   pins: loadPins(),
   playing: 0,
 };
@@ -72,12 +98,34 @@ function filters(): Filters {
 
 // ---- map --------------------------------------------------------------------
 
+const IDLE_SPIN_MS = 60_000;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let idleTimer = 0;
+
+/** After a minute without input, and nothing open to read, the map starts turning again. */
+function armIdleSpin() {
+  clearTimeout(idleTimer);
+  if (reducedMotion) return;
+  idleTimer = window.setTimeout(() => {
+    const menuOpen = document.querySelector("details.menu[open], dialog[open]");
+    if (state.reader || state.telegram || state.event || menuOpen || !state.live) return armIdleSpin();
+    map.startSpin();
+  }, IDLE_SPIN_MS);
+}
+
 const map = new MapView($("map"), THEMES[state.theme], {
-  onTune(index) {
-    state.tuned = index;
-    if (!state.reader) renderPanel();
+  onTune(indices) {
+    state.tuned = indices;
+    state.showAll = false;
+    if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
   },
+  onLevel(level) {
+    state.level = level;
+    if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
+  },
+  onInteract: armIdleSpin,
+  onLand: armIdleSpin,
 });
 map.setMode(viewOf());
 
@@ -88,7 +136,8 @@ function refreshDots() {
   const dots: Dot[] = [];
   for (const [index, items] of state.byPlace) {
     const p = state.file.places[index];
-    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, fresh: items[0].t >= f.to - 3600 });
+    const tier = Math.min(...items.map((it) => tierOf(it, state.tiered)));
+    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, fresh: items[0].t >= f.to - 3600, tier });
   }
   map.setDots(dots);
   map.setPinned(pinnedIndices());
@@ -108,33 +157,10 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 function renderMasthead() {
-  const el = $("masthead");
   const t = THEMES[state.theme];
-  const file = state.file;
-  const gen = file ? new Date(file.generatedAt * 1000) : new Date();
-  const date = gen.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const time = gen.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-  const day = Math.floor((gen.getTime() - Date.UTC(gen.getUTCFullYear(), 0, 0)) / 86_400_000);
-  const n = file?.items.length ?? 0;
-  const places = file?.places.length ?? 0;
-  let row: string[];
-  let tag: string;
-  if (t.id === "wire") {
-    const utc = gen.toISOString().slice(11, 16);
-    row = [`FEED ${file?.source.toUpperCase() ?? "..."}`, `${n} ITEMS / ${places} PLACES`, `UPD ${utc}Z`];
-    tag = "world reports by location";
-  } else if (t.id === "cabinet") {
-    row = [`Plate ${day}`, date, `Corrected to ${time}`];
-    tag = "Being a chart of reports received from every quarter";
-  } else {
-    row = [`No. ${day}`, date, `Updated ${time}`];
-    tag = "News of the world, filed by place";
-  }
-  el.replaceChildren(
-    h("div", { class: "mast-row" }, ...row.map((r) => h("span", {}, r))),
-    h("h1", { class: "mast-title" }, t.masthead),
-    h("p", { class: "mast-tag" }, tag),
-  );
+  // One row: the name and tagline on the left, the day's word on the right (renderTelegramStrip).
+  $("mast-title").textContent = t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME;
+  $("mast-tag").textContent = SITE_TAGLINE;
 }
 
 // ---- toolbar ----------------------------------------------------------------
@@ -150,20 +176,24 @@ function segmented<T extends string>(el: HTMLElement, options: [T, string][], cu
 }
 
 function renderToolbar() {
-  segmented(
-    $("theme-seg"),
-    THEME_IDS.map((id) => [id, THEMES[id].label]),
-    state.theme,
-    (id) => {
-      state.theme = id;
-      setPref("theme", id);
-      applyTheme();
-    },
+  // Five designs sit in one menu, so the toolbar stays short.
+  $("design-current").textContent = THEMES[state.theme].label;
+  $("designs").replaceChildren(
+    ...THEME_IDS.map((id) => {
+      const b = h("button", { type: "button", class: "menu-item", role: "menuitemradio", "aria-checked": String(id === state.theme) }, THEMES[id].label);
+      b.addEventListener("click", () => {
+        ($("design-menu") as HTMLDetailsElement).open = false;
+        state.theme = id;
+        setPref("theme", id);
+        applyTheme();
+      });
+      return b;
+    }),
   );
   segmented(
     $("view-seg"),
     [
-      ["2d", "Flat"],
+      ["2d", "Map"],
       ["3d", "Globe"],
     ],
     viewOf(),
@@ -199,25 +229,20 @@ function renderToolbar() {
   );
   $("topics-count").textContent = state.topics.size === FILTERS.length ? "" : `(${state.topics.size})`;
 
+  // Only offered where the browser can translate on the device.
   const tr = $("translate");
+  tr.hidden = !translationSupported();
   tr.setAttribute("aria-pressed", String(state.translate));
-  if (!translationSupported()) {
-    tr.setAttribute("disabled", "");
-    tr.title = "Needs a browser with built-in translation, such as a recent Chrome";
-  } else {
-    tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
-  }
+  tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
 
   renderPins();
 }
 
 function renderPins() {
   const box = $("pins");
+  // The menu appears once there is something in it; the Pin button in a place's panel adds the first.
+  $("pins-menu").hidden = state.pins.length === 0;
   $("pins-count").textContent = state.pins.length ? `(${state.pins.length})` : "";
-  if (!state.pins.length) {
-    box.replaceChildren(h("p", { class: "muted" }, "Pin a place from its panel to find it again here."));
-    return;
-  }
   box.replaceChildren(
     ...state.pins.map((pin) => {
       const b = h("button", { type: "button", class: "menu-item" }, pin.name);
@@ -252,11 +277,12 @@ function onFiltersChanged() {
 
 let renderToken = 0;
 
-function metaLine(it: Item, now: number): HTMLElement {
-  const parts = [it.domain, timeAgo(it.t, now)];
+function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
+  const parts = showPublisher ? [it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
   const lang = languageName(it.lang);
   if (lang && it.lang !== "en") parts.push(lang);
-  if (it.topics[0]) parts.push(TOPIC_LABEL[it.topics[0]]);
+  // "Other" says nothing, so only named topics show.
+  if (it.topics[0] && it.topics[0] !== "other") parts.push(TOPIC_LABEL[it.topics[0]]);
   return h("span", { class: "meta" }, parts.join(" · "));
 }
 
@@ -274,14 +300,14 @@ function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
   return el;
 }
 
-function storyButton(it: Item, now: number, showPlace = false): HTMLElement {
+function storyButton(it: Item, now: number, showPlace = false, showPublisher = true): HTMLElement {
   const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.place)).size - 1 : 0;
   const b = h(
     "button",
     { type: "button", class: "story" },
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
-    metaLine(it, now),
+    metaLine(it, now, showPublisher),
     others > 0 ? h("span", { class: "related" }, `Also reported in ${others} other ${others === 1 ? "place" : "places"}`) : null,
   );
   b.addEventListener("click", () => openReader(it));
@@ -291,15 +317,18 @@ function storyButton(it: Item, now: number, showPlace = false): HTMLElement {
 function renderPanel() {
   renderToken++;
   const panel = $("panel");
-  panel.classList.toggle("reading", !!state.reader);
+  panel.classList.toggle("reading", !!(state.reader || state.telegram || state.event));
   panel.classList.toggle("framed", state.framed);
   if (!state.file) {
-    panel.replaceChildren(h("p", { class: "muted pad" }, "Loading the wire..."));
+    panel.replaceChildren(h("p", { class: "muted pad" }, "Loading reports..."));
     return;
   }
+  const ev = state.event ? state.file.events[String(state.event.id)] : undefined;
+  if (state.event && ev) return renderEvent(panel, ev);
+  if (state.telegram) return renderTelegram(panel);
   if (state.reader) return renderReader(panel, state.reader);
   if (state.tuned === null) return renderIdle(panel);
-  renderPlace(panel, state.tuned);
+  renderPlaces(panel, state.tuned);
 }
 
 function renderIdle(panel: HTMLElement) {
@@ -312,37 +341,60 @@ function renderIdle(panel: HTMLElement) {
     h(
       "div",
       { class: "idle" },
-      h("h2", { class: "panel-title" }, "Turn the map"),
-      h("p", { class: "muted" }, "Drag to turn, scroll or pinch to zoom. The place under the crosshair is the one you're tuned to."),
-      h("h3", { class: "rule-head" }, "Latest across the map"),
+      h("h2", { class: "panel-title" }, "Latest reports"),
+      h("p", { class: "count" }, "The map stops on a place. Drag to pick one yourself."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
     ),
   );
 }
 
-function renderPlace(panel: HTMLElement, index: number) {
+/** One place, or nearby places merged at this zoom: their reports together, newest first. */
+function renderPlaces(panel: HTMLElement, indices: number[]) {
   const file = state.file!;
-  const place = file.places[index];
-  const items = state.byPlace.get(index) ?? [];
-  const pinned = state.pins.some((p) => p.id === place.id);
-  const pin = h("button", { type: "button", class: "tool pin", "aria-pressed": String(pinned) }, pinned ? "Pinned" : "Pin");
-  pin.addEventListener("click", () => {
-    state.pins = pinned ? state.pins.filter((p) => p.id !== place.id) : [...state.pins, { id: place.id, name: place.name } as Pin];
-    savePins(state.pins);
-    renderPins();
-    map.setPinned(pinnedIndices());
-    renderPanel();
-  });
-  panel.replaceChildren(
-    h(
+  const all = indices.flatMap((i) => state.byPlace.get(i) ?? []).sort((a, b) => b.t - a.t);
+  const items = state.showAll ? all : all.filter((it) => tierOf(it, state.tiered) <= state.level);
+  const hidden = all.length - items.length;
+  const place = file.places[indices[0]];
+  // One outlet at this place: name it once in the header instead of under every headline.
+  const publishers = new Set(all.map((it) => it.publisher));
+  const onePublisher = publishers.size === 1 ? [...publishers][0] : null;
+  const count = `${all.length} ${all.length === 1 ? "report" : "reports"}`;
+  let head: HTMLElement;
+  if (indices.length === 1) {
+    const pinned = state.pins.some((p) => p.id === place.id);
+    const pin = h("button", { type: "button", class: "tool pin", "aria-pressed": String(pinned) }, pinned ? "Pinned" : "Pin");
+    pin.addEventListener("click", () => {
+      state.pins = pinned ? state.pins.filter((p) => p.id !== place.id) : [...state.pins, { id: place.id, name: place.name } as Pin];
+      savePins(state.pins);
+      renderPins();
+      map.setPinned(pinnedIndices());
+      renderPanel();
+    });
+    head = h(
       "div",
       { class: "dateline" },
-      h("h2", { class: "place-name" }, place.name),
-      h("span", { class: "coords" }, formatCoords(place.lat, place.lon)),
+      h("h2", { class: "place-name", title: formatCoords(place.lat, place.lon) }, place.name),
+      h("span", { class: "coords" }, [onePublisher, count].filter(Boolean).join(" · ")),
       pin,
-    ),
-    h("p", { class: "count" }, `${items.length} ${items.length === 1 ? "report" : "reports"} in this window`),
-    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt))),
+    );
+  } else {
+    const names = indices.map((i) => file.places[i].name);
+    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
+  }
+  const more = hidden
+    ? (() => {
+        const b = h("button", { type: "button", class: "link" }, "show");
+        b.addEventListener("click", () => {
+          state.showAll = true;
+          renderPanel();
+        });
+        return h("p", { class: "count" }, `${hidden} more when zoomed in: `, b);
+      })()
+    : null;
+  panel.replaceChildren(
+    head,
+    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
+    ...(more ? [more] : []),
   );
 }
 
@@ -372,7 +424,7 @@ function renderReader(panel: HTMLElement, it: Item) {
         { class: "frame-bar" },
         back,
         h("span", { class: "meta" }, it.domain),
-        h("a", { class: "tool", href: url, target: "_blank", rel: "noopener noreferrer" }, "Open at outlet"),
+        h("a", { class: "tool", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.publisher}`),
       ),
       frame,
     );
@@ -382,8 +434,14 @@ function renderReader(panel: HTMLElement, it: Item) {
   const related = it.story ? (state.stories.get(it.story) ?? []).filter((s) => s.place !== it.place) : [];
   const image = safeUrl(it.image, true);
   const actions = h("div", { class: "actions" });
+  const explained = it.event !== undefined ? file.events[String(it.event)] : undefined;
+  if (explained) {
+    const open = h("button", { type: "button", class: "tool primary" }, "Explanation and sources");
+    open.addEventListener("click", () => openEvent(explained.id, "reader"));
+    actions.append(open);
+  }
   if (it.embed && url) {
-    const here = h("button", { type: "button", class: "tool primary" }, "Read it here");
+    const here = h("button", { type: "button", class: explained ? "tool" : "tool primary" }, "Read it here");
     here.addEventListener("click", () => {
       state.framed = true;
       renderPanel();
@@ -392,7 +450,7 @@ function renderReader(panel: HTMLElement, it: Item) {
   }
   if (url) {
     actions.append(
-      h("a", { class: it.embed ? "tool" : "tool primary", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.domain}`),
+      h("a", { class: it.embed || explained ? "tool" : "tool primary", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.publisher}`),
     );
   }
 
@@ -412,12 +470,12 @@ function renderReader(panel: HTMLElement, it: Item) {
         [place.name, it.topics[0] ? TOPIC_LABEL[it.topics[0]] : "", timeAgo(it.t, file.generatedAt)].filter(Boolean).join(" · "),
       ),
       headline(it, "h2"),
-      h("p", { class: "byline" }, [it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
+      h("p", { class: "byline" }, [it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
       fig,
       it.excerpt
         ? h("p", { class: "excerpt" }, it.excerpt)
         : h("p", { class: "excerpt muted" }, "The outlet didn't publish a preview for this story."),
-      h("p", { class: "fine" }, it.embed ? "Preview supplied by the outlet. The full page can open inside Capy." : "Preview supplied by the outlet. This outlet doesn't allow its pages to open inside other sites."),
+      h("p", { class: "fine" }, it.embed ? `Preview from the outlet's own feed. The outlet allows its full page to open inside ${SITE_NAME}.` : "Preview from the outlet's own feed."),
       actions,
       related.length
         ? h(
@@ -434,6 +492,9 @@ function renderReader(panel: HTMLElement, it: Item) {
 function openReader(it: Item) {
   state.reader = it;
   state.framed = false;
+  state.telegram = false;
+  state.event = null;
+  applyHighlight();
   const file = state.file!;
   const from = file.places[it.place];
   const to = it.story
@@ -442,7 +503,7 @@ function openReader(it: Item) {
         .map((p) => [file.places[p].lon, file.places[p].lat] as [number, number])
     : [];
   map.setArcs([from.lon, from.lat], to);
-  if (state.tuned !== it.place) flyToPlace(it.place);
+  if (!state.tuned?.includes(it.place)) flyToPlace(it.place);
   renderPanel();
   $("panel").scrollTop = 0;
 }
@@ -451,6 +512,211 @@ function closeReader() {
   state.reader = null;
   state.framed = false;
   map.setArcs(null);
+}
+
+// ---- telegram and explanations (2DayAI) ---------------------------------------
+
+/** Places behind whatever the panel shows, ringed on the map. */
+function applyHighlight() {
+  const file = state.file;
+  if (!file) return map.setHighlight([]);
+  const ev = state.event ? file.events[String(state.event.id)] : undefined;
+  if (ev) return map.setHighlight(ev.places);
+  if (state.telegram && file.telegram) {
+    return map.setHighlight(file.telegram.items.flatMap((i) => file.events[String(i.eventId)]?.places ?? []));
+  }
+  map.setHighlight([]);
+}
+
+const BAND_LABEL: Record<number, string> = { [-2]: "Grave", [-1]: "Hard", 0: "Mixed", 1: "Hopeful", 2: "Good" };
+
+function signed(n: number): string {
+  return n > 0 ? `+${n}` : n < 0 ? `\u2212${-n}` : "0";
+}
+
+/** The five-step scale with the day's step marked. Text labels, so it reads without colour. */
+function scale(band: number): HTMLElement {
+  return h(
+    "div",
+    { class: "scale", role: "img", "aria-label": `The day scored ${BAND_LABEL[band]}, on a scale from Grave to Good` },
+    ...[-2, -1, 0, 1, 2].map((b) => h("span", { class: b === band ? "step on" : "step" }, BAND_LABEL[b]!)),
+  );
+}
+
+function renderTelegramStrip() {
+  const el = $("telegram");
+  const file = state.file;
+  if (!file) {
+    el.replaceChildren(h("span", { class: "telegram-kicker" }, "Loading today's word..."));
+    return;
+  }
+  const t = file.telegram;
+  const date = h("span", { class: "telegram-kicker" }, formatRunDate(file.runDate));
+  if (!t) {
+    el.replaceChildren(h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, "No word yet for this day")));
+    return;
+  }
+  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
+  word.addEventListener("click", openTelegram);
+  const n = t.scores.length;
+  el.replaceChildren(
+    h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`)),
+    word,
+    scale(t.band),
+  );
+}
+
+function openTelegram() {
+  if (!state.file?.telegram) return;
+  state.telegram = true;
+  state.event = null;
+  state.reader = null;
+  state.framed = false;
+  map.setArcs(null);
+  applyHighlight();
+  renderPanel();
+  $("panel").scrollTop = 0;
+}
+
+function closeTelegram() {
+  state.telegram = false;
+  state.event = null;
+  applyHighlight();
+}
+
+function placesText(ev: MapEvent): string {
+  const names = [...new Set(ev.places.map((p) => state.file!.places[p]?.name).filter(Boolean))];
+  return names.length ? `Reported from ${names.join(", ")}` : "";
+}
+
+function scoreChip(score: number): HTMLElement {
+  return h("span", { class: `score-chip s${score + 2}`, title: BAND_LABEL[score] }, signed(score));
+}
+
+function renderTelegram(panel: HTMLElement) {
+  const file = state.file!;
+  const t = file.telegram!;
+  const back = h("button", { type: "button", class: "tool back" }, "Back to the map");
+  back.addEventListener("click", () => {
+    closeTelegram();
+    renderPanel();
+  });
+  const scoreOf = new Map(t.scores.map((sc) => [sc.eventId, sc]));
+  const eventButton = (eventId: number, text: string, extra: HTMLElement | null) => {
+    const ev = file.events[String(eventId)];
+    if (!ev) return [];
+    const sc = scoreOf.get(eventId);
+    const b = h(
+      "button",
+      { type: "button", class: "story" },
+      h("span", { class: "headline" }, sc ? scoreChip(sc.score) : null, " ", text),
+      extra,
+      h("span", { class: "meta" }, [placesText(ev), `${ev.sources.length} ${ev.sources.length === 1 ? "source" : "sources"}`].filter(Boolean).join(" · ")),
+    );
+    b.addEventListener("click", () => openEvent(ev.id, "telegram"));
+    return [h("li", {}, b)];
+  };
+  panel.replaceChildren(
+    h(
+      "article",
+      { class: "reader telegram-view" },
+      back,
+      h("p", { class: "kicker" }, `The world's reporting · ${formatRunDate(t.runDate)}`),
+      h("h2", { class: "telegram-big" }, t.word),
+      scale(t.band),
+      h(
+        "p",
+        { class: "fine" },
+        "An AI model scored each event from \u22122 to +2 by what happened to people, quoting the sentence each score rests on. A formula, not the model, set the day: the worst significant event decides a bad day.",
+      ),
+      h("h3", { class: "rule-head" }, "What shaped the day"),
+      h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
+      h("h3", { class: "rule-head" }, "Every event's score"),
+      h(
+        "ol",
+        { class: "stories" },
+        ...t.scores.flatMap((sc) => eventButton(sc.eventId, file.events[String(sc.eventId)]?.title ?? "", h("blockquote", { class: "excerpt-quote" }, sc.because))),
+      ),
+    ),
+  );
+}
+
+function openEvent(id: number, back: "telegram" | "reader") {
+  const ev = state.file?.events[String(id)];
+  if (!ev) return;
+  state.event = { id, back };
+  applyHighlight();
+  const first = ev.places[0];
+  if (first !== undefined && !state.tuned?.includes(first) && back === "telegram") flyToPlace(first);
+  renderPanel();
+  $("panel").scrollTop = 0;
+}
+
+function renderEvent(panel: HTMLElement, ev: MapEvent) {
+  const file = state.file!;
+  const backTo = state.event!.back;
+  const back = h("button", { type: "button", class: "tool back" }, backTo === "telegram" ? `Back to "${file.telegram?.word ?? "today"}"` : "Back to the article");
+  const sc = file.telegram?.scores.find((x) => x.eventId === ev.id);
+  back.addEventListener("click", () => {
+    state.event = null;
+    applyHighlight();
+    renderPanel();
+  });
+  const section = (label: string, list: MapEvent["whatHappened"]) =>
+    list.length
+      ? h(
+          "section",
+          { class: "explain-part" },
+          h("h3", { class: "rule-head" }, label),
+          h(
+            "p",
+            { class: "explain-text" },
+            ...list.flatMap((s) => [
+              s.text,
+              ...s.cites.map((i) => {
+                const a = h("a", { class: "cite", href: `#src-${ev.id}-${i + 1}`, "aria-label": `Source ${i + 1}` }, String(i + 1));
+                a.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  document.getElementById(`src-${ev.id}-${i + 1}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                });
+                return a;
+              }),
+              " ",
+            ]),
+          ),
+        )
+      : null;
+  const sources = ev.sources.map((src, i) => {
+    const url = safeUrl(src.url);
+    return h(
+      "li",
+      { id: `src-${ev.id}-${i + 1}`, class: "source" },
+      h("span", { class: "source-num" }, String(i + 1)),
+      h(
+        "div",
+        {},
+        h("p", { class: "meta" }, `${src.publisher} · ${new Date(src.publishedAt * 1000).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`),
+        url ? h("a", { class: "source-title", href: url, target: "_blank", rel: "noopener noreferrer" }, src.title) : h("span", { class: "source-title" }, src.title),
+        ...src.excerpts.map((x) => h("blockquote", { class: "excerpt-quote" }, x)),
+      ),
+    );
+  });
+  panel.replaceChildren(
+    h(
+      "article",
+      { class: "reader event-view" },
+      back,
+      h("p", { class: "kicker" }, [TOPIC_LABEL[ev.topic], placesText(ev)].filter(Boolean).join(" · ")),
+      h("h2", { class: "reader-headline" }, ev.title),
+      sc ? h("p", { class: "event-score" }, scoreChip(sc.score), ` Scored ${BAND_LABEL[sc.score]} for today's word, because: `, h("q", {}, sc.because)) : null,
+      section("What happened", ev.whatHappened),
+      section("Why it matters", ev.whyItMatters),
+      section("What changes next", ev.whatChangesNext),
+      h("h3", { class: "rule-head" }, "Sources"),
+      h("ol", { class: "sources" }, ...sources),
+      h("p", { class: "fine" }, "Written by an AI model, title included. Each sentence links to the passage it quotes, and any sentence without a matching passage was removed."),
+    ),
+  );
 }
 
 // ---- time bar ---------------------------------------------------------------
@@ -543,20 +809,20 @@ function syncUrl() {
   const p = new URLSearchParams();
   p.set("theme", state.theme);
   if (state.view) p.set("view", state.view);
-  const place = state.tuned !== null ? state.file?.places[state.tuned] : null;
+  const place = state.tuned ? state.file?.places[state.tuned[0]] : null;
   if (place) p.set("place", place.id);
   history.replaceState(null, "", `${location.pathname}?${p}`);
 }
 
-function shuffle() {
-  const keys = [...state.byPlace.keys()];
-  if (!keys.length) return;
+/** S: turn the map until it lands somewhere new. */
+function spin() {
   closeReader();
-  flyToPlace(keys[Math.floor(Math.random() * keys.length)]);
+  closeTelegram();
+  renderPanel();
+  map.startSpin();
 }
 
 function bindGlobal() {
-  $("shuffle").addEventListener("click", shuffle);
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
   $("about-btn").addEventListener("click", () => ($("about") as HTMLDialogElement).showModal());
@@ -568,11 +834,14 @@ function bindGlobal() {
   document.addEventListener("keydown", (e) => {
     const target = e.target as HTMLElement;
     if (target.closest("input, textarea, select, dialog")) return;
-    if (e.key === "Escape" && state.reader) {
-      closeReader();
+    if (e.key === "Escape" && (state.event || state.telegram || state.reader)) {
+      if (state.event) state.event = null;
+      else if (state.telegram) closeTelegram();
+      else closeReader();
+      applyHighlight();
       renderPanel();
     } else if (e.key === "s" || e.key === "S") {
-      shuffle();
+      spin();
     }
   });
   // Close open menus when clicking elsewhere.
@@ -586,9 +855,12 @@ function bindGlobal() {
 }
 
 async function start() {
+  document.title = SITE_NAME;
+  for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
   document.documentElement.dataset.theme = state.theme;
   renderMasthead();
   renderToolbar();
+  renderTelegramStrip();
   renderPanel();
   bindTimebar();
   bindGlobal();
@@ -600,17 +872,25 @@ async function start() {
 
   try {
     state.file = await loadNews(BASE);
-  } catch {
-    $("panel").replaceChildren(h("p", { class: "pad" }, "The news feed couldn't be loaded. Try again in a few minutes."));
+  } catch (err) {
+    const first = err instanceof Error && err.message === NO_DAY_YET;
+    $("panel").replaceChildren(
+      h("p", { class: "pad" }, first ? "The first day's map is being made. It appears after the daily run at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
+    );
     return;
   }
   state.stories = storyIndex(state.file);
-  if (state.file.source === "sample") {
+  state.tiered = hasTiers(state.file);
+  if (state.file.source !== "live") {
     const banner = $("banner");
     banner.hidden = false;
-    banner.textContent = "Sample data: placeholder headlines for testing the design. Not real news.";
+    banner.textContent =
+      state.file.source === "demo"
+        ? (state.file.note ?? "Demo: real headlines gathered outside the daily run.")
+        : "Sample: fictional outlets and places. Not real news.";
   }
   refreshDots();
+  renderTelegramStrip();
   renderMasthead();
   renderTimeLabel();
   renderTicker();
@@ -619,6 +899,13 @@ async function start() {
   const start = params.get("place");
   const idx = start ? state.file.places.findIndex((p) => p.id === start) : -1;
   if (idx >= 0) flyToPlace(idx);
+  // Like a radio dial: the map turns on its own until a place lands under the cross.
+  else if (!reducedMotion) {
+    // A different stretch of the world each visit, a little north of the equator where most places are.
+    map.setCenter(Math.random() * 360 - 180, 18);
+    map.startSpin();
+  }
+  armIdleSpin();
 }
 
 start();

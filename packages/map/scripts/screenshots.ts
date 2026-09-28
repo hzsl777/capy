@@ -8,7 +8,7 @@ import { preview } from "vite";
 import { chromium } from "playwright-core";
 
 const OUT = process.env.SHOT_DIR ?? "../../docs/map/screenshots";
-const themes = ["morning", "cabinet", "wire"] as const;
+const themes = ["morning", "cabinet", "wire", "ops", "blueprint"] as const;
 const views = ["2d", "3d"] as const;
 
 const server = await preview({ preview: { port: 4179, strictPort: true }, logLevel: "warn" });
@@ -28,7 +28,7 @@ try {
     for (const theme of themes) {
       for (const view of views) {
         if (label === "mobile" && view === "2d" && theme !== "morning") continue;
-        await page.goto(`${base}?theme=${theme}&view=${view}&place=ll:-1.3,36.8`);
+        await page.goto(`${base}?theme=${theme}&view=${view}&place=ll:-1.29,36.82`);
         await page.waitForFunction(() => document.querySelector(".place-name"));
         await page.waitForTimeout(1600);
         await page.screenshot({ path: `${OUT}/${label}-${theme}-${view}.jpg`, quality: 82 });
@@ -36,6 +36,15 @@ try {
           await page.locator(".story").first().click();
           await page.waitForTimeout(1200);
           await page.screenshot({ path: `${OUT}/${label}-${theme}-reader.jpg`, quality: 82 });
+          // The telegram: level 0 and 1, then one event's explanation and sources (levels 2 and 3).
+          if (await page.locator(".telegram-word").count()) {
+            await page.locator(".telegram-word").click();
+            await page.waitForTimeout(900);
+            await page.screenshot({ path: `${OUT}/${label}-${theme}-telegram.jpg`, quality: 82 });
+            await page.locator(".telegram-view .story").first().click();
+            await page.waitForTimeout(1300);
+            await page.screenshot({ path: `${OUT}/${label}-${theme}-explained.jpg`, quality: 82 });
+          }
         }
       }
     }

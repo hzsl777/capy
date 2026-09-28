@@ -1,9 +1,18 @@
 // Stage 6.2. One model call groups the day's articles into events. Idempotent per date: existing events for the date
 // are deleted first, and the cascade removes everything derived from them.
-import { and, eq, gte, isNotNull, lt } from "drizzle-orm";
-import { ClusterResultSchema, ingestWindow, type RunDate } from "@2dayai/core";
+import { and, asc, desc, eq, gte, isNotNull, lt } from "drizzle-orm";
+import {
+  ClusterResultSchema,
+  ingestWindow,
+  validMergeGroups,
+  WorldClusterMergeSchema,
+  WorldClusterResultSchema,
+  type RunDate,
+  type WorldClusterMerge,
+  type WorldTopic,
+} from "@2dayai/core";
 import { loadPrompt } from "../prompts.js";
-import { articles, editions, eventArticles, events, sources, type Db } from "@2dayai/db";
+import { articles, editions, eventArticles, events, sources, telegrams, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
 import type { Llm } from "../llm/types.js";
 
@@ -29,9 +38,9 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
     .select({ id: articles.id, source: sources.name, tier: sources.tier, title: articles.title, lead: articles.lead, body: articles.body })
     .from(articles)
     .innerJoin(sources, eq(sources.id, articles.sourceId))
-    .where(and(gte(articles.publishedAt, from), lt(articles.publishedAt, to)));
+    .where(and(eq(sources.desk, "briefing"), gte(articles.publishedAt, from), lt(articles.publishedAt, to)));
 
-  await db.delete(events).where(eq(events.runDate, date));
+  await db.delete(events).where(and(eq(events.runDate, date), eq(events.desk, "briefing")));
   if (rows.length === 0) return { articles: 0, events: 0, skipped: 0, unknownIds: 0, unassigned: 0 };
 
   const prompt = loadPrompt("cluster", CLUSTER_PROMPT_VERSION);
@@ -62,4 +71,189 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
   const skipped = result.skipped.filter((s) => known.has(s.articleId)).length;
   const unassigned = rows.filter((r) => !assigned.has(r.id) && !result.skipped.some((s) => s.articleId === r.id)).length;
   return { articles: rows.length, events: written, skipped, unknownIds, unassigned };
+}
+
+/*
+ * The world desk (decision 25): same job, its own prompt, and a topic per event for the map's filters.
+ *
+ * A day with hundreds of outlets is too large for one call, so the articles go out in batches of at most
+ * WORLD_CLUSTER_BATCH, each through the cluster-world prompt with the same checks. When there is more than one batch, a
+ * merge pass (cluster-world-merge.v1) names the batch events that report the same story, and code joins them.
+ */
+
+// v2 (decision 33): the same rules with short reasons, since every reason is billed as output across hundreds of events.
+export const CLUSTER_WORLD_PROMPT_VERSION = 2;
+export const CLUSTER_WORLD_MERGE_PROMPT_VERSION = 1;
+/** Headlines carry most of the grouping signal; a short lead settles the rest. */
+const WORLD_CHARS_FOR_CLUSTERING = 200;
+
+export type WorldClusterReport = ClusterReport & {
+  byTopic: Record<string, number>;
+  /** Cluster calls made. */
+  batches: number;
+  /** Merge groups applied, each joining two or more batch events into one. */
+  merged: number;
+  /** Merge groups the checks refused: an unknown key, a key in two groups, or fewer than two events. */
+  mergeDropped: number;
+};
+
+type WorldRow = { id: number; source: string; place: string; title: string; lead: string };
+
+/** One event from one batch after its article ids were checked. `key` names it in the merge pass. */
+type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string };
+
+export function worldClusterUserContent(rows: WorldRow[]): string {
+  const lines = rows.map((r) => `[${r.id}] ${r.title} (${r.source})\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
+  return `World articles for today, ${rows.length} in total. Each starts with its id in brackets.\n\n${lines.join("\n\n")}`;
+}
+
+/** Even batches of at most `max`, in the order given. */
+export function splitBatches<T>(rows: T[], max: number): T[][] {
+  if (rows.length === 0) return [];
+  const count = Math.ceil(rows.length / max);
+  const size = Math.ceil(rows.length / count);
+  return Array.from({ length: count }, (_, i) => rows.slice(i * size, (i + 1) * size));
+}
+
+/** The merge pass sees each batch event's key, title, topic, importance, and its outlets with their places. */
+export function worldMergeUserContent(evs: BatchEvent[], outletOf: Map<number, string>): string {
+  const lines = evs.map((e) => {
+    const outlets = [...new Set(e.ids.map((id) => outletOf.get(id) ?? "unknown"))].join("; ");
+    return `[${e.key}] ${e.title}\ntopic: ${e.topic}, importance ${e.importance}\noutlets: ${outlets}`;
+  });
+  return `Events from today's batches, ${evs.length} in total. Each starts with its key in brackets.\n\n${lines.join("\n\n")}`;
+}
+
+export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: RunDate): Promise<WorldClusterReport> {
+  const { from, to } = ingestWindow(date);
+  // Newest first across every source, so each batch is a slice of the day from many places, not one region.
+  const all = await db
+    .select({ id: articles.id, sourceId: sources.id, source: sources.name, place: sources.placeName, title: articles.title, lead: articles.lead })
+    .from(articles)
+    .innerJoin(sources, eq(sources.id, articles.sourceId))
+    .where(and(eq(sources.desk, "world"), gte(articles.publishedAt, from), lt(articles.publishedAt, to)))
+    .orderBy(desc(articles.publishedAt), asc(articles.id));
+  const perSource = new Map<string, number>();
+  const rows: WorldRow[] = all
+    .filter((r) => {
+      const n = (perSource.get(r.sourceId) ?? 0) + 1;
+      perSource.set(r.sourceId, n);
+      return n <= config.worldPerSource;
+    })
+    .map((r) => ({ id: r.id, source: r.source, place: r.place ?? "unknown", title: r.title, lead: r.lead }));
+
+  if (rows.length === 0) {
+    await clearWorldDay(db, date);
+    return { articles: 0, events: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
+  }
+
+  const prompt = loadPrompt("cluster-world", CLUSTER_WORLD_PROMPT_VERSION);
+  const batches = splitBatches(rows, config.worldClusterBatch);
+  const batchId = (i: number) => `batch-${i + 1}`;
+  const answers = await llm.parseMany(
+    batches.map((batch, i) => ({ id: batchId(i), stage: "cluster-world", prompt, schema: WorldClusterResultSchema, user: worldClusterUserContent(batch), effort: config.effort.cluster })),
+    date,
+  );
+
+  const assigned = new Set<number>();
+  const batchEvents: BatchEvent[] = [];
+  const failures: string[] = [];
+  let unknownIds = 0;
+  let skipped = 0;
+  let unassigned = 0;
+  batches.forEach((batch, i) => {
+    const answer = answers.get(batchId(i));
+    if (!answer?.ok) {
+      failures.push(`${batchId(i)}: ${answer ? answer.error : "no answer"}`);
+      return;
+    }
+    const result = answer.value;
+    // An id is known only inside the batch that carried it; the model never saw the others.
+    const known = new Set(batch.map((r) => r.id));
+    let n = 0;
+    for (const ev of result.events) {
+      const ids = ev.articleIds.filter((id) => {
+        if (!known.has(id)) {
+          unknownIds += 1;
+          return false;
+        }
+        return !assigned.has(id);
+      });
+      if (ids.length === 0) continue;
+      ids.forEach((id) => assigned.add(id));
+      n += 1;
+      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label });
+    }
+    skipped += result.skipped.filter((s) => known.has(s.articleId)).length;
+    unassigned += batch.filter((r) => !assigned.has(r.id) && !result.skipped.some((s) => s.articleId === r.id)).length;
+  });
+  // A dead batch fails the stage before anything is written. A partial day would leave places empty without saying why.
+  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} of ${batches.length} batches failed, nothing written. ${failures.join("; ")}`);
+
+  let final = batchEvents;
+  let merged = 0;
+  let mergeDropped = 0;
+  if (batches.length > 1 && batchEvents.length > 1) {
+    const mergePrompt = loadPrompt("cluster-world-merge", CLUSTER_WORLD_MERGE_PROMPT_VERSION);
+    const outletOf = new Map(rows.map((r) => [r.id, `${r.source} (${r.place})`]));
+    const answer = await llm.parse({ stage: "cluster-world-merge", prompt: mergePrompt, schema: WorldClusterMergeSchema, user: worldMergeUserContent(batchEvents, outletOf), effort: config.effort.cluster }, date);
+    const checked = validMergeGroups(answer, new Set(batchEvents.map((e) => e.key)));
+    final = applyMerge(batchEvents, checked.groups, `${prompt.label}+${mergePrompt.label}`);
+    merged = checked.groups.length;
+    mergeDropped = checked.dropped;
+  }
+
+  // Every model call succeeded, so the date's world events are replaced only now.
+  await clearWorldDay(db, date);
+  const byTopic: Record<string, number> = {};
+  for (const ev of final) {
+    const [row] = await db
+      .insert(events)
+      .values({ runDate: date, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, promptVersion: ev.promptVersion, desk: "world", topic: ev.topic })
+      .returning({ id: events.id });
+    await db.insert(eventArticles).values(ev.ids.map((articleId) => ({ eventId: row!.id, articleId })));
+    byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
+  }
+  return { articles: rows.length, events: final.length, skipped, unknownIds, unassigned, byTopic, batches: batches.length, merged, mergeDropped };
+}
+
+/** The telegram is written from the world events; re-clustering makes any old telegram for the date stale. */
+async function clearWorldDay(db: Db, date: RunDate): Promise<void> {
+  await db.delete(telegrams).where(eq(telegrams.runDate, date));
+  await db.delete(events).where(and(eq(events.runDate, date), eq(events.desk, "world")));
+}
+
+/**
+ * Joins each checked group into one event: the union of its articles, the group's title, the highest importance,
+ * and the topic and reason of the most important member (the first listed on a tie). The joined event takes the
+ * place of its first member. Events in no group pass through unchanged.
+ */
+function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], promptVersion: string): BatchEvent[] {
+  const byKey = new Map(evs.map((e) => [e.key, e]));
+  const groupOf = new Map<string, number>();
+  groups.forEach((g, gi) => g.eventKeys.forEach((k) => groupOf.set(k, gi)));
+  const done = new Set<number>();
+  const out: BatchEvent[] = [];
+  for (const ev of evs) {
+    const gi = groupOf.get(ev.key);
+    if (gi === undefined) {
+      out.push(ev);
+      continue;
+    }
+    if (done.has(gi)) continue;
+    done.add(gi);
+    const group = groups[gi]!;
+    const members = [...new Set(group.eventKeys)].map((k) => byKey.get(k)!);
+    const lead = members.reduce((best, m) => (m.importance > best.importance ? m : best));
+    out.push({
+      key: members.map((m) => m.key).join("+"),
+      title: group.title,
+      importance: lead.importance,
+      importanceReason: lead.importanceReason,
+      topic: lead.topic,
+      ids: members.flatMap((m) => m.ids),
+      promptVersion,
+    });
+  }
+  return out;
 }

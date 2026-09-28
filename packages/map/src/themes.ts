@@ -1,6 +1,6 @@
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -10,7 +10,6 @@ export type ViewMode = "2d" | "3d";
 export interface Theme {
   id: ThemeId;
   label: string;
-  masthead: string;
   defaultView: ViewMode;
   projection2d: () => GeoProjection;
   ocean: string;
@@ -37,14 +36,18 @@ export interface Theme {
   tuned: string;
   arc: string;
   glow: boolean;
+  /** Globe only: a soft halo around the sphere. */
   atmosphere: string | null;
+  /** Globe only: darkening toward the limb, so the sphere reads as lit from the upper left. */
+  shade: string | null;
+  /** Map only: a double rule around the sheet, like a printed chart. */
+  neatline: boolean;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
   morning: {
     id: "morning",
     label: "Morning Edition",
-    masthead: "The Capy Dispatch",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     ocean: "#f3efe4",
@@ -69,11 +72,12 @@ export const THEMES: Record<ThemeId, Theme> = {
     arc: "rgba(21,21,21,0.7)",
     glow: false,
     atmosphere: null,
+    shade: "rgba(21,21,21,0.22)",
+    neatline: true,
   },
   cabinet: {
     id: "cabinet",
     label: "Cabinet Map",
-    masthead: "Atlas of Current Events",
     defaultView: "2d",
     projection2d: geoEquirectangular,
     ocean: "#e4d3ab",
@@ -98,34 +102,97 @@ export const THEMES: Record<ThemeId, Theme> = {
     arc: "rgba(142,42,28,0.75)",
     glow: false,
     atmosphere: null,
+    shade: "rgba(58,42,24,0.3)",
+    neatline: true,
   },
   wire: {
     id: "wire",
     label: "Wire Room",
-    masthead: "CAPY/WIRE",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#121411",
-    land: "#1b1e19",
+    ocean: "#020503",
+    land: "#04100a",
     landTexture: "matrix",
-    textureInk: "rgba(233,228,212,0.42)",
-    coast: "rgba(233,228,212,0.55)",
+    textureInk: "rgba(76,255,140,0.34)",
+    coast: "rgba(96,255,150,0.62)",
     coastWidth: 0.7,
     waterlines: 0,
-    waterline: "rgba(233,228,212,0.06)",
+    waterline: "rgba(96,255,150,0.06)",
     oceanHatch: null,
-    graticule: "rgba(233,228,212,0.07)",
+    graticule: "rgba(96,255,150,0.09)",
     graticuleDash: [],
-    river: "rgba(233,228,212,0.16)",
-    lake: "#121411",
-    ice: "#20241f",
-    relief: "rgba(233,228,212,0.22)",
-    dot: "#e9e4d4",
-    dotStroke: "#0d0e0c",
-    fresh: "#ffb000",
-    tuned: "#ffb000",
-    arc: "rgba(255,176,0,0.8)",
+    river: "rgba(96,255,150,0.18)",
+    lake: "#020503",
+    ice: "#07170e",
+    relief: "rgba(96,255,150,0.22)",
+    dot: "#6dff9e",
+    dotStroke: "#020503",
+    fresh: "#e6fff0",
+    tuned: "#e6fff0",
+    arc: "rgba(109,255,158,0.8)",
     glow: true,
-    atmosphere: "rgba(255,176,0,0.10)",
+    atmosphere: "rgba(76,255,140,0.16)",
+    shade: "rgba(0,0,0,0.55)",
+    neatline: false,
+  },
+  ops: {
+    id: "ops",
+    label: "Ops Room",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#0e1217",
+    land: "#1a2028",
+    landTexture: "none",
+    textureInk: "rgba(170,186,204,0.3)",
+    coast: "rgba(170,186,204,0.55)",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(170,186,204,0.06)",
+    oceanHatch: null,
+    graticule: "rgba(170,186,204,0.12)",
+    graticuleDash: [1, 3],
+    river: "rgba(120,170,200,0.22)",
+    lake: "#0e1217",
+    ice: "#232b35",
+    relief: "rgba(170,186,204,0.2)",
+    dot: "#c8d2dd",
+    dotStroke: "#0e1217",
+    fresh: "#43c1d3",
+    tuned: "#43c1d3",
+    arc: "rgba(67,193,211,0.85)",
+    glow: false,
+    atmosphere: "rgba(67,193,211,0.10)",
+    shade: "rgba(0,0,0,0.45)",
+    neatline: true,
+  },
+  blueprint: {
+    id: "blueprint",
+    label: "Blueprint",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#17397a",
+    land: "#1d4590",
+    landTexture: "none",
+    textureInk: "rgba(238,243,251,0.3)",
+    coast: "#eef3fb",
+    coastWidth: 1,
+    waterlines: 2,
+    waterline: "rgba(238,243,251,0.22)",
+    oceanHatch: null,
+    graticule: "rgba(238,243,251,0.16)",
+    graticuleDash: [],
+    river: "rgba(238,243,251,0.35)",
+    lake: "#17397a",
+    ice: "#2451a0",
+    relief: "rgba(238,243,251,0.45)",
+    dot: "#eef3fb",
+    dotStroke: "#17397a",
+    fresh: "#ff8a52",
+    tuned: "#ff8a52",
+    arc: "rgba(255,138,82,0.9)",
+    glow: false,
+    atmosphere: "rgba(238,243,251,0.12)",
+    shade: "rgba(8,20,48,0.5)",
+    neatline: true,
   },
 };

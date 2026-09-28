@@ -3,34 +3,63 @@ on:
   schedule:
     # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs hourly in deliver.yml.
     - cron: "0 9 * * *"
+  # A finished deploy starts the day if its map doesn't exist yet, so going live needs no manual run.
+  workflow_run:
+    workflows: ["Deploy site"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       date:
         description: Run date (YYYY-MM-DD). Defaults to today.
         required: false
+permissions:
+  contents: read
 jobs:
   day:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      MODEL: claude-sonnet-5
+      # Decisions 28 and 29. Unset variables mean OpenAI: gpt-5.4-nano for the bulk stages, gpt-5.4-mini for the word.
+      LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      MODEL: ${{ vars.MODEL }}
+      MODEL_TELEGRAM: ${{ vars.MODEL_TELEGRAM }}
       LLM_BATCH: "true"
-      DAILY_SPEND_CEILING_USD: "1.00"
+      # 237 outlets on the default models cost roughly $0.10 to $0.25 a day (decision 33). The ceiling stops a
+      # runaway day, not a normal one.
+      DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
     steps:
+      # Until the database and model key exist, the scheduled run skips instead of failing every morning.
+      - name: Skip until set up
+        if: env.DATABASE_URL == '' || env.LLM_API_KEY == ''
+        run: echo "::notice::DATABASE_URL or LLM_API_KEY is not set; skipping. See docs/RUNBOOK.md, 'Launch'."
       - uses: actions/checkout@v4
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
       - uses: actions/setup-node@v4
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run db:migrate
+      - if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm ci
+      - if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm run db:migrate
+      # One tiny call per model first: a bad key or model id fails here in seconds, with a plain message.
+      - name: Check the model key
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm run stage -- llm check
       - name: Run the day
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        env:
+          DATE: ${{ inputs.date }}
+          IF_MISSING: ${{ github.event_name == 'workflow_run' && '--if-missing' || '' }}
         run: |
-          if [ -n "${{ inputs.date }}" ]; then
-            npm run stage -- day --date "${{ inputs.date }}"
+          if [ -n "$DATE" ]; then
+            npm run stage -- day --date "$DATE" $IF_MISSING
           else
-            npm run stage -- day
+            npm run stage -- day $IF_MISSING
           fi

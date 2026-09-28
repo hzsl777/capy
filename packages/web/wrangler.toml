@@ -1,5 +1,11 @@
-name = "2dayai"
+# The public site is GlobalGist (decision 27), so its free address is globalgist.<account>.workers.dev.
+name = "globalgist"
 main = "src/index.ts"
 compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]
 # Secrets (set with `wrangler secret put`): DATABASE_URL
+
+# The public map (packages/map). Build it first with `npm run map:build`. Files that exist are served as-is;
+# everything else, including /data/*.json and the reader pages, falls through to the Worker.
+[assets]
+directory = "../map/dist"

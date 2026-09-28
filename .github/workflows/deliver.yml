@@ -4,6 +4,8 @@ on:
     # Every two hours (private-repo Actions budget). Sends editions whose reader's local hour has reached their delivery hour. Idempotent.
     - cron: "5 */2 * * *"
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   deliver:
     runs-on: ubuntu-latest
@@ -14,10 +16,18 @@ jobs:
       WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
       MAIL_FROM: ${{ vars.MAIL_FROM }}
     steps:
+      # 2DayAI email is not live yet. Without a Resend key there is nothing to send, so skip in seconds.
+      - name: Skip until email is set up
+        if: env.RESEND_API_KEY == '' || env.DATABASE_URL == ''
+        run: echo "::notice::RESEND_API_KEY or DATABASE_URL is not set; skipping delivery."
       - uses: actions/checkout@v4
+        if: env.RESEND_API_KEY != '' && env.DATABASE_URL != ''
       - uses: actions/setup-node@v4
+        if: env.RESEND_API_KEY != '' && env.DATABASE_URL != ''
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run stage -- deliver
+      - if: env.RESEND_API_KEY != '' && env.DATABASE_URL != ''
+        run: npm ci
+      - if: env.RESEND_API_KEY != '' && env.DATABASE_URL != ''
+        run: npm run stage -- deliver
