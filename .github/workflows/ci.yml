@@ -1,6 +1,8 @@
 name: CI
 on:
+  # Pull requests run once on the pull_request event; a push to a feature branch alone would run it twice.
   push:
+    branches: [main]
   pull_request:
 permissions:
   contents: read
