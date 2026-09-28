@@ -32,7 +32,7 @@ describe("the world desk on a real Postgres engine", () => {
     const llm = new FakeLlm(worldAnswers({ badWordFirst: "Joy" }));
     const out = await runDay(db, testConfig(), llm, date, deps);
 
-    expect(out["cluster"]).toEqual({ articles: 0, events: 0, skipped: 0, unknownIds: 0, unassigned: 0 });
+    expect(out["cluster"]).toEqual({ skipped: "no reader profiles" });
     expect(out["clusterWorld"]).toMatchObject({ articles: 15, events: 10, unknownIds: 0, unassigned: 0, byTopic: { conflict: 3, environment: 1, other: 1 } });
     // Importance 3 or more: three conflict stories, the floods, the port, the clinics and the rescue.
     expect(out["explain"]).toEqual({ events: 7, usable: 7, unusable: 0, failed: 0, sentencesDropped: 0 });

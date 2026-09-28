@@ -77,13 +77,15 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
  * The world desk (decision 25): same job, its own prompt, and a topic per event for the map's filters.
  *
  * A day with hundreds of outlets is too large for one call, so the articles go out in batches of at most
- * WORLD_CLUSTER_BATCH, each through cluster-world.v1 with the same checks. When there is more than one batch, a
+ * WORLD_CLUSTER_BATCH, each through the cluster-world prompt with the same checks. When there is more than one batch, a
  * merge pass (cluster-world-merge.v1) names the batch events that report the same story, and code joins them.
  */
 
-export const CLUSTER_WORLD_PROMPT_VERSION = 1;
+// v2 (decision 33): the same rules with short reasons, since every reason is billed as output across hundreds of events.
+export const CLUSTER_WORLD_PROMPT_VERSION = 2;
 export const CLUSTER_WORLD_MERGE_PROMPT_VERSION = 1;
-const WORLD_CHARS_FOR_CLUSTERING = 400;
+/** Headlines carry most of the grouping signal; a short lead settles the rest. */
+const WORLD_CHARS_FOR_CLUSTERING = 200;
 
 export type WorldClusterReport = ClusterReport & {
   byTopic: Record<string, number>;
@@ -101,7 +103,7 @@ type WorldRow = { id: number; source: string; place: string; title: string; lead
 type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string };
 
 export function worldClusterUserContent(rows: WorldRow[]): string {
-  const lines = rows.map((r) => `[${r.id}] ${r.title}\nsource: ${r.source}, publishing from ${r.place}\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
+  const lines = rows.map((r) => `[${r.id}] ${r.title} (${r.source})\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
   return `World articles for today, ${rows.length} in total. Each starts with its id in brackets.\n\n${lines.join("\n\n")}`;
 }
 

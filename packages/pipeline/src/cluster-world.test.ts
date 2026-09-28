@@ -34,7 +34,7 @@ const titleOf = (story: string) => TITLES[story] ?? `Story ${story} is reported`
 /** Groups each batch's articles by the story named in the headline. The Lima report of the flood rates higher. */
 const clusterAnswer: FakeAnswer = ({ user }) => {
   const byStory = new Map<string, { ids: number[]; lima: boolean }>();
-  for (const m of user.matchAll(/^\[(\d+)\] (\S+) report from (.+)$/gm)) {
+  for (const m of user.matchAll(/^\[(\d+)\] (\S+) report from (.+?) \([^)]*\)$/gm)) {
     const entry = byStory.get(m[2]!) ?? { ids: [], lima: false };
     entry.ids.push(Number(m[1]));
     entry.lima ||= m[3] === "Andes Ledger";
@@ -113,7 +113,7 @@ describe("cluster world in batches", () => {
     const flood = evs.filter((e) => e.title === TITLES["flood"]);
     expect(flood).toHaveLength(1);
     // The union of the articles, the highest importance, and the topic of the most important member.
-    expect(flood[0]).toMatchObject({ articleIds: floodIds, importance: 4, topic: "environment", promptVersion: "cluster-world.v1+cluster-world-merge.v1" });
+    expect(flood[0]).toMatchObject({ articleIds: floodIds, importance: 4, topic: "environment", promptVersion: "cluster-world.v2+cluster-world-merge.v1" });
     // Not merged, so the port story stays two events.
     expect(evs.filter((e) => e.title === TITLES["port"])).toHaveLength(2);
   });

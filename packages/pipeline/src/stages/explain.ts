@@ -8,33 +8,53 @@ import type { Config } from "../config.js";
 import type { Llm, ParseRequest } from "../llm/types.js";
 
 export const EXPLAIN_PROMPT_VERSION = 1;
-const ARTICLE_CHARS = 9000;
-const TOTAL_CHARS = 45000;
+/**
+ * Source text per explanation. A briefing event has one reader's full attention. A world event gets a few
+ * sentences on the map, and there are up to WORLD_EXPLAIN_MAX a day, so it reads less (decision 33).
+ */
+type TextLimits = { article: number; total: number };
+const BRIEFING_LIMITS: TextLimits = { article: 9000, total: 45000 };
+const WORLD_LIMITS: TextLimits = { article: 5000, total: 16000 };
 
 export type ExplainReport = { events: number; usable: number; unusable: number; failed: number; sentencesDropped: number };
 
 type ArticleRow = { id: number; title: string; url: string; publisher: string; publishedAt: Date; text: string };
 
-export function explainUserContent(event: { title: string }, rows: ArticleRow[]): string {
-  let budget = TOTAL_CHARS;
+export function explainUserContent(event: { title: string }, rows: ArticleRow[], limits: TextLimits = BRIEFING_LIMITS): string {
+  let budget = limits.total;
   const parts = rows.map((a) => {
-    const text = a.text.slice(0, Math.min(ARTICLE_CHARS, Math.max(0, budget)));
+    const text = a.text.slice(0, Math.min(limits.article, Math.max(0, budget)));
     budget -= text.length;
     return `[article ${a.id}] ${a.title}\npublisher: ${a.publisher}, published ${a.publishedAt.toISOString().slice(0, 10)}\nurl: ${a.url}\n\n${text}`;
   });
   return `Event: ${event.title}\n\nSource articles, each starting with its id in brackets. Cite by that id and quote passages verbatim.\n\n${parts.join("\n\n----\n\n")}`;
 }
 
-export async function runExplain(db: Db, config: Config, llm: Llm, date: RunDate): Promise<ExplainReport> {
-  const dated = await db.select().from(events).where(eq(events.runDate, date));
-  // Briefing events are all explained. World events are many: those of importance 3 or more are explained, most
-  // important first, up to the cap. They are what the telegram reads and what readers open; the rest keep their
-  // headlines and links (decisions 25 and 26).
+type EventRow = typeof events.$inferSelect;
+
+/**
+ * Briefing events are all explained. World events are many: those of importance 3 or more are explained, most
+ * important first, up to the cap. They are what the telegram reads and what readers open; the rest keep their
+ * headlines and links (decisions 25 and 26).
+ */
+export function explainTargets(dated: EventRow[], config: Pick<Config, "worldExplainMax">): EventRow[] {
   const world = dated
     .filter((e) => e.desk === "world" && e.importance >= 3)
     .sort((a, b) => b.importance - a.importance)
     .slice(0, config.worldExplainMax);
-  const evs = [...dated.filter((e) => e.desk !== "world"), ...world];
+  return [...dated.filter((e) => e.desk !== "world"), ...world];
+}
+
+/** The articles explain will read for the date, so the daily run fetches only their pages (decision 33). */
+export async function explainArticleIds(db: Db, config: Config, date: RunDate): Promise<number[]> {
+  const ids = explainTargets(await db.select().from(events).where(eq(events.runDate, date)), config).map((e) => e.id);
+  if (ids.length === 0) return [];
+  const links = await db.select({ id: eventArticles.articleId }).from(eventArticles).where(inArray(eventArticles.eventId, ids));
+  return [...new Set(links.map((l) => l.id))];
+}
+
+export async function runExplain(db: Db, config: Config, llm: Llm, date: RunDate): Promise<ExplainReport> {
+  const evs = explainTargets(await db.select().from(events).where(eq(events.runDate, date)), config);
   if (evs.length === 0) return { events: 0, usable: 0, unusable: 0, failed: 0, sentencesDropped: 0 };
   const ids = evs.map((e) => e.id);
   await db.delete(eventExplanations).where(inArray(eventExplanations.eventId, ids));
@@ -61,7 +81,7 @@ export async function runExplain(db: Db, config: Config, llm: Llm, date: RunDate
     stage: "explain",
     prompt,
     schema: ExplanationSchema,
-    user: explainUserContent(ev, perEvent.get(ev.id) ?? []),
+    user: explainUserContent(ev, perEvent.get(ev.id) ?? [], ev.desk === "world" ? WORLD_LIMITS : BRIEFING_LIMITS),
     effort: config.effort.explain,
   }));
   const results = await llm.parseMany(reqs, date);

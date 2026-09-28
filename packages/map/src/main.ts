@@ -31,6 +31,7 @@ import {
   hasTiers,
   languageName,
   loadNews,
+  NO_DAY_YET,
   storyIndex,
   tierOf,
   timeAgo,
@@ -871,8 +872,11 @@ async function start() {
 
   try {
     state.file = await loadNews(BASE);
-  } catch {
-    $("panel").replaceChildren(h("p", { class: "pad" }, "The news feed couldn't be loaded. Try again in a few minutes."));
+  } catch (err) {
+    const first = err instanceof Error && err.message === NO_DAY_YET;
+    $("panel").replaceChildren(
+      h("p", { class: "pad" }, first ? "The first day's map is being made. It appears after the daily run at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
+    );
     return;
   }
   state.stories = storyIndex(state.file);

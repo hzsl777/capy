@@ -228,7 +228,7 @@ export function worldAnswers(opts: { badWordFirst?: string } = {}): Record<strin
   return {
     "cluster-world": ({ user }) => {
       const byStory = new Map<string, number[]>();
-      for (const m of user.matchAll(/^\[(\d+)\] (.+)$/gm)) {
+      for (const m of user.matchAll(/^\[(\d+)\] (.+) \([^)]*\)$/gm)) {
         const found = storyByHeadline(m[2]!);
         if (!found) continue;
         const list = byStory.get(found.story.key) ?? [];

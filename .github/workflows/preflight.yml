@@ -1,0 +1,39 @@
+name: Preflight
+# Manual. Run once after adding the secrets, before the first daily run (docs/RUNBOOK.md, "Launch").
+# It creates the tables, checks the model key and model ids with one tiny call each, and fetches every feed.
+# The results are on the run's summary page.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      MODEL: ${{ vars.MODEL }}
+      MODEL_TELEGRAM: ${{ vars.MODEL_TELEGRAM }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Database
+        if: env.DATABASE_URL != ''
+        run: npm run db:migrate
+      - name: Model key and model ids
+        run: |
+          out=$(npm run -s stage -- llm check 2>&1) && ok=1 || ok=0
+          printf '## Model\n```\n%s\n```\n' "$out" | tee -a "$GITHUB_STEP_SUMMARY"
+          [ "$ok" = 1 ]
+      - name: Feeds
+        if: always()
+        # A feed that fails is left off the map that day, so this reports and never fails the job.
+        run: |
+          out=$(npm run -s stage -- sources check 2>&1 || true)
+          printf '## Feeds\n```\n%s\n```\n' "$(echo "$out" | tail -n 300)" | tee -a "$GITHUB_STEP_SUMMARY"

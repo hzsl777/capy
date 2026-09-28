@@ -2,9 +2,9 @@
 // extracts the main text, and stores it. Failures leave the article with what the feed gave.
 import { Readability } from "@mozilla/readability";
 import { parseHTML } from "linkedom";
-import { and, eq, gte, isNull, lt } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt, type SQL } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
-import { articles, type Db } from "@2dayai/db";
+import { articles, sources, type Db } from "@2dayai/db";
 
 export const MIN_BODY_CHARS = 400;
 export const MAX_BODY_CHARS = 30_000;
@@ -35,12 +35,24 @@ export function extractArticleText(html: string, url: string): string {
 
 export type EnrichReport = { candidates: number; enriched: number; failed: number };
 
-export async function runEnrich(db: Db, date: RunDate, fetchPage: PageFetcher = defaultPageFetcher, concurrency = 4): Promise<EnrichReport> {
+/**
+ * Which articles to fetch. The daily run fetches only what a stage will read: briefing articles before the
+ * briefing is grouped, and the articles of events about to be explained (decision 33). With no scope, every
+ * article of the day, as the standalone `enrich` command always did.
+ */
+export type EnrichScope = { articleIds?: number[]; desk?: "briefing" | "world" };
+
+export async function runEnrich(db: Db, date: RunDate, fetchPage: PageFetcher = defaultPageFetcher, concurrency = 4, scope: EnrichScope = {}): Promise<EnrichReport> {
   const { from, to } = ingestWindow(date);
+  if (scope.articleIds && scope.articleIds.length === 0) return { candidates: 0, enriched: 0, failed: 0 };
+  const where: SQL[] = [gte(articles.publishedAt, from), lt(articles.publishedAt, to), isNull(articles.enrichedAt)];
+  if (scope.articleIds) where.push(inArray(articles.id, scope.articleIds));
+  if (scope.desk) where.push(eq(sources.desk, scope.desk));
   const rows = await db
     .select({ id: articles.id, url: articles.url, body: articles.body })
     .from(articles)
-    .where(and(gte(articles.publishedAt, from), lt(articles.publishedAt, to), isNull(articles.enrichedAt)));
+    .innerJoin(sources, eq(sources.id, articles.sourceId))
+    .where(and(...where));
   const candidates = rows.filter((r) => r.body.length < MIN_BODY_CHARS);
   let enriched = 0;
   let failed = 0;

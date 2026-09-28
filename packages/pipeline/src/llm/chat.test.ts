@@ -83,6 +83,27 @@ describe("the OpenAI-format client", () => {
     expect(bodies[0]!["max_tokens"]).toBeUndefined();
   });
 
+  it("asks OpenAI for the half-price flex tier and bills it at half", async () => {
+    const flexReply = new Response(JSON.stringify({ service_tier: "flex", choices: [{ message: { content: '{"word":"a"}' }, finish_reason: "stop" }], usage: { prompt_tokens: 1_000_000, completion_tokens: 0 } }), { status: 200 });
+    await llm([flexReply], { LLM_PROVIDER: "openai" }).parse(req("explain"), DATE);
+    expect((sent[0]!.body as unknown as Record<string, unknown>)["service_tier"]).toBe("flex");
+    const [call] = await db.select().from(llmCalls);
+    // gpt-5.4-nano input at $0.20 per million, halved.
+    expect(call).toMatchObject({ batch: true });
+    expect(Number(call!.costUsd)).toBeCloseTo(0.1, 6);
+  });
+
+  it("falls back to the default tier when flex is refused", async () => {
+    const out = await llm([new Response("service_tier flex is not available for this model", { status: 400 }), reply('{"word":"b"}')], { LLM_PROVIDER: "openai" }).parse(req("explain"), DATE);
+    expect(out).toEqual({ word: "b" });
+    expect(sent.map((x) => (x.body as unknown as Record<string, unknown>)["service_tier"])).toEqual(["flex", undefined]);
+  });
+
+  it("never sends a service tier to other providers", async () => {
+    await llm([reply('{"word":"c"}')]).parse(req("explain"), DATE);
+    expect((sent[0]!.body as unknown as Record<string, unknown>)["service_tier"]).toBeUndefined();
+  });
+
   it("waits and retries on a rate limit", async () => {
     const out = await llm([new Response("slow down", { status: 429 }), reply('{"word":"Hope"}')]).parse(req("explain"), DATE);
     expect(out).toEqual({ word: "Hope" });

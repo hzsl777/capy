@@ -8,6 +8,8 @@ on:
       date:
         description: Run date (YYYY-MM-DD). Defaults to today.
         required: false
+permissions:
+  contents: read
 jobs:
   day:
     runs-on: ubuntu-latest
@@ -20,20 +22,33 @@ jobs:
       MODEL: ${{ vars.MODEL }}
       MODEL_TELEGRAM: ${{ vars.MODEL_TELEGRAM }}
       LLM_BATCH: "true"
-      DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '0.25' }}
+      # 237 outlets on the default models cost roughly $0.10 to $0.25 a day (decision 33). The ceiling stops a
+      # runaway day, not a normal one.
+      DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
     steps:
+      # Until the database and model key exist, the scheduled run skips instead of failing every morning.
+      - name: Skip until set up
+        if: env.DATABASE_URL == '' || env.LLM_API_KEY == ''
+        run: echo "::notice::DATABASE_URL or LLM_API_KEY is not set; skipping. See docs/RUNBOOK.md, 'Launch'."
       - uses: actions/checkout@v4
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
       - uses: actions/setup-node@v4
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run db:migrate
+      - if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm ci
+      - if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm run db:migrate
       - name: Run the day
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        env:
+          DATE: ${{ inputs.date }}
         run: |
-          if [ -n "${{ inputs.date }}" ]; then
-            npm run stage -- day --date "${{ inputs.date }}"
+          if [ -n "$DATE" ]; then
+            npm run stage -- day --date "$DATE"
           else
             npm run stage -- day
           fi

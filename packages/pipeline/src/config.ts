@@ -20,6 +20,11 @@ const EnvSchema = z.object({
    * more than bulk work, so the default is the telegram only. Sent to providers with a known switch.
    */
   LLM_THINKING: z.enum(["off", "telegram", "all"]).default("telegram"),
+  /**
+   * OpenAI only: "flex" processing bills half for slower answers, which a once-a-day job can wait for
+   * (decision 33). The client falls back to the default tier when flex is refused. "default" turns it off.
+   */
+  LLM_SERVICE_TIER: z.enum(["flex", "default"]).optional(),
   /** "input,output" dollars per million tokens, for a model not in pricing.ts. */
   LLM_PRICE_PER_MTOK: z
     .string()
@@ -32,7 +37,7 @@ const EnvSchema = z.object({
     .default("true")
     .transform((v) => v === "true"),
   /** Public base URL of the Worker, for links in email. */
-  WEB_BASE_URL: z.string().url().default("https://2dayai.workers.dev"),
+  WEB_BASE_URL: z.string().url().default("https://globalgist.workers.dev"),
   MAIL_FROM: z.string().default("2DayAI <edition@2dayai.example>"),
   /** World events explained per day: importance 3 or more, highest first (decisions 25 and 26). */
   WORLD_EXPLAIN_MAX: z.coerce.number().int().min(0).default(25),
@@ -69,6 +74,8 @@ export type Config = {
   model: string;
   telegramModel: string;
   thinking: "off" | "telegram" | "all";
+  /** Sent as service_tier when set. */
+  serviceTier: "flex" | undefined;
   /** Dollars per million tokens from LLM_PRICE_PER_MTOK, used before the price table. */
   priceOverride: { input: number; output: number } | undefined;
   dailySpendCeilingUsd: number;
@@ -100,6 +107,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     model,
     telegramModel: e.MODEL_TELEGRAM ?? (e.MODEL ? model : (preset.telegramModel ?? model)),
     thinking: e.LLM_THINKING,
+    serviceTier: (e.LLM_SERVICE_TIER ?? (e.LLM_PROVIDER === "openai" ? "flex" : "default")) === "flex" ? "flex" : undefined,
     priceOverride: price ? { input: price[0]!, output: price[1]! } : undefined,
     dailySpendCeilingUsd: e.DAILY_SPEND_CEILING_USD,
     llmBatch: e.LLM_BATCH,

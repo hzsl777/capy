@@ -79,6 +79,7 @@ const HELP = `Commands:
   deliver [--dry-run]    send unsent editions whose delivery hour has arrived
   day [--fixture]        ingest, enrich, readers sync, cluster, cluster world, explain, select, telegram
   spend                  model spend for the date
+  llm check              one tiny call per configured model: key, model ids, flex tier (costs a fraction of a cent)
   feedback [--reader r01] reader feedback from the last 14 days, newest first
 Options: --date YYYY-MM-DD  --sources path  --readers dir`;
 
@@ -332,6 +333,32 @@ switch (command) {
     const rows = await d.select().from(feedback).where(where).orderBy(desc(feedback.createdAt));
     if (rows.length === 0) console.log("No feedback in the last 14 days.");
     for (const r of rows) console.log(`${r.createdAt.toISOString().slice(0, 16)}  ${r.readerId}  ${r.kind.padEnd(7)}  ${r.eventTitle}`);
+    break;
+  }
+  case "llm check": {
+    // Calls go through the real client into an in-memory database, so nothing lands in the real spend log.
+    const { createTestDb } = await import("./test/db.js");
+    const { z } = await import("zod");
+    const { llmCalls } = await import("@2dayai/db");
+    const { db: memory, close } = await createTestDb();
+    const llm = createLlm(config, memory);
+    const schema = z.object({ ok: z.boolean() });
+    const prompt = { name: "explain", version: 0, label: "llm-check", system: 'Answer in JSON as {"ok": true}.' } as const;
+    let failed = 0;
+    // One call per distinct model: "explain" uses MODEL, "telegram-check" uses MODEL_TELEGRAM.
+    for (const stage of [...new Map([[config.model, "explain"], [config.telegramModel, "telegram-check"]]).values()]) {
+      const started = Date.now();
+      try {
+        await llm.parse({ stage, prompt, schema, user: "Reply ok.", effort: "low" }, date);
+        const [call] = (await memory.select().from(llmCalls)).slice(-1);
+        console.log(`ok    ${call?.model} in ${Date.now() - started} ms, ${call?.batch ? "flex (half price)" : "standard price"}, $${Number(call?.costUsd ?? 0).toFixed(6)}`);
+      } catch (err) {
+        failed++;
+        console.log(`FAIL  ${stage === "explain" ? config.model : config.telegramModel}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+    await close();
+    if (failed) process.exit(1);
     break;
   }
   case "spend": {

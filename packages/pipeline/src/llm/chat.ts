@@ -32,6 +32,8 @@ const CONCURRENCY = 4;
 const RETRY_DELAYS_MS = [2_000, 8_000, 30_000];
 
 type ChatResponse = {
+  /** OpenAI echoes the tier that served the request. */
+  service_tier?: string;
   choices?: { message?: { content?: string | null }; finish_reason?: string }[];
   usage?: {
     prompt_tokens?: number;
@@ -87,32 +89,40 @@ export function createChatLlm(
     await assertUnderCeiling(db, date, config.dailySpendCeilingUsd);
     const model = modelFor(config, req.stage);
     const think = config.thinking === "all" || (config.thinking === "telegram" && req.stage.startsWith("telegram"));
-    const response = await post(
-      {
-        model,
-        ...thinkingParams(config.provider, think),
-        // OpenAI's reasoning models reject max_tokens and take max_completion_tokens instead.
-        [config.provider === "openai" ? "max_completion_tokens" : "max_tokens"]: MAX_OUTPUT[model] ?? DEFAULT_MAX_OUTPUT,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemWithSchema(req.prompt.system, req.schema) },
-          { role: "user", content: req.user },
-        ],
-      },
-      req.stage,
-    );
+    const body = {
+      model,
+      ...thinkingParams(config.provider, think),
+      // OpenAI's reasoning models reject max_tokens and take max_completion_tokens instead.
+      [config.provider === "openai" ? "max_completion_tokens" : "max_tokens"]: MAX_OUTPUT[model] ?? DEFAULT_MAX_OUTPUT,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: systemWithSchema(req.prompt.system, req.schema) },
+        { role: "user", content: req.user },
+      ],
+    };
+    let response: ChatResponse;
+    try {
+      response = await post(config.serviceTier ? { ...body, service_tier: config.serviceTier } : body, req.stage);
+    } catch (err) {
+      // Flex has no guaranteed capacity and not every model offers it. The day must not fail for a discount.
+      const refused = err instanceof LlmParseError && /HTTP (429|400)/.test(err.message);
+      if (!config.serviceTier || !refused) throw err;
+      response = await post(body, req.stage);
+    }
     const usage = usageOf(response);
+    const discounted = response.service_tier === "flex";
     await db.insert(llmCalls).values({
       runDate: date,
       stage: req.stage,
       model,
       promptVersion: req.prompt.label,
-      batch: false,
+      // Recorded as batch: both are the half-price tier.
+      batch: discounted,
       inputTokens: usage.input,
       outputTokens: usage.output,
       cacheReadTokens: usage.cacheRead,
       cacheWriteTokens: 0,
-      costUsd: costUsd(model, usage, false, config.priceOverride).toFixed(6),
+      costUsd: costUsd(model, usage, discounted, config.priceOverride).toFixed(6),
     });
     const choice = response.choices?.[0];
     if (choice?.finish_reason === "length") throw new LlmParseError(req.stage, "output hit max_tokens");

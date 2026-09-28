@@ -160,3 +160,15 @@ Davis kept Morning Edition and Cabinet Map, asked for Wire Room in green and bla
 3. Blueprint: a cobalt drafting sheet with white linework and hand lettering, orange for fresh reports.
 4. The view toggle reads Map / Globe. The globe is shaded as a lit sphere with a halo. The printed designs frame the map with a double neatline.
 5. Toolbar: Shuffle is gone (the spin replaces it, S still spins), Translate appears only where the browser can translate, Pinned only once something is pinned, "How this works" is a quiet "About" on the right, and the word is the one control for opening its reasons.
+
+## 33. Launch: fewer fetches, fewer tokens, and a preflight (September 28, 2026)
+
+Davis wants the site shipped tonight or tomorrow morning, with the code and the pipeline as lean as they can be and model spend as low as quality allows.
+
+1. The daily run fetched the full page of every article before grouping, up to 3,500 pages a day at 237 outlets. It now fetches only what a stage reads: briefing articles before the briefing is grouped, and after grouping, the articles of the events explain will quote. That is a few dozen to a few hundred pages.
+2. With no reader profiles, the 2DayAI briefing (its grouping and explanations) is skipped, so the map's world desk runs alone.
+3. Model tokens. `cluster-world.v2` keeps every rule of v1 and asks for a skip reason of at most four words and an importance reason of at most eight, because those reasons are output across hundreds of events. Each article sends its headline, outlet and the first 200 characters of its summary (was 400, plus the place). World explanations read up to 16,000 characters of source text (was 45,000); briefing explanations keep 45,000.
+4. OpenAI calls ask for the flex tier, half price for slower answers, and fall back to the default tier when flex is refused, so a discount can never fail the day. Cost logs record which tier served each call.
+5. Estimated spend at full coverage on the decision 29 models: roughly $0.10 to $0.20 a day. The daily ceiling rises to $1.00 so it stops a runaway day and not a normal one.
+6. `npm run stage -- llm check` sends one tiny call per configured model. The manual "Preflight" workflow runs it with the migrations and a full feed check, and reports on the run's summary page.
+7. The daily and delivery workflows skip instead of failing while their secrets are missing. The Worker is renamed `globalgist`. The site says the first map is being made until a day exists. Static assets get security and cache headers, and the build drops source maps.

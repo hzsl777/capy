@@ -114,7 +114,7 @@ describe("a full day on a real Postgres engine", () => {
     expect(ed.quietDay).toBe(false);
 
     const recordedStages = (await db.select({ stage: runs.stage, status: runs.status }).from(runs)).filter((r) => r.status === "ok").map((r) => r.stage);
-    expect(new Set(recordedStages)).toEqual(new Set(["ingest", "enrich", "readers", "cluster", "cluster-world", "explain", "select", "telegram"]));
+    expect(new Set(recordedStages)).toEqual(new Set(["ingest", "readers", "enrich-briefing", "cluster", "cluster-world", "enrich", "explain", "select", "telegram"]));
     expect(await db.select().from(llmCalls)).toHaveLength(0); // the fake never spends
   });
 
