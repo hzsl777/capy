@@ -1,6 +1,6 @@
 ---
 name: add-news-source
-description: Add a news outlet to TeaGlobe's world desk (the public map) in config/sources.yaml, with the city it publishes from, verifying the feed and keeping the list balanced across regions and sides. Use when asked to add an outlet, feed, newspaper or local source to the map.
+description: Add a news outlet to GlobalGist's world desk (the public map) in config/sources.yaml, with the city it publishes from, verifying the feed and keeping the list balanced across regions and sides. Use when asked to add an outlet, feed, newspaper or local source to the map.
 ---
 
 # Add a world-desk source

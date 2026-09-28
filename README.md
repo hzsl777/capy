@@ -3,7 +3,7 @@
 News, compressed and sourced. Two products in one repository.
 
 - **2DayAI**: one headline per reader per day, from a hand-written interest profile, with the stories, explanations, and sources one click down. Delivered by email. Built and tested; not yet run live. Code in `packages/core`, `db`, `pipeline`, `web`.
-- **TeaGlobe** (the map): a public news map in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scale from Grave to Good. Turn a flat map or a globe; the place under the crosshair lists what its outlets reported, newest first. Open the word to see the scale, every event's score and reason, their sourced explanations, and the sources. No borders, no country names, no labels on the map. Code in `packages/map`, served by the Worker in `packages/web`.
+- **GlobalGist** (the map): a public news map in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scale from Grave to Good. Turn a flat map or a globe; the place under the crosshair lists what its outlets reported, newest first. Open the word to see the scale, every event's score and reason, their sourced explanations, and the sources. No borders, no country names, no labels on the map. Code in `packages/map`, served by the Worker in `packages/web`.
 
 Start with CONTEXT.md. Both products read one database written by one pipeline (decisions 23 and 25 in docs/DECISIONS.md).
 
@@ -15,7 +15,7 @@ See docs/SPEC.md for the design, docs/DECISIONS.md for what changed after the sp
 
 Every explanation sentence carries a citation: an article id and a passage. Code checks that the passage appears verbatim in that article. A sentence that fails is removed before anything downstream sees it. An event with fewer than three surviving sentences is unusable and cannot be selected for anyone. The headline is generated from the selected events' verified sentences, never from raw articles. The one paragraph written from a reader's profile rather than the sources is labeled as such on the page.
 
-## TeaGlobe, the map
+## GlobalGist, the map
 
 | Morning Edition | Cabinet Map | Wire Room |
 |---|---|---|

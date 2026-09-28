@@ -1,6 +1,6 @@
-# TeaGlobe (the map): agent guide
+# GlobalGist (the map): agent guide
 
-The map, published as TeaGlobe, is one of two products in capy (the other is 2DayAI; see the root AGENTS.md and CONTEXT.md). It is the public site: world news on a map by where it is published, in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scored scale from Grave to Good. You turn a flat map or a globe, the place under the crosshair is "tuned", and the side panel lists what its outlets reported. Opening the word shows the scale, the events that shaped the day, every event's score with the sentence it rests on, each event's explanation with numbered citations, and the sources with the passages quoted.
+The map, published as GlobalGist, is one of two products in capy (the other is 2DayAI; see the root AGENTS.md and CONTEXT.md). It is the public site: world news on a map by where it is published, in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scored scale from Grave to Good. You turn a flat map or a globe, the place under the crosshair is "tuned", and the side panel lists what its outlets reported. Opening the word shows the scale, the events that shaped the day, every event's score with the sentence it rests on, each event's explanation with numbered citations, and the sources with the passages quoted.
 
 The data comes from the shared pipeline (decision 25): world-desk sources in `config/sources.yaml`, the `cluster world`, `explain` and `telegram` stages, and the `loadMapView` read model in `packages/db`. The Worker (`packages/web`) serves this site's build and its data at `/data/latest.json`. This package holds the site only.
 

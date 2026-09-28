@@ -46,7 +46,7 @@ September 27, 2026, later the same day (decision 25):
 September 28, 2026 (decision 26):
 
 - The word is the emotion the day's stories evoke, read from all world news, not only conflict.
-- The public site's working name is TeaGlobe (decision 27), open to a better name in the same spirit. The repository stays capy.
+- The public site is called GlobalGist (decision 27). The repository stays capy.
 - It is set formulaically: each event scored -2 to 2 by what happened to people, and the worst significant event decides a bad day (Davis: "we have to be very careful here"). The model picks the word from a fixed list for the resulting step, from Grave to Good.
 
 Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 27 in DECISIONS.md). A reversal is a new entry, never an edit.

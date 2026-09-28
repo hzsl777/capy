@@ -1,13 +1,13 @@
 ---
 name: neutrality-review
-description: Review a change to TeaGlobe's map UI, copy, basemap, world sources, the one-word mood telegram (scores, scale, word lists) or how world events are chosen against the project's neutrality rules (no borders, no country names, no ranking of headlines, no unverified text, a checked word, balanced outlets, no full article text). Use before finishing any such change, and whenever someone asks whether something is neutral or could be controversial.
+description: Review a change to GlobalGist's map UI, copy, basemap, world sources, the one-word mood telegram (scores, scale, word lists) or how world events are chosen against the project's neutrality rules (no borders, no country names, no ranking of headlines, no unverified text, a checked word, balanced outlets, no full article text). Use before finishing any such change, and whenever someone asks whether something is neutral or could be controversial.
 ---
 
 # Neutrality review
 
 Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
 
-TeaGlobe is public and shows news from contested places. Go through each check against the diff (`git diff` against the base branch, limited to `packages/map/`) and the running app. Report each as pass, fail, or not applicable, with the file and line for any failure. Fix failures before finishing.
+GlobalGist is public and shows news from contested places. Go through each check against the diff (`git diff` against the base branch, limited to `packages/map/`) and the running app. Report each as pass, fail, or not applicable, with the file and line for any failure. Fix failures before finishing.
 
 ## Map
 - [ ] No political boundary data added: search for `admin_`, `boundary`, `countries`, `disputed` in `scripts/` and `public/basemap/`.
