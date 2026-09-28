@@ -36,6 +36,10 @@ const EnvSchema = z.object({
   MAIL_FROM: z.string().default("2DayAI <edition@2dayai.example>"),
   /** World events explained per day: importance 3 or more, highest first (decisions 25 and 26). */
   WORLD_EXPLAIN_MAX: z.coerce.number().int().min(0).default(25),
+  /** Newest articles kept per world source per day, so one prolific feed cannot crowd the day. */
+  WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(15),
+  /** Most articles in one cluster world call. A larger day is split into batches, then merged across them. */
+  WORLD_CLUSTER_BATCH: z.coerce.number().int().min(1).default(300),
 });
 
 export type Effort = "low" | "medium" | "high";
@@ -72,6 +76,8 @@ export type Config = {
   webBaseUrl: string;
   mailFrom: string;
   worldExplainMax: number;
+  worldPerSource: number;
+  worldClusterBatch: number;
   /** Effort per stage (decision 8). */
   effort: { cluster: Effort; explain: Effort; select: Effort; telegram: Effort };
 };
@@ -100,6 +106,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     webBaseUrl: e.WEB_BASE_URL.replace(/\/$/, ""),
     mailFrom: e.MAIL_FROM,
     worldExplainMax: e.WORLD_EXPLAIN_MAX,
+    worldPerSource: e.WORLD_PER_SOURCE,
+    worldClusterBatch: e.WORLD_CLUSTER_BATCH,
     effort: { cluster: "low", explain: "medium", select: "high", telegram: "high" },
   };
 }

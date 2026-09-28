@@ -63,7 +63,7 @@ The daily run needs no deploy: the Worker reads the new day from the database.
 
 World sources are the `desk: world` entries in `config/sources.yaml`. Each one has the city it publishes from. The daily run does three things with them:
 
-1. `cluster world` groups their articles into events.
+1. `cluster world` groups their articles into events. It keeps the newest `WORLD_PER_SOURCE` (default 15) articles per source and sends them in batches of at most `WORLD_CLUSTER_BATCH` (default 300), newest first so each batch mixes places. With more than one batch, one merge call names the batch events that report the same story, and code joins them after checking every key. The run report counts `batches`, `merged` and `mergeDropped`. If any batch fails, the stage fails and writes nothing.
 2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
 3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
 

@@ -12,7 +12,11 @@ The daily run (`npm run stage -- day`, `.github/workflows/daily.yml`) is one pip
 ```
 config/sources.yaml (desk: world, with place)
   -> ingest, enrich                      shared with 2DayAI
-  -> cluster world   stages/cluster.ts   one model call, cluster-world.v1, a topic per event, 25 newest articles per source
+  -> cluster world   stages/cluster.ts   WORLD_PER_SOURCE (15) newest articles per source, newest first across sources,
+                                         in batches of at most WORLD_CLUSTER_BATCH (300): cluster-world.v1 per batch
+                                         (parseMany, ids batch-1, batch-2, ...), a topic per event.
+                                         More than one batch: one merge call (cluster-world-merge.v1) names batch
+                                         events that are the same story; code checks the keys and joins them.
   -> explain         stages/explain.ts   world events of importance 3 or more, at most WORLD_EXPLAIN_MAX (25).
                                          every sentence's quoted passage checked against the article text
   -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems), dayBand in code,
@@ -47,6 +51,8 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 - **Rejected answers:** code enforces these rules: every event scored once with a copied sentence, a word from `MOOD_WORDS[band]`, and on a bad day the setting event listed. Fix the prompt (new version file) before touching the rules, and never loosen them without Davis.
 - **Place empty or missing:** the source has no `place`, its feed failed at ingest, or its articles fall outside the 24-hour window ending 09:00 UTC.
 - **Event not explained:** it is below importance 3, or it fell below the cap. Raise `WORLD_EXPLAIN_MAX` only with the spend ceiling in mind.
+- **Cluster world failed:** the error names each failed batch. Nothing is written, and the date keeps the events it had.
+- **One story shows as two events:** the merge call did not group them, or code dropped the group. The `cluster-world` run report has `batches`, `merged` and `mergeDropped`. A group is dropped when a key is unknown, a key is in two groups, or it has fewer than two events.
 - **Stale word after a re-run:** `cluster world` deletes the date's telegram. Run `telegram` again.
 
 ## Choosing or changing the model
