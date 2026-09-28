@@ -21,12 +21,17 @@ Every explanation sentence carries a citation: an article id and a passage. Code
 |---|---|---|
 | ![Morning Edition](docs/map/screenshots/desktop-morning-telegram.jpg) | ![Cabinet Map](docs/map/screenshots/desktop-cabinet-3d.jpg) | ![Wire Room](docs/map/screenshots/desktop-wire-explained.jpg) |
 
+| Ops Room | Blueprint |
+|---|---|
+| ![Ops Room](docs/map/screenshots/desktop-ops-2d.jpg) | ![Blueprint](docs/map/screenshots/desktop-blueprint-3d.jpg) |
+
 Screenshots use the fictional sample: invented outlets and places, run through the real pipeline.
 
 - **Pins are publishers**, at the city they publish from (the `desk: world` entries in `config/sources.yaml`). Nothing is geocoded, so the map never draws or names a disputed place.
 - **The word.** Each day the `telegram` stage scores every explained world event from -2 to 2 by what happened to people. Each score quotes the sentence it rests on. Code places the day on a five-step scale. The worst significant event sets a bad day, so good news never averages a tragedy away. The model then picks the word from that step's fixed list. The site shows every score and its reason.
 - **Four depths.** The word, then the events with one line each, then each event's explanation with numbered citations, then the sources with the passages quoted. Headlines appear as the outlets published them.
-- Three designs, flat or globe, a 24-hour replay, topic filters, pinned places, and on-device translation.
+- **Hundreds of outlets.** 237 outlets in 209 cities (decision 31). Zoomed out, the map shows places with widely reported or high-importance stories; zoom in for the rest (decision 30). On open it turns until a place lands under the reticle.
+- Five designs, Map or Globe, a 24-hour replay, topic filters, pinned places, and on-device translation.
 
 ## Run it
 

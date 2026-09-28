@@ -119,7 +119,7 @@ Milestones 0 through 3, three build commits plus a review round, merged onto cap
 - Worker: edition page, event page with numbered citations and quoted excerpts, feedback as a GET confirmation form and a POST write, scoped to the reader's own edition.
 - World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, and explanations for events of importance 3 or more, up to a cap.
 - Telegram (decision 26): the model scores every explained event and quotes a reason. Code computes the day's band, where the worst significant event decides a bad day. The model picks the word from that band's fixed list. Code checks every step.
-- The map site (packages/map): three designs, flat and globe, and the word under the masthead. The drill-down goes from the word to its events, then to explanations with numbered citations to the quoted sources. The Worker serves the site and builds its data from the database (`/data/latest.json`).
+- The map site (packages/map): five designs, Map and Globe, zoom levels by reach or importance, an idle spin, and the word under the masthead (decisions 30 and 32). The drill-down goes from the word to its events, then to explanations with numbered citations to the quoted sources. The Worker serves the site and builds its data from the database (`/data/latest.json`).
 - CLI: sources check, ingest, enrich, readers sync, cluster [--force], cluster world, explain, select, telegram, show, deliver [--dry-run], day [--fixture], map export, demo, spend, feedback.
 - CI: boundaries, typecheck including the Worker and the map, tests, the map build, secret scan. Tests run whole days on PGlite (a real Postgres engine) with the real migrations and a scripted model, including the world desk, the telegram retry and the Worker's map endpoints. No network, no key.
 
@@ -133,7 +133,7 @@ An independent adversarial review found eight real defects before any live run (
 - No Neon database, no Resend account, no Worker deployment yet.
 - The prompts (cluster.v1, explain.v1, select.v1) have never produced output. Expect a v2 of each after the first real week.
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
-- The world-desk feeds in config/sources.yaml (eighteen outlets) are unverified, like the briefing list. Run sources check and prune.
+- The world desk has 237 outlets (decision 31), gathered by web search and unverified. About 150 point at homepages; ingest finds their feeds when it runs, and sources check reports what it found. Run it once in Actions and prune what fails.
 - The telegram and world-cluster prompts (telegram-score.v1, telegram-word.v1, cluster-world.v1) have never produced output. Judge the first real scores and words before trusting them.
 - No model has been chosen. The default is OpenAI (decision 29, from a research pass), and decision 28 says to confirm it with eval reports on real days first.
 - No Cloudflare secrets yet, so the deploy-site workflow skips. The site has run only locally, on the fictional sample.

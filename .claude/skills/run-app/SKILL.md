@@ -1,6 +1,6 @@
 ---
 name: run-app
-description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room) in flat or globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
+description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
 ---
 
 # Run the app
@@ -13,6 +13,7 @@ Paths in this skill are relative to `packages/map/`. Run npm scripts from the re
 4. URL parameters pick the state directly:
    - `?theme=morning|cabinet|wire`
    - `&view=2d|3d`
+   - Without `place`, the map turns until a place lands under the reticle (not with reduced motion).
    - `&place=<place id>` flies to that place, e.g. `ll:-1.29,36.82` (Nairobi in the sample). Place ids are `ll:<lat>,<lon>` of the publisher's city.
 
 ## Screenshots
@@ -25,7 +26,7 @@ SHOT_DIR=/some/dir npm run map:screenshots
 
 The script serves `dist/` with `vite preview`, visits every design in both views at desktop and phone sizes, and per design opens the reader, the telegram and one explanation. It uses `/opt/pw-browsers/chromium` when `PLAYWRIGHT_BROWSERS_PATH` is set (cloud sessions), or `CHROMIUM_PATH` if you set it. Never run `playwright install` in a cloud session. The script uses `playwright-core`, so installs never download browsers. On other machines, set `CHROMIUM_PATH` or install a browser yourself.
 
-Look at the images before reporting a visual change as done. Check: dots visible and not crowding at phone width, crosshair centred on the tuned dot, panel text readable in all three themes, no labels drawn on the map.
+Look at the images before reporting a visual change as done. Check: dots visible and not crowding at phone width, reticle centred on the tuned dot, panel text readable in all three themes, no labels drawn on the map.
 
 ## Live data locally
 

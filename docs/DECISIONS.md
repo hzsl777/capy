@@ -130,3 +130,33 @@ Davis asked which model is best for cost and for a correct read of the day. Four
 5. Mistral Small (EU) is the fallback from a different vendor. gpt-oss-120b on Groq is cheap but scored 14.2% on Vectara.
 6. The same models are available with half-price batch or "flex" processing on OpenAI. That is not wired up yet.
 7. The research also found that model raters disagree with themselves across runs. Scoring each event more than once and taking the median would steady the word. This is a candidate change to the telegram, for Davis to decide after the first real days.
+
+## 30. Zoomed out, the map shows widely reported or important stories first (September 28, 2026)
+
+Davis wants the map to scale up by importance as you zoom out, with every story still there when you zoom in. This changes neutrality rule 3 in packages/map/AGENTS.md ("no ranking of headlines") for one purpose only: which places show at which zoom.
+
+1. Zoomed out (level 0), a place shows when one of its stories was reported from three or more places, or the grouping model rated its event 4 or 5. Level 1 adds two places or importance 3. Level 2, the closest zoom, shows everything. Davis chose "both combined" over reach alone, knowing that the model's importance now decides part of what the public sees first.
+2. It decides visibility only. Lists stay newest first, dot size stays report count, and the fresh colour stays "reported in the last hour". A place's panel at a wide zoom lists that level's stories and says how many more show as you zoom in, with a link to show them.
+3. Nearby places merge into one dot by screen distance, sized by their combined count, with a thin inner ring. Its panel names every city in it. It never names a region.
+4. A day without event data (a demo, or a day before grouping ran) shows every place at every zoom.
+5. Also in this change: the map turns on its own from a random longitude until a place lands under a small reticle, stops on any touch, and turns again after a minute without input. This replaces Shuffle.
+
+## 31. Hundreds of local outlets, batched grouping, and feeds found automatically (September 28, 2026)
+
+Davis wants stories from as many places as possible. Pins stay at the publisher's city (decision 23), so coverage grows by adding outlets.
+
+1. The world desk grows from 18 outlets to 237 in 209 cities, gathered by web search across six regions with the balance rules of add-news-source. State media is marked in comments. Known gaps: no outlet inside Sudan (the two independent Sudanese outlets publish from Amsterdam and Paris), none for Belarus, Moldova or Nicaragua, and exile outlets are pinned where they publish, not where they report on.
+2. The search budget ran out partway, so about 150 entries point at the outlet's homepage. Ingest now fetches the configured URL, and when it is a web page, follows the feed link the page declares, or tries a few common feed paths. Only a response that parses as RSS or Atom counts. `sources check` prints the feed it found, so the list can be corrected, and an outlet with no findable feed simply fails and is left off the map that day.
+3. Ingest fetches eight feeds at a time.
+4. `cluster world` keeps the 15 newest articles per outlet (was 25), groups them in batches of 300, and then runs one small merge call (`cluster-world-merge.v1`) that joins batch events reporting the same story. Code checks every merge group, drops an invalid one rather than guessing, and deletes the previous day's world events only after every call succeeds.
+5. Estimated cost with the decision 29 default rises to roughly $0.25 to $0.40 a day at full coverage. `eval` measures the real figure.
+
+## 32. Five designs, and Map / Globe (September 28, 2026)
+
+Davis kept Morning Edition and Cabinet Map, asked for Wire Room in green and black, and added two looks. The designs sit in one menu so the toolbar stays short.
+
+1. Wire Room: phosphor green on black, a VT323 masthead, scanlines.
+2. Ops Room: a situation display in slate with one cyan, condensed sans-serif, a fine plotting grid. It borrows the look of operations software, not its symbols: no friend or foe colours, nothing that assigns sides.
+3. Blueprint: a cobalt drafting sheet with white linework and hand lettering, orange for fresh reports.
+4. The view toggle reads Map / Globe. The globe is shaded as a lit sphere with a halo. The printed designs frame the map with a double neatline.
+5. Toolbar: Shuffle is gone (the spin replaces it, S still spins), Translate appears only where the browser can translate, Pinned only once something is pinned, "How this works" is a quiet "About" on the right, and the word is the one control for opening its reasons.
