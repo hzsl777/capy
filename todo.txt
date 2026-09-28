@@ -25,6 +25,10 @@ LAUNCH (Davis)
 [ ] Re-run the "Deploy site" workflow once. The merge ran it before the secrets existed, so it
     skipped. The first day then builds itself in 10 to 20 minutes.
 [ ] Open https://globalgist.<account>.workers.dev and check that a map and a word show up.
+[ ] globalgist.com: remove the custom domain from GitHub Pages, put the domain on Cloudflare,
+    give the Cloudflare token DNS and Workers Routes access for it, set the repository variable
+    SITE_DOMAIN to globalgist.com, and run "Deploy site". Steps in docs/RUNBOOK.md,
+    "A custom domain". GitHub Pages can't host this site (decision 37).
 
 
 SPRINT 1: FIRST WEEK
@@ -65,7 +69,8 @@ Needs a person (docs/RUNBOOK.md, "Turn on 2DayAI"):
 [ ] Write each reader's profile from config/readers/r00.example.yaml and put them all in the
     READER_PROFILES secret, separated by lines of ---.
 [ ] Open a Resend account, verify a sending domain, and add RESEND_API_KEY.
-[ ] Set the repository variables WEB_BASE_URL (the site's address) and MAIL_FROM.
+[ ] Set the repository variable MAIL_FROM. The site address comes from SITE_DOMAIN; set
+    WEB_BASE_URL only if there is no custom domain.
 [ ] Before the first real send, run deliver with --dry-run locally and read the email.
 [ ] First week of editions: Davis rates each headline and explanation daily (milestone 4).
     Expect new versions of the select and explain prompts after it (docs/PROMPTS.md).
@@ -86,4 +91,3 @@ Needs a person:
 [ ] After the first real week, review the grouping and telegram prompts against real output
     and write v2 versions where needed (docs/PROMPTS.md, "Changing a prompt").
 [ ] Build the headline evaluation set (twenty rated headlines) once real editions exist.
-[ ] Optional: a custom domain for the site instead of workers.dev.

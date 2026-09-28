@@ -203,3 +203,11 @@ Davis asked for the first week's and the later sprint items in todo.txt to be do
 5. Each daily run writes a summary to its GitHub Actions page: the word, feed counts, stories, explanations, spend, and tables of failing, paused and discovered feeds. A failed run names the failure and lists the stages that finished.
 6. The map sends a Content-Security-Policy header. Everything loads from the site itself, except publisher images and the article reader's frame of the publisher's page. It was tested in Chromium across the designs with no violations (the bundled fonts need `data:`).
 7. On phones, the toolbar keeps Map / Globe and Topics in the row and moves Design, Translate, Pinned and About into a "More" menu, instead of scrolling sideways.
+
+## 37. The custom domain goes on the Cloudflare Worker, not GitHub Pages (September 28, 2026)
+
+Davis wants the site at globalgist.com and tried GitHub Pages, whose DNS check failed.
+
+1. GitHub Pages can't host this site. Pages serves static files only, and the map reads each day from `/data/latest.json`, which the Worker builds from the database. Pages on a private repository also needs a paid GitHub plan.
+2. The domain goes on Cloudflare (bought there, or moved there by changing nameservers) and attaches to the Worker as a custom domain, with `www.` beside it. Cloudflare creates the DNS records and the certificate. The workers.dev address keeps working.
+3. One repository variable, `SITE_DOMAIN`, turns it on. The deploy workflow adds the domains to the Worker config only when it is set, so a deploy never fails for a domain that isn't on Cloudflare yet. Email links use it too, unless `WEB_BASE_URL` overrides it.

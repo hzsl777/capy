@@ -28,9 +28,9 @@ The email briefing uses the same database, model key and daily run as the map. I
 
 1. **Readers.** Copy `config/readers/r00.example.yaml` for each reader and fill in the real email, timezone, delivery hour, topics and stake sentences. Ids are `r01`, `r02` and so on. Put all of them in one secret, `READER_PROFILES`, separated by a line with `---`. The profiles hold emails, so they never go in the repository. The next daily run adds the readers and makes their editions.
 2. **Mail.** Open a free Resend account, verify a sending domain, and add the API key as the secret `RESEND_API_KEY`.
-3. **Two repository variables** (the Variables tab next to Secrets). `WEB_BASE_URL` is the site's address, `https://globalgist.<account>.workers.dev` or the custom domain, so links in the email open the edition and its feedback buttons. `MAIL_FROM` is the sender, for example `2DayAI <edition@yourdomain.com>` on the domain Resend verified.
+3. **Addresses** (repository variables, the Variables tab next to Secrets). Email links open the edition and its feedback buttons on the site, so they need its address: with a custom domain (`SITE_DOMAIN`, see "A custom domain") nothing more is needed; without one, set `WEB_BASE_URL` to `https://globalgist.<account>.workers.dev`. `MAIL_FROM` is the sender, for example `2DayAI <edition@globalgist.com>` on the domain Resend verified.
 
-"Deliver" runs every two hours and sends each edition once its reader's local delivery hour has passed. It refuses to send while `WEB_BASE_URL` or `MAIL_FROM` still hold the placeholder defaults, and says which one to set. To check an edition before any email goes out, run "Deliver" locally with `--dry-run`.
+"Deliver" runs every two hours and sends each edition once its reader's local delivery hour has passed. It refuses to send while the site address or `MAIL_FROM` still hold the placeholder defaults, and says which one to set. To check an edition before any email goes out, run "Deliver" locally with `--dry-run`.
 
 Removing a reader: take their document out of `READER_PROFILES`. They get no new editions from the next run.
 
@@ -80,16 +80,20 @@ The Worker in `packages/web` serves three things:
 - the map's data at `/data/latest.json` and `/data/<date>.json`, read from the database and cached for five minutes
 - the 2DayAI reader pages
 
-Once, on a free Cloudflare account:
+On a free Cloudflare account, add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Create the token from the "Edit Cloudflare Workers" template. After that, `.github/workflows/deploy-site.yml` deploys on every code change to `main` and copies `DATABASE_URL` into the Worker (decision 34). To deploy by hand, run `npm run web:deploy`. It builds the map, removes the sample data from the build, and deploys.
 
-```
-cd packages/web
-npx wrangler secret put DATABASE_URL
-```
+Set the repository variable `MAIL_FROM` to the verified Resend sender. Email links use the custom domain below, or `WEB_BASE_URL` when it is set.
 
-Then add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Create the token from the "Edit Cloudflare Workers" template. After that, `.github/workflows/deploy-site.yml` deploys on every code change to `main`. To deploy by hand, run `npm run web:deploy`. It builds the map, removes the sample data from the build, and deploys.
+### A custom domain
 
-Set the repository variable `WEB_BASE_URL` to the Worker URL so email links point at it, and `MAIL_FROM` to the verified Resend sender.
+The site runs on the Cloudflare Worker, so the domain goes on Cloudflare, not GitHub Pages. Pages only serves static files, but the map's data comes from the Worker, and Pages on a private repository needs a paid GitHub plan (decision 37).
+
+1. **If you tried GitHub Pages first:** in the repository's Settings, then Pages, remove the custom domain and set the source to none. At the registrar, delete any A, AAAA or CNAME records that point at GitHub (`185.199.108.153` to `.111.153`, or `<user>.github.io`).
+2. **Put the domain on Cloudflare.** Either buy it in the Cloudflare dashboard (Domain Registration, sold at cost), and its DNS is on Cloudflare already. Or, for a domain bought elsewhere: Add a domain, pick the Free plan, then at the registrar replace the nameservers with the two Cloudflare shows. It is active when Cloudflare emails you, usually within an hour and sometimes up to a day.
+3. **Let the token manage the domain.** Edit the API token and give it, for that zone, Workers Routes: Edit and DNS: Edit. Without them the deploy fails at the custom domain with an authentication error.
+4. **Set the repository variable `SITE_DOMAIN`** to the domain, for example `globalgist.com`, then run "Deploy site". The deploy attaches the domain and `www.` to the Worker. Cloudflare creates the DNS records and the HTTPS certificate itself, which takes a few minutes. Don't add DNS records for them by hand: a record already on either name blocks the deploy, and has to be deleted first.
+
+The workers.dev address keeps working too. Email links follow `SITE_DOMAIN`, so `WEB_BASE_URL` can stay unset. With the domain on Cloudflare, it can also be verified in Resend for `MAIL_FROM`, for example `2DayAI <edition@globalgist.com>`: Resend lists the DNS records to add in Cloudflare.
 
 The daily run needs no deploy: the Worker reads the new day from the database.
 
