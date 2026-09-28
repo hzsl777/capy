@@ -2,17 +2,21 @@
 
 ## Launch
 
-GlobalGist goes live in seven steps, about thirty minutes. Secrets go in GitHub under Settings, then Secrets and variables, then Actions.
+Going live is secrets and one merge. Everything after that runs by itself (decision 34). Secrets go in GitHub under Settings, then Secrets and variables, then Actions.
 
-1. **Database.** Create a free Neon project and copy its connection string. Add it as the secret `DATABASE_URL`.
+1. **Database.** Create a free Neon project (one Postgres database, nothing else) and copy its pooled connection string. Add it as the secret `DATABASE_URL`.
 2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Set a monthly limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`.
 3. **Cloudflare.** On a free Cloudflare account, create an API token from the "Edit Cloudflare Workers" template. Add it as `CLOUDFLARE_API_TOKEN`, and the account id as `CLOUDFLARE_ACCOUNT_ID`.
-4. **Merge the pull request into `main`.** The "Deploy site" workflow publishes the site at `https://globalgist.<account>.workers.dev`. Until the first day exists it says the first map is being made.
-5. **Give the Worker the database.** Run `npx wrangler secret put DATABASE_URL --name globalgist` and paste the same connection string.
-6. **Preflight.** In the Actions tab, run "Preflight". Its summary page must show `ok` for both models. It also lists every feed: a failure there only leaves that outlet off the map, and a line saying "feed found at" gives the URL to put in `config/sources.yaml`.
-7. **First day.** Run "Daily run" by hand. It takes ten to twenty minutes. Then open the site.
+4. **Merge the pull request into `main`.**
 
-After that the daily run starts itself at 09:00 UTC and the site reads each new day from the database. Nothing is deployed day to day. The delivery workflow skips itself until 2DayAI email is set up.
+What happens on its own:
+
+- "Deploy site" publishes the site at `https://globalgist.<account>.workers.dev` and copies `DATABASE_URL` into the Worker.
+- When the deploy finishes, "Daily run" starts if today's map doesn't exist yet. It checks the model key first, then builds the day in ten to twenty minutes. Until then the site says the first map is being made.
+- Every day at 09:00 UTC "Daily run" builds the next day, then deletes world data older than 30 days and fetched page text older than two, so the free database never fills.
+- GitHub emails you when a scheduled run fails. A failed day leaves the previous map up.
+
+"Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page.
 
 ## First-time setup
 

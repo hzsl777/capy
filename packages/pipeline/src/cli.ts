@@ -35,6 +35,7 @@ const { values, positionals } = parseArgs({
     "dry-run": { type: "boolean", default: false },
     fixture: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
+    "if-missing": { type: "boolean", default: false },
     out: { type: "string" },
     in: { type: "string" },
     setups: { type: "string" },
@@ -78,6 +79,7 @@ const HELP = `Commands:
   show [--reader r01]    print a reader's edition for the date
   deliver [--dry-run]    send unsent editions whose delivery hour has arrived
   day [--fixture]        ingest, enrich, readers sync, cluster, cluster world, explain, select, telegram
+                         --if-missing skips when the date's map already exists
   spend                  model spend for the date
   llm check              one tiny call per configured model: key, model ids, flex tier (costs a fraction of a cent)
   feedback [--reader r01] reader feedback from the last 14 days, newest first
@@ -314,6 +316,12 @@ switch (command) {
   }
   case "day": {
     const d = db();
+    // After a deploy the daily workflow runs with --if-missing, so the first day appears on its own and later
+    // deploys don't pay for a second run of a day that already exists.
+    if (values["if-missing"] && (await latestMapDate(d)) === date) {
+      console.log(`The map for ${date} already exists. Nothing to do.`);
+      break;
+    }
     // --fixture: the bundled three-article day instead of live feeds, so the real model can be exercised offline.
     let deps = {};
     if (values.fixture) {

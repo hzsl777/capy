@@ -3,6 +3,11 @@ on:
   schedule:
     # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs hourly in deliver.yml.
     - cron: "0 9 * * *"
+  # A finished deploy starts the day if its map doesn't exist yet, so going live needs no manual run.
+  workflow_run:
+    workflows: ["Deploy site"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       date:
@@ -12,6 +17,7 @@ permissions:
   contents: read
 jobs:
   day:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -42,13 +48,18 @@ jobs:
         run: npm ci
       - if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         run: npm run db:migrate
+      # One tiny call per model first: a bad key or model id fails here in seconds, with a plain message.
+      - name: Check the model key
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm run stage -- llm check
       - name: Run the day
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         env:
           DATE: ${{ inputs.date }}
+          IF_MISSING: ${{ github.event_name == 'workflow_run' && '--if-missing' || '' }}
         run: |
           if [ -n "$DATE" ]; then
-            npm run stage -- day --date "$DATE"
+            npm run stage -- day --date "$DATE" $IF_MISSING
           else
-            npm run stage -- day
+            npm run stage -- day $IF_MISSING
           fi

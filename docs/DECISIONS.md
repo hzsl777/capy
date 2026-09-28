@@ -172,3 +172,12 @@ Davis wants the site shipped tonight or tomorrow morning, with the code and the 
 5. Estimated spend at full coverage on the decision 29 models: roughly $0.10 to $0.20 a day. The daily ceiling rises to $1.00 so it stops a runaway day and not a normal one.
 6. `npm run stage -- llm check` sends one tiny call per configured model. The manual "Preflight" workflow runs it with the migrations and a full feed check, and reports on the run's summary page.
 7. The daily and delivery workflows skip instead of failing while their secrets are missing. The Worker is renamed `globalgist`. The site says the first map is being made until a day exists. Static assets get security and cache headers, and the build drops source maps.
+
+## 34. Nothing to run by hand (September 28, 2026)
+
+Davis may not have time to run anything, so the launch and every day after it must need no command.
+
+1. "Deploy site" copies the `DATABASE_URL` repository secret into the Worker after each deploy, in place of a manual `wrangler secret put`.
+2. A finished deploy starts "Daily run" with `day --if-missing`, which skips when the date's map already exists. Going live is the secrets and one merge. Later deploys don't pay for a second run.
+3. Each daily run starts with `llm check`, so a bad key or model id fails in seconds with a plain message instead of midway.
+4. Neon's free plan holds 0.5 GB. At 237 outlets a day adds several megabytes, mostly fetched page text, so the database would fill in months. A last `prune` stage deletes world-desk days older than `WORLD_RETENTION_DAYS` (default 30) and clears page text older than two days, which explain no longer needs. 2DayAI's briefing history is not touched. A failed prune never costs the day its map.

@@ -154,7 +154,7 @@ After M5 the decision is: build the learned interest model, or stop.
 
 ## 10. Davis's next steps, in order
 
-To put GlobalGist live, follow docs/RUNBOOK.md, "Launch": seven steps, secrets first (decision 33). The list below is the 2DayAI path.
+To put GlobalGist live, follow docs/RUNBOOK.md, "Launch": four secrets and one merge, then it runs itself (decision 34). The list below is the 2DayAI path.
 
 1. Add repository secrets: DATABASE_URL (free Neon project), LLM_API_KEY (OpenAI by default, decision 29), RESEND_API_KEY (free Resend account with a verified sender). Set repository variables WEB_BASE_URL and MAIL_FROM once the Worker is deployed.
 2. Locally: copy .env.example to .env with the same values. Then choose the model by measurement: run the "Model eval" workflow on two or three real days and read the reports (docs/RUNBOOK.md, "Choose a model").

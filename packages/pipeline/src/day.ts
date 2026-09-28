@@ -11,6 +11,7 @@ import { runCluster, runClusterWorld } from "./stages/cluster.js";
 import { runEnrich, type PageFetcher } from "./stages/enrich.js";
 import { explainArticleIds, runExplain } from "./stages/explain.js";
 import { runIngest, type FeedFetcher } from "./stages/ingest.js";
+import { runPrune } from "./stages/prune.js";
 import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
 
@@ -35,6 +36,8 @@ export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, de
   out["explain"] = await recorded(db, date, "explain", () => runExplain(db, config, llm, date));
   out["select"] = await recorded(db, date, "select", () => runSelect(db, config, llm, date));
   out["telegram"] = await recorded(db, date, "telegram", () => runTelegram(db, config, llm, date));
+  // Last, so a failed prune never costs the day its map.
+  out["prune"] = await recorded(db, date, "prune", () => runPrune(db, date, config.worldRetentionDays));
   out["spendUsd"] = await spentToday(db, date);
   return out;
 }

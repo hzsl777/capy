@@ -26,6 +26,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Skip until Cloudflare is set up
         if: env.CLOUDFLARE_API_TOKEN == ''
@@ -43,3 +44,8 @@ jobs:
         run: npm run check
       - if: env.CLOUDFLARE_API_TOKEN != ''
         run: npm run web:deploy
+      # The Worker reads the map from the database. Copying the repository secret on every deploy keeps the two
+      # in step with no manual wrangler command.
+      - name: Give the Worker the database
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.DATABASE_URL != ''
+        run: printf '%s' "$DATABASE_URL" | npx wrangler secret put DATABASE_URL --config packages/web/wrangler.toml
