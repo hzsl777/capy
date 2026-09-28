@@ -13,7 +13,8 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+      # Email links. SITE_DOMAIN alone is enough; WEB_BASE_URL overrides it (decision 37).
+      WEB_BASE_URL: ${{ vars.WEB_BASE_URL || (vars.SITE_DOMAIN && format('https://{0}', vars.SITE_DOMAIN)) || '' }}
       MAIL_FROM: ${{ vars.MAIL_FROM }}
     steps:
       # 2DayAI email is not live yet. Without a Resend key there is nothing to send, so skip in seconds.

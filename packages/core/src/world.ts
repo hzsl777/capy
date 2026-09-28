@@ -111,6 +111,21 @@ export function dayBand(scored: ScoredEvent[]): MoodBand | null {
   return Math.max(0, Math.min(2, Math.round(avg))) as MoodBand;
 }
 
+/**
+ * The middle score per event across repeat scoring runs, so one run's wobble doesn't move the word (decision 36).
+ * The reason comes from a run that gave the middle score. Every run has already passed scoreProblems, so each
+ * scores every event once. `split` counts events whose runs disagreed.
+ */
+export function medianScores(runs: TelegramScores[]): { scores: TelegramScores["scores"]; split: number } {
+  let split = 0;
+  const scores = (runs[0]?.scores ?? []).map((first) => {
+    const all = runs.map((r) => r.scores.find((s) => s.eventId === first.eventId) ?? first).sort((a, b) => a.score - b.score);
+    if (all.some((s) => s.score !== first.score)) split++;
+    return all[Math.floor(all.length / 2)]!;
+  });
+  return { scores, split };
+}
+
 const norm = (s: string) => s.replace(/\s+/g, " ").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').trim().toLowerCase();
 
 /** Every candidate scored exactly once, each with a reason copied from its own verified sentences. */

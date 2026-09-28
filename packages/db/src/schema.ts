@@ -16,6 +16,16 @@ export const sources = pgTable("sources", {
   lat: doublePrecision("lat"),
   lon: doublePrecision("lon"),
   lang: text("lang").notNull().default("en"),
+  /**
+   * Feed health, kept by ingest so the list heals itself (decision 36): the feed found behind a configured
+   * homepage (used while `feedFrom` still equals `url`), consecutive failed days, and the last good fetch.
+   */
+  feedUrl: text("feed_url"),
+  feedFrom: text("feed_from"),
+  failStreak: integer("fail_streak").notNull().default(0),
+  /** The run date of the last failure, so re-running a day counts it once. */
+  lastFailOn: date("last_fail_on"),
+  lastOkAt: timestamp("last_ok_at", { withTimezone: true }),
 });
 
 export const articles = pgTable(

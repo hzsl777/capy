@@ -20,8 +20,9 @@ import { runExplain } from "./stages/explain.js";
 import { checkSources, runIngest, type IngestReport } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
+import { daySummary } from "./summary.js";
 import { FEED_XML } from "./fixtures/day.js";
-import { existsSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -305,6 +306,12 @@ switch (command) {
   }
   case "deliver": {
     const d = db();
+    // Email links point at WEB_BASE_URL and come from MAIL_FROM. The defaults are placeholders, and a real send
+    // with them would reach readers with dead links or bounce, so refuse (decision 35).
+    if (!values["dry-run"]) {
+      const placeholders = [config.webBaseUrl === "https://globalgist.workers.dev" && "WEB_BASE_URL", /\.example>?$/.test(config.mailFrom) && "MAIL_FROM"].filter(Boolean);
+      if (placeholders.length) throw new Error(`Set the repository variable(s) ${placeholders.join(" and ")} before delivering (docs/RUNBOOK.md, "Turn on 2DayAI").`);
+    }
     const sender = values["dry-run"]
       ? async (msg: { to: string; subject: string }) => {
           console.log(`[dry-run] would send to ${msg.to}: ${msg.subject}`);
@@ -330,7 +337,16 @@ switch (command) {
       deps = { fetchFeed: async () => FEED_XML, fetchPage: async () => "", sourcesPath: join(dir, "sources.yaml"), readersDir: values.readers, force: values.force };
       console.log("Running against the fixture feed (three articles, two events). Fixture dates are September 3, 2026, so pass --date 2026-09-04.");
     }
-    const out = await runDay(d, config, createLlm(config, d), date, { ...deps, force: values.force });
+    const out: Record<string, unknown> = {};
+    // On GitHub Actions the run's page gets a short summary, also when a stage fails (decision 36).
+    const summary = process.env["GITHUB_STEP_SUMMARY"];
+    try {
+      await runDay(d, config, createLlm(config, d), date, { ...deps, force: values.force }, out);
+    } catch (err) {
+      if (summary) appendFileSync(summary, daySummary(date, out, err instanceof Error ? err.message : String(err)));
+      throw err;
+    }
+    if (summary) appendFileSync(summary, daySummary(date, out));
     console.log(JSON.stringify(out, null, 2));
     break;
   }

@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { toRunDate } from "@2dayai/core";
 import { articles, eventArticles, events, sources, type Db } from "@2dayai/db";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
+import { LlmParseError } from "./llm/types.js";
 import { runClusterWorld, splitBatches } from "./stages/cluster.js";
 import { createTestDb } from "./test/db.js";
 import { testConfig } from "./test/config.js";
@@ -143,6 +144,20 @@ describe("cluster world in batches", () => {
     expect(port.map((e) => e.title)).toEqual(["Port Lenn dock workers strike over pay"]);
     expect(port[0]!.articleIds).toHaveLength(2);
     expect(new Set(evs.flatMap((e) => e.articleIds)).size).toBe(12);
+  });
+
+  it("halves a batch whose answer runs past the output limit and asks again (decision 36)", async () => {
+    // Batches of more than two articles "run out of room"; halving twice gets every batch under that.
+    const tooLong: FakeAnswer = (req) => {
+      if ((req.user.match(/^\[\d+\]/gm) ?? []).length > 2) throw new LlmParseError("cluster-world", "output hit max_tokens");
+      return clusterAnswer(req);
+    };
+    const llm = new FakeLlm({ "cluster-world": tooLong, "cluster-world-merge": () => ({ groups: [] }) });
+    const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date);
+    expect(report.batches).toBeGreaterThan(3);
+    const linked = (await worldEvents()).flatMap((e) => e.articleIds);
+    expect(new Set(linked).size).toBe(ARTICLES.length);
+    expect(linked).toHaveLength(ARTICLES.length);
   });
 
   it("fails loudly when one batch fails and keeps the day it had", async () => {

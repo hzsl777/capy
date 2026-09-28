@@ -1,5 +1,6 @@
-GlobalGist and 2DayAI: what's left to do
+GlobalGist and 2DayAI: sprint plan
 Last updated September 28, 2026. Details for each item are in docs/RUNBOOK.md and docs/DECISIONS.md.
+[x] means done in code. [ ] means it needs a person.
 
 
 HOW IT RUNS NOW
@@ -8,59 +9,85 @@ HOW IT RUNS NOW
   explains the big ones, picks the day's word, and saves it all in the database.
 - The site reads the database, so it updates by itself. Nobody deploys anything day to day.
 - Each run ends by deleting world data older than 30 days, so the free database never fills up.
+- Each run writes a short report on its page in the Actions tab: the word, feeds read and failed,
+  stories, spend, and which feeds need attention.
 - If a run fails, GitHub emails the repo owner and the site keeps showing the last good day.
+- 2DayAI (the email) runs in the same daily job once reader profiles exist. See sprint 2.
 
 
-TO GO LIVE (Davis)
+LAUNCH (Davis)
 
-[ ] Add four secrets in GitHub (Settings, then Secrets and variables, then Actions):
-    DATABASE_URL (the Neon pooled connection string), LLM_API_KEY (OpenAI),
+[x] Model key added as the LLM_API_KEY secret.
+[ ] Add the other three secrets: DATABASE_URL (the Neon pooled connection string),
     CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
-[ ] Set a monthly spending limit in the OpenAI dashboard.
-[ ] After the secrets are in, re-run the "Deploy site" workflow once (the merge already ran it
-    without Cloudflare, so it skipped). The first day then builds itself.
+[ ] In the OpenAI dashboard: a project for this repo, prepaid credit, and a hard monthly spend
+    limit (for example $10). docs/OPENAI.md walks through every menu.
+[ ] Re-run the "Deploy site" workflow once. The merge ran it before the secrets existed, so it
+    skipped. The first day then builds itself in 10 to 20 minutes.
 [ ] Open https://globalgist.<account>.workers.dev and check that a map and a word show up.
+[ ] globalgist.com: remove the custom domain from GitHub Pages, put the domain on Cloudflare,
+    give the Cloudflare token DNS and Workers Routes access for it, set the repository variable
+    SITE_DOMAIN to globalgist.com, and run "Deploy site". Steps in docs/RUNBOOK.md,
+    "A custom domain". GitHub Pages can't host this site (decision 37).
 
 
-FIRST WEEK (dev team)
+SPRINT 1: FIRST WEEK
 
-[ ] Feeds. Run the "Preflight" workflow and read its Feeds section.
-    - About 150 outlets in config/sources.yaml point at a homepage ("feed unconfirmed").
-      Where Preflight says "feed found at", put that URL in sources.yaml.
-    - Remove outlets that fail every day. Keep the list balanced: if you drop one side of a
-      conflict, drop or replace the other side too (see the add-news-source skill).
-[ ] Model names and prices. The defaults (gpt-5.4-nano, gpt-5.4-mini) came from web research,
-    not OpenAI's own pages. Confirm them, and fix packages/pipeline/src/llm/pricing.ts if the
-    prices differ.
-[ ] Cheaper tier. The daily log says whether OpenAI served "flex (half price)". If it never does,
-    set the repository variable LLM_SERVICE_TIER to "default" to skip the extra attempt.
-[ ] Cost. Compare the llm_calls table with the OpenAI bill after a few days. The estimate is
-    $0.10 to $0.20 a day.
-[ ] Model choice. Run the "Model eval" workflow on two or three real days, including one busy news
-    day. It compares the default models with a few cheaper and stronger ones on the same articles.
-    Read the scores and reasons, not just the cost column.
+Done in code (decision 36):
+[x] Feeds found behind a homepage are remembered and fetched directly after the first day.
+[x] A feed that fails 7 days in a row is paused and retried every Sunday.
+[x] A busy day whose grouping answer is too long splits itself in half and tries again.
+[x] If OpenAI refuses the cheaper "flex" tier, the rest of the run stops asking for it.
+[x] The daily report on the Actions page, including a table of failing feeds.
+[x] Model prices checked against search results for OpenAI's model pages: gpt-5.4-nano
+    $0.20 / $1.25 and gpt-5.4-mini $0.75 / $4.50 per million tokens, flex at half. These
+    match packages/pipeline/src/llm/pricing.ts.
+
+Needs a person:
+[ ] Feeds. Read the "Feeds that failed" table on the daily report for the first few days.
+    Fix or replace outlets that stay paused. Keep the list balanced: if you drop one side of a
+    conflict, drop or replace the other side too (see the add-news-source skill).
+[ ] Cost. After a few days, compare OpenAI's Usage page with the llm_calls table. The estimate
+    is $0.10 to $0.25 a day. If the numbers differ, fix pricing.ts.
+[ ] Flex. On the Usage page, check that calls are served as flex. If none are, set the
+    repository variable LLM_SERVICE_TIER to "default".
+[ ] Model choice. Run the "Model eval" workflow on two or three real days, including a busy
+    news day. Read the scores and reasons, not just the cost column.
 [ ] Read the word every day. Does it match the day? Do the scores fit their quoted reasons?
-    Write down any day that looks wrong, with the date.
-[ ] Busy days. Check the runs table for "output hit max_tokens" on the grouping stage. If it shows
-    up, lower WORLD_CLUSTER_BATCH (default 300).
+    The report's "runs disagreed on N events" line shows how often the three scoring runs
+    differ. Write down any day that looks wrong, with the date.
 
 
-LATER
+SPRINT 2: 2DAYAI LIVE
 
+Done in code (decision 35):
+[x] Reader profiles can live in a GitHub secret, since they hold emails and can't be in the repo.
+[x] The daily job builds each reader's edition once a profile exists.
+[x] "Deliver" refuses to send while the site address or sender address is still a placeholder.
+
+Needs a person (docs/RUNBOOK.md, "Turn on 2DayAI"):
+[ ] Write each reader's profile from config/readers/r00.example.yaml and put them all in the
+    READER_PROFILES secret, separated by lines of ---.
+[ ] Open a Resend account, verify a sending domain, and add RESEND_API_KEY.
+[ ] Set the repository variable MAIL_FROM. The site address comes from SITE_DOMAIN; set
+    WEB_BASE_URL only if there is no custom domain.
+[ ] Before the first real send, run deliver with --dry-run locally and read the email.
+[ ] First week of editions: Davis rates each headline and explanation daily (milestone 4).
+    Expect new versions of the select and explain prompts after it (docs/PROMPTS.md).
+
+
+SPRINT 3: LATER
+
+Done in code (decision 36):
+[x] The word is steadier: each event is scored three times and keeps its middle score.
+[x] On phones, the controls fold into a "More" menu instead of scrolling sideways.
+[x] The site sends a Content-Security-Policy header, tested with the embedded article reader.
+
+Needs a person:
 [ ] Coverage gaps: no outlet based inside Sudan, and none for Belarus, Moldova or Nicaragua.
     Outlets in exile are pinned where they publish, not where they report on.
-[ ] Decide whether to score each event two or three times and take the middle score. Models
-    sometimes give different scores on repeat runs (decision 29).
 [ ] Zoom levels use the model's importance rating to choose what shows first (decision 30).
     Watch for complaints that this looks like ranking.
-[ ] On phones the control row scrolls sideways to reach Translate. Fold it into a menu.
-[ ] Add a Content-Security-Policy header once the embedded article reader has been tested with it.
-[ ] Optional: a custom domain for the site instead of workers.dev.
-
-
-2DAYAI (the email product, not live yet)
-
-[ ] Write reader profiles in config/readers/ (see r00.example.yaml). The briefing stages turn on
-    by themselves once a profile exists.
-[ ] Set up Resend: add RESEND_API_KEY, and set the variables WEB_BASE_URL and MAIL_FROM.
-    Email delivery then turns on by itself.
+[ ] After the first real week, review the grouping and telegram prompts against real output
+    and write v2 versions where needed (docs/PROMPTS.md, "Changing a prompt").
+[ ] Build the headline evaluation set (twenty rated headlines) once real editions exist.

@@ -85,11 +85,16 @@ export async function articlesFromFeed(source: Source, xml: string, date: RunDat
   return out;
 }
 
-/** feedUrl is set when the feed was found through the configured page, so sources.yaml can be updated. */
-export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; error?: string };
+/**
+ * feedUrl is set when the feed was found through the configured page, so sources.yaml can be updated.
+ * failedDays is the failure streak including today. paused is set for a source skipped today because it keeps failing.
+ */
+export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; error?: string; failedDays?: number; paused?: boolean };
 
 /** Feeds fetched at once. Hundreds of outlets one after another could take an hour on a slow day. */
 const INGEST_CONCURRENCY = 8;
+/** After this many failed days in a row a source is tried once a week, on Sundays (decision 36). */
+export const PAUSE_AFTER_FAILED_DAYS = 7;
 
 async function inPool<T>(items: T[], size: number, fn: (item: T) => Promise<void>): Promise<void> {
   let next = 0;
@@ -100,8 +105,16 @@ async function inPool<T>(items: T[], size: number, fn: (item: T) => Promise<void
   );
 }
 
-/** Stage 6.1. Idempotent per date: re-running upserts by URL and inserts nothing twice. */
+/**
+ * Stage 6.1. Idempotent per date: re-running upserts by URL and inserts nothing twice. Keeps each source's
+ * health (decision 36): a feed found behind a homepage is remembered, so later days fetch it directly, and a
+ * source failing PAUSE_AFTER_FAILED_DAYS days running is only retried on Sundays.
+ */
 export async function runIngest(db: Db, sources: Source[], date: RunDate, fetchFeed: FeedFetcher = defaultFetcher): Promise<IngestReport[]> {
+  const health = new Map(
+    (await db.select({ id: sourcesTable.id, feedUrl: sourcesTable.feedUrl, feedFrom: sourcesTable.feedFrom, failStreak: sourcesTable.failStreak, lastFailOn: sourcesTable.lastFailOn }).from(sourcesTable)).map((h) => [h.id, h]),
+  );
+  const sunday = new Date(`${date}T12:00:00Z`).getUTCDay() === 0;
   const reports = new Map<string, IngestReport>();
   await inPool(sources, INGEST_CONCURRENCY, async (source) => {
     const row = {
@@ -116,17 +129,39 @@ export async function runIngest(db: Db, sources: Source[], date: RunDate, fetchF
       lang: source.lang,
     };
     await db.insert(sourcesTable).values({ id: source.id, ...row }).onConflictDoUpdate({ target: sourcesTable.id, set: row });
+    const h = health.get(source.id);
+    const streak = h?.failStreak ?? 0;
+    if (streak >= PAUSE_AFTER_FAILED_DAYS && !sunday) {
+      reports.set(source.id, { source: source.id, fetched: 0, inserted: 0, paused: true, failedDays: streak, error: `paused after ${streak} failed days; retried on Sundays` });
+      return;
+    }
+    // A remembered feed counts only while the configured URL is the one it was found behind.
+    const remembered = h?.feedUrl && h.feedFrom === source.url ? h.feedUrl : null;
     try {
-      const { xml, feedUrl } = await fetchFeedDocument(source.url, fetchFeed);
-      const found = await articlesFromFeed(source, xml, date);
+      let doc: { xml: string; feedUrl: string };
+      try {
+        doc = await fetchFeedDocument(remembered ?? source.url, fetchFeed);
+      } catch (err) {
+        if (!remembered) throw err;
+        doc = await fetchFeedDocument(source.url, fetchFeed);
+      }
+      const found = await articlesFromFeed(source, doc.xml, date);
       let inserted = 0;
       for (const a of found) {
         const r = await db.insert(articles).values(a).onConflictDoNothing({ target: articles.url }).returning({ id: articles.id });
         inserted += r.length;
       }
-      reports.set(source.id, { source: source.id, fetched: found.length, inserted, ...(feedUrl !== source.url ? { feedUrl } : {}) });
+      const discovered = doc.feedUrl !== source.url;
+      await db
+        .update(sourcesTable)
+        .set({ failStreak: 0, lastFailOn: null, lastOkAt: new Date(), feedUrl: discovered ? doc.feedUrl : null, feedFrom: discovered ? source.url : null })
+        .where(eq(sourcesTable.id, source.id));
+      reports.set(source.id, { source: source.id, fetched: found.length, inserted, ...(discovered ? { feedUrl: doc.feedUrl } : {}) });
     } catch (err) {
-      reports.set(source.id, { source: source.id, fetched: 0, inserted: 0, error: err instanceof Error ? err.message : String(err) });
+      // One failed day counts once, however many times the day is run.
+      const failedDays = h?.lastFailOn === date ? streak : streak + 1;
+      if (failedDays !== streak) await db.update(sourcesTable).set({ failStreak: failedDays, lastFailOn: date }).where(eq(sourcesTable.id, source.id));
+      reports.set(source.id, { source: source.id, fetched: 0, inserted: 0, failedDays, error: err instanceof Error ? err.message : String(err) });
     }
   });
   return sources.map((s) => reports.get(s.id)!);

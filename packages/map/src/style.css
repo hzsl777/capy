@@ -970,6 +970,25 @@ dialog .close {
     left: 12px;
     right: 12px;
   }
+  /* More stacks the controls it holds; the design list inside it opens in place. */
+  .more-body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .more-body > .tool,
+  .more-body > .menu > summary {
+    width: 100%;
+    text-align: left;
+  }
+  .more-body .menu-body {
+    position: static;
+    min-width: 0;
+    max-width: none;
+    margin-top: 4px;
+    box-shadow: none;
+  }
   .stage,
   .stage:has(.panel.framed) {
     grid-template-columns: 1fr;

@@ -1,23 +1,37 @@
 // Reader profiles are hand-written YAML in version 0 (spec 6.4). This syncs them into the database.
 import { randomBytes } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { and, desc, eq } from "drizzle-orm";
-import { parse } from "yaml";
+import { parse, parseAllDocuments } from "yaml";
 import { ReaderProfileSchema, type ReaderProfile } from "@2dayai/core";
 import { readerProfiles, readers, type Db } from "@2dayai/db";
 
 export type LoadedProfile = { profile: ReaderProfile; yaml: string };
 
-export function loadProfiles(dir = "config/readers"): LoadedProfile[] {
+/**
+ * Profiles from `config/readers/rNN.yaml`, plus any in `inline`: one or more YAML documents separated by
+ * `---`. The daily workflow passes the READER_PROFILES secret as `inline`, because profiles hold readers'
+ * emails and stay out of the repository (decision 35).
+ */
+export function loadProfiles(dir = "config/readers", inline = process.env["READER_PROFILES"]): LoadedProfile[] {
   const out: LoadedProfile[] = [];
-  for (const name of readdirSync(dir).sort()) {
+  for (const name of existsSync(dir) ? readdirSync(dir).sort() : []) {
     if (!/^r\d{2}\.yaml$/.test(name)) continue;
     const yaml = readFileSync(join(dir, name), "utf8");
     const profile = ReaderProfileSchema.parse(parse(yaml));
     if (`${profile.id}.yaml` !== name) throw new Error(`${name}: id ${profile.id} does not match the filename`);
     out.push({ profile, yaml });
   }
+  for (const [i, doc] of (inline?.trim() ? parseAllDocuments(inline) : []).entries()) {
+    const parsed = ReaderProfileSchema.safeParse(doc.toJSON());
+    // The message names the document, never its content: it holds a reader's email.
+    if (!parsed.success) throw new Error(`READER_PROFILES document ${i + 1} is not a valid profile: ${parsed.error.issues.map((x) => x.path.join(".") || x.message).join(", ")}`);
+    out.push({ profile: parsed.data, yaml: doc.toString() });
+  }
+  const ids = out.map((p) => p.profile.id);
+  const dup = ids.find((id, i) => ids.indexOf(id) !== i);
+  if (dup) throw new Error(`Reader ${dup} is defined twice (a file and READER_PROFILES, or two documents)`);
   return out;
 }
 

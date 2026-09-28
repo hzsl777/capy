@@ -1,7 +1,7 @@
 name: Daily run
 on:
   schedule:
-    # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs hourly in deliver.yml.
+    # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs every two hours in deliver.yml.
     - cron: "0 9 * * *"
   # A finished deploy starts the day if its map doesn't exist yet, so going live needs no manual run.
   workflow_run:
@@ -31,7 +31,14 @@ jobs:
       # 237 outlets on the default models cost roughly $0.10 to $0.25 a day (decision 33). The ceiling stops a
       # runaway day, not a normal one.
       DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
-      WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+      # The word's score call runs this many times and keeps each event's middle score (decision 36). 1 saves
+      # about two cents a day.
+      TELEGRAM_SCORE_RUNS: ${{ vars.TELEGRAM_SCORE_RUNS }}
+      # Email links. SITE_DOMAIN alone is enough; WEB_BASE_URL overrides it (decision 37).
+      WEB_BASE_URL: ${{ vars.WEB_BASE_URL || (vars.SITE_DOMAIN && format('https://{0}', vars.SITE_DOMAIN)) || '' }}
+      # 2DayAI reader profiles, one YAML document each, separated by ---. They hold emails, so they live in a
+      # secret, not the repository (decision 35). Empty means the map's world desk runs alone.
+      READER_PROFILES: ${{ secrets.READER_PROFILES }}
     steps:
       # Until the database and model key exist, the scheduled run skips instead of failing every morning.
       - name: Skip until set up

@@ -8,7 +8,7 @@ import type { Config } from "../config.js";
 import { costUsd, type Usage } from "./pricing.js";
 import { assertUnderCeiling } from "./spend.js";
 import { LlmParseError, type Llm, type ParseOutcome, type ParseRequest } from "./types.js";
-import { modelFor } from "./models.js";
+import { isJudgment, modelFor } from "./models.js";
 
 /**
  * max_tokens per model. Always sent: DeepSeek otherwise stops at 8K without thinking, which a busy day's cluster
@@ -66,6 +66,8 @@ export function createChatLlm(
 ): Llm {
   if (!config.llmApiKey) throw new Error(`LLM_API_KEY is required for model stages (LLM_PROVIDER=${config.provider})`);
   const url = `${config.llmBaseUrl}/chat/completions`;
+  // Once flex is refused, the rest of the run asks for the default tier straight away (decision 36).
+  let tier = config.serviceTier;
 
   async function post(body: unknown, stage: string): Promise<ChatResponse> {
     for (let attempt = 0; ; attempt++) {
@@ -88,7 +90,7 @@ export function createChatLlm(
   async function parse<T extends z.ZodType>(req: Omit<ParseRequest<T>, "id">, date: RunDate): Promise<z.infer<T>> {
     await assertUnderCeiling(db, date, config.dailySpendCeilingUsd);
     const model = modelFor(config, req.stage);
-    const think = config.thinking === "all" || (config.thinking === "telegram" && req.stage.startsWith("telegram"));
+    const think = config.thinking === "all" || (config.thinking === "telegram" && isJudgment(req.stage));
     const body = {
       model,
       ...thinkingParams(config.provider, think),
@@ -102,11 +104,12 @@ export function createChatLlm(
     };
     let response: ChatResponse;
     try {
-      response = await post(config.serviceTier ? { ...body, service_tier: config.serviceTier } : body, req.stage);
+      response = await post(tier ? { ...body, service_tier: tier } : body, req.stage);
     } catch (err) {
       // Flex has no guaranteed capacity and not every model offers it. The day must not fail for a discount.
       const refused = err instanceof LlmParseError && /HTTP (429|400)/.test(err.message);
-      if (!config.serviceTier || !refused) throw err;
+      if (!tier || !refused) throw err;
+      tier = undefined;
       response = await post(body, req.stage);
     }
     const usage = usageOf(response);

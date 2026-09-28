@@ -4,6 +4,9 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   X-Frame-Options: SAMEORIGIN
+  # Everything is served from the site itself. Two exceptions: publisher images (img-src https:) and the article
+  # reader, which frames the publisher's page (frame-src https:).
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; frame-src https:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
 
 # Built files carry a content hash in their names, so they never change under the same URL.
 /assets/*

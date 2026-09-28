@@ -1,13 +1,15 @@
 // The telegram (decision 26): one word for the emotion the day's world reporting evokes, on a fixed scale.
-// Two model calls with code in between, so the model never sets the scale on its own:
+// Model calls with code in between, so the model never sets the scale on its own:
 //   1. score: every explained world event gets -2 to 2 by what happened to people, citing one of its own
-//      verified sentences. Checked in code.
+//      verified sentences. Checked in code. The call runs TELEGRAM_SCORE_RUNS times (default 3) and each event
+//      keeps its middle score, because repeat runs sometimes disagree (decision 36).
 //   2. dayBand (code): the worst significant event sets a bad day; an all-good day is the weighted average.
 //   3. word: the model picks from the band's fixed list and names the events that shaped the day. Checked in code.
 // Each call gets one retry with its problems spelled out; a second failure fails the stage loudly.
 import { and, eq, inArray } from "drizzle-orm";
 import {
   dayBand,
+  medianScores,
   MOOD_BAND_LABEL,
   MOOD_WORDS,
   scoreProblems,
@@ -37,6 +39,9 @@ export type TelegramReport = {
   word: string | null;
   band: MoodBand | null;
   events: number;
+  /** Score calls made, and events whose runs gave different scores. */
+  scoreRuns: number;
+  split: number;
   retried: { score: boolean; word: boolean };
   reason?: string;
 };
@@ -90,7 +95,7 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
     .innerJoin(eventExplanations, eq(eventExplanations.eventId, events.id))
     .where(and(eq(events.runDate, date), eq(events.desk, "world")));
   const usableRows = rows.filter((r) => r.usable);
-  const none = { word: null, band: null, events: 0, retried: { score: false, word: false } };
+  const none = { word: null, band: null, events: 0, scoreRuns: 0, split: 0, retried: { score: false, word: false } };
   if (usableRows.length === 0) {
     const failed = rows.filter((r) => r.failed).length;
     if (failed > 0) throw new Error(`telegram: no usable world events and ${failed} explanations failed; refusing to write a word`);
@@ -120,12 +125,21 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
   const usable = new Map(cands.map((c) => [c.id, c.sentences]));
 
   const scorePrompt = loadPrompt("telegram-score", TELEGRAM_SCORE_PROMPT_VERSION);
-  const scored = await checkedCall(
-    llm,
-    date,
-    { stage: "telegram-score", prompt: scorePrompt, schema: TelegramScoresSchema, user: scoreUserContent(date, cands), effort: config.effort.telegram },
-    (v) => scoreProblems(v, usable),
-  );
+  // One after another, not in parallel: the repeats send the same prompt, so the provider's cache bills most of
+  // their input at a tenth of the price.
+  const runs: { value: TelegramScores; retried: boolean }[] = [];
+  for (let i = 0; i < config.telegramScoreRuns; i++) {
+    runs.push(
+      await checkedCall(
+        llm,
+        date,
+        { stage: "telegram-score", prompt: scorePrompt, schema: TelegramScoresSchema, user: scoreUserContent(date, cands), effort: config.effort.telegram },
+        (v) => scoreProblems(v, usable),
+      ),
+    );
+  }
+  const median = medianScores(runs.map((r) => r.value));
+  const scored = { value: { scores: median.scores }, retried: runs.some((r) => r.retried) };
 
   const importance = new Map(cands.map((c) => [c.id, c.importance]));
   const scoredEvents: ScoredEvent[] = scored.value.scores.map((s) => ({ eventId: s.eventId, importance: importance.get(s.eventId) ?? 1, score: s.score }));
@@ -146,5 +160,5 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
     .returning({ id: telegrams.id });
   await db.insert(telegramScores).values(scored.value.scores.map((s) => ({ telegramId: row!.id, eventId: s.eventId, score: s.score, because: s.because })));
   await db.insert(telegramItems).values(worded.value.events.map((e, i) => ({ telegramId: row!.id, eventId: e.eventId, rank: i + 1, line: e.line })));
-  return { candidates: cands.length, written: true, word, band, events: worded.value.events.length, retried: { score: scored.retried, word: worded.retried } };
+  return { candidates: cands.length, written: true, word, band, events: worded.value.events.length, scoreRuns: runs.length, split: median.split, retried: { score: scored.retried, word: worded.retried } };
 }

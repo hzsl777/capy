@@ -182,7 +182,7 @@ function renderToolbar() {
     ...THEME_IDS.map((id) => {
       const b = h("button", { type: "button", class: "menu-item", role: "menuitemradio", "aria-checked": String(id === state.theme) }, THEMES[id].label);
       b.addEventListener("click", () => {
-        ($("design-menu") as HTMLDetailsElement).open = false;
+        closeMenus();
         state.theme = id;
         setPref("theme", id);
         applyTheme();
@@ -248,7 +248,7 @@ function renderPins() {
       const b = h("button", { type: "button", class: "menu-item" }, pin.name);
       b.addEventListener("click", () => {
         const idx = state.file?.places.findIndex((p) => p.id === pin.id) ?? -1;
-        ($("pins-menu") as HTMLDetailsElement).open = false;
+        closeMenus();
         if (idx >= 0) flyToPlace(idx);
       });
       return b;
@@ -822,10 +822,35 @@ function spin() {
   map.startSpin();
 }
 
+function closeMenus() {
+  for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) d.open = false;
+}
+
+/**
+ * A phone's toolbar keeps the view and topics in the row; design, translate, pins and about move into More
+ * instead of scrolling sideways. The elements move, so their listeners come with them.
+ */
+function fitToolbar(phone: boolean) {
+  const rest = ["translate", "pins-menu", "about-btn"].map($);
+  if (phone) $("more").append($("design-menu"), ...rest);
+  else {
+    $("view-seg").after($("design-menu"));
+    $("more-menu").before(...rest);
+  }
+  $("more-menu").hidden = !phone;
+  closeMenus();
+}
+
 function bindGlobal() {
+  const phone = matchMedia("(max-width: 760px)");
+  fitToolbar(phone.matches);
+  phone.addEventListener("change", (e) => fitToolbar(e.matches));
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
-  $("about-btn").addEventListener("click", () => ($("about") as HTMLDialogElement).showModal());
+  $("about-btn").addEventListener("click", () => {
+    closeMenus();
+    ($("about") as HTMLDialogElement).showModal();
+  });
   $("translate").addEventListener("click", () => {
     state.translate = !state.translate;
     renderToolbar();
