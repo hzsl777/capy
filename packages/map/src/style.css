@@ -5,7 +5,8 @@
 
 :root {
   --gutter: 16px;
-  --panel-w: 400px;
+  /* The panel gives up width before the map does. */
+  --panel-w: clamp(280px, 30vw, 400px);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -127,8 +128,9 @@ body {
   background: var(--page);
   color: var(--ink);
   font: 16px/1.4 var(--font-body);
-  display: grid;
-  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
+  /* A column, so the map takes whatever height is left whether or not the banner shows. */
+  display: flex;
+  flex-direction: column;
   height: 100dvh;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
@@ -195,27 +197,6 @@ summary {
 }
 
 /* ---- masthead ----------------------------------------------------------- */
-.masthead {
-  padding: 8px var(--gutter) 6px;
-  text-align: center;
-  border-bottom: 3px double var(--rule);
-}
-.mast-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font: 12px/1.2 var(--font-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 4px;
-}
-.mast-title {
-  margin: 4px 0 0;
-  font: 400 clamp(30px, 5.2vw, 58px) / 1 var(--font-mast);
-  letter-spacing: 0.01em;
-}
 .mast-tag {
   margin: 2px 0 0;
   font: italic 13px/1.3 var(--font-body);
@@ -232,38 +213,9 @@ summary {
   border-bottom: 1px solid var(--rule);
   box-shadow: 0 3px 0 -1px var(--page), 0 4px 0 -1px var(--rule);
 }
-:root[data-theme="wire"] .masthead {
-  text-align: left;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "title row" "title tag";
-  column-gap: 20px;
-  align-items: end;
-  border-bottom: 1px solid var(--rule);
-}
-:root[data-theme="wire"] .mast-title {
-  grid-area: title;
-  font-size: clamp(26px, 3.6vw, 40px);
-  color: var(--accent);
-}
 :root[data-theme="wire"] .mast-title::after {
   content: "_";
   animation: blink 1.1s steps(1) infinite;
-}
-:root[data-theme="wire"] .mast-row {
-  grid-area: row;
-  justify-content: flex-end;
-  border: 0;
-  color: var(--accent);
-}
-:root[data-theme="wire"] .mast-tag {
-  grid-area: tag;
-  text-align: right;
-  font-style: normal;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--muted);
 }
 @keyframes blink {
   50% {
@@ -394,27 +346,19 @@ summary {
   font-size: 14px;
 }
 
+/* Sample and demo files only; live data never shows it. Quiet, so it doesn't compete with the map. */
 .banner {
   margin: 0;
-  padding: 5px var(--gutter);
-  font: 13px/1.3 var(--font-ui);
-  background: var(--ink);
-  color: var(--page);
+  padding: 4px var(--gutter);
+  font: 12px/1.3 var(--font-ui);
+  background: var(--panel);
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
   text-align: center;
   letter-spacing: 0.02em;
 }
 
 /* ---- telegram: the day's conflict reporting in one word ------------------- */
-.telegram {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px 14px;
-  padding: 7px var(--gutter);
-  border-bottom: 1px solid var(--rule);
-  position: relative;
-  z-index: 10;
-}
 .telegram-kicker {
   font: 12px/1.2 var(--font-ui);
   text-transform: uppercase;
@@ -587,6 +531,7 @@ summary {
 
 /* ---- stage: map + panel ------------------------------------------------- */
 .stage {
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--panel-w);
   min-height: 0;
@@ -636,8 +581,8 @@ summary {
 }
 .zoom {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: var(--gutter);
+  bottom: var(--gutter);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--rule);
@@ -715,8 +660,9 @@ summary {
 }
 .dateline {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "name pin" "coords pin";
+  column-gap: 12px;
   align-items: center;
   border-bottom: 3px double var(--rule);
   padding-bottom: 8px;
@@ -728,7 +674,8 @@ summary {
   grid-area: coords;
   font: italic 13px/1.4 var(--font-body);
   color: var(--muted);
-  white-space: pre;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .dateline .pin {
   grid-area: pin;
@@ -1009,10 +956,6 @@ dialog .close {
   :root {
     --gutter: 12px;
   }
-  .mast-row span:first-child,
-  .mast-tag {
-    display: none;
-  }
   .toolbar {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -1030,7 +973,7 @@ dialog .close {
   .stage,
   .stage:has(.panel.framed) {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.2fr) minmax(0, 0.8fr);
   }
   .stage:has(.panel.reading) {
     grid-template-rows: minmax(0, 0.6fr) minmax(0, 1.4fr);
@@ -1048,16 +991,13 @@ dialog .close {
   :root[data-theme="cabinet"] .panel {
     margin: 0 8px 8px;
   }
-  :root[data-theme="wire"] .masthead {
-    grid-template-areas: "title row";
-  }
   .time-label {
     font-size: 12px;
   }
   .telegram {
     gap: 4px 10px;
   }
-  .telegram-note,
+  /* The scale waits for the word's own view on a phone; the AI label always stays. */
   .telegram .scale {
     display: none;
   }
@@ -1077,33 +1017,10 @@ dialog .close {
 }
 
 /* ---- Ops Room ------------------------------------------------------------ */
-:root[data-theme="ops"] .masthead {
-  text-align: left;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "title row" "title tag";
-  column-gap: 24px;
-  align-items: end;
-  border-bottom: 1px solid var(--rule);
-}
 :root[data-theme="ops"] .mast-title {
   grid-area: title;
   font: 600 clamp(24px, 3vw, 34px) / 1 var(--font-mast);
   letter-spacing: 0.14em;
-}
-:root[data-theme="ops"] .mast-row {
-  grid-area: row;
-  justify-content: flex-end;
-  border: 0;
-  color: var(--accent);
-  letter-spacing: 0.12em;
-  font-family: var(--font-ui);
-}
-:root[data-theme="ops"] .mast-tag {
-  grid-area: tag;
-  text-align: right;
-  font: 12px/1.3 var(--font-body);
-  color: var(--muted);
 }
 :root[data-theme="ops"] .toolbar,
 :root[data-theme="ops"] .timebar,
@@ -1279,16 +1196,69 @@ button.link {
 }
 
 @media (max-width: 760px) {
-  :root[data-theme="ops"] .masthead {
-    grid-template-areas: "title row";
-  }
-  :root[data-theme="ops"] .mast-tag {
-    display: none;
-  }
   :root[data-theme="blueprint"] .map {
     margin: 8px;
   }
   :root[data-theme="blueprint"] .panel {
     margin: 0 8px 8px;
+  }
+}
+
+/* ---- Header: name and tagline on the left, the day's word on the right ---- */
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 10px var(--gutter);
+  border-bottom: 3px double var(--rule);
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.mast-title {
+  margin: 0;
+  font: 400 clamp(28px, 3.4vw, 42px) / 1 var(--font-mast);
+  letter-spacing: 0.01em;
+}
+:root[data-theme="wire"] .mast-title {
+  color: var(--accent);
+}
+.telegram {
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 10;
+}
+.telegram-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+.telegram-meta .telegram-note {
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .masthead {
+    padding-block: 8px;
+  }
+  .mast-tag {
+    display: none;
+  }
+  .telegram {
+    justify-content: flex-start;
+  }
+  .telegram-meta {
+    align-items: flex-start;
+    text-align: left;
   }
 }

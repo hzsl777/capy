@@ -167,7 +167,7 @@ switch (command) {
     const file: MapFile = {
       version: 2,
       source: "demo",
-      note: `Demo: real headlines found by web search on ${when}, not through the daily pipeline. Times are when they were collected. There are no summaries, explanations or word yet.`,
+      note: `Demo: real headlines from a web search on ${when}. Times are approximate and there is no word yet.`,
       generatedAt: collected,
       runDate: input.collectedAt.slice(0, 10),
       places,

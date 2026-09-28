@@ -187,7 +187,8 @@ export class MapView {
 
   /** Which set of places shows at the current zoom: 0 (widely reported or important only) to 2 (all). */
   level(): number {
-    const [a, b] = this.mode === "3d" ? [1.8, 3] : [2, 3.5];
+    // The flat map starts already filling its frame (fit()), so it needs less zoom than the globe per level.
+    const [a, b] = this.mode === "3d" ? [1.8, 3] : [1.6, 2.8];
     return this.zoom < a ? 0 : this.zoom < b ? 1 : 2;
   }
 
@@ -221,7 +222,7 @@ export class MapView {
     this.request();
   }
 
-  flyTo(lon: number, lat: number, zoom = Math.max(this.zoom, this.mode === "3d" ? 1.6 : 2.2), duration = 900) {
+  flyTo(lon: number, lat: number, zoom = Math.max(this.zoom, this.mode === "3d" ? 1.6 : 1.4), duration = 900) {
     const from: [number, number] = [this.lon, this.lat];
     const to: [number, number] = [lon, lat];
     const z0 = this.zoom;
@@ -293,16 +294,19 @@ export class MapView {
   private fit() {
     if (!this.w || !this.h) return;
     if (this.mode === "3d") {
-      this.baseScale = Math.min(this.w, this.h) * 0.43;
+      this.baseScale = Math.min(this.w, this.h) * 0.46;
     } else {
+      // Cover the frame rather than fit inside it: the world fills the height (or the width, in a tall frame),
+      // and longitude wraps as you drag, so nothing is lost off the sides.
       const p = this.theme.projection2d().fitExtent(
         [
-          [12, 12],
-          [this.w - 12, this.h - 12],
+          [0, 0],
+          [this.w, this.h],
         ],
         SPHERE,
       );
-      this.baseScale = p.scale();
+      const [[x0, y0], [x1, y1]] = geoPath(p).bounds(SPHERE);
+      this.baseScale = p.scale() * Math.max(this.w / (x1 - x0), this.h / (y1 - y0));
     }
     this.clampLat();
   }

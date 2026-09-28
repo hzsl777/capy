@@ -72,7 +72,7 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Data contract
 
-`MapFile` in `packages/core/src/map.ts`, built by `loadMapView` in `packages/db/src/map.ts`. Change the type first, then the read model, then the site. The site imports core with `import type` only, so nothing from core (zod included) is bundled. Times are unix seconds. The site measures time windows from `generatedAt`. `source: "sample"` shows the sample-data banner. `web:deploy` removes `sample.json` from the build so the public site can never fall back to it.
+`MapFile` in `packages/core/src/map.ts`, built by `loadMapView` in `packages/db/src/map.ts`. Change the type first, then the read model, then the site. The site imports core with `import type` only, so nothing from core (zod included) is bundled. Times are unix seconds. The site measures time windows from `generatedAt`. `source: "sample"` (the fictional day) and `"demo"` (headlines gathered outside the daily run) show a one-line banner. `"live"` never does. `web:deploy` removes `sample.json` from the build so the public site can never fall back to it.
 
 ## Designs
 

@@ -156,34 +156,10 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 function renderMasthead() {
-  const el = $("masthead");
   const t = THEMES[state.theme];
-  const file = state.file;
-  const gen = file ? new Date(file.generatedAt * 1000) : new Date();
-  const date = gen.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const time = gen.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-  const day = Math.floor((gen.getTime() - Date.UTC(gen.getUTCFullYear(), 0, 0)) / 86_400_000);
-  const n = file?.items.length ?? 0;
-  const places = file?.places.length ?? 0;
-  let row: string[];
-  if (t.id === "wire") {
-    const utc = gen.toISOString().slice(11, 16);
-    row = [`FEED ${file?.source.toUpperCase() ?? "..."}`, `${n} ITEMS / ${places} PLACES`, `UPD ${utc}Z`];
-  } else if (t.id === "ops") {
-    const dtg = `${String(gen.getUTCDate()).padStart(2, "0")}${gen.toISOString().slice(11, 16).replace(":", "")}Z ${gen.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase()} ${String(gen.getUTCFullYear()).slice(2)}`;
-    row = [`DTG ${dtg}`, `${places} STATIONS`, `${n} REPORTS`];
-  } else if (t.id === "blueprint") {
-    row = [`Sheet ${day}`, date, `Rev. ${time}`];
-  } else if (t.id === "cabinet") {
-    row = [`Plate ${day}`, date, `Corrected to ${time}`];
-  } else {
-    row = [`No. ${day}`, date, `Updated ${time}`];
-  }
-  el.replaceChildren(
-    h("div", { class: "mast-row" }, ...row.map((r) => h("span", {}, r))),
-    h("h1", { class: "mast-title" }, t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME),
-    h("p", { class: "mast-tag" }, SITE_TAGLINE),
-  );
+  // One row: the name and tagline on the left, the day's word on the right (renderTelegramStrip).
+  $("mast-title").textContent = t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME;
+  $("mast-tag").textContent = SITE_TAGLINE;
 }
 
 // ---- toolbar ----------------------------------------------------------------
@@ -300,11 +276,12 @@ function onFiltersChanged() {
 
 let renderToken = 0;
 
-function metaLine(it: Item, now: number): HTMLElement {
-  const parts = [it.publisher, timeAgo(it.t, now)];
+function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
+  const parts = showPublisher ? [it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
   const lang = languageName(it.lang);
   if (lang && it.lang !== "en") parts.push(lang);
-  if (it.topics[0]) parts.push(TOPIC_LABEL[it.topics[0]]);
+  // "Other" says nothing, so only named topics show.
+  if (it.topics[0] && it.topics[0] !== "other") parts.push(TOPIC_LABEL[it.topics[0]]);
   return h("span", { class: "meta" }, parts.join(" · "));
 }
 
@@ -322,14 +299,14 @@ function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
   return el;
 }
 
-function storyButton(it: Item, now: number, showPlace = false): HTMLElement {
+function storyButton(it: Item, now: number, showPlace = false, showPublisher = true): HTMLElement {
   const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.place)).size - 1 : 0;
   const b = h(
     "button",
     { type: "button", class: "story" },
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
-    metaLine(it, now),
+    metaLine(it, now, showPublisher),
     others > 0 ? h("span", { class: "related" }, `Also reported in ${others} other ${others === 1 ? "place" : "places"}`) : null,
   );
   b.addEventListener("click", () => openReader(it));
@@ -363,9 +340,8 @@ function renderIdle(panel: HTMLElement) {
     h(
       "div",
       { class: "idle" },
-      h("h2", { class: "panel-title" }, "Turn the map"),
-      h("p", { class: "muted" }, "Drag to turn, scroll or pinch to zoom. The place under the cross in the middle is the one you're tuned to. Zoom in to see more places."),
-      h("h3", { class: "rule-head" }, "Latest across the map"),
+      h("h2", { class: "panel-title" }, "Latest reports"),
+      h("p", { class: "count" }, "The map stops on a place. Drag to pick one yourself."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
     ),
   );
@@ -378,6 +354,10 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
   const items = state.showAll ? all : all.filter((it) => tierOf(it, state.tiered) <= state.level);
   const hidden = all.length - items.length;
   const place = file.places[indices[0]];
+  // One outlet at this place: name it once in the header instead of under every headline.
+  const publishers = new Set(all.map((it) => it.publisher));
+  const onePublisher = publishers.size === 1 ? [...publishers][0] : null;
+  const count = `${all.length} ${all.length === 1 ? "report" : "reports"}`;
   let head: HTMLElement;
   if (indices.length === 1) {
     const pinned = state.pins.some((p) => p.id === place.id);
@@ -389,25 +369,30 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
       map.setPinned(pinnedIndices());
       renderPanel();
     });
-    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, place.name), h("span", { class: "coords" }, formatCoords(place.lat, place.lon)), pin);
+    head = h(
+      "div",
+      { class: "dateline" },
+      h("h2", { class: "place-name", title: formatCoords(place.lat, place.lon) }, place.name),
+      h("span", { class: "coords" }, [onePublisher, count].filter(Boolean).join(" · ")),
+      pin,
+    );
   } else {
     const names = indices.map((i) => file.places[i].name);
-    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, `${names.length} places`), h("span", { class: "coords" }, names.join(" · ")));
+    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
   }
   const more = hidden
     ? (() => {
-        const b = h("button", { type: "button", class: "link" }, `Show ${hidden} more`);
+        const b = h("button", { type: "button", class: "link" }, "show");
         b.addEventListener("click", () => {
           state.showAll = true;
           renderPanel();
         });
-        return h("p", { class: "count" }, `${hidden} more ${hidden === 1 ? "report shows" : "reports show"} as you zoom in. `, b);
+        return h("p", { class: "count" }, `${hidden} more when zoomed in: `, b);
       })()
     : null;
   panel.replaceChildren(
     head,
-    h("p", { class: "count" }, `${items.length} ${items.length === 1 ? "report" : "reports"} in this window`),
-    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt, indices.length > 1))),
+    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
     ...(more ? [more] : []),
   );
 }
@@ -565,14 +550,19 @@ function renderTelegramStrip() {
     return;
   }
   const t = file.telegram;
-  const kicker = h("span", { class: "telegram-kicker" }, `The world's reporting, ${formatRunDate(file.runDate)}, in one word`);
+  const date = h("span", { class: "telegram-kicker" }, formatRunDate(file.runDate));
   if (!t) {
-    el.replaceChildren(kicker, h("span", { class: "telegram-none" }, "No word for this date yet. The day's events have not been scored."));
+    el.replaceChildren(h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, "No word yet for this day")));
     return;
   }
   const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
   word.addEventListener("click", openTelegram);
-  el.replaceChildren(kicker, word, scale(t.band), h("span", { class: "telegram-note" }, `Chosen by AI from ${t.scores.length} scored ${t.scores.length === 1 ? "event" : "events"}. Open the word to see why.`));
+  const n = t.scores.length;
+  el.replaceChildren(
+    h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`)),
+    word,
+    scale(t.band),
+  );
 }
 
 function openTelegram() {
@@ -636,7 +626,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model scored each explained event from \u22122 to +2 by what happened to people. It scored outcomes, never which side gained. Each score quotes the checked sentence it rests on. A formula, not the model, placed the day on the scale. When a significant event scored below zero, the worst of those events set the day, so good news never averages a tragedy away. The model then chose the word from a fixed list for that step.",
+        "An AI model scored each event from \u22122 to +2 by what happened to people, quoting the sentence each score rests on. A formula, not the model, set the day: the worst significant event decides a bad day.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
@@ -723,7 +713,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       section("What changes next", ev.whatChangesNext),
       h("h3", { class: "rule-head" }, "Sources"),
       h("ol", { class: "sources" }, ...sources),
-      h("p", { class: "fine" }, "Written by an AI model from these sources. Each sentence links to the quoted passage it rests on. A program removed every sentence whose passage it could not find in the source. The model also wrote the event title. The source headlines are the outlets' own."),
+      h("p", { class: "fine" }, "Written by an AI model, title included. Each sentence links to the passage it quotes, and any sentence without a matching passage was removed."),
     ),
   );
 }
@@ -892,8 +882,8 @@ async function start() {
     banner.hidden = false;
     banner.textContent =
       state.file.source === "demo"
-        ? (state.file.note ?? "Demo data: real headlines gathered outside the pipeline.")
-        : "Sample data: fictional outlets and places, run through the real pipeline to show how the site works. Not real news.";
+        ? (state.file.note ?? "Demo: real headlines gathered outside the daily run.")
+        : "Sample: fictional outlets and places. Not real news.";
   }
   refreshDots();
   renderTelegramStrip();
