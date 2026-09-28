@@ -102,3 +102,7 @@ Davis asked for the daily word to be the emotion the day's stories evoke, set fo
 4. Word: the model picks from a fixed list for the band (Grave, Hard, Mixed, Hopeful, Good; four emotion words each, in `MOOD_WORDS`), and on a bad day must list the event that set it. Code rejects anything else. Changing a list is a new decision.
 5. Two model calls instead of one (`telegram-score.v1`, `telegram-word.v1`), each with one retry. The retired `telegram.v1` never produced output and is removed.
 6. The site shows the scale beside the word and, one tap down, every event's score with its reason. The mood score is the only sentiment signal anywhere: it never orders headlines or changes how a pin looks.
+
+## 27. The public site has one name, TeaGlobe for now (September 28, 2026)
+
+Davis's working name is TeaGlobe: the whole world's news, easy to take in, as in "spill the tea" for the globe. He is open to a better name in the same spirit; a rename is a one-line change plus a new entry here. The name is set once in `packages/map/src/brand.ts` and every design's masthead, the page title and the about text use it; the per-design publication names (The Capy Dispatch, Atlas of Current Events, CAPY/WIRE) are gone. The repository and package names (capy, @capy/map) are internal and unchanged. 2DayAI keeps its name for the email product.

@@ -1,6 +1,6 @@
 ---
 name: run-app
-description: Start the Capy news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room) in flat or globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
+description: Start the TeaGlobe news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room) in flat or globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
 ---
 
 # Run the app

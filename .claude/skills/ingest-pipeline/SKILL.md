@@ -1,6 +1,6 @@
 ---
 name: ingest-pipeline
-description: Run, debug or change the world desk that feeds Capy's public map, covering world sources, cluster world with topics, which events get explained, the one-word mood telegram (scores, the band formula, the word lists) and its checks, and the map read model (loadMapView, /data/latest.json). Use for questions like "why is there no word today", "why was the word rejected", "why is a place empty", "why is this event unexplained", or changes to how world events are chosen.
+description: Run, debug or change the world desk that feeds TeaGlobe, the public map, covering world sources, cluster world with topics, which events get explained, the one-word mood telegram (scores, the band formula, the word lists) and its checks, and the map read model (loadMapView, /data/latest.json). Use for questions like "why is there no word today", "why was the word rejected", "why is a place empty", "why is this event unexplained", or changes to how world events are chosen.
 ---
 
 # The world desk

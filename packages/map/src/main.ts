@@ -33,6 +33,7 @@ import { loadHigh, loadLow } from "./map/basemap.ts";
 import { needsTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
 import { loadPins, prefs, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
+import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -130,17 +131,17 @@ function renderMasthead() {
   if (t.id === "wire") {
     const utc = gen.toISOString().slice(11, 16);
     row = [`FEED ${file?.source.toUpperCase() ?? "..."}`, `${n} ITEMS / ${places} PLACES`, `UPD ${utc}Z`];
-    tag = "world reports by location";
+    tag = SITE_TAGLINE;
   } else if (t.id === "cabinet") {
     row = [`Plate ${day}`, date, `Corrected to ${time}`];
-    tag = "Being a chart of reports received from every quarter";
+    tag = SITE_TAGLINE;
   } else {
     row = [`No. ${day}`, date, `Updated ${time}`];
-    tag = "News of the world, filed by place";
+    tag = SITE_TAGLINE;
   }
   el.replaceChildren(
     h("div", { class: "mast-row" }, ...row.map((r) => h("span", {}, r))),
-    h("h1", { class: "mast-title" }, t.masthead),
+    h("h1", { class: "mast-title" }, t.id === "wire" ? SITE_NAME.toUpperCase() : SITE_NAME),
     h("p", { class: "mast-tag" }, tag),
   );
 }
@@ -434,7 +435,7 @@ function renderReader(panel: HTMLElement, it: Item) {
       it.excerpt
         ? h("p", { class: "excerpt" }, it.excerpt)
         : h("p", { class: "excerpt muted" }, "The outlet didn't publish a preview for this story."),
-      h("p", { class: "fine" }, it.embed ? "Preview supplied by the outlet. The full page can open inside Capy." : "Preview from the outlet's own feed."),
+      h("p", { class: "fine" }, it.embed ? `Preview supplied by the outlet. The full page can open inside ${SITE_NAME}.` : "Preview from the outlet's own feed."),
       actions,
       related.length
         ? h(
@@ -812,6 +813,8 @@ function bindGlobal() {
 }
 
 async function start() {
+  document.title = SITE_NAME;
+  for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
   document.documentElement.dataset.theme = state.theme;
   renderMasthead();
   renderToolbar();

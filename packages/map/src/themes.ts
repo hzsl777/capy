@@ -10,7 +10,6 @@ export type ViewMode = "2d" | "3d";
 export interface Theme {
   id: ThemeId;
   label: string;
-  masthead: string;
   defaultView: ViewMode;
   projection2d: () => GeoProjection;
   ocean: string;
@@ -44,7 +43,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   morning: {
     id: "morning",
     label: "Morning Edition",
-    masthead: "The Capy Dispatch",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     ocean: "#f3efe4",
@@ -73,7 +71,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   cabinet: {
     id: "cabinet",
     label: "Cabinet Map",
-    masthead: "Atlas of Current Events",
     defaultView: "2d",
     projection2d: geoEquirectangular,
     ocean: "#e4d3ab",
@@ -102,7 +99,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   wire: {
     id: "wire",
     label: "Wire Room",
-    masthead: "CAPY/WIRE",
     defaultView: "3d",
     projection2d: geoEqualEarth,
     ocean: "#121411",

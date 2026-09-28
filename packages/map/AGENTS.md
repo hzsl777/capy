@@ -1,6 +1,6 @@
-# The map: agent guide
+# TeaGlobe (the map): agent guide
 
-The map is one of two products in capy (the other is 2DayAI; see the root AGENTS.md and CONTEXT.md). It is the public site: world news on a map by where it is published, in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scored scale from Grave to Good. You turn a flat map or a globe, the place under the crosshair is "tuned", and the side panel lists what its outlets reported. Opening the word shows the scale, the events that shaped the day, every event's score with the sentence it rests on, each event's explanation with numbered citations, and the sources with the passages quoted.
+The map, published as TeaGlobe, is one of two products in capy (the other is 2DayAI; see the root AGENTS.md and CONTEXT.md). It is the public site: world news on a map by where it is published, in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scored scale from Grave to Good. You turn a flat map or a globe, the place under the crosshair is "tuned", and the side panel lists what its outlets reported. Opening the word shows the scale, the events that shaped the day, every event's score with the sentence it rests on, each event's explanation with numbered citations, and the sources with the passages quoted.
 
 The data comes from the shared pipeline (decision 25): world-desk sources in `config/sources.yaml`, the `cluster world`, `explain` and `telegram` stages, and the `loadMapView` read model in `packages/db`. The Worker (`packages/web`) serves this site's build and its data at `/data/latest.json`. This package holds the site only.
 
@@ -23,6 +23,7 @@ Paths are relative to `packages/map/`.
 
 ```
 index.html               page shell, toolbar, telegram strip, about dialog
+  (src/brand.ts            the site name and tagline, used by every design)
 src/
   main.ts                app state and all rendering: masthead, toolbar, telegram, panel views, timebar, ticker
   types.ts               re-exports MapFile and friends from @2dayai/core (type-only) plus the topic list
