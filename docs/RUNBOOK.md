@@ -3,14 +3,14 @@
 ## First-time setup
 
 1. Open a free Neon project. Copy the connection string to the `DATABASE_URL` secret in this repository and to `.env` locally.
-2. Create an Anthropic API key. Add it as the `ANTHROPIC_API_KEY` secret. Not needed for milestone 0.
+2. Create a model API key. DeepSeek is the default (decision 28). Add the key as the `LLM_API_KEY` secret. To use another provider, set the repository variable `LLM_PROVIDER` too. See "Choose a model" below. Not needed for milestone 0.
 3. Open a free Resend account and verify a sending domain. Add `RESEND_API_KEY`. Not needed until milestone 3.
 4. Run `npm run db:migrate` once locally to create the tables.
 5. Run `npm run stage -- sources check` and remove any feed that fails from `config/sources.yaml`.
 
 ## First real run, for Davis
 
-1. `.env` with `DATABASE_URL`, `ANTHROPIC_API_KEY`, `LLM_BATCH=false`.
+1. `.env` with `DATABASE_URL` and `LLM_API_KEY` (and `LLM_PROVIDER` if not DeepSeek).
 2. Write `config/readers/r01.yaml` from `r00.example.yaml` with your real email and profile.
 3. `npm run stage -- sources check` and prune the list.
 4. `npm run stage -- day` and read the JSON report: articles in, events, usable explanations, sentences dropped, editions, spend.
@@ -81,6 +81,37 @@ The telegram makes two model calls, and code checks each one:
 - The word call must pick from the band's list and, on a bad day, name the event that set it.
 
 If a call fails its check twice, the run fails and the site shows no word for that day. Read the reason in the `runs` table detail before you change a prompt. `telegram_scores` holds every score and its reason.
+
+## Choose a model
+
+The provider and model are repository variables, read by the daily workflow (decision 28):
+
+| Variable | Default | Example |
+|---|---|---|
+| `LLM_PROVIDER` | `deepseek` | `gemini`, `openrouter`, `anthropic` |
+| `MODEL` | the provider's cheap general model | `gemini-2.5-flash-lite` |
+| `MODEL_TELEGRAM` | same as `MODEL` | `deepseek-reasoner` |
+| `DAILY_SPEND_CEILING_USD` | `0.25` | |
+
+The key is always the `LLM_API_KEY` secret.
+
+Pick by measurement, not by price alone:
+
+1. Add a key for each provider you want to compare as its own secret: `DEEPSEEK_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`.
+2. Run the "Model eval" workflow from the Actions tab. Leave the setups empty for the default comparison, or list your own.
+3. Download the `model-eval` artifact and read `report-<date>.md`.
+4. Repeat on two or three different days, at least one of them a heavy news day.
+5. Set `LLM_PROVIDER`, `MODEL` and `MODEL_TELEGRAM` to the cheapest setup whose reports you would publish.
+
+Locally, the same run is `npm run stage -- eval --setups "deepseek; gemini:gemini-2.5-flash-lite"`. It saves the day's articles to `.eval/snapshot-<date>.json` (gitignored) and reuses them, so later runs compare setups on the same articles. To see the report's layout with no key and no network, run `npm run stage -- eval --fixture --fake`.
+
+In the report:
+
+- **Cost for the day** is the model spend, from the rates in `packages/pipeline/src/llm/pricing.ts`. Check them against the provider's price page.
+- **Sentences kept** is the share of explanation sentences whose quoted passage was found in the article. A low share means the model misquotes its sources.
+- **Score retry** and **Word retry** mean the first answer broke a rule in code. Frequent retries mean a day without a word is likely.
+- **Same band as first** compares each setup with the first one listed. Put the setup you trust most first.
+- Below the table, each setup lists every score with its reason. Read these. The code checks cannot tell whether the model judged the day correctly.
 
 ## Change the schema
 

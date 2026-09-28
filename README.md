@@ -43,6 +43,7 @@ npm run stage -- day --date 2026-09-04 # ingest, enrich, readers sync, cluster, 
 npm run stage -- show --reader r01     # print that reader's edition for the date
 npm run stage -- deliver --dry-run     # what would be sent right now
 npm run stage -- spend                 # model spend for the date
+npm run stage -- eval                  # compare model setups on one day's world articles
 
 # The map
 npm run map:sample                     # fictional world day through the real stages, in memory, into the sample data
@@ -51,7 +52,7 @@ npm run stage -- map export            # the latest real day from DATABASE_URL, 
 npm run web:deploy                     # build the map and deploy it with the Worker (Cloudflare)
 ```
 
-`LLM_BATCH=false` in `.env` makes a local 2DayAI run immediate instead of waiting on the Batches API.
+The model provider is config (decision 28). DeepSeek is the default. `npm run stage -- eval` compares models on one real day: cost, the code checks, and every score with its reason. See docs/RUNBOOK.md, "Choose a model".
 
 ## Layout
 

@@ -49,4 +49,8 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 - **Event not explained:** it is below importance 3, or it fell below the cap. Raise `WORLD_EXPLAIN_MAX` only with the spend ceiling in mind.
 - **Stale word after a re-run:** `cluster world` deletes the date's telegram. Run `telegram` again.
 
+## Choosing or changing the model
+
+The provider and model are config (decision 28, `packages/pipeline/src/config.ts`). `npm run stage -- eval --setups "..."` runs setups side by side on one saved day. `--fixture --fake` shows the report with no key or network. Before recommending a model, read the report's scores and reasons, not only the cost column. Procedure: docs/RUNBOOK.md, "Choose a model".
+
 Any change to selection, topics or the word rules needs a test in `packages/pipeline/src/world.test.ts` and a pass through the `neutrality-review` skill.

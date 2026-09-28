@@ -106,3 +106,15 @@ Davis asked for the daily word to be the emotion the day's stories evoke, set fo
 ## 27. The public site is called GlobalGist (September 28, 2026)
 
 Davis named the site GlobalGist: the gist of the whole world's news, which is what the one word gives. TeaGlobe and plain Gist were considered the same afternoon. GlobalGist keeps the idea and stands apart from GitHub Gist and "The Gist" podcast and newsletter, which helps with a domain and with search. The name and tagline are set once in `packages/map/src/brand.ts`. Every design's masthead, the page title and the about text use them. The per-design publication names (The Capy Dispatch, Atlas of Current Events, CAPY/WIRE) are gone. The repository and package names (capy, @capy/map) are internal and unchanged. 2DayAI keeps its name for the email product.
+
+## 28. The pipeline runs on the cheapest model that reads the day right, chosen by measurement (September 28, 2026)
+
+Davis wants the site as cheap as possible without a paid Anthropic key, while the word stays a reliable read of the day. This replaces spec decision 8's model choice (Sonnet 5). Decision 7 still holds: model code lives only in `packages/pipeline/src/llm/`.
+
+1. Visitors cost nothing in model calls. The pipeline runs once a day and the site serves stored results, so spend depends on the day's news, not on traffic.
+2. Provider is config: `LLM_PROVIDER` is deepseek (the default), gemini, openrouter, openai-compatible or anthropic, with `LLM_API_KEY` and an optional `MODEL`. Every provider but Anthropic uses the OpenAI chat format over plain `fetch`, with no new dependency. These APIs have a JSON mode but no schema-constrained output, so the stage's JSON Schema goes into the system prompt and Zod checks the answer. A bad answer fails at the boundary as before, and every rule in code (citations, scores, the word) is unchanged.
+3. `MODEL_TELEGRAM` lets the two telegram calls use a stronger model than the bulk stages. Clustering and explaining use most of the tokens. The telegram uses few tokens and needs the most judgment.
+4. `npm run stage -- eval` (and the manual "Model eval" workflow) runs several setups on one saved day of world articles, each on its own in-memory database, through the real cluster world, explain and telegram stages. The report gives cost, how many explanation sentences survived the citation check, retries, the word and band, and every score with its reason, so Davis can judge the diagnosis and not only the price. The model is chosen from these reports, one real day or more, before going live.
+5. Without Anthropic there is no batch discount and no effort setting. Per-event calls run four at a time. The daily spend ceiling drops to $0.25.
+6. Known risk: deepseek-chat caps output at 8K tokens, and the cluster world answer lists every article once. A busy day can pass that, and the stage then fails loudly. The eval shows whether it happens. The fix would be a model with more output room for that stage, or splitting the call.
+7. DeepSeek and Gemini prices in `pricing.ts` are the last known list prices and were not checked from this session. The provider's bill is the real figure.

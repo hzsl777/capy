@@ -6,6 +6,7 @@ import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
 import { runDay } from "./day.js";
+import { keyFor, parseSetups, renderReport, runEval, takeSnapshot, type Snapshot } from "./eval.js";
 import { createLlm } from "./llm/client.js";
 import { spentToday } from "./llm/spend.js";
 import { createResendSender } from "./mail.js";
@@ -20,7 +21,7 @@ import { checkSources, runIngest, type IngestReport } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
 import { FEED_XML } from "./fixtures/day.js";
-import { writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -35,6 +36,9 @@ const { values, positionals } = parseArgs({
     fixture: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
     out: { type: "string" },
+    setups: { type: "string" },
+    snapshot: { type: "string" },
+    fake: { type: "boolean", default: false },
   },
 });
 
@@ -67,6 +71,8 @@ const HELP = `Commands:
   telegram               score the day's world events and pick the one-word mood (model, two calls)
   map export [--out f]   the public map's data for the date (default: latest) as JSON
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
+  eval [--setups s]      compare models on one day's world articles: cost, the code checks, every score (decision 28)
+                         --snapshot f reuses a saved day; --fixture uses the fictional day; --fake skips the model
   show [--reader r01]    print a reader's edition for the date
   deliver [--dry-run]    send unsent editions whose delivery hour has arrived
   day [--fixture]        ingest, enrich, readers sync, cluster, cluster world, explain, select, telegram
@@ -155,6 +161,60 @@ switch (command) {
     writeFileSync(out, JSON.stringify(map));
     console.log(JSON.stringify({ clusterWorld: report["clusterWorld"], explain: report["explain"], telegram: report["telegram"] }));
     console.log(`${out}: ${map.items.length} items, ${map.places.length} places, telegram ${map.telegram ? `"${map.telegram.word}"` : "none"}`);
+    break;
+  }
+  case "eval": {
+    const { createTestDb } = await import("./test/db.js");
+    const snapPath = values.snapshot ?? `.eval/snapshot-${date}.json`;
+    let snap: Snapshot;
+    if (existsSync(snapPath)) {
+      snap = JSON.parse(readFileSync(snapPath, "utf8")) as Snapshot;
+      console.log(`Using ${snapPath}: ${snap.articles.length} articles from ${snap.runDate}.`);
+    } else {
+      if (values.fixture) {
+        const { worldFeedFor, worldSourcesYaml } = await import("./fixtures/world.js");
+        const { db: memory, close } = await createTestDb();
+        const dir = mkdtempSync(join(tmpdir(), "capy-eval-"));
+        writeFileSync(join(dir, "sources.yaml"), worldSourcesYaml());
+        await runIngest(memory, loadSources(join(dir, "sources.yaml")), date, async (url) => worldFeedFor(url, date));
+        await runEnrich(memory, date, async () => "");
+        snap = await takeSnapshot(memory, date);
+        await close();
+      } else if (config.databaseUrl) {
+        snap = await takeSnapshot(db(), date);
+      } else {
+        // No database: fetch the world feeds now, into memory. Free, but needs the network.
+        const { db: memory, close } = await createTestDb();
+        printReports(await runIngest(memory, loadSources(values.sources).filter((s) => s.desk === "world"), date));
+        await runEnrich(memory, date);
+        snap = await takeSnapshot(memory, date);
+        await close();
+      }
+      if (snap.articles.length === 0) throw new Error(`No world articles for ${date}. Try another --date, or --fixture.`);
+      mkdirSync(dirname(snapPath), { recursive: true });
+      writeFileSync(snapPath, JSON.stringify(snap));
+      console.log(`Saved ${snapPath}: ${snap.articles.length} articles. Later runs reuse it, so every setup reads the same day.`);
+    }
+    const all = parseSetups(
+      values.setups ??
+        "deepseek:deepseek-chat; deepseek:deepseek-chat,telegram=deepseek-reasoner; gemini:gemini-2.5-flash-lite; gemini:gemini-2.5-flash",
+    );
+    const setups = values.fake ? all : all.filter((s) => keyFor(s.provider, process.env));
+    for (const s of all) if (!setups.includes(s)) console.log(`Skipping ${s.label}: no API key (set ${s.provider.toUpperCase().replace(/-/g, "_")}_API_KEY or LLM_API_KEY).`);
+    if (setups.length === 0) throw new Error("No setup has an API key. Add one, or pass --fake to see the report on the fictional script.");
+    let llmFor;
+    if (values.fake) {
+      const { FakeLlm } = await import("./llm/fake.js");
+      const { worldAnswers } = await import("./fixtures/world.js");
+      llmFor = () => new FakeLlm(worldAnswers());
+    }
+    const results = await runEval(snap, setups, { freshDb: createTestDb, ...(llmFor ? { llmFor } : {}) });
+    const out = values.out ?? `.eval/report-${snap.runDate}.md`;
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, renderReport(snap, results, { fake: values.fake }));
+    writeFileSync(out.replace(/\.md$/, "") + ".json", JSON.stringify(results, null, 2));
+    for (const r of results) console.log(`${r.setup.label.padEnd(52)} $${r.costUsd.toFixed(4)}  ${r.word ?? "no word"}`);
+    console.log(`Report: ${out}`);
     break;
   }
   case "show": {
