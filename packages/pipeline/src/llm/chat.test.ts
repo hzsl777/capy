@@ -6,6 +6,7 @@ import {
   SelectionSchema,
   TelegramScoresSchema,
   TelegramWordSchema,
+  WorldClusterMergeSchema,
   WorldClusterResultSchema,
   toRunDate,
 } from "@2dayai/core";
@@ -108,7 +109,7 @@ describe("the OpenAI-format client", () => {
   });
 
   it("can describe every stage's schema as JSON Schema", () => {
-    for (const schema of [ClusterResultSchema, WorldClusterResultSchema, ExplanationSchema, SelectionSchema, TelegramScoresSchema, TelegramWordSchema]) {
+    for (const schema of [ClusterResultSchema, WorldClusterResultSchema, WorldClusterMergeSchema, ExplanationSchema, SelectionSchema, TelegramScoresSchema, TelegramWordSchema]) {
       expect(systemWithSchema("prompt", schema)).toMatch(/"type":"object"/);
     }
   });

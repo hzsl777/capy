@@ -21,6 +21,31 @@ export const WorldClusterResultSchema = z.object({
 });
 export type WorldClusterResult = z.infer<typeof WorldClusterResultSchema>;
 
+/**
+ * A large day is clustered in batches. The merge pass names the batch events that report the same story, by key
+ * ("b1-e3"), with one title for each group. Code checks the keys; a group of fewer than two distinct events is
+ * dropped there rather than failing the whole answer.
+ */
+export const WorldClusterMergeSchema = z.object({
+  groups: z.array(z.object({ eventKeys: z.array(z.string().min(1)).min(1), title: z.string().min(1).max(120) })),
+});
+export type WorldClusterMerge = z.infer<typeof WorldClusterMergeSchema>;
+
+/**
+ * The groups code accepts: every key known, no key shared between groups, and at least two distinct events each.
+ * A key named by two groups drops both, since picking one would be a guess.
+ */
+export function validMergeGroups(merge: WorldClusterMerge, known: ReadonlySet<string>): { groups: WorldClusterMerge["groups"]; dropped: number } {
+  const uses = new Map<string, number>();
+  for (const g of merge.groups) for (const k of new Set(g.eventKeys)) uses.set(k, (uses.get(k) ?? 0) + 1);
+  const groups = merge.groups.filter((g) => {
+    const keys = new Set(g.eventKeys);
+    if (keys.size < 2) return false;
+    return [...keys].every((k) => known.has(k) && uses.get(k) === 1);
+  });
+  return { groups, dropped: merge.groups.length - groups.length };
+}
+
 /*
  * The telegram (decision 26): one word for the emotion the day's world reporting evokes.
  *
