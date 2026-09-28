@@ -8,7 +8,7 @@ description: Start the GlobalGist news map locally, open a specific design (Morn
 Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
 
 1. Install if needed: `npm install` at the repository root.
-2. Sample data: `npm run map:sample` runs the fictional world fixture through the real pipeline stages in memory and writes `public/data/sample.json` (committed; rerun it after changing stages or the read model).
+2. Sample data: `npm run map:sample` runs the fictional world fixture through the real pipeline stages in memory and writes `public/data/sample.json`. The file is committed. Rerun the command after you change a stage or the read model.
 3. Dev server: `npm run map:dev`, then open http://localhost:5173. Without `public/data/latest.json` the site loads the sample and shows a "Sample data" banner. That is expected.
 4. URL parameters pick the state directly:
    - `?theme=morning|cabinet|wire`
@@ -23,7 +23,7 @@ npm run map:screenshots                 # writes docs/map/screenshots/*.jpg
 SHOT_DIR=/some/dir npm run map:screenshots
 ```
 
-The script serves `dist/` with `vite preview`, visits every design in both views at desktop and phone sizes, and per design opens the reader, the telegram and one explanation. It uses `/opt/pw-browsers/chromium` when `PLAYWRIGHT_BROWSERS_PATH` is set (cloud sessions), or `CHROMIUM_PATH` if you set it. Never run `playwright install` in a cloud session. The script uses `playwright-core`, so installs never download browsers; elsewhere set `CHROMIUM_PATH` or install a browser yourself.
+The script serves `dist/` with `vite preview`, visits every design in both views at desktop and phone sizes, and per design opens the reader, the telegram and one explanation. It uses `/opt/pw-browsers/chromium` when `PLAYWRIGHT_BROWSERS_PATH` is set (cloud sessions), or `CHROMIUM_PATH` if you set it. Never run `playwright install` in a cloud session. The script uses `playwright-core`, so installs never download browsers. On other machines, set `CHROMIUM_PATH` or install a browser yourself.
 
 Look at the images before reporting a visual change as done. Check: dots visible and not crowding at phone width, crosshair centred on the tuned dot, panel text readable in all three themes, no labels drawn on the map.
 

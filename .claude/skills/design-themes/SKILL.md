@@ -12,7 +12,7 @@ Each design has two halves that must stay in step:
 1. **Canvas** (`src/themes.ts`): a `Theme` object with ocean/land colours, land texture (`halftone`, `matrix`, `none`), number of engraved water lines, graticule, rivers, relief ink, dot colours, and the flat projection. The globe always uses the orthographic projection.
 2. **Chrome** (`src/style.css`): a `:root[data-theme="<id>"]` block of tokens (`--page`, `--panel`, `--ink`, `--muted`, `--rule`, `--accent`, `--on-accent`, fonts), plus any theme-specific rules further down (search for `data-theme="<id>"`).
 
-Every design shows the same name and tagline from `src/brand.ts`; the row above it and the typography differ per design in `renderMasthead()` in `src/main.ts`. Don't give a design its own publication name.
+Every design shows the same name and tagline from `src/brand.ts`. The row above it and the typography differ per design in `renderMasthead()` in `src/main.ts`. Don't give a design its own publication name.
 
 ## Adding a design
 

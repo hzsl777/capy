@@ -41,13 +41,13 @@ September 27, 2026, the fold:
 September 27, 2026, later the same day (decision 25):
 
 - Build the working site now, integrated with 2DayAI. This reverses the "after milestone 4" timing above.
-- The site is headed by one word that sums up the day's conflict reporting worldwide (the telegram), with the events it stands for, their sourced explanations, and the sources one click down.
+- One word heads the site and sums up the day's conflict reporting worldwide. The code calls it the telegram. The events behind it, their sourced explanations and the sources sit one click down.
 
 September 28, 2026 (decision 26):
 
 - The word is the emotion the day's stories evoke, read from all world news, not only conflict.
+- A formula sets it. The model scores each event from -2 to 2 by what happened to people. The worst significant event decides a bad day (Davis: "we have to be very careful here"). The model then picks the word from a fixed list for that step on the scale from Grave to Good.
 - The public site is called GlobalGist (decision 27). The repository stays capy.
-- It is set formulaically: each event scored -2 to 2 by what happened to people, and the worst significant event decides a bad day (Davis: "we have to be very careful here"). The model picks the word from a fixed list for the resulting step, from Grave to Good.
 
 Everything numbered is in docs/DECISIONS.md (decisions 1 to 12 in the spec, 13 to 27 in DECISIONS.md). A reversal is a new entry, never an edit.
 
@@ -87,7 +87,7 @@ Three runtimes on free tiers, one language, one database as the contract between
 |---|---|---|
 | Pipeline | GitHub Actions cron, 09:00 UTC daily; delivery every two hours | ingest, enrich, readers sync, cluster, explain, select, deliver |
 | Database | Neon Postgres | every artifact of every run, plus feedback and spend |
-| Web | Cloudflare Worker (Hono) | the public map (static build of packages/map) and its data from the database; 2DayAI reader pages and feedback (server-rendered, no client JS) |
+| Web | Cloudflare Worker (Hono) | the public map (static build of packages/map) and its data from the database. 2DayAI reader pages and feedback (server-rendered, no client JS) |
 
 Packages, with import boundaries enforced by tools/check-boundaries.mjs:
 
@@ -95,7 +95,7 @@ Packages, with import boundaries enforced by tools/check-boundaries.mjs:
 - packages/db: Drizzle schema, migrations, shared read models (loadEditionView, recordFeedback). Imports core. @2dayai/db/node holds the postgres-js client.
 - packages/pipeline: stages, CLI, the model module in src/llm/ (the only place the Anthropic SDK is imported). Imports core and db.
 - packages/web: the Worker. Imports core and db.
-- packages/map: the public map site (Vite, canvas, d3-geo). Imports core's types only; reads its data from the Worker over HTTP.
+- packages/map: the public map site (Vite, canvas, d3-geo). Imports core's types only and reads its data from the Worker over HTTP.
 
 Model layer: every call declares a Zod schema and uses structured outputs, so a bad response fails at the boundary. Effort per stage: cluster low, explain medium, select high. Batches API for per-event and per-reader calls in production (half price, up to an hour of latency); LLM_BATCH=false for immediate local runs. Every call logged with tokens, cache reads and writes, and cost; the day fails loudly past DAILY_SPEND_CEILING_USD. Prompts are versioned files in packages/core/prompts; editing one in place is a bug; outputs record the version.
 
@@ -113,8 +113,9 @@ Milestones 0 through 3, three build commits plus a review round, merged onto cap
 - Select per reader, validated in code (ids exist, no duplicates, no overlap, one outside-interests slot, at least three when three exist, headline rules), one retry with the problems spelled out, then a loud failure.
 - Deliver by the reader's local date and hour through Resend; every unsent edition considered, so evening hours in American time zones send after UTC midnight.
 - Worker: edition page, event page with numbered citations and quoted excerpts, feedback as a GET confirmation form and a POST write, scoped to the reader's own edition.
-- World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, explanations for events of importance 3 or more (capped), and the telegram: every explained event scored by the model with a quoted reason, the day's band computed in code (worst significant event decides a bad day), and the word picked from that band's fixed list, all checked in code (decision 26).
-- The map site (packages/map): three designs, flat and globe, the telegram strip under the masthead, and the drill-down from word to events to explanations with numbered citations to the quoted sources. The Worker serves it and builds its data from the database (`/data/latest.json`).
+- World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, and explanations for events of importance 3 or more, up to a cap.
+- Telegram (decision 26): the model scores every explained event and quotes a reason. Code computes the day's band, where the worst significant event decides a bad day. The model picks the word from that band's fixed list. Code checks every step.
+- The map site (packages/map): three designs, flat and globe, and the word under the masthead. The drill-down goes from the word to its events, then to explanations with numbered citations to the quoted sources. The Worker serves the site and builds its data from the database (`/data/latest.json`).
 - CLI: sources check, ingest, enrich, readers sync, cluster [--force], cluster world, explain, select, telegram, show, deliver [--dry-run], day [--fixture], map export, demo, spend, feedback.
 - CI: boundaries, typecheck including the Worker and the map, tests, the map build, secret scan. Tests run whole days on PGlite (a real Postgres engine) with the real migrations and a scripted model, including the world desk, the telegram retry and the Worker's map endpoints. No network, no key.
 
@@ -130,7 +131,7 @@ An independent adversarial review found eight real defects before any live run (
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
 - The world-desk feeds in config/sources.yaml (eighteen outlets) are unverified, like the briefing list. Run sources check and prune.
 - The telegram and world-cluster prompts (telegram-score.v1, telegram-word.v1, cluster-world.v1) have never produced output. Judge the first real scores and words before trusting them.
-- No Cloudflare secrets yet, so deploy-site skips. The site has only run locally on the fictional sample.
+- No Cloudflare secrets yet, so the deploy-site workflow skips. The site has run only locally, on the fictional sample.
 
 ## 9. Milestones
 

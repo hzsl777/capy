@@ -9,7 +9,7 @@ Read CONTEXT.md first: it is the whole picture and what Davis has decided. Both 
 
 ## Rules for the whole repository
 
-- Decisions go in docs/DECISIONS.md, one entry each. Never edit an entry; a reversal is a new entry that names the old one.
+- Decisions go in docs/DECISIONS.md, one entry each. Never edit an entry. A reversal is a new entry that names the old one.
 - Package boundaries are enforced by `npm run lint` (tools/check-boundaries.mjs). Only `packages/pipeline/src/llm/` may import the Anthropic SDK. The map imports core's types only.
 - Secrets live in GitHub Actions and Cloudflare secrets, never in the repository. CI runs a secret scan.
 - Tests never call the network. Use the recorded fixtures in `packages/pipeline/src/fixtures` (briefing and the fictional world desk) and the FakeLlm.

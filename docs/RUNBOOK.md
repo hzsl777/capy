@@ -40,7 +40,11 @@ npm run stage -- telegram --date 2026-09-04
 
 ## Deploy the site
 
-The Worker in `packages/web` serves three things: the public map (the static build of `packages/map`), the map's data at `/data/latest.json` and `/data/<date>.json` (read from the database on each request, cached five minutes), and the 2DayAI reader pages.
+The Worker in `packages/web` serves three things:
+
+- the public map, which is the static build of `packages/map`
+- the map's data at `/data/latest.json` and `/data/<date>.json`, read from the database and cached for five minutes
+- the 2DayAI reader pages
 
 Once, on a free Cloudflare account:
 
@@ -49,7 +53,7 @@ cd packages/web
 npx wrangler secret put DATABASE_URL
 ```
 
-Then add the repository secrets `CLOUDFLARE_API_TOKEN` (a token with the "Edit Cloudflare Workers" template) and `CLOUDFLARE_ACCOUNT_ID`. From then on `.github/workflows/deploy-site.yml` deploys on every code change to `main`. By hand: `npm run web:deploy` (builds the map, drops the sample data from the build, deploys).
+Then add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Create the token from the "Edit Cloudflare Workers" template. After that, `.github/workflows/deploy-site.yml` deploys on every code change to `main`. To deploy by hand, run `npm run web:deploy`. It builds the map, removes the sample data from the build, and deploys.
 
 Set the repository variable `WEB_BASE_URL` to the Worker URL so email links point at it, and `MAIL_FROM` to the verified Resend sender.
 
@@ -57,15 +61,26 @@ The daily run needs no deploy: the Worker reads the new day from the database.
 
 ## The world desk and the telegram
 
-World sources are the `desk: world` entries in `config/sources.yaml`, each with the city it publishes from. The daily run clusters them (`cluster world`), explains events of importance 3 or more (at most `WORLD_EXPLAIN_MAX`, default 25), and writes the telegram (`telegram`): it scores each explained event, computes the day's band, and picks the word from that band's list (decision 26). To look at a day without the site:
+World sources are the `desk: world` entries in `config/sources.yaml`. Each one has the city it publishes from. The daily run does three things with them:
+
+1. `cluster world` groups their articles into events.
+2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
+3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
+
+To look at a day without the site:
 
 ```
 npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 ```
 
-To see the whole site with no database, no key and no network, `npm run map:sample` runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`; then `npm run map:dev`.
+To see the whole site with no database, no key and no network, run `npm run map:sample`, then `npm run map:dev`. The first command runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`.
 
-If either telegram call fails twice on its rules (every event scored with a copied sentence; a word from the band's list naming the event that set a bad day), the run fails loudly and the site shows no word for that day. Look at the `runs` table detail for the reason before changing a prompt. `telegram_scores` holds every score and its reason.
+The telegram makes two model calls, and code checks each one:
+
+- The score call must score every event and copy one of its verified sentences as the reason.
+- The word call must pick from the band's list and, on a bad day, name the event that set it.
+
+If a call fails its check twice, the run fails and the site shows no word for that day. Read the reason in the `runs` table detail before you change a prompt. `telegram_scores` holds every score and its reason.
 
 ## Change the schema
 

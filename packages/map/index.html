@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>GlobalGist</title>
-    <meta name="description" content="World news by place. Turn the map, tune into a city, read what its outlets are reporting." />
+    <meta name="description" content="World news by place, and the day in one word. Turn the map to a city and read what its outlets reported." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23f3efe4' stroke='%23151515' stroke-width='2'/%3E%3Cpath d='M2 16h28M16 2c-6 7-6 21 0 28M16 2c6 7 6 21 0 28' fill='none' stroke='%23151515' stroke-width='1.5'/%3E%3Ccircle cx='21' cy='12' r='3' fill='%23151515'/%3E%3C/svg%3E" />
   </head>
   <body>
@@ -64,22 +64,23 @@
     <dialog id="about">
       <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
       <h2>How this works</h2>
-      <p><span data-site-name>GlobalGist</span> puts the world's news on a map by where it is published. Turn the map; the place under the crosshair is what you're tuned to, and the panel lists what its outlets reported, newest first.</p>
+      <p><span data-site-name>GlobalGist</span> puts the world's news on a map by where it is published. Drag the map to turn it. The place under the crosshair is the one you're tuned to. The panel lists what its outlets reported, newest first.</p>
       <h3>Where the reports come from</h3>
-      <p>A hand-picked list of outlets from every region. Each outlet is a pin at the city it publishes from, the way Radio Garden places stations. Nothing is placed by guessing where an event happened, so the map never draws or names a disputed place. The map is updated once a day.</p>
+      <p>The reports come from a hand-picked list of outlets in every region. Each outlet is a pin at the city it publishes from, the way Radio Garden places stations. The site never guesses where an event happened, so the map never draws or names a disputed place. The data updates once a day.</p>
       <h3>The word at the top</h3>
-      <p>Each day an AI model reads the day's explained world events and scores each one from &minus;2 to +2 by what happened to people: loss of life at one end, lives saved or a lasting agreement at the other. It scores outcomes, never which side gained, and every score quotes the checked sentence it rests on. A formula, not the model, then places the day on a five-step scale from Grave to Good. When any significant event scored below zero, the worst of them sets the day, so good news never averages a tragedy away. The model then chooses the word from a fixed list of words for that step, and a program rejects any other word. Open the word to see every score and its reason.</p>
+      <p>Each day an AI model scores each explained world event from &minus;2 to +2 by what happened to people. Loss of life is at one end. Lives saved or a lasting agreement is at the other. The model scores outcomes, never which side gained. Every score quotes the checked sentence it rests on.</p>
+      <p>A formula, not the model, then places the day on a five-step scale from Grave to Good. When a significant event scored below zero, the worst of those events sets the day. Good news never averages a tragedy away. The model picks the word from a fixed list for that step, and a program rejects any other word. Open the word to see every score and its reason.</p>
       <h3>Explanations and sources</h3>
-      <p>Some events have an explanation written by the same model. Every sentence must quote a passage from one of the source articles, and a program checks that the passage is really there, word for word. Sentences that fail are removed before anything is published. Each sentence links to its source and the quoted passage.</p>
+      <p>The same model writes an explanation for some events. Every sentence must quote a passage from a source article. A program checks that the passage is in the article, word for word, and removes any sentence that fails. Each sentence links to its source and the quoted passage.</p>
       <h3>What we don't do</h3>
       <ul>
         <li>No borders and no country names. The map shows coastlines, rivers, lakes, mountains and ice.</li>
-        <li>No ranking of headlines. Lists are newest first. The only judgment made for you is the day's word and its scores, and you can see exactly what each rests on.</li>
-        <li>No rewriting of headlines. They appear as the outlet published them.</li>
+        <li>No ranking of headlines. Lists are newest first. The day's word and its scores are the only judgment the site makes, and each one shows what it rests on.</li>
+        <li>No rewritten headlines. They appear as the outlet published them.</li>
         <li>No copied articles. The panel shows the outlet's own feed summary and links to the full story.</li>
       </ul>
       <h3>Translation</h3>
-      <p>Translate uses your browser's built-in, on-device translator where available. Nothing is sent anywhere.</p>
+      <p>Translate uses your browser's built-in translator, which runs on your device. Nothing is sent anywhere. Browsers without one can't translate.</p>
       <p class="fine">Map data: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> (public domain). Headlines, summaries and articles belong to their publishers.</p>
     </dialog>
 

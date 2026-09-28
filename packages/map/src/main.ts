@@ -127,22 +127,18 @@ function renderMasthead() {
   const n = file?.items.length ?? 0;
   const places = file?.places.length ?? 0;
   let row: string[];
-  let tag: string;
   if (t.id === "wire") {
     const utc = gen.toISOString().slice(11, 16);
     row = [`FEED ${file?.source.toUpperCase() ?? "..."}`, `${n} ITEMS / ${places} PLACES`, `UPD ${utc}Z`];
-    tag = SITE_TAGLINE;
   } else if (t.id === "cabinet") {
     row = [`Plate ${day}`, date, `Corrected to ${time}`];
-    tag = SITE_TAGLINE;
   } else {
     row = [`No. ${day}`, date, `Updated ${time}`];
-    tag = SITE_TAGLINE;
   }
   el.replaceChildren(
     h("div", { class: "mast-row" }, ...row.map((r) => h("span", {}, r))),
     h("h1", { class: "mast-title" }, t.id === "wire" ? SITE_NAME.toUpperCase() : SITE_NAME),
-    h("p", { class: "mast-tag" }, tag),
+    h("p", { class: "mast-tag" }, SITE_TAGLINE),
   );
 }
 
@@ -303,7 +299,7 @@ function renderPanel() {
   panel.classList.toggle("reading", !!(state.reader || state.telegram || state.event));
   panel.classList.toggle("framed", state.framed);
   if (!state.file) {
-    panel.replaceChildren(h("p", { class: "muted pad" }, "Loading the wire..."));
+    panel.replaceChildren(h("p", { class: "muted pad" }, "Loading reports..."));
     return;
   }
   const ev = state.event ? state.file.events[String(state.event.id)] : undefined;
@@ -384,7 +380,7 @@ function renderReader(panel: HTMLElement, it: Item) {
         { class: "frame-bar" },
         back,
         h("span", { class: "meta" }, it.domain),
-        h("a", { class: "tool", href: url, target: "_blank", rel: "noopener noreferrer" }, "Open at outlet"),
+        h("a", { class: "tool", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.publisher}`),
       ),
       frame,
     );
@@ -396,12 +392,12 @@ function renderReader(panel: HTMLElement, it: Item) {
   const actions = h("div", { class: "actions" });
   const explained = it.event !== undefined ? file.events[String(it.event)] : undefined;
   if (explained) {
-    const open = h("button", { type: "button", class: "tool primary" }, "Explained, with sources");
+    const open = h("button", { type: "button", class: "tool primary" }, "Explanation and sources");
     open.addEventListener("click", () => openEvent(explained.id, "reader"));
     actions.append(open);
   }
   if (it.embed && url) {
-    const here = h("button", { type: "button", class: "tool primary" }, "Read it here");
+    const here = h("button", { type: "button", class: explained ? "tool" : "tool primary" }, "Read it here");
     here.addEventListener("click", () => {
       state.framed = true;
       renderPanel();
@@ -435,7 +431,7 @@ function renderReader(panel: HTMLElement, it: Item) {
       it.excerpt
         ? h("p", { class: "excerpt" }, it.excerpt)
         : h("p", { class: "excerpt muted" }, "The outlet didn't publish a preview for this story."),
-      h("p", { class: "fine" }, it.embed ? `Preview supplied by the outlet. The full page can open inside ${SITE_NAME}.` : "Preview from the outlet's own feed."),
+      h("p", { class: "fine" }, it.embed ? `Preview from the outlet's own feed. The outlet allows its full page to open inside ${SITE_NAME}.` : "Preview from the outlet's own feed."),
       actions,
       related.length
         ? h(
@@ -513,7 +509,7 @@ function renderTelegramStrip() {
   const t = file.telegram;
   const kicker = h("span", { class: "telegram-kicker" }, `The world's reporting, ${formatRunDate(file.runDate)}, in one word`);
   if (!t) {
-    el.replaceChildren(kicker, h("span", { class: "telegram-none" }, "No word yet for this date: the day's reporting hasn't been explained and scored."));
+    el.replaceChildren(kicker, h("span", { class: "telegram-none" }, "No word for this date yet. The day's events have not been scored."));
     return;
   }
   const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
@@ -584,7 +580,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model scored each explained event from \u22122 to +2 by what happened to people, never by which side gained, and quoted the checked sentence each score rests on. A formula, not the model, placed the day on the scale: when a significant event scored below zero, the worst of them sets the day, so good news never averages a tragedy away. The model then chose the word from a fixed list for that step.",
+        "An AI model scored each explained event from \u22122 to +2 by what happened to people. It scored outcomes, never which side gained. Each score quotes the checked sentence it rests on. A formula, not the model, placed the day on the scale. When a significant event scored below zero, the worst of those events set the day, so good news never averages a tragedy away. The model then chose the word from a fixed list for that step.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
@@ -671,7 +667,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       section("What changes next", ev.whatChangesNext),
       h("h3", { class: "rule-head" }, "Sources"),
       h("ol", { class: "sources" }, ...sources),
-      h("p", { class: "fine" }, "Written by an AI model from these sources. Every sentence is backed by the quoted passage it marks; sentences that could not be matched to a passage were removed before publishing. The title and headlines are the outlets' own."),
+      h("p", { class: "fine" }, "Written by an AI model from these sources. Each sentence links to the quoted passage it rests on. A program removed every sentence whose passage it could not find in the source. The model also wrote the event title. The source headlines are the outlets' own."),
     ),
   );
 }

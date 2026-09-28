@@ -2,8 +2,8 @@
 
 News, compressed and sourced. Two products in one repository.
 
-- **2DayAI**: one headline per reader per day, from a hand-written interest profile, with the stories, explanations, and sources one click down. Delivered by email. Built and tested; not yet run live. Code in `packages/core`, `db`, `pipeline`, `web`.
-- **GlobalGist** (the map): a public news map in the spirit of Radio Garden, headed by one word for the emotion the day's world reporting evokes, on a scale from Grave to Good. Turn a flat map or a globe; the place under the crosshair lists what its outlets reported, newest first. Open the word to see the scale, every event's score and reason, their sourced explanations, and the sources. No borders, no country names, no labels on the map. Code in `packages/map`, served by the Worker in `packages/web`.
+- **2DayAI**: one headline per reader per day, from a hand-written interest profile, with the stories, explanations, and sources one click down. Delivered by email. Built and tested, not yet run live. Code in `packages/core`, `db`, `pipeline`, `web`.
+- **GlobalGist** (the map): a public news map in the spirit of Radio Garden. One word heads it: the emotion the day's world reporting evokes, on a scale from Grave to Good. Turn a flat map or a globe, and the panel lists what outlets at the place under the crosshair reported, newest first. Open the word to see every event's score and reason, the sourced explanations, and the sources. The map has no borders, country names or labels. Code in `packages/map`, served by the Worker in `packages/web`.
 
 Start with CONTEXT.md. Both products read one database written by one pipeline (decisions 23 and 25 in docs/DECISIONS.md).
 
@@ -24,8 +24,8 @@ Every explanation sentence carries a citation: an article id and a passage. Code
 Screenshots use the fictional sample: invented outlets and places, run through the real pipeline.
 
 - **Pins are publishers**, at the city they publish from (the `desk: world` entries in `config/sources.yaml`). Nothing is geocoded, so the map never draws or names a disputed place.
-- **The word.** Each day the `telegram` stage scores every explained world event from -2 to 2 by what happened to people, quoting the sentence each score rests on. Code places the day on a five-step scale, and the worst significant event sets a bad day, so good news never averages a tragedy away. The model then picks the word from that step's fixed list. The site shows every score and its reason.
-- **One content model, four depths.** The word, the events with one line each, each event's explanation with numbered citations, and the sources with the passages quoted. Headlines appear as the outlets published them.
+- **The word.** Each day the `telegram` stage scores every explained world event from -2 to 2 by what happened to people. Each score quotes the sentence it rests on. Code places the day on a five-step scale. The worst significant event sets a bad day, so good news never averages a tragedy away. The model then picks the word from that step's fixed list. The site shows every score and its reason.
+- **Four depths.** The word, then the events with one line each, then each event's explanation with numbered citations, then the sources with the passages quoted. Headlines appear as the outlets published them.
 - Three designs, flat or globe, a 24-hour replay, topic filters, pinned places, and on-device translation.
 
 ## Run it
@@ -66,4 +66,4 @@ npm run web:deploy                     # build the map and deploy it with the Wo
 
 ## Hosting
 
-The Worker serves the map, its data and the reader pages on Cloudflare's free plan, so the repository can stay private. `.github/workflows/deploy-site.yml` deploys on code changes once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set; the daily run needs no deploy because the Worker reads the database. Actions has 2,000 free minutes a month on a private repository: the daily run, delivery every two hours, and CI fit inside it.
+The Worker serves the map, its data and the reader pages on Cloudflare's free plan, so the repository can stay private. `.github/workflows/deploy-site.yml` deploys on code changes once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. The daily run needs no deploy because the Worker reads the database. Actions has 2,000 free minutes a month on a private repository: the daily run, delivery every two hours, and CI fit inside it.
