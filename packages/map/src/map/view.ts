@@ -59,7 +59,56 @@ interface Spot {
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
 
-type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "tiles" | "shimmer";
+type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "tiles" | "shimmer";
+
+type Ring = [number, number][];
+const lowPolyCache = new WeakMap<object, { land: GeoPermissibleObjects; ice: GeoPermissibleObjects | null }>();
+
+/** Douglas-Peucker on one lon/lat ring: keeps only the points that stray more than `tol` degrees from a line. */
+function simplifyRing(ring: Ring, tol: number): Ring {
+  if (ring.length <= 4) return ring;
+  const keep = new Uint8Array(ring.length);
+  keep[0] = keep[ring.length - 1] = 1;
+  const stack: [number, number][] = [[0, ring.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop()!;
+    const [ax, ay] = ring[a]!;
+    const [bx, by] = ring[b]!;
+    const len = Math.hypot(bx - ax, by - ay) || 1e-9;
+    let far = -1;
+    let dist = tol;
+    for (let i = a + 1; i < b; i++) {
+      const [x, y] = ring[i]!;
+      const d = len > 1e-9 ? Math.abs((bx - ax) * (ay - y) - (ax - x) * (by - ay)) / len : Math.hypot(x - ax, y - ay);
+      if (d > dist) {
+        dist = d;
+        far = i;
+      }
+    }
+    if (far > 0) {
+      keep[far] = 1;
+      stack.push([a, far], [far, b]);
+    }
+  }
+  return ring.filter((_, i) => keep[i]);
+}
+
+/** A land or ice layer with every ring cut down to straight edges; tiny islands keep at least a triangle. */
+function lowPolyOf(fc: { features: { geometry: GeoJSON.Geometry | null }[] }, tol: number): GeoPermissibleObjects {
+  const polys: Ring[][] = [];
+  for (const f of fc.features) {
+    const g = f.geometry;
+    const list = g?.type === "Polygon" ? [g.coordinates] : g?.type === "MultiPolygon" ? g.coordinates : [];
+    for (const poly of list) {
+      const rings = poly.map((r) => {
+        const s = simplifyRing(r as Ring, tol);
+        return s.length >= 4 ? s : (r as Ring).length >= 4 ? [r[0], r[Math.floor(r.length / 3)], r[Math.floor((2 * r.length) / 3)], r[0]] as Ring : null;
+      });
+      if (rings[0]) polys.push(rings.filter((r): r is Ring => !!r));
+    }
+  }
+  return { type: "MultiPolygon", coordinates: polys } as GeoPermissibleObjects;
+}
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
 const MAX_ZOOM = 14;
@@ -633,6 +682,35 @@ export class MapView {
       this.patterns.set(key, p);
       return p;
     }
+    if (kind === "mottle") {
+      // A blurry low-resolution texture: soft blobs of a lighter and a darker shade, drawn on a three-by-three sheet
+      // and blurred there so the middle tile wraps without a seam.
+      const size = 128;
+      const big = document.createElement("canvas");
+      big.width = big.height = Math.round(size * 3 * this.dpr);
+      const g = big.getContext("2d")!;
+      g.scale(this.dpr, this.dpr);
+      let seed = 11;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const blobs = Array.from({ length: 70 }, (_, i) => ({ x: rnd() * size, y: rnd() * size, r: 2 + rnd() * rnd() * 11, a: rnd() * Math.PI, c: i % 2 ? ink2 : ink }));
+      for (const ox of [0, size, 2 * size])
+        for (const oy of [0, size, 2 * size])
+          for (const b of blobs) {
+            g.beginPath();
+            g.ellipse(b.x + ox, b.y + oy, b.r * 1.4, b.r, b.a, 0, Math.PI * 2);
+            g.fillStyle = b.c;
+            g.fill();
+          }
+      const tile = document.createElement("canvas");
+      tile.width = tile.height = Math.round(size * this.dpr);
+      const tg = tile.getContext("2d")!;
+      tg.filter = `blur(${2.5 * this.dpr}px)`;
+      tg.drawImage(big, -size * this.dpr, -size * this.dpr);
+      p = this.ctx.createPattern(tile, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
     if (kind === "brush") {
       // Loose paint: short thick strokes at fixed pseudo-random spots, each drawn again one tile over in every
       // direction so strokes cross the tile's edge without a seam.
@@ -724,7 +802,8 @@ export class MapView {
     ctx.clip();
 
     if (t.oceanPattern) {
-      ctx.fillStyle = this.pattern(t.oceanPattern, t.waterline);
+      // Mottled water gets deeper patches as well as light ones.
+      ctx.fillStyle = this.pattern(t.oceanPattern, t.waterline, t.oceanPattern === "mottle" ? "rgba(0,40,120,0.25)" : undefined);
       ctx.fillRect(0, 0, w, h);
     }
     if (t.oceanHatch) {
@@ -746,7 +825,8 @@ export class MapView {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    if (map) this.drawMap(path, proj, map, t);
+    if (map && t.lowPoly) this.drawLowPoly(proj, t);
+    else if (map) this.drawMap(path, proj, map, t);
     if (this.mode === "3d" && t.shade) {
       // Lit from the upper left, darker toward the rim, so the globe reads as a solid.
       const g = ctx.createRadialGradient(w / 2 - R * 0.38, h / 2 - R * 0.42, R * 0.15, w / 2, h / 2, R * 1.02);
@@ -816,28 +896,7 @@ export class MapView {
       ctx.stroke(coast);
     }
 
-    if (t.extrude) {
-      // Raised land: the coast swept a few pixels down and right in the side colour, darker at the foot.
-      for (const [d, alpha] of [[4, 0.7], [3, 1], [2, 1], [1, 1]] as const) {
-        ctx.save();
-        ctx.translate(d * 0.5, d);
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = t.extrude;
-        ctx.fill(land);
-        ctx.restore();
-      }
-    }
-    if (t.landLit) {
-      const { w, h } = this;
-      const R = proj.scale();
-      const g =
-        this.mode === "3d"
-          ? ctx.createRadialGradient(w / 2 - R * 0.4, h / 2 - R * 0.45, R * 0.1, w / 2 - R * 0.1, h / 2 - R * 0.1, R * 1.25)
-          : ctx.createLinearGradient(0, 0, w * 0.35, h);
-      g.addColorStop(0, t.landLit[0]);
-      g.addColorStop(1, t.landLit[1]);
-      ctx.fillStyle = g;
-    } else ctx.fillStyle = t.land;
+    ctx.fillStyle = t.land;
     ctx.fill(land);
     if (t.landTexture !== "none") {
       ctx.fillStyle = this.pattern(t.landTexture, t.textureInk, t.textureInk2);
@@ -875,6 +934,118 @@ export class MapView {
     ctx.strokeStyle = t.coast;
     ctx.lineWidth = t.coastWidth;
     ctx.stroke(coast);
+  }
+
+  /**
+   * Terrain the way early 3D games built it: straight-edged coasts, the land raised on cliff walls with one flat
+   * shade per face, blurry textures on top, and small two-faced pyramids for mountains.
+   */
+  private drawLowPoly(proj: GeoProjection, t: Theme) {
+    const { ctx } = this;
+    const lp = t.lowPoly!;
+    // Always the light basemap: at this tolerance the fine one adds nothing but work.
+    const base = this.low ?? this.high;
+    if (!base) return;
+    let cut = lowPolyCache.get(base);
+    if (!cut) {
+      cut = { land: lowPolyOf(base.land, lp.tolerance), ice: base.ice ? lowPolyOf(base.ice, lp.tolerance) : null };
+      lowPolyCache.set(base, cut);
+    }
+    // Straight edges between the kept points, not great-circle curves, so faces stay flat.
+    const precision = proj.precision();
+    proj.precision(0);
+    const rings: Ring[] = [];
+    let ring: Ring = [];
+    const recorder = {
+      beginPath() {},
+      moveTo(x: number, y: number) {
+        if (ring.length > 1) rings.push(ring);
+        ring = [[x, y]];
+      },
+      lineTo(x: number, y: number) {
+        ring.push([x, y]);
+      },
+      closePath() {
+        if (ring.length > 1) rings.push(ring);
+        ring = [];
+      },
+      arc() {},
+    };
+    geoPath(proj, recorder)(cut.land);
+    if (ring.length > 1) rings.push(ring);
+    const top = new Path2D();
+    geoPath(proj, pathContext(top))(cut.land);
+    const ice = new Path2D();
+    if (cut.ice) geoPath(proj, pathContext(ice))(cut.ice);
+    proj.precision(precision);
+
+    // Cliff walls: each coast edge swept straight down. A wall under land is hidden by the top drawn after it.
+    const depth = clamp(4 + this.zoom * 1.6, 5, 14);
+    const faces = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];
+    for (const r of rings) {
+      for (let i = 1; i < r.length; i++) {
+        const [ax, ay] = r[i - 1]!;
+        const [bx, by] = r[i]!;
+        const len = Math.hypot(bx - ax, by - ay);
+        if (len < 0.5) continue;
+        // Level edges face the viewer and catch the light; steep ones turn away and fall into shadow.
+        const f = faces[Math.min(3, Math.floor((Math.abs(by - ay) / len) * 4))]!;
+        f.moveTo(ax, ay);
+        f.lineTo(bx, by);
+        f.lineTo(bx, by + depth);
+        f.lineTo(ax, ay + depth);
+        f.closePath();
+      }
+    }
+    const [cliff, cliffLight, cliffDark] = lp.cliff;
+    faces.forEach((f, i) => {
+      ctx.fillStyle = cliff;
+      ctx.fill(f);
+      ctx.fillStyle = this.pattern("mottle", cliffLight, cliffDark);
+      ctx.fill(f);
+      if (i > 0) {
+        ctx.fillStyle = `rgba(40,10,0,${i * 0.14})`;
+        ctx.fill(f);
+      }
+    });
+
+    ctx.fillStyle = t.land;
+    ctx.fill(top, "evenodd");
+    ctx.fillStyle = this.pattern("mottle", t.textureInk, t.textureInk2 ?? t.textureInk);
+    ctx.fill(top, "evenodd");
+    if (cut.ice) {
+      ctx.fillStyle = t.ice;
+      ctx.fill(ice, "evenodd");
+      ctx.fillStyle = this.pattern("mottle", "rgba(255,255,255,0.9)", "rgba(170,190,230,0.5)");
+      ctx.fill(ice, "evenodd");
+    }
+
+    // Mountains: a pyramid with a lit left face and a shaded right face.
+    const relief = this.relief;
+    if (!relief) return;
+    const s = clamp(4 + this.zoom * 1.4, 5, 14);
+    const left = new Path2D();
+    const right = new Path2D();
+    // One peak in four: fewer, larger mountains read as shapes, not stubble.
+    for (const [lon, lat] of relief.peaks.filter((_, i) => i % 4 === 0)) {
+      if (!this.visible(lon, lat)) continue;
+      const p = proj([lon, lat]);
+      if (!p) continue;
+      const [x, y] = p;
+      if (x < -10 || y < -10 || x > this.w + 10 || y > this.h + 10) continue;
+      left.moveTo(x - s, y + s * 0.5);
+      left.lineTo(x, y - s * 1.1);
+      left.lineTo(x + s * 0.15, y + s * 0.6);
+      left.closePath();
+      right.moveTo(x + s * 0.15, y + s * 0.6);
+      right.lineTo(x, y - s * 1.1);
+      right.lineTo(x + s, y + s * 0.45);
+      right.closePath();
+    }
+    ctx.fillStyle = cliffLight;
+    ctx.fill(left);
+    ctx.fillStyle = t.relief;
+    ctx.fill(right);
   }
 
   private drawRelief(proj: GeoProjection, t: Theme) {

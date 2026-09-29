@@ -2117,11 +2117,11 @@ button.link {
     radial-gradient(ellipse 60% 45% at 50% 55%, rgba(90, 14, 18, 0.35), transparent 70%),
     var(--page);
 }
-/* The striped arcs across the top of the covers: rust, night blue and oxblood bands. */
+/* The striped arcs across the top of the covers: rust, night blue, the face's blue and oxblood bands. */
 :root[data-theme="realize"] .masthead {
   border-bottom: 2px solid #2a1a1a;
   background:
-    repeating-radial-gradient(ellipse 140% 120% at 50% 190%, #b8481c 0 5px, #15122e 5px 10px, #6e1a14 10px 15px, #0b090a 15px 20px) top / 100% 26px no-repeat,
+    repeating-radial-gradient(ellipse 140% 120% at 50% 190%, #b8481c 0 5px, #15122e 5px 10px, #6e84d8 10px 13px, #6e1a14 13px 18px, #0b090a 18px 23px) top / 100% 26px no-repeat,
     var(--page);
   padding-top: 30px;
 }

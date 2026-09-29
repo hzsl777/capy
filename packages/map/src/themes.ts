@@ -19,7 +19,7 @@ export interface Theme {
    * tiled game stage, pixel grass, loose paint strokes, or plain fill. Blocks, grass and paint use `textureInk2`
    * as their second colour.
    */
-  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "none";
+  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "none";
   /**
    * Screen pixels per canvas pixel. 1 draws at full resolution; 3 draws a third as many pixels and scales them up
    * unsmoothed, so lines, coasts and dots come out as chunky pixels (Stage Select and Overworld).
@@ -39,16 +39,16 @@ export interface Theme {
    * A pattern over the sea in canvas pixels: "tiles" is a faint square grid like a stage built from tiles,
    * "shimmer" is short broken highlights like light on water. Its ink is `waterline`.
    */
-  oceanPattern?: "tiles" | "shimmer" | "brush";
+  oceanPattern?: "tiles" | "shimmer" | "brush" | "mottle";
   /** A wide band of lighter water along every coast, like the shallows on a game's world map. */
   shallows?: string;
   /**
-   * Land as a lit solid, the way early 3D games drew terrain: a gradient from `landLit[0]` where the light falls
-   * (upper left) to `landLit[1]`, raised above the sea on sides of `extrude`, with a glint of light on the globe
-   * when `specular` is set.
+   * Land built like early 3D game terrain: coasts cut into straight edges (simplified to this many degrees), the
+   * land raised on flat-shaded cliff walls textured in `cliff` (base, light, dark), mountains as small pyramids.
+   * Lakes and rivers are left out, since they no longer line up with the cut coasts.
    */
-  landLit?: [string, string];
-  extrude?: string;
+  lowPoly?: { tolerance: number; cliff: [string, string, string] };
+  /** Globe only: a soft glint where the light strikes the sphere. */
   specular?: boolean;
   graticule: string;
   graticuleDash: number[];
@@ -347,8 +347,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   // its art, names, logos or characters. Stage Select after Mega Man: hard 8-bit pixels, a wall of bevelled metal
   // blocks, riveted stage-select frames. Overworld after Final Fantasy's world maps: finer pixels, grass, sandy
   // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64 and the Zelda games of that console:
-  // land drawn as a lit solid raised on dirt sides above a bright sea, a sky with clouds, glinting gem markers,
-  // gold-framed windows and three-dimensional gold lettering.
+  // coasts cut into straight polygon edges, grass on top of flat-shaded orange cliff walls, blurry
+  // low-resolution textures, pyramid mountains, a sky with clouds, gem markers, gold lettering with depth.
   bit8: {
     id: "bit8",
     label: "Stage Select",
@@ -425,27 +425,27 @@ export const THEMES: Record<ThemeId, Theme> = {
     label: "Polygon Kingdom",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#1f6fd0",
-    land: "#58b83a",
-    landTexture: "none",
-    landLit: ["#9be35a", "#2e7d2a"],
-    extrude: "#8a5a2b",
+    ocean: "#2a78d8",
+    land: "#3fb82c",
+    landTexture: "mottle",
+    lowPoly: { tolerance: 0.9, cliff: ["#b45a1e", "#e0913e", "#7a3410"] },
     specular: true,
     pixel: 1,
     dotShape: "diamond",
-    textureInk: "rgba(0,0,0,0)",
-    coast: "#2a5a1a",
-    coastWidth: 1,
-    waterlines: 1,
-    waterline: "rgba(220,240,255,0.55)",
+    textureInk: "rgba(150,230,80,0.75)",
+    textureInk2: "rgba(20,110,20,0.6)",
+    coast: "#1d5a14",
+    coastWidth: 0,
+    waterlines: 0,
+    waterline: "rgba(150,210,255,0.3)",
     oceanHatch: null,
-    shallows: "#3f94e8",
+    oceanPattern: "mottle",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "#8cd0ff",
-    lake: "#3f94e8",
-    ice: "#f4f7ff",
-    relief: "rgba(90,55,20,0.75)",
+    river: "rgba(0,0,0,0)",
+    lake: "#2a78d8",
+    ice: "#eef3ff",
+    relief: "#6e4418",
     dot: "#ffd23a",
     dotStroke: "#5a3200",
     fresh: "#ff4f8b",
@@ -453,10 +453,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     arc: "#ffffff",
     glow: false,
     atmosphere: "rgba(200,235,255,0.55)",
-    shade: "rgba(10,20,60,0.5)",
+    shade: "rgba(10,20,60,0.45)",
     neatline: false,
     decor: null,
   },
+
 
   // Direct nods to the Mezmerize and Hypnotize covers (2005): black ground, dark red smeared paint, bone white, the
   // striped arcs, the blue face for fresh reports, a white stamped poster face over red marker lettering. No band

@@ -447,3 +447,19 @@ Davis found the scale's names (Grave, Hard, Mixed, Hopeful, Good) insensitive an
 4. **Polygon Kingdom** drops the flat triangles for depth, after Super Mario 64 and the Zelda games of that console: land lit from the upper left and raised above the sea on dirt-coloured sides, lighter shallows and surf, a glint on the globe, a bright sky with clouds, gems for markers, gold lettering with depth, raised gold buttons and gold-framed windows.
 5. **UFO** is removed. A saved choice of it opens the default design.
 6. **Newsroom** is added: a television news studio. The world on a glowing LED wall, studio lights, glossy navy panels, the word as a white caption bar under a red "Today's word" tab, Oswald and Barlow, red for fresh reports, and a crawl of the newest headlines along the bottom (the newest first, as every list on the site is). It shows no "live" or "breaking" label.
+
+## 60. Local outlets for regions with none, kept only where the feed checks out; Polygon Kingdom's terrain (September 29, 2026)
+
+The source list added 485 researched local outlets for regions no outlet reached, under a comment that called this decision 56. That entry was never written; this is it. Item 3 changes item 4 of decision 59.
+
+1. The outlets were researched from the list of regions with no story after the first 560-outlet day. The `sources check` run on September 29 fetched each one. 245 fetched as the outlet they name, 225 failed (151 homepages that link to no feed, 34 refused with 403, the rest down, timing out or broken), and 15 returned another publication's feed.
+2. Kept: the 245, plus four whose feed is on the outlet's own site with a generic title (Bao Thanh Hoa, Bao Phu Tho, VOCM) or is the same paper's national front page (La Stampa for Turin). Each keeps the feed address the check found, not its homepage. Dropped: the 225 failures and 11 feeds that belong to someone else (a podcast, a neighbouring paper, or a national network's feed standing in for a local edition: The Citizen, Stuff, SunStar, France 3). GDELT (decision 54) covers those regions until a working local feed is found.
+3. **Polygon Kingdom** takes its geometry from Super Mario 64:
+   - coasts cut into long straight edges (simplified to 0.9 degrees, drawn without curving);
+   - the land raised on cliff walls, one flat shade per face by how steeply its edge runs;
+   - blurry low-resolution textures: mottled grass on top, orange-brown rock on the walls, mottled water;
+   - mountains as two-faced pyramids;
+   - no outlines.
+
+   Lakes and rivers are left out in this design, since they no longer line up with the cut coasts.
+4. Realize's striped arcs gain the covers' blue, so the blue is not only on fresh markers.
