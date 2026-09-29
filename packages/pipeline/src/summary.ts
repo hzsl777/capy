@@ -28,7 +28,8 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
   if (failure) lines.push(`**The run failed.** ${cell(failure)}`, "", "The site keeps showing the last good day. Stages that finished are listed below.", "");
   if (telegram?.written) {
     const split = telegram.split ? `, runs disagreed on ${telegram.split} of ${telegram.candidates} events` : "";
-    lines.push(`Word: **${telegram.word}** (band ${telegram.band}, ${MOOD_BAND_LABEL[telegram.band!]}). Scored ${telegram.scoreRuns} times${split}.`);
+    const aside = telegram.rejected ? `, ${telegram.rejected} run${telegram.rejected === 1 ? "" : "s"} set aside for breaking the rules` : "";
+    lines.push(`Word: **${telegram.word}** (band ${telegram.band}, ${MOOD_BAND_LABEL[telegram.band!]}). Scored ${telegram.scoreRuns} times${split}${aside}.`);
   } else if (telegram) lines.push(`No word today: ${telegram.reason ?? "nothing to score"}.`);
 
   const ok = ingest.filter((r) => !r.error);

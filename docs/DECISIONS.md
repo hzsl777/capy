@@ -362,3 +362,13 @@ The first complete live day showed 2,632 stories, but only about 300 had been gr
 2. Once a day is grouped, the map shows only articles that belong to a story. Articles set aside as not news, and articles past an outlet's daily cap, stay off the map.
 3. Merge keys are read however the model brackets or capitalises them ("[B1-E3]" is "b1-e3").
 4. Tests give the in-memory database a minute to start, since a full parallel run could pass the old 10 second limit with nothing wrong.
+
+## 51. A broken model answer costs the day its word, never the day (September 29, 2026)
+
+The first three full runs at 560 outlets each stopped on one bad model answer: quoted passages with null characters where accented letters belonged, one article listed twice in a story, and a score whose reason was not copied exactly from its event's sentences (the checks from decisions 26 and 36). Each time the whole day failed, and the grouped and explained stories never reached the map. A few thousand model answers a day make rare slips daily events.
+
+1. Control characters other than tab and line breaks are removed from model answers, feed text, page text and run records before anything is written. Postgres refuses the null character in text and JSON.
+2. An article the model lists twice in one story joins it once, on both desks.
+3. A telegram score run that still breaks the rules after its retry is set aside, and another is asked, up to two more than `TELEGRAM_SCORE_RUNS`. The day's scores are the middle of the runs that passed. The checks themselves are unchanged: no rejected score is ever used.
+4. If no score run passes, or the word breaks the rules twice, the day has no word and says why in the run summary. Its stories, explanations and places still go out. Decision 26 already allows a day without a word.
+5. An outage, a spent credit balance or the spend ceiling is not a broken rule and still fails the stage loudly.

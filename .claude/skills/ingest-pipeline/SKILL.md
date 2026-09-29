@@ -47,7 +47,7 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 
 ## Debugging checklist
 
-- **No word today:** `runs` for stage `telegram`. `reason: no explained world events` means nothing had a usable explanation. Check `cluster-world`, then the `usable` count in `explain`. A thrown error names the call (`telegram-score` or `telegram-word`) and the rule broken twice.
+- **No word today:** `runs` for stage `telegram`. `reason: no explained world events` means nothing had a usable explanation. Check `cluster-world`, then the `usable` count in `explain`. `reason: every score run broke the rules` or a `telegram-word` reason names the rule the model broke twice; `rejected` counts score runs set aside (decision 51). A thrown error is an outage or the spend ceiling, not a broken rule.
 - **Why this word:** the `telegram_scores` rows hold every score (the middle of the runs) and its reason. The run report's `split` counts events the runs disagreed on. `dayBand` in core turns them into the band. The worst significant (importance 3+) negative score sets a bad day by design.
 - **Rejected answers:** code enforces these rules: every event scored once with a copied sentence, a word from `MOOD_WORDS[band]`, and on a bad day the setting event listed. Fix the prompt (new version file) before touching the rules, and never loosen them without Davis.
 - **Place empty or missing:** the source has no `place`, its feed failed at ingest, or its articles fall outside the 24-hour window ending 09:00 UTC.

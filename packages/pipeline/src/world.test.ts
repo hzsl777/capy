@@ -7,7 +7,7 @@ import { dayBand, medianScores, MOOD_WORDS, scoreProblems, toRunDate, wordProble
 import { events, loadMapView, latestMapDate, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
 import { worldAnswers, worldFeedFor, worldSourcesYaml } from "./fixtures/world.js";
-import { FakeLlm } from "./llm/fake.js";
+import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
 import { runTelegram } from "./stages/telegram.js";
 import { createTestDb } from "./test/db.js";
 import { testConfig } from "./test/config.js";
@@ -38,7 +38,7 @@ describe("the world desk on a real Postgres engine", () => {
     expect(out["explain"]).toEqual({ events: 7, usable: 7, unusable: 0, failed: 0, sentencesDropped: 0 });
     expect(out["select"]).toMatchObject({ readers: 0 });
     // Two significant events scored -1 and nothing lower, so the worst sets the day: band -1, a word from its list.
-    expect(out["telegram"]).toEqual({ candidates: 7, written: true, word: MOOD_WORDS[-1][0], band: -1, events: 5, scoreRuns: 3, split: 0, retried: { score: false, word: true } });
+    expect(out["telegram"]).toEqual({ candidates: 7, written: true, word: MOOD_WORDS[-1][0], band: -1, events: 5, scoreRuns: 3, split: 0, retried: { score: false, word: true }, rejected: 0 });
     expect(llm.calls.filter((c) => c.stage === "telegram-word")).toHaveLength(2);
   });
 
@@ -121,12 +121,28 @@ describe("the world desk on a real Postgres engine", () => {
     expect(alone.every((e) => e.importance === 1)).toBe(true);
 
     await runDay(db, testConfig(), new FakeLlm(worldAnswers()), date, deps);
-    // A score whose reason is not one of the event's sentences fails twice, and the stage fails loudly.
-    const invented = new FakeLlm({ ...worldAnswers(), "telegram-score": ({ user }) => ({ scores: [...user.matchAll(/^\[event (\d+)\]/gm)].map((m) => ({ eventId: Number(m[1]), score: 0, because: "Nothing much happened." })) }) });
-    await expect(runTelegram(db, testConfig(), invented, date)).rejects.toThrow(/telegram-score: .*after one retry/);
-    // A word from another band fails twice too.
+    // A score whose reason is not one of the event's sentences is never used: every run and both spares break the
+    // rule, so the day has no word (decision 51).
+    const inventedScores: FakeAnswer = ({ user }) => ({ scores: [...user.matchAll(/^\[event (\d+)\]/gm)].map((m) => ({ eventId: Number(m[1]), score: 0, because: "Nothing much happened." })) });
+    const invented = new FakeLlm({ ...worldAnswers(), "telegram-score": inventedScores });
+    expect(await runTelegram(db, testConfig(), invented, date)).toMatchObject({ written: false, word: null, rejected: 5, reason: expect.stringMatching(/telegram-score: .*after one retry/) });
+    expect(invented.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(10);
+    expect(await db.select().from(telegrams)).toHaveLength(0);
+    // A word from another band twice: no word either.
     const offScale = new FakeLlm({ ...worldAnswers(), "telegram-word": () => ({ word: "Joy", events: [{ eventId: 1, line: "x" }] }) });
-    await expect(runTelegram(db, testConfig(), offScale, date)).rejects.toThrow(/telegram-word: .*not one of/);
+    expect(await runTelegram(db, testConfig(), offScale, date)).toMatchObject({ written: false, band: -1, reason: expect.stringMatching(/telegram-word: .*not one of/) });
+    // An outage is not a broken rule: it still fails the stage.
+    const down = new FakeLlm({ ...worldAnswers(), "telegram-score": () => { throw new Error("503 Service Unavailable"); } });
+    await expect(runTelegram(db, testConfig(), down, date)).rejects.toThrow(/503/);
+  });
+
+  it("sets aside a score run that breaks the rules twice and asks another (decision 51)", async () => {
+    const good = worldAnswers()["telegram-score"]!;
+    // The first run and its retry invent a reason; the next three runs are fine.
+    const llm = new FakeLlm({ ...worldAnswers(), "telegram-score": (req) => (req.attempt <= 2 ? { scores: [] } : good(req)) });
+    const report = await runTelegram(db, testConfig(), llm, date);
+    expect(report).toMatchObject({ written: true, band: -1, scoreRuns: 3, rejected: 1 });
+    expect(llm.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(5);
   });
 });
 
