@@ -99,6 +99,8 @@ export type WorldClusterReport = ClusterReport & {
   mergeDropped: number;
   /** Events placed where they happened (decision 44); the rest show at their outlets' cities. */
   placed: number;
+  /** Articles still ungrouped after the second pass, each written as its own event of importance 1 (decision 50). */
+  alone: number;
 };
 
 type WorldRow = { id: number; source: string; place: string; title: string; lead: string };
@@ -180,39 +182,58 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
 
   if (rows.length === 0) {
     await clearWorldDay(db, date);
-    return { articles: 0, events: 0, placed: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
+    return { articles: 0, events: 0, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
   }
 
   const prompt = loadPrompt("cluster-world", CLUSTER_WORLD_PROMPT_VERSION);
   const answered = await answerBatches(llm, config, prompt, splitBatches(rows, config.worldClusterBatch).map((batch, i) => ({ id: `batch-${i + 1}`, batch })), date);
 
   const assigned = new Set<number>();
+  const skippedIds = new Set<number>();
   const batchEvents: BatchEvent[] = [];
   let unknownIds = 0;
-  let skipped = 0;
-  let unassigned = 0;
-  answered.forEach(({ batch, result }, i) => {
-    // An id is known only inside the batch that carried it; the model never saw the others.
-    const known = new Set(batch.map((r) => r.id));
-    const skippedIds = new Set(result.skipped.map((x) => x.articleId));
-    let n = 0;
-    for (const ev of result.events) {
-      const ids = ev.articleIds.filter((id) => {
-        if (!known.has(id)) {
-          unknownIds += 1;
-          return false;
-        }
-        return !assigned.has(id);
-      });
-      if (ids.length === 0) continue;
-      ids.forEach((id) => assigned.add(id));
-      n += 1;
-      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title.slice(0, 120), importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
+  const collect = (results: { batch: WorldRow[]; result: WorldClusterResult }[], prefix: string) => {
+    results.forEach(({ batch, result }, i) => {
+      // An id is known only inside the batch that carried it; the model never saw the others.
+      const known = new Set(batch.map((r) => r.id));
+      let n = 0;
+      for (const ev of result.events) {
+        const ids = ev.articleIds.filter((id) => {
+          if (!known.has(id)) {
+            unknownIds += 1;
+            return false;
+          }
+          return !assigned.has(id);
+        });
+        if (ids.length === 0) continue;
+        ids.forEach((id) => assigned.add(id));
+        n += 1;
+        batchEvents.push({ key: `${prefix}${i + 1}-e${n}`, title: ev.title.slice(0, 120), importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
+      }
+      for (const x of result.skipped) if (known.has(x.articleId) && !assigned.has(x.articleId)) skippedIds.add(x.articleId);
+    });
+  };
+  collect(answered, "b");
+
+  // Articles the model neither grouped nor set aside go back once, on their own (decision 50). A day with this
+  // second pass failing still stands: its articles are handled like any left over below.
+  const left = () => rows.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id));
+  const firstLeft = left();
+  let second: { batch: WorldRow[]; result: WorldClusterResult }[] = [];
+  if (firstLeft.length > 0) {
+    try {
+      second = await answerBatches(llm, config, prompt, splitBatches(firstLeft, config.worldClusterBatch).map((batch, i) => ({ id: `rest-${i + 1}`, batch })), date);
+      collect(second, "r");
+    } catch (err) {
+      console.error(`cluster-world: second pass failed, its ${firstLeft.length} articles stand alone. ${err instanceof Error ? err.message : String(err)}`);
     }
-    skipped += [...skippedIds].filter((id) => known.has(id)).length;
-    unassigned += batch.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id)).length;
-  });
-  const batches = answered;
+  }
+  const unassigned = firstLeft.length;
+  // Whatever is still left is news the model would not group: one story each at the lowest importance, so every
+  // article on the map has a rank and a topic, and nothing is shown ungrouped.
+  const singles: BatchEvent[] = left().map((r) => ({ key: `s-${r.id}`, title: r.title.slice(0, 120), importance: 1, importanceReason: "not grouped by the model", topic: "other", ids: [r.id], promptVersion: prompt.label, where: null }));
+  const skipped = skippedIds.size;
+  const batches = [...answered, ...second];
 
   let final = batchEvents;
   let merged = 0;
@@ -226,6 +247,8 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     merged = checked.groups.length;
     mergeDropped = checked.dropped;
   }
+
+  final = [...final, ...singles];
 
   // Every model call succeeded, so the date's world events are replaced only now.
   await clearWorldDay(db, date);
@@ -243,7 +266,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     await db.insert(eventArticles).values(ev.ids.map((articleId) => ({ eventId: row!.id, articleId })));
     byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
   }
-  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, byTopic, batches: batches.length, merged, mergeDropped };
+  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped };
 }
 
 /** The telegram is written from the world events; re-clustering makes any old telegram for the date stale. */

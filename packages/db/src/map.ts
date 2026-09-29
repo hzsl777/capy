@@ -98,6 +98,9 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     const home = placeOf(source);
     if (home === null) continue;
     const eventId = eventOfArticle.get(article.id);
+    // Once the day is grouped, the map shows only articles in a story: the grouping stage left out ads and other
+    // non-news, and articles past an outlet's daily cap never reached it, so neither has a rank (decision 50).
+    if (worldEvents.length > 0 && eventId === undefined) continue;
     const at = eventId !== undefined ? happenedAt.get(eventId) : undefined;
     const place = at ?? home;
     const item: MapItem = {

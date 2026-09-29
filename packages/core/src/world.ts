@@ -55,13 +55,13 @@ export type WorldClusterMerge = z.infer<typeof WorldClusterMergeSchema>;
  * A key named by two groups drops both, since picking one would be a guess.
  */
 export function validMergeGroups(merge: WorldClusterMerge, known: ReadonlySet<string>): { groups: WorldClusterMerge["groups"]; dropped: number } {
+  // Keys come back as "[b1-e3]", "B1-E3" or " b1-e3 " as often as "b1-e3". Read them the way they were shown.
+  const norm = (k: string) => k.replace(/[[\]\s]/g, "").toLowerCase();
+  const byNorm = new Map([...known].map((k) => [norm(k), k]));
+  const read = merge.groups.map((g) => ({ ...g, eventKeys: [...new Set(g.eventKeys.map((k) => byNorm.get(norm(k)) ?? k))] }));
   const uses = new Map<string, number>();
-  for (const g of merge.groups) for (const k of new Set(g.eventKeys)) uses.set(k, (uses.get(k) ?? 0) + 1);
-  const groups = merge.groups.filter((g) => {
-    const keys = new Set(g.eventKeys);
-    if (keys.size < 2) return false;
-    return [...keys].every((k) => known.has(k) && uses.get(k) === 1);
-  });
+  for (const g of read) for (const k of g.eventKeys) uses.set(k, (uses.get(k) ?? 0) + 1);
+  const groups = read.filter((g) => g.eventKeys.length >= 2 && g.eventKeys.every((k) => known.has(k) && uses.get(k) === 1));
   return { groups, dropped: merge.groups.length - groups.length };
 }
 

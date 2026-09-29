@@ -303,3 +303,12 @@ The second live test failed like the first: in a batch of 300 articles, the mode
 
 1. In each grouping event only the article ids decide what is written. Every other field falls back instead of failing: a malformed location becomes "no location", an unknown topic "other", an out-of-range importance 2, a missing reason blank. Titles of any length are accepted and cut to 120 characters in code, in the batch answers and the merge answer.
 2. The schema shown to the model states these defaults, so the model sees what an omitted field means.
+
+## 50. Every story on the map is grouped and ranked (September 29, 2026)
+
+The first complete live day showed 2,632 stories, but only about 300 had been grouped into events. The grouping stage reads each outlet's 15 newest articles (1,303 that day); of those it set aside 454 as not news and left 570 ungrouped. Everything outside a group had no importance, topic or place, so it could not be ranked, sized or placed where it happened, and ads showed as stories. The cross-batch merge proposed five joins and the checks refused all five.
+
+1. Articles the model neither groups nor sets aside go back to it once, in their own batches. Whatever is still left becomes a one-article event of importance 1. A failed second pass does not fail the day.
+2. Once a day is grouped, the map shows only articles that belong to a story. Articles set aside as not news, and articles past an outlet's daily cap, stay off the map.
+3. Merge keys are read however the model brackets or capitalises them ("[B1-E3]" is "b1-e3").
+4. Tests give the in-memory database a minute to start, since a full parallel run could pass the old 10 second limit with nothing wrong.

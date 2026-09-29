@@ -1,7 +1,7 @@
 // Cluster world in batches, with the merge pass across them, on a real Postgres engine and a scripted model.
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { toRunDate } from "@2dayai/core";
+import { toRunDate, validMergeGroups } from "@2dayai/core";
 import { articles, eventArticles, events, sources, type Db } from "@2dayai/db";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
 import { LlmParseError } from "./llm/types.js";
@@ -104,7 +104,7 @@ describe("cluster world in batches", () => {
     expect(keysFor(merge.user, "flood")).toEqual(["b1-e1", "b2-e1", "b3-e1"]);
 
     // Twelve batch events; the three flood events become one. The Lima outlet's two stories are environment.
-    expect(report).toEqual({ articles: 12, events: 10, placed: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: { environment: 2, other: 8 }, batches: 3, merged: 1, mergeDropped: 0 });
+    expect(report).toEqual({ articles: 12, events: 10, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: { environment: 2, other: 8 }, batches: 3, merged: 1, mergeDropped: 0 });
     const evs = await worldEvents();
     const all = evs.flatMap((e) => e.articleIds);
     expect(all).toHaveLength(12);
@@ -194,6 +194,32 @@ describe("cluster world in batches", () => {
     expect(report).toMatchObject({ events: 12, placed: 0, unassigned: 0 });
     const evs = await worldEvents();
     expect(evs.every((e) => e.title.length <= 120 && e.topic === "other" && e.importance === 2)).toBe(true);
+  });
+
+  it("asks again about articles the model left out, and lets the rest stand alone (decision 50)", async () => {
+    // First pass: every batch leaves out its last article. Second pass: the model groups half of those again.
+    let pass = 0;
+    const partial: FakeAnswer = (req) => {
+      const answer = clusterAnswer(req) as { events: { articleIds: number[] }[]; skipped: unknown[] };
+      const ids = [...req.user.matchAll(/^\[(\d+)\]/gm)].map((m) => Number(m[1]));
+      pass += 1;
+      // Three first-pass batches of four; the fourth call is the second pass over the three left out.
+      const drop = new Set(pass <= 3 ? [ids.at(-1)!] : ids.filter((_, i) => i % 2 === 1));
+      return { ...answer, events: answer.events.map((e) => ({ ...e, articleIds: e.articleIds.filter((id) => !drop.has(id)) })) };
+    };
+    const llm = new FakeLlm({ "cluster-world": partial, "cluster-world-merge": () => ({ groups: [] }) });
+    const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date);
+    expect(report.unassigned).toBe(3);
+    expect(report.alone).toBe(1);
+    // Every article ends up in exactly one event.
+    const linked = (await worldEvents()).flatMap((e) => e.articleIds);
+    expect(new Set(linked).size).toBe(ARTICLES.length);
+    expect(pass).toBe(4);
+  });
+
+  it("reads merge keys however the model brackets or capitalises them", () => {
+    const known = new Set(["b1-e1", "b2-e3"]);
+    expect(validMergeGroups({ groups: [{ eventKeys: ["[B1-E1]", " b2-e3 "], title: "t" }] }, known)).toEqual({ groups: [{ eventKeys: ["b1-e1", "b2-e3"], title: "t" }], dropped: 0 });
   });
 
   it("keeps at most WORLD_PER_SOURCE newest articles per outlet", async () => {

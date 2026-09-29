@@ -114,7 +114,11 @@ describe("the world desk on a real Postgres engine", () => {
     const map = await loadMapView(db, date);
     expect(map.telegram).toBeNull();
     expect(Object.keys(map.events)).toHaveLength(0);
-    expect(await db.select().from(events).where(eq(events.desk, "world"))).toHaveLength(0);
+    // The model grouped nothing, so every article stands alone at the lowest importance (decision 50): ranked on
+    // the map, never explained, no word.
+    const alone = await db.select().from(events).where(eq(events.desk, "world"));
+    expect(alone).toHaveLength(15);
+    expect(alone.every((e) => e.importance === 1)).toBe(true);
 
     await runDay(db, testConfig(), new FakeLlm(worldAnswers()), date, deps);
     // A score whose reason is not one of the event's sentences fails twice, and the stage fails loudly.
