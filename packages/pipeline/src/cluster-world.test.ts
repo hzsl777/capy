@@ -217,6 +217,17 @@ describe("cluster world in batches", () => {
     expect(pass).toBe(4);
   });
 
+  it("links an article to its event once when the model lists it twice", async () => {
+    const doubled: FakeAnswer = (req) => {
+      const answer = clusterAnswer(req) as { events: { articleIds: number[] }[]; skipped: unknown[] };
+      return { ...answer, events: answer.events.map((e) => ({ ...e, articleIds: [...e.articleIds, ...e.articleIds] })) };
+    };
+    const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), new FakeLlm({ "cluster-world": doubled, "cluster-world-merge": () => ({ groups: [] }) }), date);
+    expect(report.events).toBe(12);
+    const linked = (await worldEvents()).flatMap((e) => e.articleIds);
+    expect(linked).toHaveLength(ARTICLES.length);
+  });
+
   it("reads merge keys however the model brackets or capitalises them", () => {
     const known = new Set(["b1-e1", "b2-e3"]);
     expect(validMergeGroups({ groups: [{ eventKeys: ["[B1-E1]", " b2-e3 "], title: "t" }] }, known)).toEqual({ groups: [{ eventKeys: ["b1-e1", "b2-e3"], title: "t" }], dropped: 0 });

@@ -53,7 +53,7 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
   let unknownIds = 0;
   let written = 0;
   for (const ev of result.events) {
-    const ids = ev.articleIds.filter((id) => {
+    const ids = [...new Set(ev.articleIds)].filter((id) => {
       if (!known.has(id)) {
         unknownIds += 1;
         return false;
@@ -198,7 +198,8 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
       const known = new Set(batch.map((r) => r.id));
       let n = 0;
       for (const ev of result.events) {
-        const ids = ev.articleIds.filter((id) => {
+        // A model sometimes lists an article twice in one event; each article joins an event once.
+        const ids = [...new Set(ev.articleIds)].filter((id) => {
           if (!known.has(id)) {
             unknownIds += 1;
             return false;
