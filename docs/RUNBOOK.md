@@ -24,6 +24,8 @@ Each "Daily run" writes a short summary on its page in the Actions tab: the word
 
 ## Turn on 2DayAI
 
+Parked for now (decision 40): the site comes first, and 2DayAI is planned as an opt-in on the site later. "Deliver" has no schedule until then. When it comes back, restore the schedule in `.github/workflows/deliver.yml` and follow the steps below.
+
 The email briefing uses the same database, model key and daily run as the map. It turns on by itself once it has readers and a way to send mail (decision 35).
 
 1. **Readers.** Copy `config/readers/r00.example.yaml` for each reader and fill in the real email, timezone, delivery hour, topics and stake sentences. Ids are `r01`, `r02` and so on. Put all of them in one secret, `READER_PROFILES`, separated by a line with `---`. The profiles hold emails, so they never go in the repository. The next daily run adds the readers and makes their editions.

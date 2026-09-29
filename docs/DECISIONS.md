@@ -226,3 +226,11 @@ The first real daily run failed because the OpenAI account had no credit. Each m
 
 1. A 429 that says `insufficient_quota` or `credit_balance_exhausted` fails at once, without retries and without the switch to the default tier, and says to add credit or raise the spend limit. Other 429s still wait and retry.
 2. `npm run stage -- prompt <name>` prints one call for the Playground: the settings the pipeline uses (model, JSON object, reasoning effort, no tools), the system message exactly as sent, and a sample user message from the fictional world day. It needs no key and no database. docs/PROMPTS.md maps each Playground setting.
+
+## 40. The word is the headline, and 2DayAI email is parked (September 29, 2026)
+
+Davis wants one big word on the site and no email briefing for now, with 2DayAI coming back later as an opt-in on the site.
+
+1. The day's word moves to the centre of the masthead and becomes the largest text on the page. Its size follows its length, so a short word like "Joy" is large and the longest, "Encouragement", still fits a 375-pixel phone. The date, the "Chosen by AI" label and the scale sit beside it on wide screens and under it on phones. Nothing is added around the word, and the label stays next to it (neutrality rule 4).
+2. 2DayAI email is parked. The code and decision 35 stay as they are, and with no reader profiles the daily run skips the briefing stages at no cost (decision 33). "Deliver" loses its two-hourly schedule, which spent about 360 Actions minutes a month on skipped runs. It can still be run by hand.
+3. When 2DayAI returns, it is an opt-in on the site with no account or login: a visitor asks for the briefing, and the site keeps only what is needed to send it. That design is its own decision.

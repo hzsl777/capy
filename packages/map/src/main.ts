@@ -553,16 +553,18 @@ function renderTelegramStrip() {
   const t = file.telegram;
   const date = h("span", { class: "telegram-kicker" }, formatRunDate(file.runDate));
   if (!t) {
-    el.replaceChildren(h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, "No word yet for this day")));
+    el.replaceChildren(h("div", { class: "telegram-side" }, h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, "No word yet for this day"))));
     return;
   }
   const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
   word.addEventListener("click", openTelegram);
+  // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
+  // space without overflowing a phone.
+  word.style.setProperty("--len", String(Math.max(4, t.word.length)));
   const n = t.scores.length;
   el.replaceChildren(
-    h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`)),
     word,
-    scale(t.band),
+    h("div", { class: "telegram-side" }, h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`)), scale(t.band)),
   );
 }
 
