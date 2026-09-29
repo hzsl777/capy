@@ -515,3 +515,13 @@ Davis felt the story panel, a dark see-through box, did not read as the menus of
 3. Each story sits in an inset slot. The slot you point at or reach with the keyboard gets a gold selection cursor, four corner brackets that pulse. Place names are gold, "Also reported by" is blue, as the games coloured names in their text.
 4. A small gold triangle bobs in the panel's bottom corner, like the one that waits at the end of a text box.
 5. Motion stops for readers who ask for reduced motion. No Nintendo art, lettering or icons are used.
+
+## 65. Polygon Kingdom's fields step in tiers, and its lettering takes after Rare (September 29, 2026)
+
+Davis felt the grass still did not look like Super Mario 64's, and asked for text and controls closer to Banjo-Kazooie and Rare's games of that era. This changes items 2 and 5 of decision 63.
+
+1. **Tiers.** Grass no longer rolls in small bumps. Each grass triangle sits flat on one of three plateau levels, and straight orange cliff walls close every step between levels and where grass meets a mountain's foot. Only real mountain ranges slope, in rock with snow on the highest peaks.
+2. **Trees.** Round-topped trees on trunks stand on some of the grass. None stands in a grid cell that holds a place on the map, so a tree can never cover or be mistaken for a marker (tested).
+3. **Lettering.** The name, the word and the panel title are set in Titan One: chunky rounded capitals in warm yellow with a thick dark outline and a solid drop, each letter tilted its own way and bobbing slightly out of step. Screen readers read the whole word. Motion stops for readers who ask for reduced motion. The letters' look is Rare's spirit, not their lettering, and no game is named.
+4. **Buttons** are lumpy hand-made shapes in warm cream with a thick dark outline, each tilted a little, bouncing when pointed at and pressing down when open.
+5. A frame of terrain takes about 19 ms on the tilted map and 14 ms on the globe in a software-rendered browser.

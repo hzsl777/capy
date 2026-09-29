@@ -45,7 +45,28 @@ export interface Terrain {
   clat: Float32Array;
   /** Coast edges (corner index pairs): where a land triangle meets the sea, and the cliff walls hang. */
   coast: Uint32Array;
+  /** The land triangle each coast edge belongs to. */
+  coastTri: Uint32Array;
+  /**
+   * A grass triangle's flat height (it sits on a plateau), or NaN for a rock or snow triangle, which slopes
+   * between its corners' heights.
+   */
+  triH: Float32Array;
+  /**
+   * Steps between neighbouring triangles that meet at different heights (a plateau's edge, or where grass meets a
+   * mountain): corner pairs, the height on each side at each corner, and the triangle further north.
+   */
+  steps: { a: Uint32Array; b: Uint32Array; hiA: Float32Array; loA: Float32Array; hiB: Float32Array; loB: Float32Array; north: Uint32Array };
+  /** Trees on the grass: longitude, latitude and ground height, three numbers each, and the triangle they stand on. */
+  trees: Float32Array;
+  treeTri: Uint32Array;
+  /** Flat height of each grid cell's plateau, or NaN where the cell is mountain or sea. */
+  cellH: Float32Array;
 }
+
+/** Plateau levels: the grass steps up in flat tiers, as early 3D games built their fields. */
+const LEVELS = 3;
+const levelHeight = (l: number) => 0.3 + l * 0.7;
 
 const NORTH = 88;
 
@@ -146,14 +167,17 @@ export function buildTerrain(o: TerrainInput): Terrain {
         density[r * 360 + c]! += 1 / (1 + dr * dr + dc * dc);
       }
   }
+  const level = (lo: number, la: number) => Math.min(LEVELS - 1, Math.floor(hills(lo, la, 7) * LEVELS * 1.05));
   const h = new Float32Array(n);
+  const spikeV = new Float32Array(n);
   for (let i = 0; i < n; i++) {
     if (shore[i] || !landV[i]) continue;
     const dc = Math.min(359, Math.max(0, Math.floor(lon[i]! + 180)));
     const dr = Math.min(179, Math.max(0, Math.floor(90 - lat[i]!)));
     const dens = density[dr * 360 + dc]!;
     const spike = dens > 0.3 ? Math.min(3, 0.9 * Math.pow(dens, 0.6)) * (0.6 + 0.8 * hash(Math.round(lon[i]! * 3), Math.round(lat[i]! * 3))) : 0;
-    h[i] = 0.12 + 0.55 * hills(lon[i]!, lat[i]!, 6) + spike;
+    spikeV[i] = spike;
+    h[i] = levelHeight(level(lon[i]!, lat[i]!)) + spike;
   }
 
   // Light from the north-west and above, as a morning sun over the map.
@@ -178,16 +202,25 @@ export function buildTerrain(o: TerrainInput): Terrain {
   };
   const T = tris.length / 3;
   const rgb = new Uint32Array(T);
+  const triH = new Float32Array(T);
   const cx = new Float32Array(T), cy = new Float32Array(T), cz = new Float32Array(T);
   const clon = new Float32Array(T), clat = new Float32Array(T);
   for (let t = 0; t < T; t++) {
     const a = tris[3 * t]!, b = tris[3 * t + 1]!, d = tris[3 * t + 2]!;
     const top = Math.max(h[a]!, h[b]!, h[d]!);
+    const mountain = Math.max(spikeV[a]!, spikeV[b]!, spikeV[d]!) > 0.55;
+    const cl0 = (lon[a]! + lon[b]! + lon[d]!) / 3, ct0 = (lat[a]! + lat[b]! + lat[d]!) / 3;
+    // Grass sits flat on its plateau; rock and snow slope between their corners, so mountains rise from the tiers.
+    triH[t] = mountain || ice[t] ? NaN : levelHeight(level(cl0, ct0));
     // Grass takes the smooth average of its corners' light. Rock takes its own face's light, so peaks show facets.
     const smooth = (vlight[a]! + vlight[b]! + vlight[d]!) / 3;
     let color: RGB;
     let k = smooth;
-    if (ice[t] || top > 3.3) {
+    if (!Number.isNaN(triH[t])) {
+      // A plateau is lit evenly; each tier up is a touch brighter, as the tops of those fields caught the sun.
+      color = o.grass;
+      k = 0.94 + 0.05 * level(cl0, ct0);
+    } else if (ice[t] || top > 3.3) {
       color = mix(o.snowShade, o.snow, Math.max(0, Math.min(1, (smooth - 0.6) / 0.45)));
       k = 1;
     } else if (top > 1.35) {
@@ -208,15 +241,69 @@ export function buildTerrain(o: TerrainInput): Terrain {
     clon[t] = cl;
     clat[t] = ct;
   }
-  return { step, cols, rows, lon, lat, h, tris: Uint32Array.from(tris), rgb, cx, cy, cz, clon, clat, coast: Uint32Array.from(coast) };
+  // Where two triangles share an edge but not a height, a step wall closes the gap: plateau edges, and where grass
+  // meets a mountain's foot.
+  const heightOf = (t: number, v: number) => (Number.isNaN(triH[t]!) ? h[v]! : triH[t]!);
+  const owner = new Map<number, number>();
+  const sA: number[] = [], sB: number[] = [], hiA: number[] = [], loA: number[] = [], hiB: number[] = [], loB: number[] = [], north: number[] = [];
+  for (let t = 0; t < T; t++)
+    for (const [a, b] of [[tris[3 * t]!, tris[3 * t + 1]!], [tris[3 * t + 1]!, tris[3 * t + 2]!], [tris[3 * t + 2]!, tris[3 * t]!]] as const) {
+      const key = a < b ? a * n + b : b * n + a;
+      const other = owner.get(key);
+      if (other === undefined) {
+        owner.set(key, t);
+        continue;
+      }
+      const ha1 = heightOf(t, a), ha2 = heightOf(other, a), hb1 = heightOf(t, b), hb2 = heightOf(other, b);
+      if (Math.abs(ha1 - ha2) < 0.05 && Math.abs(hb1 - hb2) < 0.05) continue;
+      sA.push(a);
+      sB.push(b);
+      hiA.push(Math.max(ha1, ha2));
+      loA.push(Math.min(ha1, ha2));
+      hiB.push(Math.max(hb1, hb2));
+      loB.push(Math.min(hb1, hb2));
+      north.push(clat[t]! >= clat[other]! ? t : other);
+    }
+
+  // Coast edges know their triangle, so the cliff starts at the plateau's height.
+  const coastTri: number[] = [];
+  for (let k = 0; k < coast.length; k += 2) {
+    const a = coast[k]!, b = coast[k + 1]!;
+    const key = a < b ? a * n + b : b * n + a;
+    coastTri.push(owner.get(key) ?? 0);
+  }
+
+  // Trees on some grass, never in a cell that holds a place, so a tree can never sit where a marker stands.
+  const trees: number[] = [];
+  const treeTri: number[] = [];
+  const cellH = new Float32Array(rows * cols).fill(NaN);
+  for (let t = 0; t < T; t++) {
+    const c = Math.min(cols - 1, Math.max(0, Math.floor((clon[t]! + 180) / step)));
+    const r = Math.min(rows - 1, Math.max(0, Math.floor((NORTH - clat[t]!) / step)));
+    if (!Number.isNaN(triH[t]!) && Number.isNaN(cellH[r * cols + c]!)) cellH[r * cols + c] = triH[t]!;
+    if (Number.isNaN(triH[t]!) || ice[t] || anchored.has(r * cols + c)) continue;
+    if (hash(Math.round(clon[t]! * 7), Math.round(clat[t]! * 7)) < 0.09) {
+      trees.push(clon[t]!, clat[t]!, triH[t]!);
+      treeTri.push(t);
+    }
+  }
+
+  return {
+    step, cols, rows, lon, lat, h, tris: Uint32Array.from(tris), rgb, cx, cy, cz, clon, clat,
+    coast: Uint32Array.from(coast), coastTri: Uint32Array.from(coastTri), triH,
+    steps: { a: Uint32Array.from(sA), b: Uint32Array.from(sB), hiA: Float32Array.from(hiA), loA: Float32Array.from(loA), hiB: Float32Array.from(hiB), loB: Float32Array.from(loB), north: Uint32Array.from(north) },
+    trees: Float32Array.from(trees), treeTri: Uint32Array.from(treeTri), cellH,
+  };
 }
 
-/** The terrain height under a point, interpolated between the four corners around it. */
+/** The terrain height under a point: its plateau, or on a mountain, interpolated between the corners around it. */
 export function heightAt(t: Terrain, lon: number, lat: number): number {
   const x = (lon + 180) / t.step;
   const y = (NORTH - lat) / t.step;
   const c = Math.min(t.cols - 1, Math.max(0, Math.floor(x)));
   const r = Math.min(t.rows - 1, Math.max(0, Math.floor(y)));
+  const flat = t.cellH[r * t.cols + c]!;
+  if (!Number.isNaN(flat)) return flat;
   const fx = Math.min(1, Math.max(0, x - c)), fy = Math.min(1, Math.max(0, y - r));
   const at = (cc: number, rr: number) => t.h[rr * (t.cols + 1) + cc]!;
   const top = at(c, r) * (1 - fx) + at(c + 1, r) * fx;

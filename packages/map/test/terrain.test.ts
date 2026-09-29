@@ -48,7 +48,7 @@ describe("Polygon Kingdom terrain", () => {
     const peaks: [number, number][] = [];
     for (let i = 0; i < 400; i++) peaks.push([(i % 20) - 10, Math.floor(i / 20) - 10]);
     const t = buildTerrain({ ...base, step: 1.5, anchors: [], isLand: land, peaks });
-    expect(Math.max(...t.h)).toBeLessThanOrEqual(0.67 + 3 * 1.4);
+    expect(Math.max(...t.h)).toBeLessThanOrEqual(1.7 + 3 * 1.4);
     expect(heightAt(t, 30, 30)).toBe(0);
     expect(heightAt(t, 0, 0)).toBeGreaterThan(0.12);
     // A corner on the coast touches a sea triangle, so the cliffs start at sea level.
@@ -62,5 +62,20 @@ describe("Polygon Kingdom terrain", () => {
     const b = buildTerrain({ ...base, step: 3, anchors: [], isLand: land, peaks: [[10, 45]] });
     expect(Array.from(a.rgb)).toEqual(Array.from(b.rgb));
     expect(Array.from(a.h)).toEqual(Array.from(b.h));
+  });
+
+  it("never puts a tree in a cell that holds a place, and keeps grass on flat tiers", () => {
+    const land = (lon: number, lat: number) => lon > -30 && lon < 30 && lat > -30 && lat < 30;
+    const places: [number, number][] = [];
+    for (let i = 0; i < 60; i++) places.push([-25 + (i % 10) * 5, -25 + Math.floor(i / 10) * 8]);
+    for (const step of [3, 1.5]) {
+      const t = buildTerrain({ ...base, step, anchors: places, isLand: land });
+      expect(t.treeTri.length).toBeGreaterThan(0);
+      const cell = (lon: number, lat: number) => `${Math.floor((lon + 180) / step)},${Math.floor((88 - lat) / step)}`;
+      const taken = new Set(places.map(([lo, la]) => cell(lo, la)));
+      for (let j = 0; j < t.treeTri.length; j++) expect(taken.has(cell(t.trees[3 * j]!, t.trees[3 * j + 1]!))).toBe(false);
+      const flat = Array.from(t.triH).filter((v) => !Number.isNaN(v));
+      expect(new Set(flat).size).toBeLessThanOrEqual(3);
+    }
   });
 });

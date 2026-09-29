@@ -240,7 +240,7 @@
   --reticle: #102a5c;
   --grain-opacity: 0;
   --grain-blend: normal;
-  --font-mast: "Russo One", "Arial Black", sans-serif;
+  --font-mast: "Titan One", "Arial Black", sans-serif;
   --font-head: "Nunito", "Trebuchet MS", sans-serif;
   --font-body: "Nunito", "Trebuchet MS", sans-serif;
   --font-ui: "Nunito", "Trebuchet MS", sans-serif;
@@ -2194,21 +2194,53 @@ button.link {
 :root[data-theme="bit64"] .map {
   background: linear-gradient(to bottom, #6fb4f0 0%, #a9d6f7 45%, #e6f5fb 100%);
 }
-/* A rendered menu title: white into ice blue, a navy outline, and stepped depth below. */
+/* Cartoon lettering in the spirit of Rare's games of that era: chunky rounded capitals, warm yellow with a thick
+   dark outline and a solid drop below, each letter tilted its own way and bobbing slightly out of step. */
 :root[data-theme="bit64"] .mast-title,
 :root[data-theme="bit64"] .telegram-word,
 :root[data-theme="bit64"] .telegram-big {
   font-family: var(--font-mast);
   font-weight: 400;
-  letter-spacing: 0.03em;
-  background: linear-gradient(to bottom, #ffffff 0%, #cfeeff 50%, #7cc0f0 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 2px #102a5c;
+  letter-spacing: 0.02em;
+  color: #ffd84a;
+  -webkit-text-stroke: 3px #3b1d0e;
   paint-order: stroke fill;
-  filter: drop-shadow(1px 1px 0 #1d4a8f) drop-shadow(1px 1px 0 #1d4a8f) drop-shadow(1px 1px 0 #1d4a8f) drop-shadow(2px 3px 3px rgba(16, 42, 92, 0.35));
+  text-shadow: 0 4px 0 #3b1d0e, 0 6px 6px rgba(40, 20, 0, 0.35);
   border-bottom: 0;
+}
+:root[data-theme="bit64"] .telegram-big {
+  color: #ffd84a;
+}
+:root[data-theme="bit64"] .lt {
+  display: inline-block;
+  rotate: -4deg;
+  translate: 0 1px;
+  animation: rare-bob 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.23s);
+}
+:root[data-theme="bit64"] .lt:nth-child(2n) {
+  rotate: 3deg;
+  translate: 0 -2px;
+}
+:root[data-theme="bit64"] .lt:nth-child(3n) {
+  rotate: -1deg;
+}
+:root[data-theme="bit64"] .lt:nth-child(5n) {
+  rotate: 5deg;
+}
+@keyframes rare-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="bit64"] .lt {
+    animation: none;
+  }
 }
 :root[data-theme="bit64"] .mast-tag,
 :root[data-theme="bit64"] .telegram-kicker,
@@ -2260,10 +2292,12 @@ button.link {
   text-align: center;
   font-family: var(--font-mast);
   font-weight: 400;
-  font-size: 20px;
-  letter-spacing: 0.06em;
-  color: #fff4d0;
-  text-shadow: 2px 2px 0 #1a0c02;
+  font-size: 21px;
+  letter-spacing: 0.04em;
+  color: #ffd84a;
+  -webkit-text-stroke: 2px #1a0c02;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #1a0c02;
   background: linear-gradient(to bottom, #2e1a08, #150a02);
   border: 2px solid #d9a653;
   border-radius: 10px;
@@ -2307,7 +2341,7 @@ button.link {
   text-shadow: 2px 2px 0 #1a0c02;
 }
 :root[data-theme="bit64"] .panel-title {
-  color: #fff4d0;
+  color: #ffd84a;
 }
 :root[data-theme="bit64"] .dateline {
   border-bottom: 2px solid rgba(217, 166, 83, 0.6);
@@ -2410,7 +2444,7 @@ button.link {
     radial-gradient(ellipse 90% 40% at 50% 0%, rgba(255, 206, 120, 0.3), transparent 70%),
     linear-gradient(to bottom, rgb(128, 74, 26), rgb(62, 32, 10));
 }
-/* Buttons: cream plastic, raised, pressing down when open. Gold only for what is open or on. */
+/* Buttons: lumpy hand-made shapes in warm cream, each tilted a little, that bounce when you point at them. */
 :root[data-theme="bit64"] .tool,
 :root[data-theme="bit64"] .pick select,
 :root[data-theme="bit64"] .menu > summary,
@@ -2418,21 +2452,48 @@ button.link {
 :root[data-theme="bit64"] .zoom button,
 :root[data-theme="bit64"] .key-btn,
 :root[data-theme="bit64"] .key-close {
-  background: linear-gradient(to bottom, #fffaf0, #e9dcc0);
-  border: 2px solid #5a4326;
-  border-radius: 10px;
-  box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #5a4326;
-  color: #3a2a14;
-  font-weight: 800;
-  text-transform: uppercase;
+  background: linear-gradient(to bottom, #fff6d0, #f6d77a);
+  border: 3px solid #4a1d05;
+  border-radius: 16px 10px 18px 9px / 11px 17px 10px 15px;
+  box-shadow: inset 0 2px 0 #ffffff, 0 4px 0 #4a1d05;
+  color: #4a1d05;
+  font-family: var(--font-mast);
+  font-weight: 400;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.25s cubic-bezier(0.34, 1.8, 0.64, 1);
+}
+:root[data-theme="bit64"] .toolbar > :nth-child(odd) select,
+:root[data-theme="bit64"] .toolbar > :nth-child(odd) > summary,
+:root[data-theme="bit64"] .toolbar > .tool:nth-child(odd) {
+  transform: rotate(-1.5deg);
+}
+:root[data-theme="bit64"] .toolbar > :nth-child(even) select,
+:root[data-theme="bit64"] .toolbar > :nth-child(even) > summary,
+:root[data-theme="bit64"] .toolbar > .tool:nth-child(even) {
+  transform: rotate(1.2deg);
+}
+:root[data-theme="bit64"] .tool:hover,
+:root[data-theme="bit64"] .pick select:hover,
+:root[data-theme="bit64"] .menu > summary:hover,
+:root[data-theme="bit64"] .key-btn:hover,
+:root[data-theme="bit64"] .zoom button:hover {
+  transform: scale(1.08) rotate(0deg);
 }
 :root[data-theme="bit64"] .menu[open] > summary,
 :root[data-theme="bit64"] .key-btn[aria-expanded="true"],
 :root[data-theme="bit64"] .tool[aria-pressed="true"] {
-  background: linear-gradient(to bottom, #ffe58a, #f2b632);
-  transform: translateY(2px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 0 #5a4326;
+  background: linear-gradient(to bottom, #ffe58a, #f2a632);
+  transform: translateY(3px) rotate(0deg);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 1px 0 #4a1d05;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="bit64"] .tool,
+  :root[data-theme="bit64"] .pick select,
+  :root[data-theme="bit64"] .menu > summary,
+  :root[data-theme="bit64"] .key-btn {
+    transition: none;
+  }
 }
 :root[data-theme="bit64"] .zoom {
   border: 0;
@@ -3200,7 +3261,8 @@ button.link {
   :root[data-theme="bit64"] .tool,
   :root[data-theme="bit64"] .pick select,
   :root[data-theme="bit64"] .menu > summary {
-    font-size: 12px;
+    font-size: 11px;
+    letter-spacing: 0;
     padding-left: 7px;
     padding-right: 7px;
   }

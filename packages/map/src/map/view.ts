@@ -1239,32 +1239,54 @@ export class MapView {
     }
     const { X, Y, S, stamp } = wk;
     const frame = ++this.frameNo;
+    // Each corner is projected once, on the ground; heights are added per triangle, since a plateau's corner and
+    // the mountain beside it stand at different heights.
     const vert = (i: number) => {
       if (stamp[i] === frame) return;
       stamp[i] = frame;
       const p = proj([m.lon[i]!, m.lat[i]!])!;
-      const hp = m.h[i]! * lift;
       if (cam) {
-        const q = this.tp(p[0], p[1], hp, cam);
+        const q = this.tp(p[0], p[1], 0, cam);
         X[i] = q[0];
         Y[i] = q[1];
         S[i] = q[2];
-      } else if (globe) {
-        const k = 1 + hp / R;
-        X[i] = gcx + (p[0] - gcx) * k;
-        Y[i] = gcy + (p[1] - gcy) * k;
-        S[i] = Math.hypot(p[0] - gcx, p[1] - gcy) / R;
       } else {
         X[i] = p[0];
-        Y[i] = p[1] - hp;
-        S[i] = 1;
+        Y[i] = p[1];
+        S[i] = globe ? Math.hypot(p[0] - gcx, p[1] - gcy) / R : 1;
       }
+    };
+    const r1 = (v: number) => Math.round(v * 10) / 10;
+    /** A corner raised `hu` units, as SVG path coordinates. */
+    const up = (i: number, hu: number): string => {
+      const hp = hu * lift;
+      if (cam) return `${r1(X[i]!)} ${r1(Y[i]! - hp * S[i]!)}`;
+      if (globe) {
+        const k = 1 + hp / R;
+        return `${r1(gcx + (X[i]! - gcx) * k)} ${r1(gcy + (Y[i]! - gcy) * k)}`;
+      }
+      return `${r1(X[i]!)} ${r1(Y[i]! - hp)}`;
+    };
+    const heightOf = (t: number, v: number) => {
+      const f = m.triH[t]!;
+      return Number.isNaN(f) ? m.h[v]! : f;
     };
     // How far into the haze a point is: toward the draw distance on the tilted map, toward the rim on the globe.
     const haze = (i: number) => (cam ? (0.92 - S[i]!) / 0.3 : globe ? (S[i]! - 0.72) / 0.4 : 0);
+    const colorOf = (rgb: number, i: number) => {
+      const level = Math.round(Math.max(0, Math.min(1, haze(i))) * 8);
+      const key = rgb * 16 + level;
+      let col = this.fogStrings.get(key);
+      if (!col) {
+        col = fogged(rgb, fog, level / 8);
+        this.fogStrings.set(key, col);
+      }
+      return col;
+    };
 
     const tris = m.tris;
     const drawn: number[] = [];
+    const shown = new Uint8Array(T);
     for (const i of order) {
       const a = tris[3 * i]!, b = tris[3 * i + 1]!, c = tris[3 * i + 2]!;
       vert(a);
@@ -1276,32 +1298,27 @@ export class MapView {
       if (!globe && maxX - minX > w / 3) continue;
       if (maxX < -40 || minX > w + 40) continue;
       const minY = Math.min(Y[a]!, Y[b]!, Y[c]!);
-      if (minY > H + 40 || Math.max(Y[a]!, Y[b]!, Y[c]!) < -80) continue;
+      if (minY > H + 60 || Math.max(Y[a]!, Y[b]!, Y[c]!) < -120) continue;
       drawn.push(i);
+      shown[i] = 1;
     }
-    // Far first. The grid runs north to south, which is far to near on the tilted map; the globe sorts by
-    // distance from its centre.
-    if (globe) drawn.sort((p, q) => S[tris[3 * q]!]! - S[tris[3 * p]!]!);
 
-    // Shallows and cliffs along the coast, under the land.
+    // Shallows and cliffs along the coast, under the land. A cliff starts at its triangle's height.
     const depth = clamp(R * 0.018, 3, 14);
     const shallowText: string[] = [];
     const wallText: string[] = [];
     const coast = m.coast;
-    const winX = w / 3;
-    const q = (v: number) => Math.round(v * 10) / 10;
     for (let k = 0; k < coast.length; k += 2) {
       const a = coast[k]!, b = coast[k + 1]!;
-      if (stamp[a] !== frame || stamp[b] !== frame) continue;
-      if (!globe && Math.abs(X[a]! - X[b]!) > winX) continue;
-      if (cam && Math.min(S[a]!, S[b]!) < 0.5) continue;
+      const tri = m.coastTri[k / 2]!;
+      if (!shown[tri]) continue;
       const da = depth * (cam ? S[a]! : 1), db = depth * (cam ? S[b]! : 1);
-      const ax = q(X[a]!), ay = q(Y[a]!), bx = q(X[b]!), by = q(Y[b]!);
-      shallowText.push(`M${ax} ${q(ay + da)}L${bx} ${q(by + db)}`);
-      wallText.push(`M${ax} ${ay}L${bx} ${by}L${bx} ${q(by + db)}L${ax} ${q(ay + da)}Z`);
+      const ga = `${r1(X[a]!)} ${r1(Y[a]! + da)}`, gb = `${r1(X[b]!)} ${r1(Y[b]! + db)}`;
+      shallowText.push(`M${ga}L${gb}`);
+      wallText.push(`M${up(a, heightOf(tri, a))}L${up(b, heightOf(tri, b))}L${gb}L${ga}Z`);
     }
     const shallows = new Path2D(shallowText.join(""));
-    const walls = new Path2D(wallText.join(""));
+    const coastWalls = new Path2D(wallText.join(""));
     ctx.save();
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
@@ -1311,64 +1328,126 @@ export class MapView {
     ctx.stroke(shallows);
     ctx.globalAlpha = 1;
     ctx.fillStyle = lp.cliff[0];
-    ctx.fill(walls);
-    ctx.globalCompositeOperation = "soft-light";
-    ctx.fillStyle = this.worldTexture(proj, 0.5);
-    ctx.fill(walls);
+    ctx.fill(coastWalls);
     ctx.restore();
 
-    // The land: flat fills in each triangle's baked colour, hazed with distance. Triangles are batched by colour
-    // within a band (a row of the grid on the tilted map, a ring of distance on the globe), and bands are drawn far
-    // to near, so near peaks still cover far ones with few fills. All the land is filled once in grass first, and
-    // each batch is outlined in its own colour, so no hairline gap between neighbouring triangles shows the sea.
-    // Paths are built as SVG path text and handed to the canvas once per colour: thousands of separate moveTo and
-    // lineTo calls cost more than the drawing itself.
+    // Bands from far to near: a row of the grid on the tilted map (north is far), a ring of distance on the globe
+    // (the rim is far). In each band the tops go first, then the step walls that hang from them. Paths are built
+    // as SVG path text and handed to the canvas once per colour: thousands of separate moveTo and lineTo calls
+    // cost more than the drawing itself.
+    type Band = { tops: Map<string, string[]>; walls: Map<string, string[]> };
+    const bands = new Map<number, Band>();
+    const bandOf = (i: number) => (globe ? Math.round(S[tris[3 * i]!]! * 24) : Math.round(m.clat[i]! / m.step));
+    const bandFor = (key: number) => {
+      let b = bands.get(key);
+      if (!b) bands.set(key, (b = { tops: new Map(), walls: new Map() }));
+      return b;
+    };
+    const push = (map: Map<string, string[]>, col: string, text: string) => {
+      const list = map.get(col);
+      if (list) list.push(text);
+      else map.set(col, [text]);
+    };
     const landText: string[] = [];
-    const bands: Map<string, string[]>[] = [];
-    let batch = new Map<string, string[]>();
-    let band = NaN;
-    const r1 = (v: number) => Math.round(v * 10) / 10;
     for (const i of drawn) {
       const a = tris[3 * i]!, b = tris[3 * i + 1]!, c = tris[3 * i + 2]!;
-      const here = globe ? Math.round(S[a]! * 24) : Math.round(m.clat[i]! / m.step);
-      if (here !== band) {
-        batch = new Map();
-        bands.push(batch);
-        band = here;
-      }
-      const f = Math.max(0, Math.min(1, haze(a)));
-      const level = Math.round(f * 8);
-      const key = m.rgb[i]! * 16 + level;
-      let col = this.fogStrings.get(key);
-      if (!col) {
-        col = fogged(m.rgb[i]!, fog, level / 8);
-        this.fogStrings.set(key, col);
-      }
-      const tri = `M${r1(X[a]!)} ${r1(Y[a]!)}L${r1(X[b]!)} ${r1(Y[b]!)}L${r1(X[c]!)} ${r1(Y[c]!)}Z`;
-      let list = batch.get(col);
-      if (!list) batch.set(col, (list = []));
-      list.push(tri);
-      landText.push(tri);
+      const text = `M${up(a, heightOf(i, a))}L${up(b, heightOf(i, b))}L${up(c, heightOf(i, c))}Z`;
+      push(bandFor(bandOf(i)).tops, colorOf(m.rgb[i]!, a), text);
+      landText.push(text);
+    }
+    const cliffRgb = hexRgb(lp.cliff[0]);
+    const cliffAt = (k: number) => ((Math.round(cliffRgb[0] * k) << 16) | (Math.round(cliffRgb[1] * k) << 8) | Math.round(cliffRgb[2] * k)) >>> 0;
+    const wallText2: string[] = [];
+    const st = m.steps;
+    for (let k = 0; k < st.a.length; k++) {
+      const north = st.north[k]!;
+      if (!shown[north]) continue;
+      const a = st.a[k]!, b = st.b[k]!;
+      // Walls facing the viewer are lit; walls running toward the horizon fall into shadow.
+      const dx = X[b]! - X[a]!, dy = Y[b]! - Y[a]!;
+      const steep = Math.abs(dy) / (Math.hypot(dx, dy) || 1);
+      const text = `M${up(a, st.hiA[k]!)}L${up(b, st.hiB[k]!)}L${up(b, st.loB[k]!)}L${up(a, st.loA[k]!)}Z`;
+      push(bandFor(bandOf(north)).walls, colorOf(cliffAt(1 - 0.35 * steep), a), text);
+      wallText2.push(text);
     }
     const land = new Path2D(landText.join(""));
     ctx.fillStyle = `rgb(${lp.grass.map((v) => Math.round(v * 0.85)).join(",")})`;
     ctx.fill(land);
     ctx.lineWidth = 0.8;
-    for (const bm of bands)
-      for (const [col, list] of bm) {
+    const drawMap = (map: Map<string, string[]>) => {
+      for (const [col, list] of map) {
         const path = new Path2D(list.join(""));
         ctx.fillStyle = col;
         ctx.strokeStyle = col;
         ctx.fill(path);
         ctx.stroke(path);
       }
-    // Blurry low-resolution texture over the land, tied to the world.
+    };
+    for (const key of [...bands.keys()].sort((p, q) => q - p)) {
+      const band = bands.get(key)!;
+      drawMap(band.tops);
+      drawMap(band.walls);
+    }
+    // Blurry low-resolution textures, tied to the world: grass on the tops, rock on the walls.
     ctx.save();
     ctx.globalCompositeOperation = "soft-light";
     ctx.globalAlpha = 0.6;
     ctx.fillStyle = this.worldTexture(proj, 0.35);
     ctx.fill(land);
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = this.worldTexture(proj, 0.5);
+    ctx.fill(coastWalls);
+    ctx.fill(new Path2D(wallText2.join("")));
     ctx.restore();
+
+    // Round trees on trunks stand on the grass, never in a cell that holds a place.
+    const size = clamp(2.6 + this.zoom * 0.5, 3, 7);
+    const trunks: string[] = [], crowns: string[] = [], lights: string[] = [];
+    const placed: [number, number, number][] = [];
+    for (let j = 0; j < m.treeTri.length; j++) {
+      if (!shown[m.treeTri[j]!]) continue;
+      const lo = m.trees[3 * j]!, la = m.trees[3 * j + 1]!, th = m.trees[3 * j + 2]! * lift;
+      const p = proj([lo, la]);
+      if (!p) continue;
+      let x: number, y: number, sc: number;
+      if (cam) {
+        const q = this.tp(p[0], p[1], th, cam);
+        [x, y, sc] = q;
+        if (sc < 0.55) continue;
+      } else if (globe) {
+        const k = 1 + th / R;
+        x = gcx + (p[0] - gcx) * k;
+        y = gcy + (p[1] - gcy) * k;
+        sc = 1;
+      } else {
+        x = p[0];
+        y = p[1] - th;
+        sc = 1;
+      }
+      placed.push([x, y, size * sc]);
+    }
+    placed.sort((p, q) => p[1] - q[1]);
+    for (const [x, y, z] of placed) {
+      const rx = z, ry = z * 1.15, cy = y - z * 1.9;
+      trunks.push(`M${r1(x - z * 0.22)} ${r1(y)}h${r1(z * 0.44)}v${r1(-z * 1.1)}h${r1(-z * 0.44)}Z`);
+      crowns.push(`M${r1(x - rx)} ${r1(cy)}a${r1(rx)} ${r1(ry)} 0 1 0 ${r1(2 * rx)} 0a${r1(rx)} ${r1(ry)} 0 1 0 ${r1(-2 * rx)} 0Z`);
+      const lx = x - rx * 0.3, ly = cy - ry * 0.35, lr = rx * 0.45;
+      lights.push(`M${r1(lx - lr)} ${r1(ly)}a${r1(lr)} ${r1(lr * 0.8)} 0 1 0 ${r1(2 * lr)} 0a${r1(lr)} ${r1(lr * 0.8)} 0 1 0 ${r1(-2 * lr)} 0Z`);
+    }
+    if (placed.length) {
+      ctx.save();
+      ctx.fillStyle = "#6b3f1a";
+      ctx.fill(new Path2D(trunks.join("")));
+      const crown = new Path2D(crowns.join(""));
+      ctx.fillStyle = "#2f9a2a";
+      ctx.fill(crown);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "#1c6a1a";
+      ctx.stroke(crown);
+      ctx.fillStyle = "#6fd24a";
+      ctx.fill(new Path2D(lights.join("")));
+      ctx.restore();
+    }
   }
 
   private drawRelief(proj: GeoProjection, t: Theme) {

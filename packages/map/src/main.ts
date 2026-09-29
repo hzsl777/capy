@@ -30,7 +30,7 @@ import "@fontsource/pixelify-sans/700.css";
 import "@fontsource/permanent-marker/400.css";
 import "@fontsource/patrick-hand/400.css";
 import "@fontsource/anton/400.css";
-import "@fontsource/russo-one/400.css";
+import "@fontsource/titan-one/400.css";
 import "@fontsource/nunito/800.css";
 import "@fontsource/chewy/400.css";
 import "@fontsource/baloo-2/500.css";
@@ -198,10 +198,32 @@ function flyToPlace(index: number) {
 
 // ---- masthead ---------------------------------------------------------------
 
+/** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
+const LETTER_THEMES = new Set<ThemeId>(["bit64"]);
+
+/** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
+function lettered(el: HTMLElement, text: string) {
+  if (!LETTER_THEMES.has(state.theme)) {
+    el.textContent = text;
+    return el;
+  }
+  if (!el.hasAttribute("aria-label")) el.setAttribute("aria-label", text);
+  el.replaceChildren(
+    ...[...text].map((ch, i) => {
+      // A space would collapse between inline blocks, so it becomes a no-break space.
+      const span = h("span", { class: "lt", "aria-hidden": "true" }, ch === " " ? "\u00a0" : ch);
+      span.style.setProperty("--i", String(i));
+      return span;
+    }),
+  );
+  return el;
+}
+
 function renderMasthead() {
   const t = THEMES[state.theme];
   // One row: the name and tagline on the left, the day's word on the right (renderTelegramStrip).
-  $("mast-title").textContent = t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME;
+  $("mast-title").removeAttribute("aria-label");
+  lettered($("mast-title"), t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME);
   $("mast-tag").textContent = SITE_TAGLINE;
 }
 
@@ -359,8 +381,10 @@ function applyTheme() {
   renderKey();
   map.setMode(viewOf());
   renderMasthead();
+  renderTelegramStrip();
   renderToolbar();
   renderTicker();
+  if (state.file && !state.reader && !state.telegram && !state.event) renderPanel();
   syncUrl();
 }
 
@@ -449,7 +473,7 @@ function renderIdle(panel: HTMLElement) {
     h(
       "div",
       { class: "idle" },
-      h("h2", { class: "panel-title" }, "Latest reports"),
+      lettered(h("h2", { class: "panel-title" }), "Latest reports"),
       h("p", { class: "count" }, "The map stops on a place. Drag the map to choose another."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
     ),
@@ -677,7 +701,7 @@ function renderTelegramStrip() {
     el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word yet for this day")));
     return;
   }
-  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open to see how it was chosen.` }, t.word);
+  const word = lettered(h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open to see how it was chosen.` }), t.word);
   word.addEventListener("click", openTelegram);
   // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
   // space without overflowing a phone.
