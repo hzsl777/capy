@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { zipSync, strToU8 } from "fflate";
 import { toRunDate } from "@2dayai/core";
 import { articles, eventArticles, events, loadMapView, localStories, sources, type Db } from "@2dayai/db";
-import { gdeltFileUrls, parseGkgRow, runLocal } from "./stages/local.js";
+import { forEachLine, gdeltFileUrls, parseGkgRow, runLocal } from "./stages/local.js";
 import { runPrune } from "./stages/prune.js";
 import { createTestDb } from "./test/db.js";
 
@@ -52,6 +52,15 @@ describe("reading a GDELT row", () => {
     expect(parseGkgRow(row({ url: "https://a.example/3", title: "A long enough headline about nothing" }), false)).toBeNull();
     expect(parseGkgRow(row({ url: "https://a.example/4", title: "A long enough headline about Italy", towns: [{ ...TRENTO, type: "1" }, { ...TRENTO, type: "5" }] }), false)).toBeNull();
     expect(parseGkgRow(row({ url: "https://a.example/5", title: "A long enough headline about Trento", towns: [TRENTO], collection: "2" }), false)).toBeNull();
+  });
+
+  it("reads a large file a chunk at a time without splitting a line or a letter", () => {
+    // About 12 MB unzipped, so the stream hands it over in many chunks.
+    const lines = Array.from({ length: 4000 }, (_, i) => `${i}\t${"São Tomé é aqui ".repeat(200)}`);
+    const got: string[] = [];
+    forEachLine(zipSync({ "big.csv": strToU8(lines.join("\n")) }), (l) => got.push(l));
+    expect(got).toHaveLength(4000);
+    expect(got.every((l, i) => l === lines[i])).toBe(true);
   });
 
   it("lists every quarter hour of the day's window, in English and translated", () => {

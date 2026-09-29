@@ -3,7 +3,7 @@
 // with no story on the day's map, this stage takes the newest few articles about a town there. The place comes from
 // GDELT's city tag, checked against the city list the same way the grouping stage's places are (decision 44). No
 // model reads these stories: they cost nothing, never join an event and sit at the lowest zoom tier.
-import { unzipSync } from "fflate";
+import { Unzip, UnzipInflate } from "fflate";
 import { eq } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
 import { loadMapView, localStories, type Db } from "@2dayai/db";
@@ -12,8 +12,8 @@ import { noControl } from "../text.js";
 import { HttpError, USER_AGENT } from "./ingest.js";
 
 const BASE = "http://data.gdeltproject.org/gdeltv2/";
-/** Files fetched at once. Each is a few megabytes zipped. */
-const CONCURRENCY = 4;
+/** Files fetched at once. Each is tens of megabytes unzipped, read as a stream so memory stays small. */
+const CONCURRENCY = 2;
 const TITLE_MIN = 20;
 const TITLE_MAX = 300;
 
@@ -117,9 +117,24 @@ export function parseGkgRow(line: string, translated: boolean): GkgArticle | nul
   return { url, domain: c[3] || new URL(url).hostname, title, lang: code ? (LANG[code] ?? null) : null, publishedAt, town: { name: town.name, lat: town.lat, lon: town.lon } };
 }
 
-/** The text of every file in a GDELT zip. */
-function unzipText(bytes: Uint8Array): string[] {
-  return Object.values(unzipSync(bytes)).map((b) => new TextDecoder().decode(b));
+/**
+ * Every line of every file in a GDELT zip, unzipped and decoded a chunk at a time. Unzipping a whole day's files
+ * into strings ran the daily job out of memory.
+ */
+export function forEachLine(bytes: Uint8Array, onLine: (line: string) => void): void {
+  const unzip = new Unzip((file) => {
+    const decoder = new TextDecoder();
+    let rest = "";
+    file.ondata = (err, chunk, final) => {
+      if (err) throw err;
+      const lines = (rest + decoder.decode(chunk, { stream: !final })).split("\n");
+      rest = final ? "" : lines.pop()!;
+      for (const line of lines) if (line) onLine(line);
+    };
+    file.start();
+  });
+  unzip.register(UnzipInflate);
+  unzip.push(bytes, true);
 }
 
 export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGdelt: GdeltFetcher = defaultGdeltFetcher, gaz = Gazetteer.load()): Promise<LocalReport> {
@@ -181,12 +196,10 @@ export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGd
       }
       const translated = url.includes(".translation.");
       try {
-        for (const text of unzipText(bytes)) {
-          for (const line of text.split("\n")) {
-            const a = line ? parseGkgRow(line, translated) : null;
-            if (a) take(a);
-          }
-        }
+        forEachLine(bytes, (line) => {
+          const a = parseGkgRow(line, translated);
+          if (a) take(a);
+        });
       } catch (err) {
         filesFailed += 1;
         console.error(`local: ${url} could not be read. ${err instanceof Error ? err.message : String(err)}`);
