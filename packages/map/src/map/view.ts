@@ -10,6 +10,7 @@ import {
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
+import { buildTerrain, type Terrain } from "./terrain.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -61,54 +62,6 @@ const GRATICULE = geoGraticule().step([15, 15])();
 
 type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "tiles" | "shimmer";
 
-type Ring = [number, number][];
-const lowPolyCache = new WeakMap<object, { land: GeoPermissibleObjects; ice: GeoPermissibleObjects | null }>();
-
-/** Douglas-Peucker on one lon/lat ring: keeps only the points that stray more than `tol` degrees from a line. */
-function simplifyRing(ring: Ring, tol: number): Ring {
-  if (ring.length <= 4) return ring;
-  const keep = new Uint8Array(ring.length);
-  keep[0] = keep[ring.length - 1] = 1;
-  const stack: [number, number][] = [[0, ring.length - 1]];
-  while (stack.length) {
-    const [a, b] = stack.pop()!;
-    const [ax, ay] = ring[a]!;
-    const [bx, by] = ring[b]!;
-    const len = Math.hypot(bx - ax, by - ay) || 1e-9;
-    let far = -1;
-    let dist = tol;
-    for (let i = a + 1; i < b; i++) {
-      const [x, y] = ring[i]!;
-      const d = len > 1e-9 ? Math.abs((bx - ax) * (ay - y) - (ax - x) * (by - ay)) / len : Math.hypot(x - ax, y - ay);
-      if (d > dist) {
-        dist = d;
-        far = i;
-      }
-    }
-    if (far > 0) {
-      keep[far] = 1;
-      stack.push([a, far], [far, b]);
-    }
-  }
-  return ring.filter((_, i) => keep[i]);
-}
-
-/** A land or ice layer with every ring cut down to straight edges; tiny islands keep at least a triangle. */
-function lowPolyOf(fc: { features: { geometry: GeoJSON.Geometry | null }[] }, tol: number): GeoPermissibleObjects {
-  const polys: Ring[][] = [];
-  for (const f of fc.features) {
-    const g = f.geometry;
-    const list = g?.type === "Polygon" ? [g.coordinates] : g?.type === "MultiPolygon" ? g.coordinates : [];
-    for (const poly of list) {
-      const rings = poly.map((r) => {
-        const s = simplifyRing(r as Ring, tol);
-        return s.length >= 4 ? s : (r as Ring).length >= 4 ? [r[0], r[Math.floor(r.length / 3)], r[Math.floor((2 * r.length) / 3)], r[0]] as Ring : null;
-      });
-      if (rings[0]) polys.push(rings.filter((r): r is Ring => !!r));
-    }
-  }
-  return { type: "MultiPolygon", coordinates: polys } as GeoPermissibleObjects;
-}
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
 const MAX_ZOOM = 14;
@@ -166,6 +119,7 @@ export class MapView {
   private low?: Basemap;
   private high?: Basemap;
   private relief?: Relief;
+  private terrain?: { base: Basemap; relief?: Relief; mesh: Terrain };
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -414,7 +368,7 @@ export class MapView {
     // A pixel design draws fewer canvas pixels than the screen has and lets the browser enlarge them unsmoothed.
     const pixel = this.theme.pixel;
     this.dpr = pixel > 1 ? 1 / pixel : Math.min(window.devicePixelRatio || 1, 2);
-    this.canvas.style.imageRendering = pixel > 1 ? "pixelated" : "auto";
+    this.canvas.style.imageRendering = pixel > 1 && !this.theme.smooth ? "pixelated" : "auto";
     this.w = Math.max(1, rect.width);
     this.h = Math.max(1, rect.height);
     this.canvas.width = Math.round(this.w * this.dpr);
@@ -791,14 +745,28 @@ export class MapView {
       ctx.fillRect(0, 0, w, h);
     }
 
-    ctx.beginPath();
-    path(SPHERE);
+    // The sphere's outline: a circle, or for a low-poly design a polygon drawn just outside it, so the globe has
+    // corners like a model built from flat faces.
+    const outline = () => {
+      ctx.beginPath();
+      if (this.mode === "3d" && t.polyGlobe) {
+        const [cx, cy] = proj.translate();
+        const n = t.polyGlobe;
+        const r = R / Math.cos(Math.PI / n);
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+          if (i === 0) ctx.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+          else ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+        }
+        ctx.closePath();
+      } else path(SPHERE);
+    };
+    outline();
     ctx.fillStyle = t.ocean;
     ctx.fill();
 
     ctx.save();
-    ctx.beginPath();
-    path(SPHERE);
+    outline();
     ctx.clip();
 
     if (t.oceanPattern) {
@@ -836,6 +804,14 @@ export class MapView {
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
     }
+    if (this.mode === "3d" && t.fog) {
+      // Distance haze: the far side of the world fades toward the sky, as early 3D games hid their draw distance.
+      const g = ctx.createRadialGradient(w / 2, h / 2, R * 0.55, w / 2, h / 2, R * 1.05);
+      g.addColorStop(0, "rgba(0,0,0,0)");
+      g.addColorStop(1, t.fog);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
     if (this.mode === "3d" && t.specular) {
       // A soft glint where the light strikes the sphere.
       const g = ctx.createRadialGradient(w / 2 - R * 0.42, h / 2 - R * 0.46, 0, w / 2 - R * 0.42, h / 2 - R * 0.46, R * 0.55);
@@ -847,8 +823,7 @@ export class MapView {
     ctx.restore();
 
     // Globe rim / sheet edge
-    ctx.beginPath();
-    path(SPHERE);
+    outline();
     ctx.strokeStyle = t.coast;
     ctx.lineWidth = this.mode === "3d" ? 1 : 1.2;
     ctx.stroke();
@@ -937,115 +912,110 @@ export class MapView {
   }
 
   /**
-   * Terrain the way early 3D games built it: straight-edged coasts, the land raised on cliff walls with one flat
-   * shade per face, blurry textures on top, and small two-faced pyramids for mountains.
+   * Terrain the way early 3D games built their overworlds: a grid of flat-shaded triangles with a height at every
+   * corner, raised toward the viewer like a tilted camera, drawn back to front on cliff walls along the coast.
    */
   private drawLowPoly(proj: GeoProjection, t: Theme) {
-    const { ctx } = this;
+    const { ctx, w, h: height } = this;
     const lp = t.lowPoly!;
-    // Always the light basemap: at this tolerance the fine one adds nothing but work.
     const base = this.low ?? this.high;
     if (!base) return;
-    let cut = lowPolyCache.get(base);
-    if (!cut) {
-      cut = { land: lowPolyOf(base.land, lp.tolerance), ice: base.ice ? lowPolyOf(base.ice, lp.tolerance) : null };
-      lowPolyCache.set(base, cut);
+    if (!this.terrain || this.terrain.base !== base || this.terrain.relief !== this.relief) {
+      this.terrain = { base, relief: this.relief, mesh: buildTerrain(base, this.relief, lp.step) };
     }
-    // Straight edges between the kept points, not great-circle curves, so faces stay flat.
-    const precision = proj.precision();
-    proj.precision(0);
-    const rings: Ring[] = [];
-    let ring: Ring = [];
-    const recorder = {
-      beginPath() {},
-      moveTo(x: number, y: number) {
-        if (ring.length > 1) rings.push(ring);
-        ring = [[x, y]];
-      },
-      lineTo(x: number, y: number) {
-        ring.push([x, y]);
-      },
-      closePath() {
-        if (ring.length > 1) rings.push(ring);
-        ring = [];
-      },
-      arc() {},
+    const m = this.terrain.mesh;
+    const R = proj.scale();
+    // Screen pixels per unit of height, growing with the map so mountains keep their shape when zoomed.
+    const lift = R * 0.022;
+    const flat = this.mode === "2d";
+    const n = m.lon.length;
+    const X = new Float32Array(n);
+    const Y = new Float32Array(n);
+    const seen = new Uint8Array(n);
+    const project = (i: number) => {
+      if (seen[i]) return seen[i] === 1;
+      const lo = m.lon[i]!, la = m.lat[i]!;
+      const p = this.visible(lo, la) ? proj([lo, la]) : null;
+      if (!p) {
+        seen[i] = 2;
+        return false;
+      }
+      X[i] = p[0];
+      Y[i] = p[1];
+      seen[i] = 1;
+      return true;
     };
-    geoPath(proj, recorder)(cut.land);
-    if (ring.length > 1) rings.push(ring);
-    const top = new Path2D();
-    geoPath(proj, pathContext(top))(cut.land);
-    const ice = new Path2D();
-    if (cut.ice) geoPath(proj, pathContext(ice))(cut.ice);
-    proj.precision(precision);
-
-    // Cliff walls: each coast edge swept straight down. A wall under land is hidden by the top drawn after it.
-    const depth = clamp(4 + this.zoom * 1.6, 5, 14);
-    const faces = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];
-    for (const r of rings) {
-      for (let i = 1; i < r.length; i++) {
-        const [ax, ay] = r[i - 1]!;
-        const [bx, by] = r[i]!;
-        const len = Math.hypot(bx - ax, by - ay);
-        if (len < 0.5) continue;
-        // Level edges face the viewer and catch the light; steep ones turn away and fall into shadow.
-        const f = faces[Math.min(3, Math.floor((Math.abs(by - ay) / len) * 4))]!;
-        f.moveTo(ax, ay);
-        f.lineTo(bx, by);
-        f.lineTo(bx, by + depth);
-        f.lineTo(ax, ay + depth);
-        f.closePath();
-      }
+    const tri = m.tris;
+    const order: number[] = [];
+    for (let k = 0; k < tri.length; k += 3) {
+      const a = tri[k]!, b = tri[k + 1]!, c = tri[k + 2]!;
+      if (!project(a) || !project(b) || !project(c)) continue;
+      const minX = Math.min(X[a]!, X[b]!, X[c]!), maxX = Math.max(X[a]!, X[b]!, X[c]!);
+      // A cell cut by the flat map's edge would stretch across the whole sheet.
+      if (flat && maxX - minX > w / 3) continue;
+      if (maxX < -40 || minX > w + 40) continue;
+      const minY = Math.min(Y[a]!, Y[b]!, Y[c]!);
+      if (minY > height + 40 || Math.max(Y[a]!, Y[b]!, Y[c]!) < -60) continue;
+      order.push(k);
     }
+
+    // Cliff walls first: each coast edge swept down. Walls under land are covered by the triangles drawn after.
+    const depth = clamp(R * 0.02, 4, 16);
     const [cliff, cliffLight, cliffDark] = lp.cliff;
-    faces.forEach((f, i) => {
-      ctx.fillStyle = cliff;
-      ctx.fill(f);
-      ctx.fillStyle = this.pattern("mottle", cliffLight, cliffDark);
-      ctx.fill(f);
-      if (i > 0) {
-        ctx.fillStyle = `rgba(40,10,0,${i * 0.14})`;
-        ctx.fill(f);
-      }
-    });
-
-    ctx.fillStyle = t.land;
-    ctx.fill(top, "evenodd");
-    ctx.fillStyle = this.pattern("mottle", t.textureInk, t.textureInk2 ?? t.textureInk);
-    ctx.fill(top, "evenodd");
-    if (cut.ice) {
-      ctx.fillStyle = t.ice;
-      ctx.fill(ice, "evenodd");
-      ctx.fillStyle = this.pattern("mottle", "rgba(255,255,255,0.9)", "rgba(170,190,230,0.5)");
-      ctx.fill(ice, "evenodd");
+    const walls = new Path2D();
+    const coast = m.coast;
+    for (let k = 0; k < coast.length; k += 2) {
+      const a = coast[k]!, b = coast[k + 1]!;
+      if (!project(a) || !project(b)) continue;
+      if (flat && Math.abs(X[a]! - X[b]!) > w / 3) continue;
+      walls.moveTo(X[a]!, Y[a]!);
+      walls.lineTo(X[b]!, Y[b]!);
+      walls.lineTo(X[b]!, Y[b]! + depth);
+      walls.lineTo(X[a]!, Y[a]! + depth);
+      walls.closePath();
     }
+    ctx.fillStyle = cliff;
+    ctx.fill(walls);
+    ctx.fillStyle = this.pattern("mottle", cliffLight, cliffDark);
+    ctx.fill(walls);
 
-    // Mountains: a pyramid with a lit left face and a shaded right face.
-    const relief = this.relief;
-    if (!relief) return;
-    const s = clamp(4 + this.zoom * 1.4, 5, 14);
-    const left = new Path2D();
-    const right = new Path2D();
-    // One peak in four: fewer, larger mountains read as shapes, not stubble.
-    for (const [lon, lat] of relief.peaks.filter((_, i) => i % 4 === 0)) {
-      if (!this.visible(lon, lat)) continue;
-      const p = proj([lon, lat]);
-      if (!p) continue;
-      const [x, y] = p;
-      if (x < -10 || y < -10 || x > this.w + 10 || y > this.h + 10) continue;
-      left.moveTo(x - s, y + s * 0.5);
-      left.lineTo(x, y - s * 1.1);
-      left.lineTo(x + s * 0.15, y + s * 0.6);
-      left.closePath();
-      right.moveTo(x + s * 0.15, y + s * 0.6);
-      right.lineTo(x, y - s * 1.1);
-      right.lineTo(x + s, y + s * 0.45);
-      right.closePath();
+    // Far first: the triangle whose ground sits higher on the screen is further away.
+    order.sort((p, q) => Y[tri[p]!]! + Y[tri[p + 1]!]! + Y[tri[p + 2]!]! - (Y[tri[q]!]! + Y[tri[q + 1]!]! + Y[tri[q + 2]!]!));
+    const H = m.h;
+    const [gr, gg, gb] = lp.grass;
+    const [rr, rg, rb] = lp.rock;
+    // Light from the upper left and above.
+    const LX = -0.45, LY = -0.55, LZ = 0.7;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 0.6;
+    for (const k of order) {
+      const a = tri[k]!, b = tri[k + 1]!, c = tri[k + 2]!;
+      const ha = H[a]! * lift, hb = H[b]! * lift, hc = H[c]! * lift;
+      const ax = X[a]!, ay = Y[a]! - ha, bx = X[b]!, by = Y[b]! - hb, cx = X[c]!, cy = Y[c]! - hc;
+      // The face's normal from its corners on the ground and their heights.
+      const ux = X[b]! - ax, uy = Y[b]! - Y[a]!, uz = hb - ha;
+      const vx = X[c]! - ax, vy = Y[c]! - Y[a]!, vz = hc - ha;
+      let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      if (nz < 0) (nx = -nx), (ny = -ny), (nz = -nz);
+      const len = Math.hypot(nx, ny, nz) || 1;
+      const light = Math.max(0.35, (nx * LX + ny * LY + nz * LZ) / len) * 1.25;
+      const top = Math.max(H[a]!, H[b]!, H[c]!);
+      let r: number, g: number, bl: number;
+      if (m.ice[k / 3] || top > 4.2) (r = 236), (g = 242), (bl = 252);
+      else if (top > 1.6) (r = rr), (g = rg), (bl = rb);
+      else (r = gr), (g = gg), (bl = gb);
+      const col = `rgb(${Math.min(255, r * light) | 0},${Math.min(255, g * light) | 0},${Math.min(255, bl * light) | 0})`;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, by);
+      ctx.lineTo(cx, cy);
+      ctx.closePath();
+      ctx.fillStyle = col;
+      ctx.strokeStyle = col;
+      ctx.fill();
+      // The same colour along the edges closes the hairline gaps between neighbours.
+      ctx.stroke();
     }
-    ctx.fillStyle = cliffLight;
-    ctx.fill(left);
-    ctx.fillStyle = t.relief;
-    ctx.fill(right);
   }
 
   private drawRelief(proj: GeoProjection, t: Theme) {
@@ -1168,6 +1138,25 @@ export class MapView {
       shape(x, y, r);
       ctx.fillStyle = hollow ? t.dotStroke : ink;
       ctx.fill();
+      if (t.dotShape === "coin" && !hollow) {
+        // A coin: a darker rim, a slot down the middle and a glint at the upper left.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 0.72, 0, Math.PI * 2);
+        ctx.lineWidth = Math.max(1, r * 0.18);
+        ctx.strokeStyle = "rgba(0,0,0,0.22)";
+        ctx.stroke();
+        ctx.fillStyle = t.dotStroke;
+        ctx.fillRect(x - r * 0.13, y - r * 0.45, r * 0.26, r * 0.9);
+        ctx.beginPath();
+        ctx.arc(x - r * 0.35, y - r * 0.4, r * 0.22, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.fill();
+        ctx.restore();
+        ctx.beginPath();
+        shape(x, y, r);
+      }
       if (t.dotShape === "diamond" && !hollow) {
         // Cut like a gem: the right half in shadow and a glint on the upper left facet.
         const d = r * 1.3;

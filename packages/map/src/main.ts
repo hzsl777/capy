@@ -27,11 +27,10 @@ import "@fontsource/nunito/700.css";
 import "@fontsource/press-start-2p/400.css";
 import "@fontsource/pixelify-sans/400.css";
 import "@fontsource/pixelify-sans/700.css";
-import "@fontsource/cinzel/400.css";
-import "@fontsource/cinzel/700.css";
 import "@fontsource/permanent-marker/400.css";
 import "@fontsource/patrick-hand/400.css";
 import "@fontsource/anton/400.css";
+import "@fontsource/luckiest-guy/400.css";
 import "@fontsource/oswald/500.css";
 import "@fontsource/oswald/600.css";
 import "@fontsource/dotgothic16/latin-400.css";
@@ -319,6 +318,16 @@ function renderKey() {
       el.setAttribute("stroke-width", String(width));
       if (dash) el.setAttribute("stroke-dasharray", dash);
       svg.append(el);
+      if (t.dotShape === "coin" && fill !== "none" && fill !== t.dotStroke) {
+        // A coin's slot, as the canvas draws it.
+        const slot = document.createElementNS(NS, "rect");
+        slot.setAttribute("x", String(-r * 0.13));
+        slot.setAttribute("y", String(-r * 0.45));
+        slot.setAttribute("width", String(r * 0.26));
+        slot.setAttribute("height", String(r * 0.9));
+        slot.setAttribute("fill", t.dotStroke);
+        svg.append(slot);
+      }
     });
     return svg;
   };
@@ -667,13 +676,13 @@ function renderTelegramStrip() {
   // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
   // space without overflowing a phone.
   word.style.setProperty("--len", String(Math.max(4, t.word.length)));
-  const n = t.scores.length;
-  // Local stories from GDELT are never grouped into events, so they are not among the reports the word draws on.
-  const reports = file.items.filter((i) => i.via !== "gdelt").length;
+  // The note says what the word does, not how many events it read: the panel behind the link shows every score.
+  const how = h("button", { type: "button", class: "note-link" }, "How it's chosen");
+  how.addEventListener("click", openTelegram);
   el.replaceChildren(
     date,
     h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "Today's word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from the ${n} most important ${n === 1 ? "event" : "events"} in ${fromDays(file.runDate)} ${reports.toLocaleString("en")} reports`), scale(t.band)),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI, weighing ${fromDays(file.runDate)} news, good and bad. `, how), scale(t.band)),
   );
 }
 
@@ -738,7 +747,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model grouped the day's reports into events and rated each event's importance. The most important were checked against their sources and scored from \u22122 (severe harm) to +2 (resolution) by what happened to people, each score quoting the sentence it rests on. A formula, not the model, set the day: the worst important event decides a bad day.",
+        "An AI model grouped the day's reports into events and rated each one's importance from 1 to 5. Events rated 3 or higher were checked against their sources and scored from \u22122 (severe harm) to +2 (resolution) by what happened to people, each score quoting the sentence it rests on. A formula, not the model, set the day: good news and bad are weighed together, and one grave event can set a bad day on its own.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),

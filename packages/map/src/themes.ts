@@ -25,8 +25,14 @@ export interface Theme {
    * unsmoothed, so lines, coasts and dots come out as chunky pixels (Stage Select and Overworld).
    */
   pixel: number;
-  /** Place dots as circles, squares (the pixel designs) or diamonds (the polygon design). */
-  dotShape: "circle" | "square" | "diamond";
+  /** With `pixel` above 1: enlarge the canvas smoothed, so it looks soft like an early 3D console's picture. */
+  smooth?: boolean;
+  /** Globe only: draw the sphere's outline as a polygon of this many sides, like a low-poly model. */
+  polyGlobe?: number;
+  /** Globe only: distance haze toward the rim. */
+  fog?: string;
+  /** Place dots as circles, squares (the pixel designs), diamonds, or coins (a circle with a slot). */
+  dotShape: "circle" | "square" | "diamond" | "coin";
   textureInk: string;
   textureInk2?: string;
   coast: string;
@@ -43,11 +49,11 @@ export interface Theme {
   /** A wide band of lighter water along every coast, like the shallows on a game's world map. */
   shallows?: string;
   /**
-   * Land built like early 3D game terrain: coasts cut into straight edges (simplified to this many degrees), the
-   * land raised on flat-shaded cliff walls textured in `cliff` (base, light, dark), mountains as small pyramids.
-   * Lakes and rivers are left out, since they no longer line up with the cut coasts.
+   * Land built like early 3D game terrain (src/map/terrain.ts): triangles `step` degrees across with a height at
+   * every corner, flat-shaded in `grass`, `rock` higher up and snow on the peaks, standing on cliff walls textured
+   * in `cliff` (base, light, dark). Lakes and rivers are left out, since they no longer line up with the grid.
    */
-  lowPoly?: { tolerance: number; cliff: [string, string, string] };
+  lowPoly?: { step: number; grass: [number, number, number]; rock: [number, number, number]; cliff: [string, string, string] };
   /** Globe only: a soft glint where the light strikes the sphere. */
   specular?: boolean;
   graticule: string;
@@ -346,9 +352,9 @@ export const THEMES: Record<ThemeId, Theme> = {
   // Nods to three generations of home consoles, each after the sense of place of one game series of its era, never
   // its art, names, logos or characters. Stage Select after Mega Man: hard 8-bit pixels, a wall of bevelled metal
   // blocks, riveted stage-select frames. Overworld after Final Fantasy's world maps: finer pixels, grass, sandy
-  // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64 and the Zelda games of that console:
-  // coasts cut into straight polygon edges, grass on top of flat-shaded orange cliff walls, blurry
-  // low-resolution textures, pyramid mountains, a sky with clouds, gem markers, gold lettering with depth.
+  // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64: a soft half-resolution picture, a
+  // many-sided globe fading into haze, straight-edged coasts on flat-shaded orange cliffs, blurry textures,
+  // pyramid mountains, coins for markers (red coins for fresh reports), outlined counter-style lettering.
   bit8: {
     id: "bit8",
     label: "Stage Select",
@@ -428,13 +434,16 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#2a78d8",
     land: "#3fb82c",
     landTexture: "mottle",
-    lowPoly: { tolerance: 0.9, cliff: ["#b45a1e", "#e0913e", "#7a3410"] },
+    lowPoly: { step: 1.5, grass: [74, 168, 46], rock: [150, 112, 72], cliff: ["#b45a1e", "#e0913e", "#7a3410"] },
     specular: true,
-    pixel: 1,
-    dotShape: "diamond",
+    pixel: 2,
+    smooth: true,
+    polyGlobe: 22,
+    fog: "rgba(214,236,255,0.42)",
+    dotShape: "coin",
     textureInk: "rgba(150,230,80,0.75)",
     textureInk2: "rgba(20,110,20,0.6)",
-    coast: "#1d5a14",
+    coast: "rgba(255,255,255,0.35)",
     coastWidth: 0,
     waterlines: 0,
     waterline: "rgba(150,210,255,0.3)",
@@ -446,17 +455,18 @@ export const THEMES: Record<ThemeId, Theme> = {
     lake: "#2a78d8",
     ice: "#eef3ff",
     relief: "#6e4418",
-    dot: "#ffd23a",
-    dotStroke: "#5a3200",
-    fresh: "#ff4f8b",
+    dot: "#ffc81e",
+    dotStroke: "#6a3a00",
+    fresh: "#e8202a",
     tuned: "#ffffff",
     arc: "#ffffff",
     glow: false,
-    atmosphere: "rgba(200,235,255,0.55)",
-    shade: "rgba(10,20,60,0.45)",
+    atmosphere: "rgba(220,240,255,0.6)",
+    shade: "rgba(10,20,60,0.4)",
     neatline: false,
     decor: null,
   },
+
 
 
   // Direct nods to the Mezmerize and Hypnotize covers (2005): black ground, dark red smeared paint, bone white, the

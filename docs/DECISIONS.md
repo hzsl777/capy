@@ -463,3 +463,19 @@ The source list added 485 researched local outlets for regions no outlet reached
 
    Lakes and rivers are left out in this design, since they no longer line up with the cut coasts.
 4. Realize's striped arcs gain the covers' blue, so the blue is not only on fresh markers.
+
+## 61. The note says how the word weighs the day; Polygon Kingdom becomes an overworld (September 29, 2026)
+
+Davis found "Chosen by AI from the 24 most important events" hard to accept for a reader: who decides what is most important? Polygon Kingdom still did not feel like the 64-bit era. This changes item 2 of decision 59 and item 3 of decision 60.
+
+1. The note under the word reads "Chosen by AI, weighing today's news, good and bad. How it's chosen", and the link opens the word's panel with every event, its score and the sentence it rests on. The About page and the panel say "events rated 3 or higher" instead of "most important", and name the rule plainly: good news and bad are weighed together, and one grave event can set a bad day on its own.
+2. **Polygon Kingdom** is an overworld after Super Mario 64 and Ocarina of Time (`src/map/terrain.ts`):
+   - the land is a grid of triangles 1.5 degrees across with a height at every corner: low hills everywhere, spikes where the relief data has mountains;
+   - each triangle is flat-shaded by its slope, lit from the upper left: grass low down, rock higher up, snow on the tallest peaks;
+   - triangles are raised toward the viewer and drawn far to near, on orange cliff walls along the coast;
+   - the picture is drawn at half resolution and enlarged smoothed, soft like the console's output;
+   - the globe's outline is a 22-sided polygon that fades into haze toward the rim;
+   - markers are coins, and fresh reports are red coins;
+   - chunky outlined counter lettering over an open sky, dark see-through message boxes, raised gold buttons.
+
+   The terrain is built once per basemap from a half-degree raster of the land. Dragging stays as fast as in the other designs. Lakes, rivers and islands smaller than a triangle are not drawn in this design; their places still show.

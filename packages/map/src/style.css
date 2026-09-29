@@ -228,22 +228,22 @@
 }
 :root[data-theme="bit64"] {
   color-scheme: dark;
-  --page: #0e0b1c;
-  --panel: #14102a;
-  --ink: #fbf3dc;
-  --ink-2: #eadbb0;
-  --muted: #cdbd92;
-  --rule: #c9a14a;
-  --accent: #f2c14e;
-  --on-accent: #1a1206;
-  --hover: rgba(242, 193, 78, 0.12);
+  --page: #16306a;
+  --panel: rgba(8, 12, 30, 0.72);
+  --ink: #ffffff;
+  --ink-2: #e8eeff;
+  --muted: #c4d0f0;
+  --rule: rgba(255, 255, 255, 0.35);
+  --accent: #ffc81e;
+  --on-accent: #2a1600;
+  --hover: rgba(255, 255, 255, 0.12);
   --reticle: #ffffff;
   --grain-opacity: 0;
   --grain-blend: normal;
-  --font-mast: "Cinzel", Georgia, serif;
-  --font-head: "Cinzel", Georgia, serif;
+  --font-mast: "Luckiest Guy", "Arial Black", sans-serif;
+  --font-head: "Nunito", "Trebuchet MS", sans-serif;
   --font-body: "Nunito", "Trebuchet MS", sans-serif;
-  --font-ui: "Cinzel", Georgia, serif;
+  --font-ui: "Luckiest Guy", "Arial Black", sans-serif;
 }
 :root[data-theme="realize"] {
   color-scheme: dark;
@@ -1533,6 +1533,16 @@ button.link {
   gap: 8px;
   text-align: right;
 }
+.note-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
 .telegram-side .telegram-note {
   font-size: 12px;
 }
@@ -2035,56 +2045,81 @@ button.link {
   vertical-align: 0;
 }
 
-/* ---- Polygon Kingdom: a bright sky, gold 3D lettering, gold-framed pause-menu windows ---- */
+/* ---- Polygon Kingdom: the world under an open sky, counters and message boxes over it ---- */
 :root[data-theme="bit64"] body {
-  background: linear-gradient(to bottom, #10183a 0%, #1b2a5c 100%);
+  background:
+    radial-gradient(ellipse 14% 5% at 12% 16%, rgba(255, 255, 255, 0.85), transparent 70%),
+    radial-gradient(ellipse 10% 4% at 19% 13%, rgba(255, 255, 255, 0.8), transparent 70%),
+    radial-gradient(ellipse 16% 5% at 88% 10%, rgba(255, 255, 255, 0.75), transparent 70%),
+    linear-gradient(to bottom, #2f7ee6 0%, #6fb6f6 40%, #bfe2ff 100%);
+  background-attachment: fixed;
 }
-/* An open sky with soft clouds behind the world, like the first view of a 3D adventure. */
+:root[data-theme="bit64"] .masthead,
+:root[data-theme="bit64"] .toolbar,
+:root[data-theme="bit64"] .timebar {
+  background: transparent;
+  border-color: transparent;
+}
 :root[data-theme="bit64"] .map {
   background:
     radial-gradient(ellipse 18% 7% at 16% 22%, rgba(255, 255, 255, 0.9), transparent 70%),
-    radial-gradient(ellipse 12% 5% at 24% 19%, rgba(255, 255, 255, 0.85), transparent 70%),
     radial-gradient(ellipse 20% 7% at 84% 30%, rgba(255, 255, 255, 0.8), transparent 70%),
-    radial-gradient(ellipse 14% 5% at 76% 74%, rgba(255, 255, 255, 0.7), transparent 70%),
-    linear-gradient(to bottom, #3d8ef0 0%, #7cc0fa 55%, #d6efff 100%);
+    radial-gradient(ellipse 14% 5% at 76% 76%, rgba(255, 255, 255, 0.7), transparent 70%),
+    linear-gradient(to bottom, #4a98f0 0%, #8ccafa 55%, #dff2ff 100%);
 }
-/* Gold lettering with depth: stacked one-pixel shadows make the letters solid, then a soft drop below. */
+/* Counter lettering: chunky capitals, yellow into orange, with a thick dark outline and a drop. */
 :root[data-theme="bit64"] .mast-title,
 :root[data-theme="bit64"] .telegram-word,
 :root[data-theme="bit64"] .telegram-big {
   font-family: var(--font-mast);
-  font-weight: 700;
-  background: linear-gradient(to bottom, #fff6c8 0%, #ffd23a 45%, #d98a12 55%, #ffcf4a 100%);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  background: linear-gradient(to bottom, #fff27a 0%, #ffc81e 45%, #ff8a00 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 0 #a4620a) drop-shadow(0 1px 0 #8a4f06) drop-shadow(0 1px 0 #6b3a04) drop-shadow(0 1px 0 #4a2702) drop-shadow(0 5px 6px rgba(0, 0, 0, 0.5));
+  -webkit-text-stroke: 2px #2a1000;
+  paint-order: stroke fill;
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.45));
   border-bottom: 0;
 }
-:root[data-theme="bit64"] .mast-title {
-  letter-spacing: 0.05em;
+:root[data-theme="bit64"] .mast-tag,
+:root[data-theme="bit64"] .telegram-kicker,
+:root[data-theme="bit64"] .telegram-date,
+:root[data-theme="bit64"] .telegram-note,
+:root[data-theme="bit64"] .time-label {
+  color: #ffffff;
+  font-style: normal;
+  text-shadow: 0 1px 0 #10224a, 1px 0 0 #10224a, -1px 0 0 #10224a, 0 -1px 0 #10224a, 2px 2px 0 rgba(0, 0, 0, 0.35);
 }
-:root[data-theme="bit64"] .telegram-word,
-:root[data-theme="bit64"] .telegram-big {
+:root[data-theme="bit64"] .telegram-kicker,
+:root[data-theme="bit64"] .telegram-date {
+  font-family: var(--font-ui);
   letter-spacing: 0.06em;
 }
-/* Windows: deep blue glass in a gold frame with a lit top edge and a shadowed bottom edge. */
+/* Message boxes: dark, see-through, rounded, white text. */
 :root[data-theme="bit64"] .panel,
 :root[data-theme="bit64"] .menu-body,
 :root[data-theme="bit64"] .key-pop {
-  background: linear-gradient(to bottom, rgba(34, 44, 110, 0.95), rgba(14, 18, 52, 0.95));
-  border: 3px solid #e8b53a;
+  background: rgba(8, 12, 30, 0.72);
+  border: 0;
   border-radius: 14px;
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.45),
-    0 0 0 2px #6b3a04,
-    0 6px 14px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 18px rgba(0, 20, 60, 0.35);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
 }
 :root[data-theme="bit64"] .panel {
   margin: 8px;
 }
-/* Buttons: round, glossy and raised, pressing down when open. */
+:root[data-theme="bit64"] .panel h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffc81e;
+  -webkit-text-stroke: 1px #2a1000;
+  paint-order: stroke fill;
+}
+/* Buttons: round, glossy gold, raised, pressing down when open. */
 :root[data-theme="bit64"] .tool,
 :root[data-theme="bit64"] .pick select,
 :root[data-theme="bit64"] .menu > summary,
@@ -2097,7 +2132,7 @@ button.link {
   border-radius: 999px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 3px 0 #7a4406;
   color: #3a1f02;
-  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 :root[data-theme="bit64"] .menu[open] > summary,
 :root[data-theme="bit64"] .key-btn[aria-expanded="true"],
@@ -2109,6 +2144,10 @@ button.link {
   border: 0;
   background: none;
   gap: 6px;
+}
+:root[data-theme="bit64"] .scale {
+  background: rgba(8, 12, 30, 0.55);
+  border-radius: 8px;
 }
 
 /* ---- Realize: black ground, stamped white poster type over red marker, striped arcs ---- */
