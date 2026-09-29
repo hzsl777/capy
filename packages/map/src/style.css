@@ -366,7 +366,8 @@ summary {
   color: var(--muted);
 }
 .telegram-word {
-  font: 700 clamp(24px, 3.2vw, 38px) / 1 var(--font-head);
+  /* Sized by the word's length (--len, set in main.ts) inside the centre column, capped for short words. */
+  font: 700 min(96px, calc(38vw / var(--len, 8))) / 1 var(--font-head);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   background: none;
@@ -1223,12 +1224,11 @@ button.link {
   }
 }
 
-/* ---- Header: name and tagline on the left, the day's word on the right ---- */
+/* ---- Header: the name on the left, the day's word in the centre, its date and scale on the right ---- */
 .masthead {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 8px 24px;
   padding: 10px var(--gutter);
   border-bottom: 3px double var(--rule);
@@ -1247,14 +1247,31 @@ button.link {
 :root[data-theme="wire"] .mast-title {
   color: var(--accent);
 }
+/* The strip spans the centre and right columns and lines its two parts up with them. */
 .telegram {
-  display: flex;
+  grid-column: 2 / 4;
+  display: grid;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: 8px 16px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
   position: relative;
   z-index: 10;
+}
+.telegram > .telegram-word {
+  justify-self: center;
+}
+.telegram-side {
+  grid-column: 2;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+/* Before a word exists, the date and note stay on the right. */
+.telegram > .telegram-side:only-child,
+.telegram > .telegram-kicker:only-child {
+  grid-column: 2;
+  justify-self: end;
 }
 .telegram-meta {
   display: flex;
@@ -1268,16 +1285,35 @@ button.link {
 }
 @media (max-width: 760px) {
   .masthead {
+    grid-template-columns: 1fr;
     padding-block: 8px;
   }
   .mast-tag {
     display: none;
   }
+  /* On a phone the word gets its own row, centred, with the date and AI label under it. */
   .telegram {
-    justify-content: flex-start;
+    grid-column: 1;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 4px;
+  }
+  .telegram-word {
+    font-size: min(72px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.8)));
+  }
+  .telegram-side,
+  .telegram > .telegram-side:only-child,
+  .telegram > .telegram-kicker:only-child {
+    grid-column: 1;
+    justify-self: center;
+    align-items: center;
   }
   .telegram-meta {
-    align-items: flex-start;
-    text-align: left;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 4px 10px;
+    text-align: center;
   }
 }

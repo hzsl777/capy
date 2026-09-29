@@ -1,8 +1,9 @@
 name: Deliver
 on:
-  schedule:
-    # Every two hours (private-repo Actions budget). Sends editions whose reader's local hour has reached their delivery hour. Idempotent.
-    - cron: "5 */2 * * *"
+  # 2DayAI email is parked (decision 40): no schedule, so it spends no Actions minutes. To turn email on, restore:
+  #   schedule:
+  #     - cron: "5 */2 * * *"
+  # Every two hours sends editions whose reader's local hour has reached their delivery hour. Idempotent.
   workflow_dispatch:
 permissions:
   contents: read

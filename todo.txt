@@ -64,22 +64,15 @@ Needs a person:
     differ. Write down any day that looks wrong, with the date.
 
 
-SPRINT 2: 2DAYAI LIVE
+SPRINT 2: 2DAYAI (PARKED)
 
-Done in code (decision 35):
-[x] Reader profiles can live in a GitHub secret, since they hold emails and can't be in the repo.
-[x] The daily job builds each reader's edition once a profile exists.
-[x] "Deliver" refuses to send while the site address or sender address is still a placeholder.
+2DayAI email is on hold (decision 40). The site comes first. The code is ready (decision 35), and
+"Deliver" has no schedule so it costs nothing while parked.
 
-Needs a person (docs/RUNBOOK.md, "Turn on 2DayAI"):
-[ ] Write each reader's profile from config/readers/r00.example.yaml and put them all in the
-    READER_PROFILES secret, separated by lines of ---.
-[ ] Open a Resend account, verify a sending domain, and add RESEND_API_KEY.
-[ ] Set the repository variable MAIL_FROM. The site address comes from SITE_DOMAIN; set
-    WEB_BASE_URL only if there is no custom domain.
-[ ] Before the first real send, run deliver with --dry-run locally and read the email.
-[ ] First week of editions: Davis rates each headline and explanation daily (milestone 4).
-    Expect new versions of the select and explain prompts after it (docs/PROMPTS.md).
+Later:
+[ ] Design 2DayAI as an opt-in on the site: a visitor chooses to get the briefing, with no account
+    or login. Decide what they give (an email and a few topics) and where it is stored.
+[ ] Then: Resend, MAIL_FROM, restore the schedule in deliver.yml (RUNBOOK, "Turn on 2DayAI").
 
 
 SPRINT 3: LATER
