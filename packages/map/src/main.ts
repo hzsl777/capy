@@ -42,6 +42,7 @@ import {
   NO_DAY_YET,
   storyIndex,
   tierOf,
+  weightOf,
   timeAgo,
   type Filters,
   type TopicFilter,
@@ -145,7 +146,7 @@ function refreshDots() {
   for (const [index, items] of state.byPlace) {
     const p = state.file.places[index];
     const tier = Math.min(...items.map((it) => tierOf(it, state.tiered)));
-    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, fresh: items[0].t >= f.to - 3600, tier });
+    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, weight: weightOf(items), fresh: items[0].t >= f.to - 3600, tier });
   }
   map.setDots(dots);
   map.setPinned(pinnedIndices());

@@ -345,6 +345,10 @@ switch (command) {
     const summary = process.env["GITHUB_STEP_SUMMARY"];
     try {
       await runDay(d, config, createLlm(config, d), date, { ...deps, force: values.force }, out);
+      // How much of the world the day reached, for the summary (decision 46).
+      const { coverageOf } = await import("./coverage.js");
+      const { Gazetteer } = await import("./places.js");
+      out["coverage"] = coverageOf(await loadMapView(d, date), Gazetteer.load());
     } catch (err) {
       if (summary) appendFileSync(summary, daySummary(date, out, err instanceof Error ? err.message : String(err)));
       throw err;

@@ -275,3 +275,12 @@ Davis wants the map to show where news happens, not where outlets are based: a P
 4. Every report shows its outlet's city next to the outlet's name. "Also reported in N other places" becomes "Also reported by N other outlets". Reach, which decides what shows when zoomed out (decision 30), still counts the outlets' cities, since it measures how widely a story was reported.
 5. A story's city within 25 km of an outlet's city shares that dot, so one city is one dot.
 6. The daily run summary counts how many stories were placed. The About text says how placement works.
+
+## 46. Five zoom tiers, dots sized by importance, and a daily coverage count (September 29, 2026)
+
+Davis wants every country, every region within it and every stateless nation represented, and asked that the map rank what shows by importance as you zoom, with dots sized to match, so a much fuller map stays usable. This changes neutrality rule 3 in packages/map/AGENTS.md, which kept dot size to report count alone.
+
+1. Five zoom tiers instead of three. The whole world shows places with a story rated 5 by the grouping model, or reported by outlets in five or more cities. Each step in adds the next tier: importance 4 or three cities, importance 3 or two cities, importance 2, then everything.
+2. Dot size follows the place's most important story and its report count, so one major story reads larger than a busy city of minor ones. Merged dots take the largest weight among their places. Colour still means only "reported in the last hour", and lists stay newest first.
+3. The daily summary counts the countries and territories (225) and first-level regions (2,589) with at least one story, and lists the countries with none, so coverage can be followed day by day. Regions come from Natural Earth's populated places, added to the city list. The count is internal; the site still names no countries or regions.
+4. Growing coverage toward every region and every stateless nation is outlet work: an outlet for every country and territory (decision 45), then outlets for regions of the largest countries and for communities without a state, balanced as the add-news-source skill requires.

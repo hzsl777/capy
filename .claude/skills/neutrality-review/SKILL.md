@@ -13,8 +13,8 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] No political boundary data added: search for `admin_`, `boundary`, `countries`, `disputed` in `scripts/` and `public/basemap/`.
 - [ ] The basemap build still strips every property except the river rank (`strip()` in `packages/map/scripts/build-basemap.ts`).
 - [ ] Nothing draws text on the canvas (`fillText`/`strokeText` in `src/map/`).
-- [ ] Dot size depends only on report count. Dot colour depends only on "reported in the last hour".
-- [ ] Zoom decides visibility only by the rule in decision 30 (`tierOf` in `src/data.ts`): reach of three places or importance 4 or 5 at the widest zoom. No other signal decides which places show.
+- [ ] Dot size depends only on the place's most important story and its report count (`weightOf`, decision 46). Dot colour depends only on "reported in the last hour".
+- [ ] Zoom decides visibility only by the tiers in `tierOf` (`src/data.ts`, decisions 30 and 46): importance and outlet-city reach. No other signal decides which places show.
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
 

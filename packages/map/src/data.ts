@@ -38,18 +38,33 @@ export function passes(item: MapItem, f: Filters): boolean {
 }
 
 /** Items per place index that pass the filters, newest first. */
+/** Zoom tiers: the whole world shows tier 0, and each step in adds the next (decisions 30 and 46). */
+export const TIERS = 5;
+
 /**
- * The zoom level from which an article's place shows (decision 30): 0 when its story is reported in three or
- * more places or the model rated it 4 or 5, 1 for two places or importance 3, otherwise 2. A file without
- * event data (a demo, or a day before grouping ran) shows everything from the start.
+ * The zoom level from which an article's place shows (decisions 30 and 46), ranked by the grouping model's
+ * importance and by how many outlet cities reported the story:
+ *   0: importance 5, or reported from five or more cities
+ *   1: importance 4, or three or more cities
+ *   2: importance 3, or two cities
+ *   3: importance 2
+ *   4: everything else
+ * A file without event data (a demo, or a day before grouping ran) shows everything from the start.
  */
 export function tierOf(item: MapItem, tiered: boolean): number {
   if (!tiered) return 0;
   const reach = item.reach ?? 1;
   const importance = item.importance ?? 1;
-  if (reach >= 3 || importance >= 4) return 0;
-  if (reach >= 2 || importance >= 3) return 1;
-  return 2;
+  if (importance >= 5 || reach >= 5) return 0;
+  if (importance >= 4 || reach >= 3) return 1;
+  if (importance >= 3 || reach >= 2) return 2;
+  if (importance >= 2) return 3;
+  return 4;
+}
+
+/** A place's weight for dot size: its most important story, 1 to 5 (decision 46). */
+export function weightOf(items: MapItem[]): number {
+  return Math.max(1, ...items.map((it) => it.importance ?? 1));
 }
 
 export function hasTiers(file: MapFile): boolean {

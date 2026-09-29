@@ -10,8 +10,8 @@ import { fileURLToPath } from "node:url";
 export type Where = { city: string; country?: string | null | undefined; lat?: number | null | undefined; lon?: number | null | undefined };
 export type Located = { name: string; lat: number; lon: number };
 
-type Row = [name: string, cc: string, lat: number, lon: number, pop: number, alts: string[]];
-type Entry = { name: string; cc: string; lat: number; lon: number; pop: number };
+type Row = [name: string, cc: string, lat: number, lon: number, pop: number, alts: string[], region?: string];
+type Entry = { name: string; cc: string; lat: number; lon: number; pop: number; region: string };
 
 /** How close an unlisted town must be to a listed city of the same country for the model's point to be used. */
 export const NEAR_KM = 250;
@@ -43,8 +43,8 @@ export class Gazetteer {
       if (!list.includes(e)) list.push(e);
       map.set(key, list);
     };
-    for (const [name, cc, lat, lon, pop, alts] of rows) {
-      const e = { name, cc, lat, lon, pop };
+    for (const [name, cc, lat, lon, pop, alts, region] of rows) {
+      const e = { name, cc, lat, lon, pop, region: region ?? "" };
       add(this.byName, norm(name), e);
       for (const a of alts) add(this.byAlt, norm(a), e);
       add(this.byCountry, cc, e);
@@ -68,6 +68,42 @@ export class Gazetteer {
     const near = (this.byCountry.get(cc) ?? []).some((e) => km(lat, lon, e.lat, e.lon) <= NEAR_KM);
     const name = city.replace(/\s+/g, " ");
     return near && /^[\p{L}\p{M}0-9' .-]+$/u.test(name) ? { name, lat: Math.round(lat * 1000) / 1000, lon: Math.round(lon * 1000) / 1000 } : null;
+  }
+
+  /** Every country code on the list: the denominator of the daily coverage count. */
+  countries(): string[] {
+    return [...this.byCountry.keys()].filter(Boolean).sort();
+  }
+
+  /** Every first-level region on the list, as "CC/Region": the denominator of the region count. */
+  regions(): string[] {
+    return [...new Set([...this.byCountry.values()].flat().filter((e) => e.cc && e.region).map((e) => `${e.cc}/${e.region}`))].sort();
+  }
+
+  /**
+   * The country code and "CC/Region" of the listed city nearest a point, within 300 km, for the daily coverage
+   * count only (decision 46). Never shown on the site.
+   */
+  areaAt(lat: number, lon: number): { country: string; region: string | null } | null {
+    let best: Entry | null = null;
+    let bestKm = 300;
+    for (const list of this.byCountry.values()) {
+      for (const e of list) {
+        const d = km(lat, lon, e.lat, e.lon);
+        if (d < bestKm) [best, bestKm] = [e, d];
+      }
+    }
+    if (!best?.cc) return null;
+    return { country: best.cc, region: best.region ? `${best.cc}/${best.region}` : null };
+  }
+
+  countryAt(lat: number, lon: number): string | null {
+    return this.areaAt(lat, lon)?.country ?? null;
+  }
+
+  /** The largest listed city of a country, to name it in the coverage report. */
+  largestIn(cc: string): string {
+    return (this.byCountry.get(cc) ?? []).reduce<Entry | null>((a, b) => (!a || b.pop > a.pop ? b : a), null)?.name ?? cc;
   }
 
   /** One city among same-named ones: the one in the named country, else the only one, else the largest. */

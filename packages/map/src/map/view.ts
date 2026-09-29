@@ -17,10 +17,12 @@ export interface Dot {
   lon: number;
   lat: number;
   count: number;
+  /** The place's most important story, 1 to 5. With the report count, it sets the dot's size (decision 46). */
+  weight: number;
   fresh: boolean;
   /**
-   * The lowest zoom level at which this place shows: 0 for places with a widely reported or high-importance
-   * story, 1 for the next step, 2 for everything (decision 30). Never changes a dot's size or colour.
+   * The lowest zoom level at which this place shows, 0 (the whole world) to TIERS - 1 (decisions 30 and 46).
+   * Never changes a dot's colour.
    */
   tier: number;
 }
@@ -50,6 +52,7 @@ interface Spot {
   y: number;
   r: number;
   count: number;
+  weight: number;
   fresh: boolean;
 }
 
@@ -201,9 +204,11 @@ export class MapView {
 
   /** Which set of places shows at the current zoom: 0 (widely reported or important only) to 2 (all). */
   level(): number {
-    // The flat map starts already filling its frame (fit()), so it needs less zoom than the globe per level.
-    const [a, b] = this.mode === "3d" ? [1.8, 3] : [1.6, 2.8];
-    return this.zoom < a ? 0 : this.zoom < b ? 1 : 2;
+    // Each step in reveals the next tier (decision 46). The flat map starts already filling its frame (fit()),
+    // so it needs less zoom than the globe per level.
+    const steps = this.mode === "3d" ? [1.6, 2.4, 3.4, 4.8] : [1.4, 2.1, 3, 4.2];
+    const i = steps.findIndex((s) => this.zoom < s);
+    return i < 0 ? steps.length : i;
   }
 
   get isSpinning(): boolean {
@@ -840,7 +845,7 @@ export class MapView {
       if (p[0] < -20 || p[1] < -20 || p[0] > this.w + 20 || p[1] > this.h + 20) continue;
       shown.push({ d, x: p[0], y: p[1] });
     }
-    shown.sort((a, b) => b.d.count - a.d.count);
+    shown.sort((a, b) => b.d.weight - a.d.weight || b.d.count - a.d.count);
     const spots: Spot[] = [];
     const merge = MERGE_PX * screenK;
     for (const { d, x, y } of shown) {
@@ -848,15 +853,17 @@ export class MapView {
       if (near) {
         near.indices.push(d.index);
         near.count += d.count;
+        near.weight = Math.max(near.weight, d.weight);
         near.fresh ||= d.fresh;
       } else {
-        spots.push({ indices: [d.index], lon: d.lon, lat: d.lat, x, y, r: 0, count: d.count, fresh: d.fresh });
+        spots.push({ indices: [d.index], lon: d.lon, lat: d.lat, x, y, r: 0, count: d.count, weight: d.weight, fresh: d.fresh });
       }
     }
-    // Size depends on report count and nothing else (neutrality rule 3).
+    // Size follows the place's most important story and its number of reports (decision 46), so one major
+    // story reads as larger than a busy city of minor ones. Colour still means only "reported in the last hour".
     for (const s of spots) {
       s.indices.sort((a, b) => a - b);
-      s.r = Math.min(11, 2.2 + Math.sqrt(s.count) * 1.25) * zoomK;
+      s.r = Math.min(13, 1.4 + s.weight * 0.9 + Math.sqrt(s.count) * 0.8) * zoomK;
     }
     this.screen = spots;
 

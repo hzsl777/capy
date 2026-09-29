@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FILTERS, formatCoords, groupByPlace, hasTiers, passes, tierOf, timeAgo, type Filters } from "../src/data.ts";
+import { FILTERS, formatCoords, groupByPlace, hasTiers, passes, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
 import type { MapFile, MapItem } from "../src/types.ts";
 
 const base: MapItem = { id: "1", t: 100, title: "t", url: "https://x", domain: "x", publisher: "X", lang: "en", topics: [], place: 0 };
@@ -41,13 +41,19 @@ describe("formatting", () => {
 
 describe("zoom tiers (decision 30)", () => {
   const item = (reach?: number, importance?: number) => ({ reach, importance }) as MapItem;
-  it("shows widely reported or important stories from the widest zoom", () => {
-    expect(tierOf(item(3, 1), true)).toBe(0);
-    expect(tierOf(item(1, 4), true)).toBe(0);
-    expect(tierOf(item(2, 1), true)).toBe(1);
-    expect(tierOf(item(1, 3), true)).toBe(1);
-    expect(tierOf(item(1, 2), true)).toBe(2);
-    expect(tierOf(item(), true)).toBe(2);
+  it("ranks places into five zoom tiers by importance and reach (decision 46)", () => {
+    expect(tierOf(item(1, 5), true)).toBe(0);
+    expect(tierOf(item(5, 1), true)).toBe(0);
+    expect(tierOf(item(1, 4), true)).toBe(1);
+    expect(tierOf(item(3, 1), true)).toBe(1);
+    expect(tierOf(item(1, 3), true)).toBe(2);
+    expect(tierOf(item(2, 1), true)).toBe(2);
+    expect(tierOf(item(1, 2), true)).toBe(3);
+    expect(tierOf(item(), true)).toBe(4);
+  });
+  it("weighs a place by its most important story", () => {
+    expect(weightOf([item(1, 2), item(1, 4)])).toBe(4);
+    expect(weightOf([item()])).toBe(1);
   });
   it("shows everything at once when the file has no event data", () => {
     expect(tierOf(item(), false)).toBe(0);

@@ -35,6 +35,14 @@ describe("placing a story where it happened (decision 44)", () => {
     expect(gaz.locate({ city: "  " })).toBeNull();
   });
 
+  it("names the country of a point for the coverage count, and nothing far out at sea", () => {
+    expect(gaz.countryAt(48.85, 2.35)).toBe("FR");
+    expect(gaz.countryAt(-1.29, 36.82)).toBe("KE");
+    expect(gaz.countryAt(-30, -140)).toBeNull();
+    expect(gaz.countries().length).toBeGreaterThan(200);
+    expect(gaz.largestIn("FR")).toBe("Paris");
+  });
+
   it("measures distance on the globe", () => {
     expect(km(48.85, 2.35, 51.51, -0.13)).toBeCloseTo(343, -1);
   });
