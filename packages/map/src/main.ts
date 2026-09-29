@@ -31,12 +31,9 @@ import "@fontsource/cinzel/400.css";
 import "@fontsource/cinzel/700.css";
 import "@fontsource/permanent-marker/400.css";
 import "@fontsource/patrick-hand/400.css";
-import "@fontsource/rock-salt/400.css";
-import "@fontsource/caveat-brush/400.css";
-import "@fontsource/atomic-age/400.css";
-import "@fontsource/righteous/400.css";
-import "@fontsource/josefin-sans/400.css";
-import "@fontsource/josefin-sans/600.css";
+import "@fontsource/anton/400.css";
+import "@fontsource/oswald/500.css";
+import "@fontsource/oswald/600.css";
 import "@fontsource/dotgothic16/latin-400.css";
 import "@fontsource/dotgothic16/latin-ext-400.css";
 import "./style.css";
@@ -348,6 +345,7 @@ function applyTheme() {
   map.setMode(viewOf());
   renderMasthead();
   renderToolbar();
+  renderTicker();
   syncUrl();
 }
 
@@ -628,7 +626,8 @@ function applyHighlight() {
   map.setHighlight([]);
 }
 
-const BAND_LABEL: Record<number, string> = { [-2]: "Grave", [-1]: "Hard", 0: "Mixed", 1: "Hopeful", 2: "Good" };
+// What each step says about the day's top events, in the scoring rules' own terms (decision 59).
+const BAND_LABEL: Record<number, string> = { [-2]: "Severe harm", [-1]: "Harm", 0: "Mixed", 1: "Relief", 2: "Resolution" };
 
 function signed(n: number): string {
   return n > 0 ? `+${n}` : n < 0 ? `\u2212${-n}` : "0";
@@ -638,7 +637,7 @@ function signed(n: number): string {
 function scale(band: number): HTMLElement {
   return h(
     "div",
-    { class: "scale", role: "img", "aria-label": `The day scored ${BAND_LABEL[band]}, on a scale from Grave to Good` },
+    { class: "scale", role: "img", "aria-label": `What happened to people in the day's top events: ${BAND_LABEL[band]}, on a scale from Severe harm to Resolution` },
     ...[-2, -1, 0, 1, 2].map((b) => h("span", { class: b === band ? "step on" : "step" }, BAND_LABEL[b]!)),
   );
 }
@@ -669,10 +668,12 @@ function renderTelegramStrip() {
   // space without overflowing a phone.
   word.style.setProperty("--len", String(Math.max(4, t.word.length)));
   const n = t.scores.length;
+  // Local stories from GDELT are never grouped into events, so they are not among the reports the word draws on.
+  const reports = file.items.filter((i) => i.via !== "gdelt").length;
   el.replaceChildren(
     date,
     h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "Today's word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from ${fromDays(file.runDate)} ${n} ${n === 1 ? "event" : "events"}`), scale(t.band)),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from the ${n} most important ${n === 1 ? "event" : "events"} in ${fromDays(file.runDate)} ${reports.toLocaleString("en")} reports`), scale(t.band)),
   );
 }
 
@@ -737,7 +738,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model scored each event from \u22122 to +2 by what happened to people, quoting the sentence each score rests on. A formula, not the model, set the day: the worst significant event decides a bad day.",
+        "An AI model grouped the day's reports into events and rated each event's importance. The most important were checked against their sources and scored from \u22122 (severe harm) to +2 (resolution) by what happened to people, each score quoting the sentence it rests on. A formula, not the model, set the day: the worst important event decides a bad day.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
@@ -886,9 +887,12 @@ function bindTimebar() {
 
 // ---- ticker -----------------------------------------------------------------
 
+/** Designs that show a crawl of the newest headlines under the map. */
+const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
+
 function renderTicker() {
   const track = $("ticker-track");
-  if (!state.file || state.theme !== "wire") {
+  if (!state.file || !TICKER_THEMES.has(state.theme)) {
     track.replaceChildren();
     return;
   }

@@ -46,7 +46,7 @@ September 27, 2026, later the same day (decision 25):
 September 28, 2026 (decision 26):
 
 - The word is the emotion the day's stories evoke, read from all world news, not only conflict.
-- A formula sets it. The model scores each event from -2 to 2 by what happened to people. The worst significant event decides a bad day (Davis: "we have to be very careful here"). The model then picks the word from a fixed list for that step on the scale from Grave to Good.
+- A formula sets it. The model scores each event from -2 to 2 by what happened to people. The worst significant event decides a bad day (Davis: "we have to be very careful here"). The model then picks the word from a fixed list for that step on the scale from Severe harm to Resolution (renamed from Grave to Good in decision 59).
 - The public site is called GlobalGist (decision 27). The repository stays capy.
 
 September 28, 2026 (decision 28):

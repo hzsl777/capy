@@ -5,7 +5,7 @@ import type { FeatureCollection } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import { describe, expect, it } from "vitest";
-import { CANDIES, CREATURES, SAUCERS, STARS } from "../src/map/decor.ts";
+import { CANDIES, CREATURES, STARS } from "../src/map/decor.ts";
 import { THEMES } from "../src/themes.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
@@ -69,8 +69,6 @@ describe("sea creatures", () => {
     const spots = new Set(CREATURES.map((c) => `${c.lon},${c.lat}`));
     expect(CANDIES.every((c) => spots.has(`${c.lon},${c.lat}`))).toBe(true);
     expect(Object.values(THEMES).filter((t) => t.decor === "candy").map((t) => t.id)).toEqual(["candy"]);
-    expect(SAUCERS.every((c) => spots.has(`${c.lon},${c.lat}`))).toBe(true);
-    expect(Object.values(THEMES).filter((t) => t.decor === "ufo").map((t) => t.id)).toEqual(["ufo"]);
   });
 });
 

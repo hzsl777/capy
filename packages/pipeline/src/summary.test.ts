@@ -20,7 +20,7 @@ describe("the daily run summary (decision 36)", () => {
       telegram: { candidates: 4, written: true, word: "Unease", band: -1, events: 3, scoreRuns: 3, split: 1, retried: { score: false, word: false }, rejected: 0 },
       spendUsd: 0.1234,
     });
-    expect(text).toContain("Word: **Unease** (band -1, Hard). Scored 3 times, runs disagreed on 1 of 4 events.");
+    expect(text).toContain("Word: **Unease** (band -1, Harm). Scored 3 times, runs disagreed on 1 of 4 events.");
     expect(text).toContain("Feeds: 2 read, 2 failed, 1 paused. 12 new articles.");
     expect(text).toContain("Model spend: $0.123.");
     expect(text).not.toContain("2DayAI:");

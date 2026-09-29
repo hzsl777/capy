@@ -80,7 +80,7 @@ export const MOOD_BANDS = [-2, -1, 0, 1, 2] as const;
 export type MoodBand = (typeof MOOD_BANDS)[number];
 
 /** Names for the scale's steps, shown beside the word. */
-export const MOOD_BAND_LABEL: Record<MoodBand, string> = { [-2]: "Grave", [-1]: "Hard", 0: "Mixed", 1: "Hopeful", 2: "Good" };
+export const MOOD_BAND_LABEL: Record<MoodBand, string> = { [-2]: "Severe harm", [-1]: "Harm", 0: "Mixed", 1: "Relief", 2: "Resolution" };
 
 /**
  * The only words the telegram can use, per band. Emotions a reader might feel on reading the day's reporting,

@@ -1,6 +1,6 @@
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "ufo";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -42,8 +42,14 @@ export interface Theme {
   oceanPattern?: "tiles" | "shimmer" | "brush";
   /** A wide band of lighter water along every coast, like the shallows on a game's world map. */
   shallows?: string;
-  /** Flat-shaded triangles over the whole sphere, so land and sea read as low-poly surfaces. */
-  facets?: boolean;
+  /**
+   * Land as a lit solid, the way early 3D games drew terrain: a gradient from `landLit[0]` where the light falls
+   * (upper left) to `landLit[1]`, raised above the sea on sides of `extrude`, with a glint of light on the globe
+   * when `specular` is set.
+   */
+  landLit?: [string, string];
+  extrude?: string;
+  specular?: boolean;
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -66,10 +72,10 @@ export interface Theme {
   /**
    * Decoration drawn under the dots (src/map/decor.ts): "sea" puts small ink sea creatures in open ocean,
    * "space" adds a thin bright rim to the globe and faint stars in the flat map's ocean, "candy" puts small
-   * outlined sweets in open ocean, "ufo" flying saucers over open ocean. Never text, never on land, never near a
+   * outlined sweets in open ocean. Never text, never on land, never near a
    * place.
    */
-  decor: "sea" | "space" | "candy" | "ufo" | null;
+  decor: "sea" | "space" | "candy" | null;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -341,7 +347,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   // its art, names, logos or characters. Stage Select after Mega Man: hard 8-bit pixels, a wall of bevelled metal
   // blocks, riveted stage-select frames. Overworld after Final Fantasy's world maps: finer pixels, grass, sandy
   // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64 and the Zelda games of that console:
-  // flat-shaded low-poly land and sea, diamond markers, gold-trimmed windows on a dusk sky.
+  // land drawn as a lit solid raised on dirt sides above a bright sea, a sky with clouds, glinting gem markers,
+  // gold-framed windows and three-dimensional gold lettering.
   bit8: {
     id: "bit8",
     label: "Stage Select",
@@ -418,106 +425,111 @@ export const THEMES: Record<ThemeId, Theme> = {
     label: "Polygon Kingdom",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#2a62c4",
-    land: "#4f9a3c",
+    ocean: "#1f6fd0",
+    land: "#58b83a",
     landTexture: "none",
+    landLit: ["#9be35a", "#2e7d2a"],
+    extrude: "#8a5a2b",
+    specular: true,
     pixel: 1,
     dotShape: "diamond",
     textureInk: "rgba(0,0,0,0)",
-    coast: "#e8d9a0",
-    coastWidth: 1.2,
-    waterlines: 0,
-    waterline: "rgba(150,200,255,0.35)",
+    coast: "#2a5a1a",
+    coastWidth: 1,
+    waterlines: 1,
+    waterline: "rgba(220,240,255,0.55)",
     oceanHatch: null,
-    shallows: "#3f86dc",
-    facets: true,
+    shallows: "#3f94e8",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "#8cc8ff",
-    lake: "#3f86dc",
-    ice: "#f4f1e6",
-    relief: "rgba(90,60,30,0.7)",
-    dot: "#f2c14e",
-    dotStroke: "#3a1f06",
-    fresh: "#ff5a8a",
+    river: "#8cd0ff",
+    lake: "#3f94e8",
+    ice: "#f4f7ff",
+    relief: "rgba(90,55,20,0.75)",
+    dot: "#ffd23a",
+    dotStroke: "#5a3200",
+    fresh: "#ff4f8b",
     tuned: "#ffffff",
     arc: "#ffffff",
     glow: false,
-    atmosphere: "rgba(255,200,140,0.5)",
-    shade: "rgba(20,0,40,0.5)",
+    atmosphere: "rgba(200,235,255,0.55)",
+    shade: "rgba(10,20,60,0.5)",
     neatline: false,
     decor: null,
   },
-  // Hand-painted and mixed up, warm and cool at once, after the mood of two album covers from 2005 (Mezmerize and
-  // Hypnotize): red-orange land brushed with yellow and violet, blue sea with loose pink strokes, scrawled
-  // lettering. No band name, artwork or lettering from them.
+
+  // Direct nods to the Mezmerize and Hypnotize covers (2005): black ground, dark red smeared paint, bone white, the
+  // striped arcs, the blue face for fresh reports, a white stamped poster face over red marker lettering. No band
+  // name or artwork is copied.
   realize: {
     id: "realize",
     label: "Realize",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
-    ocean: "#1d46b8",
-    land: "#e2461f",
+    ocean: "#0b090a",
+    land: "#4a1512",
     landTexture: "brush",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(255,210,58,0.5)",
-    textureInk2: "rgba(110,40,190,0.45)",
-    coast: "#111014",
-    coastWidth: 2.4,
-    waterlines: 1,
-    waterline: "rgba(255,120,190,0.16)",
+    textureInk: "rgba(150,32,28,0.5)",
+    textureInk2: "rgba(0,0,0,0.5)",
+    coast: "#d8ccb2",
+    coastWidth: 1.2,
+    waterlines: 0,
+    waterline: "rgba(120,18,24,0.13)",
     oceanHatch: null,
     oceanPattern: "brush",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "#79c2ff",
-    lake: "#1d46b8",
-    ice: "#f4efe6",
-    relief: "rgba(60,15,10,0.6)",
-    dot: "#fff3d6",
-    dotStroke: "#111014",
-    fresh: "#ffd23a",
-    tuned: "#ffd23a",
-    arc: "#ffd23a",
+    river: "rgba(216,204,178,0.22)",
+    lake: "#0b090a",
+    ice: "#6e645a",
+    relief: "rgba(0,0,0,0.6)",
+    dot: "#ece3d0",
+    dotStroke: "#0b090a",
+    fresh: "#7d9be0",
+    tuned: "#d2263b",
+    arc: "#d2263b",
     glow: false,
-    atmosphere: "rgba(230,70,31,0.35)",
-    shade: "rgba(0,0,0,0.5)",
+    atmosphere: "rgba(150,20,30,0.35)",
+    shade: "rgba(0,0,0,0.7)",
     neatline: false,
     decor: null,
   },
-  // A 1950s flying-saucer picture: deep teal sky and sea, clay land, moon-white linework, saucers over open ocean.
-  ufo: {
-    id: "ufo",
-    label: "UFO",
+
+  // A modern television news studio: the world on a glowing LED wall, glossy navy glass, white and red captions
+  // along the bottom of the screen, and a crawl of headlines.
+  newsroom: {
+    id: "newsroom",
+    label: "Newsroom",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#135a5c",
-    land: "#c4754c",
-    landTexture: "halftone",
+    ocean: "#07163a",
+    land: "#12357a",
+    landTexture: "matrix",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(96,42,24,0.3)",
-    coast: "#efe7d4",
-    coastWidth: 1.1,
-    waterlines: 2,
-    waterline: "rgba(239,231,212,0.22)",
+    textureInk: "rgba(140,200,255,0.55)",
+    coast: "#6cc4ff",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(108,196,255,0.2)",
     oceanHatch: null,
-    graticule: "rgba(239,231,212,0.08)",
+    graticule: "rgba(108,196,255,0.14)",
     graticuleDash: [],
-    river: "rgba(239,231,212,0.5)",
-    lake: "#135a5c",
-    ice: "#efe7d4",
-    relief: "rgba(96,42,24,0.55)",
-    dot: "#f6f1e4",
-    dotStroke: "#0b3436",
-    fresh: "#ffd84d",
-    tuned: "#ffd84d",
-    arc: "#ffd84d",
-    glow: false,
-    atmosphere: "rgba(150,236,224,0.32)",
-    shade: "rgba(4,24,28,0.6)",
+    river: "rgba(108,196,255,0.3)",
+    lake: "#07163a",
+    ice: "#2a4f94",
+    relief: "rgba(140,200,255,0.3)",
+    dot: "#ffffff",
+    dotStroke: "#051030",
+    fresh: "#ff3b4e",
+    tuned: "#ffffff",
+    arc: "#ff3b4e",
+    glow: true,
+    atmosphere: "rgba(80,170,255,0.45)",
+    shade: "rgba(0,4,20,0.6)",
     neatline: false,
-    decor: "ufo",
+    decor: null,
   },
 };

@@ -1,5 +1,4 @@
 import {
-  geoArea,
   geoDistance,
   geoGraticule,
   geoInterpolate,
@@ -61,59 +60,6 @@ const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
 
 type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "tiles" | "shimmer";
-
-/** Shades for the five facet groups, lightest first; the middle group is left as it is. */
-const FACET_INK = ["rgba(255,255,255,0.13)", "rgba(255,255,255,0.06)", null, "rgba(0,0,0,0.07)", "rgba(0,0,0,0.15)"];
-let facetCache: GeoPermissibleObjects[] | null = null;
-
-/**
- * An icosahedron split three times (1,280 triangles about 7 degrees across) as lon/lat polygons, in five groups
- * by a fixed hash so neighbouring faces differ. Built once.
- */
-function facets(): GeoPermissibleObjects[] {
-  if (facetCache) return facetCache;
-  const t = (1 + Math.sqrt(5)) / 2;
-  let verts: number[][] = [
-    [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0], [0, -1, t], [0, 1, t],
-    [0, -1, -t], [0, 1, -t], [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
-  ];
-  let faces = [
-    [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11], [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
-    [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9], [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
-  ];
-  const unit = (v: number[]) => {
-    const l = Math.hypot(v[0]!, v[1]!, v[2]!);
-    return v.map((c) => c / l);
-  };
-  verts = verts.map(unit);
-  for (let level = 0; level < 3; level++) {
-    const mid = new Map<string, number>();
-    const at = (a: number, b: number) => {
-      const k = a < b ? `${a},${b}` : `${b},${a}`;
-      let i = mid.get(k);
-      if (i === undefined) {
-        i = verts.push(unit(verts[a]!.map((c, j) => c + verts[b]![j]!))) - 1;
-        mid.set(k, i);
-      }
-      return i;
-    };
-    faces = faces.flatMap(([a, b, c]) => {
-      const ab = at(a!, b!), bc = at(b!, c!), ca = at(c!, a!);
-      return [[a!, ab, ca], [b!, bc, ab], [c!, ca, bc], [ab, bc, ca]];
-    });
-  }
-  const lonLat = (v: number[]): [number, number] => [(Math.atan2(v[1]!, v[0]!) * 180) / Math.PI, (Math.asin(v[2]!) * 180) / Math.PI];
-  const groups: [number, number][][][][] = [[], [], [], [], []];
-  faces.forEach((f, i) => {
-    let ring = [...f, f[0]!].map((k) => lonLat(verts[k]!));
-    // d3 reads a ring wound the wrong way as everything outside it.
-    if (geoArea({ type: "Polygon", coordinates: [ring] }) > 2 * Math.PI) ring = ring.reverse();
-    const h = Math.abs(Math.sin(i * 12.9898 + f[0]! * 78.233) * 43758.5453) % 1;
-    groups[Math.min(4, Math.floor(h * 5))]!.push([ring]);
-  });
-  facetCache = groups.map((coordinates) => ({ type: "MultiPolygon", coordinates }) as GeoPermissibleObjects);
-  return facetCache;
-}
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
 const MAX_ZOOM = 14;
@@ -801,22 +747,20 @@ export class MapView {
     ctx.setLineDash([]);
 
     if (map) this.drawMap(path, proj, map, t);
-    if (t.facets) {
-      // Low-poly: every triangle of a fixed subdivided icosahedron gets one of five flat shades.
-      for (const [i, shape] of facets().entries()) {
-        if (!FACET_INK[i]) continue;
-        ctx.beginPath();
-        path(shape);
-        ctx.fillStyle = FACET_INK[i]!;
-        ctx.fill();
-      }
-    }
     if (this.mode === "3d" && t.shade) {
       // Lit from the upper left, darker toward the rim, so the globe reads as a solid.
       const g = ctx.createRadialGradient(w / 2 - R * 0.38, h / 2 - R * 0.42, R * 0.15, w / 2, h / 2, R * 1.02);
       g.addColorStop(0, "rgba(0,0,0,0)");
       g.addColorStop(0.55, "rgba(0,0,0,0)");
       g.addColorStop(1, t.shade);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
+    if (this.mode === "3d" && t.specular) {
+      // A soft glint where the light strikes the sphere.
+      const g = ctx.createRadialGradient(w / 2 - R * 0.42, h / 2 - R * 0.46, 0, w / 2 - R * 0.42, h / 2 - R * 0.46, R * 0.55);
+      g.addColorStop(0, "rgba(255,255,255,0.32)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
     }
@@ -872,7 +816,28 @@ export class MapView {
       ctx.stroke(coast);
     }
 
-    ctx.fillStyle = t.land;
+    if (t.extrude) {
+      // Raised land: the coast swept a few pixels down and right in the side colour, darker at the foot.
+      for (const [d, alpha] of [[4, 0.7], [3, 1], [2, 1], [1, 1]] as const) {
+        ctx.save();
+        ctx.translate(d * 0.5, d);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = t.extrude;
+        ctx.fill(land);
+        ctx.restore();
+      }
+    }
+    if (t.landLit) {
+      const { w, h } = this;
+      const R = proj.scale();
+      const g =
+        this.mode === "3d"
+          ? ctx.createRadialGradient(w / 2 - R * 0.4, h / 2 - R * 0.45, R * 0.1, w / 2 - R * 0.1, h / 2 - R * 0.1, R * 1.25)
+          : ctx.createLinearGradient(0, 0, w * 0.35, h);
+      g.addColorStop(0, t.landLit[0]);
+      g.addColorStop(1, t.landLit[1]);
+      ctx.fillStyle = g;
+    } else ctx.fillStyle = t.land;
     ctx.fill(land);
     if (t.landTexture !== "none") {
       ctx.fillStyle = this.pattern(t.landTexture, t.textureInk, t.textureInk2);
@@ -1032,6 +997,29 @@ export class MapView {
       shape(x, y, r);
       ctx.fillStyle = hollow ? t.dotStroke : ink;
       ctx.fill();
+      if (t.dotShape === "diamond" && !hollow) {
+        // Cut like a gem: the right half in shadow and a glint on the upper left facet.
+        const d = r * 1.3;
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.moveTo(x, y - d);
+        ctx.lineTo(x + d, y);
+        ctx.lineTo(x, y + d);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(0,0,0,0.22)";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x, y - d);
+        ctx.lineTo(x - d * 0.5, y - d * 0.5);
+        ctx.lineTo(x, y - d * 0.2);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.fill();
+        ctx.restore();
+        ctx.beginPath();
+        shape(x, y, r);
+      }
       ctx.lineWidth = hollow ? 1.6 : 1.2;
       ctx.strokeStyle = hollow ? ink : t.dotStroke;
       ctx.stroke();

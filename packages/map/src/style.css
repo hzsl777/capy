@@ -247,41 +247,42 @@
 }
 :root[data-theme="realize"] {
   color-scheme: dark;
-  --page: #141018;
-  --panel: #1c1722;
-  --ink: #f6f0e6;
-  --ink-2: #e2d8c8;
-  --muted: #c4b8a6;
-  --rule: #5a4a60;
-  --accent: #ffd23a;
-  --on-accent: #141018;
-  --hover: rgba(255, 210, 58, 0.14);
-  --reticle: #ffd23a;
-  --grain-opacity: 0.2;
-  --grain-blend: overlay;
-  --font-mast: "Rock Salt", "Comic Sans MS", cursive;
-  --font-head: "Caveat Brush", "Comic Sans MS", cursive;
-  --font-body: "Patrick Hand", "Comic Sans MS", cursive;
-  --font-ui: "Caveat Brush", "Comic Sans MS", cursive;
+  --page: #0b090a;
+  --panel: #120e0f;
+  --ink: #ece3d0;
+  --ink-2: #d8ccb2;
+  --muted: #a3978a;
+  --rule: #3a2626;
+  --accent: #d2263b;
+  --on-accent: #ffffff;
+  --hover: rgba(210, 38, 59, 0.16);
+  --reticle: #ece3d0;
+  --grain-opacity: 0.25;
+  --grain-blend: screen;
+  --font-mast: "Anton", "Impact", sans-serif;
+  --font-head: "Anton", "Impact", sans-serif;
+  --font-body: "Barlow", "Arial", sans-serif;
+  --font-ui: "Anton", "Impact", sans-serif;
 }
-:root[data-theme="ufo"] {
+
+:root[data-theme="newsroom"] {
   color-scheme: dark;
-  --page: #0b2729;
-  --panel: #0f3436;
-  --ink: #f1ead8;
-  --ink-2: #dcd4bf;
-  --muted: #b4c9c2;
-  --rule: #3b7a74;
-  --accent: #e08a5c;
-  --on-accent: #1a0d06;
-  --hover: rgba(241, 234, 216, 0.1);
-  --reticle: #ffd84d;
-  --grain-opacity: 0.08;
-  --grain-blend: overlay;
-  --font-mast: "Atomic Age", "Arial Black", sans-serif;
-  --font-head: "Righteous", "Arial Black", sans-serif;
-  --font-body: "Josefin Sans", "Trebuchet MS", sans-serif;
-  --font-ui: "Josefin Sans", "Trebuchet MS", sans-serif;
+  --page: #050d24;
+  --panel: #0a1838;
+  --ink: #f2f6ff;
+  --ink-2: #d4def5;
+  --muted: #9fb0d6;
+  --rule: #23407a;
+  --accent: #e4002b;
+  --on-accent: #ffffff;
+  --hover: rgba(108, 196, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Oswald", "Arial Narrow", sans-serif;
+  --font-head: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Barlow", "Arial", sans-serif;
+  --font-ui: "Barlow", "Arial", sans-serif;
 }
 
 /* ---- base --------------------------------------------------------------- */
@@ -2034,47 +2035,56 @@ button.link {
   vertical-align: 0;
 }
 
-/* ---- Polygon Kingdom: faceted gold-trimmed windows over a dusk sky ------------------ */
+/* ---- Polygon Kingdom: a bright sky, gold 3D lettering, gold-framed pause-menu windows ---- */
 :root[data-theme="bit64"] body {
-  background: radial-gradient(ellipse at 50% 0%, #2a1f4a 0%, var(--page) 70%);
+  background: linear-gradient(to bottom, #10183a 0%, #1b2a5c 100%);
 }
+/* An open sky with soft clouds behind the world, like the first view of a 3D adventure. */
 :root[data-theme="bit64"] .map {
-  background: linear-gradient(to bottom, #1d1640 0%, #5a3a78 45%, #d9804a 85%, #f2c14e 100%);
+  background:
+    radial-gradient(ellipse 18% 7% at 16% 22%, rgba(255, 255, 255, 0.9), transparent 70%),
+    radial-gradient(ellipse 12% 5% at 24% 19%, rgba(255, 255, 255, 0.85), transparent 70%),
+    radial-gradient(ellipse 20% 7% at 84% 30%, rgba(255, 255, 255, 0.8), transparent 70%),
+    radial-gradient(ellipse 14% 5% at 76% 74%, rgba(255, 255, 255, 0.7), transparent 70%),
+    linear-gradient(to bottom, #3d8ef0 0%, #7cc0fa 55%, #d6efff 100%);
 }
-:root[data-theme="bit64"] .mast-title {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #fbf3dc;
-  text-shadow: 0 2px 0 #6b4a12, 0 0 12px rgba(242, 193, 78, 0.35);
-}
+/* Gold lettering with depth: stacked one-pixel shadows make the letters solid, then a soft drop below. */
+:root[data-theme="bit64"] .mast-title,
 :root[data-theme="bit64"] .telegram-word,
 :root[data-theme="bit64"] .telegram-big {
   font-family: var(--font-mast);
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #f2c14e;
-  background: linear-gradient(to bottom, #fff4c8 0%, #f2c14e 50%, #b07a1a 100%);
+  background: linear-gradient(to bottom, #fff6c8 0%, #ffd23a 45%, #d98a12 55%, #ffcf4a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 0 #3a2406) drop-shadow(0 0 10px rgba(242, 193, 78, 0.35));
+  filter: drop-shadow(0 1px 0 #a4620a) drop-shadow(0 1px 0 #8a4f06) drop-shadow(0 1px 0 #6b3a04) drop-shadow(0 1px 0 #4a2702) drop-shadow(0 5px 6px rgba(0, 0, 0, 0.5));
   border-bottom: 0;
 }
-/* Windows and buttons are cut into flat-shaded facets, like a low-poly model. */
+:root[data-theme="bit64"] .mast-title {
+  letter-spacing: 0.05em;
+}
+:root[data-theme="bit64"] .telegram-word,
+:root[data-theme="bit64"] .telegram-big {
+  letter-spacing: 0.06em;
+}
+/* Windows: deep blue glass in a gold frame with a lit top edge and a shadowed bottom edge. */
 :root[data-theme="bit64"] .panel,
 :root[data-theme="bit64"] .menu-body,
 :root[data-theme="bit64"] .key-pop {
-  background:
-    linear-gradient(155deg, rgba(58, 44, 110, 0.94) 0 22%, transparent 22%),
-    linear-gradient(200deg, rgba(40, 30, 84, 0.94) 0 45%, transparent 45%),
-    linear-gradient(115deg, rgba(30, 22, 64, 0.94) 0 60%, rgba(20, 14, 44, 0.94) 60%);
-  border: 2px solid #f2c14e;
-  border-radius: 4px;
-  box-shadow: inset 0 0 0 3px rgba(16, 12, 36, 0.9), inset 0 0 0 4px rgba(201, 161, 74, 0.6);
+  background: linear-gradient(to bottom, rgba(34, 44, 110, 0.95), rgba(14, 18, 52, 0.95));
+  border: 3px solid #e8b53a;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.45),
+    0 0 0 2px #6b3a04,
+    0 6px 14px rgba(0, 0, 0, 0.45);
 }
 :root[data-theme="bit64"] .panel {
-  margin: 6px;
+  margin: 8px;
 }
+/* Buttons: round, glossy and raised, pressing down when open. */
 :root[data-theme="bit64"] .tool,
 :root[data-theme="bit64"] .pick select,
 :root[data-theme="bit64"] .menu > summary,
@@ -2082,70 +2092,81 @@ button.link {
 :root[data-theme="bit64"] .zoom button,
 :root[data-theme="bit64"] .key-btn,
 :root[data-theme="bit64"] .key-close {
-  background: linear-gradient(135deg, #3d3178 0 48%, #241c4c 48%);
-  border: 2px solid #c9a14a;
-  border-radius: 3px;
-  color: #fbf3dc;
+  background: linear-gradient(to bottom, #ffe58a 0%, #ffc93a 48%, #e8a41c 52%, #f7c24a 100%);
+  border: 2px solid #7a4406;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 3px 0 #7a4406;
+  color: #3a1f02;
+  font-weight: 700;
+}
+:root[data-theme="bit64"] .menu[open] > summary,
+:root[data-theme="bit64"] .key-btn[aria-expanded="true"],
+:root[data-theme="bit64"] .tool[aria-pressed="true"] {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 #7a4406;
+}
+:root[data-theme="bit64"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
 }
 
-/* ---- Realize: scrawled letters, cut-paper scraps, warm and cool mixed together ------- */
+/* ---- Realize: black ground, stamped white poster type over red marker, striped arcs ---- */
 :root[data-theme="realize"] body {
   background:
-    radial-gradient(ellipse 40% 30% at 8% 12%, rgba(226, 70, 31, 0.35), transparent 70%),
-    radial-gradient(ellipse 35% 28% at 92% 20%, rgba(110, 40, 190, 0.35), transparent 70%),
-    radial-gradient(ellipse 45% 35% at 80% 95%, rgba(29, 70, 184, 0.4), transparent 70%),
-    radial-gradient(ellipse 30% 25% at 20% 90%, rgba(255, 210, 58, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 50% 55%, rgba(90, 14, 18, 0.35), transparent 70%),
     var(--page);
 }
+/* The striped arcs across the top of the covers: rust, night blue and oxblood bands. */
 :root[data-theme="realize"] .masthead {
-  border-bottom: 0;
-  background: linear-gradient(to right, #e2461f 0 30%, #ffd23a 30% 45%, #6e28be 45% 70%, #1d46b8 70%) bottom / 100% 5px no-repeat;
-  padding-bottom: 16px;
+  border-bottom: 2px solid #2a1a1a;
+  background:
+    repeating-radial-gradient(ellipse 140% 120% at 50% 190%, #b8481c 0 5px, #15122e 5px 10px, #6e1a14 10px 15px, #0b090a 15px 20px) top / 100% 26px no-repeat,
+    var(--page);
+  padding-top: 30px;
+}
+/* White poster capitals, worn at the edges: a noise mask knocks small holes out of the letters. */
+:root[data-theme="realize"] .mast-title,
+:root[data-theme="realize"] .panel h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: #f4efe4;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -7 5.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -7 5.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
 }
 :root[data-theme="realize"] .mast-title {
-  font-size: clamp(18px, 2.4vw, 28px);
-  line-height: 1.5;
-  color: #ffd23a;
-  transform: rotate(-3deg);
-  text-shadow: 2px 2px 0 #e2461f, -2px 1px 0 #1d46b8;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1;
 }
-:root[data-theme="realize"] .mast-tag {
+:root[data-theme="realize"] .mast-tag,
+:root[data-theme="realize"] .telegram-kicker,
+:root[data-theme="realize"] .telegram-date {
   font-family: var(--font-ui);
-  font-size: 16px;
-  color: #ff9ecf;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
 }
-:root[data-theme="realize"] .telegram-kicker {
-  font-family: var(--font-ui);
-  color: #ffd23a;
-  transform: rotate(2deg);
-}
-/* The word is painted in two halves, one warm and one cool. */
+/* The word in red marker capitals with a dark offset shadow. */
 :root[data-theme="realize"] .telegram-word,
 :root[data-theme="realize"] .telegram-big {
-  font-family: var(--font-mast);
+  font-family: "Permanent Marker", "Comic Sans MS", cursive;
   font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.5;
-  background: linear-gradient(100deg, #ffd23a 0 48%, #ff9ecf 48%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(3px 3px 0 #e2461f) drop-shadow(-2px -2px 0 #1d46b8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #c8102e;
+  text-shadow: 3px 4px 0 #1c0a0b, 5px 7px 0 rgba(0, 0, 0, 0.6);
   border-bottom: 0;
 }
-:root[data-theme="realize"] .telegram-word {
-  transform: rotate(-2deg);
-}
-/* Cut paper: each panel is a slightly tilted scrap with a strip of tape. */
 :root[data-theme="realize"] .panel,
-:root[data-theme="realize"] .key-pop,
-:root[data-theme="realize"] .menu-body {
-  border: 2px solid #f6f0e6;
-  border-radius: 3px 14px 4px 10px;
-  box-shadow: 5px 5px 0 #6e28be;
-}
-:root[data-theme="realize"] .panel {
-  margin: 8px;
+:root[data-theme="realize"] .menu-body,
+:root[data-theme="realize"] .key-pop {
+  border: 1px solid #3a2626;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(110, 26, 20, 0.28), transparent 70%),
+    var(--panel);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
 }
 :root[data-theme="realize"] .tool,
 :root[data-theme="realize"] .pick select,
@@ -2154,92 +2175,148 @@ button.link {
 :root[data-theme="realize"] .zoom button,
 :root[data-theme="realize"] .key-btn,
 :root[data-theme="realize"] .key-close {
-  border: 2px solid #f6f0e6;
-  border-radius: 14px 4px 12px 5px;
-  font-size: 17px;
+  border: 1px solid #d8ccb2;
+  border-radius: 0;
+  background: #0b090a;
+  color: #ece3d0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="realize"] .key-btn[aria-expanded="true"],
+:root[data-theme="realize"] .menu[open] > summary,
+:root[data-theme="realize"] .tool[aria-pressed="true"] {
+  background: #c8102e;
+  border-color: #c8102e;
   color: #ffffff;
-  background: #1d46b8;
-}
-:root[data-theme="realize"] .toolbar > :nth-child(odd) select,
-:root[data-theme="realize"] .toolbar > :nth-child(odd) > summary,
-:root[data-theme="realize"] .toolbar > .tool:nth-child(odd),
-:root[data-theme="realize"] .key-btn {
-  background: #b8331a;
-  transform: rotate(-1.5deg);
-}
-:root[data-theme="realize"] .toolbar > :nth-child(even) select,
-:root[data-theme="realize"] .toolbar > :nth-child(even) > summary,
-:root[data-theme="realize"] .toolbar > .tool:nth-child(even) {
-  background: #5a22a0;
-  transform: rotate(1.2deg);
 }
 
-/* ---- UFO: a 1950s saucer picture, teal night, clay and moon white ------------------ */
-:root[data-theme="ufo"] body {
-  background:
-    radial-gradient(1.5px 1.5px at 20% 30%, rgba(241, 234, 216, 0.75), transparent) 0 0 / 170px 170px,
-    radial-gradient(1px 1px at 70% 60%, rgba(241, 234, 216, 0.6), transparent) 0 0 / 230px 230px,
-    radial-gradient(ellipse at 50% 0%, rgba(150, 236, 224, 0.14), transparent 60%),
-    var(--page);
+/* ---- Newsroom: a studio set, an LED wall, captions across the lower third -------------- */
+:root[data-theme="newsroom"] body {
+  background: linear-gradient(to bottom, #050d24, #0a1a44);
 }
-/* A full moon low in the sky behind the globe. */
-:root[data-theme="ufo"] .map {
+/* Studio lights behind the wall. */
+:root[data-theme="newsroom"] .map {
   background:
-    radial-gradient(circle at calc(86% - 9px) calc(16% - 8px), rgba(150, 140, 118, 0.45) 0 6px, transparent 7px),
-    radial-gradient(circle at calc(86% + 10px) calc(16% + 4px), rgba(150, 140, 118, 0.4) 0 4px, transparent 5px),
-    radial-gradient(circle at calc(86% - 2px) calc(16% + 13px), rgba(150, 140, 118, 0.35) 0 3px, transparent 4px),
-    radial-gradient(circle at 86% 16%, #efe7d4 0 30px, rgba(239, 231, 212, 0.18) 31px 42px, transparent 43px),
-    radial-gradient(1px 1px at 30% 40%, rgba(241, 234, 216, 0.7), transparent) 0 0 / 120px 120px,
-    linear-gradient(to bottom, #07201f, #0e3a3b);
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(40, 110, 220, 0.35), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(108, 196, 255, 0.05) 0 1px, transparent 1px 64px),
+    linear-gradient(to bottom, #040b20, #0b2152 70%, #06112c);
 }
-:root[data-theme="ufo"] .mast-title {
-  color: #f1ead8;
+:root[data-theme="newsroom"] .masthead {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, #0b1c46, #050d24);
+  box-shadow: inset 0 -3px 0 #e4002b;
+}
+:root[data-theme="newsroom"] .mast-title {
+  font-weight: 600;
+  text-transform: uppercase;
   letter-spacing: 0.04em;
-  text-shadow: 3px 3px 0 #c4754c;
+  color: #ffffff;
 }
-:root[data-theme="ufo"] .telegram-center {
+:root[data-theme="newsroom"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+/* The word as a caption: a red tab with the label, then the word on a white bar. */
+:root[data-theme="newsroom"] .telegram-kicker {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #e4002b;
+  color: #ffffff;
+  font: 600 12px/1.2 var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="newsroom"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #081a44;
+  background: linear-gradient(to bottom, #ffffff, #dfe7f5);
+  padding: 0 0.3em;
+  border-bottom: 4px solid #e4002b;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="newsroom"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+:root[data-theme="newsroom"] .telegram-date {
+  font-family: var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="newsroom"] .panel,
+:root[data-theme="newsroom"] .menu-body,
+:root[data-theme="newsroom"] .key-pop {
+  background: linear-gradient(to bottom, rgba(18, 40, 92, 0.96), rgba(8, 20, 52, 0.96));
+  border: 1px solid #2d57a8;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="newsroom"] .panel {
+  margin: 8px;
+}
+:root[data-theme="newsroom"] .panel h2 {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+:root[data-theme="newsroom"] .tool,
+:root[data-theme="newsroom"] .pick select,
+:root[data-theme="newsroom"] .menu > summary,
+:root[data-theme="newsroom"] .chip,
+:root[data-theme="newsroom"] .zoom button,
+:root[data-theme="newsroom"] .key-btn,
+:root[data-theme="newsroom"] .key-close {
+  background: linear-gradient(to bottom, #1c3d86, #0d2256);
+  border: 1px solid #3a67c0;
+  border-radius: 4px;
+  color: #ffffff;
+}
+:root[data-theme="newsroom"] .menu[open] > summary,
+:root[data-theme="newsroom"] .key-btn[aria-expanded="true"],
+:root[data-theme="newsroom"] .tool[aria-pressed="true"] {
+  background: #e4002b;
+  border-color: #e4002b;
+}
+/* The crawl along the bottom of the screen. */
+:root[data-theme="newsroom"] .ticker {
+  display: block;
+  height: 34px;
+  border-top: 0;
+  background: linear-gradient(to right, #e4002b 0 118px, #ffffff 118px);
+  padding-left: 126px;
   position: relative;
 }
-/* A saucer's beam of light behind the word. */
-:root[data-theme="ufo"] .telegram-center::before {
-  content: "";
+:root[data-theme="newsroom"] .ticker::before {
+  content: "Headlines";
   position: absolute;
-  inset: -6px -18px -4px;
-  background: linear-gradient(to bottom, rgba(255, 216, 77, 0.04), rgba(255, 216, 77, 0.2));
-  clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%);
-  pointer-events: none;
-  z-index: -1;
+  left: 0;
+  top: 0;
+  width: 118px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: #e4002b;
+  font: 600 13px/1 var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 1;
 }
-:root[data-theme="ufo"] .telegram-word,
-:root[data-theme="ufo"] .telegram-big {
-  font-family: var(--font-head);
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  color: #f1ead8;
-  text-shadow: 3px 3px 0 #c4754c, 6px 6px 0 rgba(0, 0, 0, 0.35);
-  border-bottom: 0;
+:root[data-theme="newsroom"] .tick {
+  color: #081a44;
+  font: 500 14px/34px var(--font-body);
 }
-:root[data-theme="ufo"] .panel,
-:root[data-theme="ufo"] .menu-body,
-:root[data-theme="ufo"] .key-pop {
-  border: 2px solid #3b7a74;
-  border-radius: 18px;
-  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(224, 138, 92, 0.6);
+:root[data-theme="newsroom"] .tick b {
+  color: #c8001f;
+  font-weight: 700;
 }
-:root[data-theme="ufo"] .panel {
-  margin: 6px;
-}
-:root[data-theme="ufo"] .tool,
-:root[data-theme="ufo"] .pick select,
-:root[data-theme="ufo"] .menu > summary,
-:root[data-theme="ufo"] .chip,
-:root[data-theme="ufo"] .zoom button,
-:root[data-theme="ufo"] .key-btn,
-:root[data-theme="ufo"] .key-close {
-  border: 2px solid #e08a5c;
-  border-radius: 999px;
-  background: #0f3436;
-  color: #f1ead8;
+:root[data-theme="newsroom"] .tick::before {
+  content: "\25A0  ";
+  color: #e4002b;
 }
 
 /* ---- The map's key: a small button on the map, the key itself beside it ---------- */
@@ -2367,7 +2444,7 @@ button.link {
     font-size: 18px;
   }
 }
-/* Rock Salt runs wide, about 1.1 em per capital, so the word gets less room per letter. */
+/* Permanent Marker capitals run wide, so the word gets less room per letter. */
 :root[data-theme="realize"] .telegram-word {
   font-size: min(64px, calc(36vw / var(--len, 8) / 1.2));
 }

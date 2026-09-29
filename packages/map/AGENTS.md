@@ -1,6 +1,6 @@
 # GlobalGist (the map): agent guide
 
-The map, published as GlobalGist, is one of two products in capy. The other is 2DayAI (see the root AGENTS.md and CONTEXT.md). GlobalGist is the public site. It puts world news on a map by where it happens (decision 44), in the spirit of Radio Garden. One word heads it: the emotion the day's world reporting evokes, on a scored scale from Grave to Good.
+The map, published as GlobalGist, is one of two products in capy. The other is 2DayAI (see the root AGENTS.md and CONTEXT.md). GlobalGist is the public site. It puts world news on a map by where it happens (decision 44), in the spirit of Radio Garden. One word heads it: the emotion the day's world reporting evokes, on a scored scale from Severe harm to Resolution (decision 59).
 
 On open, the map or globe turns until a place lands under the small reticle in the middle; drag to turn it yourself. The place under the reticle is "tuned", and the side panel lists what its outlets reported. Opening the word shows:
 
@@ -38,7 +38,7 @@ src/
   themes.ts              canvas colours per design; CSS tokens live in style.css
   map/view.ts            canvas map: projections, drag/zoom/pinch, tuning, highlights, drawing
   map/basemap.ts         loads the TopoJSON basemap
-  map/decor.ts           decorations under the dots: Pirate sea creatures, Candy Shop sweets, UFO saucers, Space stars and rim (fixed ocean spots, tested)
+  map/decor.ts           decorations under the dots: Pirate sea creatures, Candy Shop sweets, Space stars and rim (fixed ocean spots, tested)
   translate.ts           browser Translator API wrapper
   pins.ts                localStorage pins and prefs
   ui/dom.ts              element builder (text only, never innerHTML)
@@ -77,7 +77,7 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Designs
 
-Thirteen looks (decisions 32, 43 and 57), each in Map or Globe view, chosen from one Design menu:
+Thirteen looks (decisions 32, 43, 57, 58 and 59), each in Map or Globe view, chosen from one Design menu:
 
 - **Morning Edition**: newsprint, black ink, halftone land, blackletter masthead and word. Map by default.
 - **Cabinet Map**: parchment, sepia ink, engraved water lines, hachured mountains, one red for fresh reports and the word. Map by default.
@@ -89,11 +89,11 @@ Thirteen looks (decisions 32, 43 and 57), each in Map or Globe view, chosen from
 - **Candy Shop**: pink land on sky-blue water, white water lines, rounded pill-shaped chrome, sprinkles and a candy-stripe masthead, Fredoka and Nunito, magenta for fresh reports, sweets at the creature spots. Map by default. Formerly Cotton Candy; `cotton` still opens it.
 - **Stage Select** (`bit8`): after the side-scrolling action games of the 8-bit era. Hard pixels at a third of the resolution, land built from bevelled metal blocks on a tiled sea, square markers, riveted panels, a strip of blocks under the masthead, Press Start 2P, the scale drawn as an energy bar. Map by default.
 - **Overworld** (`bit16`): after the world maps of 16-bit role-playing games. Half resolution, pixel grass, sandy shores and lighter shallows, glinting water, blue gradient windows with white frames and a menu pointer, Pixelify Sans and DotGothic16, gold for fresh reports. Map by default.
-- **Polygon Kingdom** (`bit64`): after the 3D adventure games of the 64-bit era. Flat-shaded triangles over land and sea (`facets`), diamond markers, a dusk sky, faceted gold-trimmed windows, Cinzel, pink for fresh reports. Globe by default.
-- **Realize**: after the colours and hand-painted look of two 2005 album covers. Red-orange land with yellow and violet paint strokes, cobalt sea with pink strokes, thick coasts, Rock Salt and Caveat Brush, a word painted half warm and half cool, cut-paper panels. Map by default.
-- **UFO**: a 1950s saucer picture. Deep teal sea and sky, clay land, moon-white coasts, a full moon behind the globe, small saucers at the creature spots, Atomic Age, Righteous and Josefin Sans, yellow for fresh reports. Globe by default.
+- **Polygon Kingdom** (`bit64`): after Super Mario 64 and the Zelda games of that console. Land lit from the upper left and raised on dirt-coloured sides (`landLit`, `extrude`), shallows and surf, a glint on the globe (`specular`), a sky with clouds, gem markers, gold lettering with depth, raised gold buttons, gold-framed windows. Globe by default.
+- **Realize**: direct inspiration from the Mezmerize and Hypnotize covers. Black ground, dark red smeared land, bone-white coasts and markers, blue for fresh reports, the striped arcs across the top, worn white Anton capitals over a red Permanent Marker word. Map by default.
+- **Newsroom**: a television news studio. The world on a glowing LED wall, glossy navy panels, the word as a white caption bar under a red tab, Oswald and Barlow, red for fresh reports, a crawl of the newest headlines. No "live" or "breaking" labels. Globe by default.
 
-The console, Realize and UFO designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
+The console, Realize and Newsroom designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
 
 The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`). Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
 

@@ -436,3 +436,14 @@ Davis found the three console designs plain and too alike, Realize's lettering o
 5. On a phone the design menu is only as wide as the chosen design's name, so the toolbar stays one row in every design at 360 pixels.
 
 Marker shape (circle, square or diamond) is part of a design and never carries meaning. The three symbols of decision 57 read the same in every shape.
+
+## 59. The scale says what it measures, the note shows the whole count, and three designs change (September 29, 2026)
+
+Davis found the scale's names (Grave, Hard, Mixed, Hopeful, Good) insensitive and not accurate, asked whether the word comes from every story, and gave feedback on the designs. This changes the scale names in decision 26 and items 1 to 3 of decision 58.
+
+1. The five steps are named for what the scoring rules measure, outcomes for people in the day's top events: **Severe harm, Harm, Mixed, Relief, Resolution**. They no longer read as a verdict on the day. The model sees the same names. The word lists do not change.
+2. The note under the word shows the whole count: "Chosen by AI from the 24 most important events in today's 1,826 reports". Every report is grouped into events and rated for importance; only the most important (3 or more, up to `WORLD_EXPLAIN_MAX`) are checked against their sources and scored. GDELT's local stories are never grouped, so they are not counted. The About page and the word's panel explain the same steps.
+3. **Realize** takes direct inspiration from the Mezmerize and Hypnotize covers: a black ground, dark red smeared land, bone-white coasts and markers, the covers' blue for fresh reports, the striped arcs across the top, white stamped poster capitals (Anton, worn with a noise mask) over red marker lettering (Permanent Marker) for the word. No band name or artwork is copied.
+4. **Polygon Kingdom** drops the flat triangles for depth, after Super Mario 64 and the Zelda games of that console: land lit from the upper left and raised above the sea on dirt-coloured sides, lighter shallows and surf, a glint on the globe, a bright sky with clouds, gems for markers, gold lettering with depth, raised gold buttons and gold-framed windows.
+5. **UFO** is removed. A saved choice of it opens the default design.
+6. **Newsroom** is added: a television news studio. The world on a glowing LED wall, studio lights, glossy navy panels, the word as a white caption bar under a red "Today's word" tab, Oswald and Barlow, red for fresh reports, and a crawl of the newest headlines along the bottom (the newest first, as every list on the site is). It shows no "live" or "breaking" label.
