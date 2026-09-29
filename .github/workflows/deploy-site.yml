@@ -45,17 +45,17 @@ jobs:
       - if: env.CLOUDFLARE_API_TOKEN != ''
         run: npm run check
       # Custom domains make Cloudflare create the DNS records and the certificate itself. The routes key has to sit
-      # above the [assets] table, so it is inserted there rather than appended.
+      # above the [build] and [assets] tables, so it is inserted there rather than appended.
       - name: Use the custom domain
         if: env.CLOUDFLARE_API_TOKEN != '' && env.SITE_DOMAIN != ''
         run: |
           domain="${SITE_DOMAIN#www.}"
-          sed -i "/^\[assets\]/i workers_dev = true\nroutes = [\n  { pattern = \"$domain\", custom_domain = true },\n  { pattern = \"www.$domain\", custom_domain = true },\n]\n" packages/web/wrangler.toml
-          cat packages/web/wrangler.toml
+          sed -i "/^\[build\]/i workers_dev = true\nroutes = [\n  { pattern = \"$domain\", custom_domain = true },\n  { pattern = \"www.$domain\", custom_domain = true },\n]\n" wrangler.toml
+          cat wrangler.toml
       - if: env.CLOUDFLARE_API_TOKEN != ''
         run: npm run web:deploy
       # The Worker reads the map from the database. Copying the repository secret on every deploy keeps the two
       # in step with no manual wrangler command.
       - name: Give the Worker the database
         if: env.CLOUDFLARE_API_TOKEN != '' && env.DATABASE_URL != ''
-        run: printf '%s' "$DATABASE_URL" | npx wrangler secret put DATABASE_URL --config packages/web/wrangler.toml
+        run: printf '%s' "$DATABASE_URL" | npx wrangler secret put DATABASE_URL

@@ -18,17 +18,19 @@ HOW IT RUNS NOW
 LAUNCH (Davis)
 
 [x] Model key added as the LLM_API_KEY secret.
-[ ] Add the other three secrets: DATABASE_URL (the Neon pooled connection string),
-    CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+[ ] Add the DATABASE_URL secret in GitHub (the Neon pooled connection string).
+[ ] Cloudflare: the repo is connected through Cloudflare's Git integration. Check the Worker is
+    named "globalgist", and add DATABASE_URL under its Settings, Variables and Secrets. Leave
+    CLOUDFLARE_API_TOKEN out of GitHub so the site isn't deployed twice (RUNBOOK, "Deploy the site").
 [ ] In the OpenAI dashboard: a project for this repo, prepaid credit, and a hard monthly spend
     limit (for example $10). docs/OPENAI.md walks through every menu.
-[ ] Re-run the "Deploy site" workflow once. The merge ran it before the secrets existed, so it
-    skipped. The first day then builds itself in 10 to 20 minutes.
+[ ] Once DATABASE_URL is in GitHub, run "Daily run" once from the Actions tab (or wait for
+    09:00 UTC). The first day takes 10 to 20 minutes.
 [ ] Open https://globalgist.<account>.workers.dev and check that a map and a word show up.
 [ ] globalgist.com: remove the custom domain from GitHub Pages, put the domain on Cloudflare,
-    give the Cloudflare token DNS and Workers Routes access for it, set the repository variable
-    SITE_DOMAIN to globalgist.com, and run "Deploy site". Steps in docs/RUNBOOK.md,
-    "A custom domain". GitHub Pages can't host this site (decision 37).
+    add globalgist.com and www.globalgist.com under the Worker's Domains & Routes, and set the
+    repository variable SITE_DOMAIN to globalgist.com for email links. Steps in
+    docs/RUNBOOK.md, "A custom domain". GitHub Pages can't host this site (decision 37).
 
 
 SPRINT 1: FIRST WEEK

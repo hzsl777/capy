@@ -1,0 +1,19 @@
+# The public site is GlobalGist (decision 27), so its free address is globalgist.<account>.workers.dev.
+# The config sits at the repository root so a plain `npx wrangler deploy` works from here: that is what
+# Cloudflare's Git integration (Workers Builds) runs, and what `npm run web:deploy` runs (decision 38).
+name = "globalgist"
+main = "packages/web/src/index.ts"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+# Secrets: DATABASE_URL. The "Deploy site" workflow copies it from GitHub; with Workers Builds alone, add it
+# under the Worker's Settings, then Variables and Secrets.
+
+# Runs before every deploy: builds the map, then drops the fictional sample so the live site never falls back
+# to it.
+[build]
+command = "npm run map:build && rm -f packages/map/dist/data/sample.json packages/map/dist/data/latest.json"
+
+# The public map (packages/map). Files that exist are served as-is; everything else, including /data/*.json and
+# the reader pages, falls through to the Worker.
+[assets]
+directory = "packages/map/dist"

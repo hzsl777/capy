@@ -6,7 +6,7 @@ Going live is secrets and one merge. Everything after that runs by itself (decis
 
 1. **Database.** Create a free Neon project (one Postgres database, nothing else) and copy its pooled connection string. Add it as the secret `DATABASE_URL`.
 2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Set a hard monthly spend limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`. docs/OPENAI.md walks through the dashboard: the project, the key, billing, limits, and what to ignore.
-3. **Cloudflare.** On a free Cloudflare account, create an API token from the "Edit Cloudflare Workers" template. Add it as `CLOUDFLARE_API_TOKEN`, and the account id as `CLOUDFLARE_ACCOUNT_ID`.
+3. **Cloudflare.** On a free Cloudflare account, either connect this repository to a Worker named `globalgist` in the dashboard (Workers Builds) and add `DATABASE_URL` to its secrets, or create an API token from the "Edit Cloudflare Workers" template and add it as `CLOUDFLARE_API_TOKEN`, with the account id as `CLOUDFLARE_ACCOUNT_ID`. "Deploy the site" below compares the two.
 4. **Merge the pull request into `main`.**
 
 If `main` was merged before the secrets existed, the deploy skipped. Run "Deploy site" once from the Actions tab after adding them. Everything below then follows on its own.
@@ -80,7 +80,18 @@ The Worker in `packages/web` serves three things:
 - the map's data at `/data/latest.json` and `/data/<date>.json`, read from the database and cached for five minutes
 - the 2DayAI reader pages
 
-On a free Cloudflare account, add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Create the token from the "Edit Cloudflare Workers" template. After that, `.github/workflows/deploy-site.yml` deploys on every code change to `main` and copies `DATABASE_URL` into the Worker (decision 34). To deploy by hand, run `npm run web:deploy`. It builds the map, removes the sample data from the build, and deploys.
+The Worker's config is `wrangler.toml` at the repository root. Its build step builds the map and drops the sample data, so a plain `npx wrangler deploy` from the root is a full deploy (decision 38). There are two ways to run it. Pick one: with both, every push deploys twice.
+
+**Cloudflare's Git integration (Workers Builds).** In the Cloudflare dashboard, Workers & Pages, the Worker connected to this repository:
+
+- The Worker's name must be `globalgist`, the `name` in `wrangler.toml`. A Worker with another name fails the build.
+- Settings, then Build: root directory `/`, build command empty, deploy command `npx wrangler deploy` (the defaults).
+- Settings, then Variables and Secrets: add `DATABASE_URL` as a secret, the same Neon pooled string as the GitHub secret.
+- Leave `CLOUDFLARE_API_TOKEN` out of GitHub, so the "Deploy site" workflow skips. It still starts "Daily run" when it finishes.
+
+**GitHub Actions.** Add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Create the token from the "Edit Cloudflare Workers" template. After that, `.github/workflows/deploy-site.yml` deploys on every code change to `main` and copies `DATABASE_URL` into the Worker (decision 34). Disconnect the Git integration in the dashboard if it was set up.
+
+To deploy by hand, run `npm run web:deploy`.
 
 Set the repository variable `MAIL_FROM` to the verified Resend sender. Email links use the custom domain below, or `WEB_BASE_URL` when it is set.
 
@@ -90,8 +101,8 @@ The site runs on the Cloudflare Worker, so the domain goes on Cloudflare, not Gi
 
 1. **If you tried GitHub Pages first:** in the repository's Settings, then Pages, remove the custom domain and set the source to none. At the registrar, delete any A, AAAA or CNAME records that point at GitHub (`185.199.108.153` to `.111.153`, or `<user>.github.io`).
 2. **Put the domain on Cloudflare.** Either buy it in the Cloudflare dashboard (Domain Registration, sold at cost), and its DNS is on Cloudflare already. Or, for a domain bought elsewhere: Add a domain, pick the Free plan, then at the registrar replace the nameservers with the two Cloudflare shows. It is active when Cloudflare emails you, usually within an hour and sometimes up to a day.
-3. **Let the token manage the domain.** Edit the API token and give it, for that zone, Workers Routes: Edit and DNS: Edit. Without them the deploy fails at the custom domain with an authentication error.
-4. **Set the repository variable `SITE_DOMAIN`** to the domain, for example `globalgist.com`, then run "Deploy site". The deploy attaches the domain and `www.` to the Worker. Cloudflare creates the DNS records and the HTTPS certificate itself, which takes a few minutes. Don't add DNS records for them by hand: a record already on either name blocks the deploy, and has to be deleted first.
+3. **GitHub Actions deploy only: let the token manage the domain.** Edit the API token and give it, for that zone, Workers Routes: Edit and DNS: Edit. Without them the deploy fails at the custom domain with an authentication error.
+4. **Attach the domain to the Worker.** With Workers Builds: the Worker's Settings, then Domains & Routes, then Add, then Custom domain, once for `globalgist.com` and once for `www.globalgist.com`; then set the repository variable `SITE_DOMAIN` to `globalgist.com` for the email links. With the GitHub Actions deploy: set `SITE_DOMAIN` to `globalgist.com` and run "Deploy site", which attaches the domain and `www.` to the Worker. Cloudflare creates the DNS records and the HTTPS certificate itself, which takes a few minutes. Don't add DNS records for them by hand: a record already on either name blocks the deploy, and has to be deleted first.
 
 The workers.dev address keeps working too. Email links follow `SITE_DOMAIN`, so `WEB_BASE_URL` can stay unset. With the domain on Cloudflare, it can also be verified in Resend for `MAIL_FROM`, for example `2DayAI <edition@globalgist.com>`: Resend lists the DNS records to add in Cloudflare.
 
