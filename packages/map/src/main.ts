@@ -334,14 +334,14 @@ function renderKey() {
   const row = (svg: SVGSVGElement, label: string) => h("li", {}, svg as unknown as Node, h("span", {}, label));
   const mono = t.fresh === t.dot;
   $("key-body").replaceChildren(
-    h("p", { class: "key-note" }, "Symbols follow the AI model's 1 to 5 importance rating for a place's top story. Bigger means more important or more reports."),
+    h("p", { class: "key-note" }, "The mark shows how an AI model rated the place's top story, from 1 to 5. A bigger mark means more reports."),
     h(
       "ul",
       {},
-      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3))), "Importance 4 or 5"),
-      row(mark((add) => add(6, t.dot, t.dotStroke, 1.2)), "Importance 2 or 3"),
-      row(mark((add) => add(4.5, t.dotStroke, t.dot, 1.6)), "Importance 1, and local stories via GDELT"),
-      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together"),
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3))), "Rated 4 or 5"),
+      row(mark((add) => add(6, t.dot, t.dotStroke, 1.2)), "Rated 2 or 3"),
+      row(mark((add) => add(4.5, t.dotStroke, t.dot, 1.6)), "Rated 1, or a local story from GDELT"),
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together (zoom in to separate)"),
       row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2")) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
     ),
   );
@@ -444,7 +444,7 @@ function renderIdle(panel: HTMLElement) {
       "div",
       { class: "idle" },
       h("h2", { class: "panel-title" }, "Latest reports"),
-      h("p", { class: "count" }, "The map stops on a place. Drag to pick one yourself."),
+      h("p", { class: "count" }, "The map stops on a place. Drag the map to choose another."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
     ),
   );
@@ -646,7 +646,7 @@ function signed(n: number): string {
 function scale(band: number): HTMLElement {
   return h(
     "div",
-    { class: "scale", role: "img", "aria-label": `What happened to people in the day's top events: ${BAND_LABEL[band]}, on a scale from Severe harm to Resolution` },
+    { class: "scale", role: "img", "aria-label": `The day's step on the scale: ${BAND_LABEL[band]}. The steps run from Severe harm to Resolution.` },
     ...[-2, -1, 0, 1, 2].map((b) => h("span", { class: b === band ? "step on" : "step" }, BAND_LABEL[b]!)),
   );
 }
@@ -671,7 +671,7 @@ function renderTelegramStrip() {
     el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word yet for this day")));
     return;
   }
-  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
+  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open to see how it was chosen.` }, t.word);
   word.addEventListener("click", openTelegram);
   // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
   // space without overflowing a phone.
@@ -747,7 +747,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model grouped the day's reports into events and rated each one's importance from 1 to 5. Events rated 3 or higher were checked against their sources and scored from \u22122 (severe harm) to +2 (resolution) by what happened to people, each score quoting the sentence it rests on. A formula, not the model, set the day: good news and bad are weighed together, and one grave event can set a bad day on its own.",
+        "An AI model sorted the day's reports into events and rated each event from 1 to 5 for importance. It scored each event rated 3 or higher from \u22122 (severe harm) to +2 (resolution) by what happened to people, quoting a checked sentence for each score. A fixed formula, not the model, sets the day. If any scored event is below zero, the lowest of those scores sets the day, so good news never cancels out a tragedy. Otherwise the day is the average score, and more important events count for more.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
@@ -834,7 +834,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       section("What changes next", ev.whatChangesNext),
       h("h3", { class: "rule-head" }, "Sources"),
       h("ol", { class: "sources" }, ...sources),
-      h("p", { class: "fine" }, "Written by an AI model, title included. Each sentence links to the passage it quotes, and any sentence without a matching passage was removed."),
+      h("p", { class: "fine" }, "An AI model wrote this, including the title. Each sentence links to the passage it quotes. A program removed any sentence whose passage was not in the source."),
     ),
   );
 }
@@ -1037,7 +1037,7 @@ async function start() {
   } catch (err) {
     const first = err instanceof Error && err.message === NO_DAY_YET;
     $("panel").replaceChildren(
-      h("p", { class: "pad" }, first ? "The first day's map is being made. It appears after the daily run at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
+      h("p", { class: "pad" }, first ? "The first map isn't ready yet. It appears after the daily update at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
     );
     return;
   }
@@ -1048,7 +1048,7 @@ async function start() {
     banner.hidden = false;
     banner.textContent =
       state.file.source === "demo"
-        ? (state.file.note ?? "Demo: real headlines gathered outside the daily run.")
+        ? (state.file.note ?? "Demo: real headlines, collected outside the daily update.")
         : "Sample: fictional outlets and places. Not real news.";
   }
   refreshDots();
