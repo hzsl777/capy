@@ -59,6 +59,20 @@ const TUNE_RADIUS = 22;
 const MAX_ZOOM = 14;
 /** Screen distance under which pins merge into one dot. */
 const MERGE_PX = 13;
+/** d3 draws into anything canvas-like; a Path2D only lacks beginPath, which a fresh path doesn't need. */
+function pathContext(p: Path2D) {
+  return { beginPath() {}, moveTo: p.moveTo.bind(p), lineTo: p.lineTo.bind(p), arc: p.arc.bind(p), closePath: p.closePath.bind(p) };
+}
+
+/** Pixels drawn beyond the frame on the flat map: more than the widest coast ripple line. */
+const CLIP_MARGIN = 48;
+
+/** Projection scale (about the globe's radius in pixels) from which the detailed basemap is drawn. */
+const DETAIL_SCALE = 520;
+
+/** Resampling precision in pixels. One value for every frame, so outlines never shift between frames. */
+const PRECISION = 0.5;
+
 /** Degrees per second for the idle spin. */
 const SPIN_SPEED = 7;
 /** The spin turns at least this long before it may land, so it reads as a spin. */
@@ -111,7 +125,6 @@ export class MapView {
   /** Places tied to what the panel shows (the telegram's events, or one event). Drawn with a dashed ring. */
   private highlight = new Set<number>();
 
-  private interacting = false;
   private anim: Anim | null = null;
   private frame = 0;
   private pointers = new Map<number, { x: number; y: number }>();
@@ -280,7 +293,11 @@ export class MapView {
         .scale(this.baseScale * this.zoom)
         .translate([this.w / 2, this.h / 2])
         .clipAngle(90)
-        .precision(this.interacting ? 1 : 0.4);
+        .clipExtent([
+          [-CLIP_MARGIN, -CLIP_MARGIN],
+          [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
+        ])
+        .precision(PRECISION);
     }
     return this.theme
       .projection2d()
@@ -288,7 +305,13 @@ export class MapView {
       .center([0, this.lat])
       .scale(this.baseScale * this.zoom)
       .translate([this.w / 2, this.h / 2])
-      .precision(this.interacting ? 1 : 0.4);
+      // Only what is on screen, plus room for the widest coast ripple, is resampled and drawn. Zoomed in, that
+      // is a small part of the world.
+      .clipExtent([
+        [-CLIP_MARGIN, -CLIP_MARGIN],
+        [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
+      ])
+      .precision(PRECISION);
   }
 
   private fit() {
@@ -357,7 +380,6 @@ export class MapView {
       c.setPointerCapture(e.pointerId);
       this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       this.stopAnim();
-      this.interacting = true;
       if (this.pointers.size === 1) {
         this.down = { x: e.clientX, y: e.clientY, t: performance.now() };
         this.velocity = { x: 0, y: 0, t: performance.now() };
@@ -392,14 +414,12 @@ export class MapView {
       const d = this.down;
       this.down = null;
       if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5 && performance.now() - d.t < 500) {
-        this.interacting = false;
         this.click(e);
         return;
       }
       const recent = performance.now() - this.velocity.t < 80;
       if (recent && Math.hypot(this.velocity.x, this.velocity.y) > 0.15) this.glide();
       else {
-        this.interacting = false;
         this.moved();
       }
     };
@@ -413,11 +433,9 @@ export class MapView {
         this.stopAnim();
         this.zoom = clamp(this.zoom * Math.exp(-e.deltaY * 0.0016), 1, MAX_ZOOM);
         this.clampLat();
-        this.interacting = true;
         this.moved();
         clearTimeout(this.wheelTimer);
         this.wheelTimer = window.setTimeout(() => {
-          this.interacting = false;
           this.request();
         }, 180);
       },
@@ -488,7 +506,6 @@ export class MapView {
       if (Math.hypot(vx, vy) > 0.02 && this.pointers.size === 0) {
         this.frame = requestAnimationFrame(tick);
       } else {
-        this.interacting = false;
         this.moved();
       }
     };
@@ -497,7 +514,6 @@ export class MapView {
 
   private startAnim(duration: number, step: (t: number) => void) {
     this.stopAnim();
-    this.interacting = true;
     this.anim = { start: performance.now(), duration, step };
     const tick = (now: number) => {
       const a = this.anim;
@@ -509,7 +525,6 @@ export class MapView {
         this.frame = requestAnimationFrame(tick);
       } else {
         this.anim = null;
-        this.interacting = false;
         this.moved();
       }
     };
@@ -616,7 +631,10 @@ export class MapView {
     ctx.clearRect(0, 0, w, h);
     const proj = this.projection();
     const path = geoPath(proj, ctx);
-    const map = (this.interacting || this.spinning) && this.low ? this.low : (this.high ?? this.low);
+    // Detail follows the map's size on screen, never whether it is being dragged, so coasts, lakes and rivers
+    // don't change shape when the map is touched or let go (decision 42). The whole world at once gets the light
+    // file, where the finer one adds nothing visible and drags slowly; zooming in switches to the fine one.
+    const map = (proj.scale() >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
     const R = proj.scale();
 
     if (this.mode === "3d" && t.atmosphere) {
@@ -690,29 +708,31 @@ export class MapView {
 
   private drawMap(path: ReturnType<typeof geoPath>, proj: GeoProjection, map: Basemap, t: Theme) {
     const { ctx } = this;
-    const lines = this.interacting ? Math.min(2, t.waterlines) : t.waterlines;
+    // The coastline is projected once per frame and reused for every fill and stroke below. Projecting it again
+    // for each ripple line cost more than the drawing itself.
+    const land = new Path2D();
+    geoPath(proj, pathContext(land))(map.land);
+    const coast = new Path2D();
+    geoPath(proj, pathContext(coast))(map.coast);
+    const lines = t.waterlines;
     if (lines > 0) {
       ctx.lineJoin = "round";
       const gap = 3.2;
       for (let i = lines; i >= 1; i--) {
-        ctx.beginPath();
-        path(map.land);
         ctx.lineWidth = i * gap * 2;
         ctx.strokeStyle = t.waterline;
-        ctx.stroke();
+        ctx.stroke(coast);
         ctx.lineWidth = i * gap * 2 - 1.3;
         ctx.strokeStyle = t.ocean;
-        ctx.stroke();
+        ctx.stroke(coast);
       }
     }
 
-    ctx.beginPath();
-    path(map.land);
     ctx.fillStyle = t.land;
-    ctx.fill();
+    ctx.fill(land);
     if (t.landTexture !== "none") {
       ctx.fillStyle = this.pattern(t.landTexture, t.textureInk);
-      ctx.fill();
+      ctx.fill(land);
     }
 
     if (map.ice) {
@@ -720,12 +740,10 @@ export class MapView {
       path(map.ice);
       ctx.fillStyle = t.ice;
       ctx.fill();
-      if (!this.interacting) {
-        ctx.fillStyle = this.pattern("hatch", t.relief);
-        ctx.globalAlpha = 0.5;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
+      ctx.fillStyle = this.pattern("hatch", t.relief);
+      ctx.globalAlpha = 0.5;
+      ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     if (this.relief) this.drawRelief(proj, t);
@@ -745,11 +763,9 @@ export class MapView {
     ctx.lineWidth = 0.7;
     ctx.stroke();
 
-    ctx.beginPath();
-    path(map.land);
     ctx.strokeStyle = t.coast;
     ctx.lineWidth = t.coastWidth;
-    ctx.stroke();
+    ctx.stroke(coast);
   }
 
   private drawRelief(proj: GeoProjection, t: Theme) {

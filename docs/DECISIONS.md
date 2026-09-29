@@ -244,3 +244,12 @@ The first live run with credit failed in the grouping stage: in one batch of fiv
 3. A story with no feed summary shows its headline and link without the note "The outlet didn't publish a preview for this story", which read as an error on every such story.
 4. Translate also translates the preview text, and the button shows only when the browser can translate and the day has a story in another language.
 5. Each daily run keeps the day's map as a downloadable file for a week (the `map` artifact), so a day can be checked, or loaded into a demo, without database access.
+
+## 42. The map looks the same while it moves (September 29, 2026)
+
+Davis saw the water "stutter" when clicking and dragging. The map switched to a lighter drawing whenever it was touched: coarser coasts, lakes and rivers, two ripple lines instead of four or five, no ice shading, and rougher outlines. Letting go switched it back, so every click made the water jump.
+
+1. Detail now follows how large the world is on screen, never whether it is moving. The whole world at once uses the light basemap, where the fine one adds nothing visible; zoomed in (a globe radius of 520 pixels or more) uses the fine one. Ripple lines, ice shading and outline precision are the same in every frame.
+2. To keep dragging smooth with full ripple lines, the coastline is projected once per frame and reused for every stroke, and only what is on screen plus a margin is drawn. Measured in headless Chromium without a GPU, dragging runs at 30 to 46 frames a second, against 35 to 53 before with the lighter drawing.
+3. The light basemap gains Natural Earth's 110m ice, so the world view keeps its ice shading.
+4. Coasts are stroked from a coastline that leaves out the edges the data adds along the 180th meridian and the pole, which drew a straight line through Chukotka and Antarctica.
