@@ -22,12 +22,9 @@
       <div class="telegram" id="telegram" aria-live="polite"></div>
     </header>
 
-    <nav class="toolbar" aria-label="Map controls">
-      <div class="seg" role="radiogroup" aria-label="View" id="view-seg"></div>
-      <details class="menu" id="design-menu">
-        <summary><span class="sr">Design: </span><span id="design-current"></span></summary>
-        <div class="menu-body" id="designs" role="menu" aria-label="Design"></div>
-      </details>
+    <nav class="toolbar" id="toolbar" aria-label="Map controls">
+      <label class="pick"><span class="sr">View</span><select id="view-select"></select></label>
+      <label class="pick"><span class="sr">Design</span><select id="design-select"></select></label>
       <details class="menu" id="topics-menu">
         <summary>Topics <span id="topics-count"></span></summary>
         <div class="menu-body chips" id="topics"></div>
@@ -37,11 +34,7 @@
         <summary>Pinned <span id="pins-count"></span></summary>
         <div class="menu-body" id="pins"></div>
       </details>
-      <button class="tool quiet" id="about-btn" type="button">About</button>
-      <details class="menu" id="more-menu" hidden>
-        <summary>More</summary>
-        <div class="menu-body more-body" id="more"></div>
-      </details>
+      <button class="tool quiet" id="about-btn" type="button" aria-label="About"><span class="wide">About</span><span class="narrow" aria-hidden="true">?</span></button>
     </nav>
 
     <p class="banner" id="banner" hidden></p>

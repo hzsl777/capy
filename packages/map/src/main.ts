@@ -174,33 +174,19 @@ function renderMasthead() {
 
 // ---- toolbar ----------------------------------------------------------------
 
-function segmented<T extends string>(el: HTMLElement, options: [T, string][], current: T, onPick: (v: T) => void) {
-  el.replaceChildren(
-    ...options.map(([value, label]) => {
-      const b = h("button", { type: "button", role: "radio", "aria-checked": String(value === current) }, label);
-      b.addEventListener("click", () => onPick(value));
-      return b;
-    }),
-  );
+/** Phones show each design's first word in the closed dropdown, so the whole toolbar fits one row. */
+const phone = matchMedia("(max-width: 760px)");
+
+/** A native dropdown: easy on touch screens, and the list opens over the page wherever the control sits. */
+function dropdown<T extends string>(el: HTMLSelectElement, options: [T, string][], current: T, onPick: (v: T) => void) {
+  el.replaceChildren(...options.map(([value, label]) => h("option", { value, selected: value === current ? "" : undefined }, label)));
+  el.value = current;
+  el.onchange = () => onPick(el.value as T);
 }
 
 function renderToolbar() {
-  // All the designs sit in one menu, so the toolbar stays short.
-  $("design-current").textContent = THEMES[state.theme].label;
-  $("designs").replaceChildren(
-    ...THEME_IDS.map((id) => {
-      const b = h("button", { type: "button", class: "menu-item", role: "menuitemradio", "aria-checked": String(id === state.theme) }, THEMES[id].label);
-      b.addEventListener("click", () => {
-        closeMenus();
-        state.theme = id;
-        setPref("theme", id);
-        applyTheme();
-      });
-      return b;
-    }),
-  );
-  segmented(
-    $("view-seg"),
+  dropdown(
+    $("view-select") as HTMLSelectElement,
     [
       ["2d", "Map"],
       ["3d", "Globe"],
@@ -211,6 +197,17 @@ function renderToolbar() {
       map.setMode(v);
       renderToolbar();
       syncUrl();
+    },
+  );
+  dropdown(
+    $("design-select") as HTMLSelectElement,
+    THEME_IDS.map((id) => [id, phone.matches ? THEMES[id].label.split(" ")[0]! : THEMES[id].label]),
+    state.theme,
+    (id) => {
+      closeMenus();
+      state.theme = id;
+      setPref("theme", id);
+      applyTheme();
     },
   );
 
@@ -573,9 +570,10 @@ function renderTelegramStrip() {
     return;
   }
   const t = file.telegram;
-  const date = h("span", { class: "telegram-kicker" }, formatRunDate(file.runDate));
+  // Read like a front page: the dateline, then the day's word under its label, then who chose it.
+  const date = h("p", { class: "telegram-date" }, formatRunDate(file.runDate));
   if (!t) {
-    el.replaceChildren(h("div", { class: "telegram-side" }, h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, "No word yet for this day"))));
+    el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word yet for this day")));
     return;
   }
   const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
@@ -585,8 +583,9 @@ function renderTelegramStrip() {
   word.style.setProperty("--len", String(Math.max(4, t.word.length)));
   const n = t.scores.length;
   el.replaceChildren(
-    word,
-    h("div", { class: "telegram-side" }, h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`)), scale(t.band)),
+    date,
+    h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "Today's word"), word),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`), scale(t.band)),
   );
 }
 
@@ -850,25 +849,18 @@ function closeMenus() {
   for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) d.open = false;
 }
 
-/**
- * A phone's toolbar keeps the view and topics in the row; design, translate, pins and about move into More
- * instead of scrolling sideways. The elements move, so their listeners come with them.
- */
-function fitToolbar(phone: boolean) {
-  const rest = ["translate", "pins-menu", "about-btn"].map($);
-  if (phone) $("more").append($("design-menu"), ...rest);
-  else {
-    $("view-seg").after($("design-menu"));
-    $("more-menu").before(...rest);
-  }
-  $("more-menu").hidden = !phone;
-  closeMenus();
+/** On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. */
+function placeAbout() {
+  if (phone.matches) $("masthead").append($("about-btn"));
+  else $("toolbar").append($("about-btn"));
 }
 
 function bindGlobal() {
-  const phone = matchMedia("(max-width: 760px)");
-  fitToolbar(phone.matches);
-  phone.addEventListener("change", (e) => fitToolbar(e.matches));
+  placeAbout();
+  phone.addEventListener("change", () => {
+    placeAbout();
+    renderToolbar();
+  });
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
   $("about-btn").addEventListener("click", () => {

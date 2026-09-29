@@ -385,6 +385,47 @@ summary {
   max-width: min(92vw, 420px);
   box-shadow: 4px 4px 0 var(--rule);
 }
+/* Map/Globe and the design are native dropdowns: they open over the page on every screen, and touch friendly. */
+.pick {
+  position: relative;
+  display: inline-flex;
+}
+.pick select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.1;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 6px 24px 6px 10px;
+  cursor: pointer;
+}
+.pick::after {
+  content: "\25BE";
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8em;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.pick select:hover {
+  background: var(--hover);
+}
+.pick select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.pick option {
+  background: var(--panel);
+  color: var(--ink);
+}
+#about-btn .narrow {
+  display: none;
+}
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -1030,38 +1071,56 @@ dialog .close {
   :root {
     --gutter: 12px;
   }
+  /* Every control in one row, wrapping rather than scrolling sideways if Pinned joins them. Menus open across
+     the width of the screen, anchored to the toolbar, so nothing clips them. */
   .toolbar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    gap: 6px;
     font-size: 13px;
   }
   .toolbar > * {
     flex: none;
   }
-  .menu-body {
-    position: fixed;
-    top: auto;
-    left: 12px;
-    right: 12px;
-  }
-  /* More stacks the controls it holds; the design list inside it opens in place. */
-  .more-body {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  .more-body > .tool,
-  .more-body > .menu > summary {
-    width: 100%;
-    text-align: left;
-  }
-  .more-body .menu-body {
+  .menu {
     position: static;
+  }
+  .menu-body {
+    top: 100%;
+    left: var(--gutter);
+    right: var(--gutter);
     min-width: 0;
     max-width: none;
-    margin-top: 4px;
-    box-shadow: none;
+  }
+  .toolbar {
+    gap: 5px;
+  }
+  .pick select {
+    padding: 7px 19px 7px 8px;
+  }
+  .pick::after {
+    right: 7px;
+  }
+  .tool,
+  .menu > summary {
+    padding: 7px 8px;
+  }
+  #about-btn .wide {
+    display: none;
+  }
+  #about-btn .narrow {
+    display: inline;
+  }
+  /* About sits in the masthead's top corner (placeAbout in main.ts), so the row holds the four controls. */
+  .masthead {
+    position: relative;
+  }
+  #about-btn {
+    position: absolute;
+    top: 8px;
+    right: var(--gutter);
+    min-width: 30px;
+    padding: 5px 0;
+    border-color: var(--rule);
+    z-index: 25;
   }
   .stage,
   .stage:has(.panel.framed) {
@@ -1320,70 +1379,101 @@ button.link {
 :root[data-theme="wire"] .mast-title {
   color: var(--accent);
 }
-/* The strip spans the centre and right columns and lines its two parts up with them. */
+/* The strip spans the centre and right columns: the labelled word in the centre, the dateline above the AI note
+   and the scale on the right. */
 .telegram {
   grid-column: 2 / 4;
   display: grid;
   grid-template-columns: subgrid;
+  grid-template-rows: auto auto;
   align-items: center;
+  row-gap: 6px;
   position: relative;
   z-index: 10;
 }
-.telegram > .telegram-word {
+.telegram-center {
+  grid-column: 1;
+  grid-row: 1 / 3;
   justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.telegram-date {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: end;
+  margin: 0;
+  font: 12px/1.2 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
 }
 .telegram-side {
   grid-column: 2;
+  grid-row: 2;
   justify-self: end;
+  align-self: start;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
+  text-align: right;
 }
-/* Before a word exists, the date and note stay on the right. */
-.telegram > .telegram-side:only-child,
+.telegram-side .telegram-note {
+  font-size: 12px;
+}
 .telegram > .telegram-kicker:only-child {
   grid-column: 2;
   justify-self: end;
 }
-.telegram-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
-  text-align: right;
-}
-.telegram-meta .telegram-note {
-  font-size: 12px;
-}
 @media (max-width: 760px) {
+  /* A phone reads top to bottom like a front page: the name and slogan, the dateline between rules, then the
+     day's word under its label, then who chose it. */
   .masthead {
     grid-template-columns: 1fr;
-    padding-block: 8px;
+    justify-items: center;
+    text-align: center;
+    padding-block: 10px 8px;
+    gap: 6px;
   }
-  /* On a phone the word gets its own row, centred, with the date and AI label under it. */
+  .brand {
+    align-items: center;
+  }
   .telegram {
     grid-column: 1;
     grid-template-columns: 1fr;
+    grid-template-rows: none;
     justify-items: center;
-    gap: 4px;
+    width: 100%;
+    row-gap: 4px;
+  }
+  .telegram-date {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: stretch;
+    text-align: center;
+    padding: 4px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    letter-spacing: 0.14em;
+  }
+  .telegram-center {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 4px;
   }
   .telegram-word {
     font-size: min(72px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.8)));
   }
   .telegram-side,
-  .telegram > .telegram-side:only-child,
   .telegram > .telegram-kicker:only-child {
     grid-column: 1;
+    grid-row: auto;
     justify-self: center;
     align-items: center;
-  }
-  .telegram-meta {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: baseline;
-    gap: 4px 10px;
     text-align: center;
   }
 }
@@ -1406,6 +1496,7 @@ button.link {
   letter-spacing: 0.03em;
 }
 :root[data-theme="pirate"] .seg,
+:root[data-theme="pirate"] .pick select,
 :root[data-theme="pirate"] .tool,
 :root[data-theme="pirate"] .menu > summary,
 :root[data-theme="pirate"] .chip,
@@ -1575,6 +1666,7 @@ button.link {
   border-width: 2px;
 }
 :root[data-theme="cotton"] .tool,
+:root[data-theme="cotton"] .pick select,
 :root[data-theme="cotton"] .menu > summary,
 :root[data-theme="cotton"] .chip,
 :root[data-theme="cotton"] .score-chip,
@@ -1585,6 +1677,10 @@ button.link {
 :root[data-theme="cotton"] .menu > summary {
   border-width: 2px;
   padding-inline: 14px;
+}
+:root[data-theme="cotton"] .pick select {
+  border-width: 2px;
+  padding-left: 14px;
 }
 :root[data-theme="cotton"] .tool.quiet {
   border-color: transparent;
@@ -1676,5 +1772,22 @@ button.link {
   :root[data-theme="pirate"] .panel,
   :root[data-theme="cotton"] .panel {
     margin: 0 8px 8px;
+  }
+}
+
+/* ---- Phones: the toolbar stays one row in every design --------------------- */
+@media (max-width: 760px) {
+  :root[data-theme="wire"] .toolbar,
+  :root[data-theme="morning"] .toolbar,
+  :root[data-theme="cabinet"] .toolbar,
+  :root[data-theme="pirate"] .toolbar {
+    letter-spacing: 0.01em;
+  }
+  :root[data-theme="cotton"] .tool,
+  :root[data-theme="cotton"] .menu > summary {
+    padding-inline: 10px;
+  }
+  :root[data-theme="cotton"] .pick select {
+    padding-left: 10px;
   }
 }

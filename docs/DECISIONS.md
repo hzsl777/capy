@@ -399,3 +399,11 @@ The first full 560-outlet day put stories in 126 of 225 countries and territorie
 4. The site marks each one "via GDELT" and the About page says what GDELT is. The headline is shown as published and links to the outlet.
 5. Outlets come first. A region with a story from a listed outlet gets no GDELT stories, and outlet research continues, so GDELT fills less over time.
 6. A GDELT outage costs the day only its local stories. They are kept three days.
+
+## 55. The masthead reads like a front page, and every control fits one row (September 29, 2026)
+
+Davis looked at the site on a phone. The date sat under the word, and the "More" menu from decision 36 (item 7) did not open, because the toolbar scrolled sideways and clipped it. This replaces that item.
+
+1. On a phone the masthead reads top to bottom like a newspaper: the name and slogan, the date between two rules, "Today's word" and the word, then "Chosen by AI from N events". On a wide screen the word sits in the centre under "Today's word", with the date, the note and the scale on the right.
+2. Map or Globe and the design are native dropdowns, so they open over the page and suit touch screens. Topics and Translate stay beside them. On a phone the design shows its first word ("Morning", "Cabinet"), and About is a "?" in the masthead's top corner, so the four controls fit one row in every design from 360 pixels wide. If Pinned joins them, the row wraps instead of scrolling.
+3. The Topics and Pinned menus open across the width of the screen, anchored to the toolbar, so nothing clips them.
