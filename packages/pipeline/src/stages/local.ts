@@ -137,16 +137,22 @@ function fingerprint(s: string): number {
   return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 }
 
+/** Bytes handed to the unzipper at a time. Given a whole file at once, it returns the whole file as one chunk. */
+const SLICE = 16 * 1024;
+
 /**
  * Every line of every file in a GDELT zip, unzipped and decoded a chunk at a time. Unzipping a whole day's files
- * into strings ran the daily job out of memory.
+ * into strings ran the daily job out of memory, and so did one giant chunk per file: any string kept from it kept
+ * the whole file alive. Returns how many chunks it decoded.
  */
-export function forEachLine(bytes: Uint8Array, onLine: (line: string) => void): void {
+export function forEachLine(bytes: Uint8Array, onLine: (line: string) => void): number {
+  let chunks = 0;
   const unzip = new Unzip((file) => {
     const decoder = new TextDecoder();
     let rest = "";
     file.ondata = (err, chunk, final) => {
       if (err) throw err;
+      chunks += 1;
       const lines = (rest + decoder.decode(chunk, { stream: !final })).split("\n");
       rest = final ? "" : lines.pop()!;
       for (const line of lines) if (line) onLine(line);
@@ -154,7 +160,9 @@ export function forEachLine(bytes: Uint8Array, onLine: (line: string) => void): 
     file.start();
   });
   unzip.register(UnzipInflate);
-  unzip.push(bytes, true);
+  for (let i = 0; i < bytes.length; i += SLICE) unzip.push(bytes.subarray(i, i + SLICE), i + SLICE >= bytes.length);
+  if (bytes.length === 0) unzip.push(bytes, true);
+  return chunks;
 }
 
 export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGdelt: GdeltFetcher = defaultGdeltFetcher, gaz = Gazetteer.load()): Promise<LocalReport> {
@@ -174,7 +182,9 @@ export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGd
   const regionsEmpty = gaz.regions().filter((r) => !reached.has(r)).length;
 
   const { from, to } = ingestWindow(date);
-  const picked = new Map<string, (GkgArticle & { at: { name: string; lat: number; lon: number } })[]>();
+  // Only copied strings go in here (see own); nothing that points back into a file's text.
+  type Kept = { url: string; domain: string; title: string; lang: string | null; publishedAt: Date; at: { name: string; lat: number; lon: number } };
+  const picked = new Map<string, Kept[]>();
   const seen = new Set<number>();
   let articles = 0;
   const take = (a: GkgArticle) => {
@@ -189,7 +199,7 @@ export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGd
     const list = picked.get(area.region) ?? [];
     const key = a.title.toLowerCase();
     if (list.some((x) => x.title.toLowerCase() === key)) return;
-    list.push({ url: own(a.url), domain: own(a.domain), title: own(a.title), lang: a.lang, publishedAt: a.publishedAt, town: a.town, at: { ...at, name: own(at.name) } });
+    list.push({ url: own(a.url), domain: own(a.domain), title: own(a.title), lang: a.lang, publishedAt: a.publishedAt, at: { name: own(at.name), lat: at.lat, lon: at.lon } });
     // Newest first, as every list on the site is; only the newest few are kept.
     list.sort((x, y) => y.publishedAt.getTime() - x.publishedAt.getTime());
     if (list.length > perRegion) list.length = perRegion;

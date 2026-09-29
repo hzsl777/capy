@@ -55,10 +55,15 @@ describe("reading a GDELT row", () => {
   });
 
   it("reads a large file a chunk at a time without splitting a line or a letter", () => {
-    // About 12 MB unzipped, so the stream hands it over in many chunks.
-    const lines = Array.from({ length: 4000 }, (_, i) => `${i}\t${"São Tomé é aqui ".repeat(200)}`);
+    // About 12 MB unzipped and, like real GDELT text, not endlessly repetitive, so it compresses the way news does.
+    let seed = 1;
+    const word = () => ["São", "Tomé", "é", "aqui", "Nakuru", "Trento", "река", "市长", "council", "budget"][(seed = (seed * 16807) % 2147483647) % 10];
+    const lines = Array.from({ length: 4000 }, (_, i) => `${i}\t${Array.from({ length: 450 }, word).join(" ")}`);
     const got: string[] = [];
-    forEachLine(zipSync({ "big.csv": strToU8(lines.join("\n")) }), (l) => got.push(l));
+    const chunks = forEachLine(zipSync({ "big.csv": strToU8(lines.join("\n")) }), (l) => got.push(l));
+    // Handed the whole zip at once, the unzipper returned the whole file as one chunk, and every string kept from
+    // it kept the whole file in memory: the daily job ran out of memory on real GDELT files.
+    expect(chunks).toBeGreaterThan(20);
     expect(got).toHaveLength(4000);
     expect(got.every((l, i) => l === lines[i])).toBe(true);
   });
