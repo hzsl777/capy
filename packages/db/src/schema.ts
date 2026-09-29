@@ -56,7 +56,35 @@ export const events = pgTable("events", {
   desk: text("desk").notNull().default("briefing"),
   /** World desk only: one of WORLD_TOPICS. */
   topic: text("topic"),
+  /** World desk only: where the event happened, checked against the city list (decision 44). Null means unplaced. */
+  placeName: text("place_name"),
+  lat: doublePrecision("lat"),
+  lon: doublePrecision("lon"),
 });
+
+/**
+ * Local stories from the GDELT index for regions no outlet reached that day (decision 54). Placed by GDELT's own
+ * city tag checked against the city list. No model reads them, and they never join an event.
+ */
+export const localStories = pgTable(
+  "local_stories",
+  {
+    id: serial("id").primaryKey(),
+    runDate: date("run_date").notNull(),
+    url: text("url").notNull(),
+    title: text("title").notNull(),
+    domain: text("domain").notNull(),
+    /** ISO 639-1 where GDELT names the language. */
+    lang: text("lang"),
+    publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
+    placeName: text("place_name").notNull(),
+    lat: doublePrecision("lat").notNull(),
+    lon: doublePrecision("lon").notNull(),
+    /** "CC/Region", the region it fills. */
+    region: text("region").notNull(),
+  },
+  (t) => [uniqueIndex("local_stories_date_url_idx").on(t.runDate, t.url)],
+);
 
 export const eventArticles = pgTable(
   "event_articles",

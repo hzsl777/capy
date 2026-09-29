@@ -16,6 +16,14 @@ import "@fontsource/ibm-plex-sans-condensed/600.css";
 import "@fontsource/architects-daughter/400.css";
 import "@fontsource/barlow/400.css";
 import "@fontsource/barlow/600.css";
+import "@fontsource/pirata-one/400.css";
+import "@fontsource/space-grotesk/500.css";
+import "@fontsource/space-grotesk/700.css";
+import "@fontsource/fredoka/500.css";
+import "@fontsource/fredoka/600.css";
+import "@fontsource/nunito/400.css";
+import "@fontsource/nunito/400-italic.css";
+import "@fontsource/nunito/700.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -34,6 +42,7 @@ import {
   NO_DAY_YET,
   storyIndex,
   tierOf,
+  weightOf,
   timeAgo,
   type Filters,
   type TopicFilter,
@@ -137,7 +146,7 @@ function refreshDots() {
   for (const [index, items] of state.byPlace) {
     const p = state.file.places[index];
     const tier = Math.min(...items.map((it) => tierOf(it, state.tiered)));
-    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, fresh: items[0].t >= f.to - 3600, tier });
+    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, weight: weightOf(items), fresh: items[0].t >= f.to - 3600, tier });
   }
   map.setDots(dots);
   map.setPinned(pinnedIndices());
@@ -176,7 +185,7 @@ function segmented<T extends string>(el: HTMLElement, options: [T, string][], cu
 }
 
 function renderToolbar() {
-  // Five designs sit in one menu, so the toolbar stays short.
+  // All the designs sit in one menu, so the toolbar stays short.
   $("design-current").textContent = THEMES[state.theme].label;
   $("designs").replaceChildren(
     ...THEME_IDS.map((id) => {
@@ -231,7 +240,8 @@ function renderToolbar() {
 
   // Only offered where the browser can translate on the device.
   const tr = $("translate");
-  tr.hidden = !translationSupported();
+  // Shown only where the browser can translate and the day has a story in another language.
+  tr.hidden = !translationSupported() || !state.file?.items.some((it) => needsTranslation(it.lang));
   tr.setAttribute("aria-pressed", String(state.translate));
   tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
 
@@ -278,7 +288,10 @@ function onFiltersChanged() {
 let renderToken = 0;
 
 function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
-  const parts = showPublisher ? [it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
+  // A story placed where it happened says where its outlet is, so "Le Monde, Paris" reads right under Caracas.
+  const parts = showPublisher ? [it.from ? `${it.publisher}, ${it.from}` : it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
+  // A local story from the GDELT index says so, so no one takes its outlet for one we chose (decision 54).
+  if (it.via === "gdelt") parts.push("via GDELT");
   const lang = languageName(it.lang);
   if (lang && it.lang !== "en") parts.push(lang);
   // "Other" says nothing, so only named topics show.
@@ -286,29 +299,33 @@ function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
   return h("span", { class: "meta" }, parts.join(" · "));
 }
 
-function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
-  const el = h(tag, { class: tag === "h2" ? "reader-headline" : "headline", lang: it.lang !== "und" ? it.lang : undefined }, it.title);
-  if (state.translate && needsTranslation(it.lang)) {
+/** With Translate on, swaps an element's text for the on-device translation and labels it. */
+function translated<T extends HTMLElement>(el: T, text: string, lang: string): T {
+  if (state.translate && needsTranslation(lang)) {
     const token = renderToken;
-    translate(it.title, it.lang).then((out) => {
+    translate(text, lang).then((out) => {
       if (!out || token !== renderToken || !el.isConnected) return;
       el.textContent = out;
       el.lang = targetLanguage;
-      el.after(h("span", { class: "translated" }, `Translated from ${languageName(it.lang) || it.lang}`));
+      el.after(h("span", { class: "translated" }, `Translated from ${languageName(lang) || lang}`));
     });
   }
   return el;
 }
 
+function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
+  return translated(h(tag, { class: tag === "h2" ? "reader-headline" : "headline", lang: it.lang !== "und" ? it.lang : undefined }, it.title), it.title, it.lang);
+}
+
 function storyButton(it: Item, now: number, showPlace = false, showPublisher = true): HTMLElement {
-  const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.place)).size - 1 : 0;
+  const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.publisher)).size - 1 : 0;
   const b = h(
     "button",
     { type: "button", class: "story" },
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
     metaLine(it, now, showPublisher),
-    others > 0 ? h("span", { class: "related" }, `Also reported in ${others} other ${others === 1 ? "place" : "places"}`) : null,
+    others > 0 ? h("span", { class: "related" }, `Also reported by ${others} other ${others === 1 ? "outlet" : "outlets"}`) : null,
   );
   b.addEventListener("click", () => openReader(it));
   return h("li", {}, b);
@@ -431,7 +448,7 @@ function renderReader(panel: HTMLElement, it: Item) {
     return;
   }
 
-  const related = it.story ? (state.stories.get(it.story) ?? []).filter((s) => s.place !== it.place) : [];
+  const related = it.story ? (state.stories.get(it.story) ?? []).filter((s) => s.publisher !== it.publisher) : [];
   const image = safeUrl(it.image, true);
   const actions = h("div", { class: "actions" });
   const explained = it.event !== undefined ? file.events[String(it.event)] : undefined;
@@ -470,19 +487,24 @@ function renderReader(panel: HTMLElement, it: Item) {
         [place.name, it.topics[0] ? TOPIC_LABEL[it.topics[0]] : "", timeAgo(it.t, file.generatedAt)].filter(Boolean).join(" · "),
       ),
       headline(it, "h2"),
-      h("p", { class: "byline" }, [it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
+      h(
+        "p",
+        { class: "byline" },
+        [it.from ? `${it.publisher}, ${it.from}` : it.publisher, it.domain !== it.publisher ? it.domain : "", it.via === "gdelt" ? "found through GDELT" : "", languageName(it.lang)].filter(Boolean).join(" · "),
+      ),
       fig,
-      it.excerpt
-        ? h("p", { class: "excerpt" }, it.excerpt)
-        : h("p", { class: "excerpt muted" }, "The outlet didn't publish a preview for this story."),
-      h("p", { class: "fine" }, it.embed ? `Preview from the outlet's own feed. The outlet allows its full page to open inside ${SITE_NAME}.` : "Preview from the outlet's own feed."),
+      // A story without a feed summary shows its headline and the link, with no note about what is missing.
+      it.excerpt ? translated(h("p", { class: "excerpt", lang: it.lang !== "und" ? it.lang : undefined }, it.excerpt), it.excerpt, it.lang) : null,
+      it.excerpt || it.embed
+        ? h("p", { class: "fine" }, [it.excerpt ? "Preview from the outlet's own feed." : "", it.embed ? `The outlet allows its full page to open inside ${SITE_NAME}.` : ""].filter(Boolean).join(" "))
+        : null,
       actions,
       related.length
         ? h(
             "section",
             { class: "elsewhere" },
-            h("h3", { class: "rule-head" }, `Also reported in ${new Set(related.map((r) => r.place)).size} other places`),
-            h("ol", { class: "stories" }, ...related.slice(0, 20).map((r) => storyButton(r, file.generatedAt, true))),
+            h("h3", { class: "rule-head" }, `Also reported by ${new Set(related.map((r) => r.publisher)).size} other ${new Set(related.map((r) => r.publisher)).size === 1 ? "outlet" : "outlets"}`),
+            h("ol", { class: "stories" }, ...related.slice(0, 20).map((r) => storyButton(r, file.generatedAt, r.place !== it.place))),
           )
         : null,
     ),

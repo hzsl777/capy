@@ -13,11 +13,14 @@ on:
       date:
         description: Run date (YYYY-MM-DD). Defaults to today.
         required: false
+      demo_run_id:
+        description: Instead of a run, publish this earlier run's map file to the demo-data branch for the demo page.
+        required: false
 permissions:
   contents: read
 jobs:
   day:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && inputs.demo_run_id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -28,12 +31,14 @@ jobs:
       MODEL: ${{ vars.MODEL }}
       MODEL_TELEGRAM: ${{ vars.MODEL_TELEGRAM }}
       LLM_BATCH: "true"
-      # 237 outlets on the default models cost roughly $0.10 to $0.25 a day (decision 33). The ceiling stops a
-      # runaway day, not a normal one.
+      # The first live day, 237 outlets and 1,303 articles grouped, cost $0.21. At 560 outlets (decisions 45, 48 and
+      # 49) expect roughly $0.40 to $0.70. The ceiling stops a runaway day, not a normal one; watch the summary.
       DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       # The word's score call runs this many times and keeps each event's middle score (decision 36). 1 saves
       # about two cents a day.
       TELEGRAM_SCORE_RUNS: ${{ vars.TELEGRAM_SCORE_RUNS }}
+      # GDELT local stories per region no outlet reached (decision 54). No model cost; 0 turns them off.
+      GDELT_PER_REGION: ${{ vars.GDELT_PER_REGION }}
       # Email links. SITE_DOMAIN alone is enough; WEB_BASE_URL overrides it (decision 37).
       WEB_BASE_URL: ${{ vars.WEB_BASE_URL || (vars.SITE_DOMAIN && format('https://{0}', vars.SITE_DOMAIN)) || '' }}
       # 2DayAI reader profiles, one YAML document each, separated by ---. They hold emails, so they live in a
@@ -70,3 +75,40 @@ jobs:
           else
             npm run stage -- day $IF_MISSING
           fi
+      # The day's map as a downloadable file, kept a week: what the site shows, for checking a day or loading it into
+      # a demo without database access (decision 41).
+      - name: Export the map
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm run -s stage -- map export --out map.json
+      - uses: actions/upload-artifact@v4
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        with:
+          name: map
+          path: map.json
+          retention-days: 7
+
+  # A day's map file on its own branch, so a session that can reach GitHub over git but not the artifact store can
+  # load it into the demo page. No secrets here; only this job can push, and only to demo-data.
+  demo-data:
+    if: github.event_name == 'workflow_dispatch' && inputs.demo_run_id != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: map
+          run-id: ${{ inputs.demo_run_id }}
+          github-token: ${{ github.token }}
+      - name: Push to demo-data
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir demo && mv map.json demo/ && cd demo
+          git init -q -b demo-data
+          git add map.json
+          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -qm "Map file for the demo page"
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${REPO}.git" demo-data

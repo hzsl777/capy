@@ -1,5 +1,7 @@
 // Read model for the public map (decision 25). One loader serves the Worker's /data endpoints and the
-// pipeline's static export. Publishers are the pins; nothing is geocoded.
+// pipeline's static export. A story sits where it happened when the grouping stage placed its event (decision 44),
+// and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
+// reported.
 import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
 import { ingestWindow, placeIdFor, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapSentence, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
@@ -8,6 +10,14 @@ import type { Db } from "./types.js";
 type Stored = { whatHappened: VerifiedSentence[]; whyItMatters: VerifiedSentence[]; whatChangesNext: VerifiedSentence[] };
 
 const EXCERPT_MAX = 300;
+/** A story's city this close to a publisher's city is the same dot. */
+const SAME_CITY_KM = 25;
+
+function km(aLat: number, aLon: number, bLat: number, bLon: number): number {
+  const r = Math.PI / 180;
+  const h = Math.sin(((bLat - aLat) * r) / 2) ** 2 + Math.cos(aLat * r) * Math.cos(bLat * r) * Math.sin(((bLon - aLon) * r) / 2) ** 2;
+  return 12742 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
 
 function clip(s: string, max: number): string {
   const text = s.replace(/\s+/g, " ").trim();
@@ -49,19 +59,18 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     .innerJoin(t.sources, eq(t.sources.id, t.articles.sourceId))
     .where(and(eq(t.sources.desk, "world"), gte(t.articles.publishedAt, from), lt(t.articles.publishedAt, to)));
 
-  // Pins: one per publisher place. Publishers in the same city share a pin.
+  // Pins: one per city. Publishers in the same city share a pin, and a story's city within SAME_CITY_KM of a
+  // publisher's city shares that pin, so one city is one dot.
   const places: MapPlace[] = [];
   const placeIndex = new Map<string, number>();
-  const placeOf = (s: typeof t.sources.$inferSelect): number | null => {
-    if (s.lat === null || s.lon === null || !s.placeName) return null;
-    const id = placeIdFor(s.lat, s.lon);
-    let idx = placeIndex.get(id);
-    if (idx === undefined) {
-      idx = places.push({ id, name: s.placeName, lat: s.lat, lon: s.lon }) - 1;
-      placeIndex.set(id, idx);
-    }
+  const pin = (name: string, lat: number, lon: number): number => {
+    const id = placeIdFor(lat, lon);
+    let idx = placeIndex.get(id) ?? places.findIndex((p) => km(p.lat, p.lon, lat, lon) <= SAME_CITY_KM);
+    if (idx < 0) idx = places.push({ id, name, lat, lon }) - 1;
+    placeIndex.set(id, idx);
     return idx;
   };
+  const placeOf = (s: typeof t.sources.$inferSelect): number | null => (s.lat === null || s.lon === null || !s.placeName ? null : pin(s.placeName, s.lat, s.lon));
 
   const worldEvents = await db.select().from(t.events).where(and(eq(t.events.runDate, date), eq(t.events.desk, "world")));
   const eventIds = worldEvents.map((e) => e.id);
@@ -81,13 +90,19 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     eventPlaces.set(l.eventId, set);
   }
   const topicOf = new Map(worldEvents.map((e) => [e.id, asTopic(e.topic)]));
+  const happenedAt = new Map(worldEvents.flatMap((e) => (e.placeName && e.lat !== null && e.lon !== null ? [[e.id, pin(e.placeName, e.lat, e.lon)] as const] : [])));
   const importanceOf = new Map(worldEvents.map((e) => [e.id, e.importance]));
 
   const items: MapItem[] = [];
   for (const { article, source } of rows) {
-    const place = placeOf(source);
-    if (place === null) continue;
+    const home = placeOf(source);
+    if (home === null) continue;
     const eventId = eventOfArticle.get(article.id);
+    // Once the day is grouped, the map shows only articles in a story: the grouping stage left out ads and other
+    // non-news, and articles past an outlet's daily cap never reached it, so neither has a rank (decision 50).
+    if (worldEvents.length > 0 && eventId === undefined) continue;
+    const at = eventId !== undefined ? happenedAt.get(eventId) : undefined;
+    const place = at ?? home;
     const item: MapItem = {
       id: `a${article.id}`,
       t: Math.floor(article.publishedAt.getTime() / 1000),
@@ -99,6 +114,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
       topics: eventId !== undefined ? [topicOf.get(eventId) ?? "other"] : [],
       place,
     };
+    if (place !== home) item.from = places[home]!.name;
     if (eventId !== undefined) {
       const reach = eventPlaces.get(eventId)?.size ?? 1;
       item.reach = reach;
@@ -108,6 +124,24 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     if (eventId !== undefined && explained.has(eventId)) item.event = eventId;
     if (article.lead) item.excerpt = clip(article.lead, EXCERPT_MAX);
     items.push(item);
+  }
+  // Local stories from the GDELT index for regions no outlet reached (decision 54): the lowest rank, placed by
+  // GDELT's checked city tag, published by the outlet's site.
+  for (const s of await db.select().from(t.localStories).where(eq(t.localStories.runDate, date))) {
+    items.push({
+      id: `g${s.id}`,
+      t: Math.floor(s.publishedAt.getTime() / 1000),
+      title: s.title,
+      url: s.url,
+      domain: s.domain,
+      publisher: s.domain,
+      lang: s.lang ?? "",
+      topics: [],
+      place: pin(s.placeName, s.lat, s.lon),
+      reach: 1,
+      importance: 1,
+      via: "gdelt",
+    });
   }
   items.sort((a, b) => b.t - a.t);
 

@@ -12,6 +12,7 @@ import {
   type WorldClusterResult,
   type WorldTopic,
 } from "@2dayai/core";
+import { Gazetteer, type Where } from "../places.js";
 import { loadPrompt, type Prompt } from "../prompts.js";
 import { articles, editions, eventArticles, events, sources, telegrams, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
@@ -52,7 +53,7 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
   let unknownIds = 0;
   let written = 0;
   for (const ev of result.events) {
-    const ids = ev.articleIds.filter((id) => {
+    const ids = [...new Set(ev.articleIds)].filter((id) => {
       if (!known.has(id)) {
         unknownIds += 1;
         return false;
@@ -83,7 +84,7 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
  */
 
 // v2 (decision 33): the same rules with short reasons, since every reason is billed as output across hundreds of events.
-export const CLUSTER_WORLD_PROMPT_VERSION = 2;
+export const CLUSTER_WORLD_PROMPT_VERSION = 3;
 export const CLUSTER_WORLD_MERGE_PROMPT_VERSION = 1;
 /** Headlines carry most of the grouping signal; a short lead settles the rest. */
 const WORLD_CHARS_FOR_CLUSTERING = 200;
@@ -96,12 +97,18 @@ export type WorldClusterReport = ClusterReport & {
   merged: number;
   /** Merge groups the checks refused: an unknown key, a key in two groups, or fewer than two events. */
   mergeDropped: number;
+  /** Events placed where they happened (decision 44); the rest show at their outlets' cities. */
+  placed: number;
+  /** Articles still ungrouped after the second pass, each written as its own event of importance 1 (decision 50). */
+  alone: number;
 };
 
 type WorldRow = { id: number; source: string; place: string; title: string; lead: string };
 
 /** One event from one batch after its article ids were checked. `key` names it in the merge pass. */
-type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string };
+type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string; where: Where | null };
+
+let gazetteer: Gazetteer | undefined;
 
 export function worldClusterUserContent(rows: WorldRow[]): string {
   const lines = rows.map((r) => `[${r.id}] ${r.title} (${r.source})\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
@@ -113,8 +120,8 @@ const MAX_SPLITS = 3;
 
 /**
  * Every batch through the cluster-world prompt. A batch whose answer hit max_tokens is halved and asked again,
- * up to MAX_SPLITS times, so a busy day costs a few more calls instead of the whole stage. Any other failure,
- * or one that still fails after splitting, fails the stage before anything is written.
+ * up to MAX_SPLITS times, so a busy day costs a few more calls instead of the whole stage. Any other failure is
+ * asked once more as it is (decision 41). A batch that still fails fails the stage before anything is written.
  */
 async function answerBatches(llm: Llm, config: Config, prompt: Prompt, batches: { id: string; batch: WorldRow[] }[], date: RunDate, depth = 0): Promise<{ batch: WorldRow[]; result: WorldClusterResult }[]> {
   const answers = await llm.parseMany(
@@ -130,10 +137,11 @@ async function answerBatches(llm: Llm, config: Config, prompt: Prompt, batches: 
     else if (answer && /max_tokens/.test(answer.error) && batch.length >= 2 && depth < MAX_SPLITS) {
       const half = Math.ceil(batch.length / 2);
       retry.push({ id: `${id}.1`, batch: batch.slice(0, half) }, { id: `${id}.2`, batch: batch.slice(half) });
-    } else failures.push(`${id}: ${answer ? answer.error : "no answer"}`);
+    } else if (!id.endsWith(".again")) retry.push({ id: `${id}.again`, batch });
+    else failures.push(`${id}: ${answer ? answer.error : "no answer"}`);
   }
   // A dead batch fails the stage before anything is written. A partial day would leave places empty without saying why.
-  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} of ${batches.length} batches failed, nothing written. ${failures.join("; ")}`);
+  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} ${failures.length === 1 ? "batch" : "batches"} still failed after a retry, nothing written. ${failures.join("; ")}`);
   return retry.length ? [...out, ...(await answerBatches(llm, config, prompt, retry, date, depth + 1))] : out;
 }
 
@@ -174,39 +182,59 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
 
   if (rows.length === 0) {
     await clearWorldDay(db, date);
-    return { articles: 0, events: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
+    return { articles: 0, events: 0, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
   }
 
   const prompt = loadPrompt("cluster-world", CLUSTER_WORLD_PROMPT_VERSION);
   const answered = await answerBatches(llm, config, prompt, splitBatches(rows, config.worldClusterBatch).map((batch, i) => ({ id: `batch-${i + 1}`, batch })), date);
 
   const assigned = new Set<number>();
+  const skippedIds = new Set<number>();
   const batchEvents: BatchEvent[] = [];
   let unknownIds = 0;
-  let skipped = 0;
-  let unassigned = 0;
-  answered.forEach(({ batch, result }, i) => {
-    // An id is known only inside the batch that carried it; the model never saw the others.
-    const known = new Set(batch.map((r) => r.id));
-    const skippedIds = new Set(result.skipped.map((x) => x.articleId));
-    let n = 0;
-    for (const ev of result.events) {
-      const ids = ev.articleIds.filter((id) => {
-        if (!known.has(id)) {
-          unknownIds += 1;
-          return false;
-        }
-        return !assigned.has(id);
-      });
-      if (ids.length === 0) continue;
-      ids.forEach((id) => assigned.add(id));
-      n += 1;
-      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label });
+  const collect = (results: { batch: WorldRow[]; result: WorldClusterResult }[], prefix: string) => {
+    results.forEach(({ batch, result }, i) => {
+      // An id is known only inside the batch that carried it; the model never saw the others.
+      const known = new Set(batch.map((r) => r.id));
+      let n = 0;
+      for (const ev of result.events) {
+        // A model sometimes lists an article twice in one event; each article joins an event once.
+        const ids = [...new Set(ev.articleIds)].filter((id) => {
+          if (!known.has(id)) {
+            unknownIds += 1;
+            return false;
+          }
+          return !assigned.has(id);
+        });
+        if (ids.length === 0) continue;
+        ids.forEach((id) => assigned.add(id));
+        n += 1;
+        batchEvents.push({ key: `${prefix}${i + 1}-e${n}`, title: ev.title.slice(0, 120), importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
+      }
+      for (const x of result.skipped) if (known.has(x.articleId) && !assigned.has(x.articleId)) skippedIds.add(x.articleId);
+    });
+  };
+  collect(answered, "b");
+
+  // Articles the model neither grouped nor set aside go back once, on their own (decision 50). A day with this
+  // second pass failing still stands: its articles are handled like any left over below.
+  const left = () => rows.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id));
+  const firstLeft = left();
+  let second: { batch: WorldRow[]; result: WorldClusterResult }[] = [];
+  if (firstLeft.length > 0) {
+    try {
+      second = await answerBatches(llm, config, prompt, splitBatches(firstLeft, config.worldClusterBatch).map((batch, i) => ({ id: `rest-${i + 1}`, batch })), date);
+      collect(second, "r");
+    } catch (err) {
+      console.error(`cluster-world: second pass failed, its ${firstLeft.length} articles stand alone. ${err instanceof Error ? err.message : String(err)}`);
     }
-    skipped += [...skippedIds].filter((id) => known.has(id)).length;
-    unassigned += batch.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id)).length;
-  });
-  const batches = answered;
+  }
+  const unassigned = firstLeft.length;
+  // Whatever is still left is news the model would not group: one story each at the lowest importance, so every
+  // article on the map has a rank and a topic, and nothing is shown ungrouped.
+  const singles: BatchEvent[] = left().map((r) => ({ key: `s-${r.id}`, title: r.title.slice(0, 120), importance: 1, importanceReason: "not grouped by the model", topic: "other", ids: [r.id], promptVersion: prompt.label, where: null }));
+  const skipped = skippedIds.size;
+  const batches = [...answered, ...second];
 
   let final = batchEvents;
   let merged = 0;
@@ -221,18 +249,25 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     mergeDropped = checked.dropped;
   }
 
+  final = [...final, ...singles];
+
   // Every model call succeeded, so the date's world events are replaced only now.
   await clearWorldDay(db, date);
   const byTopic: Record<string, number> = {};
+  gazetteer ??= Gazetteer.load();
+  let placed = 0;
   for (const ev of final) {
+    // Where it happened, if the model named a city that checks out; otherwise the map shows it at its outlets.
+    const at = gazetteer.locate(ev.where);
+    if (at) placed += 1;
     const [row] = await db
       .insert(events)
-      .values({ runDate: date, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, promptVersion: ev.promptVersion, desk: "world", topic: ev.topic })
+      .values({ runDate: date, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, promptVersion: ev.promptVersion, desk: "world", topic: ev.topic, placeName: at?.name ?? null, lat: at?.lat ?? null, lon: at?.lon ?? null })
       .returning({ id: events.id });
     await db.insert(eventArticles).values(ev.ids.map((articleId) => ({ eventId: row!.id, articleId })));
     byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
   }
-  return { articles: rows.length, events: final.length, skipped, unknownIds, unassigned, byTopic, batches: batches.length, merged, mergeDropped };
+  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped };
 }
 
 /** The telegram is written from the world events; re-clustering makes any old telegram for the date stale. */
@@ -243,8 +278,8 @@ async function clearWorldDay(db: Db, date: RunDate): Promise<void> {
 
 /**
  * Joins each checked group into one event: the union of its articles, the group's title, the highest importance,
- * and the topic and reason of the most important member (the first listed on a tie). The joined event takes the
- * place of its first member. Events in no group pass through unchanged.
+ * and the topic, reason and location of the most important member (the first listed on a tie), or the first
+ * member's location when that one has none. The joined event takes the position of its first member in the list. Events in no group pass through unchanged.
  */
 function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], promptVersion: string): BatchEvent[] {
   const byKey = new Map(evs.map((e) => [e.key, e]));
@@ -265,12 +300,13 @@ function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], prom
     const lead = members.reduce((best, m) => (m.importance > best.importance ? m : best));
     out.push({
       key: members.map((m) => m.key).join("+"),
-      title: group.title,
+      title: group.title.slice(0, 120),
       importance: lead.importance,
       importanceReason: lead.importanceReason,
       topic: lead.topic,
       ids: members.flatMap((m) => m.ids),
       promptVersion,
+      where: lead.where ?? members.find((m) => m.where)?.where ?? null,
     });
   }
   return out;

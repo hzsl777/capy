@@ -23,7 +23,7 @@ The prompts are the same text every day and come first in the request, so OpenAI
 
 | File | Stage | Product | Model | Calls a day |
 |---|---|---|---|---|
-| `cluster-world.v2.md` | cluster world | map | nano | one per 300 articles, up to 12 |
+| `cluster-world.v3.md` | cluster world | map | nano | one per 300 articles, up to 12 |
 | `cluster-world-merge.v1.md` | cluster world | map | nano | one, when there was more than one batch |
 | `explain.v1.md` | explain | both | nano | one per event explained, up to 25 for the map |
 | `telegram-score.v1.md` | telegram | map | mini | 3 (`TELEGRAM_SCORE_RUNS`) |
@@ -31,15 +31,15 @@ The prompts are the same text every day and come first in the request, so OpenAI
 | `cluster.v1.md` | cluster | 2DayAI | nano | one, only with readers |
 | `select.v1.md` | select | 2DayAI | mini | one per reader |
 
-`cluster-world.v1.md` is the older version, kept because past outputs carry its label.
+`cluster-world.v1.md` and `v2.md` are older versions, kept because past outputs carry their labels. v3 adds where each event happened (decision 44).
 
 ### cluster-world: group the day's articles into events
 
 Input: one line per article, `[id] headline (outlet)`, then the first 200 characters of its summary. At most 15 articles per outlet.
 
-Output: events, each with its article ids, a neutral title of at most twelve words, an importance from 1 to 5 with a short reason, and one of ten topics. Plus the articles skipped as not news.
+Output: events, each with its article ids, a neutral title of at most twelve words, an importance from 1 to 5 with a short reason, one of ten topics, and where it happened (a city, its country code and a rough point, or null). Plus the articles skipped as not news.
 
-Code checks: every id appears exactly once, no invented ids. Unknown ids are dropped and counted. If an answer runs past the output limit, that batch is split in half and asked again, up to three times. If any batch still fails, the stage writes nothing and the previous day stays up.
+Code checks: every id appears exactly once, no invented ids. Unknown ids are dropped and counted, and so is an event with no articles. The city is checked against the fixed city list (`packages/pipeline/src/places.ts`): a listed city gets the list's point, an unlisted town only a point near a listed city of its country, and anything else leaves the story at its outlet's city. If an answer runs past the output limit, that batch is split in half and asked again, up to three times. If any batch still fails, the stage writes nothing and the previous day stays up.
 
 ### cluster-world-merge: join the same story across batches
 

@@ -13,8 +13,8 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] No political boundary data added: search for `admin_`, `boundary`, `countries`, `disputed` in `scripts/` and `public/basemap/`.
 - [ ] The basemap build still strips every property except the river rank (`strip()` in `packages/map/scripts/build-basemap.ts`).
 - [ ] Nothing draws text on the canvas (`fillText`/`strokeText` in `src/map/`).
-- [ ] Dot size depends only on report count. Dot colour depends only on "reported in the last hour".
-- [ ] Zoom decides visibility only by the rule in decision 30 (`tierOf` in `src/data.ts`): reach of three places or importance 4 or 5 at the widest zoom. No other signal decides which places show.
+- [ ] Dot size depends only on the place's most important story and its report count (`weightOf`, decision 46). Dot colour depends only on "reported in the last hour".
+- [ ] Zoom decides visibility only by the tiers in `tierOf` (`src/data.ts`, decisions 30 and 46): importance and outlet-city reach. No other signal decides which places show.
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
 
@@ -31,7 +31,8 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] `dayBand`, `scoreProblems`, `wordProblems` and `MOOD_WORDS` in `packages/core/src/world.ts` are not loosened or edited without a decision. The worst significant event still sets a bad day. A day without a word is acceptable.
 - [ ] The scoring prompt still scores outcomes for people, never which side gained, and the word prompt still asks for breadth and forbids verdicts.
 - [ ] The mood score never orders headlines or changes how a pin looks, and every score is shown with its reason.
-- [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Pins are still publishers. Nothing is geocoded.
+- [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Stories are placed only by the checked city lookup (`packages/pipeline/src/places.ts`, decision 44), never at a country or region, and each report still names its outlet's city.
+- [ ] GDELT local stories (`packages/pipeline/src/stages/local.ts`, decision 54) fill only regions no listed outlet reached, newest first, at most `GDELT_PER_REGION` each, placed only from a city-level tag, never read by a model, and labelled "via GDELT". GDELT's tone or theme fields never choose them.
 - [ ] The site shows only feed summaries (at most 300 characters) and quoted citation passages, never article text.
 - [ ] New outlets in `config/sources.yaml` went through `add-news-source`, and the world list isn't tilting toward one region, language or side.
 

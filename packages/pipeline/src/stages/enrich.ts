@@ -5,6 +5,8 @@ import { parseHTML } from "linkedom";
 import { and, eq, gte, inArray, isNull, lt, type SQL } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
 import { articles, sources, type Db } from "@2dayai/db";
+import { decodeBody, noControl } from "../text.js";
+import { USER_AGENT } from "./ingest.js";
 
 export const MIN_BODY_CHARS = 400;
 export const MAX_BODY_CHARS = 30_000;
@@ -13,14 +15,14 @@ export type PageFetcher = (url: string) => Promise<string>;
 
 export const defaultPageFetcher: PageFetcher = async (url) => {
   const res = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; 2dayai/0.1; +https://github.com/hzsl777/capy)", Accept: "text/html" },
+    headers: { "User-Agent": USER_AGENT, Accept: "text/html" },
     signal: AbortSignal.timeout(20_000),
     redirect: "follow",
   });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const type = res.headers.get("content-type") ?? "";
   if (!type.includes("html")) throw new Error(`not html: ${type}`);
-  return res.text();
+  return decodeBody(new Uint8Array(await res.arrayBuffer()), type);
 };
 
 /** Pure: main text of an article page, or empty when the extractor finds nothing worth keeping. */
@@ -28,7 +30,7 @@ export function extractArticleText(html: string, url: string): string {
   const { document } = parseHTML(html);
   // Readability wants a real document; linkedom's is close enough for text extraction.
   const article = new Readability(document as unknown as ConstructorParameters<typeof Readability>[0], { charThreshold: 200 }).parse();
-  const text = (article?.textContent ?? "").replace(/\s+/g, " ").trim();
+  const text = noControl(article?.textContent ?? "").replace(/\s+/g, " ").trim();
   void url;
   return text.length >= MIN_BODY_CHARS ? text.slice(0, MAX_BODY_CHARS) : "";
 }

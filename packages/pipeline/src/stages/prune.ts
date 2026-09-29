@@ -2,12 +2,14 @@
 // only, and article text is needed only on the day explain quotes it. 2DayAI's briefing history is not touched.
 import { and, eq, inArray, lt, ne, notExists, sql } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
-import { articles, citations, eventArticles, events, sources, telegrams, type Db } from "@2dayai/db";
+import { articles, citations, eventArticles, events, localStories, sources, telegrams, type Db } from "@2dayai/db";
 
 /** Article text is dropped after this many days. It is most of the stored bytes. */
 export const BODY_DAYS = 2;
+/** Days of GDELT local stories kept (decision 54). The map shows one day; a few thousand rows a day add up. */
+export const LOCAL_DAYS = 3;
 
-export type PruneReport = { cutoff: string; telegrams: number; events: number; articles: number; bodiesCleared: number };
+export type PruneReport = { cutoff: string; telegrams: number; events: number; articles: number; bodiesCleared: number; localStories: number };
 
 function daysBefore(date: RunDate, days: number): string {
   const d = new Date(`${date}T00:00:00Z`);
@@ -45,5 +47,6 @@ export async function runPrune(db: Db, date: RunDate, retentionDays: number): Pr
     .set({ body: "" })
     .where(and(inArray(articles.sourceId, worldSources), lt(articles.publishedAt, ingestWindow(daysBefore(date, BODY_DAYS) as RunDate).from), ne(articles.body, "")))
     .returning({ id: articles.id });
-  return { cutoff, telegrams: t.length, events: e.length, articles: a.length, bodiesCleared: b.length };
+  const l = await db.delete(localStories).where(lt(localStories.runDate, daysBefore(date, LOCAL_DAYS))).returning({ id: localStories.id });
+  return { cutoff, telegrams: t.length, events: e.length, articles: a.length, bodiesCleared: b.length, localStories: l.length };
 }

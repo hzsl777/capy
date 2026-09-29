@@ -17,7 +17,7 @@ describe("the daily run summary (decision 36)", () => {
       clusterWorld: { articles: 12, events: 6, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 1, merged: 0, mergeDropped: 0 },
       explain: { events: 4, usable: 4, unusable: 0, failed: 0, sentencesDropped: 0 },
       select: { readers: 0, editions: 0, quiet: 0, failed: 0, retried: 0, skippedSent: 0 },
-      telegram: { candidates: 4, written: true, word: "Unease", band: -1, events: 3, scoreRuns: 3, split: 1, retried: { score: false, word: false } },
+      telegram: { candidates: 4, written: true, word: "Unease", band: -1, events: 3, scoreRuns: 3, split: 1, retried: { score: false, word: false }, rejected: 0 },
       spendUsd: 0.1234,
     });
     expect(text).toContain("Word: **Unease** (band -1, Hard). Scored 3 times, runs disagreed on 1 of 4 events.");

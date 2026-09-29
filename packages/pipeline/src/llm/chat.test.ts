@@ -129,6 +129,10 @@ describe("the OpenAI-format client", () => {
     await expect(llm([reply('{"word":"Ho', "length")]).parse(req("explain"), DATE)).rejects.toThrow(/max_tokens/);
   });
 
+  it("drops control characters Postgres cannot store from every string in the answer", async () => {
+    expect(await llm([reply('{"word":"liberta\\u0000\\u0000o\\u0007"}')]).parse(req("explain"), DATE)).toEqual({ word: "libertao" });
+  });
+
   it("accepts JSON wrapped in a Markdown fence", async () => {
     expect(await llm([reply('```json\n{"word":"Relief"}\n```')]).parse(req("explain"), DATE)).toEqual({ word: "Relief" });
   });

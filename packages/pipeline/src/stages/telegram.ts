@@ -5,7 +5,9 @@
 //      keeps its middle score, because repeat runs sometimes disagree (decision 36).
 //   2. dayBand (code): the worst significant event sets a bad day; an all-good day is the weighted average.
 //   3. word: the model picks from the band's fixed list and names the events that shaped the day. Checked in code.
-// Each call gets one retry with its problems spelled out; a second failure fails the stage loudly.
+// Each call gets one retry with its problems spelled out. A score run that still breaks the rules is set aside
+// and another is asked, up to two more; if none passes, or the word fails twice, the day has no word (decision
+// 51). The checks themselves never loosen, and an outage or the spend ceiling still fails the stage.
 import { and, eq, inArray } from "drizzle-orm";
 import {
   dayBand,
@@ -26,7 +28,7 @@ import {
 import { articles, eventArticles, eventExplanations, events, sources, telegramItems, telegramScores, telegrams, type Db } from "@2dayai/db";
 import { loadPrompt, type Prompt } from "../prompts.js";
 import type { Config } from "../config.js";
-import type { Llm } from "../llm/types.js";
+import { LlmParseError, type Llm } from "../llm/types.js";
 import type { z } from "zod";
 
 export const TELEGRAM_SCORE_PROMPT_VERSION = 1;
@@ -43,8 +45,17 @@ export type TelegramReport = {
   scoreRuns: number;
   split: number;
   retried: { score: boolean; word: boolean };
+  /** Score runs set aside because they still broke the rules after their retry (decision 51). */
+  rejected: number;
   reason?: string;
 };
+
+/** Extra score runs asked when one is set aside (decision 51). */
+export const SPARE_SCORE_RUNS = 2;
+
+/** The model's answer broke a rule twice. Unlike an outage, this costs the day its word, not the day. */
+class RuleError extends Error {}
+const ruleBroken = (err: unknown): err is Error => err instanceof RuleError || err instanceof LlmParseError;
 
 type Candidate = { id: number; title: string; topic: string; importance: number; places: string[]; sentences: VerifiedSentence[] };
 type Stored = { whatHappened: VerifiedSentence[]; whyItMatters: VerifiedSentence[]; whatChangesNext: VerifiedSentence[] };
@@ -82,7 +93,7 @@ async function checkedCall<T extends z.ZodType>(
   const retryUser = `${req.user}\n\nYour previous answer had these problems. Fix every one of them:\n${problems.map((p) => `- ${p}`).join("\n")}`;
   value = await llm.parse({ ...req, user: retryUser }, date);
   problems = problemsOf(value);
-  if (problems.length) throw new Error(`${req.stage}: the model's answer still breaks the rules after one retry: ${problems.join("; ")}`);
+  if (problems.length) throw new RuleError(`${req.stage}: the model's answer still breaks the rules after one retry: ${problems.join("; ")}`);
   return { value, retried: true };
 }
 
@@ -95,7 +106,7 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
     .innerJoin(eventExplanations, eq(eventExplanations.eventId, events.id))
     .where(and(eq(events.runDate, date), eq(events.desk, "world")));
   const usableRows = rows.filter((r) => r.usable);
-  const none = { word: null, band: null, events: 0, scoreRuns: 0, split: 0, retried: { score: false, word: false } };
+  const none = { word: null, band: null, events: 0, scoreRuns: 0, split: 0, retried: { score: false, word: false }, rejected: 0 };
   if (usableRows.length === 0) {
     const failed = rows.filter((r) => r.failed).length;
     if (failed > 0) throw new Error(`telegram: no usable world events and ${failed} explanations failed; refusing to write a word`);
@@ -128,16 +139,26 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
   // One after another, not in parallel: the repeats send the same prompt, so the provider's cache bills most of
   // their input at a tenth of the price.
   const runs: { value: TelegramScores; retried: boolean }[] = [];
-  for (let i = 0; i < config.telegramScoreRuns; i++) {
-    runs.push(
-      await checkedCall(
-        llm,
-        date,
-        { stage: "telegram-score", prompt: scorePrompt, schema: TelegramScoresSchema, user: scoreUserContent(date, cands), effort: config.effort.telegram },
-        (v) => scoreProblems(v, usable),
-      ),
-    );
+  let rejected = 0;
+  let lastProblem = "";
+  for (let i = 0; runs.length < config.telegramScoreRuns && i < config.telegramScoreRuns + SPARE_SCORE_RUNS; i++) {
+    try {
+      runs.push(
+        await checkedCall(
+          llm,
+          date,
+          { stage: "telegram-score", prompt: scorePrompt, schema: TelegramScoresSchema, user: scoreUserContent(date, cands), effort: config.effort.telegram },
+          (v) => scoreProblems(v, usable),
+        ),
+      );
+    } catch (err) {
+      if (!ruleBroken(err)) throw err;
+      rejected += 1;
+      lastProblem = err.message;
+      console.error(`telegram: score run set aside. ${err.message}`);
+    }
   }
+  if (runs.length === 0) return { candidates: cands.length, written: false, ...none, rejected, reason: `every score run broke the rules. ${lastProblem}` };
   const median = medianScores(runs.map((r) => r.value));
   const scored = { value: { scores: median.scores }, retried: runs.some((r) => r.retried) };
 
@@ -146,12 +167,18 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
   const band = dayBand(scoredEvents)!;
 
   const wordPrompt = loadPrompt("telegram-word", TELEGRAM_WORD_PROMPT_VERSION);
-  const worded = await checkedCall(
-    llm,
-    date,
-    { stage: "telegram-word", prompt: wordPrompt, schema: TelegramWordSchema, user: wordUserContent(date, band, cands, scored.value), effort: config.effort.telegram },
-    (v: TelegramWord) => wordProblems(v, band, scoredEvents),
-  );
+  let worded: { value: TelegramWord; retried: boolean };
+  try {
+    worded = await checkedCall(
+      llm,
+      date,
+      { stage: "telegram-word", prompt: wordPrompt, schema: TelegramWordSchema, user: wordUserContent(date, band, cands, scored.value), effort: config.effort.telegram },
+      (v: TelegramWord) => wordProblems(v, band, scoredEvents),
+    );
+  } catch (err) {
+    if (!ruleBroken(err)) throw err;
+    return { candidates: cands.length, written: false, ...none, band, scoreRuns: runs.length, split: median.split, retried: { score: scored.retried, word: true }, rejected, reason: err.message };
+  }
 
   const word = worded.value.word.trim();
   const [row] = await db
@@ -160,5 +187,5 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
     .returning({ id: telegrams.id });
   await db.insert(telegramScores).values(scored.value.scores.map((s) => ({ telegramId: row!.id, eventId: s.eventId, score: s.score, because: s.because })));
   await db.insert(telegramItems).values(worded.value.events.map((e, i) => ({ telegramId: row!.id, eventId: e.eventId, rank: i + 1, line: e.line })));
-  return { candidates: cands.length, written: true, word, band, events: worded.value.events.length, scoreRuns: runs.length, split: median.split, retried: { score: scored.retried, word: worded.retried } };
+  return { candidates: cands.length, written: true, word, band, events: worded.value.events.length, scoreRuns: runs.length, split: median.split, retried: { score: scored.retried, word: worded.retried }, rejected };
 }

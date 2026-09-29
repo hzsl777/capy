@@ -1,6 +1,6 @@
 ---
 name: run-app
-description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
+description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Cotton Candy) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
 ---
 
 # Run the app
@@ -11,7 +11,7 @@ Paths in this skill are relative to `packages/map/`. Run npm scripts from the re
 2. Sample data: `npm run map:sample` runs the fictional world fixture through the real pipeline stages in memory and writes `public/data/sample.json`. The file is committed. Rerun the command after you change a stage or the read model.
 3. Dev server: `npm run map:dev`, then open http://localhost:5173. Without `public/data/latest.json` the site loads the sample and shows a "Sample data" banner. That is expected.
 4. URL parameters pick the state directly:
-   - `?theme=morning|cabinet|wire`
+   - `?theme=morning|cabinet|wire|ops|blueprint|pirate|space|cotton`
    - `&view=2d|3d`
    - Without `place`, the map turns until a place lands under the reticle (not with reduced motion).
    - `&place=<place id>` flies to that place, e.g. `ll:-1.29,36.82` (Nairobi in the sample). Place ids are `ll:<lat>,<lon>` of the publisher's city.

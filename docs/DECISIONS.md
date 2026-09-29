@@ -234,3 +234,168 @@ Davis wants one big word on the site and no email briefing for now, with 2DayAI 
 1. The day's word moves to the centre of the masthead and becomes the largest text on the page. Its size follows its length, so a short word like "Joy" is large and the longest, "Encouragement", still fits a 375-pixel phone. The date, the "Chosen by AI" label and the scale sit beside it on wide screens and under it on phones. Nothing is added around the word, and the label stays next to it (neutrality rule 4).
 2. 2DayAI email is parked. The code and decision 35 stay as they are, and with no reader profiles the daily run skips the briefing stages at no cost (decision 33). "Deliver" loses its two-hourly schedule, which spent about 360 Actions minutes a month on skipped runs. It can still be run by hand.
 3. When 2DayAI returns, it is an opt-in on the site with no account or login: a visitor asks for the briefing, and the site keeps only what is needed to send it. That design is its own decision.
+
+## 41. One bad answer no longer costs the day, and smaller fixes from the first live run (September 29, 2026)
+
+The first live run with credit failed in the grouping stage: in one batch of five, the model returned one event with no articles among about a hundred, the answer failed its schema, and the whole day was thrown away. Davis also asked about the preview note, the tagline and the Translate button.
+
+1. An event with no articles is dropped by code instead of failing its batch. A batch that fails for any other reason is asked once more before the stage fails. The rule that a batch still failing writes nothing stands (decision 31).
+2. The tagline is "One World. One Word." It now shows on phones too.
+3. A story with no feed summary shows its headline and link without the note "The outlet didn't publish a preview for this story", which read as an error on every such story.
+4. Translate also translates the preview text, and the button shows only when the browser can translate and the day has a story in another language.
+5. Each daily run keeps the day's map as a downloadable file for a week (the `map` artifact), so a day can be checked, or loaded into a demo, without database access.
+
+## 42. The map looks the same while it moves (September 29, 2026)
+
+Davis saw the water "stutter" when clicking and dragging. The map switched to a lighter drawing whenever it was touched: coarser coasts, lakes and rivers, two ripple lines instead of four or five, no ice shading, and rougher outlines. Letting go switched it back, so every click made the water jump.
+
+1. Detail now follows how large the world is on screen, never whether it is moving. The whole world at once uses the light basemap, where the fine one adds nothing visible; zoomed in (a globe radius of 520 pixels or more) uses the fine one. Ripple lines, ice shading and outline precision are the same in every frame.
+2. To keep dragging smooth with full ripple lines, the coastline is projected once per frame and reused for every stroke, and only what is on screen plus a margin is drawn. Measured in headless Chromium without a GPU, dragging runs at 30 to 46 frames a second, against 35 to 53 before with the lighter drawing.
+3. The light basemap gains Natural Earth's 110m ice, so the world view keeps its ice shading.
+4. Coasts are stroked from a coastline that leaves out the edges the data adds along the 180th meridian and the pole, which drew a straight line through Chukotka and Antarctica.
+
+## 43. Three more designs: Pirate, Space and Cotton Candy (September 29, 2026)
+
+Davis asked for three playful looks beside the five from decision 32. They follow the same rules: no borders, no names or labels on the map, and dot size and colour keep their meaning.
+
+1. Pirate: an old sea chart in sepia ink on sea-green water, with a compass rose, rope and dashed rules, and a Pirata One masthead and word. Red marks fresh reports. Map by default.
+2. Space: the globe as a planet against a static CSS starfield, with a thin atmosphere rim and a faint city-lights texture on land. Amber marks fresh reports. The flat map reads as a star chart. Globe by default.
+3. Cotton Candy: pink land on sky-blue water with rounded chrome in Fredoka and Nunito. Magenta marks fresh reports. Map by default.
+4. Decorations are allowed on the canvas when they are clearly decorative: Pirate's small ink sea creatures (serpents, a kraken, whales) and Space's four-point stars on the flat map. They are drawn under the dots, in open strokes with no text and no filled shapes, at fixed spots in open ocean. A test checks every spot against the basemap's land and keeps it at least 14 degrees (creatures) or 8 degrees (stars) from every outlet's city in `config/sources.yaml` and the sample. On the globe, a creature fades out toward the rim and is hidden on the far side.
+5. Each design styles the word by font, weight, spacing and colour only, so its size still follows its length. "Encouragement" fits a 375-pixel phone in all three.
+6. Fonts are self-hosted from `@fontsource`: Pirata One, Space Grotesk, Fredoka and Nunito.
+
+## 44. Stories sit where they happened (September 29, 2026)
+
+Davis wants the map to show where news happens, not where outlets are based: a Paris newspaper's stories about Russia, Madrid, Venezuela and Australia all sat in Paris. This reverses the "pins are publishers" rule of decision 23 and neutrality rule 2 in packages/map/AGENTS.md, which avoided geocoding so the map would never place or name a disputed location.
+
+1. The grouping prompt (`cluster-world.v3`) asks, for each event, the city or town where it happened, its two-letter country code and a rough point, or null when the articles name only a country or a region, span several places, or leave it unclear.
+2. Code decides the point, never the model alone. A city on a fixed list of 7,342 world cities (Natural Earth populated places, public domain, `packages/pipeline/data/places.json`, rebuilt by `npm run places:build`) gets the list's point and name. Same-named cities are told apart by the country code, which is never shown. A town not on the list, like Rafah, gets the model's point only when it lies within 250 km of a listed city of the same country. Anything else stays at the outlet's city, as before.
+3. Nothing is ever placed at a country or a region, and no country name appears anywhere. The map still has no borders. Place names are the list's English names.
+4. Every report shows its outlet's city next to the outlet's name. "Also reported in N other places" becomes "Also reported by N other outlets". Reach, which decides what shows when zoomed out (decision 30), still counts the outlets' cities, since it measures how widely a story was reported.
+5. A story's city within 25 km of an outlet's city shares that dot, so one city is one dot.
+6. The daily run summary counts how many stories were placed. The About text says how placement works.
+
+## 45. An outlet for every country and territory (September 29, 2026)
+
+Davis wants every country and territory on the map to have at least one news outlet. Decision 31 left 78 without one.
+
+1. The world desk grows from 237 outlets to 312 in 281 cities. 72 of the 75 places that had no outlet now have one whose pin falls there, checked by matching each pin to its nearest city in the place list. Each outlet is pinned at the city its newsroom works from. They were gathered by web search, and most feeds are unconfirmed: 69 entries point at a homepage and ingest finds the feed (decision 31). Stabroek News (Guyana) and the Saipan Tribune (Northern Mariana Islands) have closed, so Kaieteur News and Marianas Variety are used instead. Sermitsiaq.AG does not allow its feeds in public news lists, so Greenland has KNR.
+2. The order of preference was an independent national outlet or public broadcaster, then a national agency, then a regional outlet. State media is marked in a comment. Djibouti, Equatorial Guinea and the Seychelles have a state outlet only: no independent outlet works inside the first two, and the Seychelles' independent daily has no usable news site.
+3. Belarus and Nicaragua have independent press only in exile. Each gets a state outlet in the country (BelTA in Minsk, El 19 Digital in Managua) together with an independent one pinned where it publishes (Nasha Niva in Vilnius, Confidencial in San José).
+4. North Korea gets KCNA in Pyongyang, marked as state media, beside NK News and Daily NK, which already publish from Seoul. KCNA's site is often offline and has no known feed, so it may fail and be paused (decision 36); if it does, North Korea keeps the Seoul outlets.
+5. Sudan gets Ayin Network, an independent outlet publishing from Nairobi, beside Radio Dabanga (Amsterdam) and Sudan Tribune (Paris). No outlet inside Sudan was added: the national news agency works for the army-backed government, one side of the war, and the other side has no equivalent outlet, so adding it would break the balance rule.
+6. Skipped: Antarctica and South Georgia (no local press), Western Sahara (contested; an outlet from one side would break the balance rule, the international desks already cover it, and stories are placed where they happen), and Kiribati and Tuvalu (their press is a weekly print paper, state radio and government bulletins on social media, with no reliable news site; RNZ covers both from Wellington).
+7. Montenegro's Vijesti is tagged `cnr` (Montenegrin), so the map names the language as its readers do.
+
+## 46. Five zoom tiers, dots sized by importance, and a daily coverage count (September 29, 2026)
+
+Davis wants every country, every region within it and every stateless nation represented, and asked that the map rank what shows by importance as you zoom, with dots sized to match, so a much fuller map stays usable. This changes neutrality rule 3 in packages/map/AGENTS.md, which kept dot size to report count alone.
+
+1. Five zoom tiers instead of three. The whole world shows places with a story rated 4 or 5 by the grouping model, or reported by outlets in four or more cities. Each step in adds the next tier: importance 3 or three cities, importance 2 or two cities, importance 1, then anything ungrouped. (Tuned on the first live day, where importance 5 alone left about ten dots on the world view.)
+2. Dot size follows the place's most important story and its report count, so one major story reads larger than a busy city of minor ones. Merged dots take the largest weight among their places. Colour still means only "reported in the last hour", and lists stay newest first.
+3. The daily summary counts the countries and territories (225) and first-level regions (2,589) with at least one story, and lists the countries with none, so coverage can be followed day by day. Regions come from Natural Earth's populated places, added to the city list. The count is internal; the site still names no countries or regions.
+4. Growing coverage toward every region and every stateless nation is outlet work: an outlet for every country and territory (decision 45), then outlets for regions of the largest countries and for communities without a state, balanced as the add-news-source skill requires.
+
+## 47. A malformed optional field never costs a grouping batch (September 29, 2026)
+
+The second live test failed like the first: in a batch of 300 articles, the model wrote an unknown location as a location with an empty city instead of null, the answer failed its schema twice, and the day was thrown away. Decision 41 fixed one such field; this fixes the class.
+
+1. In each grouping event only the article ids decide what is written. Every other field falls back instead of failing: a malformed location becomes "no location", an unknown topic "other", an out-of-range importance 2, a missing reason blank. Titles of any length are accepted and cut to 120 characters in code, in the batch answers and the merge answer.
+2. The schema shown to the model states these defaults, so the model sees what an omitted field means.
+
+## 48. Outlets for stateless nations, minority peoples and Indigenous communities (September 29, 2026)
+
+Davis wants every stateless nation, minority people and Indigenous community on the map. The world desk gains 66 outlets in one block at the end of the world-desk section of `config/sources.yaml`. They were found by web search. The session could not reach the hosts, so 11 feeds are ones seen in search results and the rest are homepages marked `# feed unconfirmed` (decision 31). `npm run stage -- sources check` settles them.
+
+1. Every outlet is pinned at the city its newsroom publishes from, which for exile and diaspora outlets is abroad: Phayul in Dharamsala, Radio Free Asia Uyghur in Washington, Tamil Guardian in London, Shan Herald in Chiang Mai, Oromia Media Network in Minneapolis, Amazigh World News in Boston, QHA in Kyiv, Caucasian Knot in Moscow.
+2. An outlet from one side of a conflict or sovereignty dispute is added only beside the state side, either added here or already listed:
+   - Kurds in Syria: Hawar News (linked to the Autonomous Administration) beside the new SANA entry. Kurds in Turkey: Mezopotamya Agency beside the new Anadolu Agency entry and `hurriyet-daily-news`. Kurds in Iraq: `rudaw` and `shafaq-news` were already listed.
+   - Druze of Suwayda: Suwayda 24 beside SANA.
+   - Basques, Catalans and Galicians: Berria, Catalan News, VilaWeb and Nós Diario beside the new Agencia EFE entry and `el-pais-english`. Scots: The National (pro-independence) beside `scotsman` and `bbc-world`.
+   - Tibetans and Uyghurs: Phayul and Radio Free Asia Uyghur beside `xinhua-english`, `china-daily` and the new Tianshannet (Xinjiang government) entry.
+   - Tamils: Tamil Guardian beside the new state-owned Daily News and `daily-mirror-lk`.
+   - Rohingya, Karen and Shan: Kaladan Press, Karen News and Shan Herald beside `global-new-light-of-myanmar`.
+   - Sahrawi: Sahara Press Service (the Polisario Front's state media) beside the new Maghreb Arabe Presse entry, `morocco-world-news` and `hespress-english`.
+   - Oromo: Oromia Media Network beside the new Ethiopian News Agency entry and `addis-standard`. Puntland: Garowe Online beside `somali-guardian`.
+   - Crimean Tatars: QHA beside the new RIA Novosti Crimea entry (Russian state media in Simferopol), `tass` and `kyiv-independent`.
+   - Chechnya: Caucasian Knot beside the Chechen government's Grozny-Inform.
+   - Abkhazia and South Ossetia: the de facto authorities' agencies Apsnypress and RES beside the new Georgian Public Broadcaster entry and `civil-ge`.
+   - Transnistria: Novosti Pridnestrovya (de facto authorities) beside the new Moldpres entry (Moldovan state).
+   - Northern Cyprus: Yenidüzen beside `cyprus-mail`, on the same Nicosia pin. Kosovo: KoSSev (Serbian community in Mitrovica) beside `prishtina-insight` and `n1-serbia`.
+   - Papua: Jubi beside the new ANTARA entry and `jakarta-post`. New Caledonia: Radio Djiido (founded by the FLNKS) beside the French public broadcaster's Nouvelle-Calédonie La 1ère.
+   - Mapuche: Mapuexpress beside `biobiochile`.
+3. Already covered, nothing added: Palestinians (`wafa`, `maan-news`, `ramattan` beside the Israeli outlets), Kashmir (`greater-kashmir` and `jammu-kashmir-times-mzd`), Anglophone Cameroon (`mimi-mefo-info` and `cameroon-tribune`), Somaliland (`somaliland-chronicle` and `somali-guardian`), Hong Kong independent press (`hong-kong-free-press`), Baloch (`balochistan-express`), Kosovo Albanians (`prishtina-insight`), Quebec (`le-devoir`, now with Le Soleil).
+4. Place names for contested cities use the common English form: Sukhumi, Tskhinvali, Simferopol, Nicosia, Mitrovica. The panel shows the name only, never a country.
+5. Skipped:
+   - Kurds in Iran: no outlet with a known newsroom city. Kurdpa gives no location, and Hengaw is a human rights monitor, not a newsroom.
+   - Inner Mongolia: the only exile source found is a human rights organisation's news page, not a newsroom.
+   - Manipur: the Imphal papers are valley-based, and no Kuki-Zo outlet with a working news site was found to balance them during the conflict between the two communities.
+   - The Balochistan Post: it does not say where its newsroom is, and it is aligned with one side of an armed conflict.
+   - Pashtun exile radio: Radio Mashaal closed on March 31, 2026. Tribal News Network in Peshawar was added instead.
+   - Hazara, Tuareg, Circassians and Garifuna: no news outlet with a website and a known newsroom was found. The Tuareg case would also need balancing against an armed movement.
+   - Ogoni: the Ogoni news site found mostly republishes other papers. The Tide in Port Harcourt covers the Niger Delta.
+   - Zanzibar: the government paper's website could not be confirmed.
+   - Bougainville: no newsroom site with a confirmed location. The New Dawn FM blog was last active years ago.
+   - Sermitsiaq.AG (Greenland): its terms forbid public use of its RSS feeds without permission. KNR covers Greenland.
+   - China Tibet Online: its newsroom city could not be confirmed. Xinhua and China Daily cover the state side.
+6. Newsroom cities to confirm: Karen News (pinned at Mae Sot from older reports), Kaladan Press (founded in Chittagong), Mapuexpress (Temuco). The Mezopotamya Agency domain changes after each court block in Turkey, so its URL may need updating.
+
+## 49. An outlet for every region of the ten most populous countries (September 29, 2026)
+
+Davis wants every governing unit of every country represented. Stories sit where they happen (decision 44), so an outlet publishing from a region brings that region's stories onto the map. This adds 188 world-desk outlets in one block at the end of the world desk in `config/sources.yaml`: one outlet for each first-level region that had none in India, China, the United States, Indonesia, Pakistan, Nigeria, Brazil, Bangladesh, Russia and Mexico. Each is pinned at the city it publishes from, at the city list's point where the city is on it.
+
+1. Coverage is counted as the daily summary counts it (decision 46): each outlet's pin goes to the nearest listed city and that city's region. Regions with an outlet, before and after: India 7 to 25 of 35, China 1 to 27 of 30, United States 13 to 51 of 51 (the 50 states and Washington), Indonesia 2 to 30 of 33, Pakistan 4 to 5 of 7, Nigeria 2 to 11 of 35, Brazil 2 to 27 of 32, Bangladesh 1 to 4 of 6, Russia 1 to 8 of 90, Mexico 2 to 32 of 32. In all, 35 to 220 of 351.
+2. Some counts come from the city list, not from the ground. Brazil's list has five broken labels (Amapi, Goi, Maranh, Par, Rondinia) that repeat Amapá, Goiás, Maranhão, Pará and Rondônia, so every one of Brazil's 27 units has an outlet. India's list files Gujarat's cities under "Dadra and Nagar Haveli", which Gujarat Samachar in Ahmedabad covers. The Pointer publishes from Asaba in Delta State, but the nearest listed city is Onitsha, so it counts for Anambra and Delta shows as open. Tribun Batam publishes from Batam, whose nearest listed city is Singapore, so the Riau Islands show as open. Pins stay at the real city in both cases.
+3. China's 26 provincial outlets are provincial party dailies and their news sites, each marked `# state media`: independent regional press does not exist there. Shanghai Daily is in English, the rest in Chinese. Macau gets the Macau Daily Times, a private English daily. Hong Kong keeps Hong Kong Free Press.
+4. Russia is covered by federal district, not by its 80 or more subjects: Central (TASS, already listed), Northwestern (Fontanka.ru), Southern (161.ru, Rostov-on-Don), North Caucasian (Chernovik, Makhachkala), Volga (Business Online, Kazan), Ural (It's My City, Yekaterinburg), Siberian (Tayga.info, Novosibirsk) and Far Eastern (VL.ru News, Vladivostok). Chernovik, It's My City and Tayga.info are independent. The others are privately owned and publish under Russian media law. None of the new ones is state-owned. Nothing is added for Crimea.
+5. Nigeria's additions include four state-government papers (The Tide, The Nigerian Observer, The Pointer, The Hope), each marked. The United States block mixes public radio, daily papers and nonprofit newsrooms, including Cowboy State Daily in Wyoming, and adds WAMU as a local newsroom for Washington. Puerto Rico already had El Nuevo Día.
+6. Feeds: the session's shared web-search budget ran out early and news hosts were blocked. 6 feeds were seen in search (Arkansas Advocate, The Lens, Mississippi Today, Searchlight New Mexico, Billy Penn at WHYY, VTDigger). The other 182 entries are homepages taken from knowledge and marked `# feed unconfirmed`. Ingest follows the feed link each page declares (decision 31). Run `npm run stage -- sources check` and remove what fails.
+7. Left open: India's Puducherry and Lakshadweep (no outlet found this session); Nigeria's Abia, Adamawa, Akwa Ibom, Bauchi, Benue, Borno, Delta, Ekiti, Enugu, Gombe, Imo, Jigawa, Kaduna, Katsina, Kebbi, Kwara, Nassarawa, Niger, Ogun, Plateau, Sokoto, Taraba, Yobe and Zamfara (no outlet whose site could be named with confidence); Bangladesh's Barisal and Khulna; Pakistan's former tribal areas; Indonesia's Riau Islands (see 2); and Russia's other subjects. Left to the parallel contested-areas and stateless-nations work: Ladakh and India's northeast (Arunachal Pradesh, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, Tripura), Xinjiang, Tibet, Inner Mongolia, Papua, West Papua, Gilgit-Baltistan and Crimea.
+8. Cost and balance: the world desk grows from 237 to 425 outlets. At `WORLD_PER_SOURCE` (15) the new outlets can add up to 2,820 articles a day to the grouping stage. The list now leans toward these ten countries, which is what Davis asked for. The rest of the world is decision 45's work.
+
+## 50. Every story on the map is grouped and ranked (September 29, 2026)
+
+The first complete live day showed 2,632 stories, but only about 300 had been grouped into events. The grouping stage reads each outlet's 15 newest articles (1,303 that day); of those it set aside 454 as not news and left 570 ungrouped. Everything outside a group had no importance, topic or place, so it could not be ranked, sized or placed where it happened, and ads showed as stories. The cross-batch merge proposed five joins and the checks refused all five.
+
+1. Articles the model neither groups nor sets aside go back to it once, in their own batches. Whatever is still left becomes a one-article event of importance 1. A failed second pass does not fail the day.
+2. Once a day is grouped, the map shows only articles that belong to a story. Articles set aside as not news, and articles past an outlet's daily cap, stay off the map.
+3. Merge keys are read however the model brackets or capitalises them ("[B1-E3]" is "b1-e3").
+4. Tests give the in-memory database a minute to start, since a full parallel run could pass the old 10 second limit with nothing wrong.
+
+## 51. A broken model answer costs the day its word, never the day (September 29, 2026)
+
+The first three full runs at 560 outlets each stopped on one bad model answer: quoted passages with null characters where accented letters belonged, one article listed twice in a story, and a score whose reason was not copied exactly from its event's sentences (the checks from decisions 26 and 36). Each time the whole day failed, and the grouped and explained stories never reached the map. A few thousand model answers a day make rare slips daily events.
+
+1. Control characters other than tab and line breaks are removed from model answers, feed text, page text and run records before anything is written. Postgres refuses the null character in text and JSON.
+2. An article the model lists twice in one story joins it once, on both desks.
+3. A telegram score run that still breaks the rules after its retry is set aside, and another is asked, up to two more than `TELEGRAM_SCORE_RUNS`. The day's scores are the middle of the runs that passed. The checks themselves are unchanged: no rejected score is ever used.
+4. If no score run passes, or the word breaks the rules twice, the day has no word and says why in the run summary. Its stories, explanations and places still go out. Decision 26 already allows a day without a word.
+5. An outage, a spent credit balance or the spend ceiling is not a broken rule and still fails the stage loudly.
+
+## 52. Feeds and pages are read in the encoding they declare (September 29, 2026)
+
+Every feed and page was read as UTF-8. Folha de S.Paulo publishes its feed in ISO-8859-1, so each accented letter in its Portuguese headlines became the replacement character (U+FFFD), 937 of them on the first live day. The model then quoted that broken text back with null characters, which stopped the first 560-outlet run (decision 51).
+
+1. A response is decoded with the charset its Content-Type names, then the one its XML declaration or HTML meta tag names, then UTF-8. When they disagree, the reading with the fewest broken characters wins.
+2. An article already stored with broken characters takes the clean headline, lead and body the next time its feed reads cleanly. It does not count as a new article.
+
+## 53. Feeds are looked for harder before an outlet counts as failing (September 29, 2026)
+
+The first full 560-outlet day read 336 feeds. Of the 224 that failed, 119 were homepages that link to no feed, 64 answered 403 and 24 were down or timed out. Every failing outlet is a place that stays empty on the map.
+
+1. The fetcher names itself the usual crawler way, `Mozilla/5.0 (compatible; GlobalGist/1.0; +<repository>)`, and says which formats it accepts. Many sites refuse a bare bot name with 403 but serve this one. It still says who is asking.
+2. Discovery tries twelve common feed paths instead of five, adding the ones the failing outlets' platforms use (`/index.rss`, `/?feed=rss2`, `/atom.xml`, Blogger's `/feeds/posts/default`, Arc's `/arc/outboundfeeds/rss/` and others).
+3. When the configured address answers with an HTTP error, those paths are tried too. A host that is down or times out is not asked again, so a dead site costs one request, not thirteen.
+4. A feed found this way is remembered as before (decision 36), so the search happens once.
+
+## 54. GDELT fills the regions no outlet reached (September 29, 2026)
+
+The first full 560-outlet day put stories in 126 of 225 countries and territories and 297 of the 2,589 first-level regions (states, provinces, departments) on the city list. Davis wants every governing unit to have its news. Reaching every region with hand-picked outlets means about 2,000 more outlets to research, many with broken feeds, and grouping all their articles would cost several dollars a day. Davis chose GDELT plus outlets.
+
+1. GDELT is an open index of news sites worldwide in more than 65 languages. Every 15 minutes it publishes each article it read with its URL, title and the places it names. A new stage, `local`, runs after the word. For each region with no story on the day's map, it keeps up to `GDELT_PER_REGION` (default 3) of the newest articles about a town there.
+2. The town is the city-level place the article names most. It is placed only if it is on the city list or within 250 km of a listed city in its country, the same rule as decision 44; the listed city nearest GDELT's point wins a shared name. An article that names only a country or state is not used.
+3. No model reads these stories, so they cost nothing. They live in their own table, never join an event, sit at the lowest zoom tier, carry no topic and are never explained or scored. GDELT's tone and theme fields are not used.
+4. The site marks each one "via GDELT" and the About page says what GDELT is. The headline is shown as published and links to the outlet.
+5. Outlets come first. A region with a story from a listed outlet gets no GDELT stories, and outlet research continues, so GDELT fills less over time.
+6. A GDELT outage costs the day only its local stories. They are kept three days.

@@ -34,7 +34,7 @@ September 27, 2026, the fold:
 
 - Capy is the home. The 2DayAI pipeline is the objective layer the map needs, so one pipeline, two products, one database.
 - The map is deferred until 2DayAI holds up for a week with Davis as reader one, so the second product does not starve the first.
-- Pins are publishers, placed where they publish from, as Radio Garden places stations. Not where events happen. This needs no geocoding and never labels a disputed place.
+- Pins are publishers, placed where they publish from, as Radio Garden places stations. Not where events happen. This needs no geocoding and never labels a disputed place. (Reversed by decision 44 on September 29: stories now sit where they happened, checked against a fixed city list, and fall back to the publisher's city.)
 - The map draws coastlines only. No borders, no country names.
 - 2D paper map first, a globe later if wanted. Capy is not bound by Three Angle Press's zero-JS rule.
 
@@ -133,7 +133,7 @@ An independent adversarial review found eight real defects before any live run (
 - No Neon database, no Resend account, no Worker deployment yet.
 - The prompts (cluster.v1, explain.v1, select.v1) have never produced output. Expect a v2 of each after the first real week.
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
-- The world desk has 237 outlets (decision 31), gathered by web search and unverified. About 150 point at homepages; ingest finds their feeds when it runs, and sources check reports what it found. Run it once in Actions and prune what fails.
+- The world desk has 560 outlets (decisions 31, 45, 48 and 49), gathered by web search and unverified. About 448 point at homepages; ingest finds their feeds when it runs, and sources check reports what it found. Run it once in Actions and prune what fails.
 - The telegram and world-cluster prompts (telegram-score.v1, telegram-word.v1, cluster-world.v1) have never produced output. Judge the first real scores and words before trusting them.
 - No model has been chosen. The default is OpenAI (decision 29, from a research pass), and decision 28 says to confirm it with eval reports on real days first.
 - No Cloudflare secrets yet, so the deploy-site workflow skips. The site has run only locally, on the fictional sample.

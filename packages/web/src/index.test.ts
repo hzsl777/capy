@@ -47,7 +47,8 @@ describe("the Worker's map data", () => {
     const map = (await res.json()) as MapFile;
     expect(map).toMatchObject({ version: 2, source: "live", runDate: date });
     expect(map.telegram).toMatchObject({ word: "Unease", band: -1 });
-    expect(map.places).toHaveLength(12);
+    // Twelve publisher cities and Valparaiso, where one story happened (decision 44).
+    expect(map.places).toHaveLength(13);
 
     const dated = await app.request(`/data/${date}.json`, {}, env);
     expect(((await dated.json()) as MapFile).telegram?.word).toBe("Unease");

@@ -7,8 +7,8 @@
  * "Neutrality rules" before changing what this script includes.
  *
  * Output (committed, so builds need no network):
- *   public/basemap/world-110m.json  TopoJSON used while the map is moving
- *   public/basemap/world-50m.json   TopoJSON used at rest
+ *   public/basemap/world-110m.json  TopoJSON for the whole world on screen
+ *   public/basemap/world-50m.json   TopoJSON once zoomed in (decision 42)
  *   public/basemap/relief.json      { peaks: [lon, lat][], dunes: [lon, lat][] }
  */
 import { mkdir, readFile, writeFile, access } from "node:fs/promises";
@@ -84,11 +84,12 @@ function sample(features: Feature[], step: number): [number, number][] {
 async function main() {
   await mkdir(OUT, { recursive: true });
 
-  const [land110, lakes110, rivers110, land50, lakes50, rivers50, regions, glaciers, shelves] =
+  const [land110, lakes110, rivers110, glaciers110, land50, lakes50, rivers50, regions, glaciers, shelves] =
     await Promise.all([
       load("ne_110m_land"),
       load("ne_110m_lakes"),
       load("ne_110m_rivers_lake_centerlines"),
+      load("ne_110m_glaciated_areas"),
       load("ne_50m_land"),
       load("ne_50m_lakes"),
       load("ne_50m_rivers_lake_centerlines"),
@@ -98,7 +99,7 @@ async function main() {
     ]);
 
   const low = build(
-    { land: strip(land110), lakes: strip(lakes110), rivers: strip(rivers110, true) },
+    { land: strip(land110), lakes: strip(lakes110), rivers: strip(rivers110, true), ice: strip(glaciers110) },
     1e4,
     0.6,
   );

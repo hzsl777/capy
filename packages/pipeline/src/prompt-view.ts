@@ -71,7 +71,7 @@ async function fictionalDay(config: Config, date: RunDate): Promise<{ stage: str
   writeFileSync(join(dir, "sources.yaml"), worldSourcesYaml());
   // The script joins nothing when asked to merge.
   const llm = new FakeLlm({ ...worldAnswers(), "cluster-world-merge": () => ({ groups: [] }) });
-  await runDay(db, config, llm, date, { fetchFeed: async (url) => worldFeedFor(url, date), fetchPage: async () => "", sourcesPath: join(dir, "sources.yaml"), readersDir: dir });
+  await runDay(db, config, llm, date, { fetchFeed: async (url) => worldFeedFor(url, date), fetchPage: async () => "", fetchGdelt: async () => null, sourcesPath: join(dir, "sources.yaml"), readersDir: dir });
   await close();
   return llm.calls;
 }

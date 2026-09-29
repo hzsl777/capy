@@ -55,6 +55,6 @@ describe("prune (decision 34)", () => {
     expect(rows.filter((r) => r.url.endsWith(TODAY)).length).toBeGreaterThan(0);
 
     // Running it again finds nothing more to do.
-    expect(await runPrune(db, TODAY, 30)).toEqual({ cutoff: "2026-08-28", telegrams: 0, events: 0, articles: 0, bodiesCleared: 0 });
+    expect(await runPrune(db, TODAY, 30)).toEqual({ cutoff: "2026-08-28", telegrams: 0, events: 0, articles: 0, bodiesCleared: 0, localStories: 0 });
   }, 60_000);
 });

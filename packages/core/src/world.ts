@@ -7,12 +7,31 @@ export const WORLD_TOPICS = ["politics", "economy", "conflict", "environment", "
 export const WorldTopic = z.enum(WORLD_TOPICS);
 export type WorldTopic = z.infer<typeof WorldTopic>;
 
+/**
+ * One event from the grouping model. Only the article ids decide what the stage writes, so every other field
+ * falls back to a safe value instead of failing its batch: one malformed field among hundreds of events used to
+ * throw away a batch of 300 articles (decisions 41 and 47). Titles are cut to 120 characters in code.
+ */
 export const WorldClusterEventSchema = z.object({
-  title: z.string().min(1).max(120),
-  articleIds: z.array(z.number().int()).min(1),
-  importance: z.number().int().min(1).max(5),
-  importanceReason: z.string().min(1).max(200),
-  topic: WorldTopic,
+  title: z.string().min(1),
+  /**
+   * Not required to be non-empty: a model sometimes returns one empty event among a hundred, and code drops it.
+   * Refusing the whole batch for it failed the first live day (decision 41).
+   */
+  articleIds: z.array(z.number().int()),
+  importance: z.number().int().min(1).max(5).catch(2),
+  importanceReason: z.string().max(400).catch(""),
+  topic: WorldTopic.catch("other"),
+  /**
+   * Where the event happened, as the articles report it (decision 44): the city or town, its ISO 3166-1 alpha-2
+   * country code and a rough point. Null when they name no single city; anything malformed counts as null.
+   * Code checks it against a fixed list of cities before anything is placed; the country code only tells
+   * same-named cities apart and is never shown.
+   */
+  where: z
+    .object({ city: z.string().max(80), country: z.string().max(3).nullish(), lat: z.number().nullish(), lon: z.number().nullish() })
+    .nullish()
+    .catch(null),
 });
 
 export const WorldClusterResultSchema = z.object({
@@ -27,7 +46,7 @@ export type WorldClusterResult = z.infer<typeof WorldClusterResultSchema>;
  * dropped there rather than failing the whole answer.
  */
 export const WorldClusterMergeSchema = z.object({
-  groups: z.array(z.object({ eventKeys: z.array(z.string().min(1)).min(1), title: z.string().min(1).max(120) })),
+  groups: z.array(z.object({ eventKeys: z.array(z.string().min(1)).min(1), title: z.string().min(1) })),
 });
 export type WorldClusterMerge = z.infer<typeof WorldClusterMergeSchema>;
 
@@ -36,13 +55,13 @@ export type WorldClusterMerge = z.infer<typeof WorldClusterMergeSchema>;
  * A key named by two groups drops both, since picking one would be a guess.
  */
 export function validMergeGroups(merge: WorldClusterMerge, known: ReadonlySet<string>): { groups: WorldClusterMerge["groups"]; dropped: number } {
+  // Keys come back as "[b1-e3]", "B1-E3" or " b1-e3 " as often as "b1-e3". Read them the way they were shown.
+  const norm = (k: string) => k.replace(/[[\]\s]/g, "").toLowerCase();
+  const byNorm = new Map([...known].map((k) => [norm(k), k]));
+  const read = merge.groups.map((g) => ({ ...g, eventKeys: [...new Set(g.eventKeys.map((k) => byNorm.get(norm(k)) ?? k))] }));
   const uses = new Map<string, number>();
-  for (const g of merge.groups) for (const k of new Set(g.eventKeys)) uses.set(k, (uses.get(k) ?? 0) + 1);
-  const groups = merge.groups.filter((g) => {
-    const keys = new Set(g.eventKeys);
-    if (keys.size < 2) return false;
-    return [...keys].every((k) => known.has(k) && uses.get(k) === 1);
-  });
+  for (const g of read) for (const k of g.eventKeys) uses.set(k, (uses.get(k) ?? 0) + 1);
+  const groups = read.filter((g) => g.eventKeys.length >= 2 && g.eventKeys.every((k) => known.has(k) && uses.get(k) === 1));
   return { groups, dropped: merge.groups.length - groups.length };
 }
 
