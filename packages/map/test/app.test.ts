@@ -43,12 +43,13 @@ describe("zoom tiers (decision 30)", () => {
   const item = (reach?: number, importance?: number) => ({ reach, importance }) as MapItem;
   it("ranks places into five zoom tiers by importance and reach (decision 46)", () => {
     expect(tierOf(item(1, 5), true)).toBe(0);
-    expect(tierOf(item(5, 1), true)).toBe(0);
-    expect(tierOf(item(1, 4), true)).toBe(1);
+    expect(tierOf(item(1, 4), true)).toBe(0);
+    expect(tierOf(item(4, 1), true)).toBe(0);
+    expect(tierOf(item(1, 3), true)).toBe(1);
     expect(tierOf(item(3, 1), true)).toBe(1);
-    expect(tierOf(item(1, 3), true)).toBe(2);
+    expect(tierOf(item(1, 2), true)).toBe(2);
     expect(tierOf(item(2, 1), true)).toBe(2);
-    expect(tierOf(item(1, 2), true)).toBe(3);
+    expect(tierOf(item(1, 1), true)).toBe(3);
     expect(tierOf(item(), true)).toBe(4);
   });
   it("weighs a place by its most important story", () => {
