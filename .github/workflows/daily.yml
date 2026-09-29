@@ -13,11 +13,14 @@ on:
       date:
         description: Run date (YYYY-MM-DD). Defaults to today.
         required: false
+      demo_run_id:
+        description: Instead of a run, publish this earlier run's map file to the demo-data branch for the demo page.
+        required: false
 permissions:
   contents: read
 jobs:
   day:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && inputs.demo_run_id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -81,3 +84,29 @@ jobs:
           name: map
           path: map.json
           retention-days: 7
+
+  # A day's map file on its own branch, so a session that can reach GitHub over git but not the artifact store can
+  # load it into the demo page. No secrets here; only this job can push, and only to demo-data.
+  demo-data:
+    if: github.event_name == 'workflow_dispatch' && inputs.demo_run_id != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: map
+          run-id: ${{ inputs.demo_run_id }}
+          github-token: ${{ github.token }}
+      - name: Push to demo-data
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir demo && mv map.json demo/ && cd demo
+          git init -q -b demo-data
+          git add map.json
+          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -qm "Map file for the demo page"
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${REPO}.git" demo-data
