@@ -1,3 +1,4 @@
+import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
 export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso";
@@ -29,10 +30,10 @@ export interface Theme {
   smooth?: boolean;
   /** Globe only: draw the sphere's outline as a polygon of this many sides, like a low-poly model. */
   polyGlobe?: number;
-  /** Globe only: distance haze toward the rim. */
+  /** Distance haze: toward the globe's rim, or toward the far edge of a tilted map. The colour of the horizon. */
   fog?: string;
-  /** Place dots as circles, squares (the pixel designs), diamonds, coins (a circle with a slot) or hexagons. */
-  dotShape: "circle" | "square" | "diamond" | "coin" | "hex";
+  /** Place dots as circles, squares (the pixel designs), diamonds, bevelled discs or hexagons. */
+  dotShape: "circle" | "square" | "diamond" | "bevel" | "hex";
   textureInk: string;
   textureInk2?: string;
   coast: string;
@@ -49,13 +50,16 @@ export interface Theme {
   /** A wide band of lighter water along every coast, like the shallows on a game's world map. */
   shallows?: string;
   /**
-   * Land built like early 3D game terrain (src/map/terrain.ts): triangles `step` degrees across with a height at
-   * every corner, flat-shaded in `grass`, `rock` higher up and snow on the peaks, standing on cliff walls textured
-   * in `cliff` (base, light, dark). Lakes and rivers are left out, since they no longer line up with the grid.
+   * Land built like early 3D game terrain (src/map/terrain.ts, decision 63): a grid of triangles with heights and
+   * baked light, coloured grass, rock and snow, standing on cliff walls textured in `cliff` (base, light, dark),
+   * with a band of `shallows` along the coast. Lakes and rivers are left out, since they no longer line up with
+   * the grid.
    */
-  lowPoly?: { step: number; grass: [number, number, number]; rock: [number, number, number]; cliff: [string, string, string] };
-  /** Globe only: a soft glint where the light strikes the sphere. */
-  specular?: boolean;
+  lowPoly?: { grass: RGB; rock: RGB; snow: RGB; snowShade: RGB; cliff: [string, string, string]; shallows: string };
+  /** Map view only: tilt the flat map back this many degrees, seen in perspective like the ground in a 3D game. */
+  tilt?: number;
+  /** A sky drawn behind the map: zenith, middle and horizon colours, with clouds that pan with the camera. */
+  sky?: [string, string, string];
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -352,9 +356,9 @@ export const THEMES: Record<ThemeId, Theme> = {
   // Nods to three generations of home consoles, each after the sense of place of one game series of its era, never
   // its art, names, logos or characters. Stage Select after Mega Man: hard 8-bit pixels, a wall of bevelled metal
   // blocks, riveted stage-select frames. Overworld after Final Fantasy's world maps: finer pixels, grass, sandy
-  // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64: a soft half-resolution picture, a
-  // many-sided globe fading into haze, straight-edged coasts on flat-shaded orange cliffs, blurry textures,
-  // pyramid mountains, coins for markers (red coins for fresh reports), outlined counter-style lettering.
+  // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64 and Ocarina of Time: a tilted camera
+  // over triangle terrain with baked light, orange cliffs, a pale sky and fog at the draw distance, a soft picture,
+  // bevelled gold markers floating over their shadows, and a menu title in ice blue (decision 63).
   bit8: {
     id: "bit8",
     label: "Stage Select",
@@ -429,43 +433,50 @@ export const THEMES: Record<ThemeId, Theme> = {
   bit64: {
     id: "bit64",
     label: "Polygon Kingdom",
-    defaultView: "3d",
-    projection2d: geoEqualEarth,
-    ocean: "#2a78d8",
-    land: "#3fb82c",
-    landTexture: "mottle",
-    lowPoly: { step: 1.5, grass: [74, 168, 46], rock: [150, 112, 72], cliff: ["#b45a1e", "#e0913e", "#7a3410"] },
-    specular: true,
-    pixel: 2,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#3d8fdc",
+    land: "#5cc83a",
+    landTexture: "none",
+    lowPoly: {
+      grass: [92, 200, 58],
+      rock: [165, 138, 106],
+      snow: [244, 246, 255],
+      snowShade: [185, 196, 224],
+      cliff: ["#c0621e", "#e08a3a", "#8a3a0c"],
+      shallows: "#62c6e6",
+    },
+    tilt: 40,
+    sky: ["#6fb4f0", "#a9d6f7", "#e6f5fb"],
+    fog: "#e6f5fb",
+    pixel: 1.5,
     smooth: true,
     polyGlobe: 22,
-    fog: "rgba(214,236,255,0.42)",
-    dotShape: "coin",
-    textureInk: "rgba(150,230,80,0.75)",
-    textureInk2: "rgba(20,110,20,0.6)",
-    coast: "rgba(255,255,255,0.35)",
+    dotShape: "bevel",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "rgba(0,0,0,0)",
     coastWidth: 0,
     waterlines: 0,
-    waterline: "rgba(150,210,255,0.3)",
+    waterline: "rgba(159,216,248,0.4)",
     oceanHatch: null,
-    oceanPattern: "mottle",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "rgba(0,0,0,0)",
-    lake: "#2a78d8",
-    ice: "#eef3ff",
+    lake: "#3d8fdc",
+    ice: "#f4f6ff",
     relief: "#6e4418",
-    dot: "#ffc81e",
-    dotStroke: "#6a3a00",
-    fresh: "#e8202a",
+    dot: "#ffd23a",
+    dotStroke: "#8a5600",
+    fresh: "#ff4a3d",
     tuned: "#ffffff",
     arc: "#ffffff",
     glow: false,
-    atmosphere: "rgba(220,240,255,0.6)",
-    shade: "rgba(10,20,60,0.4)",
+    atmosphere: null,
+    shade: null,
     neatline: false,
     decor: null,
   },
+
 
 
 

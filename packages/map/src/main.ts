@@ -30,7 +30,8 @@ import "@fontsource/pixelify-sans/700.css";
 import "@fontsource/permanent-marker/400.css";
 import "@fontsource/patrick-hand/400.css";
 import "@fontsource/anton/400.css";
-import "@fontsource/luckiest-guy/400.css";
+import "@fontsource/russo-one/400.css";
+import "@fontsource/nunito/800.css";
 import "@fontsource/chewy/400.css";
 import "@fontsource/baloo-2/500.css";
 import "@fontsource/baloo-2/800.css";
@@ -333,16 +334,6 @@ function renderKey() {
       el.setAttribute("stroke-width", String(width));
       if (dash) el.setAttribute("stroke-dasharray", dash);
       svg.append(el);
-      if (t.dotShape === "coin" && fill !== "none" && fill !== t.dotStroke) {
-        // A coin's slot, as the canvas draws it.
-        const slot = document.createElementNS(NS, "rect");
-        slot.setAttribute("x", String(-r * 0.13));
-        slot.setAttribute("y", String(-r * 0.45));
-        slot.setAttribute("width", String(r * 0.26));
-        slot.setAttribute("height", String(r * 0.9));
-        slot.setAttribute("fill", t.dotStroke);
-        svg.append(slot);
-      }
     });
     return svg;
   };

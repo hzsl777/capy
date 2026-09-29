@@ -28,6 +28,7 @@ Every design shows the same name and tagline from `src/brand.ts`. The row above 
 - "Fresh" must stay distinguishable from ordinary dots: by colour, or, for monochrome designs, by a dotted outer ring (set `fresh` equal to `dot` and `drawDots` adds it). The solid outer ring means importance 4 or 5 in every design (decision 57); keep the three symbols readable.
 - Pixel designs set `pixel` (the canvas renders at 1/pixel resolution). `dotShape` may be a circle, square or diamond; shape never carries meaning.
 - Check the phone toolbar stays one row at 360 pixels wide with the design's fonts.
+- `tilt` (a tilted camera in Map view) and `lowPoly` (triangle terrain) are Polygon Kingdom's. Under a tilt, places are drawn through `placeAt()` in `view.ts` so markers, arcs and tuning follow the camera; draw thousands of shapes as SVG path text in one `Path2D`, not as separate calls.
 - Keep text contrast readable: body text at least 4.5:1 against `--panel`.
 - Respect `prefers-reduced-motion` for anything animated.
 - Performance: the canvas redraws every frame while dragging, using the 110m basemap. Anything expensive goes behind `if (!this.interacting)`.

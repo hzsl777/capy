@@ -1,16 +1,18 @@
 import {
   geoDistance,
+  geoEquirectangular,
   geoGraticule,
   geoInterpolate,
   geoOrthographic,
   geoPath,
   type GeoPermissibleObjects,
   type GeoProjection,
+  type GeoStream,
 } from "d3-geo";
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
-import { buildTerrain, type Terrain } from "./terrain.ts";
+import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -55,7 +57,65 @@ interface Spot {
   count: number;
   weight: number;
   fresh: boolean;
+  /** Where the place meets the ground, when the marker floats above raised terrain. Tuning uses this point. */
+  gx?: number;
+  gy?: number;
 }
+
+/** A tilted camera over the flat map: the frame's centre stays put, the far side shrinks toward a horizon. */
+interface Cam {
+  cx: number;
+  cy: number;
+  sin: number;
+  cos: number;
+  /** Distance from the eye to the picture, in pixels. Smaller means stronger perspective. */
+  d: number;
+}
+
+/** Grid spacing for Polygon Kingdom's terrain by zoom: coarse at the whole world, finer as you zoom in. */
+const TERRAIN_STEPS: [number, number][] = [
+  [1.8, 3],
+  [4, 1.5],
+  [Infinity, 0.75],
+];
+
+/** Which half-degree cells a layer covers, read back from drawing it once on a small plate carrée canvas. */
+function raster(fc: Basemap["land"] | undefined): (lon: number, lat: number) => boolean {
+  const W = 720;
+  const H = 360;
+  if (!fc) return () => false;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const g = canvas.getContext("2d", { willReadFrequently: true })!;
+  const proj = geoEquirectangular().scale(W / (2 * Math.PI)).translate([W / 2, H / 2]).precision(0.2);
+  g.beginPath();
+  geoPath(proj, g)(fc);
+  g.fillStyle = "#fff";
+  g.fill();
+  const px = g.getImageData(0, 0, W, H).data;
+  return (lon, lat) => {
+    const x = Math.min(W - 1, Math.max(0, Math.floor(((lon + 180) / 360) * W)));
+    const y = Math.min(H - 1, Math.max(0, Math.floor(((90 - lat) / 180) * H)));
+    return px[(y * W + x) * 4 + 3]! > 127;
+  };
+}
+
+const unitOf = (lon: number, lat: number): [number, number, number] => {
+  const l = lon / DEG, p = lat / DEG;
+  return [Math.cos(p) * Math.cos(l), Math.cos(p) * Math.sin(l), Math.sin(p)];
+};
+
+/** Mix a packed 0xRRGGBB colour toward a CSS hex colour by t, as a CSS string. */
+function fogged(rgb: number, fog: [number, number, number], t: number): string {
+  const r = (rgb >> 16) & 255, g = (rgb >> 8) & 255, b = rgb & 255;
+  return `rgb(${Math.round(r + (fog[0] - r) * t)},${Math.round(g + (fog[1] - g) * t)},${Math.round(b + (fog[2] - b) * t)})`;
+}
+
+const hexRgb = (hex: string): [number, number, number] => {
+  const v = parseInt(hex.replace("#", ""), 16);
+  return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+};
 
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
@@ -119,7 +179,14 @@ export class MapView {
   private low?: Basemap;
   private high?: Basemap;
   private relief?: Relief;
-  private terrain?: { base: Basemap; relief?: Relief; mesh: Terrain };
+  private cam: Cam | null = null;
+  private rasters?: { base: Basemap; isLand: (lon: number, lat: number) => boolean; isIce: (lon: number, lat: number) => boolean };
+  private meshes = new Map<number, Terrain>();
+  private meshFor?: { base: Basemap; relief?: Relief };
+  /** Every place ever shown, so the terrain keeps each one on land. Only grows, so filtering never rebuilds it. */
+  private anchors = new Map<string, [number, number]>();
+  private terrainNow: Terrain | null = null;
+  private skyTex?: HTMLCanvasElement;
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -185,6 +252,15 @@ export class MapView {
 
   setDots(dots: Dot[]) {
     this.dots = [...dots].sort((a, b) => a.count - b.count);
+    let added = false;
+    for (const d of dots) {
+      const k = `${d.lon},${d.lat}`;
+      if (!this.anchors.has(k)) {
+        this.anchors.set(k, [d.lon, d.lat]);
+        added = true;
+      }
+    }
+    if (added) this.meshes.clear();
     this.request();
   }
 
@@ -352,7 +428,7 @@ export class MapView {
       this.lat = clamp(this.lat, -80, 80);
     } else {
       const k = this.baseScale * this.zoom;
-      const halfDeg = (this.h / 2 / k) * DEG;
+      const halfDeg = (this.h / 2 / k) * DEG * (this.theme.tilt ? 0.5 : 1);
       const max = Math.max(0, 84 - halfDeg);
       this.lat = clamp(this.lat, -max, max);
     }
@@ -385,7 +461,8 @@ export class MapView {
   private pan(dx: number, dy: number) {
     const k = this.baseScale * this.zoom;
     this.lon = wrap(this.lon - (dx / k) * DEG);
-    this.lat = this.lat + (dy / k) * DEG;
+    // Under a tilted camera the ground is foreshortened, so a drag moves further north or south.
+    this.lat = this.lat + (dy / k / (this.cam ? this.cam.cos : 1)) * DEG;
     this.clampLat();
   }
 
@@ -581,7 +658,7 @@ export class MapView {
     let best: Spot | null = null;
     let bestD = TUNE_RADIUS;
     for (const s of this.screen) {
-      const d = Math.hypot(s.x - cx, s.y - cy) - s.r * 0.5;
+      const d = Math.hypot((s.gx ?? s.x) - cx, (s.gy ?? s.y) - cy) - s.r * 0.5;
       if (d < bestD) {
         best = s;
         bestD = d;
@@ -758,18 +835,119 @@ export class MapView {
     return p;
   }
 
+  private makeCam(tilt: number): Cam {
+    const a = tilt / DEG;
+    return { cx: this.w / 2, cy: this.h / 2, sin: Math.sin(a), cos: Math.cos(a), d: this.h * 1.5 };
+  }
+
+  /** A point on the flat map, raised `lift` pixels, as the tilted camera sees it, with its perspective scale. */
+  private tp(x: number, y: number, lift: number, cam: Cam): [number, number, number] {
+    const v = y - cam.cy;
+    const s = cam.d / Math.max(cam.d * 0.25, cam.d - v * cam.sin);
+    return [cam.cx + (x - cam.cx) * s, cam.cy + v * cam.cos * s - lift * s, s];
+  }
+
+  private tiltStream(out: GeoStream, cam: Cam): GeoStream {
+    return {
+      point: (x, y) => {
+        const q = this.tp(x, y, 0, cam);
+        out.point(q[0], q[1]);
+      },
+      lineStart: () => out.lineStart(),
+      lineEnd: () => out.lineEnd(),
+      polygonStart: () => out.polygonStart(),
+      polygonEnd: () => out.polygonEnd(),
+      sphere: () => out.sphere?.(),
+    };
+  }
+
+  /**
+   * Where a place is drawn: its point on the ground (raised by the terrain in Polygon Kingdom, tilted by the camera)
+   * and the camera's scale there. Null when it is off the map.
+   */
+  private placeAt(proj: GeoProjection, lon: number, lat: number): { x: number; y: number; s: number } | null {
+    const p = proj([lon, lat]);
+    if (!p) return null;
+    const m = this.terrainNow;
+    const hgt = m ? heightAt(m, lon, lat) * this.liftPx : 0;
+    if (this.cam) {
+      const [x, y, s] = this.tp(p[0], p[1], hgt, this.cam);
+      return { x, y, s };
+    }
+    if (m && this.mode === "3d") {
+      const [cx, cy] = proj.translate();
+      const k = 1 + hgt / proj.scale();
+      return { x: cx + (p[0] - cx) * k, y: cy + (p[1] - cy) * k, s: 1 };
+    }
+    return { x: p[0], y: p[1], s: 1 };
+  }
+
+  private liftPx = 0;
+
+  /** A painted sky with clouds, panning with the camera as a game's skybox does. */
+  private drawSky(colors: [string, string, string]) {
+    const { ctx, w, h } = this;
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, colors[0]);
+    g.addColorStop(0.45, colors[1]);
+    g.addColorStop(1, colors[2]);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+    if (!this.skyTex) {
+      // A small cloud texture, drawn once and enlarged smoothed: puffy white tops with cool undersides.
+      const c = document.createElement("canvas");
+      c.width = 128;
+      c.height = 48;
+      const cg = c.getContext("2d")!;
+      let seed = 3;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      for (let i = 0; i < 7; i++) {
+        const x = 8 + i * 18 + rnd() * 6, y = 14 + rnd() * 20, w0 = 10 + rnd() * 10;
+        for (const [dx, dy, r, col] of [
+          [0, 3, w0 * 0.7, "#c9cbe6"],
+          [-w0 * 0.6, 2, w0 * 0.5, "#dfe2f2"],
+          [w0 * 0.6, 2, w0 * 0.5, "#dfe2f2"],
+          [0, 0, w0 * 0.62, "#ffffff"],
+          [-w0 * 0.45, 0, w0 * 0.42, "#ffffff"],
+          [w0 * 0.45, 0, w0 * 0.42, "#ffffff"],
+        ] as const) {
+          cg.beginPath();
+          cg.ellipse(x + dx, y + dy, r, r * 0.55, 0, 0, Math.PI * 2);
+          cg.fillStyle = col;
+          cg.fill();
+        }
+      }
+      this.skyTex = c;
+    }
+    const band = h * 0.42;
+    const tw = (band / 48) * 128 * 1.6;
+    const off = -(((this.lon + 180) / 360) * tw * 2) % tw;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.9;
+    for (let x = off - tw; x < w + tw; x += tw) ctx.drawImage(this.skyTex, x, 0, tw, band);
+    ctx.restore();
+  }
+
   private render() {
     const { ctx, w, h, theme: t } = this;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     const proj = this.projection();
-    const path = geoPath(proj, ctx);
+    const R = proj.scale();
+    // The tilted camera applies to the flat map; the globe is already a solid seen in perspective.
+    const cam = this.mode === "2d" && t.tilt ? this.makeCam(t.tilt) : null;
+    this.cam = cam;
+    this.terrainNow = null;
+    this.liftPx = R * 0.02;
+    const view = cam ? { stream: (out: GeoStream) => proj.stream(this.tiltStream(out, cam)) } : proj;
+    const path = geoPath(view as GeoProjection, ctx);
     // Detail follows the map's size on screen, never whether it is being dragged, so coasts, lakes and rivers
     // don't change shape when the map is touched or let go (decision 42). The whole world at once gets the light
     // file, where the finer one adds nothing visible and drags slowly; zooming in switches to the fine one.
     const map = (proj.scale() >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
-    const R = proj.scale();
 
+    if (t.sky) this.drawSky(t.sky);
     if (this.mode === "3d" && t.atmosphere) {
       const g = ctx.createRadialGradient(w / 2, h / 2, R * 0.98, w / 2, h / 2, R * 1.18);
       g.addColorStop(0, t.atmosphere);
@@ -795,13 +973,32 @@ export class MapView {
       } else path(SPHERE);
     };
     outline();
-    ctx.fillStyle = t.ocean;
+    if (t.lowPoly && t.fog) {
+      // The sea fades into the horizon's haze: toward the far edge of the tilted map, or toward the globe's rim.
+      let g: CanvasGradient;
+      if (cam) {
+        const top = this.tp(cam.cx, geoPath(proj).bounds(SPHERE)[0][1], 0, cam)[1];
+        g = ctx.createLinearGradient(0, top, 0, top + (cam.cy - top) * 0.9);
+      } else g = ctx.createRadialGradient(w / 2, h / 2, R * 0.68, w / 2, h / 2, R * 1.02);
+      g.addColorStop(cam ? 1 : 0, t.ocean);
+      g.addColorStop(cam ? 0 : 1, t.fog);
+      ctx.fillStyle = g;
+    } else ctx.fillStyle = t.ocean;
     ctx.fill();
 
     ctx.save();
     outline();
     ctx.clip();
 
+    if (t.lowPoly) {
+      // Water: a soft low-resolution texture that moves with the world.
+      ctx.save();
+      ctx.globalCompositeOperation = "soft-light";
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = this.worldTexture(proj, 1.6);
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    }
     if (t.oceanPattern) {
       // Mottled water gets deeper patches as well as light ones.
       ctx.fillStyle = this.pattern(t.oceanPattern, t.waterline, t.oceanPattern === "mottle" ? "rgba(0,40,120,0.25)" : undefined);
@@ -826,8 +1023,7 @@ export class MapView {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    if (map && t.lowPoly) this.drawLowPoly(proj, t);
-    else if (map) this.drawMap(path, proj, map, t);
+    if (map && !t.lowPoly) this.drawMap(path, proj, map, t);
     if (this.mode === "3d" && t.shade) {
       // Lit from the upper left, darker toward the rim, so the globe reads as a solid.
       const g = ctx.createRadialGradient(w / 2 - R * 0.38, h / 2 - R * 0.42, R * 0.15, w / 2, h / 2, R * 1.02);
@@ -837,23 +1033,18 @@ export class MapView {
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
     }
-    if (this.mode === "3d" && t.fog) {
-      // Distance haze: the far side of the world fades toward the sky, as early 3D games hid their draw distance.
+    if (this.mode === "3d" && t.fog && !t.lowPoly) {
+      // Distance haze toward the rim.
       const g = ctx.createRadialGradient(w / 2, h / 2, R * 0.55, w / 2, h / 2, R * 1.05);
       g.addColorStop(0, "rgba(0,0,0,0)");
       g.addColorStop(1, t.fog);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
     }
-    if (this.mode === "3d" && t.specular) {
-      // A soft glint where the light strikes the sphere.
-      const g = ctx.createRadialGradient(w / 2 - R * 0.42, h / 2 - R * 0.46, 0, w / 2 - R * 0.42, h / 2 - R * 0.46, R * 0.55);
-      g.addColorStop(0, "rgba(255,255,255,0.32)");
-      g.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-    }
     ctx.restore();
+
+    // Terrain stands outside the clip, so mountains break the globe's outline and the tilted map's far edge.
+    if (map && t.lowPoly) this.drawLowPoly(proj, t);
 
     // Globe rim / sheet edge
     outline();
@@ -873,6 +1064,46 @@ export class MapView {
     drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
     this.drawArcs(path, proj);
     this.drawDots(proj);
+  }
+
+  private n64Tex?: HTMLCanvasElement;
+
+  /**
+   * A low-resolution texture the way early 3D consoles showed them: a 32 by 32 tile of grey noise enlarged eight
+   * times with smoothing, so the texels are big and blurry. Tied to the world's position, so it moves with the land
+   * and sea instead of sliding under them. `scale` enlarges it further.
+   */
+  private worldTexture(proj: GeoProjection, scale = 1): CanvasPattern {
+    if (!this.n64Tex) {
+      const small = document.createElement("canvas");
+      small.width = small.height = 96;
+      const g = small.getContext("2d")!;
+      const img = g.createImageData(32, 32);
+      let seed = 21;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      for (let i = 0; i < 32 * 32; i++) {
+        const v = 128 + Math.round((rnd() - 0.5) * 90);
+        img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v;
+        img.data[i * 4 + 3] = 255;
+      }
+      for (let x = 0; x < 3; x++) for (let y = 0; y < 3; y++) g.putImageData(img, x * 32, y * 32);
+      const big = document.createElement("canvas");
+      big.width = big.height = 768;
+      const bg = big.getContext("2d")!;
+      bg.imageSmoothingEnabled = true;
+      bg.imageSmoothingQuality = "low";
+      bg.drawImage(small, 0, 0, 768, 768);
+      const tile = document.createElement("canvas");
+      tile.width = tile.height = 256;
+      tile.getContext("2d")!.drawImage(big, -256, -256);
+      this.n64Tex = tile;
+    }
+    const p = this.ctx.createPattern(this.n64Tex, "repeat")!;
+    const anchor = proj([0, 0]) ?? [0, 0];
+    const a = this.cam ? this.tp(anchor[0], anchor[1], 0, this.cam) : anchor;
+    const size = 256 * scale;
+    p.setTransform(new DOMMatrix().translate(((a[0] % size) + size) % size, ((a[1] % size) + size) % size).scale(scale));
+    return p;
   }
 
   private drawMap(path: ReturnType<typeof geoPath>, proj: GeoProjection, map: Basemap, t: Theme) {
@@ -944,111 +1175,200 @@ export class MapView {
     ctx.stroke(coast);
   }
 
+  private work = new WeakMap<Terrain, { X: Float32Array; Y: Float32Array; S: Float32Array; stamp: Int32Array }>();
+  private frameNo = 0;
+  private fogStrings = new Map<number, string>();
+
   /**
-   * Terrain the way early 3D games built their overworlds: a grid of flat-shaded triangles with a height at every
-   * corner, raised toward the viewer like a tilted camera, drawn back to front on cliff walls along the coast.
+   * Terrain the way early 3D games built their overworlds (decision 63): a grid of triangles with heights and
+   * baked light, seen through the tilted camera or on the globe, standing on cliff walls along the coast, fading
+   * into haze at the draw distance.
    */
   private drawLowPoly(proj: GeoProjection, t: Theme) {
-    const { ctx, w, h: height } = this;
+    const { ctx, w, h: H } = this;
     const lp = t.lowPoly!;
     const base = this.low ?? this.high;
     if (!base) return;
-    if (!this.terrain || this.terrain.base !== base || this.terrain.relief !== this.relief) {
-      this.terrain = { base, relief: this.relief, mesh: buildTerrain(base, this.relief, lp.step) };
+    if (!this.rasters || this.rasters.base !== base) {
+      this.rasters = { base, isLand: raster(base.land), isIce: raster(base.ice) };
+      this.meshes.clear();
     }
-    const m = this.terrain.mesh;
+    if (!this.meshFor || this.meshFor.base !== base || this.meshFor.relief !== this.relief) {
+      this.meshFor = { base, relief: this.relief };
+      this.meshes.clear();
+    }
+    const step = TERRAIN_STEPS.find(([z]) => this.zoom < z)![1];
+    let m = this.meshes.get(step);
+    if (!m) {
+      m = buildTerrain({ ...lp, isLand: this.rasters.isLand, isIce: this.rasters.isIce, peaks: this.relief?.peaks ?? [], step, anchors: [...this.anchors.values()] });
+      this.meshes.set(step, m);
+    }
+    this.terrainNow = m;
+    const cam = this.cam;
+    const globe = this.mode === "3d";
     const R = proj.scale();
-    // Screen pixels per unit of height, growing with the map so mountains keep their shape when zoomed.
-    const lift = R * 0.022;
-    const flat = this.mode === "2d";
-    const n = m.lon.length;
-    const X = new Float32Array(n);
-    const Y = new Float32Array(n);
-    const seen = new Uint8Array(n);
-    const project = (i: number) => {
-      if (seen[i]) return seen[i] === 1;
-      const lo = m.lon[i]!, la = m.lat[i]!;
-      const p = this.visible(lo, la) ? proj([lo, la]) : null;
-      if (!p) {
-        seen[i] = 2;
-        return false;
-      }
-      X[i] = p[0];
-      Y[i] = p[1];
-      seen[i] = 1;
-      return true;
-    };
-    const tri = m.tris;
+    const [gcx, gcy] = proj.translate();
+    const lift = this.liftPx;
+    const fog = hexRgb(t.fog ?? "#ffffff");
+
+    // Only triangles that can be on screen: the facing half of the globe, or a window around the flat map's centre
+    // that reaches further north, toward the horizon, under the tilted camera.
+    const T = m.rgb.length;
     const order: number[] = [];
-    for (let k = 0; k < tri.length; k += 3) {
-      const a = tri[k]!, b = tri[k + 1]!, c = tri[k + 2]!;
-      if (!project(a) || !project(b) || !project(c)) continue;
+    if (globe) {
+      const [ux, uy, uz] = unitOf(this.lon, this.lat);
+      for (let i = 0; i < T; i++) if (m.cx[i]! * ux + m.cy[i]! * uy + m.cz[i]! * uz > 0.06) order.push(i);
+    } else {
+      const degPerPx = DEG / R;
+      const halfW = (w / 2) * degPerPx * (cam ? 1.9 : 1.1) + m.step * 2;
+      const halfH = (H / 2) * degPerPx;
+      const north = this.lat + halfH * (cam ? 3.5 : 1.2) + m.step * 2;
+      const south = this.lat - halfH * 1.3 - m.step * 2;
+      for (let i = 0; i < T; i++) {
+        const dl = ((((m.clon[i]! - this.lon) % 360) + 540) % 360) - 180;
+        if (Math.abs(dl) > halfW || m.clat[i]! > north || m.clat[i]! < south) continue;
+        order.push(i);
+      }
+    }
+
+    let wk = this.work.get(m);
+    if (!wk) {
+      const n = m.lon.length;
+      wk = { X: new Float32Array(n), Y: new Float32Array(n), S: new Float32Array(n), stamp: new Int32Array(n) };
+      this.work.set(m, wk);
+    }
+    const { X, Y, S, stamp } = wk;
+    const frame = ++this.frameNo;
+    const vert = (i: number) => {
+      if (stamp[i] === frame) return;
+      stamp[i] = frame;
+      const p = proj([m.lon[i]!, m.lat[i]!])!;
+      const hp = m.h[i]! * lift;
+      if (cam) {
+        const q = this.tp(p[0], p[1], hp, cam);
+        X[i] = q[0];
+        Y[i] = q[1];
+        S[i] = q[2];
+      } else if (globe) {
+        const k = 1 + hp / R;
+        X[i] = gcx + (p[0] - gcx) * k;
+        Y[i] = gcy + (p[1] - gcy) * k;
+        S[i] = Math.hypot(p[0] - gcx, p[1] - gcy) / R;
+      } else {
+        X[i] = p[0];
+        Y[i] = p[1] - hp;
+        S[i] = 1;
+      }
+    };
+    // How far into the haze a point is: toward the draw distance on the tilted map, toward the rim on the globe.
+    const haze = (i: number) => (cam ? (0.92 - S[i]!) / 0.3 : globe ? (S[i]! - 0.72) / 0.4 : 0);
+
+    const tris = m.tris;
+    const drawn: number[] = [];
+    for (const i of order) {
+      const a = tris[3 * i]!, b = tris[3 * i + 1]!, c = tris[3 * i + 2]!;
+      vert(a);
+      vert(b);
+      vert(c);
+      // Past the draw distance, the ground is gone into the haze.
+      if (cam && Math.min(S[a]!, S[b]!, S[c]!) < 0.5) continue;
       const minX = Math.min(X[a]!, X[b]!, X[c]!), maxX = Math.max(X[a]!, X[b]!, X[c]!);
-      // A cell cut by the flat map's edge would stretch across the whole sheet.
-      if (flat && maxX - minX > w / 3) continue;
+      if (!globe && maxX - minX > w / 3) continue;
       if (maxX < -40 || minX > w + 40) continue;
       const minY = Math.min(Y[a]!, Y[b]!, Y[c]!);
-      if (minY > height + 40 || Math.max(Y[a]!, Y[b]!, Y[c]!) < -60) continue;
-      order.push(k);
+      if (minY > H + 40 || Math.max(Y[a]!, Y[b]!, Y[c]!) < -80) continue;
+      drawn.push(i);
     }
+    // Far first. The grid runs north to south, which is far to near on the tilted map; the globe sorts by
+    // distance from its centre.
+    if (globe) drawn.sort((p, q) => S[tris[3 * q]!]! - S[tris[3 * p]!]!);
 
-    // Cliff walls first: each coast edge swept down. Walls under land are covered by the triangles drawn after.
-    const depth = clamp(R * 0.02, 4, 16);
-    const [cliff, cliffLight, cliffDark] = lp.cliff;
-    const walls = new Path2D();
+    // Shallows and cliffs along the coast, under the land.
+    const depth = clamp(R * 0.018, 3, 14);
+    const shallowText: string[] = [];
+    const wallText: string[] = [];
     const coast = m.coast;
+    const winX = w / 3;
+    const q = (v: number) => Math.round(v * 10) / 10;
     for (let k = 0; k < coast.length; k += 2) {
       const a = coast[k]!, b = coast[k + 1]!;
-      if (!project(a) || !project(b)) continue;
-      if (flat && Math.abs(X[a]! - X[b]!) > w / 3) continue;
-      walls.moveTo(X[a]!, Y[a]!);
-      walls.lineTo(X[b]!, Y[b]!);
-      walls.lineTo(X[b]!, Y[b]! + depth);
-      walls.lineTo(X[a]!, Y[a]! + depth);
-      walls.closePath();
+      if (stamp[a] !== frame || stamp[b] !== frame) continue;
+      if (!globe && Math.abs(X[a]! - X[b]!) > winX) continue;
+      if (cam && Math.min(S[a]!, S[b]!) < 0.5) continue;
+      const da = depth * (cam ? S[a]! : 1), db = depth * (cam ? S[b]! : 1);
+      const ax = q(X[a]!), ay = q(Y[a]!), bx = q(X[b]!), by = q(Y[b]!);
+      shallowText.push(`M${ax} ${q(ay + da)}L${bx} ${q(by + db)}`);
+      wallText.push(`M${ax} ${ay}L${bx} ${by}L${bx} ${q(by + db)}L${ax} ${q(ay + da)}Z`);
     }
-    ctx.fillStyle = cliff;
-    ctx.fill(walls);
-    ctx.fillStyle = this.pattern("mottle", cliffLight, cliffDark);
-    ctx.fill(walls);
-
-    // Far first: the triangle whose ground sits higher on the screen is further away.
-    order.sort((p, q) => Y[tri[p]!]! + Y[tri[p + 1]!]! + Y[tri[p + 2]!]! - (Y[tri[q]!]! + Y[tri[q + 1]!]! + Y[tri[q + 2]!]!));
-    const H = m.h;
-    const [gr, gg, gb] = lp.grass;
-    const [rr, rg, rb] = lp.rock;
-    // Light from the upper left and above.
-    const LX = -0.45, LY = -0.55, LZ = 0.7;
+    const shallows = new Path2D(shallowText.join(""));
+    const walls = new Path2D(wallText.join(""));
+    ctx.save();
     ctx.lineJoin = "round";
-    ctx.lineWidth = 0.6;
-    for (const k of order) {
-      const a = tri[k]!, b = tri[k + 1]!, c = tri[k + 2]!;
-      const ha = H[a]! * lift, hb = H[b]! * lift, hc = H[c]! * lift;
-      const ax = X[a]!, ay = Y[a]! - ha, bx = X[b]!, by = Y[b]! - hb, cx = X[c]!, cy = Y[c]! - hc;
-      // The face's normal from its corners on the ground and their heights.
-      const ux = X[b]! - ax, uy = Y[b]! - Y[a]!, uz = hb - ha;
-      const vx = X[c]! - ax, vy = Y[c]! - Y[a]!, vz = hc - ha;
-      let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
-      if (nz < 0) (nx = -nx), (ny = -ny), (nz = -nz);
-      const len = Math.hypot(nx, ny, nz) || 1;
-      const light = Math.max(0.35, (nx * LX + ny * LY + nz * LZ) / len) * 1.25;
-      const top = Math.max(H[a]!, H[b]!, H[c]!);
-      let r: number, g: number, bl: number;
-      if (m.ice[k / 3] || top > 4.2) (r = 236), (g = 242), (bl = 252);
-      else if (top > 1.6) (r = rr), (g = rg), (bl = rb);
-      else (r = gr), (g = gg), (bl = gb);
-      const col = `rgb(${Math.min(255, r * light) | 0},${Math.min(255, g * light) | 0},${Math.min(255, bl * light) | 0})`;
-      ctx.beginPath();
-      ctx.moveTo(ax, ay);
-      ctx.lineTo(bx, by);
-      ctx.lineTo(cx, cy);
-      ctx.closePath();
-      ctx.fillStyle = col;
-      ctx.strokeStyle = col;
-      ctx.fill();
-      // The same colour along the edges closes the hairline gaps between neighbours.
-      ctx.stroke();
+    ctx.lineCap = "round";
+    ctx.lineWidth = depth * 1.6;
+    ctx.strokeStyle = lp.shallows;
+    ctx.globalAlpha = 0.85;
+    ctx.stroke(shallows);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = lp.cliff[0];
+    ctx.fill(walls);
+    ctx.globalCompositeOperation = "soft-light";
+    ctx.fillStyle = this.worldTexture(proj, 0.5);
+    ctx.fill(walls);
+    ctx.restore();
+
+    // The land: flat fills in each triangle's baked colour, hazed with distance. Triangles are batched by colour
+    // within a band (a row of the grid on the tilted map, a ring of distance on the globe), and bands are drawn far
+    // to near, so near peaks still cover far ones with few fills. All the land is filled once in grass first, and
+    // each batch is outlined in its own colour, so no hairline gap between neighbouring triangles shows the sea.
+    // Paths are built as SVG path text and handed to the canvas once per colour: thousands of separate moveTo and
+    // lineTo calls cost more than the drawing itself.
+    const landText: string[] = [];
+    const bands: Map<string, string[]>[] = [];
+    let batch = new Map<string, string[]>();
+    let band = NaN;
+    const r1 = (v: number) => Math.round(v * 10) / 10;
+    for (const i of drawn) {
+      const a = tris[3 * i]!, b = tris[3 * i + 1]!, c = tris[3 * i + 2]!;
+      const here = globe ? Math.round(S[a]! * 24) : Math.round(m.clat[i]! / m.step);
+      if (here !== band) {
+        batch = new Map();
+        bands.push(batch);
+        band = here;
+      }
+      const f = Math.max(0, Math.min(1, haze(a)));
+      const level = Math.round(f * 8);
+      const key = m.rgb[i]! * 16 + level;
+      let col = this.fogStrings.get(key);
+      if (!col) {
+        col = fogged(m.rgb[i]!, fog, level / 8);
+        this.fogStrings.set(key, col);
+      }
+      const tri = `M${r1(X[a]!)} ${r1(Y[a]!)}L${r1(X[b]!)} ${r1(Y[b]!)}L${r1(X[c]!)} ${r1(Y[c]!)}Z`;
+      let list = batch.get(col);
+      if (!list) batch.set(col, (list = []));
+      list.push(tri);
+      landText.push(tri);
     }
+    const land = new Path2D(landText.join(""));
+    ctx.fillStyle = `rgb(${lp.grass.map((v) => Math.round(v * 0.85)).join(",")})`;
+    ctx.fill(land);
+    ctx.lineWidth = 0.8;
+    for (const bm of bands)
+      for (const [col, list] of bm) {
+        const path = new Path2D(list.join(""));
+        ctx.fillStyle = col;
+        ctx.strokeStyle = col;
+        ctx.fill(path);
+        ctx.stroke(path);
+      }
+    // Blurry low-resolution texture over the land, tied to the world.
+    ctx.save();
+    ctx.globalCompositeOperation = "soft-light";
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = this.worldTexture(proj, 0.35);
+    ctx.fill(land);
+    ctx.restore();
   }
 
   private drawRelief(proj: GeoProjection, t: Theme) {
@@ -1095,10 +1415,10 @@ export class MapView {
     ctx.setLineDash([]);
     for (const [lon, lat] of this.arcs.to) {
       if (!this.visible(lon, lat)) continue;
-      const p = proj([lon, lat]);
+      const p = this.placeAt(proj, lon, lat);
       if (!p) continue;
       ctx.beginPath();
-      ctx.arc(p[0], p[1], 9, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
       ctx.stroke();
     }
     ctx.restore();
@@ -1113,13 +1433,15 @@ export class MapView {
 
     // Project the places shown at this zoom, then merge those that would overlap on screen.
     // Largest first, so a merged dot sits on its busiest place.
-    const shown: { d: Dot; x: number; y: number }[] = [];
+    const shown: { d: Dot; x: number; y: number; s: number }[] = [];
     for (const d of this.dots) {
       if (d.tier > level || !this.visible(d.lon, d.lat)) continue;
-      const p = proj([d.lon, d.lat]);
+      const p = this.placeAt(proj, d.lon, d.lat);
       if (!p) continue;
-      if (p[0] < -20 || p[1] < -20 || p[0] > this.w + 20 || p[1] > this.h + 20) continue;
-      shown.push({ d, x: p[0], y: p[1] });
+      // Beyond the tilted camera's draw distance the map is haze; its places are reached by dragging closer.
+      if (this.cam && p.s < 0.5) continue;
+      if (p.x < -20 || p.y < -20 || p.x > this.w + 20 || p.y > this.h + 20) continue;
+      shown.push({ d, x: p.x, y: p.y, s: p.s });
     }
     shown.sort((a, b) => b.d.weight - a.d.weight || b.d.count - a.d.count);
     const spots: Spot[] = [];
@@ -1137,11 +1459,29 @@ export class MapView {
     }
     // Size follows the place's most important story and its number of reports (decision 46), so one major
     // story reads as larger than a busy city of minor ones. Colour still means only "reported in the last hour".
+    // A marker never shrinks with distance: its size means the number of reports, not how far away it is.
+    const float = !!t.lowPoly;
     for (const s of spots) {
       s.indices.sort((a, b) => a - b);
       s.r = Math.min(13, 1.4 + s.weight * 0.9 + Math.sqrt(s.count) * 0.8) * zoomK;
+      if (float) {
+        // Polygon Kingdom's markers float just above the ground, over a round shadow, as objects did in those games.
+        s.gx = s.x;
+        s.gy = s.y;
+        s.y = s.y - s.r - 3;
+      }
     }
     this.screen = spots;
+    if (float) {
+      ctx.save();
+      ctx.fillStyle = "rgba(0,0,0,0.28)";
+      for (const s of spots) {
+        ctx.beginPath();
+        ctx.ellipse(s.gx!, s.gy!, s.r * 0.9, s.r * 0.32, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
 
     const tunedKey = this.tuned ? key(this.tuned) : null;
     let tunedAt: Spot | null = null;
@@ -1178,20 +1518,15 @@ export class MapView {
       shape(x, y, r);
       ctx.fillStyle = hollow ? t.dotStroke : ink;
       ctx.fill();
-      if (t.dotShape === "coin" && !hollow) {
-        // A coin: a darker rim, a slot down the middle and a glint at the upper left.
+      if (t.dotShape === "bevel" && !hollow) {
+        // A bevelled disc: light on the upper left, a darker rim below.
         ctx.save();
         ctx.shadowBlur = 0;
-        ctx.beginPath();
-        ctx.arc(x, y, r * 0.72, 0, Math.PI * 2);
-        ctx.lineWidth = Math.max(1, r * 0.18);
-        ctx.strokeStyle = "rgba(0,0,0,0.22)";
-        ctx.stroke();
-        ctx.fillStyle = t.dotStroke;
-        ctx.fillRect(x - r * 0.13, y - r * 0.45, r * 0.26, r * 0.9);
-        ctx.beginPath();
-        ctx.arc(x - r * 0.35, y - r * 0.4, r * 0.22, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, 0, x, y, r);
+        g.addColorStop(0, "rgba(255,255,255,0.65)");
+        g.addColorStop(0.45, "rgba(255,255,255,0)");
+        g.addColorStop(1, "rgba(0,0,0,0.25)");
+        ctx.fillStyle = g;
         ctx.fill();
         ctx.restore();
         ctx.beginPath();
