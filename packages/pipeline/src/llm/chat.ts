@@ -9,6 +9,7 @@ import { costUsd, type Usage } from "./pricing.js";
 import { assertUnderCeiling } from "./spend.js";
 import { LlmParseError, type Llm, type ParseOutcome, type ParseRequest } from "./types.js";
 import { isJudgment, modelFor } from "./models.js";
+import { noControlDeep } from "../text.js";
 
 /**
  * max_tokens per model. Always sent: DeepSeek otherwise stops at 8K without thinking, which a busy day's cluster
@@ -140,7 +141,7 @@ export function createChatLlm(
     if (!text) throw new LlmParseError(req.stage, "empty output");
     let raw: unknown;
     try {
-      raw = JSON.parse(stripFence(text));
+      raw = noControlDeep(JSON.parse(stripFence(text)));
     } catch {
       throw new LlmParseError(req.stage, "output was not JSON");
     }

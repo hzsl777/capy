@@ -9,6 +9,7 @@ import { costUsd, type Usage } from "./pricing.js";
 import { assertUnderCeiling } from "./spend.js";
 import { LlmParseError, type Llm, type ParseOutcome, type ParseRequest } from "./types.js";
 import { modelFor } from "./models.js";
+import { noControlDeep } from "../text.js";
 
 const MAX_TOKENS = 16000;
 const BATCH_POLL_MS = 30_000;
@@ -61,7 +62,7 @@ export function createAnthropicLlm(config: Config, db: Db, sleep: (ms: number) =
     if (response.stop_reason === "refusal") throw new LlmParseError(req.stage, `refusal: ${response.stop_details?.explanation ?? "no explanation"}`);
     if (response.stop_reason === "max_tokens") throw new LlmParseError(req.stage, "output hit max_tokens");
     if (!response.parsed_output) throw new LlmParseError(req.stage, "output did not match the schema");
-    return response.parsed_output;
+    return noControlDeep(response.parsed_output);
   }
 
   async function parseMany<T extends z.ZodType>(reqs: ParseRequest<T>[], date: RunDate): Promise<Map<string, ParseOutcome<z.infer<T>>>> {
@@ -105,7 +106,7 @@ export function createAnthropicLlm(config: Config, db: Db, sleep: (ms: number) =
         continue;
       }
       try {
-        out.set(req.id, { ok: true, value: formats.get(req.id)!.parse(textOf(message)) });
+        out.set(req.id, { ok: true, value: noControlDeep(formats.get(req.id)!.parse(textOf(message))) });
       } catch (err) {
         out.set(req.id, { ok: false, error: `output did not match the schema: ${err instanceof Error ? err.message : String(err)}` });
       }

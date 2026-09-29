@@ -2,6 +2,7 @@ import Parser from "rss-parser";
 import { eq } from "drizzle-orm";
 import { ArticleSchema, ingestWindow, type Article, type RunDate, type Source } from "@2dayai/core";
 import { articles, sources as sourcesTable, type Db } from "@2dayai/db";
+import { noControl } from "../text.js";
 
 const parser = new Parser({ timeout: 20_000, headers: { "User-Agent": "2dayai/0.1 (+https://github.com/hzsl777/capy)" } });
 
@@ -57,7 +58,7 @@ export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Pr
 }
 
 function stripHtml(s: string | undefined): string {
-  return (s ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+  return noControl(s ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 }
 
 /** Pure: turns one feed document into articles inside the run date's window. No network, no database. */

@@ -5,6 +5,7 @@ import { parseHTML } from "linkedom";
 import { and, eq, gte, inArray, isNull, lt, type SQL } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
 import { articles, sources, type Db } from "@2dayai/db";
+import { noControl } from "../text.js";
 
 export const MIN_BODY_CHARS = 400;
 export const MAX_BODY_CHARS = 30_000;
@@ -28,7 +29,7 @@ export function extractArticleText(html: string, url: string): string {
   const { document } = parseHTML(html);
   // Readability wants a real document; linkedom's is close enough for text extraction.
   const article = new Readability(document as unknown as ConstructorParameters<typeof Readability>[0], { charThreshold: 200 }).parse();
-  const text = (article?.textContent ?? "").replace(/\s+/g, " ").trim();
+  const text = noControl(article?.textContent ?? "").replace(/\s+/g, " ").trim();
   void url;
   return text.length >= MIN_BODY_CHARS ? text.slice(0, MAX_BODY_CHARS) : "";
 }
