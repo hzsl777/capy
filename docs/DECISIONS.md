@@ -419,3 +419,20 @@ Davis asked for a clearer order of stories on the map, a plain label for how the
 5. Cotton Candy is renamed Candy Shop and gets candy drawings (wrapped sweets, lollipops, swirls) at the same fixed ocean spots as Pirate's creatures. A saved or linked `cotton` opens Candy Shop.
 6. Five designs are added: 8-Bit, 16-Bit and 64-Bit, after the feel of the side-scrolling action, role-playing and 3D adventure games of each console era (pixel rendering, square dots and tiled or shimmering water for the first two, gold-trimmed windows on a globe for the third), without copying any game's art, names or layouts; Realize, after the colours and hand-drawn look of two 2005 album covers; and UFO, a dark globe with green linework and small saucers at the same ocean spots. No game, band or album is named on the site.
 7. Wire Room's word is phosphor text between two terminal rules instead of a solid green block.
+
+## 58. The console designs get names and their own graphics, and the Key opens beside the map (September 29, 2026)
+
+Davis found the three console designs plain and too alike, Realize's lettering off, UFO too close to the other dark green designs, and the Key in the way of the map. This changes items 2 and 6 of decision 57.
+
+1. The console designs are renamed and each gets its own kind of graphics:
+   - **Stage Select** (was 8-Bit): hard pixels at a third of the resolution, land built from bevelled metal blocks, a tiled sea, square markers, and a strip of blocks under the masthead.
+   - **Overworld** (was 16-Bit): finer pixels, pixel grass, sandy shores, lighter shallows along every coast, glinting water, round markers, a pixel serif for text, and a pointer beside whatever menu is open.
+   - **Polygon Kingdom** (was 64-Bit): the globe and map covered in flat-shaded triangles (a subdivided icosahedron, shaded by a fixed hash, the same everywhere), diamond markers, and faceted gold-trimmed windows.
+
+   Their ids (`bit8`, `bit16`, `bit64`) stay, so saved choices and links keep working.
+2. Realize uses scrawled and brush lettering (Rock Salt, Caveat Brush), paint strokes in yellow and violet over the red-orange land and pink strokes over the sea, a word painted half warm and half cool, cut-paper panels, and controls that alternate red and violet.
+3. UFO becomes a 1950s saucer picture: deep teal sea and sky, clay land, moon-white coasts, a full moon behind the globe, yellow for fresh reports, and a period display face with a plain one for the word and headlines.
+4. The Key is a small button on the map. It opens a panel beside the map (over the story list on a wide screen, as a sheet at the bottom of a phone) with a close button. Escape or a click anywhere else also closes it.
+5. On a phone the design menu is only as wide as the chosen design's name, so the toolbar stays one row in every design at 360 pixels.
+
+Marker shape (circle, square or diamond) is part of a design and never carries meaning. The three symbols of decision 57 read the same in every shape.

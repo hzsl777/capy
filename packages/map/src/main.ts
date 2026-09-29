@@ -31,7 +31,14 @@ import "@fontsource/cinzel/400.css";
 import "@fontsource/cinzel/700.css";
 import "@fontsource/permanent-marker/400.css";
 import "@fontsource/patrick-hand/400.css";
-import "@fontsource/audiowide/400.css";
+import "@fontsource/rock-salt/400.css";
+import "@fontsource/caveat-brush/400.css";
+import "@fontsource/atomic-age/400.css";
+import "@fontsource/righteous/400.css";
+import "@fontsource/josefin-sans/400.css";
+import "@fontsource/josefin-sans/600.css";
+import "@fontsource/dotgothic16/latin-400.css";
+import "@fontsource/dotgothic16/latin-ext-400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -293,15 +300,18 @@ function renderKey() {
   const NS = "http://www.w3.org/2000/svg";
   const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string) => void) => void) => {
     const svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("viewBox", "-12 -12 24 24");
+    svg.setAttribute("viewBox", "-13 -13 26 26");
     svg.setAttribute("width", "22");
     svg.setAttribute("height", "22");
     svg.setAttribute("aria-hidden", "true");
     svg.style.background = t.ocean;
     svg.style.borderRadius = "4px";
     draw((r, fill, stroke, width, dash) => {
-      const el = document.createElementNS(NS, t.dotShape === "square" ? "rect" : "circle");
-      if (t.dotShape === "square") {
+      const el = document.createElementNS(NS, t.dotShape === "square" ? "rect" : t.dotShape === "diamond" ? "polygon" : "circle");
+      if (t.dotShape === "diamond") {
+        const d = r * 1.3;
+        el.setAttribute("points", `0,${-d} ${d},0 0,${d} ${-d},0`);
+      } else if (t.dotShape === "square") {
         el.setAttribute("x", String(-r));
         el.setAttribute("y", String(-r));
         el.setAttribute("width", String(r * 2));
@@ -926,6 +936,12 @@ function closeMenus() {
   for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) d.open = false;
 }
 
+/** The key opens beside the map, over the panel on a wide screen and as a sheet at the bottom of a phone. */
+function setKey(open: boolean) {
+  $("key-pop").hidden = !open;
+  $("key-btn").setAttribute("aria-expanded", String(open));
+}
+
 /** On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. */
 function placeAbout() {
   if (phone.matches) $("masthead").append($("about-btn"));
@@ -940,8 +956,17 @@ function bindGlobal() {
   });
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
+  $("key-btn").addEventListener("click", () => {
+    closeMenus();
+    setKey($("key-pop").hidden);
+  });
+  $("key-close").addEventListener("click", () => {
+    setKey(false);
+    $("key-btn").focus();
+  });
   $("about-btn").addEventListener("click", () => {
     closeMenus();
+    setKey(false);
     ($("about") as HTMLDialogElement).showModal();
   });
   $("translate").addEventListener("click", () => {
@@ -953,7 +978,10 @@ function bindGlobal() {
   document.addEventListener("keydown", (e) => {
     const target = e.target as HTMLElement;
     if (target.closest("input, textarea, select, dialog")) return;
-    if (e.key === "Escape" && (state.event || state.telegram || state.reader)) {
+    if (e.key === "Escape" && !$("key-pop").hidden) {
+      setKey(false);
+      $("key-btn").focus();
+    } else if (e.key === "Escape" && (state.event || state.telegram || state.reader)) {
       if (state.event) state.event = null;
       else if (state.telegram) closeTelegram();
       else closeReader();
@@ -970,6 +998,7 @@ function bindGlobal() {
     for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) {
       if (!path.includes(d)) d.open = false;
     }
+    if (!$("key-pop").hidden && !path.includes($("key-pop")) && !path.includes($("key-btn"))) setKey(false);
   });
 }
 

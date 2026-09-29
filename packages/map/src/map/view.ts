@@ -1,4 +1,5 @@
 import {
+  geoArea,
   geoDistance,
   geoGraticule,
   geoInterpolate,
@@ -58,6 +59,61 @@ interface Spot {
 
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
+
+type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "tiles" | "shimmer";
+
+/** Shades for the five facet groups, lightest first; the middle group is left as it is. */
+const FACET_INK = ["rgba(255,255,255,0.13)", "rgba(255,255,255,0.06)", null, "rgba(0,0,0,0.07)", "rgba(0,0,0,0.15)"];
+let facetCache: GeoPermissibleObjects[] | null = null;
+
+/**
+ * An icosahedron split three times (1,280 triangles about 7 degrees across) as lon/lat polygons, in five groups
+ * by a fixed hash so neighbouring faces differ. Built once.
+ */
+function facets(): GeoPermissibleObjects[] {
+  if (facetCache) return facetCache;
+  const t = (1 + Math.sqrt(5)) / 2;
+  let verts: number[][] = [
+    [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0], [0, -1, t], [0, 1, t],
+    [0, -1, -t], [0, 1, -t], [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
+  ];
+  let faces = [
+    [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11], [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
+    [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9], [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
+  ];
+  const unit = (v: number[]) => {
+    const l = Math.hypot(v[0]!, v[1]!, v[2]!);
+    return v.map((c) => c / l);
+  };
+  verts = verts.map(unit);
+  for (let level = 0; level < 3; level++) {
+    const mid = new Map<string, number>();
+    const at = (a: number, b: number) => {
+      const k = a < b ? `${a},${b}` : `${b},${a}`;
+      let i = mid.get(k);
+      if (i === undefined) {
+        i = verts.push(unit(verts[a]!.map((c, j) => c + verts[b]![j]!))) - 1;
+        mid.set(k, i);
+      }
+      return i;
+    };
+    faces = faces.flatMap(([a, b, c]) => {
+      const ab = at(a!, b!), bc = at(b!, c!), ca = at(c!, a!);
+      return [[a!, ab, ca], [b!, bc, ab], [c!, ca, bc], [ab, bc, ca]];
+    });
+  }
+  const lonLat = (v: number[]): [number, number] => [(Math.atan2(v[1]!, v[0]!) * 180) / Math.PI, (Math.asin(v[2]!) * 180) / Math.PI];
+  const groups: [number, number][][][][] = [[], [], [], [], []];
+  faces.forEach((f, i) => {
+    let ring = [...f, f[0]!].map((k) => lonLat(verts[k]!));
+    // d3 reads a ring wound the wrong way as everything outside it.
+    if (geoArea({ type: "Polygon", coordinates: [ring] }) > 2 * Math.PI) ring = ring.reverse();
+    const h = Math.abs(Math.sin(i * 12.9898 + f[0]! * 78.233) * 43758.5453) % 1;
+    groups[Math.min(4, Math.floor(h * 5))]!.push([ring]);
+  });
+  facetCache = groups.map((coordinates) => ({ type: "MultiPolygon", coordinates }) as GeoPermissibleObjects);
+  return facetCache;
+}
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
 const MAX_ZOOM = 14;
@@ -600,29 +656,61 @@ export class MapView {
     }
   }
 
-  private pattern(kind: "halftone" | "matrix" | "dither" | "tiles" | "shimmer" | "hatch", ink: string): CanvasPattern {
-    const key = `${kind}:${ink}:${this.dpr}`;
+  private pattern(kind: PatternKind, ink: string, ink2 = ink): CanvasPattern {
+    const key = `${kind}:${ink}:${ink2}:${this.dpr}`;
     let p = this.patterns.get(key);
     if (p) return p;
-    if (kind === "dither" || kind === "tiles" || kind === "shimmer") {
-      // Drawn in canvas pixels: a checkerboard dither, a grid of 8-pixel tiles, or broken glints on water.
+    if (kind === "dither" || kind === "tiles" || kind === "shimmer" || kind === "blocks" || kind === "grass") {
+      // Drawn in canvas pixels, so they stay crisp and blocky in the pixel designs: a checkerboard dither, a grid of
+      // 8-pixel tiles, broken glints on water, bevelled blocks (light top and left edges, dark bottom and right,
+      // one rivet), or tufts of grass in two shades.
       const dc = document.createElement("canvas");
-      const n = kind === "dither" ? 2 : kind === "tiles" ? 8 : 12;
+      const n = kind === "dither" ? 2 : kind === "shimmer" ? 12 : 8;
       dc.width = dc.height = n;
       const dg = dc.getContext("2d")!;
-      dg.fillStyle = ink;
-      if (kind === "dither") {
-        dg.fillRect(0, 0, 1, 1);
-        dg.fillRect(1, 1, 1, 1);
-      } else if (kind === "tiles") {
-        dg.fillRect(0, 0, n, 1);
-        dg.fillRect(0, 0, 1, n);
-        dg.fillRect(3, 3, 2, 2);
+      const dot = (c: string, cells: number[][]) => {
+        dg.fillStyle = c;
+        for (const [x, y, w = 1, hh = 1] of cells) dg.fillRect(x!, y!, w, hh);
+      };
+      if (kind === "dither") dot(ink, [[0, 0], [1, 1]]);
+      else if (kind === "tiles") dot(ink, [[0, 0, n, 1], [0, 0, 1, n], [3, 3, 2, 2]]);
+      else if (kind === "shimmer") dot(ink, [[1, 2, 3, 1], [7, 8, 2, 1]]);
+      else if (kind === "blocks") {
+        dot(ink2, [[0, 0, 7, 1], [0, 0, 1, 7], [2, 2]]);
+        dot(ink, [[1, 7, 7, 1], [7, 1, 1, 7], [3, 3]]);
       } else {
-        dg.fillRect(1, 2, 3, 1);
-        dg.fillRect(7, 8, 2, 1);
+        dot(ink, [[1, 1], [2, 0], [5, 4], [6, 3], [3, 6]]);
+        dot(ink2, [[4, 1], [0, 5], [7, 6], [2, 3]]);
       }
       p = this.ctx.createPattern(dc, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
+    if (kind === "brush") {
+      // Loose paint: short thick strokes at fixed pseudo-random spots, each drawn again one tile over in every
+      // direction so strokes cross the tile's edge without a seam.
+      const size = 96;
+      const pc = document.createElement("canvas");
+      pc.width = pc.height = Math.round(size * this.dpr);
+      const g = pc.getContext("2d")!;
+      g.scale(this.dpr, this.dpr);
+      g.lineCap = "round";
+      let seed = 7;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      for (let i = 0; i < 16; i++) {
+        const x = rnd() * size, y = rnd() * size, a = -1.4 + rnd() * 1.8, len = 6 + rnd() * 14;
+        g.strokeStyle = i % 2 ? ink2 : ink;
+        g.lineWidth = 2.5 + rnd() * 3;
+        for (const ox of [-size, 0, size])
+          for (const oy of [-size, 0, size]) {
+            g.beginPath();
+            g.moveTo(x + ox, y + oy);
+            g.quadraticCurveTo(x + ox + len * 0.5, y + oy + len * Math.sin(a) * 0.2 - 2, x + ox + len * Math.cos(a), y + oy + len * Math.sin(a));
+            g.stroke();
+          }
+      }
+      p = this.ctx.createPattern(pc, "repeat")!;
       p.setTransform(new DOMMatrix().scale(1 / this.dpr));
       this.patterns.set(key, p);
       return p;
@@ -713,6 +801,16 @@ export class MapView {
     ctx.setLineDash([]);
 
     if (map) this.drawMap(path, proj, map, t);
+    if (t.facets) {
+      // Low-poly: every triangle of a fixed subdivided icosahedron gets one of five flat shades.
+      for (const [i, shape] of facets().entries()) {
+        if (!FACET_INK[i]) continue;
+        ctx.beginPath();
+        path(shape);
+        ctx.fillStyle = FACET_INK[i]!;
+        ctx.fill();
+      }
+    }
     if (this.mode === "3d" && t.shade) {
       // Lit from the upper left, darker toward the rim, so the globe reads as a solid.
       const g = ctx.createRadialGradient(w / 2 - R * 0.38, h / 2 - R * 0.42, R * 0.15, w / 2, h / 2, R * 1.02);
@@ -767,10 +865,17 @@ export class MapView {
       }
     }
 
+    if (t.shallows) {
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = t.shallows;
+      ctx.stroke(coast);
+    }
+
     ctx.fillStyle = t.land;
     ctx.fill(land);
     if (t.landTexture !== "none") {
-      ctx.fillStyle = this.pattern(t.landTexture, t.textureInk);
+      ctx.fillStyle = this.pattern(t.landTexture, t.textureInk, t.textureInk2);
       ctx.fill(land);
     }
 
@@ -906,7 +1011,14 @@ export class MapView {
     // A circle, or a square snapped to whole canvas pixels for the pixel designs.
     const shape = (x: number, y: number, r: number) => {
       if (t.dotShape === "square") ctx.rect(Math.round(x - r), Math.round(y - r), Math.round(r * 2), Math.round(r * 2));
-      else ctx.arc(x, y, r, 0, Math.PI * 2);
+      else if (t.dotShape === "diamond") {
+        const d = r * 1.3;
+        ctx.moveTo(x, y - d);
+        ctx.lineTo(x + d, y);
+        ctx.lineTo(x, y + d);
+        ctx.lineTo(x - d, y);
+        ctx.closePath();
+      } else ctx.arc(x, y, r, 0, Math.PI * 2);
     };
     // Three symbols by the place's most important story (decision 57), drawn least important first so the most
     // important always sit on top: hollow for importance 1 and GDELT local stories, filled for 2 and 3, filled

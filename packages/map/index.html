@@ -42,10 +42,7 @@
     <main class="stage">
       <div class="map" id="map">
         <div class="crosshair" aria-hidden="true"></div>
-        <details class="key" id="map-key">
-          <summary>Key</summary>
-          <div class="key-body" id="key-body"></div>
-        </details>
+        <button class="key-btn" id="key-btn" type="button" aria-expanded="false" aria-controls="key-pop">Key</button>
         <div class="zoom">
           <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
           <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
@@ -60,6 +57,13 @@
         </svg>
       </div>
       <aside class="panel" id="panel" tabindex="-1" aria-label="Stories"></aside>
+      <section class="key-pop" id="key-pop" aria-labelledby="key-title" hidden>
+        <div class="key-head">
+          <h2 id="key-title">Map key</h2>
+          <button class="key-close" id="key-close" type="button" aria-label="Close the key">&times;</button>
+        </div>
+        <div class="key-body" id="key-body"></div>
+      </section>
     </main>
 
     <footer class="timebar">

@@ -1,6 +1,6 @@
 ---
 name: design-themes
-description: Change the look of GlobalGist's thirteen designs (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, 8-Bit, 16-Bit, 64-Bit, Realize, UFO) or add a new one, covering canvas map styling, UI chrome, fonts, and the 2D/3D projections. Use for any visual or styling request on the map or panel.
+description: Change the look of GlobalGist's thirteen designs (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, UFO) or add a new one, covering canvas map styling, UI chrome, fonts, and the 2D/3D projections. Use for any visual or styling request on the map or panel.
 ---
 
 # Designs
@@ -26,7 +26,8 @@ Every design shows the same name and tagline from `src/brand.ts`. The row above 
 ## Rules that don't change between designs
 - No text on the map canvas, no borders (see packages/map/AGENTS.md "Neutrality rules").
 - "Fresh" must stay distinguishable from ordinary dots: by colour, or, for monochrome designs, by a dotted outer ring (set `fresh` equal to `dot` and `drawDots` adds it). The solid outer ring means importance 4 or 5 in every design (decision 57); keep the three symbols readable.
-- Pixel designs set `pixel` (the canvas renders at 1/pixel resolution) and `dotShape: "square"`.
+- Pixel designs set `pixel` (the canvas renders at 1/pixel resolution). `dotShape` may be a circle, square or diamond; shape never carries meaning.
+- Check the phone toolbar stays one row at 360 pixels wide with the design's fonts.
 - Keep text contrast readable: body text at least 4.5:1 against `--panel`.
 - Respect `prefers-reduced-motion` for anything animated.
 - Performance: the canvas redraws every frame while dragging, using the 110m basemap. Anything expensive goes behind `if (!this.interacting)`.

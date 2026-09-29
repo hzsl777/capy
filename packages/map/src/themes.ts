@@ -14,16 +14,21 @@ export interface Theme {
   projection2d: () => GeoProjection;
   ocean: string;
   land: string;
-  /** Land texture: halftone dots, a dot matrix, a two-colour dither in screen pixels, or plain fill. */
-  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "none";
+  /**
+   * Land texture: halftone dots, a dot matrix, a checkerboard dither, diagonal hatching, bevelled blocks like a
+   * tiled game stage, pixel grass, loose paint strokes, or plain fill. Blocks, grass and paint use `textureInk2`
+   * as their second colour.
+   */
+  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "none";
   /**
    * Screen pixels per canvas pixel. 1 draws at full resolution; 3 draws a third as many pixels and scales them up
-   * unsmoothed, so lines, coasts and dots come out as chunky pixels (the 8-Bit and 16-Bit designs).
+   * unsmoothed, so lines, coasts and dots come out as chunky pixels (Stage Select and Overworld).
    */
   pixel: number;
-  /** Place dots as circles or, for the pixel designs, squares. */
-  dotShape: "circle" | "square";
+  /** Place dots as circles, squares (the pixel designs) or diamonds (the polygon design). */
+  dotShape: "circle" | "square" | "diamond";
   textureInk: string;
+  textureInk2?: string;
   coast: string;
   coastWidth: number;
   /** Concentric strokes around coasts, the old engraved-map trick. */
@@ -34,7 +39,11 @@ export interface Theme {
    * A pattern over the sea in canvas pixels: "tiles" is a faint square grid like a stage built from tiles,
    * "shimmer" is short broken highlights like light on water. Its ink is `waterline`.
    */
-  oceanPattern?: "tiles" | "shimmer";
+  oceanPattern?: "tiles" | "shimmer" | "brush";
+  /** A wide band of lighter water along every coast, like the shallows on a game's world map. */
+  shallows?: string;
+  /** Flat-shaded triangles over the whole sphere, so land and sea read as low-poly surfaces. */
+  facets?: boolean;
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -329,32 +338,34 @@ export const THEMES: Record<ThemeId, Theme> = {
     decor: "candy",
   },
   // Nods to three generations of home consoles, each after the sense of place of one game series of its era, never
-  // its layouts, palettes, names, logos or characters: 8-Bit after Mega Man's tiled stages and stage-select
-  // panels, 16-Bit after Final Fantasy's world maps and blue windows, 64-Bit after the pause-screen map and
-  // gold-trimmed windows of the Zelda games of that console.
+  // its art, names, logos or characters. Stage Select after Mega Man: hard 8-bit pixels, a wall of bevelled metal
+  // blocks, riveted stage-select frames. Overworld after Final Fantasy's world maps: finer pixels, grass, sandy
+  // shores and shallows, blue windows. Polygon Kingdom after Super Mario 64 and the Zelda games of that console:
+  // flat-shaded low-poly land and sea, diamond markers, gold-trimmed windows on a dusk sky.
   bit8: {
     id: "bit8",
-    label: "8-Bit",
+    label: "Stage Select",
     defaultView: "2d",
     projection2d: geoEquirectangular,
-    ocean: "#0058f8",
-    land: "#00a800",
-    landTexture: "dither",
+    ocean: "#0000a8",
+    land: "#008888",
+    landTexture: "blocks",
     pixel: 3,
     dotShape: "square",
-    textureInk: "#005800",
+    textureInk: "#003c48",
+    textureInk2: "#40e0d0",
     coast: "#000000",
     coastWidth: 1,
     waterlines: 0,
-    waterline: "rgba(60,188,252,0.35)",
+    waterline: "rgba(0,88,248,0.45)",
     oceanHatch: null,
     oceanPattern: "tiles",
-    graticule: "rgba(60,188,252,0.35)",
+    graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "#3cbcfc",
-    lake: "#0058f8",
+    lake: "#0000a8",
     ice: "#fcfcfc",
-    relief: "#ac7c00",
+    relief: "#003c48",
     dot: "#fcfcfc",
     dotStroke: "#000000",
     fresh: "#f83800",
@@ -368,73 +379,78 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   bit16: {
     id: "bit16",
-    label: "16-Bit",
+    label: "Overworld",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
-    ocean: "#1850b8",
-    land: "#58b038",
-    landTexture: "dither",
+    ocean: "#2048a8",
+    land: "#58a830",
+    landTexture: "grass",
     pixel: 2,
-    dotShape: "square",
-    textureInk: "#287028",
-    coast: "#183010",
-    coastWidth: 1,
-    waterlines: 2,
-    waterline: "rgba(120,184,248,0.8)",
+    dotShape: "circle",
+    textureInk: "#2f6c1c",
+    textureInk2: "#98d860",
+    coast: "#f0e0a0",
+    coastWidth: 1.6,
+    waterlines: 0,
+    waterline: "rgba(210,236,255,0.6)",
     oceanHatch: null,
     oceanPattern: "shimmer",
-    graticule: "rgba(255,255,255,0.12)",
+    shallows: "#3c78d8",
+    graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "#78b8f8",
-    lake: "#1850b8",
+    lake: "#3c78d8",
     ice: "#f8f8f8",
-    relief: "#a07838",
+    relief: "#7a4a1c",
     dot: "#f8f8f8",
     dotStroke: "#101830",
     fresh: "#f8d030",
     tuned: "#f8d030",
     arc: "#f8d030",
     glow: false,
-    atmosphere: "rgba(120,184,248,0.4)",
+    atmosphere: "rgba(150,200,255,0.45)",
     shade: "rgba(0,0,40,0.45)",
     neatline: false,
     decor: null,
   },
   bit64: {
     id: "bit64",
-    label: "64-Bit",
+    label: "Polygon Kingdom",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#1c4fa0",
-    land: "#4a8a3a",
+    ocean: "#2a62c4",
+    land: "#4f9a3c",
     landTexture: "none",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "diamond",
     textureInk: "rgba(0,0,0,0)",
-    coast: "#1f3a18",
-    coastWidth: 1.4,
-    waterlines: 1,
+    coast: "#e8d9a0",
+    coastWidth: 1.2,
+    waterlines: 0,
     waterline: "rgba(150,200,255,0.35)",
     oceanHatch: null,
-    graticule: "rgba(242,193,78,0.14)",
+    shallows: "#3f86dc",
+    facets: true,
+    graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "#7fb8ff",
-    lake: "#1c4fa0",
+    river: "#8cc8ff",
+    lake: "#3f86dc",
     ice: "#f4f1e6",
-    relief: "rgba(110,80,40,0.6)",
+    relief: "rgba(90,60,30,0.7)",
     dot: "#f2c14e",
     dotStroke: "#3a1f06",
-    fresh: "#64d8ff",
+    fresh: "#ff5a8a",
     tuned: "#ffffff",
-    arc: "#64d8ff",
-    glow: true,
-    atmosphere: "rgba(255,190,120,0.45)",
-    shade: "rgba(20,0,40,0.55)",
+    arc: "#ffffff",
+    glow: false,
+    atmosphere: "rgba(255,200,140,0.5)",
+    shade: "rgba(20,0,40,0.5)",
     neatline: false,
     decor: null,
   },
-  // Loose, hand-painted and childlike, one warm half and one cool, after the mood of two album covers from 2005
-  // (Mezmerize and Hypnotize). No band name, artwork or lettering from them.
+  // Hand-painted and mixed up, warm and cool at once, after the mood of two album covers from 2005 (Mezmerize and
+  // Hypnotize): red-orange land brushed with yellow and violet, blue sea with loose pink strokes, scrawled
+  // lettering. No band name, artwork or lettering from them.
   realize: {
     id: "realize",
     label: "Realize",
@@ -442,21 +458,23 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoNaturalEarth1,
     ocean: "#1d46b8",
     land: "#e2461f",
-    landTexture: "hatch",
+    landTexture: "brush",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(255,214,70,0.6)",
+    textureInk: "rgba(255,210,58,0.5)",
+    textureInk2: "rgba(110,40,190,0.45)",
     coast: "#111014",
-    coastWidth: 2.2,
-    waterlines: 2,
-    waterline: "rgba(120,190,255,0.5)",
+    coastWidth: 2.4,
+    waterlines: 1,
+    waterline: "rgba(255,120,190,0.16)",
     oceanHatch: null,
-    graticule: "rgba(255,255,255,0.06)",
+    oceanPattern: "brush",
+    graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "#79c2ff",
     lake: "#1d46b8",
     ice: "#f4efe6",
-    relief: "rgba(80,20,10,0.55)",
+    relief: "rgba(60,15,10,0.6)",
     dot: "#fff3d6",
     dotStroke: "#111014",
     fresh: "#ffd23a",
@@ -468,37 +486,37 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Night sky, green glow and flying saucers over open ocean.
+  // A 1950s flying-saucer picture: deep teal sky and sea, clay land, moon-white linework, saucers over open ocean.
   ufo: {
     id: "ufo",
     label: "UFO",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#070b18",
-    land: "#10261a",
-    landTexture: "matrix",
+    ocean: "#135a5c",
+    land: "#c4754c",
+    landTexture: "halftone",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(125,255,154,0.25)",
-    coast: "#7dff9a",
-    coastWidth: 1,
-    waterlines: 1,
-    waterline: "rgba(125,255,154,0.18)",
+    textureInk: "rgba(96,42,24,0.3)",
+    coast: "#efe7d4",
+    coastWidth: 1.1,
+    waterlines: 2,
+    waterline: "rgba(239,231,212,0.22)",
     oceanHatch: null,
-    graticule: "rgba(125,255,154,0.08)",
+    graticule: "rgba(239,231,212,0.08)",
     graticuleDash: [],
-    river: "rgba(125,255,154,0.35)",
-    lake: "#070b18",
-    ice: "#1a3326",
-    relief: "rgba(125,255,154,0.3)",
-    dot: "#d8ffe6",
-    dotStroke: "#05060d",
-    fresh: "#7dff9a",
-    tuned: "#7dff9a",
-    arc: "#b98cff",
-    glow: true,
-    atmosphere: "rgba(125,255,154,0.25)",
-    shade: "rgba(0,0,0,0.6)",
+    river: "rgba(239,231,212,0.5)",
+    lake: "#135a5c",
+    ice: "#efe7d4",
+    relief: "rgba(96,42,24,0.55)",
+    dot: "#f6f1e4",
+    dotStroke: "#0b3436",
+    fresh: "#ffd84d",
+    tuned: "#ffd84d",
+    arc: "#ffd84d",
+    glow: false,
+    atmosphere: "rgba(150,236,224,0.32)",
+    shade: "rgba(4,24,28,0.6)",
     neatline: false,
     decor: "ufo",
   },
