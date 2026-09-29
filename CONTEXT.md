@@ -133,7 +133,7 @@ An independent adversarial review found eight real defects before any live run (
 - No Neon database, no Resend account, no Worker deployment yet.
 - The prompts (cluster.v1, explain.v1, select.v1) have never produced output. Expect a v2 of each after the first real week.
 - The headline evaluation set (twenty rated headlines) is deliberately deferred until real editions exist.
-- The world desk has 312 outlets (decisions 31 and 45), gathered by web search and unverified. About 220 point at homepages; ingest finds their feeds when it runs, and sources check reports what it found. Run it once in Actions and prune what fails.
+- The world desk has 560 outlets (decisions 31, 45, 48 and 49), gathered by web search and unverified. About 448 point at homepages; ingest finds their feeds when it runs, and sources check reports what it found. Run it once in Actions and prune what fails.
 - The telegram and world-cluster prompts (telegram-score.v1, telegram-word.v1, cluster-world.v1) have never produced output. Judge the first real scores and words before trusting them.
 - No model has been chosen. The default is OpenAI (decision 29, from a research pass), and decision 28 says to confirm it with eval reports on real days first.
 - No Cloudflare secrets yet, so the deploy-site workflow skips. The site has run only locally, on the fictional sample.

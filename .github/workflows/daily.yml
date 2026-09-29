@@ -31,8 +31,8 @@ jobs:
       MODEL: ${{ vars.MODEL }}
       MODEL_TELEGRAM: ${{ vars.MODEL_TELEGRAM }}
       LLM_BATCH: "true"
-      # 312 outlets on the default models cost roughly $0.13 to $0.33 a day (decision 33's figures scaled to
-      # decision 45's list). The ceiling stops a runaway day, not a normal one.
+      # The first live day, 237 outlets and 1,303 articles grouped, cost $0.21. At 560 outlets (decisions 45, 48 and
+      # 49) expect roughly $0.40 to $0.70. The ceiling stops a runaway day, not a normal one; watch the summary.
       DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       # The word's score call runs this many times and keeps each event's middle score (decision 36). 1 saves
       # about two cents a day.
