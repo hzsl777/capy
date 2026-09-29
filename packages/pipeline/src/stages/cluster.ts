@@ -113,8 +113,8 @@ const MAX_SPLITS = 3;
 
 /**
  * Every batch through the cluster-world prompt. A batch whose answer hit max_tokens is halved and asked again,
- * up to MAX_SPLITS times, so a busy day costs a few more calls instead of the whole stage. Any other failure,
- * or one that still fails after splitting, fails the stage before anything is written.
+ * up to MAX_SPLITS times, so a busy day costs a few more calls instead of the whole stage. Any other failure is
+ * asked once more as it is (decision 41). A batch that still fails fails the stage before anything is written.
  */
 async function answerBatches(llm: Llm, config: Config, prompt: Prompt, batches: { id: string; batch: WorldRow[] }[], date: RunDate, depth = 0): Promise<{ batch: WorldRow[]; result: WorldClusterResult }[]> {
   const answers = await llm.parseMany(
@@ -130,10 +130,11 @@ async function answerBatches(llm: Llm, config: Config, prompt: Prompt, batches: 
     else if (answer && /max_tokens/.test(answer.error) && batch.length >= 2 && depth < MAX_SPLITS) {
       const half = Math.ceil(batch.length / 2);
       retry.push({ id: `${id}.1`, batch: batch.slice(0, half) }, { id: `${id}.2`, batch: batch.slice(half) });
-    } else failures.push(`${id}: ${answer ? answer.error : "no answer"}`);
+    } else if (!id.endsWith(".again")) retry.push({ id: `${id}.again`, batch });
+    else failures.push(`${id}: ${answer ? answer.error : "no answer"}`);
   }
   // A dead batch fails the stage before anything is written. A partial day would leave places empty without saying why.
-  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} of ${batches.length} batches failed, nothing written. ${failures.join("; ")}`);
+  if (failures.length > 0) throw new Error(`cluster-world: ${failures.length} ${failures.length === 1 ? "batch" : "batches"} still failed after a retry, nothing written. ${failures.join("; ")}`);
   return retry.length ? [...out, ...(await answerBatches(llm, config, prompt, retry, date, depth + 1))] : out;
 }
 

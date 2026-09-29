@@ -234,3 +234,13 @@ Davis wants one big word on the site and no email briefing for now, with 2DayAI 
 1. The day's word moves to the centre of the masthead and becomes the largest text on the page. Its size follows its length, so a short word like "Joy" is large and the longest, "Encouragement", still fits a 375-pixel phone. The date, the "Chosen by AI" label and the scale sit beside it on wide screens and under it on phones. Nothing is added around the word, and the label stays next to it (neutrality rule 4).
 2. 2DayAI email is parked. The code and decision 35 stay as they are, and with no reader profiles the daily run skips the briefing stages at no cost (decision 33). "Deliver" loses its two-hourly schedule, which spent about 360 Actions minutes a month on skipped runs. It can still be run by hand.
 3. When 2DayAI returns, it is an opt-in on the site with no account or login: a visitor asks for the briefing, and the site keeps only what is needed to send it. That design is its own decision.
+
+## 41. One bad answer no longer costs the day, and smaller fixes from the first live run (September 29, 2026)
+
+The first live run with credit failed in the grouping stage: in one batch of five, the model returned one event with no articles among about a hundred, the answer failed its schema, and the whole day was thrown away. Davis also asked about the preview note, the tagline and the Translate button.
+
+1. An event with no articles is dropped by code instead of failing its batch. A batch that fails for any other reason is asked once more before the stage fails. The rule that a batch still failing writes nothing stands (decision 31).
+2. The tagline is "One World. One Word." It now shows on phones too.
+3. A story with no feed summary shows its headline and link without the note "The outlet didn't publish a preview for this story", which read as an error on every such story.
+4. Translate also translates the preview text, and the button shows only when the browser can translate and the day has a story in another language.
+5. Each daily run keeps the day's map as a downloadable file for a week (the `map` artifact), so a day can be checked, or loaded into a demo, without database access.

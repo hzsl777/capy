@@ -165,10 +165,24 @@ describe("cluster world in batches", () => {
     const before = await worldEvents();
     expect(before).toHaveLength(12);
 
-    const llm = new FakeLlm({ "cluster-world": (req) => (req.attempt === 2 ? { events: "not a list" } : clusterAnswer(req)) });
-    await expect(runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date)).rejects.toThrow(/cluster-world: 1 of 3 batches failed, nothing written\. batch-2: /);
+    // Batch 2 fails on its first call (attempt 2) and on its retry (attempt 4, after batch 3).
+    const llm = new FakeLlm({ "cluster-world": (req) => (req.attempt === 2 || req.attempt === 4 ? { events: "not a list" } : clusterAnswer(req)) });
+    await expect(runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date)).rejects.toThrow(/cluster-world: 1 batch still failed after a retry, nothing written\. batch-2\.again: /);
     expect(await worldEvents()).toEqual(before);
     expect(llm.calls.some((c) => c.stage === "cluster-world-merge")).toBe(false);
+  });
+
+  it("asks a failed batch once more, and drops an event with no articles instead of failing (decision 41)", async () => {
+    const withEmpty: FakeAnswer = (req) => {
+      if (req.attempt === 2) throw new LlmParseError("cluster-world", "output was not JSON");
+      const answer = clusterAnswer(req) as { events: unknown[]; skipped: unknown[] };
+      return { ...answer, events: [...answer.events, { title: "Nothing", articleIds: [], importance: 1, importanceReason: "none", topic: "other" }] };
+    };
+    const llm = new FakeLlm({ "cluster-world": withEmpty, "cluster-world-merge": () => ({ groups: [] }) });
+    const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date);
+    expect(llm.calls.filter((c) => c.stage === "cluster-world")).toHaveLength(4);
+    expect(report).toMatchObject({ events: 12, unknownIds: 0, unassigned: 0 });
+    expect((await worldEvents()).every((e) => e.articleIds.length > 0)).toBe(true);
   });
 
   it("keeps at most WORLD_PER_SOURCE newest articles per outlet", async () => {

@@ -70,3 +70,14 @@ jobs:
           else
             npm run stage -- day $IF_MISSING
           fi
+      # The day's map as a downloadable file, kept a week: what the site shows, for checking a day or loading it into
+      # a demo without database access (decision 41).
+      - name: Export the map
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        run: npm run -s stage -- map export --out map.json
+      - uses: actions/upload-artifact@v4
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        with:
+          name: map
+          path: map.json
+          retention-days: 7

@@ -231,7 +231,8 @@ function renderToolbar() {
 
   // Only offered where the browser can translate on the device.
   const tr = $("translate");
-  tr.hidden = !translationSupported();
+  // Shown only where the browser can translate and the day has a story in another language.
+  tr.hidden = !translationSupported() || !state.file?.items.some((it) => needsTranslation(it.lang));
   tr.setAttribute("aria-pressed", String(state.translate));
   tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
 
@@ -286,18 +287,22 @@ function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
   return h("span", { class: "meta" }, parts.join(" · "));
 }
 
-function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
-  const el = h(tag, { class: tag === "h2" ? "reader-headline" : "headline", lang: it.lang !== "und" ? it.lang : undefined }, it.title);
-  if (state.translate && needsTranslation(it.lang)) {
+/** With Translate on, swaps an element's text for the on-device translation and labels it. */
+function translated<T extends HTMLElement>(el: T, text: string, lang: string): T {
+  if (state.translate && needsTranslation(lang)) {
     const token = renderToken;
-    translate(it.title, it.lang).then((out) => {
+    translate(text, lang).then((out) => {
       if (!out || token !== renderToken || !el.isConnected) return;
       el.textContent = out;
       el.lang = targetLanguage;
-      el.after(h("span", { class: "translated" }, `Translated from ${languageName(it.lang) || it.lang}`));
+      el.after(h("span", { class: "translated" }, `Translated from ${languageName(lang) || lang}`));
     });
   }
   return el;
+}
+
+function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
+  return translated(h(tag, { class: tag === "h2" ? "reader-headline" : "headline", lang: it.lang !== "und" ? it.lang : undefined }, it.title), it.title, it.lang);
 }
 
 function storyButton(it: Item, now: number, showPlace = false, showPublisher = true): HTMLElement {
@@ -472,10 +477,11 @@ function renderReader(panel: HTMLElement, it: Item) {
       headline(it, "h2"),
       h("p", { class: "byline" }, [it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
       fig,
-      it.excerpt
-        ? h("p", { class: "excerpt" }, it.excerpt)
-        : h("p", { class: "excerpt muted" }, "The outlet didn't publish a preview for this story."),
-      h("p", { class: "fine" }, it.embed ? `Preview from the outlet's own feed. The outlet allows its full page to open inside ${SITE_NAME}.` : "Preview from the outlet's own feed."),
+      // A story without a feed summary shows its headline and the link, with no note about what is missing.
+      it.excerpt ? translated(h("p", { class: "excerpt", lang: it.lang !== "und" ? it.lang : undefined }, it.excerpt), it.excerpt, it.lang) : null,
+      it.excerpt || it.embed
+        ? h("p", { class: "fine" }, [it.excerpt ? "Preview from the outlet's own feed." : "", it.embed ? `The outlet allows its full page to open inside ${SITE_NAME}.` : ""].filter(Boolean).join(" "))
+        : null,
       actions,
       related.length
         ? h(

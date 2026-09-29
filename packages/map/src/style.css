@@ -1288,9 +1288,6 @@ button.link {
     grid-template-columns: 1fr;
     padding-block: 8px;
   }
-  .mast-tag {
-    display: none;
-  }
   /* On a phone the word gets its own row, centred, with the date and AI label under it. */
   .telegram {
     grid-column: 1;

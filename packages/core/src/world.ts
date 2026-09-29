@@ -9,7 +9,11 @@ export type WorldTopic = z.infer<typeof WorldTopic>;
 
 export const WorldClusterEventSchema = z.object({
   title: z.string().min(1).max(120),
-  articleIds: z.array(z.number().int()).min(1),
+  /**
+   * Not required to be non-empty: a model sometimes returns one empty event among a hundred, and code drops it.
+   * Refusing the whole batch for it failed the first live day (decision 41).
+   */
+  articleIds: z.array(z.number().int()),
   importance: z.number().int().min(1).max(5),
   importanceReason: z.string().min(1).max(200),
   topic: WorldTopic,
