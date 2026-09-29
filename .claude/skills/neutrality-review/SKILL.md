@@ -31,7 +31,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] `dayBand`, `scoreProblems`, `wordProblems` and `MOOD_WORDS` in `packages/core/src/world.ts` are not loosened or edited without a decision. The worst significant event still sets a bad day. A day without a word is acceptable.
 - [ ] The scoring prompt still scores outcomes for people, never which side gained, and the word prompt still asks for breadth and forbids verdicts.
 - [ ] The mood score never orders headlines or changes how a pin looks, and every score is shown with its reason.
-- [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Pins are still publishers. Nothing is geocoded.
+- [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Stories are placed only by the checked city lookup (`packages/pipeline/src/places.ts`, decision 44), never at a country or region, and each report still names its outlet's city.
 - [ ] The site shows only feed summaries (at most 300 characters) and quoted citation passages, never article text.
 - [ ] New outlets in `config/sources.yaml` went through `add-news-source`, and the world list isn't tilting toward one region, language or side.
 

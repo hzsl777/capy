@@ -33,6 +33,8 @@ type Story = {
   score?: number;
   because?: number;
   articles: { outlet: string; hour: number; headline: string; body: string }[];
+  /** What the scripted model says about where it happened (decision 44). */
+  where?: { city: string; country: string; lat?: number; lon?: number };
   /** Explanation sentences. `cite` is [article index in this story, verbatim excerpt from its body]. */
   sentences: { part: Part; text: string; cite: [number, string] }[];
 };
@@ -120,6 +122,8 @@ export const WORLD_STORIES: Story[] = [
     topic: "economy",
     importance: 3,
     title: "Grain port reopens after quay repairs",
+    // Reported from Lima, happened in Valparaiso: the story moves to Valparaiso.
+    where: { city: "Valparaiso", country: "CL" },
     line: "The grain port reopened after four months of quay repairs, with the first two ships due to load this week.",
     score: 1,
     because: 0,
@@ -158,6 +162,8 @@ export const WORLD_STORIES: Story[] = [
     topic: "other",
     importance: 3,
     title: "Eleven miners rescued after three days underground in Serra Alta",
+    // A fictional town with a point far from any listed city of that country: it stays at its outlet.
+    where: { city: "Serra Alta", country: "CL", lat: 0, lon: 0 },
     line: "Rescuers brought eleven miners to the surface in Serra Alta after three days underground; all were taken to hospital in stable condition.",
     score: 2,
     because: 0,
@@ -242,6 +248,7 @@ export function worldAnswers(opts: { badWordFirst?: string } = {}): Record<strin
           importance: s.importance,
           importanceReason: "scripted fixture answer",
           topic: s.topic,
+          ...(s.where ? { where: s.where } : {}),
         })),
         skipped: [],
       };

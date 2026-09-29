@@ -56,6 +56,10 @@ export const events = pgTable("events", {
   desk: text("desk").notNull().default("briefing"),
   /** World desk only: one of WORLD_TOPICS. */
   topic: text("topic"),
+  /** World desk only: where the event happened, checked against the city list (decision 44). Null means unplaced. */
+  placeName: text("place_name"),
+  lat: doublePrecision("lat"),
+  lon: doublePrecision("lon"),
 });
 
 export const eventArticles = pgTable(

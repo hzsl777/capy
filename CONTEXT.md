@@ -34,7 +34,7 @@ September 27, 2026, the fold:
 
 - Capy is the home. The 2DayAI pipeline is the objective layer the map needs, so one pipeline, two products, one database.
 - The map is deferred until 2DayAI holds up for a week with Davis as reader one, so the second product does not starve the first.
-- Pins are publishers, placed where they publish from, as Radio Garden places stations. Not where events happen. This needs no geocoding and never labels a disputed place.
+- Pins are publishers, placed where they publish from, as Radio Garden places stations. Not where events happen. This needs no geocoding and never labels a disputed place. (Reversed by decision 44 on September 29: stories now sit where they happened, checked against a fixed city list, and fall back to the publisher's city.)
 - The map draws coastlines only. No borders, no country names.
 - 2D paper map first, a globe later if wanted. Capy is not bound by Three Angle Press's zero-JS rule.
 

@@ -12,6 +12,7 @@ import {
   type WorldClusterResult,
   type WorldTopic,
 } from "@2dayai/core";
+import { Gazetteer, type Where } from "../places.js";
 import { loadPrompt, type Prompt } from "../prompts.js";
 import { articles, editions, eventArticles, events, sources, telegrams, type Db } from "@2dayai/db";
 import type { Config } from "../config.js";
@@ -83,7 +84,7 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
  */
 
 // v2 (decision 33): the same rules with short reasons, since every reason is billed as output across hundreds of events.
-export const CLUSTER_WORLD_PROMPT_VERSION = 2;
+export const CLUSTER_WORLD_PROMPT_VERSION = 3;
 export const CLUSTER_WORLD_MERGE_PROMPT_VERSION = 1;
 /** Headlines carry most of the grouping signal; a short lead settles the rest. */
 const WORLD_CHARS_FOR_CLUSTERING = 200;
@@ -96,12 +97,16 @@ export type WorldClusterReport = ClusterReport & {
   merged: number;
   /** Merge groups the checks refused: an unknown key, a key in two groups, or fewer than two events. */
   mergeDropped: number;
+  /** Events placed where they happened (decision 44); the rest show at their outlets' cities. */
+  placed: number;
 };
 
 type WorldRow = { id: number; source: string; place: string; title: string; lead: string };
 
 /** One event from one batch after its article ids were checked. `key` names it in the merge pass. */
-type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string };
+type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string; where: Where | null };
+
+let gazetteer: Gazetteer | undefined;
 
 export function worldClusterUserContent(rows: WorldRow[]): string {
   const lines = rows.map((r) => `[${r.id}] ${r.title} (${r.source})\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
@@ -175,7 +180,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
 
   if (rows.length === 0) {
     await clearWorldDay(db, date);
-    return { articles: 0, events: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
+    return { articles: 0, events: 0, placed: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
   }
 
   const prompt = loadPrompt("cluster-world", CLUSTER_WORLD_PROMPT_VERSION);
@@ -202,7 +207,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
       if (ids.length === 0) continue;
       ids.forEach((id) => assigned.add(id));
       n += 1;
-      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label });
+      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
     }
     skipped += [...skippedIds].filter((id) => known.has(id)).length;
     unassigned += batch.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id)).length;
@@ -225,15 +230,20 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   // Every model call succeeded, so the date's world events are replaced only now.
   await clearWorldDay(db, date);
   const byTopic: Record<string, number> = {};
+  gazetteer ??= Gazetteer.load();
+  let placed = 0;
   for (const ev of final) {
+    // Where it happened, if the model named a city that checks out; otherwise the map shows it at its outlets.
+    const at = gazetteer.locate(ev.where);
+    if (at) placed += 1;
     const [row] = await db
       .insert(events)
-      .values({ runDate: date, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, promptVersion: ev.promptVersion, desk: "world", topic: ev.topic })
+      .values({ runDate: date, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, promptVersion: ev.promptVersion, desk: "world", topic: ev.topic, placeName: at?.name ?? null, lat: at?.lat ?? null, lon: at?.lon ?? null })
       .returning({ id: events.id });
     await db.insert(eventArticles).values(ev.ids.map((articleId) => ({ eventId: row!.id, articleId })));
     byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
   }
-  return { articles: rows.length, events: final.length, skipped, unknownIds, unassigned, byTopic, batches: batches.length, merged, mergeDropped };
+  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, byTopic, batches: batches.length, merged, mergeDropped };
 }
 
 /** The telegram is written from the world events; re-clustering makes any old telegram for the date stale. */
@@ -244,8 +254,8 @@ async function clearWorldDay(db: Db, date: RunDate): Promise<void> {
 
 /**
  * Joins each checked group into one event: the union of its articles, the group's title, the highest importance,
- * and the topic and reason of the most important member (the first listed on a tie). The joined event takes the
- * place of its first member. Events in no group pass through unchanged.
+ * and the topic, reason and location of the most important member (the first listed on a tie), or the first
+ * member's location when that one has none. The joined event takes the position of its first member in the list. Events in no group pass through unchanged.
  */
 function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], promptVersion: string): BatchEvent[] {
   const byKey = new Map(evs.map((e) => [e.key, e]));
@@ -272,6 +282,7 @@ function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], prom
       topic: lead.topic,
       ids: members.flatMap((m) => m.ids),
       promptVersion,
+      where: lead.where ?? members.find((m) => m.where)?.where ?? null,
     });
   }
   return out;

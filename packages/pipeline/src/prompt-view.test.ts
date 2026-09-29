@@ -11,7 +11,7 @@ describe("the prompt command (docs/PROMPTS.md)", () => {
     expect(score).toMatchObject({ label: "telegram-score.v1", model: "gpt-5.4-mini", reasoningEffort: "high" });
     expect(score.system).toMatch(/^You score the day's world news/);
     expect(score.system).toMatch(/It must match this JSON Schema:\n\{/);
-    expect(playgroundView(openai, "cluster-world")).toMatchObject({ label: "cluster-world.v2", model: "gpt-5.4-nano", reasoningEffort: "low" });
+    expect(playgroundView(openai, "cluster-world")).toMatchObject({ label: "cluster-world.v3", model: "gpt-5.4-nano", reasoningEffort: "low" });
     expect(playgroundView(openai, "select")).toMatchObject({ model: "gpt-5.4-mini", reasoningEffort: "high" });
     expect(isPromptName("telegram-score")).toBe(true);
     expect(isPromptName("telegram")).toBe(false);

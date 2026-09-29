@@ -33,7 +33,7 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
   const failed = ingest.filter((r) => r.error && !r.paused);
   const paused = ingest.filter((r) => r.paused);
   if (ingest.length) lines.push(`Feeds: ${ok.length} read, ${failed.length} failed, ${paused.length} paused. ${ok.reduce((n, r) => n + r.inserted, 0)} new articles.`);
-  if (world) lines.push(`Stories: ${world.events} from ${world.articles} articles in ${world.batches} grouping calls.`);
+  if (world) lines.push(`Stories: ${world.events} from ${world.articles} articles in ${world.batches} grouping calls, ${world.placed ?? 0} placed where they happened.`);
   if (explain) lines.push(`Explained: ${explain.usable} of ${explain.events}${explain.failed ? `, ${explain.failed} failed` : ""}.`);
   if (select && select.readers > 0) lines.push(`2DayAI: ${select.editions} editions and ${select.quiet} quiet days for ${select.readers} readers${select.failed ? `, ${select.failed} failed` : ""}.`);
   if (spend !== undefined) lines.push(`Model spend: $${spend.toFixed(3)}.`);

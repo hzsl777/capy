@@ -253,3 +253,14 @@ Davis saw the water "stutter" when clicking and dragging. The map switched to a 
 2. To keep dragging smooth with full ripple lines, the coastline is projected once per frame and reused for every stroke, and only what is on screen plus a margin is drawn. Measured in headless Chromium without a GPU, dragging runs at 30 to 46 frames a second, against 35 to 53 before with the lighter drawing.
 3. The light basemap gains Natural Earth's 110m ice, so the world view keeps its ice shading.
 4. Coasts are stroked from a coastline that leaves out the edges the data adds along the 180th meridian and the pole, which drew a straight line through Chukotka and Antarctica.
+
+## 44. Stories sit where they happened (September 29, 2026)
+
+Davis wants the map to show where news happens, not where outlets are based: a Paris newspaper's stories about Russia, Madrid, Venezuela and Australia all sat in Paris. This reverses the "pins are publishers" rule of decision 23 and neutrality rule 2 in packages/map/AGENTS.md, which avoided geocoding so the map would never place or name a disputed location.
+
+1. The grouping prompt (`cluster-world.v3`) asks, for each event, the city or town where it happened, its two-letter country code and a rough point, or null when the articles name only a country or a region, span several places, or leave it unclear.
+2. Code decides the point, never the model alone. A city on a fixed list of 7,342 world cities (Natural Earth populated places, public domain, `packages/pipeline/data/places.json`, rebuilt by `npm run places:build`) gets the list's point and name. Same-named cities are told apart by the country code, which is never shown. A town not on the list, like Rafah, gets the model's point only when it lies within 250 km of a listed city of the same country. Anything else stays at the outlet's city, as before.
+3. Nothing is ever placed at a country or a region, and no country name appears anywhere. The map still has no borders. Place names are the list's English names.
+4. Every report shows its outlet's city next to the outlet's name. "Also reported in N other places" becomes "Also reported by N other outlets". Reach, which decides what shows when zoomed out (decision 30), still counts the outlets' cities, since it measures how widely a story was reported.
+5. A story's city within 25 km of an outlet's city shares that dot, so one city is one dot.
+6. The daily run summary counts how many stories were placed. The About text says how placement works.

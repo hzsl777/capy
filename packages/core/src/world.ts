@@ -17,6 +17,14 @@ export const WorldClusterEventSchema = z.object({
   importance: z.number().int().min(1).max(5),
   importanceReason: z.string().min(1).max(200),
   topic: WorldTopic,
+  /**
+   * Where the event happened, as the articles report it (decision 44): the city or town, its ISO 3166-1 alpha-2
+   * country code and a rough point. Null when they name no single city. Code checks it against a fixed list of
+   * cities before anything is placed; the country code only tells same-named cities apart and is never shown.
+   */
+  where: z
+    .object({ city: z.string().min(1).max(80), country: z.string().max(3).nullish(), lat: z.number().nullish(), lon: z.number().nullish() })
+    .nullish(),
 });
 
 export const WorldClusterResultSchema = z.object({

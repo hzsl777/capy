@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest";
+import { Gazetteer, km } from "./places.js";
+
+const gaz = Gazetteer.load();
+
+describe("placing a story where it happened (decision 44)", () => {
+  it("uses the list's point for a listed city, telling same-named cities apart by country", () => {
+    expect(gaz.locate({ city: "Paris", country: "FR" })).toMatchObject({ name: "Paris" });
+    expect(gaz.locate({ city: "Paris", country: "FR" })!.lat).toBeCloseTo(48.87, 1);
+    expect(gaz.locate({ city: "Odessa", country: "UA" })!.lon).toBeGreaterThan(30);
+    expect(gaz.locate({ city: "Odessa", country: "US" })!.lon).toBeLessThan(-90);
+    // No country, or a code the list doesn't use: the largest city of that name.
+    expect(gaz.locate({ city: "Paris" })!.lon).toBeGreaterThan(0);
+  });
+
+  it("matches spellings the list knows, and alternates only within the named country", () => {
+    expect(gaz.locate({ city: "Kiev", country: "UA" })).toMatchObject({ name: "Kyiv" });
+    expect(gaz.locate({ city: "São Paulo", country: "BR" })).toMatchObject({ name: "São Paulo" });
+    expect(gaz.locate({ city: "Sao Paulo", country: "BR" })).toMatchObject({ name: "São Paulo" });
+    // Goma's list entry carries "Gisenyi" as an alternate, a different city across a border. The real one wins.
+    expect(gaz.locate({ city: "Gisenyi", country: "RW" })).toMatchObject({ name: "Gisenyi" });
+  });
+
+  it("uses the model's point for an unlisted town only near a listed city of the same country", () => {
+    const rafah = gaz.locate({ city: "Rafah", country: "PS", lat: 31.29, lon: 34.25 });
+    expect(rafah).toEqual({ name: "Rafah", lat: 31.29, lon: 34.25 });
+    // A point far from anything in the named country is a guess, and the story stays at its outlet.
+    expect(gaz.locate({ city: "Nowhere", country: "PS", lat: 0, lon: 0 })).toBeNull();
+    expect(gaz.locate({ city: "Rafah", country: "PS" })).toBeNull();
+    expect(gaz.locate({ city: "Rafah<script>", country: "PS", lat: 31.29, lon: 34.25 })).toBeNull();
+  });
+
+  it("returns nothing when the reporting names no city", () => {
+    expect(gaz.locate(null)).toBeNull();
+    expect(gaz.locate({ city: "  " })).toBeNull();
+  });
+
+  it("measures distance on the globe", () => {
+    expect(km(48.85, 2.35, 51.51, -0.13)).toBeCloseTo(343, -1);
+  });
+});

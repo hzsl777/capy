@@ -3,9 +3,12 @@
 import type { WorldTopic } from "./world.js";
 
 export type MapPlace = {
-  /** Stable across runs, used for pins: "ll:<lat>,<lon>" of the publisher's place. */
+  /** Stable across runs, used for pins: "ll:<lat>,<lon>" of the city. */
   id: string;
-  /** City or area where the publishers publish from. Shown in the panel, never on the map. */
+  /**
+   * The city: where stories happened (decision 44), or where outlets publish from for stories that name no city.
+   * Shown in the panel, never on the map.
+   */
   name: string;
   lat: number;
   lon: number;
@@ -22,12 +25,14 @@ export type MapItem = {
   publisher: string;
   lang: string;
   topics: WorldTopic[];
-  /** Index into MapFile.places: the publisher's place. */
+  /** Index into MapFile.places: where the story happened, or the publisher's city when the story names none. */
   place: number;
+  /** The publisher's city, set when the story is placed where it happened and that is somewhere else. */
+  from?: string;
   /** Set when the article's event was reported from two or more places. */
   story?: string;
   /**
-   * How many places reported this article's event, and the grouping model's 1 to 5 importance for it. Both
+   * How many publisher cities reported this article's event, and the grouping model's 1 to 5 importance for it. Both
    * decide only the zoom level at which the article's place appears (decision 30), never order or dot size.
    */
   reach?: number;

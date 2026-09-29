@@ -104,7 +104,7 @@ describe("cluster world in batches", () => {
     expect(keysFor(merge.user, "flood")).toEqual(["b1-e1", "b2-e1", "b3-e1"]);
 
     // Twelve batch events; the three flood events become one. The Lima outlet's two stories are environment.
-    expect(report).toEqual({ articles: 12, events: 10, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: { environment: 2, other: 8 }, batches: 3, merged: 1, mergeDropped: 0 });
+    expect(report).toEqual({ articles: 12, events: 10, placed: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: { environment: 2, other: 8 }, batches: 3, merged: 1, mergeDropped: 0 });
     const evs = await worldEvents();
     const all = evs.flatMap((e) => e.articleIds);
     expect(all).toHaveLength(12);
@@ -114,7 +114,7 @@ describe("cluster world in batches", () => {
     const flood = evs.filter((e) => e.title === TITLES["flood"]);
     expect(flood).toHaveLength(1);
     // The union of the articles, the highest importance, and the topic of the most important member.
-    expect(flood[0]).toMatchObject({ articleIds: floodIds, importance: 4, topic: "environment", promptVersion: "cluster-world.v2+cluster-world-merge.v1" });
+    expect(flood[0]).toMatchObject({ articleIds: floodIds, importance: 4, topic: "environment", promptVersion: "cluster-world.v3+cluster-world-merge.v1" });
     // Not merged, so the port story stays two events.
     expect(evs.filter((e) => e.title === TITLES["port"])).toHaveLength(2);
   });

@@ -22,6 +22,13 @@
       "when": 1790638518344,
       "tag": "0002_feed_health",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790643902485,
+      "tag": "0003_event_place",
+      "breakpoints": true
     }
   ]
 }

@@ -279,7 +279,8 @@ function onFiltersChanged() {
 let renderToken = 0;
 
 function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
-  const parts = showPublisher ? [it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
+  // A story placed where it happened says where its outlet is, so "Le Monde, Paris" reads right under Caracas.
+  const parts = showPublisher ? [it.from ? `${it.publisher}, ${it.from}` : it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
   const lang = languageName(it.lang);
   if (lang && it.lang !== "en") parts.push(lang);
   // "Other" says nothing, so only named topics show.
@@ -306,14 +307,14 @@ function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
 }
 
 function storyButton(it: Item, now: number, showPlace = false, showPublisher = true): HTMLElement {
-  const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.place)).size - 1 : 0;
+  const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.publisher)).size - 1 : 0;
   const b = h(
     "button",
     { type: "button", class: "story" },
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
     metaLine(it, now, showPublisher),
-    others > 0 ? h("span", { class: "related" }, `Also reported in ${others} other ${others === 1 ? "place" : "places"}`) : null,
+    others > 0 ? h("span", { class: "related" }, `Also reported by ${others} other ${others === 1 ? "outlet" : "outlets"}`) : null,
   );
   b.addEventListener("click", () => openReader(it));
   return h("li", {}, b);
@@ -436,7 +437,7 @@ function renderReader(panel: HTMLElement, it: Item) {
     return;
   }
 
-  const related = it.story ? (state.stories.get(it.story) ?? []).filter((s) => s.place !== it.place) : [];
+  const related = it.story ? (state.stories.get(it.story) ?? []).filter((s) => s.publisher !== it.publisher) : [];
   const image = safeUrl(it.image, true);
   const actions = h("div", { class: "actions" });
   const explained = it.event !== undefined ? file.events[String(it.event)] : undefined;
@@ -475,7 +476,7 @@ function renderReader(panel: HTMLElement, it: Item) {
         [place.name, it.topics[0] ? TOPIC_LABEL[it.topics[0]] : "", timeAgo(it.t, file.generatedAt)].filter(Boolean).join(" · "),
       ),
       headline(it, "h2"),
-      h("p", { class: "byline" }, [it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
+      h("p", { class: "byline" }, [it.from ? `${it.publisher}, ${it.from}` : it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
       fig,
       // A story without a feed summary shows its headline and the link, with no note about what is missing.
       it.excerpt ? translated(h("p", { class: "excerpt", lang: it.lang !== "und" ? it.lang : undefined }, it.excerpt), it.excerpt, it.lang) : null,
@@ -487,8 +488,8 @@ function renderReader(panel: HTMLElement, it: Item) {
         ? h(
             "section",
             { class: "elsewhere" },
-            h("h3", { class: "rule-head" }, `Also reported in ${new Set(related.map((r) => r.place)).size} other places`),
-            h("ol", { class: "stories" }, ...related.slice(0, 20).map((r) => storyButton(r, file.generatedAt, true))),
+            h("h3", { class: "rule-head" }, `Also reported by ${new Set(related.map((r) => r.publisher)).size} other ${new Set(related.map((r) => r.publisher)).size === 1 ? "outlet" : "outlets"}`),
+            h("ol", { class: "stories" }, ...related.slice(0, 20).map((r) => storyButton(r, file.generatedAt, r.place !== it.place))),
           )
         : null,
     ),

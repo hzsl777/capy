@@ -33,7 +33,7 @@ describe("the world desk on a real Postgres engine", () => {
     const out = await runDay(db, testConfig(), llm, date, deps);
 
     expect(out["cluster"]).toEqual({ skipped: "no reader profiles" });
-    expect(out["clusterWorld"]).toMatchObject({ articles: 15, events: 10, unknownIds: 0, unassigned: 0, byTopic: { conflict: 3, environment: 1, other: 1 } });
+    expect(out["clusterWorld"]).toMatchObject({ articles: 15, events: 10, placed: 1, unknownIds: 0, unassigned: 0, byTopic: { conflict: 3, environment: 1, other: 1 } });
     // Importance 3 or more: three conflict stories, the floods, the port, the clinics and the rescue.
     expect(out["explain"]).toEqual({ events: 7, usable: 7, unusable: 0, failed: 0, sentencesDropped: 0 });
     expect(out["select"]).toMatchObject({ readers: 0 });
@@ -42,11 +42,19 @@ describe("the world desk on a real Postgres engine", () => {
     expect(llm.calls.filter((c) => c.stage === "telegram-word")).toHaveLength(2);
   });
 
-  it("builds the map from publisher pins, with explanations, sources and the telegram", async () => {
+  it("builds the map with stories where they happened, explanations, sources and the telegram", async () => {
     expect(await latestMapDate(db)).toBe(date);
     const map = await loadMapView(db, date, new Date("2026-09-27T12:00:00Z"));
     expect(map.version).toBe(2);
-    expect(map.places).toHaveLength(12);
+    // Twelve publisher cities, plus Valparaiso where the port story happened (decision 44).
+    expect(map.places).toHaveLength(13);
+    const port = map.items.find((i) => i.title.startsWith("Grain port reopens"))!;
+    expect(map.places[port.place]).toMatchObject({ name: "Valparaíso" });
+    expect(port.from).toBe("Lima");
+    // The rescue named a town whose point was nowhere near a listed city of its country: it stays at its outlet.
+    const rescue = map.items.find((i) => i.event !== undefined && map.events[String(i.event)]!.title.startsWith("Eleven miners"))!;
+    expect(map.places[rescue.place]!.name).toBe("Santiago");
+    expect(rescue.from).toBeUndefined();
     expect(map.items).toHaveLength(15);
     expect(map.places.map((p) => p.name)).toContain("Nairobi");
     expect(map.items[0]!.t).toBeGreaterThanOrEqual(map.items[1]!.t);
