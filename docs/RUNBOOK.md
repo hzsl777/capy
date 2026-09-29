@@ -5,7 +5,7 @@
 Going live is secrets and one merge. Everything after that runs by itself (decision 34). Secrets go in GitHub under Settings, then Secrets and variables, then Actions.
 
 1. **Database.** Create a free Neon project (one Postgres database, nothing else) and copy its pooled connection string. Add it as the secret `DATABASE_URL`.
-2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Set a hard monthly spend limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`. docs/OPENAI.md walks through the dashboard: the project, the key, billing, limits, and what to ignore.
+2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Add prepaid credit under Settings, then Billing: the API is billed apart from ChatGPT, and a key without credit fails every call. Set a hard monthly spend limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`. docs/OPENAI.md walks through the dashboard: the project, the key, billing, limits, and what to ignore.
 3. **Cloudflare.** On a free Cloudflare account, either connect this repository to a Worker named `globalgist` in the dashboard (Workers Builds) and add `DATABASE_URL` to its secrets, or create an API token from the "Edit Cloudflare Workers" template and add it as `CLOUDFLARE_API_TOKEN`, with the account id as `CLOUDFLARE_ACCOUNT_ID`. "Deploy the site" below compares the two.
 4. **Merge the pull request into `main`.**
 

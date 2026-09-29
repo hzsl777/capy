@@ -117,6 +117,12 @@ describe("the OpenAI-format client", () => {
     expect(sent).toHaveLength(2);
   });
 
+  it("fails at once when the account is out of credit, without retrying or leaving the flex tier (decision 39)", async () => {
+    const empty = JSON.stringify({ error: { message: "You have no credits remaining.", type: "insufficient_quota", code: "credit_balance_exhausted" } });
+    await expect(llm([new Response(empty, { status: 429 })], { LLM_PROVIDER: "openai" }).parse(req("explain"), DATE)).rejects.toThrow(/out of credit or over its spend limit/);
+    expect(sent).toHaveLength(1);
+  });
+
   it("fails at the boundary on text that is not JSON, a wrong shape, or a cut-off answer", async () => {
     await expect(llm([reply("Sure! Here is the word: Hope")]).parse(req("explain"), DATE)).rejects.toThrow(/not JSON/);
     await expect(llm([reply('{"words":["Hope"]}')]).parse(req("explain"), DATE)).rejects.toThrow(/did not match the schema/);

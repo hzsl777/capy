@@ -219,3 +219,10 @@ Davis connected the repository to Cloudflare's Git integration (Workers Builds).
 1. `wrangler.toml` moves to the root, with paths to `packages/web/src/index.ts` and `packages/map/dist`.
 2. Its `[build]` step builds the map and removes the sample data, so every deploy, from any path, ships the real site and never the fictional day. `npm run web:deploy` is now plain `wrangler deploy`.
 3. Either Workers Builds or the "Deploy site" workflow deploys, not both. With Workers Builds, `DATABASE_URL` is a secret on the Worker and the custom domain is attached in the dashboard. The workflow still starts "Daily run" when it finishes, even when it skips.
+
+## 39. Out of credit fails at once, and any call can be tried in the Playground (September 29, 2026)
+
+The first real daily run failed because the OpenAI account had no credit. Each model then spent about 90 seconds retrying before failing, because an empty balance answers with the same HTTP 429 as a busy server. Davis also asked for the calls to be ready to try in the OpenAI Playground.
+
+1. A 429 that says `insufficient_quota` or `credit_balance_exhausted` fails at once, without retries and without the switch to the default tier, and says to add credit or raise the spend limit. Other 429s still wait and retry.
+2. `npm run stage -- prompt <name>` prints one call for the Playground: the settings the pipeline uses (model, JSON object, reasoning effort, no tools), the system message exactly as sent, and a sample user message from the fictional world day. It needs no key and no database. docs/PROMPTS.md maps each Playground setting.
