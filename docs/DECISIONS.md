@@ -505,3 +505,13 @@ An audit of Polygon Kingdom found why it did not read as the 64-bit games: satur
 5. **Chrome.** A menu title in Russo One, white into ice blue with a navy outline and stepped depth; cream plastic buttons with Nunito; dark see-through message boxes; navy for small text so it reads on the sky. Luckiest Guy, the coins and the red coins are gone.
 6. **Globe.** Terrain is raised outward from the centre and drawn over the outline, so peaks break the 22-sided silhouette. The glint, the rim shading and the round halo are gone.
 7. **Speed.** Paths are handed to the canvas as text, one per colour and band, instead of thousands of separate calls. A frame of terrain takes about 12 ms on the tilted map and 8 ms on the globe in a software-rendered browser, on par with the other designs.
+
+## 64. Polygon Kingdom's panels look like a pause menu (September 29, 2026)
+
+Davis felt the story panel, a dark see-through box, did not read as the menus of Ocarina of Time and Majora's Mask. This changes the message boxes in item 5 of decision 63.
+
+1. The story panel, the Key and the menus are pause-menu subscreens: a warm amber panel lit from the top, in a thick bevelled gold frame with rounded corners.
+2. The panel's title sits in a dark banner between two gold arrow tabs, like the tabs that turn to the next subscreen. They carry no letters or button names.
+3. Each story sits in an inset slot. The slot you point at or reach with the keyboard gets a gold selection cursor, four corner brackets that pulse. Place names are gold, "Also reported by" is blue, as the games coloured names in their text.
+4. A small gold triangle bobs in the panel's bottom corner, like the one that waits at the end of a text box.
+5. Motion stops for readers who ask for reduced motion. No Nintendo art, lettering or icons are used.
