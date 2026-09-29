@@ -276,6 +276,18 @@ Davis wants the map to show where news happens, not where outlets are based: a P
 5. A story's city within 25 km of an outlet's city shares that dot, so one city is one dot.
 6. The daily run summary counts how many stories were placed. The About text says how placement works.
 
+## 45. An outlet for every country and territory (September 29, 2026)
+
+Davis wants every country and territory on the map to have at least one news outlet. Decision 31 left 78 without one.
+
+1. The world desk grows from 237 outlets to 312 in 281 cities. 72 of the 75 places that had no outlet now have one whose pin falls there, checked by matching each pin to its nearest city in the place list. Each outlet is pinned at the city its newsroom works from. They were gathered by web search, and most feeds are unconfirmed: 69 entries point at a homepage and ingest finds the feed (decision 31). Stabroek News (Guyana) and the Saipan Tribune (Northern Mariana Islands) have closed, so Kaieteur News and Marianas Variety are used instead. Sermitsiaq.AG does not allow its feeds in public news lists, so Greenland has KNR.
+2. The order of preference was an independent national outlet or public broadcaster, then a national agency, then a regional outlet. State media is marked in a comment. Djibouti, Equatorial Guinea and the Seychelles have a state outlet only: no independent outlet works inside the first two, and the Seychelles' independent daily has no usable news site.
+3. Belarus and Nicaragua have independent press only in exile. Each gets a state outlet in the country (BelTA in Minsk, El 19 Digital in Managua) together with an independent one pinned where it publishes (Nasha Niva in Vilnius, Confidencial in San José).
+4. North Korea gets KCNA in Pyongyang, marked as state media, beside NK News and Daily NK, which already publish from Seoul. KCNA's site is often offline and has no known feed, so it may fail and be paused (decision 36); if it does, North Korea keeps the Seoul outlets.
+5. Sudan gets Ayin Network, an independent outlet publishing from Nairobi, beside Radio Dabanga (Amsterdam) and Sudan Tribune (Paris). No outlet inside Sudan was added: the national news agency works for the army-backed government, one side of the war, and the other side has no equivalent outlet, so adding it would break the balance rule.
+6. Skipped: Antarctica and South Georgia (no local press), Western Sahara (contested; an outlet from one side would break the balance rule, the international desks already cover it, and stories are placed where they happen), and Kiribati and Tuvalu (their press is a weekly print paper, state radio and government bulletins on social media, with no reliable news site; RNZ covers both from Wellington).
+7. Montenegro's Vijesti is tagged `cnr` (Montenegrin), so the map names the language as its readers do.
+
 ## 46. Five zoom tiers, dots sized by importance, and a daily coverage count (September 29, 2026)
 
 Davis wants every country, every region within it and every stateless nation represented, and asked that the map rank what shows by importance as you zoom, with dots sized to match, so a much fuller map stays usable. This changes neutrality rule 3 in packages/map/AGENTS.md, which kept dot size to report count alone.

@@ -334,3 +334,91 @@ sources:
   - { id: folha-de-sao-paulo, name: Folha de S.Paulo, url: "https://feeds.folha.uol.com.br/emcimadahora/rss091.xml", topic: world, tier: general, desk: world, lang: pt, place: { name: São Paulo, lat: -23.55, lon: -46.63 } } # feed unconfirmed
   - { id: agencia-brasil, name: Agência Brasil, url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml", topic: world, tier: general, desk: world, lang: pt, place: { name: Brasília, lat: -15.79, lon: -47.88 } } # state media # feed unconfirmed
   - { id: abc-color, name: ABC Color, url: "https://www.abc.com.py/", topic: world, tier: general, desk: world, lang: es, place: { name: Asunción, lat: -25.26, lon: -57.58 } } # feed unconfirmed
+
+  # ---- Decision 45: one outlet for every country and territory, gathered 2026-09-29 by web search. ----
+  # Feeds unverified until npm run stage -- sources check. Each pin is the city the newsroom works from.
+  # Skipped: Antarctica and South Georgia (no local press), Western Sahara (contested; the international
+  # desks cover it), Kiribati and Tuvalu (no outlet with a working news site found).
+
+  # Europe
+  - { id: diari-andorra, name: Diari d'Andorra, url: "https://www.diariandorra.ad/", topic: world, tier: general, desk: world, lang: ca, place: { name: Andorra la Vella, lat: 42.51, lon: 1.52 } } # feed unconfirmed (the site lists its feeds at /rss.html)
+  - { id: top-channel, name: Top Channel, url: "https://top-channel.tv/", topic: world, tier: general, desk: world, lang: sq, place: { name: Tirana, lat: 41.33, lon: 19.82 } } # feed unconfirmed
+  - { id: orf-news, name: ORF News, url: "https://rss.orf.at/news.xml", topic: world, tier: general, desk: world, lang: de, place: { name: Vienna, lat: 48.21, lon: 16.37 } } # public broadcaster; feed seen in search (titles only)
+  - { id: alandstidningen, name: Ålandstidningen, url: "https://www.alandstidningen.ax/", topic: world, tier: general, desk: world, lang: sv, place: { name: Mariehamn, lat: 60.10, lon: 19.94 } } # feed unconfirmed
+  - { id: belta, name: BelTA, url: "https://eng.belta.by/rss", topic: world, tier: general, desk: world, lang: en, place: { name: Minsk, lat: 53.90, lon: 27.56 } } # state media; added with Nasha Niva; feed seen in search
+  - { id: nasha-niva, name: Nasha Niva, url: "https://nashaniva.com/", topic: world, tier: general, desk: world, lang: be, place: { name: Vilnius, lat: 54.69, lon: 25.28 } } # independent Belarusian paper, publishes from exile; feed unconfirmed
+  - { id: kvf, name: Kringvarp Føroya, url: "https://kvf.fo/", topic: world, tier: general, desk: world, lang: fo, place: { name: Tórshavn, lat: 62.01, lon: -6.77 } } # public broadcaster; feed unconfirmed
+  - { id: gbc-gibraltar, name: GBC News, url: "https://www.gbc.gi/", topic: world, tier: general, desk: world, lang: en, place: { name: Gibraltar, lat: 36.14, lon: -5.35 } } # public broadcaster; feed unconfirmed
+  - { id: index-hr, name: Index.hr, url: "https://www.index.hr/rss/vijesti", topic: world, tier: general, desk: world, lang: hr, place: { name: Zagreb, lat: 45.81, lon: 15.98 } } # feed seen in search
+  - { id: manx-radio, name: Manx Radio, url: "https://www.manxradio.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Douglas, lat: 54.15, lon: -4.48 } } # public broadcaster; feed unconfirmed
+  - { id: vaterland, name: Liechtensteiner Vaterland, url: "https://www.vaterland.li/", topic: world, tier: general, desk: world, lang: de, place: { name: Vaduz, lat: 47.14, lon: 9.52 } } # feed unconfirmed
+  - { id: rtl-today, name: RTL Today, url: "https://today.rtl.lu/", topic: world, tier: general, desk: world, lang: en, place: { name: Luxembourg, lat: 49.61, lon: 6.13 } } # feed unconfirmed
+  - { id: monaco-matin, name: Monaco-Matin, url: "https://www.monacomatin.mc/", topic: world, tier: general, desk: world, lang: fr, place: { name: Monaco, lat: 43.73, lon: 7.42 } } # feed unconfirmed
+  - { id: ziarul-de-garda, name: Ziarul de Gardă, url: "https://www.zdg.md/", topic: world, tier: general, desk: world, lang: ro, place: { name: Chișinău, lat: 47.01, lon: 28.86 } } # feed unconfirmed
+  - { id: vijesti, name: Vijesti, url: "https://www.vijesti.me/", topic: world, tier: general, desk: world, lang: cnr, place: { name: Podgorica, lat: 42.44, lon: 19.26 } } # feed unconfirmed
+  - { id: meta-mk, name: Meta.mk, url: "https://meta.mk/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Skopje, lat: 42.00, lon: 21.43 } } # independent news agency; feed unconfirmed
+  - { id: svalbardposten, name: Svalbardposten, url: "https://www.svalbardposten.no/", topic: world, tier: general, desk: world, lang: nb, place: { name: Longyearbyen, lat: 78.22, lon: 15.65 } } # feed unconfirmed
+  - { id: san-marino-rtv, name: San Marino RTV, url: "https://www.sanmarinortv.sm/", topic: world, tier: general, desk: world, lang: it, place: { name: San Marino, lat: 43.94, lon: 12.45 } } # public broadcaster; feed unconfirmed
+  - { id: vatican-news, name: Vatican News, url: "https://www.vaticannews.va/en.html", topic: world, tier: general, desk: world, lang: en, place: { name: Vatican City, lat: 41.90, lon: 12.45 } } # state media (Holy See); feed unconfirmed
+
+  # Africa
+  - { id: iwacu, name: Iwacu, url: "https://www.iwacu-burundi.org/englishnews/", topic: world, tier: general, desk: world, lang: en, place: { name: Bujumbura, lat: -3.38, lon: 29.36 } } # feed unconfirmed
+  - { id: expresso-das-ilhas, name: Expresso das Ilhas, url: "https://expressodasilhas.cv/", topic: world, tier: general, desk: world, lang: pt, place: { name: Praia, lat: 14.93, lon: -23.51 } } # feed unconfirmed
+  - { id: la-nation-djibouti, name: La Nation, url: "https://www.lanation.dj/", topic: world, tier: general, desk: world, lang: fr, place: { name: Djibouti, lat: 11.59, lon: 43.15 } } # state media (no independent outlet works in the country); feed unconfirmed
+  - { id: gabonreview, name: Gabonreview, url: "https://www.gabonreview.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Libreville, lat: 0.39, lon: 9.45 } } # feed unconfirmed
+  - { id: the-point-gambia, name: The Point, url: "https://thepoint.gm/", topic: world, tier: general, desk: world, lang: en, place: { name: Bakau, lat: 13.48, lon: -16.68 } } # feed unconfirmed
+  - { id: guinea-ecuatorial-press, name: Guinea Ecuatorial Press, url: "https://www.guineaecuatorialpress.com/", topic: world, tier: general, desk: world, lang: es, place: { name: Malabo, lat: 3.75, lon: 8.78 } } # state media (no independent outlet works in the country); feed unconfirmed
+  - { id: o-democrata-gb, name: O Democrata, url: "https://www.odemocratagb.com/", topic: world, tier: general, desk: world, lang: pt, place: { name: Bissau, lat: 11.86, lon: -15.60 } } # feed unconfirmed
+  - { id: la-gazette-des-comores, name: La Gazette des Comores, url: "https://lagazettedescomores.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Moroni, lat: -11.70, lon: 43.26 } } # feed unconfirmed
+  - { id: lesotho-times, name: Lesotho Times, url: "https://lestimes.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Maseru, lat: -29.31, lon: 27.48 } } # feed unconfirmed
+  - { id: alakhbar, name: Alakhbar, url: "https://alakhbar.info/", topic: world, tier: general, desk: world, lang: ar, place: { name: Nouakchott, lat: 18.09, lon: -15.98 } } # independent news agency; feed unconfirmed
+  - { id: lexpress-mu, name: L'Express, url: "https://lexpress.mu/", topic: world, tier: general, desk: world, lang: fr, place: { name: Port Louis, lat: -20.16, lon: 57.50 } } # feed unconfirmed
+  - { id: reunion-la-1ere, name: Réunion la 1ère, url: "https://la1ere.franceinfo.fr/reunion/", topic: world, tier: general, desk: world, lang: fr, place: { name: Saint-Denis, lat: -20.88, lon: 55.45 } } # public broadcaster; feed unconfirmed
+  - { id: seychelles-news-agency, name: Seychelles News Agency, url: "https://www.seychellesnewsagency.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Victoria, lat: -4.62, lon: 55.45 } } # state media (national news agency); feed unconfirmed
+  - { id: ayin-network, name: Ayin Network, url: "https://3ayin.com/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Nairobi, lat: -1.29, lon: 36.82 } } # independent Sudanese outlet, publishes from exile; feed unconfirmed
+  - { id: awoko, name: Awoko, url: "https://awokonewspapersl.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Freetown, lat: 8.48, lon: -13.23 } } # feed unconfirmed
+  - { id: tela-non, name: Téla Nón, url: "https://www.telanon.info/", topic: world, tier: general, desk: world, lang: pt, place: { name: São Tomé, lat: 0.34, lon: 6.73 } } # feed unconfirmed
+  - { id: times-of-eswatini, name: Times of Eswatini, url: "https://times.co.sz/", topic: world, tier: general, desk: world, lang: en, place: { name: Mbabane, lat: -26.32, lon: 31.14 } } # feed unconfirmed
+  - { id: icilome, name: iciLome, url: "https://icilome.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Lomé, lat: 6.13, lon: 1.22 } } # feed unconfirmed
+  - { id: mayotte-la-1ere, name: Mayotte la 1ère, url: "https://la1ere.franceinfo.fr/mayotte/", topic: world, tier: general, desk: world, lang: fr, place: { name: Mamoudzou, lat: -12.78, lon: 45.23 } } # public broadcaster; feed unconfirmed
+
+  # Asia and the Pacific
+  - { id: samoa-news, name: Samoa News, url: "https://www.samoanews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Pago Pago, lat: -14.28, lon: -170.70 } } # feed unconfirmed
+  - { id: borneo-bulletin, name: Borneo Bulletin, url: "https://borneobulletin.com.bn/", topic: world, tier: general, desk: world, lang: en, place: { name: Bandar Seri Begawan, lat: 4.89, lon: 114.94 } } # feed unconfirmed
+  - { id: cook-islands-news, name: Cook Islands News, url: "https://www.cookislandsnews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Avarua, lat: -21.21, lon: -159.78 } } # feed unconfirmed
+  - { id: kaselehlie-press, name: The Kaselehlie Press, url: "https://kpress.fm/", topic: world, tier: general, desk: world, lang: en, place: { name: Kolonia, lat: 6.96, lon: 158.21 } } # feed unconfirmed
+  - { id: pacific-daily-news, name: Pacific Daily News, url: "https://www.guampdn.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Hagåtña, lat: 13.48, lon: 144.75 } } # feed unconfirmed
+  - { id: kcna, name: Korean Central News Agency, url: "http://www.kcna.kp/en", topic: world, tier: general, desk: world, lang: en, place: { name: Pyongyang, lat: 39.02, lon: 125.75 } } # state media; alongside NK News and Daily NK (Seoul); site often offline; feed unconfirmed
+  - { id: marshall-islands-journal, name: The Marshall Islands Journal, url: "https://marshallislandsjournal.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Majuro, lat: 7.09, lon: 171.38 } } # feed unconfirmed
+  - { id: macau-daily-times, name: Macau Daily Times, url: "https://macaudailytimes.com.mo/", topic: world, tier: general, desk: world, lang: en, place: { name: Macau, lat: 22.20, lon: 113.54 } } # feed unconfirmed
+  - { id: marianas-variety, name: Marianas Variety, url: "https://www.mvariety.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Saipan, lat: 15.18, lon: 145.75 } } # feed unconfirmed
+  - { id: nc-la-1ere, name: Nouvelle-Calédonie la 1ère, url: "https://la1ere.franceinfo.fr/nouvellecaledonie/", topic: world, tier: general, desk: world, lang: fr, place: { name: Nouméa, lat: -22.27, lon: 166.44 } } # public broadcaster; feed unconfirmed
+  - { id: tahiti-infos, name: Tahiti Infos, url: "https://www.tahiti-infos.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Papeete, lat: -17.54, lon: -149.57 } } # feed unconfirmed
+  - { id: island-times-palau, name: Island Times, url: "https://islandtimes.org/", topic: world, tier: general, desk: world, lang: en, place: { name: Koror, lat: 7.34, lon: 134.48 } } # feed unconfirmed
+  - { id: vanuatu-daily-post, name: Vanuatu Daily Post, url: "https://www.dailypost.vu/", topic: world, tier: general, desk: world, lang: en, place: { name: Port Vila, lat: -17.74, lon: 168.32 } } # feed unconfirmed
+
+  # The Americas and the Atlantic
+  - { id: antigua-observer, name: Antigua Observer, url: "https://antiguaobserver.com/", topic: world, tier: general, desk: world, lang: en, place: { name: St. John's, lat: 17.12, lon: -61.85 } } # feed unconfirmed
+  - { id: aruba-today, name: Aruba Today, url: "https://www.arubatoday.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Oranjestad, lat: 12.52, lon: -70.03 } } # feed unconfirmed
+  - { id: barbados-today, name: Barbados Today, url: "https://barbadostoday.bb/", topic: world, tier: general, desk: world, lang: en, place: { name: Bridgetown, lat: 13.10, lon: -59.62 } } # feed unconfirmed
+  - { id: royal-gazette, name: The Royal Gazette, url: "https://www.royalgazette.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Hamilton, lat: 32.29, lon: -64.78 } } # feed unconfirmed
+  - { id: tribune242, name: The Tribune, url: "https://www.tribune242.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Nassau, lat: 25.05, lon: -77.34 } } # feed unconfirmed
+  - { id: amandala, name: Amandala, url: "https://amandala.com.bz/news/", topic: world, tier: general, desk: world, lang: en, place: { name: Belize City, lat: 17.50, lon: -88.20 } } # feed unconfirmed
+  - { id: curacao-chronicle, name: Curaçao Chronicle, url: "https://www.curacaochronicle.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Willemstad, lat: 12.11, lon: -68.93 } } # feed unconfirmed
+  - { id: dominica-news-online, name: Dominica News Online, url: "https://dominicanewsonline.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Roseau, lat: 15.30, lon: -61.39 } } # feed unconfirmed
+  - { id: penguin-news, name: Penguin News, url: "https://penguin-news.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Stanley, lat: -51.69, lon: -57.86 } } # paywalled; feed unconfirmed
+  - { id: now-grenada, name: NOW Grenada, url: "https://nowgrenada.com/", topic: world, tier: general, desk: world, lang: en, place: { name: St. George's, lat: 12.06, lon: -61.75 } } # feed unconfirmed
+  - { id: guyane-la-1ere, name: Guyane la 1ère, url: "https://la1ere.franceinfo.fr/guyane/", topic: world, tier: general, desk: world, lang: fr, place: { name: Cayenne, lat: 4.94, lon: -52.33 } } # public broadcaster; feed unconfirmed
+  - { id: knr, name: KNR, url: "https://knr.gl/da/nyheder", topic: world, tier: general, desk: world, lang: da, place: { name: Nuuk, lat: 64.18, lon: -51.72 } } # public broadcaster; feed unconfirmed
+  - { id: guadeloupe-la-1ere, name: Guadeloupe la 1ère, url: "https://la1ere.franceinfo.fr/guadeloupe/", topic: world, tier: general, desk: world, lang: fr, place: { name: Baie-Mahault, lat: 16.27, lon: -61.59 } } # public broadcaster; feed unconfirmed
+  - { id: kaieteur-news, name: Kaieteur News, url: "https://kaieteurnewsonline.com/feed/", topic: world, tier: general, desk: world, lang: en, place: { name: Georgetown, lat: 6.80, lon: -58.16 } } # feed seen in search
+  - { id: skn-observer, name: The St Kitts Nevis Observer, url: "https://www.thestkittsnevisobserver.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Basseterre, lat: 17.30, lon: -62.72 } } # feed unconfirmed
+  - { id: cayman-compass, name: Cayman Compass, url: "https://www.caymancompass.com/", topic: world, tier: general, desk: world, lang: en, place: { name: George Town, lat: 19.29, lon: -81.38 } } # feed unconfirmed
+  - { id: st-lucia-times, name: St. Lucia Times, url: "https://stluciatimes.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Castries, lat: 14.01, lon: -60.99 } } # feed unconfirmed
+  - { id: martinique-la-1ere, name: Martinique la 1ère, url: "https://la1ere.franceinfo.fr/martinique/actu/rss", topic: world, tier: general, desk: world, lang: fr, place: { name: Fort-de-France, lat: 14.61, lon: -61.07 } } # public broadcaster; feed seen in search
+  - { id: confidencial, name: Confidencial, url: "https://confidencial.digital/", topic: world, tier: general, desk: world, lang: es, place: { name: San José, lat: 9.93, lon: -84.08 } } # independent Nicaraguan outlet, publishes from exile; added with El 19 Digital; feed unconfirmed
+  - { id: el-19-digital, name: El 19 Digital, url: "https://www.el19digital.com/", topic: world, tier: general, desk: world, lang: es, place: { name: Managua, lat: 12.11, lon: -86.27 } } # state media (government and ruling party); added with Confidencial; feed unconfirmed
+  - { id: starnieuws, name: Starnieuws, url: "http://www.starnieuws.com/rss/starnieuws.rss", topic: world, tier: general, desk: world, lang: nl, place: { name: Paramaribo, lat: 5.85, lon: -55.20 } } # feed seen in search
+  - { id: tc-weekly-news, name: Turks and Caicos Weekly News, url: "https://tcweeklynews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Providenciales, lat: 21.78, lon: -72.27 } } # feed unconfirmed
+  - { id: iwitness-news, name: iWitness News, url: "https://www.iwnsvg.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Kingstown, lat: 13.16, lon: -61.23 } } # feed unconfirmed
+  - { id: st-thomas-source, name: St. Thomas Source, url: "https://stthomassource.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Charlotte Amalie, lat: 18.34, lon: -64.93 } } # feed unconfirmed
