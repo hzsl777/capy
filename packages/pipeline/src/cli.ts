@@ -45,7 +45,8 @@ const { values, positionals } = parseArgs({
   },
 });
 
-const command = positionals.join(" ");
+// `prompt <name>` takes an argument; every other command is its words.
+const command = positionals[0] === "prompt" ? "prompt" : positionals.join(" ");
 const date = values.date ? toRunDate(values.date) : todayRunDate();
 const config = loadConfig();
 
@@ -71,7 +72,7 @@ const HELP = `Commands:
   explain                explain each event with verified citations (model, batched)
   select                 one edition per reader with the headline (model, batched)
   cluster world          group the world desk's articles into events with a topic (model)
-  telegram               score the day's world events and pick the one-word mood (model, two calls)
+  telegram               score the day's world events three times, keep the middle, pick the one-word mood (model)
   map export [--out f]   the public map's data for the date (default: latest) as JSON
   map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
@@ -83,6 +84,8 @@ const HELP = `Commands:
                          --if-missing skips when the date's map already exists
   spend                  model spend for the date
   llm check              one tiny call per configured model: key, model ids, flex tier (costs a fraction of a cent)
+  prompt <name>          one call's system message, settings and a sample input, to paste into the OpenAI Playground
+                         names: cluster-world, cluster-world-merge, explain, telegram-score, telegram-word, cluster, select
   feedback [--reader r01] reader feedback from the last 14 days, newest first
 Options: --date YYYY-MM-DD  --sources path  --readers dir`;
 
@@ -357,6 +360,28 @@ switch (command) {
     const rows = await d.select().from(feedback).where(where).orderBy(desc(feedback.createdAt));
     if (rows.length === 0) console.log("No feedback in the last 14 days.");
     for (const r of rows) console.log(`${r.createdAt.toISOString().slice(0, 16)}  ${r.readerId}  ${r.kind.padEnd(7)}  ${r.eventTitle}`);
+    break;
+  }
+  case "prompt": {
+    // No key, no database: the prompt file, the schema and the settings, plus the fictional day run in memory.
+    const { isPromptName, playgroundView, PROMPT_CALLS, sampleInputs } = await import("./prompt-view.js");
+    const name = positionals[1];
+    if (!isPromptName(name)) throw new Error(`Name a prompt: ${Object.keys(PROMPT_CALLS).join(", ")}`);
+    const view = playgroundView(config, name);
+    const sample = (await sampleInputs(config, date)).get(name);
+    console.log(`OpenAI Playground settings for ${view.label} (docs/PROMPTS.md, "Try a prompt in the Playground"):
+  Model              ${view.model}
+  Text format        JSON object
+  Reasoning effort   ${view.reasoningEffort ?? "(not sent for this provider)"}
+  Verbosity, Summary leave as they are
+  Store logs         your choice; the pipeline doesn't store
+  Hosted tools       all off
+
+===== Prompt box (the system message) =====
+${view.system}
+
+===== User message: ${sample ? "a sample from the fictional world day" : "none: this call needs reader profiles, so write one by hand"} =====
+${sample ?? ""}`);
     break;
   }
   case "llm check": {

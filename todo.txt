@@ -18,6 +18,8 @@ HOW IT RUNS NOW
 LAUNCH (Davis)
 
 [x] Model key added as the LLM_API_KEY secret.
+[ ] Add prepaid credit to the OpenAI account (Settings, then Billing). The first daily run
+    failed with "You have no credits remaining": API credit is separate from ChatGPT.
 [ ] Add the DATABASE_URL secret in GitHub (the Neon pooled connection string).
 [ ] Cloudflare: the repo is connected through Cloudflare's Git integration. Check the Worker is
     named "globalgist", and add DATABASE_URL under its Settings, Variables and Secrets. Leave
@@ -53,6 +55,8 @@ Needs a person:
     is $0.10 to $0.25 a day. If the numbers differ, fix pricing.ts.
 [ ] Flex. On the Usage page, check that calls are served as flex. If none are, set the
     repository variable LLM_SERVICE_TIER to "default".
+[ ] Try a call by hand: `npm run stage -- prompt telegram-score` prints it ready for the OpenAI
+    Playground (docs/PROMPTS.md, "Try a prompt in the Playground").
 [ ] Model choice. Run the "Model eval" workflow on two or three real days, including a busy
     news day. Read the scores and reasons, not just the cost column.
 [ ] Read the word every day. Does it match the day? Do the scores fit their quoted reasons?

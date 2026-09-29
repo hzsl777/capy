@@ -78,9 +78,15 @@ export function createChatLlm(
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (res.ok) return (await res.json()) as ChatResponse;
+      const text = await res.text();
+      // An empty balance or a hard spend limit also answers 429, but waiting won't fix it, and neither will the
+      // default tier, so it fails at once with the fix in the message (decision 39).
+      if (res.status === 429 && /insufficient_quota|credit_balance_exhausted/.test(text)) {
+        throw new LlmParseError(stage, `the ${config.provider} account is out of credit or over its spend limit. Add credit or raise the limit, then re-run (docs/OPENAI.md, "Billing"). ${text.slice(0, 200)}`);
+      }
       const retryable = res.status === 429 || res.status >= 500;
       if (!retryable || attempt >= RETRY_DELAYS_MS.length) {
-        throw new LlmParseError(stage, `HTTP ${res.status} from ${config.provider}: ${(await res.text()).slice(0, 300)}`);
+        throw new LlmParseError(stage, `HTTP ${res.status} from ${config.provider}: ${text.slice(0, 300)}`);
       }
       const after = Number(res.headers.get("retry-after"));
       await sleep(Number.isFinite(after) && after > 0 ? after * 1000 : RETRY_DELAYS_MS[attempt]!);

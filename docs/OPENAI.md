@@ -33,7 +33,7 @@ To replace a key: create the new one, update the secret, run "Preflight" or wait
 
 Settings, then **Billing**.
 
-- The API is prepaid. Add credit, for example $10. At the estimated $0.10 to $0.25 a day for the map, that lasts one to three months.
+- The API is prepaid, and separate from any ChatGPT subscription: a key with no credit behind it answers every call with "You have no credits remaining". Add credit, for example $10. At the estimated $0.10 to $0.25 a day for the map, that lasts one to three months.
 - **Auto recharge** tops the balance up when it runs low. Leave it off at first, or set a low amount. With it off, an empty balance stops the calls and the site keeps showing the last good day.
 - Credits have an expiry date, shown on the billing page.
 - The account needs a payment on file before the first call works. The first payment also moves the account to usage tier 1 (see Limits).
@@ -69,7 +69,7 @@ Settings, then **Data controls**. By default OpenAI doesn't train on API traffic
 
 None of these are used by this project:
 
-- **Playground**: for trying prompts by hand. Fine for experiments, but the pipeline doesn't read anything saved there.
+- **Playground**: for trying prompts by hand. `npm run stage -- prompt <name>` prints a call ready to paste, and docs/PROMPTS.md, "Try a prompt in the Playground", maps every setting. The pipeline doesn't read anything saved there.
 - **Prompts** (saved prompts in the dashboard): the pipeline's prompts are files in the repository, versioned with the code.
 - **Assistants, Agents, Agent Builder, Realtime**: other ways to use the models. Not used.
 - **Batch**: a half-price queue with up to a day's wait. The pipeline uses the flex tier instead, which costs the same and answers in minutes.
@@ -85,7 +85,7 @@ The daily run's summary page in GitHub Actions says which stage failed. The erro
 | 401 | The key is wrong or deleted | Replace the `LLM_API_KEY` secret |
 | 403, or a permissions message | A restricted key without chat access | Edit the key's permissions |
 | 404 or "model not found" | The model id changed or the project can't use it | Check the model list and the project's model access, then `MODEL` / `MODEL_TELEGRAM` |
-| 429 `insufficient_quota` | Hard spend limit reached, or no credit left | Add credit or raise the limit |
+| 429 `insufficient_quota` or `credit_balance_exhausted` | No credit left, or the hard spend limit reached. The run stops at once and says so | Add credit or raise the limit, then re-run |
 | 429 rate limit | Too many tokens a minute | Retried by the code. If it keeps failing, lower `WORLD_CLUSTER_BATCH` |
 | 5xx | OpenAI is having trouble | Retried by the code. Re-run "Daily run" later with the day's date |
 

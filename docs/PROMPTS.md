@@ -77,6 +77,34 @@ Code checks: the word is on the band's list; on a bad day, the event that set th
 
 `cluster.v1.md` groups briefing-desk articles, like cluster-world but with primary sources ranked above press coverage. `select.v1.md` builds one reader's edition: three to five events, a line each, why each matters to that reader, and the day's headline. Code checks that select picks only listed events, each once, at least three when three exist, lines of at most 25 words, and a headline that follows the rules (no question marks, no teasers). One retry, then that reader gets no edition that day.
 
+## Try a prompt in the Playground
+
+To see how a model answers one of these calls, or to try a change before making a new version, paste it into the OpenAI Playground (platform.openai.com, then Playground). Print everything you need with:
+
+```
+npm run stage -- prompt telegram-score
+```
+
+Any of the seven names works. The command needs no key and no database. It prints the settings, the system message exactly as the pipeline sends it (the prompt file plus the JSON Schema line), and a sample user message from the fictional world day. 2DayAI's `cluster` and `select` have no sample, because they need reader profiles; write one by hand from `config/readers/r00.example.yaml`.
+
+In the Playground's panel:
+
+| Setting | Set it to |
+|---|---|
+| Prompt box ("Describe desired model behavior") | the system message the command printed |
+| Model | the model it printed: `gpt-5.4-nano` for the grouping and explain calls, `gpt-5.4-mini` for the telegram and select. The Playground may default to another model, such as `gpt-6-luna`. |
+| Text format | JSON object |
+| Reasoning mode | standard |
+| Reasoning effort | what it printed: `low` for nano calls, `high` for mini calls |
+| Verbosity, Summary | leave as they are; the pipeline doesn't send them |
+| Store logs | either. Playground runs are kept in the dashboard's Logs when on; the pipeline's calls never are |
+| Hosted tools (MCP, file search, web search, code interpreter and the rest) | all off. The pipeline uses none, and web search would let the model use facts the sources don't contain |
+| Variables | none |
+
+Then paste the user message into the chat box below the panel and run it. The answer should be one JSON object. The Playground doesn't run the code checks, so check by eye what they would: for `telegram-score`, every event scored once, and each reason copied exactly from that event's sentences.
+
+Playground runs are billed like the pipeline's calls, usually well under a cent each, from the same credit. Saving a prompt there doesn't change what the pipeline sends: the pipeline only reads the files in `packages/core/prompts/`. The Playground uses OpenAI's newer Responses API and the pipeline uses Chat Completions. The model and the messages are the same, so answers match closely, though not always word for word.
+
 ## Changing a prompt
 
 A prompt file is never edited in place. Outputs store the label of the prompt that made them, so an edited file would make old labels lie.
@@ -84,7 +112,7 @@ A prompt file is never edited in place. Outputs store the label of the prompt th
 1. Copy the file to the next version, for example `telegram-word.v1.md` to `telegram-word.v2.md`, and make the change there.
 2. Raise the version constant in the stage: `TELEGRAM_WORD_PROMPT_VERSION` in `packages/pipeline/src/stages/telegram.ts`. The constants for the other stages sit at the top of `cluster.ts`, `explain.ts` and `select.ts`.
 3. Update the fake model in `packages/pipeline/src/fixtures/` if the input or output format changed, and run `npm run check`.
-4. Compare the old and new versions on a real day: run the "Model eval" workflow, or re-run the stage on a past date locally, and read the outputs side by side.
+4. Compare the old and new versions on a real day: run the "Model eval" workflow, or re-run the stage on a past date locally, and read the outputs side by side. For a quick first look, run `npm run stage -- prompt <name>` and try both versions in the Playground on the same user message.
 5. Add an entry to docs/DECISIONS.md saying what changed and why. For the telegram and cluster-world prompts, also run the neutrality-review skill.
 
 The scoring scale, the word lists and the band formula are code, not prompt (`packages/core/src/world.ts`). Changing them needs a decision too.
