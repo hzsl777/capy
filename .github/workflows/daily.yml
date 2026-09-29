@@ -16,6 +16,9 @@ on:
       demo_run_id:
         description: Instead of a run, publish this earlier run's map file to the demo-data branch for the demo page.
         required: false
+      stage:
+        description: Run only this stage for the date instead of the whole day, for example "local" or "telegram".
+        required: false
 permissions:
   contents: read
 jobs:
@@ -68,9 +71,14 @@ jobs:
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         env:
           DATE: ${{ inputs.date }}
+          STAGE: ${{ inputs.stage }}
           IF_MISSING: ${{ github.event_name == 'workflow_run' && '--if-missing' || '' }}
         run: |
-          if [ -n "$DATE" ]; then
+          # One stage alone, named in words only, so the input can't smuggle in anything else.
+          if [ -n "$STAGE" ]; then
+            if ! [[ "$STAGE" =~ ^[a-z]+(\ [a-z]+)?$ ]]; then echo "::error::stage must be one or two lowercase words"; exit 1; fi
+            npm run stage -- $STAGE ${DATE:+--date "$DATE"}
+          elif [ -n "$DATE" ]; then
             npm run stage -- day --date "$DATE" $IF_MISSING
           else
             npm run stage -- day $IF_MISSING
