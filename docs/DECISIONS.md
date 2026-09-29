@@ -479,3 +479,17 @@ Davis found "Chosen by AI from the 24 most important events" hard to accept for 
    - chunky outlined counter lettering over an open sky, dark see-through message boxes, raised gold buttons.
 
    The terrain is built once per basemap from a half-degree raster of the land. Dragging stays as fast as in the other designs. Lakes, rivers and islands smaller than a triangle are not drawn in this design; their places still show.
+
+## 62. Seven more designs (September 29, 2026)
+
+Davis asked for designs after a frog pond, a beehive in the spirit of Bee Movie, a tarot card, Thomas Cole's The Course of Empire in black and white, a bedtime tea box with a sleepy bear, UMass and Will Rogers, each under its own name. None uses a logo, a mascot, a character or a real person's name.
+
+1. **Lily Pond**: murky green water with ripples around every shore, lily-pad land, rounded lily-pad panels, Chewy, lotus pink for fresh reports.
+2. **Honeycomb**: honey land built from hexagon cells over a dark hive, hexagon markers, black and yellow stripes, Baloo 2, white for fresh reports.
+3. **Arcana**: midnight indigo with gold linework and stars, panels framed like cards, Cinzel Decorative for the name and the word and Lora for reading, amber for fresh reports.
+4. **Arcadia**: a black-and-white engraving after The Course of Empire (public domain): hatched land, ruled water, engraved mountains, a grey sky behind the map, a double frame, a compass. It is named for the painting of the pastoral state; "Empire" as a design name on a news map could read as comment. Single-colour, so fresh reports get a dotted ring.
+5. **Nightcap**: a watercolour bedtime in periwinkle and sage, a moon and stars behind the globe, Lora italic, a warm lamp colour for fresh reports.
+6. **Campus**: maroon and cream, a maroon masthead, varsity lettering (Graduate), pennant-shaped buttons, gold for fresh reports.
+7. **Lasso**: a frontier newspaper in dusty tan and faded denim, rope rules, wood type (Rye) and typewriter text (Special Elite), a compass, red for fresh reports.
+
+Every design keeps the rules in packages/map/AGENTS.md: no text on the map, the three marker symbols by importance (a hexagon in Honeycomb), one colour or a dotted ring for fresh reports, and a one-row toolbar at 360 pixels.

@@ -43,7 +43,7 @@ src/
   translate.ts           browser Translator API wrapper
   pins.ts                localStorage pins and prefs
   ui/dom.ts              element builder (text only, never innerHTML)
-  style.css              thirteen designs over one layout
+  style.css              twenty designs over one layout
 public/
   basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed)
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
@@ -78,7 +78,7 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Designs
 
-Thirteen looks (decisions 32, 43 and 57 to 61), each in Map or Globe view, chosen from one Design menu:
+Twenty looks (decisions 32, 43 and 57 to 62), each in Map or Globe view, chosen from one Design menu:
 
 - **Morning Edition**: newsprint, black ink, halftone land, blackletter masthead and word. Map by default.
 - **Cabinet Map**: parchment, sepia ink, engraved water lines, hachured mountains, one red for fresh reports and the word. Map by default.
@@ -93,8 +93,15 @@ Thirteen looks (decisions 32, 43 and 57 to 61), each in Map or Globe view, chose
 - **Polygon Kingdom** (`bit64`): an overworld after Super Mario 64 and Ocarina of Time (decision 61). Land as a grid of flat-shaded triangles with heights, spiky mountains in rock and snow, orange cliff walls (`lowPoly`, `src/map/terrain.ts`), a soft half-resolution picture, a 22-sided globe fading into haze, coins for markers and red coins for fresh reports, outlined counter lettering (Luckiest Guy) over a sky, dark see-through message boxes, raised gold buttons. No lakes, rivers or islands smaller than a triangle. Globe by default.
 - **Realize**: direct inspiration from the Mezmerize and Hypnotize covers. Black ground, dark red smeared land, bone-white coasts and markers, blue for fresh reports, the striped arcs across the top, worn white Anton capitals over a red Permanent Marker word. Map by default.
 - **Newsroom**: a television news studio. The world on a glowing LED wall, glossy navy panels, the word as a white caption bar under a red tab, Oswald and Barlow, red for fresh reports, a crawl of the newest headlines. No "live" or "breaking" labels. Globe by default.
+- **Lily Pond**: murky green water rippling around every shore, lily-pad land and panels, Chewy, lotus pink for fresh reports. Map by default.
+- **Honeycomb**: after the feel of Bee Movie. Honey land in hexagon cells over a dark hive, hexagon markers, black and yellow stripes, Baloo 2, white for fresh reports. Map by default.
+- **Arcana**: a tarot card. Midnight indigo, gold linework and stars, card-framed panels, Cinzel Decorative and Lora, amber for fresh reports. Globe by default.
+- **Arcadia**: a black-and-white engraving after Thomas Cole's The Course of Empire (public domain). Hatched land, ruled water, engraved mountains, a grey sky, a double frame, a compass, IM Fell English. Single-colour: fresh reports get a dotted ring. Map by default.
+- **Nightcap**: a bedtime tea box. Watercolour periwinkle and sage, a moon and stars, Lora italic, a warm lamp colour for fresh reports. Globe by default.
+- **Campus**: a college campus in maroon and cream. Maroon masthead, varsity lettering (Graduate), pennant buttons, gold for fresh reports. Map by default.
+- **Lasso**: a frontier newspaper. Dusty tan and faded denim, rope rules, Rye and Special Elite, a compass, red for fresh reports. Map by default.
 
-The console, Realize and Newsroom designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
+The console, Realize, Newsroom, Honeycomb, Nightcap, Campus and Lasso designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
 
 The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`). Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
 

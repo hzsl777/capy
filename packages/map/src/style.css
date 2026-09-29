@@ -285,6 +285,141 @@
   --font-ui: "Barlow", "Arial", sans-serif;
 }
 
+/* ---- Lily Pond, Honeycomb, Arcana, Arcadia, Nightcap, Campus, Lasso -------------------- */
+:root[data-theme="pond"] {
+  color-scheme: light;
+  --page: #e3efd9;
+  --panel: #f4f9ee;
+  --ink: #17321a;
+  --ink-2: #27472a;
+  --muted: #4c6a4d;
+  --rule: #5f8f55;
+  --accent: #c23a78;
+  --on-accent: #ffffff;
+  --hover: rgba(47,107,95,0.1);
+  --reticle: var(--ink);
+  --grain-opacity: 0.2;
+  --grain-blend: multiply;
+  --font-mast: "Chewy", "Trebuchet MS", sans-serif;
+  --font-head: "Chewy", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+:root[data-theme="honeycomb"] {
+  color-scheme: dark;
+  --page: #1d1205;
+  --panel: #2a1a07;
+  --ink: #fff4d6;
+  --ink-2: #f6e3b0;
+  --muted: #d6bf8a;
+  --rule: #6b4a14;
+  --accent: #f2b632;
+  --on-accent: #1a1004;
+  --hover: rgba(242,182,50,0.12);
+  --reticle: #ffd84a;
+  --grain-opacity: 0.15;
+  --grain-blend: overlay;
+  --font-mast: "Baloo 2", "Arial Black", sans-serif;
+  --font-head: "Baloo 2", "Arial Black", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Baloo 2", "Trebuchet MS", sans-serif;
+}
+:root[data-theme="arcana"] {
+  color-scheme: dark;
+  --page: #0e0b26;
+  --panel: #161338;
+  --ink: #f5e6c0;
+  --ink-2: #e8d6a8;
+  --muted: #b8a987;
+  --rule: #6d5a2c;
+  --accent: #e3bd62;
+  --on-accent: #161338;
+  --hover: rgba(227,189,98,0.12);
+  --reticle: #f5e6c0;
+  --grain-opacity: 0.18;
+  --grain-blend: overlay;
+  --font-mast: "Cinzel Decorative", Georgia, serif;
+  --font-head: "Lora", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
+  --font-ui: "Lora", Georgia, serif;
+}
+:root[data-theme="arcadia"] {
+  color-scheme: light;
+  --page: #e9e7e1;
+  --panel: #f3f2ee;
+  --ink: #111111;
+  --ink-2: #2a2a2a;
+  --muted: #555555;
+  --rule: #1a1a1a;
+  --accent: #111111;
+  --on-accent: #f3f2ee;
+  --hover: rgba(0,0,0,0.06);
+  --reticle: var(--ink);
+  --grain-opacity: 0.55;
+  --grain-blend: multiply;
+  --font-mast: "IM Fell English SC", Georgia, serif;
+  --font-head: "IM Fell English SC", Georgia, serif;
+  --font-body: "IM Fell English", Georgia, serif;
+  --font-ui: "IM Fell English", Georgia, serif;
+}
+:root[data-theme="nightcap"] {
+  color-scheme: light;
+  --page: #e8ebf5;
+  --panel: #f8f6ee;
+  --ink: #23304f;
+  --ink-2: #34466e;
+  --muted: #5b6788;
+  --rule: #b8c2dc;
+  --accent: #3f5a96;
+  --on-accent: #ffffff;
+  --hover: rgba(63,90,150,0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0.25;
+  --grain-blend: multiply;
+  --font-mast: "Lora", Georgia, serif;
+  --font-head: "Lora", Georgia, serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+:root[data-theme="campus"] {
+  color-scheme: light;
+  --page: #f3ede1;
+  --panel: #fbf8f1;
+  --ink: #2a0808;
+  --ink-2: #4a1414;
+  --muted: #6e4a4a;
+  --rule: #881c1c;
+  --accent: #881c1c;
+  --on-accent: #ffffff;
+  --hover: rgba(136,28,28,0.07);
+  --reticle: var(--ink);
+  --grain-opacity: 0.2;
+  --grain-blend: multiply;
+  --font-mast: "Graduate", "Georgia", serif;
+  --font-head: "Graduate", "Georgia", serif;
+  --font-body: "Barlow", "Arial", sans-serif;
+  --font-ui: "Barlow", "Arial", sans-serif;
+}
+:root[data-theme="lasso"] {
+  color-scheme: light;
+  --page: #e9dcc0;
+  --panel: #f1e7d2;
+  --ink: #2e1c0c;
+  --ink-2: #4a2e16;
+  --muted: #6e5236;
+  --rule: #4a2e16;
+  --accent: #b3322a;
+  --on-accent: #fbf3df;
+  --hover: rgba(74,46,22,0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0.5;
+  --grain-blend: multiply;
+  --font-mast: "Rye", Georgia, serif;
+  --font-head: "Rye", Georgia, serif;
+  --font-body: "Special Elite", "Courier New", monospace;
+  --font-ui: "Special Elite", "Courier New", monospace;
+}
+
 /* ---- base --------------------------------------------------------------- */
 *,
 *::before,
@@ -2356,6 +2491,407 @@ button.link {
 :root[data-theme="newsroom"] .tick::before {
   content: "\25A0  ";
   color: #e4002b;
+}
+
+/* ---- Lily Pond: pond water, lily pads, lotus pink ----------------------------------------- */
+:root[data-theme="pond"] body {
+  background:
+    radial-gradient(ellipse 30% 20% at 10% 10%, rgba(118, 179, 71, 0.25), transparent 70%),
+    radial-gradient(ellipse 30% 20% at 90% 90%, rgba(47, 107, 95, 0.2), transparent 70%),
+    var(--page);
+}
+:root[data-theme="pond"] .masthead {
+  border-bottom: 3px solid #5f8f55;
+}
+:root[data-theme="pond"] .mast-title {
+  color: #2f6b2a;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="pond"] .telegram-word,
+:root[data-theme="pond"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  color: #2f6b2a;
+  text-shadow: 2px 2px 0 #cfe6b5;
+  border-bottom: 0;
+}
+/* A lily pad: round, with a notch cut toward its middle. */
+:root[data-theme="pond"] .panel,
+:root[data-theme="pond"] .menu-body,
+:root[data-theme="pond"] .key-pop {
+  border: 2px solid #5f8f55;
+  border-radius: 22px 22px 22px 4px;
+  background: radial-gradient(ellipse at 20% 0%, rgba(118, 179, 71, 0.18), transparent 60%), var(--panel);
+}
+:root[data-theme="pond"] .panel {
+  margin: 8px;
+}
+:root[data-theme="pond"] .tool,
+:root[data-theme="pond"] .pick select,
+:root[data-theme="pond"] .menu > summary,
+:root[data-theme="pond"] .chip,
+:root[data-theme="pond"] .zoom button,
+:root[data-theme="pond"] .key-btn,
+:root[data-theme="pond"] .key-close {
+  border: 2px solid #5f8f55;
+  border-radius: 999px;
+  background: #f4f9ee;
+  color: #17321a;
+}
+
+/* ---- Honeycomb: honey, hexagons, black and yellow stripes ----------------------------------- */
+:root[data-theme="honeycomb"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48'%3E%3Cpath d='M14 0 L28 8 L28 24 L14 32 L0 24 L0 8 Z M14 32 L14 48' fill='none' stroke='%23f2b632' stroke-opacity='.08' stroke-width='1.5'/%3E%3C/svg%3E"),
+    var(--page);
+}
+:root[data-theme="honeycomb"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 18px;
+  background: repeating-linear-gradient(-45deg, #1a1004 0 12px, #f2b632 12px 24px) bottom / 100% 8px no-repeat, var(--page);
+}
+:root[data-theme="honeycomb"] .mast-title {
+  font-weight: 800;
+  color: #f2b632;
+}
+:root[data-theme="honeycomb"] .telegram-word,
+:root[data-theme="honeycomb"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  color: #ffd84a;
+  text-shadow: 3px 3px 0 #8a5a08;
+  border-bottom: 0;
+}
+:root[data-theme="honeycomb"] .panel,
+:root[data-theme="honeycomb"] .menu-body,
+:root[data-theme="honeycomb"] .key-pop {
+  border: 2px solid #f2b632;
+  border-radius: 10px;
+  background: linear-gradient(to bottom, #3a2408, #241605);
+}
+:root[data-theme="honeycomb"] .panel {
+  margin: 8px;
+}
+:root[data-theme="honeycomb"] .panel h2 {
+  color: #f2b632;
+  font-weight: 800;
+}
+:root[data-theme="honeycomb"] .tool,
+:root[data-theme="honeycomb"] .pick select,
+:root[data-theme="honeycomb"] .menu > summary,
+:root[data-theme="honeycomb"] .chip,
+:root[data-theme="honeycomb"] .zoom button,
+:root[data-theme="honeycomb"] .key-btn,
+:root[data-theme="honeycomb"] .key-close {
+  border: 2px solid #f2b632;
+  border-radius: 8px;
+  background: #2a1a07;
+  color: #fff4d6;
+  font-weight: 600;
+}
+:root[data-theme="honeycomb"] .menu[open] > summary,
+:root[data-theme="honeycomb"] .key-btn[aria-expanded="true"],
+:root[data-theme="honeycomb"] .tool[aria-pressed="true"] {
+  background: #f2b632;
+  color: #1a1004;
+}
+
+/* ---- Arcana: a card in gold on midnight ----------------------------------------------------- */
+:root[data-theme="arcana"] body {
+  background:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(245, 230, 192, 0.8), transparent) 0 0 / 150px 150px,
+    radial-gradient(1px 1px at 70% 65%, rgba(245, 230, 192, 0.6), transparent) 0 0 / 210px 210px,
+    radial-gradient(ellipse at 50% 0%, rgba(90, 70, 170, 0.35), transparent 60%),
+    var(--page);
+}
+:root[data-theme="arcana"] .masthead {
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 #e3bd62, inset 0 -5px 0 var(--page), inset 0 -6px 0 #e3bd62;
+}
+:root[data-theme="arcana"] .mast-title {
+  font-weight: 700;
+  color: #e3bd62;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="arcana"] .telegram-word,
+:root[data-theme="arcana"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  color: #f5e6c0;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 14px rgba(227, 189, 98, 0.45);
+  border-bottom: 0;
+}
+/* A card: a gold double frame with a small ornament at each corner. */
+:root[data-theme="arcana"] .panel,
+:root[data-theme="arcana"] .menu-body,
+:root[data-theme="arcana"] .key-pop {
+  border: 1px solid #e3bd62;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(227, 189, 98, 0.7);
+  background:
+    radial-gradient(circle at 12px 12px, #e3bd62 1.6px, transparent 2px),
+    radial-gradient(circle at calc(100% - 12px) 12px, #e3bd62 1.6px, transparent 2px),
+    radial-gradient(circle at 12px calc(100% - 12px), #e3bd62 1.6px, transparent 2px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #e3bd62 1.6px, transparent 2px),
+    var(--panel);
+}
+:root[data-theme="arcana"] .panel {
+  margin: 8px;
+}
+:root[data-theme="arcana"] .panel h2 {
+  font-family: var(--font-mast);
+  color: #e3bd62;
+}
+:root[data-theme="arcana"] .headline,
+:root[data-theme="arcana"] .reader-headline {
+  font-weight: 600;
+}
+:root[data-theme="arcana"] .tool,
+:root[data-theme="arcana"] .pick select,
+:root[data-theme="arcana"] .menu > summary,
+:root[data-theme="arcana"] .chip,
+:root[data-theme="arcana"] .zoom button,
+:root[data-theme="arcana"] .key-btn,
+:root[data-theme="arcana"] .key-close {
+  border: 1px solid #e3bd62;
+  border-radius: 6px;
+  background: #161338;
+  color: #f5e6c0;
+}
+
+/* ---- Arcadia: a black-and-white engraving under a stormy sky ------------------------------ */
+:root[data-theme="arcadia"] body {
+  background:
+    radial-gradient(ellipse 60% 40% at 25% 0%, rgba(0, 0, 0, 0.12), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 85% 10%, rgba(0, 0, 0, 0.1), transparent 70%),
+    var(--page);
+}
+:root[data-theme="arcadia"] .map {
+  background:
+    radial-gradient(ellipse 45% 25% at 20% 12%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse 35% 20% at 75% 18%, rgba(255, 255, 255, 0.4), transparent 70%),
+    linear-gradient(to bottom, #9a9892 0%, #cfccc4 45%, #e4e1d9 100%);
+}
+:root[data-theme="arcadia"] .masthead {
+  border-bottom: 3px double #111111;
+}
+:root[data-theme="arcadia"] .mast-title {
+  letter-spacing: 0.06em;
+}
+:root[data-theme="arcadia"] .telegram-word,
+:root[data-theme="arcadia"] .telegram-big {
+  font-family: var(--font-mast);
+  letter-spacing: 0.08em;
+  color: #111111;
+  border-bottom: 3px double #111111;
+}
+:root[data-theme="arcadia"] .panel,
+:root[data-theme="arcadia"] .menu-body,
+:root[data-theme="arcadia"] .key-pop {
+  border: 1px solid #111111;
+  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px #111111;
+}
+:root[data-theme="arcadia"] .panel {
+  margin: 8px;
+}
+:root[data-theme="arcadia"] .tool,
+:root[data-theme="arcadia"] .pick select,
+:root[data-theme="arcadia"] .menu > summary,
+:root[data-theme="arcadia"] .chip,
+:root[data-theme="arcadia"] .zoom button,
+:root[data-theme="arcadia"] .key-btn,
+:root[data-theme="arcadia"] .key-close {
+  border: 1px solid #111111;
+  border-radius: 0;
+  background: #f3f2ee;
+  color: #111111;
+}
+:root[data-theme="arcadia"] .compass {
+  display: block;
+}
+
+/* ---- Nightcap: a watercolour bedtime -------------------------------------------------------- */
+:root[data-theme="nightcap"] body {
+  background:
+    radial-gradient(1.5px 1.5px at 30% 20%, rgba(255, 248, 230, 0.9), transparent) 0 0 / 130px 130px,
+    radial-gradient(ellipse 55% 45% at 50% -10%, rgba(111, 134, 187, 0.35), transparent 70%),
+    linear-gradient(to bottom, #d9def0, var(--page));
+}
+:root[data-theme="nightcap"] .map {
+  background:
+    radial-gradient(1.5px 1.5px at 30% 30%, rgba(255, 248, 230, 0.9), transparent) 0 0 / 90px 90px,
+    radial-gradient(circle at 84% 18%, #fff3d0 0 22px, rgba(255, 243, 208, 0.2) 23px 34px, transparent 35px),
+    linear-gradient(to bottom, #3e4f82, #6f86bb);
+}
+:root[data-theme="nightcap"] .masthead {
+  border-bottom: 2px solid #b8c2dc;
+}
+:root[data-theme="nightcap"] .mast-title {
+  font-style: italic;
+  font-weight: 600;
+  color: #34466e;
+}
+:root[data-theme="nightcap"] .telegram-word,
+:root[data-theme="nightcap"] .telegram-big {
+  font-family: var(--font-mast);
+  font-style: italic;
+  font-weight: 600;
+  color: #34466e;
+  border-bottom: 0;
+  text-shadow: 0 2px 10px rgba(111, 134, 187, 0.35);
+}
+:root[data-theme="nightcap"] .panel,
+:root[data-theme="nightcap"] .menu-body,
+:root[data-theme="nightcap"] .key-pop {
+  border: 1px solid #b8c2dc;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(52, 70, 110, 0.12);
+}
+:root[data-theme="nightcap"] .panel {
+  margin: 8px;
+}
+:root[data-theme="nightcap"] .tool,
+:root[data-theme="nightcap"] .pick select,
+:root[data-theme="nightcap"] .menu > summary,
+:root[data-theme="nightcap"] .chip,
+:root[data-theme="nightcap"] .zoom button,
+:root[data-theme="nightcap"] .key-btn,
+:root[data-theme="nightcap"] .key-close {
+  border: 1px solid #b8c2dc;
+  border-radius: 999px;
+  background: #fbf9f3;
+  color: #23304f;
+}
+
+/* ---- Campus: maroon and cream, varsity type, pennants ------------------------------------- */
+:root[data-theme="campus"] .masthead {
+  border-bottom: 0;
+  background: #881c1c;
+  color: #ffffff;
+}
+:root[data-theme="campus"] .masthead .mast-tag,
+:root[data-theme="campus"] .masthead .telegram-date,
+:root[data-theme="campus"] .masthead .telegram-kicker,
+:root[data-theme="campus"] .masthead .telegram-note {
+  color: #f6e9e9;
+}
+:root[data-theme="campus"] .masthead .note-link {
+  color: #ffffff;
+}
+:root[data-theme="campus"] .mast-title {
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  text-shadow: 2px 2px 0 #4e0d0d;
+}
+:root[data-theme="campus"] .telegram-word,
+:root[data-theme="campus"] .telegram-big {
+  font-family: var(--font-mast);
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  text-shadow: 3px 3px 0 #4e0d0d;
+  -webkit-text-stroke: 1px #4e0d0d;
+  paint-order: stroke fill;
+  border-bottom: 0;
+}
+:root[data-theme="campus"] .telegram-big {
+  color: #881c1c;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+}
+:root[data-theme="campus"] .masthead .scale .step {
+  color: #f6e9e9;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+:root[data-theme="campus"] .masthead .scale .step.on {
+  background: #ffffff;
+  color: #881c1c;
+}
+:root[data-theme="campus"] .masthead #about-btn {
+  color: #ffffff;
+  border-color: #ffffff;
+  background: transparent;
+}
+:root[data-theme="campus"] .panel,
+:root[data-theme="campus"] .menu-body,
+:root[data-theme="campus"] .key-pop {
+  border: 2px solid #881c1c;
+  border-top-width: 6px;
+}
+:root[data-theme="campus"] .panel {
+  margin: 8px;
+}
+:root[data-theme="campus"] .panel h2 {
+  color: #881c1c;
+}
+/* Pennants: a flag cut to a point on the right. */
+:root[data-theme="campus"] .tool,
+:root[data-theme="campus"] .pick select,
+:root[data-theme="campus"] .menu > summary,
+:root[data-theme="campus"] .chip,
+:root[data-theme="campus"] .zoom button,
+:root[data-theme="campus"] .key-btn,
+:root[data-theme="campus"] .key-close {
+  border: 0;
+  border-radius: 0;
+  background: #881c1c;
+  color: #ffffff;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+  padding-right: 18px;
+}
+:root[data-theme="campus"] .zoom button,
+:root[data-theme="campus"] .key-close {
+  clip-path: none;
+  padding-right: 0;
+}
+
+/* ---- Lasso: a frontier paper, rope rules, wood type ---------------------------------------- */
+:root[data-theme="lasso"] {
+  --rope: repeating-linear-gradient(120deg, #3a2410 0 2px, #a07a4a 2px 5px, #d9bf92 5px 7px);
+}
+:root[data-theme="lasso"] .masthead {
+  border-bottom: 0;
+  background: var(--rope) bottom / 100% 6px no-repeat, var(--page);
+  padding-bottom: 16px;
+}
+:root[data-theme="lasso"] .mast-title {
+  color: #2e1c0c;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="lasso"] .telegram-word,
+:root[data-theme="lasso"] .telegram-big {
+  font-family: var(--font-mast);
+  color: #2e1c0c;
+  letter-spacing: 0.03em;
+  text-shadow: 2px 2px 0 #d3b184;
+  border-bottom: 0;
+}
+:root[data-theme="lasso"] .panel,
+:root[data-theme="lasso"] .menu-body,
+:root[data-theme="lasso"] .key-pop {
+  border: 1px solid #4a2e16;
+  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 5px #a07a4a;
+}
+:root[data-theme="lasso"] .panel {
+  margin: 8px;
+}
+:root[data-theme="lasso"] .panel h2 {
+  font-family: var(--font-mast);
+}
+:root[data-theme="lasso"] .tool,
+:root[data-theme="lasso"] .pick select,
+:root[data-theme="lasso"] .menu > summary,
+:root[data-theme="lasso"] .chip,
+:root[data-theme="lasso"] .zoom button,
+:root[data-theme="lasso"] .key-btn,
+:root[data-theme="lasso"] .key-close {
+  border: 2px solid #4a2e16;
+  border-radius: 4px;
+  background: #f1e7d2;
+  color: #2e1c0c;
+}
+:root[data-theme="lasso"] .compass {
+  display: block;
 }
 
 /* ---- The map's key: a small button on the map, the key itself beside it ---------- */

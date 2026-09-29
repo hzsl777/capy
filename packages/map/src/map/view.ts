@@ -60,7 +60,7 @@ interface Spot {
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
 
-type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "tiles" | "shimmer";
+type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "tiles" | "shimmer";
 
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
@@ -636,6 +636,39 @@ export class MapView {
       this.patterns.set(key, p);
       return p;
     }
+    if (kind === "honeycomb") {
+      // Hexagon cells: outlines in the first ink, a lighter glint in the upper part of each cell in the second.
+      const r = 6;
+      const cw = Math.sqrt(3) * r;
+      const pc = document.createElement("canvas");
+      pc.width = Math.round(cw * this.dpr);
+      pc.height = Math.round(3 * r * this.dpr);
+      const g = pc.getContext("2d")!;
+      g.scale(this.dpr, this.dpr);
+      const hex = (cx: number, cy: number) => {
+        g.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = Math.PI / 6 + (i * Math.PI) / 3;
+          if (i === 0) g.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+          else g.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+        }
+        g.closePath();
+      };
+      g.lineWidth = 1.1;
+      for (const [cx, cy] of [[cw / 2, 0], [0, 1.5 * r], [cw, 1.5 * r], [cw / 2, 3 * r]] as const) {
+        hex(cx, cy);
+        g.strokeStyle = ink;
+        g.stroke();
+        g.beginPath();
+        g.arc(cx - r * 0.25, cy - r * 0.3, r * 0.22, 0, Math.PI * 2);
+        g.fillStyle = ink2;
+        g.fill();
+      }
+      p = this.ctx.createPattern(pc, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
     if (kind === "mottle") {
       // A blurry low-resolution texture: soft blobs of a lighter and a darker shade, drawn on a three-by-three sheet
       // and blurred there so the middle tile wraps without a seam.
@@ -1117,7 +1150,14 @@ export class MapView {
     // A circle, or a square snapped to whole canvas pixels for the pixel designs.
     const shape = (x: number, y: number, r: number) => {
       if (t.dotShape === "square") ctx.rect(Math.round(x - r), Math.round(y - r), Math.round(r * 2), Math.round(r * 2));
-      else if (t.dotShape === "diamond") {
+      else if (t.dotShape === "hex") {
+        for (let i = 0; i < 6; i++) {
+          const a = Math.PI / 6 + (i * Math.PI) / 3;
+          if (i === 0) ctx.moveTo(x + r * 1.1 * Math.cos(a), y + r * 1.1 * Math.sin(a));
+          else ctx.lineTo(x + r * 1.1 * Math.cos(a), y + r * 1.1 * Math.sin(a));
+        }
+        ctx.closePath();
+      } else if (t.dotShape === "diamond") {
         const d = r * 1.3;
         ctx.moveTo(x, y - d);
         ctx.lineTo(x + d, y);

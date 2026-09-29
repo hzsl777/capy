@@ -31,6 +31,15 @@ import "@fontsource/permanent-marker/400.css";
 import "@fontsource/patrick-hand/400.css";
 import "@fontsource/anton/400.css";
 import "@fontsource/luckiest-guy/400.css";
+import "@fontsource/chewy/400.css";
+import "@fontsource/baloo-2/500.css";
+import "@fontsource/baloo-2/800.css";
+import "@fontsource/cinzel-decorative/700.css";
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/400-italic.css";
+import "@fontsource/lora/600.css";
+import "@fontsource/graduate/400.css";
+import "@fontsource/rye/400.css";
 import "@fontsource/oswald/500.css";
 import "@fontsource/oswald/600.css";
 import "@fontsource/dotgothic16/latin-400.css";
@@ -303,10 +312,16 @@ function renderKey() {
     svg.style.background = t.ocean;
     svg.style.borderRadius = "4px";
     draw((r, fill, stroke, width, dash) => {
-      const el = document.createElementNS(NS, t.dotShape === "square" ? "rect" : t.dotShape === "diamond" ? "polygon" : "circle");
+      const el = document.createElementNS(NS, t.dotShape === "square" ? "rect" : t.dotShape === "diamond" || t.dotShape === "hex" ? "polygon" : "circle");
       if (t.dotShape === "diamond") {
         const d = r * 1.3;
         el.setAttribute("points", `0,${-d} ${d},0 0,${d} ${-d},0`);
+      } else if (t.dotShape === "hex") {
+        const pts = Array.from({ length: 6 }, (_, i) => {
+          const a = Math.PI / 6 + (i * Math.PI) / 3;
+          return `${(r * 1.1 * Math.cos(a)).toFixed(2)},${(r * 1.1 * Math.sin(a)).toFixed(2)}`;
+        });
+        el.setAttribute("points", pts.join(" "));
       } else if (t.dotShape === "square") {
         el.setAttribute("x", String(-r));
         el.setAttribute("y", String(-r));
