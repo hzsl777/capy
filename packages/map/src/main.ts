@@ -24,6 +24,14 @@ import "@fontsource/fredoka/600.css";
 import "@fontsource/nunito/400.css";
 import "@fontsource/nunito/400-italic.css";
 import "@fontsource/nunito/700.css";
+import "@fontsource/press-start-2p/400.css";
+import "@fontsource/pixelify-sans/400.css";
+import "@fontsource/pixelify-sans/700.css";
+import "@fontsource/cinzel/400.css";
+import "@fontsource/cinzel/700.css";
+import "@fontsource/permanent-marker/400.css";
+import "@fontsource/patrick-hand/400.css";
+import "@fontsource/audiowide/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -51,7 +59,7 @@ import { THEMES, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
 import { needsTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
-import { loadPins, prefs, savePins, setPref, type Pin } from "./pins.ts";
+import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 
@@ -65,14 +73,17 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 // ---- state ----------------------------------------------------------------
 
 const params = new URLSearchParams(location.search);
-const urlTheme = params.get("theme") as ThemeId | null;
+/** Design ids that were renamed, so old links and saved choices still land on the same design. */
+const RENAMED: Record<string, ThemeId> = { cotton: "candy" };
+const renamed = (id: string | null): ThemeId | null => (id ? (RENAMED[id] ?? (id as ThemeId)) : null);
+const urlTheme = renamed(params.get("theme"));
 const urlView = params.get("view") as ViewMode | null;
 
 const state = {
   file: null as NewsFile | null,
   byPlace: new Map<number, Item[]>(),
   stories: new Map<string, Item[]>(),
-  theme: urlTheme && THEME_IDS.includes(urlTheme) ? urlTheme : prefs<ThemeId>("theme", "morning", THEME_IDS),
+  theme: urlTheme && THEME_IDS.includes(urlTheme) ? urlTheme : prefs<ThemeId>("theme", "morning", THEME_IDS, renamed),
   view: null as ViewMode | null,
   topics: new Set<TopicFilter>(FILTERS),
   slot: SLOTS,
@@ -94,7 +105,16 @@ const state = {
   pins: loadPins(),
   playing: 0,
 };
-state.view = urlView === "2d" || urlView === "3d" ? urlView : null;
+// A link's view wins; otherwise the visitor's last choice, saved in their own browser only.
+const savedView = prefs<ViewMode | "">("view", "", ["2d", "3d", ""]);
+state.view = urlView === "2d" || urlView === "3d" ? urlView : savedView || null;
+state.translate = prefs("translate", "off", ["on", "off"]) === "on";
+{
+  const saved = rawPref("topics")
+    .split(",")
+    .filter((f): f is TopicFilter => (FILTERS as readonly string[]).includes(f));
+  if (saved.length) state.topics = new Set(saved);
+}
 
 const viewOf = () => state.view ?? THEMES[state.theme].defaultView;
 
@@ -194,6 +214,7 @@ function renderToolbar() {
     viewOf(),
     (v) => {
       state.view = v;
+      setPref("view", v);
       map.setMode(v);
       renderToolbar();
       syncUrl();
@@ -263,9 +284,57 @@ function renderPins() {
   );
 }
 
+/**
+ * The map's key, drawn in the current design's colours and dot shape so it matches the map (decision 57): three
+ * symbols by the AI model's importance rating, the inner ring of merged places, and "reported in the last hour".
+ */
+function renderKey() {
+  const t = THEMES[state.theme];
+  const NS = "http://www.w3.org/2000/svg";
+  const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string) => void) => void) => {
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "-12 -12 24 24");
+    svg.setAttribute("width", "22");
+    svg.setAttribute("height", "22");
+    svg.setAttribute("aria-hidden", "true");
+    svg.style.background = t.ocean;
+    svg.style.borderRadius = "4px";
+    draw((r, fill, stroke, width, dash) => {
+      const el = document.createElementNS(NS, t.dotShape === "square" ? "rect" : "circle");
+      if (t.dotShape === "square") {
+        el.setAttribute("x", String(-r));
+        el.setAttribute("y", String(-r));
+        el.setAttribute("width", String(r * 2));
+        el.setAttribute("height", String(r * 2));
+      } else el.setAttribute("r", String(r));
+      el.setAttribute("fill", fill);
+      el.setAttribute("stroke", stroke);
+      el.setAttribute("stroke-width", String(width));
+      if (dash) el.setAttribute("stroke-dasharray", dash);
+      svg.append(el);
+    });
+    return svg;
+  };
+  const row = (svg: SVGSVGElement, label: string) => h("li", {}, svg as unknown as Node, h("span", {}, label));
+  const mono = t.fresh === t.dot;
+  $("key-body").replaceChildren(
+    h("p", { class: "key-note" }, "Symbols follow the AI model's 1 to 5 importance rating for a place's top story. Bigger means more important or more reports."),
+    h(
+      "ul",
+      {},
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3))), "Importance 4 or 5"),
+      row(mark((add) => add(6, t.dot, t.dotStroke, 1.2)), "Importance 2 or 3"),
+      row(mark((add) => add(4.5, t.dotStroke, t.dot, 1.6)), "Importance 1, and local stories via GDELT"),
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together"),
+      row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2")) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
+    ),
+  );
+}
+
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   map.setTheme(THEMES[state.theme]);
+  renderKey();
   map.setMode(viewOf());
   renderMasthead();
   renderToolbar();
@@ -273,6 +342,8 @@ function applyTheme() {
 }
 
 function onFiltersChanged() {
+  // All topics is the default, so it is saved as nothing.
+  setPref("topics", state.topics.size === FILTERS.length ? "" : [...state.topics].join(","));
   refreshDots();
   renderToolbar();
   renderTimeLabel();
@@ -562,6 +633,12 @@ function scale(band: number): HTMLElement {
   );
 }
 
+/** "today's" for the current day's map (it covers the 24 hours to 09:00 UTC), "the day's" for an older one. */
+function fromDays(runDate: string): string {
+  const age = (Date.now() - Date.parse(`${runDate}T09:00:00Z`)) / 86_400_000;
+  return age < 1.5 ? "today's" : "the day's";
+}
+
 function renderTelegramStrip() {
   const el = $("telegram");
   const file = state.file;
@@ -585,7 +662,7 @@ function renderTelegramStrip() {
   el.replaceChildren(
     date,
     h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "Today's word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`), scale(t.band)),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from ${fromDays(file.runDate)} ${n} ${n === 1 ? "event" : "events"}`), scale(t.band)),
   );
 }
 
@@ -869,6 +946,7 @@ function bindGlobal() {
   });
   $("translate").addEventListener("click", () => {
     state.translate = !state.translate;
+    setPref("translate", state.translate ? "on" : "off");
     renderToolbar();
     renderPanel();
   });
@@ -901,6 +979,7 @@ async function start() {
   document.documentElement.dataset.theme = state.theme;
   renderMasthead();
   renderToolbar();
+  renderKey();
   renderTelegramStrip();
   renderPanel();
   bindTimebar();

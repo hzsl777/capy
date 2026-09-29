@@ -7,7 +7,7 @@ import type { Theme, ViewMode } from "../themes.ts";
  * text and no filled shapes, so they never read as a pin, a label or a place (neutrality rules 1 and 2).
  */
 
-export type CreatureKind = "whale" | "serpent" | "kraken";
+export type CreatureKind = "whale" | "serpent" | "kraken" | "wrapped" | "lollipop" | "swirl" | "saucer";
 
 export interface Creature {
   kind: CreatureKind;
@@ -29,6 +29,22 @@ export const CREATURES: readonly Creature[] = [
   { kind: "serpent", lon: 82, lat: -28, flip: true }, // Indian Ocean
   { kind: "whale", lon: 25, lat: -57 }, // Southern Ocean
 ];
+
+/**
+ * Sweets for the Candy Shop design, on the sea creatures' spots, so the same test keeps them in open ocean and far
+ * from every outlet. Each is bigger than a dot and made of open strokes with a wrapper, a stick or spokes, so none
+ * reads as a hollow story mark.
+ */
+export const CANDIES: readonly Creature[] = [
+  { kind: "lollipop", lon: -145, lat: 30 },
+  { kind: "wrapped", lon: -128, lat: -38 },
+  { kind: "swirl", lon: -22, lat: -30 },
+  { kind: "wrapped", lon: 82, lat: -28, flip: true },
+  { kind: "lollipop", lon: 25, lat: -57, flip: true },
+];
+
+/** Flying saucers for the UFO design, on the same tested spots, each with its dome and a beam toward the sea. */
+export const SAUCERS: readonly Creature[] = CREATURES.map((c, i) => ({ kind: "saucer", lon: c.lon, lat: c.lat, flip: i % 2 === 1 }));
 
 /**
  * Stars for the Space design's flat map: [lon, lat, size 0 to 2], each in open ocean at least 3 degrees from land
@@ -56,12 +72,14 @@ const FADE = (64 * Math.PI) / 180;
 const INK_ALPHA = 0.5;
 
 export function drawDecor(ctx: CanvasRenderingContext2D, proj: GeoProjection, t: Theme, mode: ViewMode, center: [number, number]) {
-  if (t.decor === "sea") drawCreatures(ctx, proj, t, mode, center);
+  if (t.decor === "sea") drawCreatures(ctx, proj, t, mode, center, CREATURES);
+  else if (t.decor === "candy") drawCreatures(ctx, proj, t, mode, center, CANDIES);
+  else if (t.decor === "ufo") drawCreatures(ctx, proj, t, mode, center, SAUCERS);
   else if (t.decor === "space" && mode === "3d") drawRim(ctx, proj);
   else if (t.decor === "space") drawStars(ctx, proj);
 }
 
-function drawCreatures(ctx: CanvasRenderingContext2D, proj: GeoProjection, t: Theme, mode: ViewMode, center: [number, number]) {
+function drawCreatures(ctx: CanvasRenderingContext2D, proj: GeoProjection, t: Theme, mode: ViewMode, center: [number, number], list: readonly Creature[]) {
   const [cx, cy] = proj.translate();
   // Half the width of a creature in pixels: grows with zoom, but stays small next to the land.
   const s = Math.min(28, Math.max(9, proj.scale() * 0.06));
@@ -71,7 +89,7 @@ function drawCreatures(ctx: CanvasRenderingContext2D, proj: GeoProjection, t: Th
   ctx.lineJoin = "round";
   ctx.shadowBlur = 0;
   ctx.setLineDash([]);
-  for (const c of CREATURES) {
+  for (const c of list) {
     let alpha = INK_ALPHA;
     let squash = 1;
     let tilt = 0;
@@ -99,7 +117,11 @@ function drawCreatures(ctx: CanvasRenderingContext2D, proj: GeoProjection, t: Th
     ctx.beginPath();
     if (c.kind === "whale") whale(ctx);
     else if (c.kind === "serpent") serpent(ctx);
-    else kraken(ctx);
+    else if (c.kind === "kraken") kraken(ctx);
+    else if (c.kind === "wrapped") wrapped(ctx);
+    else if (c.kind === "lollipop") lollipop(ctx);
+    else if (c.kind === "saucer") saucer(ctx);
+    else swirl(ctx);
     ctx.stroke();
     ctx.restore();
   }
@@ -246,4 +268,63 @@ function kraken(ctx: CanvasRenderingContext2D) {
     ctx.bezierCurveTo(sx * 0.94, 0.18, sx * 1.06, 0.14, sx * 1.12, 0.02);
   }
   waves(ctx, -1.2, 1.2, 0.36);
+}
+
+/** A wrapped sweet: an oval with a stripe, twisted wrapper ends either side. */
+function wrapped(ctx: CanvasRenderingContext2D) {
+  ctx.ellipse(0, 0, 0.55, 0.34, 0, 0, Math.PI * 2);
+  ctx.moveTo(-0.2, -0.3);
+  ctx.lineTo(0.05, 0.32);
+  ctx.moveTo(0.12, -0.33);
+  ctx.lineTo(0.34, 0.24);
+  for (const side of [-1, 1]) {
+    ctx.moveTo(side * 0.55, 0);
+    ctx.lineTo(side * 0.98, -0.34);
+    ctx.lineTo(side * 0.9, 0);
+    ctx.lineTo(side * 0.98, 0.34);
+    ctx.closePath();
+  }
+}
+
+/** A lollipop: an open spiral on a stick. */
+function lollipop(ctx: CanvasRenderingContext2D) {
+  const cy = -0.35;
+  for (let a = 0; a <= Math.PI * 5; a += 0.2) {
+    const r = 0.04 + (a / (Math.PI * 5)) * 0.52;
+    const x = Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    if (a === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.moveTo(0, cy + 0.56);
+  ctx.lineTo(0, 0.98);
+}
+
+/** A peppermint swirl: curved spokes inside a ring, with wrapper ends. */
+function swirl(ctx: CanvasRenderingContext2D) {
+  ctx.arc(0, 0, 0.5, 0, Math.PI * 2);
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2;
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(Math.cos(a + 0.6) * 0.34, Math.sin(a + 0.6) * 0.34, Math.cos(a) * 0.5, Math.sin(a) * 0.5);
+  }
+  for (const side of [-1, 1]) {
+    ctx.moveTo(side * 0.5, 0);
+    ctx.lineTo(side * 0.9, -0.28);
+    ctx.lineTo(side * 0.9, 0.28);
+    ctx.closePath();
+  }
+}
+
+/** A flying saucer: a flat disc with a dome and a rim line, and the edges of a light beam below it. */
+function saucer(ctx: CanvasRenderingContext2D) {
+  ctx.ellipse(0, -0.25, 0.95, 0.22, 0, 0, Math.PI * 2);
+  ctx.moveTo(-0.38, -0.33);
+  ctx.bezierCurveTo(-0.34, -0.78, 0.34, -0.78, 0.38, -0.33);
+  ctx.moveTo(-0.62, -0.18);
+  ctx.lineTo(0.62, -0.18);
+  ctx.moveTo(-0.28, -0.04);
+  ctx.lineTo(-0.62, 0.95);
+  ctx.moveTo(0.28, -0.04);
+  ctx.lineTo(0.62, 0.95);
 }

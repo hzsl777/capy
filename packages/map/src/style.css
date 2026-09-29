@@ -165,8 +165,8 @@
   --font-ui: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-/* ---- Cotton Candy: pink and sky blue, soft and rounded ------------------ */
-:root[data-theme="cotton"] {
+/* ---- Candy Shop: pink and sky blue, soft and rounded, with candy stripes -- */
+:root[data-theme="candy"] {
   color-scheme: light;
   --page: #fff0f7;
   --panel: #fffafd;
@@ -184,6 +184,104 @@
   --font-head: "Fredoka", "Trebuchet MS", sans-serif;
   --font-body: "Nunito", "Trebuchet MS", sans-serif;
   --font-ui: "Fredoka", "Trebuchet MS", sans-serif;
+}
+
+
+/* ---- 8-Bit, 16-Bit, 64-Bit: nods to three console generations, in graphics only --- */
+:root[data-theme="bit8"] {
+  color-scheme: dark;
+  --page: #000000;
+  --panel: #000000;
+  --ink: #fcfcfc;
+  --ink-2: #d8d8d8;
+  --muted: #bcbcbc;
+  --rule: #3cbcfc;
+  --accent: #3cbcfc;
+  --on-accent: #000000;
+  --hover: rgba(60, 188, 252, 0.16);
+  --reticle: #fcfcfc;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Press Start 2P", "Courier New", monospace;
+  --font-head: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "Pixelify Sans", "Courier New", monospace;
+  --font-ui: "Press Start 2P", "Courier New", monospace;
+}
+:root[data-theme="bit16"] {
+  color-scheme: dark;
+  --page: #0c1236;
+  --panel: #1a2a78;
+  --ink: #f8f8f8;
+  --ink-2: #dce2ff;
+  --muted: #b4bff0;
+  --rule: #dfe5ff;
+  --accent: #f8d030;
+  --on-accent: #0c1236;
+  --hover: rgba(248, 248, 248, 0.12);
+  --reticle: #f8f8f8;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Trebuchet MS", sans-serif;
+  --font-head: "Pixelify Sans", "Trebuchet MS", sans-serif;
+  --font-body: "Pixelify Sans", "Trebuchet MS", sans-serif;
+  --font-ui: "Pixelify Sans", "Trebuchet MS", sans-serif;
+}
+:root[data-theme="bit64"] {
+  color-scheme: dark;
+  --page: #0e0b1c;
+  --panel: #14102a;
+  --ink: #fbf3dc;
+  --ink-2: #eadbb0;
+  --muted: #cdbd92;
+  --rule: #c9a14a;
+  --accent: #f2c14e;
+  --on-accent: #1a1206;
+  --hover: rgba(242, 193, 78, 0.12);
+  --reticle: #64d8ff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Cinzel", Georgia, serif;
+  --font-head: "Cinzel", Georgia, serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Cinzel", Georgia, serif;
+}
+:root[data-theme="realize"] {
+  color-scheme: dark;
+  --page: #121015;
+  --panel: #1b1820;
+  --ink: #f6f0e6;
+  --ink-2: #e2d8c8;
+  --muted: #c4b8a6;
+  --rule: #4a3f4c;
+  --accent: #e6452a;
+  --on-accent: #ffffff;
+  --hover: rgba(230, 69, 42, 0.14);
+  --reticle: #ffd23a;
+  --grain-opacity: 0.18;
+  --grain-blend: overlay;
+  --font-mast: "Permanent Marker", "Comic Sans MS", cursive;
+  --font-head: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-body: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-ui: "Patrick Hand", "Comic Sans MS", cursive;
+}
+:root[data-theme="ufo"] {
+  color-scheme: dark;
+  --page: #05060d;
+  --panel: #0a0f1c;
+  --ink: #dcffe8;
+  --ink-2: #b4f5cc;
+  --muted: #8cc9a4;
+  --rule: #1f4a36;
+  --accent: #7dff9a;
+  --on-accent: #03110a;
+  --hover: rgba(125, 255, 154, 0.1);
+  --reticle: #7dff9a;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Audiowide", "Arial Black", sans-serif;
+  --font-head: "Audiowide", "Arial Black", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Audiowide", "Arial Black", sans-serif;
 }
 
 /* ---- base --------------------------------------------------------------- */
@@ -510,11 +608,17 @@ summary {
   color: var(--accent);
 }
 :root[data-theme="wire"] .telegram-word {
-  color: var(--on-accent);
-  background: var(--accent);
-  border-bottom: 0;
-  padding: 3px 8px;
-  font-weight: 500;
+  /* Phosphor text between two terminal rules, with faint scan lines behind it: a readout, not a filled block. */
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  background: repeating-linear-gradient(to bottom, rgba(77, 255, 136, 0.08) 0 1px, transparent 1px 3px);
+  border: 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 2px 16px 0;
+  text-shadow: 0 0 6px rgba(77, 255, 136, 0.8), 0 0 18px rgba(77, 255, 136, 0.35);
 }
 
 .telegram-big {
@@ -534,8 +638,10 @@ summary {
   color: var(--accent);
 }
 :root[data-theme="wire"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.14em;
   color: var(--accent);
-  font-weight: 500;
 }
 .scale {
   display: inline-flex;
@@ -1639,138 +1745,138 @@ button.link {
   filter: grayscale(1) contrast(1.1) brightness(0.9);
 }
 
-/* ---- Cotton Candy: rounded everything ------------------------------------- */
-:root[data-theme="cotton"] body {
+/* ---- Candy Shop: rounded everything --------------------------------------- */
+:root[data-theme="candy"] body {
   background: linear-gradient(160deg, #ffe4f1 0%, #fff4fa 45%, #dcefff 100%);
 }
-:root[data-theme="cotton"] .masthead {
+:root[data-theme="candy"] .masthead {
   /* Scallops instead of a rule. */
   border-bottom: 0;
   padding-bottom: 18px;
   background: radial-gradient(circle at 8px 0, transparent 6px, var(--rule) 6.5px 8px, transparent 8.5px) left bottom / 16px 9px repeat-x;
 }
-:root[data-theme="cotton"] .mast-title {
+:root[data-theme="candy"] .mast-title {
   font: 600 clamp(30px, 3.6vw, 44px) / 1 var(--font-mast);
   color: var(--accent);
   text-shadow: 2px 2px 0 #bfe3ff;
 }
-:root[data-theme="cotton"] .mast-tag {
+:root[data-theme="candy"] .mast-tag {
   font-style: normal;
 }
-:root[data-theme="cotton"] .toolbar {
+:root[data-theme="candy"] .toolbar {
   border-bottom: 0;
 }
-:root[data-theme="cotton"] .seg {
+:root[data-theme="candy"] .seg {
   border-radius: 999px;
   overflow: hidden;
   border-width: 2px;
 }
-:root[data-theme="cotton"] .tool,
-:root[data-theme="cotton"] .pick select,
-:root[data-theme="cotton"] .menu > summary,
-:root[data-theme="cotton"] .chip,
-:root[data-theme="cotton"] .score-chip,
-:root[data-theme="cotton"] .scale {
+:root[data-theme="candy"] .tool,
+:root[data-theme="candy"] .pick select,
+:root[data-theme="candy"] .menu > summary,
+:root[data-theme="candy"] .chip,
+:root[data-theme="candy"] .score-chip,
+:root[data-theme="candy"] .scale {
   border-radius: 999px;
 }
-:root[data-theme="cotton"] .tool,
-:root[data-theme="cotton"] .menu > summary {
+:root[data-theme="candy"] .tool,
+:root[data-theme="candy"] .menu > summary {
   border-width: 2px;
   padding-inline: 14px;
 }
-:root[data-theme="cotton"] .pick select {
+:root[data-theme="candy"] .pick select {
   border-width: 2px;
   padding-left: 14px;
 }
-:root[data-theme="cotton"] .tool.quiet {
+:root[data-theme="candy"] .tool.quiet {
   border-color: transparent;
 }
-:root[data-theme="cotton"] .scale {
+:root[data-theme="candy"] .scale {
   overflow: hidden;
 }
-:root[data-theme="cotton"] .menu-body,
-:root[data-theme="cotton"] dialog {
+:root[data-theme="candy"] .menu-body,
+:root[data-theme="candy"] dialog {
   border-radius: 18px;
   border-width: 2px;
   box-shadow: 0 8px 24px rgba(200, 40, 111, 0.16);
 }
-:root[data-theme="cotton"] .menu-item {
+:root[data-theme="candy"] .menu-item {
   border-bottom-style: dotted;
 }
-:root[data-theme="cotton"] .map {
+:root[data-theme="candy"] .map {
   margin: 10px;
   border: 2px solid var(--rule);
   border-radius: 24px;
 }
-:root[data-theme="cotton"] .panel {
+:root[data-theme="candy"] .panel {
   margin: 10px 10px 10px 0;
   border: 2px solid var(--rule);
   border-radius: 24px;
 }
-:root[data-theme="cotton"] .zoom {
+:root[data-theme="candy"] .zoom {
   border-radius: 999px;
   overflow: hidden;
   border-width: 2px;
 }
-:root[data-theme="cotton"] .timebar {
+:root[data-theme="candy"] .timebar {
   border-top: 0;
 }
-:root[data-theme="cotton"] .panel-title,
-:root[data-theme="cotton"] .place-name {
+:root[data-theme="candy"] .panel-title,
+:root[data-theme="candy"] .place-name {
   font: 600 26px/1.05 var(--font-head);
   text-transform: none;
   letter-spacing: 0.01em;
   color: var(--accent);
 }
-:root[data-theme="cotton"] .dateline {
+:root[data-theme="candy"] .dateline {
   border-bottom: 2px dotted var(--rule);
 }
-:root[data-theme="cotton"] .rule-head {
+:root[data-theme="candy"] .rule-head {
   border: 0;
   border-radius: 999px;
   background: #e2f2ff;
   color: var(--ink);
 }
-:root[data-theme="cotton"] .headline {
+:root[data-theme="candy"] .headline {
   font: 700 16px/1.3 var(--font-body);
 }
-:root[data-theme="cotton"] .reader-headline {
+:root[data-theme="candy"] .reader-headline {
   font: 600 28px/1.15 var(--font-head);
 }
-:root[data-theme="cotton"] .excerpt::first-letter {
+:root[data-theme="candy"] .excerpt::first-letter {
   font-family: var(--font-head);
   font-weight: 600;
   color: var(--accent);
 }
-:root[data-theme="cotton"] .lead img {
+:root[data-theme="candy"] .lead img {
   filter: none;
   border-radius: 14px;
 }
-:root[data-theme="cotton"] .telegram-word {
+:root[data-theme="candy"] .telegram-word {
   font-family: var(--font-mast);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--accent);
   border-bottom: 3px dotted #7cc3f5;
 }
-:root[data-theme="cotton"] .telegram-big {
+:root[data-theme="candy"] .telegram-big {
   font-family: var(--font-mast);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--accent);
 }
-:root[data-theme="cotton"] .scale .step.on {
+:root[data-theme="candy"] .scale .step.on {
   background: var(--accent);
   color: var(--on-accent);
 }
 
 @media (max-width: 760px) {
   :root[data-theme="pirate"] .map,
-  :root[data-theme="cotton"] .map {
+  :root[data-theme="candy"] .map {
     margin: 8px;
   }
   :root[data-theme="pirate"] .panel,
-  :root[data-theme="cotton"] .panel {
+  :root[data-theme="candy"] .panel {
     margin: 0 8px 8px;
   }
 }
@@ -1783,11 +1889,339 @@ button.link {
   :root[data-theme="pirate"] .toolbar {
     letter-spacing: 0.01em;
   }
-  :root[data-theme="cotton"] .tool,
-  :root[data-theme="cotton"] .menu > summary {
+  :root[data-theme="candy"] .tool,
+  :root[data-theme="candy"] .menu > summary {
     padding-inline: 10px;
   }
-  :root[data-theme="cotton"] .pick select {
+  :root[data-theme="candy"] .pick select {
     padding-left: 10px;
+  }
+}
+
+/* ---- 8-Bit: riveted tech panels and cyan frames, like a stage-select screen ------- */
+:root[data-theme="bit8"] body {
+  -webkit-font-smoothing: none;
+}
+:root[data-theme="bit8"] .mast-title {
+  font-size: clamp(16px, 2.2vw, 26px);
+  line-height: 1.3;
+  color: #fcfcfc;
+  text-shadow: 3px 3px 0 #0058f8;
+}
+:root[data-theme="bit8"] .mast-tag,
+:root[data-theme="bit8"] .telegram-date,
+:root[data-theme="bit8"] .telegram-kicker {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 9px;
+  line-height: 1.6;
+}
+:root[data-theme="bit8"] .telegram-word,
+:root[data-theme="bit8"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #fcfcfc;
+  text-shadow: 3px 3px 0 #0058f8;
+  border-bottom: 0;
+}
+:root[data-theme="bit8"] .masthead,
+:root[data-theme="bit8"] .toolbar {
+  border-bottom: 4px solid #3cbcfc;
+}
+/* A metal panel: cyan frame, a darker blue inner edge, and a rivet in each corner. */
+:root[data-theme="bit8"] .panel,
+:root[data-theme="bit8"] .menu-body {
+  border: 3px solid #3cbcfc;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 3px #0058f8;
+  background:
+    radial-gradient(circle at 9px 9px, #bcbcbc 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #bcbcbc 2px, transparent 2.5px),
+    radial-gradient(circle at 9px calc(100% - 9px), #bcbcbc 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #bcbcbc 2px, transparent 2.5px),
+    #000814;
+}
+:root[data-theme="bit8"] .panel {
+  margin: 6px;
+}
+:root[data-theme="bit8"] .tool,
+:root[data-theme="bit8"] .pick select,
+:root[data-theme="bit8"] .menu > summary,
+:root[data-theme="bit8"] .chip,
+:root[data-theme="bit8"] .zoom button,
+:root[data-theme="bit8"] .key > summary {
+  border: 2px solid #3cbcfc;
+  border-radius: 0;
+  box-shadow: inset 0 -3px 0 #0058f8;
+  font-size: 10px;
+}
+/* The day's scale reads as a segmented energy bar. */
+:root[data-theme="bit8"] .scale {
+  border: 3px solid #fcfcfc;
+  gap: 3px;
+  padding: 3px;
+  background: #000000;
+}
+
+/* ---- 16-Bit: blue gradient windows with rounded white frames ------------------ */
+:root[data-theme="bit16"] .mast-title {
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #0c1236, 0 0 0 transparent;
+}
+:root[data-theme="bit16"] .telegram-word,
+:root[data-theme="bit16"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 3px 3px 0 #0c1236;
+  border-bottom-color: var(--accent);
+}
+:root[data-theme="bit16"] .panel,
+:root[data-theme="bit16"] .menu-body {
+  background: linear-gradient(to bottom, #2a44b8 0%, #14206a 100%);
+  border: 3px solid #eef1ff;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px #0c1236;
+}
+:root[data-theme="bit16"] .panel {
+  margin: 6px;
+}
+:root[data-theme="bit16"] .tool,
+:root[data-theme="bit16"] .pick select,
+:root[data-theme="bit16"] .menu > summary,
+:root[data-theme="bit16"] .chip,
+:root[data-theme="bit16"] .zoom button {
+  background: linear-gradient(to bottom, #2a44b8, #14206a);
+  border: 2px solid #eef1ff;
+  border-radius: 6px;
+  color: var(--ink);
+}
+
+/* ---- 64-Bit: gold-trimmed windows over a dusk sky, a pause-screen world map ------ */
+:root[data-theme="bit64"] body {
+  background: radial-gradient(ellipse at 50% 0%, #2a1f4a 0%, var(--page) 70%);
+}
+:root[data-theme="bit64"] .map {
+  background: linear-gradient(to bottom, #1d1640 0%, #5a3a78 45%, #d9804a 85%, #f2c14e 100%);
+}
+:root[data-theme="bit64"] .mast-title {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fbf3dc;
+  text-shadow: 0 2px 0 #6b4a12, 0 0 12px rgba(242, 193, 78, 0.35);
+}
+:root[data-theme="bit64"] .telegram-word,
+:root[data-theme="bit64"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #f2c14e;
+  background: linear-gradient(to bottom, #fff4c8 0%, #f2c14e 50%, #b07a1a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 0 #3a2406) drop-shadow(0 0 10px rgba(242, 193, 78, 0.35));
+  border-bottom: 0;
+}
+/* Windows: translucent night blue in a double gold frame with rounded corners. */
+:root[data-theme="bit64"] .panel,
+:root[data-theme="bit64"] .menu-body {
+  background: rgba(16, 12, 36, 0.9);
+  border: 2px solid #f2c14e;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 3px rgba(16, 12, 36, 0.9), inset 0 0 0 4px rgba(201, 161, 74, 0.6);
+}
+:root[data-theme="bit64"] .panel {
+  margin: 6px;
+}
+:root[data-theme="bit64"] .tool,
+:root[data-theme="bit64"] .pick select,
+:root[data-theme="bit64"] .menu > summary,
+:root[data-theme="bit64"] .chip,
+:root[data-theme="bit64"] .zoom button,
+:root[data-theme="bit64"] .key > summary {
+  background: linear-gradient(to bottom, #2a2150, #140f2c);
+  border: 2px solid #c9a14a;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 244, 200, 0.25);
+  color: #fbf3dc;
+}
+
+/* ---- Realize: loose paint, one warm half and one cool --------------------------- */
+:root[data-theme="realize"] body {
+  background:
+    radial-gradient(ellipse 70% 60% at 0% 0%, rgba(230, 69, 42, 0.28), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(29, 70, 184, 0.35), transparent 70%),
+    var(--page);
+}
+:root[data-theme="realize"] .mast-title {
+  color: #ffd23a;
+  transform: rotate(-2deg);
+  text-shadow: 3px 3px 0 #e6452a;
+}
+:root[data-theme="realize"] .telegram-word,
+:root[data-theme="realize"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #f6f0e6;
+  text-shadow: 3px 3px 0 #e6452a, -2px -2px 0 #1d46b8;
+}
+:root[data-theme="realize"] .telegram-word {
+  transform: rotate(-1.5deg);
+  border-bottom: 0;
+  background: linear-gradient(transparent 78%, rgba(255, 210, 58, 0.55) 78% 92%, transparent 92%);
+}
+:root[data-theme="realize"] .panel {
+  border-left: 3px solid #e6452a;
+}
+:root[data-theme="realize"] .tool,
+:root[data-theme="realize"] .pick select,
+:root[data-theme="realize"] .menu > summary,
+:root[data-theme="realize"] .chip,
+:root[data-theme="realize"] .key > summary {
+  border: 2px solid var(--ink-2);
+  border-radius: 14px 4px 12px 5px;
+  font-size: 15px;
+}
+
+/* ---- UFO: night sky, green glow, a light beam behind the word -------------------- */
+:root[data-theme="ufo"] body {
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(220, 255, 232, 0.8), transparent) 0 0 / 170px 170px,
+    radial-gradient(1px 1px at 70% 60%, rgba(220, 255, 232, 0.6), transparent) 0 0 / 230px 230px,
+    radial-gradient(ellipse at 50% 0%, rgba(125, 255, 154, 0.12), transparent 60%),
+    var(--page);
+}
+:root[data-theme="ufo"] .mast-title {
+  color: #7dff9a;
+  text-shadow: 0 0 10px rgba(125, 255, 154, 0.6);
+}
+:root[data-theme="ufo"] .telegram-center {
+  position: relative;
+}
+:root[data-theme="ufo"] .telegram-center::before {
+  content: "";
+  position: absolute;
+  inset: -6px -18px -4px;
+  background: linear-gradient(to bottom, rgba(125, 255, 154, 0.02), rgba(125, 255, 154, 0.16));
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+:root[data-theme="ufo"] .telegram-word,
+:root[data-theme="ufo"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #dcffe8;
+  text-shadow: 0 0 8px rgba(125, 255, 154, 0.9), 0 0 22px rgba(125, 255, 154, 0.45);
+  border-bottom: 0;
+}
+:root[data-theme="ufo"] .tool,
+:root[data-theme="ufo"] .pick select,
+:root[data-theme="ufo"] .menu > summary,
+:root[data-theme="ufo"] .chip,
+:root[data-theme="ufo"] .zoom button,
+:root[data-theme="ufo"] .key > summary {
+  border: 1px solid #7dff9a;
+  border-radius: 999px;
+  box-shadow: 0 0 8px rgba(125, 255, 154, 0.25);
+}
+
+/* ---- The map's key ------------------------------------------------------------- */
+.key {
+  position: absolute;
+  left: var(--gutter);
+  top: var(--gutter);
+  width: max-content;
+  z-index: 3;
+  font: 12px/1.3 var(--font-ui);
+}
+.key > summary {
+  width: max-content;
+  list-style: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  background: var(--page);
+  color: var(--ink);
+}
+.key > summary::-webkit-details-marker {
+  display: none;
+}
+.key[open] > summary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.key-body {
+  margin-top: 4px;
+  width: min(270px, calc(100vw - 2 * var(--gutter) - 20px));
+  padding: 10px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+.key-note {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.key-body ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.key-body li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.key-body svg {
+  flex: none;
+  background: var(--key-bg, transparent);
+}
+
+/* ---- Candy Shop: candy-cane rules and sprinkles --------------------------------- */
+:root[data-theme="candy"] body {
+  background:
+    radial-gradient(2px 2px at 12% 18%, rgba(255, 120, 180, 0.55), transparent) 0 0 / 90px 90px,
+    radial-gradient(2px 2px at 64% 42%, rgba(120, 200, 255, 0.55), transparent) 0 0 / 110px 110px,
+    radial-gradient(2px 2px at 38% 76%, rgba(255, 210, 90, 0.6), transparent) 0 0 / 130px 130px,
+    radial-gradient(2px 2px at 82% 12%, rgba(160, 120, 255, 0.5), transparent) 0 0 / 150px 150px,
+    var(--page);
+}
+:root[data-theme="candy"] .masthead {
+  border-bottom: 0;
+  background-image: repeating-linear-gradient(-45deg, #f06aa8 0 8px, #ffffff 8px 16px);
+  background-size: 100% 6px;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  padding-bottom: 16px;
+}
+:root[data-theme="candy"] .telegram-word,
+:root[data-theme="candy"] .telegram-big {
+  color: #c8286f;
+  text-shadow: 2px 2px 0 #ffd1e6, 4px 4px 0 #b8e2ff;
+}
+:root[data-theme="candy"] .telegram-word {
+  border-bottom: 3px dotted #f06aa8;
+}
+/* Press Start 2P is about one em per letter, twice the width the word's size formula assumes. */
+:root[data-theme="bit8"] .telegram-word {
+  font-size: min(60px, calc(38vw / var(--len, 8) / 1.4));
+}
+@media (max-width: 760px) {
+  :root[data-theme="bit8"] .telegram-word {
+    font-size: min(40px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 1.1)));
+  }
+  :root[data-theme="bit8"] .mast-title {
+    font-size: 18px;
   }
 }

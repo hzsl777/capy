@@ -407,3 +407,15 @@ Davis looked at the site on a phone. The date sat under the word, and the "More"
 1. On a phone the masthead reads top to bottom like a newspaper: the name and slogan, the date between two rules, "Today's word" and the word, then "Chosen by AI from N events". On a wide screen the word sits in the centre under "Today's word", with the date, the note and the scale on the right.
 2. Map or Globe and the design are native dropdowns, so they open over the page and suit touch screens. Topics and Translate stay beside them. On a phone the design shows its first word ("Morning", "Cabinet"), and About is a "?" in the masthead's top corner, so the four controls fit one row in every design from 360 pixels wide. If Pinned joins them, the row wraps instead of scrolling.
 3. The Topics and Pinned menus open across the width of the screen, anchored to the toolbar, so nothing clips them.
+
+## 57. Symbols by importance, a Key, saved settings and six more designs (September 29, 2026)
+
+Davis asked for a clearer order of stories on the map, a plain label for how the word is chosen, settings that stay put, and more designs.
+
+1. A place's symbol follows the grouping model's importance for its top story: hollow for importance 1 and for GDELT local stories, filled for 2 and 3, filled with an outer ring for 4 and 5. Size still grows with the number of reports. The most important are drawn last, so they sit on top. Colour still means only "reported in the last hour"; in single-colour designs a fresh place gets a dotted ring instead. A thin inner ring still marks merged places.
+2. A "Key" beside the zoom buttons shows these symbols in the current design's colours and says they follow the model's 1 to 5 rating.
+3. The note under the word reads "Chosen by AI from today's N events" ("the day's" for an earlier day), since the word comes from scoring every event of the day.
+4. The design, Map or Globe, Translate and the chosen topics are saved in the browser and come back on the next visit. Nothing leaves the device. A link's `?view=` still wins over the saved view.
+5. Cotton Candy is renamed Candy Shop and gets candy drawings (wrapped sweets, lollipops, swirls) at the same fixed ocean spots as Pirate's creatures. A saved or linked `cotton` opens Candy Shop.
+6. Five designs are added: 8-Bit, 16-Bit and 64-Bit, after the feel of the side-scrolling action, role-playing and 3D adventure games of each console era (pixel rendering, square dots and tiled or shimmering water for the first two, gold-trimmed windows on a globe for the third), without copying any game's art, names or layouts; Realize, after the colours and hand-drawn look of two 2005 album covers; and UFO, a dark globe with green linework and small saucers at the same ocean spots. No game, band or album is named on the site.
+7. Wire Room's word is phosphor text between two terminal rules instead of a solid green block.

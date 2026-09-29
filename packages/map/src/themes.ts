@@ -1,6 +1,6 @@
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "cotton";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "ufo";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -14,8 +14,15 @@ export interface Theme {
   projection2d: () => GeoProjection;
   ocean: string;
   land: string;
-  /** Land texture: halftone dots, a dot matrix, or plain fill. */
-  landTexture: "halftone" | "matrix" | "none";
+  /** Land texture: halftone dots, a dot matrix, a two-colour dither in screen pixels, or plain fill. */
+  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "none";
+  /**
+   * Screen pixels per canvas pixel. 1 draws at full resolution; 3 draws a third as many pixels and scales them up
+   * unsmoothed, so lines, coasts and dots come out as chunky pixels (the 8-Bit and 16-Bit designs).
+   */
+  pixel: number;
+  /** Place dots as circles or, for the pixel designs, squares. */
+  dotShape: "circle" | "square";
   textureInk: string;
   coast: string;
   coastWidth: number;
@@ -23,6 +30,11 @@ export interface Theme {
   waterlines: number;
   waterline: string;
   oceanHatch: string | null;
+  /**
+   * A pattern over the sea in canvas pixels: "tiles" is a faint square grid like a stage built from tiles,
+   * "shimmer" is short broken highlights like light on water. Its ink is `waterline`.
+   */
+  oceanPattern?: "tiles" | "shimmer";
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -44,10 +56,11 @@ export interface Theme {
   neatline: boolean;
   /**
    * Decoration drawn under the dots (src/map/decor.ts): "sea" puts small ink sea creatures in open ocean,
-   * "space" adds a thin bright rim to the globe and faint stars in the flat map's ocean. Never text, never on
-   * land, never near a place.
+   * "space" adds a thin bright rim to the globe and faint stars in the flat map's ocean, "candy" puts small
+   * outlined sweets in open ocean, "ufo" flying saucers over open ocean. Never text, never on land, never near a
+   * place.
    */
-  decor: "sea" | "space" | null;
+  decor: "sea" | "space" | "candy" | "ufo" | null;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -59,6 +72,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#f3efe4",
     land: "#e6e0d0",
     landTexture: "halftone",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(21,21,21,0.55)",
     coast: "#151515",
     coastWidth: 0.9,
@@ -90,6 +105,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#e4d3ab",
     land: "#efe2c2",
     landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(58,42,24,0.4)",
     coast: "#3a2a18",
     coastWidth: 1,
@@ -121,6 +138,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#020503",
     land: "#04100a",
     landTexture: "matrix",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(76,255,140,0.34)",
     coast: "rgba(96,255,150,0.62)",
     coastWidth: 0.7,
@@ -152,6 +171,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#0e1217",
     land: "#1a2028",
     landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(170,186,204,0.3)",
     coast: "rgba(170,186,204,0.55)",
     coastWidth: 0.8,
@@ -183,6 +204,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#17397a",
     land: "#1d4590",
     landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(238,243,251,0.3)",
     coast: "#eef3fb",
     coastWidth: 1,
@@ -214,6 +237,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#b3cbc0",
     land: "#eddab0",
     landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(59,38,20,0.4)",
     coast: "#3b2614",
     coastWidth: 1.1,
@@ -245,6 +270,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     ocean: "#070b20",
     land: "#1a2552",
     landTexture: "matrix",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(255,212,150,0.34)",
     coast: "rgba(160,200,255,0.75)",
     coastWidth: 0.7,
@@ -268,14 +295,16 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: true,
     decor: "space",
   },
-  cotton: {
-    id: "cotton",
-    label: "Cotton Candy",
+  candy: {
+    id: "candy",
+    label: "Candy Shop",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     ocean: "#cbe8ff",
     land: "#ffd8ec",
     landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
     textureInk: "rgba(226,127,180,0.3)",
     coast: "#e27fb4",
     coastWidth: 1.2,
@@ -297,6 +326,180 @@ export const THEMES: Record<ThemeId, Theme> = {
     atmosphere: "rgba(255,170,215,0.5)",
     shade: "rgba(110,80,160,0.2)",
     neatline: false,
+    decor: "candy",
+  },
+  // Nods to three generations of home consoles, each after the sense of place of one game series of its era, never
+  // its layouts, palettes, names, logos or characters: 8-Bit after Mega Man's tiled stages and stage-select
+  // panels, 16-Bit after Final Fantasy's world maps and blue windows, 64-Bit after the pause-screen map and
+  // gold-trimmed windows of the Zelda games of that console.
+  bit8: {
+    id: "bit8",
+    label: "8-Bit",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#0058f8",
+    land: "#00a800",
+    landTexture: "dither",
+    pixel: 3,
+    dotShape: "square",
+    textureInk: "#005800",
+    coast: "#000000",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(60,188,252,0.35)",
+    oceanHatch: null,
+    oceanPattern: "tiles",
+    graticule: "rgba(60,188,252,0.35)",
+    graticuleDash: [],
+    river: "#3cbcfc",
+    lake: "#0058f8",
+    ice: "#fcfcfc",
+    relief: "#ac7c00",
+    dot: "#fcfcfc",
+    dotStroke: "#000000",
+    fresh: "#f83800",
+    tuned: "#f8b800",
+    arc: "#f8b800",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
     decor: null,
+  },
+  bit16: {
+    id: "bit16",
+    label: "16-Bit",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#1850b8",
+    land: "#58b038",
+    landTexture: "dither",
+    pixel: 2,
+    dotShape: "square",
+    textureInk: "#287028",
+    coast: "#183010",
+    coastWidth: 1,
+    waterlines: 2,
+    waterline: "rgba(120,184,248,0.8)",
+    oceanHatch: null,
+    oceanPattern: "shimmer",
+    graticule: "rgba(255,255,255,0.12)",
+    graticuleDash: [],
+    river: "#78b8f8",
+    lake: "#1850b8",
+    ice: "#f8f8f8",
+    relief: "#a07838",
+    dot: "#f8f8f8",
+    dotStroke: "#101830",
+    fresh: "#f8d030",
+    tuned: "#f8d030",
+    arc: "#f8d030",
+    glow: false,
+    atmosphere: "rgba(120,184,248,0.4)",
+    shade: "rgba(0,0,40,0.45)",
+    neatline: false,
+    decor: null,
+  },
+  bit64: {
+    id: "bit64",
+    label: "64-Bit",
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    ocean: "#1c4fa0",
+    land: "#4a8a3a",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#1f3a18",
+    coastWidth: 1.4,
+    waterlines: 1,
+    waterline: "rgba(150,200,255,0.35)",
+    oceanHatch: null,
+    graticule: "rgba(242,193,78,0.14)",
+    graticuleDash: [],
+    river: "#7fb8ff",
+    lake: "#1c4fa0",
+    ice: "#f4f1e6",
+    relief: "rgba(110,80,40,0.6)",
+    dot: "#f2c14e",
+    dotStroke: "#3a1f06",
+    fresh: "#64d8ff",
+    tuned: "#ffffff",
+    arc: "#64d8ff",
+    glow: true,
+    atmosphere: "rgba(255,190,120,0.45)",
+    shade: "rgba(20,0,40,0.55)",
+    neatline: false,
+    decor: null,
+  },
+  // Loose, hand-painted and childlike, one warm half and one cool, after the mood of two album covers from 2005
+  // (Mezmerize and Hypnotize). No band name, artwork or lettering from them.
+  realize: {
+    id: "realize",
+    label: "Realize",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#1d46b8",
+    land: "#e2461f",
+    landTexture: "hatch",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(255,214,70,0.6)",
+    coast: "#111014",
+    coastWidth: 2.2,
+    waterlines: 2,
+    waterline: "rgba(120,190,255,0.5)",
+    oceanHatch: null,
+    graticule: "rgba(255,255,255,0.06)",
+    graticuleDash: [],
+    river: "#79c2ff",
+    lake: "#1d46b8",
+    ice: "#f4efe6",
+    relief: "rgba(80,20,10,0.55)",
+    dot: "#fff3d6",
+    dotStroke: "#111014",
+    fresh: "#ffd23a",
+    tuned: "#ffd23a",
+    arc: "#ffd23a",
+    glow: false,
+    atmosphere: "rgba(230,70,31,0.35)",
+    shade: "rgba(0,0,0,0.5)",
+    neatline: false,
+    decor: null,
+  },
+  // Night sky, green glow and flying saucers over open ocean.
+  ufo: {
+    id: "ufo",
+    label: "UFO",
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    ocean: "#070b18",
+    land: "#10261a",
+    landTexture: "matrix",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(125,255,154,0.25)",
+    coast: "#7dff9a",
+    coastWidth: 1,
+    waterlines: 1,
+    waterline: "rgba(125,255,154,0.18)",
+    oceanHatch: null,
+    graticule: "rgba(125,255,154,0.08)",
+    graticuleDash: [],
+    river: "rgba(125,255,154,0.35)",
+    lake: "#070b18",
+    ice: "#1a3326",
+    relief: "rgba(125,255,154,0.3)",
+    dot: "#d8ffe6",
+    dotStroke: "#05060d",
+    fresh: "#7dff9a",
+    tuned: "#7dff9a",
+    arc: "#b98cff",
+    glow: true,
+    atmosphere: "rgba(125,255,154,0.25)",
+    shade: "rgba(0,0,0,0.6)",
+    neatline: false,
+    decor: "ufo",
   },
 };

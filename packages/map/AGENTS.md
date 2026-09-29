@@ -17,7 +17,7 @@ The site is public and covers contested places. These rules apply to every chang
 
 1. **No political geography.** The basemap has land, coastlines, lakes, rivers, relief and ice. No borders, no disputed-area lines, no country fills, no country names anywhere in the UI. Never add a Natural Earth `admin_*` or `boundary_*` layer.
 2. **No labels on the map, and a story sits where it happened, checked** (decision 44). The map shows dots only, one per city. A place name appears only in the panel, never with a country. The grouping model names the city where an event happened; code places it only when that city is on the fixed city list (`packages/pipeline/data/places.json`, from Natural Earth) or lies within 250 km of a listed city in the country the model named. Anything else, including a story that names only a country or a region, stays at its outlet's city. Nothing places a story at a country or region, and every report shows its outlet's own city. The one other source of places is GDELT's city tag on local stories (rule 6): a town on the list, or within 250 km of a listed city in its country, and nothing coarser.
-3. **Lists are never ranked; the map is, openly** (decisions 30 and 46). Lists are newest first. The map ranks places by the grouping model's 1 to 5 importance and by how many outlet cities reported a story, and only in two ways: which places show at each zoom (`tierOf` in `src/data.ts`, five tiers from importance 4 or 5, or four outlet cities, at the whole world down to everything when zoomed in), and dot size (`weightOf`: the place's most important story, plus its report count). Nearby places merge into one dot that lists every city by name, never a region. The "fresh" colour means "reported in the last hour" and nothing else. The mood score is the only sentiment signal. It never orders headlines or changes how a pin looks, and the site always shows every score with its reason.
+3. **Lists are never ranked; the map is, openly** (decisions 30 and 46). Lists are newest first. The map ranks places by the grouping model's 1 to 5 importance and by how many outlet cities reported a story, and only in two ways: which places show at each zoom (`tierOf` in `src/data.ts`, five tiers from importance 4 or 5, or four outlet cities, at the whole world down to everything when zoomed in), and each dot's symbol and size (`weightOf`, the place's most important story, sets the symbol: hollow for 1 and GDELT stories, filled for 2 and 3, ringed for 4 and 5, decision 57; the report count sets the size). The Key beside the zoom buttons explains the symbols. Nearby places merge into one dot that lists every city by name, never a region. The "fresh" colour means "reported in the last hour" and nothing else. The mood score is the only sentiment signal. It never orders headlines or changes how a pin looks, and the site always shows every score with its reason.
 4. **No unverified text.** Headlines appear as published. Generated text appears in two places only, both built from sentences checked against the sources and both labelled as written by AI: the telegram (the word, the event scores and one line per event) and event explanations. Translation is on-device, opt-in, and marked "Translated from X".
 5. **A formula sets the word, and code checks it** (decision 26, `packages/core/src/world.ts`). Scores are outcomes for people, never which side gained. Each score quotes a verified sentence (`scoreProblems`). `dayBand` lets the worst significant event set a bad day, so good news never averages a tragedy away. The word must come from the band's fixed list, and a bad day must name the event that set it (`wordProblems`). Never loosen these checks to get a word out. A day without a word is acceptable.
 6. **Balance by curation and caps.** The world source list is kept balanced across regions and never adds one side of a conflict without the other. `cluster world` keeps at most `WORLD_PER_SOURCE` (default 15) articles per source per day. A region no listed outlet reached that day gets at most `GDELT_PER_REGION` (default 3) of the newest local stories from the GDELT index (decision 54): no model reads them, they sit at the lowest zoom tier, and each says "via GDELT". A listed outlet in a region always replaces them; outlet research continues so GDELT fills less over time.
@@ -38,11 +38,11 @@ src/
   themes.ts              canvas colours per design; CSS tokens live in style.css
   map/view.ts            canvas map: projections, drag/zoom/pinch, tuning, highlights, drawing
   map/basemap.ts         loads the TopoJSON basemap
-  map/decor.ts           decorations under the dots: Pirate sea creatures, Space stars and rim (fixed ocean spots, tested)
+  map/decor.ts           decorations under the dots: Pirate sea creatures, Candy Shop sweets, UFO saucers, Space stars and rim (fixed ocean spots, tested)
   translate.ts           browser Translator API wrapper
   pins.ts                localStorage pins and prefs
   ui/dom.ts              element builder (text only, never innerHTML)
-  style.css              eight designs over one layout
+  style.css              thirteen designs over one layout
 public/
   basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed)
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
@@ -77,7 +77,7 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Designs
 
-Eight looks (decisions 32 and 43), each in Map or Globe view, chosen from one Design menu:
+Thirteen looks (decisions 32, 43 and 57), each in Map or Globe view, chosen from one Design menu:
 
 - **Morning Edition**: newsprint, black ink, halftone land, blackletter masthead and word. Map by default.
 - **Cabinet Map**: parchment, sepia ink, engraved water lines, hachured mountains, one red for fresh reports and the word. Map by default.
@@ -86,7 +86,14 @@ Eight looks (decisions 32 and 43), each in Map or Globe view, chosen from one De
 - **Blueprint**: cobalt drafting sheet, white linework, hand lettering, orange for fresh reports. Map by default.
 - **Pirate**: an old sea chart. Parchment land on sea-green water, sepia ink, dashed rhumb lines, a compass rose, rope and dashed rules in the chrome, a Pirata One masthead and word, red for fresh reports. Small ink sea creatures (serpents, a kraken, whales) sit at fixed spots in open ocean. Map by default.
 - **Space**: the globe as a planet against a static starfield, dark land with a faint city-lights texture, a thin atmosphere rim, Space Grotesk and IBM Plex Mono, amber for fresh reports. The flat map is a star chart, with faint four-point stars in open ocean. Globe by default.
-- **Cotton Candy**: pink land on sky-blue water, white water lines, rounded pill-shaped chrome, Fredoka and Nunito, magenta for fresh reports. Map by default.
+- **Candy Shop**: pink land on sky-blue water, white water lines, rounded pill-shaped chrome, sprinkles and a candy-stripe masthead, Fredoka and Nunito, magenta for fresh reports, sweets at the creature spots. Map by default. Formerly Cotton Candy; `cotton` still opens it.
+- **8-Bit**: after side-scrolling action games of the 8-bit era. Rendered at a third of the resolution, square dots, dithered land, tiled water, riveted panels, Press Start 2P, the scale drawn as an energy bar. Map by default.
+- **16-Bit**: after role-playing games of the 16-bit era. Half resolution, square dots, shimmering water, blue gradient windows with white borders, Pixelify Sans, gold for fresh reports. Map by default.
+- **64-Bit**: after 3D adventure games of the 64-bit era. A glowing globe on a dusk sky, gold-trimmed translucent windows, Cinzel, pale blue for fresh reports. Globe by default.
+- **Realize**: after the colours and hand-drawn look of two 2005 album covers. Vermilion land with yellow hatching on cobalt water, thick coasts, marker and hand lettering. Map by default.
+- **UFO**: a dark globe with green linework on a starfield, a light beam behind the word, Audiowide, small saucers at the creature spots. Globe by default.
+
+The retro, Realize and UFO designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
 
 The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`). Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
 

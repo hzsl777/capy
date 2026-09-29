@@ -23,12 +23,22 @@ export function savePins(pins: Pin[]) {
   }
 }
 
-export function prefs<T extends string>(key: string, fallback: T, allowed: readonly T[]): T {
+/** A saved choice, if it is still allowed. `rename` maps a value saved under an old name to its new one. */
+export function prefs<T extends string>(key: string, fallback: T, allowed: readonly T[], rename: (v: string | null) => T | null = (v) => v as T | null): T {
   try {
-    const v = localStorage.getItem(`capy.${key}`) as T | null;
+    const v = rename(localStorage.getItem(`capy.${key}`));
     return v && allowed.includes(v) ? v : fallback;
   } catch {
     return fallback;
+  }
+}
+
+/** A saved value as stored, or "" when there is none or storage is blocked. Callers check what they read. */
+export function rawPref(key: string): string {
+  try {
+    return localStorage.getItem(`capy.${key}`) ?? "";
+  } catch {
+    return "";
   }
 }
 

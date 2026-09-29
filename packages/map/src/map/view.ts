@@ -164,8 +164,10 @@ export class MapView {
   }
 
   setTheme(theme: Theme) {
+    const resample = theme.pixel !== this.theme.pixel;
     this.theme = theme;
     this.patterns.clear();
+    if (resample) this.resize();
     this.fit();
     this.request();
   }
@@ -358,7 +360,10 @@ export class MapView {
 
   private resize() {
     const rect = this.container.getBoundingClientRect();
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // A pixel design draws fewer canvas pixels than the screen has and lets the browser enlarge them unsmoothed.
+    const pixel = this.theme.pixel;
+    this.dpr = pixel > 1 ? 1 / pixel : Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.style.imageRendering = pixel > 1 ? "pixelated" : "auto";
     this.w = Math.max(1, rect.width);
     this.h = Math.max(1, rect.height);
     this.canvas.width = Math.round(this.w * this.dpr);
@@ -595,10 +600,33 @@ export class MapView {
     }
   }
 
-  private pattern(kind: "halftone" | "matrix" | "hatch", ink: string): CanvasPattern {
+  private pattern(kind: "halftone" | "matrix" | "dither" | "tiles" | "shimmer" | "hatch", ink: string): CanvasPattern {
     const key = `${kind}:${ink}:${this.dpr}`;
     let p = this.patterns.get(key);
     if (p) return p;
+    if (kind === "dither" || kind === "tiles" || kind === "shimmer") {
+      // Drawn in canvas pixels: a checkerboard dither, a grid of 8-pixel tiles, or broken glints on water.
+      const dc = document.createElement("canvas");
+      const n = kind === "dither" ? 2 : kind === "tiles" ? 8 : 12;
+      dc.width = dc.height = n;
+      const dg = dc.getContext("2d")!;
+      dg.fillStyle = ink;
+      if (kind === "dither") {
+        dg.fillRect(0, 0, 1, 1);
+        dg.fillRect(1, 1, 1, 1);
+      } else if (kind === "tiles") {
+        dg.fillRect(0, 0, n, 1);
+        dg.fillRect(0, 0, 1, n);
+        dg.fillRect(3, 3, 2, 2);
+      } else {
+        dg.fillRect(1, 2, 3, 1);
+        dg.fillRect(7, 8, 2, 1);
+      }
+      p = this.ctx.createPattern(dc, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
     const size = kind === "halftone" ? 5 : kind === "matrix" ? 4 : 6;
     const pc = document.createElement("canvas");
     pc.width = pc.height = Math.round(size * this.dpr);
@@ -661,6 +689,10 @@ export class MapView {
     path(SPHERE);
     ctx.clip();
 
+    if (t.oceanPattern) {
+      ctx.fillStyle = this.pattern(t.oceanPattern, t.waterline);
+      ctx.fillRect(0, 0, w, h);
+    }
     if (t.oceanHatch) {
       ctx.strokeStyle = t.oceanHatch;
       ctx.lineWidth = 0.7;
@@ -871,31 +903,52 @@ export class MapView {
     let tunedAt: Spot | null = null;
     ctx.save();
     if (t.glow) ctx.shadowBlur = 8;
+    // A circle, or a square snapped to whole canvas pixels for the pixel designs.
+    const shape = (x: number, y: number, r: number) => {
+      if (t.dotShape === "square") ctx.rect(Math.round(x - r), Math.round(y - r), Math.round(r * 2), Math.round(r * 2));
+      else ctx.arc(x, y, r, 0, Math.PI * 2);
+    };
+    // Three symbols by the place's most important story (decision 57), drawn least important first so the most
+    // important always sit on top: hollow for importance 1 and GDELT local stories, filled for 2 and 3, filled
+    // with an outer ring for 4 and 5. Colour still means only "reported in the last hour".
     for (const s of [...spots].reverse()) {
       const { x, y, r } = s;
-      if (t.glow) ctx.shadowColor = s.fresh ? t.fresh : t.dot;
+      const ink = s.fresh ? t.fresh : t.dot;
+      const hollow = s.weight <= 1;
+      if (t.glow) ctx.shadowColor = ink;
       ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = s.fresh ? t.fresh : t.dot;
+      shape(x, y, r);
+      ctx.fillStyle = hollow ? t.dotStroke : ink;
       ctx.fill();
-      ctx.lineWidth = 1.2;
-      ctx.strokeStyle = t.dotStroke;
+      ctx.lineWidth = hollow ? 1.6 : 1.2;
+      ctx.strokeStyle = hollow ? ink : t.dotStroke;
       ctx.stroke();
+      const ring = s.weight >= 4 ? r + 2.6 : r;
+      if (s.weight >= 4) {
+        ctx.beginPath();
+        shape(x, y, ring);
+        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = ink;
+        ctx.stroke();
+      }
       if (s.indices.length > 1) {
         // Merged places: a thin inner ring, so a cluster reads differently from one busy city.
         ctx.beginPath();
-        ctx.arc(x, y, Math.max(1.2, r * 0.45), 0, Math.PI * 2);
+        shape(x, y, Math.max(1.2, r * 0.45));
         ctx.lineWidth = 1;
-        ctx.strokeStyle = t.dotStroke;
+        ctx.strokeStyle = hollow ? ink : t.dotStroke;
         ctx.stroke();
       }
       if (s.fresh && t.fresh === t.dot) {
-        // Monochrome themes mark fresh reports with an outer ring instead of colour.
+        // Monochrome designs mark fresh reports with a dashed ring, so it never reads as the importance ring.
+        ctx.save();
+        ctx.setLineDash([2, 2]);
         ctx.beginPath();
-        ctx.arc(x, y, r + 2.6, 0, Math.PI * 2);
+        shape(x, y, ring + 2.6);
         ctx.lineWidth = 0.9;
         ctx.strokeStyle = t.dot;
         ctx.stroke();
+        ctx.restore();
       }
       if (s.indices.some((i) => this.pinned.has(i))) {
         ctx.beginPath();
