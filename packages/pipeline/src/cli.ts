@@ -354,7 +354,9 @@ switch (command) {
       throw err;
     }
     if (summary) appendFileSync(summary, daySummary(date, out));
-    console.log(JSON.stringify(out, null, 2));
+    // The feed list goes last: it is long, and the stage results above it are what a reader of the log wants.
+    const { ingest, ...stages } = out;
+    console.log(JSON.stringify({ ...stages, ingest }, null, 2));
     break;
   }
   case "feedback": {
@@ -422,4 +424,6 @@ ${sample ?? ""}`);
     console.error(command ? `Unknown command: "${command}".\n${HELP}` : HELP);
     process.exit(2);
 }
+// Exiting at once dropped piped output past 64 KiB, which cut the day's results off the Actions log. Wait for it.
+await new Promise<void>((resolve) => process.stdout.write("", () => resolve()));
 process.exit(0);

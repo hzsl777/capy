@@ -57,8 +57,10 @@ export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Pr
   throw new Error(declared.length ? `page links to ${declared.length} feed(s), none answered` : "not a feed, and the page links to none");
 }
 
-function stripHtml(s: string | undefined): string {
-  return noControl(s ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+/** Feed text as plain text. Some feeds give a field as an object ({ _: text, $: attributes }) instead of a string. */
+export function stripHtml(field: unknown): string {
+  const s = typeof field === "string" ? field : typeof (field as { _?: unknown } | null)?._ === "string" ? (field as { _: string })._ : "";
+  return noControl(s).replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 }
 
 /** Pure: turns one feed document into articles inside the run date's window. No network, no database. */

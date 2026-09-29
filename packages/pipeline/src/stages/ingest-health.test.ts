@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { toRunDate, type Source } from "@2dayai/core";
 import { articles, sources, type Db } from "@2dayai/db";
 import { createTestDb } from "../test/db.js";
-import { PAUSE_AFTER_FAILED_DAYS, runIngest } from "./ingest.js";
+import { PAUSE_AFTER_FAILED_DAYS, runIngest, stripHtml } from "./ingest.js";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -30,6 +30,14 @@ describe("feed text encoding (decision 52)", () => {
     expect(report).toMatchObject({ fetched: 1, inserted: 0 });
     const [row] = await db.select().from(articles).where(eq(articles.url, "https://latin.example/a"));
     expect(row!.title).toBe("Decisão à humanidade");
+  });
+});
+
+describe("feed fields", () => {
+  it("reads a field the parser gives as an object with attributes, and treats anything else as empty", () => {
+    expect(stripHtml({ _: "<b>Port</b> reopens", $: { type: "html" } })).toBe("Port reopens");
+    expect(stripHtml(undefined)).toBe("");
+    expect(stripHtml({ $: { type: "html" } })).toBe("");
   });
 });
 
