@@ -30,7 +30,7 @@ Screenshots use the fictional sample: invented outlets and places, run through t
 - **Pins are publishers**, at the city they publish from (the `desk: world` entries in `config/sources.yaml`). Nothing is geocoded, so the map never draws or names a disputed place.
 - **The word.** Each day the `telegram` stage scores every explained world event from -2 to 2 by what happened to people. Each score quotes the sentence it rests on. Code places the day on a five-step scale. The worst significant event sets a bad day, so good news never averages a tragedy away. The model then picks the word from that step's fixed list. The site shows every score and its reason.
 - **Four depths.** The word, then the events with one line each, then each event's explanation with numbered citations, then the sources with the passages quoted. Headlines appear as the outlets published them.
-- **Hundreds of outlets.** 237 outlets in 209 cities (decision 31). Zoomed out, the map shows places with widely reported or high-importance stories; zoom in for the rest (decision 30). On open it turns until a place lands under the reticle.
+- **Hundreds of outlets.** 312 outlets in 281 cities, covering nearly every country and territory (decisions 31 and 45). Zoomed out, the map shows places with widely reported or high-importance stories; zoom in for the rest (decision 30). On open it turns until a place lands under the reticle.
 - Five designs, Map or Globe, a 24-hour replay, topic filters, pinned places, and on-device translation.
 
 ## Run it

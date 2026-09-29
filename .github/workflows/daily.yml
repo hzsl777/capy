@@ -28,8 +28,8 @@ jobs:
       MODEL: ${{ vars.MODEL }}
       MODEL_TELEGRAM: ${{ vars.MODEL_TELEGRAM }}
       LLM_BATCH: "true"
-      # 237 outlets on the default models cost roughly $0.10 to $0.25 a day (decision 33). The ceiling stops a
-      # runaway day, not a normal one.
+      # 312 outlets on the default models cost roughly $0.13 to $0.33 a day (decision 33's figures scaled to
+      # decision 45's list). The ceiling stops a runaway day, not a normal one.
       DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       # The word's score call runs this many times and keeps each event's middle score (decision 36). 1 saves
       # about two cents a day.
