@@ -379,3 +379,12 @@ Every feed and page was read as UTF-8. Folha de S.Paulo publishes its feed in IS
 
 1. A response is decoded with the charset its Content-Type names, then the one its XML declaration or HTML meta tag names, then UTF-8. When they disagree, the reading with the fewest broken characters wins.
 2. An article already stored with broken characters takes the clean headline, lead and body the next time its feed reads cleanly. It does not count as a new article.
+
+## 53. Feeds are looked for harder before an outlet counts as failing (September 29, 2026)
+
+The first full 560-outlet day read 336 feeds. Of the 224 that failed, 119 were homepages that link to no feed, 64 answered 403 and 24 were down or timed out. Every failing outlet is a place that stays empty on the map.
+
+1. The fetcher names itself the usual crawler way, `Mozilla/5.0 (compatible; GlobalGist/1.0; +<repository>)`, and says which formats it accepts. Many sites refuse a bare bot name with 403 but serve this one. It still says who is asking.
+2. Discovery tries twelve common feed paths instead of five, adding the ones the failing outlets' platforms use (`/index.rss`, `/?feed=rss2`, `/atom.xml`, Blogger's `/feeds/posts/default`, Arc's `/arc/outboundfeeds/rss/` and others).
+3. When the configured address answers with an HTTP error, those paths are tried too. A host that is down or times out is not asked again, so a dead site costs one request, not thirteen.
+4. A feed found this way is remembered as before (decision 36), so the search happens once.

@@ -4,13 +4,26 @@ import { ArticleSchema, ingestWindow, type Article, type RunDate, type Source } 
 import { articles, sources as sourcesTable, type Db } from "@2dayai/db";
 import { decodeBody, noControl } from "../text.js";
 
-const parser = new Parser({ timeout: 20_000, headers: { "User-Agent": "2dayai/0.1 (+https://github.com/hzsl777/capy)" } });
+// Parses text only; fetching is the fetcher's job.
+const parser = new Parser();
 
 export type FeedFetcher = (url: string) => Promise<string>;
 
+/**
+ * How the fetcher names itself. Many sites refuse a bare bot name with 403 but serve the usual crawler form, which
+ * still says who is asking (decision 53).
+ */
+export const USER_AGENT = "Mozilla/5.0 (compatible; GlobalGist/1.0; +https://github.com/hzsl777/capy)";
+
+/** An error response from the server, as opposed to a network failure or a timeout. */
+export class HttpError extends Error {}
+
 export const defaultFetcher: FeedFetcher = async (url) => {
-  const res = await fetch(url, { headers: { "User-Agent": "2dayai/0.1 (+https://github.com/hzsl777/capy)" }, signal: AbortSignal.timeout(20_000) });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  const res = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, text/html;q=0.8, */*;q=0.5" },
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!res.ok) throw new HttpError(`${res.status} ${res.statusText}`);
   return decodeBody(new Uint8Array(await res.arrayBuffer()), res.headers.get("content-type"));
 };
 
@@ -33,19 +46,39 @@ export function feedLinksIn(html: string, pageUrl: string): string[] {
   return [...new Set(out)];
 }
 
-/** Paths many sites serve a feed from, tried only when a page declares none. Each answer is checked. */
-const COMMON_FEED_PATHS = ["/feed/", "/rss", "/rss.xml", "/feed.xml", "/index.xml"];
+/**
+ * Paths many sites serve a feed from, tried when a page declares none or the configured address answers with an
+ * error (decision 53). WordPress, Arc, Blogger and the public radio CMS among them. Each answer is checked.
+ */
+export const COMMON_FEED_PATHS = ["/feed/", "/rss", "/rss.xml", "/feed.xml", "/index.xml", "/index.rss", "/rss/", "/atom.xml", "/?feed=rss2", "/feeds/posts/default", "/arc/outboundfeeds/rss/", "/rss/news"];
 
 /**
  * The configured URL's feed. When it answers with a web page instead (a homepage in sources.yaml), the feed the
  * page links to, or one at a common path. Only a response that parses as RSS or Atom counts (decision 31).
  */
 export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Promise<{ xml: string; feedUrl: string }> {
-  const first = await fetchFeed(url);
+  const origin = new URL(url).origin;
+  const common = COMMON_FEED_PATHS.map((p) => origin + p).filter((c) => c !== url);
+  let first: string;
+  try {
+    first = await fetchFeed(url);
+  } catch (err) {
+    // A server that answers with an error may still serve a feed at a usual path. One that is down or times out
+    // is not asked again.
+    if (!(err instanceof HttpError)) throw err;
+    for (const candidate of common) {
+      try {
+        const text = await fetchFeed(candidate);
+        if (looksLikeFeed(text)) return { xml: text, feedUrl: candidate };
+      } catch {
+        // Try the next path.
+      }
+    }
+    throw err;
+  }
   if (looksLikeFeed(first)) return { xml: first, feedUrl: url };
   const declared = feedLinksIn(first, url);
-  const origin = new URL(url).origin;
-  const candidates = declared.length ? declared.slice(0, 3) : COMMON_FEED_PATHS.map((p) => origin + p);
+  const candidates = declared.length ? declared.slice(0, 3) : common;
   for (const candidate of candidates) {
     try {
       const text = await fetchFeed(candidate);

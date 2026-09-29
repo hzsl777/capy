@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { toRunDate, type Source } from "@2dayai/core";
-import { articlesFromFeed, checkSources, feedLinksIn, fetchFeedDocument } from "./ingest.js";
+import { articlesFromFeed, checkSources, COMMON_FEED_PATHS, feedLinksIn, fetchFeedDocument, HttpError } from "./ingest.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const xml = readFileSync(join(here, "..", "fixtures", "sample-feed.xml"), "utf8");
@@ -63,5 +63,24 @@ describe("feed discovery (decision 31)", () => {
     const got = await fetchFeedDocument("https://outlet.example/", async (url) => (url === "https://outlet.example/rss" ? rss : page("")));
     expect(got.feedUrl).toBe("https://outlet.example/rss");
     await expect(fetchFeedDocument("https://outlet.example/", async () => page(""))).rejects.toThrow(/links to none/);
+  });
+
+  it("tries the usual paths when the configured address answers with an error, and keeps that error if none works", async () => {
+    const fetched: string[] = [];
+    const got = await fetchFeedDocument("https://outlet.example/", async (url) => {
+      fetched.push(url);
+      if (url === "https://outlet.example/index.rss") return rss;
+      throw new HttpError("403 Forbidden");
+    });
+    expect(got.feedUrl).toBe("https://outlet.example/index.rss");
+    expect(fetched[0]).toBe("https://outlet.example/");
+    await expect(fetchFeedDocument("https://outlet.example/", async () => { throw new HttpError("403 Forbidden"); })).rejects.toThrow("403 Forbidden");
+  });
+
+  it("does not guess paths on a host that is down", async () => {
+    let calls = 0;
+    await expect(fetchFeedDocument("https://down.example/", async () => { calls++; throw new Error("fetch failed"); })).rejects.toThrow("fetch failed");
+    expect(calls).toBe(1);
+    expect(COMMON_FEED_PATHS.length).toBeGreaterThan(5);
   });
 });

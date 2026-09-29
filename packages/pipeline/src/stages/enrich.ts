@@ -6,6 +6,7 @@ import { and, eq, gte, inArray, isNull, lt, type SQL } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
 import { articles, sources, type Db } from "@2dayai/db";
 import { decodeBody, noControl } from "../text.js";
+import { USER_AGENT } from "./ingest.js";
 
 export const MIN_BODY_CHARS = 400;
 export const MAX_BODY_CHARS = 30_000;
@@ -14,7 +15,7 @@ export type PageFetcher = (url: string) => Promise<string>;
 
 export const defaultPageFetcher: PageFetcher = async (url) => {
   const res = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; 2dayai/0.1; +https://github.com/hzsl777/capy)", Accept: "text/html" },
+    headers: { "User-Agent": USER_AGENT, Accept: "text/html" },
     signal: AbortSignal.timeout(20_000),
     redirect: "follow",
   });
