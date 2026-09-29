@@ -22,6 +22,10 @@ config/sources.yaml (desk: world, with place)
   -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems) TELEGRAM_SCORE_RUNS
                                          times and keep the middle (medianScores, decision 36), dayBand in code,
                                          word from MOOD_WORDS[band] (telegram-word.v1, wordProblems). Decision 26.
+  -> local           stages/local.ts     no model. For each region with no story on the map, up to GDELT_PER_REGION
+                                         (3) newest GDELT articles about a town there, placed by Gazetteer.locate
+                                         (nearest). Own table local_stories; a GDELT outage costs only these.
+                                         Decision 54.
   -> loadMapView     db/src/map.ts       what the Worker serves at /data/latest.json
 ```
 

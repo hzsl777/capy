@@ -29,6 +29,13 @@
       "when": 1790643902485,
       "tag": "0003_event_place",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790688353558,
+      "tag": "0004_local_stories",
+      "breakpoints": true
     }
   ]
 }

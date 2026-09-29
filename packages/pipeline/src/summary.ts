@@ -5,6 +5,7 @@ import type { Coverage } from "./coverage.js";
 import type { WorldClusterReport } from "./stages/cluster.js";
 import type { ExplainReport } from "./stages/explain.js";
 import type { IngestReport } from "./stages/ingest.js";
+import type { LocalReport } from "./stages/local.js";
 import type { PruneReport } from "./stages/prune.js";
 import type { SelectReport } from "./stages/select.js";
 import type { TelegramReport } from "./stages/telegram.js";
@@ -23,6 +24,7 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
   const prune = out["prune"] as PruneReport | undefined;
   const spend = out["spendUsd"] as number | undefined;
   const coverage = out["coverage"] as Coverage | undefined;
+  const local = out["local"] as (LocalReport & { error?: string }) | undefined;
   const lines = [`## GlobalGist, ${date}`, ""];
 
   if (failure) lines.push(`**The run failed.** ${cell(failure)}`, "", "The site keeps showing the last good day. Stages that finished are listed below.", "");
@@ -37,6 +39,8 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
   const paused = ingest.filter((r) => r.paused);
   if (ingest.length) lines.push(`Feeds: ${ok.length} read, ${failed.length} failed, ${paused.length} paused. ${ok.reduce((n, r) => n + r.inserted, 0)} new articles.`);
   if (world) lines.push(`Stories: ${world.events} from ${world.articles} articles in ${world.batches} grouping calls, ${world.placed ?? 0} placed where they happened.`);
+  if (local?.error) lines.push(`Local stories: none today. ${cell(local.error)}`);
+  else if (local && !local.skipped) lines.push(`Local stories: ${local.stories} from GDELT in ${local.regionsFilled} of ${local.regionsEmpty} regions no outlet reached${local.filesFailed ? `, ${local.filesFailed} of ${local.files} files unreadable` : ""}.`);
   if (coverage) lines.push(`Coverage: stories in ${coverage.countries} of ${coverage.countriesTotal} countries and territories, and ${coverage.regions} of ${coverage.regionsTotal} regions.`);
   if (explain) lines.push(`Explained: ${explain.usable} of ${explain.events}${explain.failed ? `, ${explain.failed} failed` : ""}.`);
   if (select && select.readers > 0) lines.push(`2DayAI: ${select.editions} editions and ${select.quiet} quiet days for ${select.readers} readers${select.failed ? `, ${select.failed} failed` : ""}.`);

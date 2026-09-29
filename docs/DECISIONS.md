@@ -388,3 +388,14 @@ The first full 560-outlet day read 336 feeds. Of the 224 that failed, 119 were h
 2. Discovery tries twelve common feed paths instead of five, adding the ones the failing outlets' platforms use (`/index.rss`, `/?feed=rss2`, `/atom.xml`, Blogger's `/feeds/posts/default`, Arc's `/arc/outboundfeeds/rss/` and others).
 3. When the configured address answers with an HTTP error, those paths are tried too. A host that is down or times out is not asked again, so a dead site costs one request, not thirteen.
 4. A feed found this way is remembered as before (decision 36), so the search happens once.
+
+## 54. GDELT fills the regions no outlet reached (September 29, 2026)
+
+The first full 560-outlet day put stories in 126 of 225 countries and territories and 297 of the 2,589 first-level regions (states, provinces, departments) on the city list. Davis wants every governing unit to have its news. Reaching every region with hand-picked outlets means about 2,000 more outlets to research, many with broken feeds, and grouping all their articles would cost several dollars a day. Davis chose GDELT plus outlets.
+
+1. GDELT is an open index of news sites worldwide in more than 65 languages. Every 15 minutes it publishes each article it read with its URL, title and the places it names. A new stage, `local`, runs after the word. For each region with no story on the day's map, it keeps up to `GDELT_PER_REGION` (default 3) of the newest articles about a town there.
+2. The town is the city-level place the article names most. It is placed only if it is on the city list or within 250 km of a listed city in its country, the same rule as decision 44; the listed city nearest GDELT's point wins a shared name. An article that names only a country or state is not used.
+3. No model reads these stories, so they cost nothing. They live in their own table, never join an event, sit at the lowest zoom tier, carry no topic and are never explained or scored. GDELT's tone and theme fields are not used.
+4. The site marks each one "via GDELT" and the About page says what GDELT is. The headline is shown as published and links to the outlet.
+5. Outlets come first. A region with a story from a listed outlet gets no GDELT stories, and outlet research continues, so GDELT fills less over time.
+6. A GDELT outage costs the day only its local stories. They are kept three days.

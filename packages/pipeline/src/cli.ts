@@ -20,6 +20,7 @@ import { runExplain } from "./stages/explain.js";
 import { checkSources, runIngest, type IngestReport } from "./stages/ingest.js";
 import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
+import { runLocal } from "./stages/local.js";
 import { daySummary } from "./summary.js";
 import { FEED_XML } from "./fixtures/day.js";
 import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
@@ -73,6 +74,7 @@ const HELP = `Commands:
   select                 one edition per reader with the headline (model, batched)
   cluster world          group the world desk's articles into events with a topic (model)
   telegram               score the day's world events three times, keep the middle, pick the one-word mood (model)
+  local                  GDELT local stories for the regions no outlet reached (no model, decision 54)
   map export [--out f]   the public map's data for the date (default: latest) as JSON
   map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
@@ -132,6 +134,11 @@ switch (command) {
   case "telegram": {
     const d = db();
     console.log(await recorded(d, date, "telegram", () => runTelegram(d, config, createLlm(config, d), date)));
+    break;
+  }
+  case "local": {
+    const d = db();
+    console.log(await recorded(d, date, "local", () => runLocal(d, date, config.gdeltPerRegion)));
     break;
   }
   case "map headlines": {
@@ -214,6 +221,8 @@ switch (command) {
     const report = await runDay(memory, config, new FakeLlm(worldAnswers()), date, {
       fetchFeed: async (url) => worldFeedFor(url, date),
       fetchPage: async () => "",
+      // The fictional day has no GDELT files.
+      fetchGdelt: async () => null,
       sourcesPath: join(dir, "sources.yaml"),
       readersDir: dir,
     });
@@ -337,7 +346,7 @@ switch (command) {
     if (values.fixture) {
       const dir = mkdtempSync(join(tmpdir(), "2dayai-fixture-"));
       writeFileSync(join(dir, "sources.yaml"), "sources:\n  - { id: fixture-wire, name: Fixture wire, url: https://fixture.test/feed.xml, topic: tax, tier: primary }\n");
-      deps = { fetchFeed: async () => FEED_XML, fetchPage: async () => "", sourcesPath: join(dir, "sources.yaml"), readersDir: values.readers, force: values.force };
+      deps = { fetchFeed: async () => FEED_XML, fetchPage: async () => "", fetchGdelt: async () => null, sourcesPath: join(dir, "sources.yaml"), readersDir: values.readers, force: values.force };
       console.log("Running against the fixture feed (three articles, two events). Fixture dates are September 3, 2026, so pass --date 2026-09-04.");
     }
     const out: Record<string, unknown> = {};

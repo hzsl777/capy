@@ -11,11 +11,12 @@ import { runCluster, runClusterWorld } from "./stages/cluster.js";
 import { runEnrich, type PageFetcher } from "./stages/enrich.js";
 import { explainArticleIds, runExplain } from "./stages/explain.js";
 import { runIngest, type FeedFetcher } from "./stages/ingest.js";
+import { runLocal, type GdeltFetcher } from "./stages/local.js";
 import { runPrune } from "./stages/prune.js";
 import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
 
-export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; sourcesPath?: string; readersDir?: string; force?: boolean };
+export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; fetchGdelt?: GdeltFetcher; sourcesPath?: string; readersDir?: string; force?: boolean };
 
 /** `out` fills as stages finish, so a caller still has the finished ones when a later stage throws. */
 export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, deps: DayDeps = {}, out: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
@@ -36,6 +37,13 @@ export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, de
   out["explain"] = await recorded(db, date, "explain", () => runExplain(db, config, llm, date));
   out["select"] = await recorded(db, date, "select", () => runSelect(db, config, llm, date));
   out["telegram"] = await recorded(db, date, "telegram", () => runTelegram(db, config, llm, date));
+  // Local stories for the regions no outlet reached (decision 54). After the word, and a GDELT outage costs the day
+  // only these stories: the failure is recorded and shown in the summary.
+  try {
+    out["local"] = await recorded(db, date, "local", () => runLocal(db, date, config.gdeltPerRegion, deps.fetchGdelt));
+  } catch (err) {
+    out["local"] = { error: err instanceof Error ? err.message : String(err) };
+  }
   // Last, so a failed prune never costs the day its map.
   out["prune"] = await recorded(db, date, "prune", () => runPrune(db, date, config.worldRetentionDays));
   out["spendUsd"] = await spentToday(db, date);

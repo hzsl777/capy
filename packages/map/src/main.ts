@@ -290,6 +290,8 @@ let renderToken = 0;
 function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
   // A story placed where it happened says where its outlet is, so "Le Monde, Paris" reads right under Caracas.
   const parts = showPublisher ? [it.from ? `${it.publisher}, ${it.from}` : it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
+  // A local story from the GDELT index says so, so no one takes its outlet for one we chose (decision 54).
+  if (it.via === "gdelt") parts.push("via GDELT");
   const lang = languageName(it.lang);
   if (lang && it.lang !== "en") parts.push(lang);
   // "Other" says nothing, so only named topics show.
@@ -485,7 +487,11 @@ function renderReader(panel: HTMLElement, it: Item) {
         [place.name, it.topics[0] ? TOPIC_LABEL[it.topics[0]] : "", timeAgo(it.t, file.generatedAt)].filter(Boolean).join(" · "),
       ),
       headline(it, "h2"),
-      h("p", { class: "byline" }, [it.from ? `${it.publisher}, ${it.from}` : it.publisher, it.domain, languageName(it.lang)].filter(Boolean).join(" · ")),
+      h(
+        "p",
+        { class: "byline" },
+        [it.from ? `${it.publisher}, ${it.from}` : it.publisher, it.domain !== it.publisher ? it.domain : "", it.via === "gdelt" ? "found through GDELT" : "", languageName(it.lang)].filter(Boolean).join(" · "),
+      ),
       fig,
       // A story without a feed summary shows its headline and the link, with no note about what is missing.
       it.excerpt ? translated(h("p", { class: "excerpt", lang: it.lang !== "und" ? it.lang : undefined }, it.excerpt), it.excerpt, it.lang) : null,

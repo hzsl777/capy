@@ -112,11 +112,12 @@ The daily run needs no deploy: the Worker reads the new day from the database.
 
 ## The world desk and the telegram
 
-World sources are the `desk: world` entries in `config/sources.yaml`. Each one has the city it publishes from. The daily run does three things with them:
+World sources are the `desk: world` entries in `config/sources.yaml`. Each one has the city it publishes from. The daily run does four things with them:
 
 1. `cluster world` groups their articles into events. It keeps the newest `WORLD_PER_SOURCE` (default 15) articles per source and sends them in batches of at most `WORLD_CLUSTER_BATCH` (default 300), newest first so each batch mixes places. With more than one batch, one merge call names the batch events that report the same story, and code joins them after checking every key. The run report counts `batches`, `merged` and `mergeDropped`. If any batch fails, the stage fails and writes nothing.
 2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
 3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
+4. `local` fills the regions none of them reached (decision 54). It reads the day's GDELT files (one every 15 minutes, English and translated, about 192 a day) and keeps up to `GDELT_PER_REGION` (default 3; 0 turns it off) of the newest stories about a town in each empty region. No model is involved. Run it alone with `npm run stage -- local --date <date>`. If GDELT is down the day still goes out, and the summary says so.
 
 Feeds look after themselves (decision 36):
 

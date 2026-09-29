@@ -43,6 +43,11 @@ export type MapItem = {
   excerpt?: string;
   image?: string;
   embed?: boolean;
+  /**
+   * Set on a local story found through the GDELT index for a region no outlet reached (decision 54). It is placed
+   * by GDELT's city tag, checked against the city list, and its publisher is the outlet's site.
+   */
+  via?: "gdelt";
 };
 
 export type MapSource = {

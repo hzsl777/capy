@@ -125,6 +125,24 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     if (article.lead) item.excerpt = clip(article.lead, EXCERPT_MAX);
     items.push(item);
   }
+  // Local stories from the GDELT index for regions no outlet reached (decision 54): the lowest rank, placed by
+  // GDELT's checked city tag, published by the outlet's site.
+  for (const s of await db.select().from(t.localStories).where(eq(t.localStories.runDate, date))) {
+    items.push({
+      id: `g${s.id}`,
+      t: Math.floor(s.publishedAt.getTime() / 1000),
+      title: s.title,
+      url: s.url,
+      domain: s.domain,
+      publisher: s.domain,
+      lang: s.lang ?? "",
+      topics: [],
+      place: pin(s.placeName, s.lat, s.lon),
+      reach: 1,
+      importance: 1,
+      via: "gdelt",
+    });
+  }
   items.sort((a, b) => b.t - a.t);
 
   // Level 2 and 3 for every explained world event: sentences, and the sources with the passages they quote.

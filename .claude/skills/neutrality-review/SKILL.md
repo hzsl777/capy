@@ -32,6 +32,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] The scoring prompt still scores outcomes for people, never which side gained, and the word prompt still asks for breadth and forbids verdicts.
 - [ ] The mood score never orders headlines or changes how a pin looks, and every score is shown with its reason.
 - [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Stories are placed only by the checked city lookup (`packages/pipeline/src/places.ts`, decision 44), never at a country or region, and each report still names its outlet's city.
+- [ ] GDELT local stories (`packages/pipeline/src/stages/local.ts`, decision 54) fill only regions no listed outlet reached, newest first, at most `GDELT_PER_REGION` each, placed only from a city-level tag, never read by a model, and labelled "via GDELT". GDELT's tone or theme fields never choose them.
 - [ ] The site shows only feed summaries (at most 300 characters) and quoted citation passages, never article text.
 - [ ] New outlets in `config/sources.yaml` went through `add-news-source`, and the world list isn't tilting toward one region, language or side.
 

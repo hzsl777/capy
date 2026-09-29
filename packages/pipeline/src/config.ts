@@ -48,6 +48,11 @@ const EnvSchema = z.object({
   WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(15),
   /** Most articles in one cluster world call. A larger day is split into batches, then merged across them. */
   WORLD_CLUSTER_BATCH: z.coerce.number().int().min(1).default(300),
+  /**
+   * Local stories taken from the GDELT index per region that no outlet reached (decision 54). 0 turns it off. They
+   * cost no model calls.
+   */
+  GDELT_PER_REGION: z.coerce.number().int().min(0).max(10).default(3),
   /** Times the telegram's score call runs; each event keeps its middle score (decision 36). Odd, so there is a middle. */
   TELEGRAM_SCORE_RUNS: z.coerce
     .number()
@@ -98,6 +103,7 @@ export type Config = {
   worldPerSource: number;
   worldClusterBatch: number;
   telegramScoreRuns: number;
+  gdeltPerRegion: number;
   /** Effort per stage (decision 8). */
   effort: { cluster: Effort; explain: Effort; select: Effort; telegram: Effort };
 };
@@ -131,6 +137,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     worldPerSource: e.WORLD_PER_SOURCE,
     worldClusterBatch: e.WORLD_CLUSTER_BATCH,
     telegramScoreRuns: e.TELEGRAM_SCORE_RUNS,
+    gdeltPerRegion: e.GDELT_PER_REGION,
     effort: { cluster: "low", explain: "medium", select: "high", telegram: "high" },
   };
 }
