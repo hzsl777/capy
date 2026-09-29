@@ -24,6 +24,20 @@ afterAll(async () => {
   await close();
 });
 
+describe("the Worker's headers", () => {
+  it("sends no referrer from any page, and lets its HTML pages run no scripts", async () => {
+    const app = createApp(() => db);
+    const page = await app.request("/r/0123456789abcdef0123456789abcdef/2026-09-27", {}, env);
+    expect(page.status).toBe(404);
+    expect(page.headers.get("referrer-policy")).toBe("no-referrer");
+    expect(page.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(page.headers.get("content-security-policy")).toContain("default-src 'none'");
+    const health = await app.request("/health", {}, env);
+    expect(health.headers.get("referrer-policy")).toBe("no-referrer");
+    expect(health.headers.get("content-security-policy")).toBeNull();
+  });
+});
+
 describe("the Worker's map data", () => {
   it("answers 404 before the world desk has run", async () => {
     const app = createApp(() => db);

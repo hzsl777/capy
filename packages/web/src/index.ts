@@ -20,6 +20,20 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   function linksOf(env: Bindings, req: Request) {
     return { baseUrl: (env.WEB_BASE_URL ?? new URL(req.url).origin).replace(/\/$/, "") };
   }
+  // The static site's headers (packages/map/public/_headers) don't reach what the Worker builds. Reader and feedback
+  // links carry a reader's secret token in the path, so no response sends a referrer, and the pages, which have no
+  // scripts, may load none. A cached response's headers can't be changed, so each response is copied first.
+  app.use("*", async (c, next) => {
+    await next();
+    const res = new Response(c.res.body, c.res);
+    res.headers.set("X-Content-Type-Options", "nosniff");
+    res.headers.set("Referrer-Policy", "no-referrer");
+    res.headers.set("X-Frame-Options", "DENY");
+    if ((res.headers.get("content-type") ?? "").includes("text/html")) {
+      res.headers.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' https: data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
+    }
+    c.res = res;
+  });
   const KINDS = new Set(["more", "less", "wrong", "promote"]);
   const ID = /^\d{1,9}$/;
 
