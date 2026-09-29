@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GlobalGist: five looks over one layout.
+   GlobalGist: eight looks over one layout.
    Canvas colours live in src/themes.ts; keep them in step with these tokens.
    ========================================================================== */
 
@@ -111,6 +111,79 @@
   --font-head: "Architects Daughter", "Comic Sans MS", cursive;
   --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
   --font-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Pirate: an old sea chart, sepia ink on sea-green water ------------- */
+:root[data-theme="pirate"] {
+  color-scheme: light;
+  --page: #ead7aa;
+  --panel: #f1e3bf;
+  --ink: #2e1e0f;
+  --ink-2: #4f3720;
+  --muted: #6c5233;
+  --rule: #3b2614;
+  --accent: #b0271d;
+  --on-accent: #f6ecd2;
+  --hover: rgba(59, 38, 20, 0.08);
+  --grain-opacity: 0.5;
+  --grain-blend: multiply;
+  /* A twisted rope: three browns on a slant. */
+  --rope: repeating-linear-gradient(120deg, #3b2614 0 2px, #9c7646 2px 5px, #d6b98a 5px 7px);
+  --font-mast: "Pirata One", "IM Fell English SC", Georgia, serif;
+  --font-head: "IM Fell English SC", Georgia, serif;
+  --font-body: "IM Fell English", Georgia, serif;
+  --font-ui: "IM Fell English", Georgia, serif;
+}
+
+/* ---- Space: the globe as a planet against the stars -------------------- */
+:root[data-theme="space"] {
+  color-scheme: dark;
+  --page: #05070f;
+  --panel: #0a0f22;
+  --ink: #e6ecff;
+  --ink-2: #bcc8ea;
+  --muted: #8d9abf;
+  --rule: #2b3560;
+  --accent: #ffb454;
+  --on-accent: #1a1206;
+  --hover: rgba(150, 192, 255, 0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0.06;
+  --grain-blend: screen;
+  /* A static starfield: small dots on tiles of different sizes, so the pattern doesn't visibly repeat. */
+  --stars:
+    radial-gradient(1.3px 1.3px at 18% 27%, rgba(255, 255, 255, 0.9), transparent) 0 0 / 97px 89px,
+    radial-gradient(1px 1px at 71% 62%, rgba(210, 225, 255, 0.75), transparent) 0 0 / 131px 113px,
+    radial-gradient(1.6px 1.6px at 43% 81%, rgba(255, 240, 220, 0.85), transparent) 0 0 / 199px 211px,
+    radial-gradient(1px 1px at 88% 14%, rgba(255, 255, 255, 0.6), transparent) 0 0 / 157px 167px,
+    radial-gradient(1.1px 1.1px at 9% 58%, rgba(190, 210, 255, 0.7), transparent) 0 0 / 83px 127px,
+    radial-gradient(2px 2px at 57% 36%, rgba(255, 255, 255, 0.95), transparent) 0 0 / 307px 277px,
+    radial-gradient(1px 1px at 33% 9%, rgba(255, 230, 200, 0.6), transparent) 0 0 / 61px 73px;
+  --font-mast: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-head: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* ---- Cotton Candy: pink and sky blue, soft and rounded ------------------ */
+:root[data-theme="cotton"] {
+  color-scheme: light;
+  --page: #fff0f7;
+  --panel: #fffafd;
+  --ink: #3d2a5c;
+  --ink-2: #57437a;
+  --muted: #76628f;
+  --rule: #eea3c8;
+  --accent: #c8286f;
+  --on-accent: #ffffff;
+  --hover: rgba(200, 40, 111, 0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Fredoka", "Trebuchet MS", sans-serif;
+  --font-head: "Fredoka", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", sans-serif;
 }
 
 /* ---- base --------------------------------------------------------------- */
@@ -1312,5 +1385,296 @@ button.link {
     align-items: baseline;
     gap: 4px 10px;
     text-align: center;
+  }
+}
+
+/* ---- Pirate: a sea chart with rope and dashed rules ----------------------- */
+:root[data-theme="pirate"] body {
+  background: radial-gradient(ellipse at center, #f1e1b8 0%, #ead7aa 55%, #cfb27a 100%);
+}
+:root[data-theme="pirate"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 16px;
+  background: var(--rope) left bottom / 100% 6px no-repeat;
+}
+:root[data-theme="pirate"] .mast-title {
+  font: 400 clamp(32px, 4vw, 50px) / 1 var(--font-mast);
+  letter-spacing: 0.02em;
+}
+:root[data-theme="pirate"] .toolbar {
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="pirate"] .seg,
+:root[data-theme="pirate"] .tool,
+:root[data-theme="pirate"] .menu > summary,
+:root[data-theme="pirate"] .chip,
+:root[data-theme="pirate"] .zoom {
+  border-style: dashed;
+}
+:root[data-theme="pirate"] .seg button + button {
+  border-left-style: dashed;
+}
+:root[data-theme="pirate"] .map {
+  margin: 10px;
+  border: 2px dashed var(--rule);
+  outline: 4px double var(--rule);
+  outline-offset: 4px;
+}
+:root[data-theme="pirate"] .compass {
+  display: block;
+}
+:root[data-theme="pirate"] .panel {
+  margin: 10px 10px 10px 0;
+  border: 2px dashed var(--rule);
+}
+:root[data-theme="pirate"] .panel-title,
+:root[data-theme="pirate"] .place-name {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 30px;
+}
+:root[data-theme="pirate"] .headline {
+  font: 400 18px/1.2 var(--font-body);
+}
+:root[data-theme="pirate"] .reader-headline {
+  font: 400 32px/1.1 var(--font-body);
+}
+:root[data-theme="pirate"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background: var(--rope) left bottom / 100% 4px no-repeat;
+}
+:root[data-theme="pirate"] .lead img {
+  filter: sepia(0.8) contrast(1.05);
+}
+:root[data-theme="pirate"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  border-bottom: 2px dashed var(--accent);
+}
+:root[data-theme="pirate"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="pirate"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="pirate"] dialog {
+  border: 2px dashed var(--rule);
+}
+
+/* ---- Space: stars behind the globe, crisp type ---------------------------- */
+:root[data-theme="space"] body {
+  background: radial-gradient(ellipse at 50% 30%, #0d1330 0%, var(--page) 70%);
+}
+:root[data-theme="space"] .map {
+  /* Stars show around the globe; the flat map covers them with its sheet. */
+  background: var(--stars), radial-gradient(ellipse at 50% 50%, #0b1230 0%, #03040b 75%);
+}
+:root[data-theme="space"] .mast-title {
+  font: 700 clamp(24px, 3vw, 36px) / 1 var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+:root[data-theme="space"] .mast-tag {
+  font-style: normal;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+:root[data-theme="space"] .masthead {
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="space"] .toolbar,
+:root[data-theme="space"] .timebar,
+:root[data-theme="space"] .kicker,
+:root[data-theme="space"] .rule-head {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+:root[data-theme="space"] .rule-head {
+  text-align: left;
+  border-top: 0;
+  color: var(--ink-2);
+}
+:root[data-theme="space"] .panel-title,
+:root[data-theme="space"] .place-name {
+  font: 700 22px/1.05 var(--font-head);
+  letter-spacing: 0.06em;
+}
+:root[data-theme="space"] .dateline {
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="space"] .headline {
+  font: 500 15px/1.3 var(--font-head);
+}
+:root[data-theme="space"] .reader-headline {
+  font: 700 24px/1.2 var(--font-head);
+}
+:root[data-theme="space"] .meta,
+:root[data-theme="space"] .byline {
+  font-style: normal;
+  font-size: 12px;
+}
+:root[data-theme="space"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="space"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  border-bottom: 1px solid rgba(150, 192, 255, 0.6);
+  text-shadow: 0 0 14px rgba(120, 170, 255, 0.55);
+}
+:root[data-theme="space"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 12px rgba(120, 170, 255, 0.45);
+}
+:root[data-theme="space"] .lead img {
+  filter: grayscale(1) contrast(1.1) brightness(0.9);
+}
+
+/* ---- Cotton Candy: rounded everything ------------------------------------- */
+:root[data-theme="cotton"] body {
+  background: linear-gradient(160deg, #ffe4f1 0%, #fff4fa 45%, #dcefff 100%);
+}
+:root[data-theme="cotton"] .masthead {
+  /* Scallops instead of a rule. */
+  border-bottom: 0;
+  padding-bottom: 18px;
+  background: radial-gradient(circle at 8px 0, transparent 6px, var(--rule) 6.5px 8px, transparent 8.5px) left bottom / 16px 9px repeat-x;
+}
+:root[data-theme="cotton"] .mast-title {
+  font: 600 clamp(30px, 3.6vw, 44px) / 1 var(--font-mast);
+  color: var(--accent);
+  text-shadow: 2px 2px 0 #bfe3ff;
+}
+:root[data-theme="cotton"] .mast-tag {
+  font-style: normal;
+}
+:root[data-theme="cotton"] .toolbar {
+  border-bottom: 0;
+}
+:root[data-theme="cotton"] .seg {
+  border-radius: 999px;
+  overflow: hidden;
+  border-width: 2px;
+}
+:root[data-theme="cotton"] .tool,
+:root[data-theme="cotton"] .menu > summary,
+:root[data-theme="cotton"] .chip,
+:root[data-theme="cotton"] .score-chip,
+:root[data-theme="cotton"] .scale {
+  border-radius: 999px;
+}
+:root[data-theme="cotton"] .tool,
+:root[data-theme="cotton"] .menu > summary {
+  border-width: 2px;
+  padding-inline: 14px;
+}
+:root[data-theme="cotton"] .tool.quiet {
+  border-color: transparent;
+}
+:root[data-theme="cotton"] .scale {
+  overflow: hidden;
+}
+:root[data-theme="cotton"] .menu-body,
+:root[data-theme="cotton"] dialog {
+  border-radius: 18px;
+  border-width: 2px;
+  box-shadow: 0 8px 24px rgba(200, 40, 111, 0.16);
+}
+:root[data-theme="cotton"] .menu-item {
+  border-bottom-style: dotted;
+}
+:root[data-theme="cotton"] .map {
+  margin: 10px;
+  border: 2px solid var(--rule);
+  border-radius: 24px;
+}
+:root[data-theme="cotton"] .panel {
+  margin: 10px 10px 10px 0;
+  border: 2px solid var(--rule);
+  border-radius: 24px;
+}
+:root[data-theme="cotton"] .zoom {
+  border-radius: 999px;
+  overflow: hidden;
+  border-width: 2px;
+}
+:root[data-theme="cotton"] .timebar {
+  border-top: 0;
+}
+:root[data-theme="cotton"] .panel-title,
+:root[data-theme="cotton"] .place-name {
+  font: 600 26px/1.05 var(--font-head);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+}
+:root[data-theme="cotton"] .dateline {
+  border-bottom: 2px dotted var(--rule);
+}
+:root[data-theme="cotton"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: #e2f2ff;
+  color: var(--ink);
+}
+:root[data-theme="cotton"] .headline {
+  font: 700 16px/1.3 var(--font-body);
+}
+:root[data-theme="cotton"] .reader-headline {
+  font: 600 28px/1.15 var(--font-head);
+}
+:root[data-theme="cotton"] .excerpt::first-letter {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--accent);
+}
+:root[data-theme="cotton"] .lead img {
+  filter: none;
+  border-radius: 14px;
+}
+:root[data-theme="cotton"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  border-bottom: 3px dotted #7cc3f5;
+}
+:root[data-theme="cotton"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+:root[data-theme="cotton"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="pirate"] .map,
+  :root[data-theme="cotton"] .map {
+    margin: 8px;
+  }
+  :root[data-theme="pirate"] .panel,
+  :root[data-theme="cotton"] .panel {
+    margin: 0 8px 8px;
   }
 }
