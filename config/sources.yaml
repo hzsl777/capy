@@ -422,3 +422,95 @@ sources:
   - { id: tc-weekly-news, name: Turks and Caicos Weekly News, url: "https://tcweeklynews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Providenciales, lat: 21.78, lon: -72.27 } } # feed unconfirmed
   - { id: iwitness-news, name: iWitness News, url: "https://www.iwnsvg.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Kingstown, lat: 13.16, lon: -61.23 } } # feed unconfirmed
   - { id: st-thomas-source, name: St. Thomas Source, url: "https://stthomassource.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Charlotte Amalie, lat: 18.34, lon: -64.93 } } # feed unconfirmed
+  # Decision 48: stateless nations, minority peoples and Indigenous communities
+  # Gathered 2026-09-29 by web search; the session could not fetch these hosts. Feeds unverified until npm run stage -- sources check.
+  # Balance: an outlet from a side of a conflict or sovereignty dispute sits beside the state side, named here or already listed.
+  # Kurds. Iraq: rudaw and shafaq-news already listed. Syria: hawar-news beside sana-en (and enab-baladi). Turkey: mezopotamya-agency beside anadolu-agency (and hurriyet-daily-news).
+  - { id: hawar-news, name: Hawar News Agency (ANHA), url: "https://hawarnews.com/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Qamishli, lat: 37.05, lon: 41.22 } } # linked to the Autonomous Administration of North and East Syria; feed unconfirmed (an RSS index page at /en/rss-feeds was seen in search)
+  - { id: sana-en, name: SANA, url: "https://sana.sy/en/?feed=rss2", topic: world, tier: general, desk: world, lang: en, place: { name: Damascus, lat: 33.51, lon: 36.29 } } # state media; feed seen in search
+  - { id: mezopotamya-agency, name: Mezopotamya Agency, url: "https://www.mezopotamyaajansi.com/en", topic: world, tier: general, desk: world, lang: en, place: { name: Istanbul, lat: 41.01, lon: 28.98 } } # feed unconfirmed; its domain changes after court blocks in Turkey
+  - { id: anadolu-agency, name: Anadolu Agency, url: "https://www.aa.com.tr/en", topic: world, tier: general, desk: world, lang: en, place: { name: Ankara, lat: 39.93, lon: 32.86 } } # state media; feed unconfirmed
+  # Druze of Suwayda, beside sana-en
+  - { id: suwayda-24, name: Suwayda 24, url: "https://suwayda24.com/", topic: world, tier: general, desk: world, lang: ar, place: { name: Suwayda, lat: 32.71, lon: 36.57 } } # local activist news network; feed unconfirmed
+  # Basques, Catalans and Galicians, beside agencia-efe (and el-pais-english)
+  - { id: berria, name: Berria, url: "https://www.berria.eus/uploads/feeds/feed_berria_eu.xml", topic: world, tier: general, desk: world, lang: eu, place: { name: Andoain, lat: 43.22, lon: -2.02 } } # feed seen in search
+  - { id: catalan-news, name: Catalan News, url: "https://www.catalannews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Barcelona, lat: 41.39, lon: 2.17 } } # government-run (ACN, the Catalan government's public agency); feed unconfirmed
+  - { id: vilaweb, name: VilaWeb, url: "https://www.vilaweb.cat/rss/vilaweb.rss", topic: world, tier: general, desk: world, lang: ca, place: { name: Barcelona, lat: 41.39, lon: 2.17 } } # feed seen in search
+  - { id: agencia-efe, name: Agencia EFE, url: "https://efe.com/", topic: world, tier: general, desk: world, lang: es, place: { name: Madrid, lat: 40.42, lon: -3.70 } } # state media (state-owned agency); feed unconfirmed
+  - { id: nos-diario, name: Nós Diario, url: "https://www.nosdiario.gal/", topic: world, tier: general, desk: world, lang: gl, place: { name: Santiago de Compostela, lat: 42.88, lon: -8.54 } } # feed unconfirmed (an RSS index page at /rss/listado/ was seen in search)
+  # Corsicans and Bretons (French public media already listed: france24-en, rfi-english)
+  - { id: corse-net-infos, name: Corse Net Infos, url: "https://www.corsenetinfos.corsica/xml/syndication.rss", topic: world, tier: general, desk: world, lang: fr, place: { name: Ajaccio, lat: 41.93, lon: 8.74 } } # feed seen in search
+  - { id: le-telegramme, name: Le Télégramme, url: "https://www.letelegramme.fr/", topic: world, tier: general, desk: world, lang: fr, place: { name: Morlaix, lat: 48.58, lon: -3.83 } } # feed unconfirmed
+  # Scots, Welsh and Irish-language press (scotsman, bbc-world and rte-news already listed)
+  - { id: the-national-scot, name: The National, url: "https://www.thenational.scot/news/rss/", topic: world, tier: general, desk: world, lang: en, place: { name: Glasgow, lat: 55.86, lon: -4.25 } } # feed seen in search; supports Scottish independence, beside scotsman
+  - { id: golwg360, name: Golwg360, url: "https://golwg.360.cymru/", topic: world, tier: general, desk: world, lang: cy, place: { name: Lampeter, lat: 52.11, lon: -4.08 } } # funded by the Welsh Government; feed unconfirmed
+  - { id: tuairisc, name: Tuairisc.ie, url: "https://tuairisc.ie/", topic: world, tier: general, desk: world, lang: ga, place: { name: Bearna, lat: 53.25, lon: -9.15 } } # state-funded through Foras na Gaeilge; feed unconfirmed
+  # Frisians, Sami, Faroese and Greenlanders
+  - { id: omrop-fryslan, name: Omrop Fryslân, url: "https://www.omropfryslan.nl/fy/nijs", topic: world, tier: general, desk: world, lang: fy, place: { name: Leeuwarden, lat: 53.20, lon: 5.80 } } # public broadcaster; feed unconfirmed
+  - { id: nrk-sapmi, name: NRK Sápmi, url: "https://www.nrk.no/sapmi/oddasat.rss", topic: world, tier: general, desk: world, lang: se, place: { name: Karasjok, lat: 69.47, lon: 25.51 } } # public broadcaster; feed seen in search (Northern Sami)
+  # Tibetans and Uyghurs, beside tianshannet (and xinhua-english, china-daily)
+  - { id: phayul, name: Phayul, url: "https://www.phayul.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Dharamsala, lat: 32.22, lon: 76.32 } } # exile newsroom; feed unconfirmed
+  - { id: rfa-uyghur, name: Radio Free Asia Uyghur, url: "https://www.rfa.org/english/uyghur/", topic: world, tier: general, desk: world, lang: en, place: { name: Washington, lat: 38.91, lon: -77.04 } } # US government-funded; feed unconfirmed (an older feed path was seen in search)
+  - { id: tianshannet, name: Tianshannet, url: "https://english.ts.cn/", topic: world, tier: general, desk: world, lang: en, place: { name: Urumqi, lat: 43.83, lon: 87.62 } } # state media (Xinjiang regional government); feed unconfirmed
+  # Tamils, beside daily-news-lk (and daily-mirror-lk; uthayan already listed)
+  - { id: tamil-guardian, name: Tamil Guardian, url: "https://www.tamilguardian.com/", topic: world, tier: general, desk: world, lang: en, place: { name: London, lat: 51.51, lon: -0.13 } } # diaspora newsroom; feed unconfirmed
+  - { id: daily-news-lk, name: Daily News, url: "https://www.dailynews.lk/", topic: world, tier: general, desk: world, lang: en, place: { name: Colombo, lat: 6.93, lon: 79.86 } } # state media (Lake House); feed unconfirmed
+  # Punjab, Nagaland, Mizoram and Khyber Pakhtunkhwa
+  - { id: tribune-india, name: The Tribune, url: "https://www.tribuneindia.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Chandigarh, lat: 30.73, lon: 76.78 } } # feed unconfirmed (an RSS index page at /rss-feeds was seen in search)
+  - { id: morung-express, name: The Morung Express, url: "https://morungexpress.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Dimapur, lat: 25.91, lon: 93.73 } } # feed unconfirmed
+  - { id: vanglaini, name: Vanglaini, url: "https://www.vanglaini.org/", topic: world, tier: general, desk: world, lang: lus, place: { name: Aizawl, lat: 23.73, lon: 92.72 } } # feed unconfirmed
+  - { id: tnn-english, name: Tribal News Network, url: "https://tnnenglish.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Peshawar, lat: 34.01, lon: 71.52 } } # feed unconfirmed
+  # Rohingya, Karen and Shan, beside global-new-light-of-myanmar
+  - { id: kaladan-press, name: Kaladan Press Network, url: "https://kaladanpress.org/", topic: world, tier: general, desk: world, lang: en, place: { name: Chittagong, lat: 22.36, lon: 91.78 } } # exile newsroom, founded in Chittagong (current office unconfirmed); feed unconfirmed
+  - { id: karen-news, name: Karen News, url: "https://karennews.org/feed/", topic: world, tier: general, desk: world, lang: en, place: { name: Mae Sot, lat: 16.71, lon: 98.57 } } # feed seen in search; newsroom city unconfirmed (older reports place Karen journalists in Mae Sot)
+  - { id: shan-news, name: Shan Herald Agency for News, url: "https://english.shannews.org/", topic: world, tier: general, desk: world, lang: en, place: { name: Chiang Mai, lat: 18.79, lon: 98.98 } } # exile newsroom; feed unconfirmed
+  # Assyrians
+  - { id: aina, name: Assyrian International News Agency, url: "http://www.aina.org/contentfeed.rss", topic: world, tier: general, desk: world, lang: en, place: { name: Chicago, lat: 41.88, lon: -87.63 } } # feed seen in search
+  # Sahrawi, beside map-morocco (and morocco-world-news, hespress-english); Amazigh
+  - { id: sahara-press-service, name: Sahara Press Service, url: "https://www.spsrasd.info/en", topic: world, tier: general, desk: world, lang: en, place: { name: Tindouf, lat: 27.67, lon: -8.15 } } # state media of the Polisario Front's Sahrawi Republic (headquarters in the camps near Tindouf); feed unconfirmed
+  - { id: map-morocco, name: Maghreb Arabe Presse, url: "https://www.mapnews.ma/en", topic: world, tier: general, desk: world, lang: en, place: { name: Rabat, lat: 34.02, lon: -6.84 } } # state media; feed unconfirmed
+  - { id: amazigh-world-news, name: Amazigh World News, url: "https://amazighworldnews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Boston, lat: 42.36, lon: -71.06 } } # diaspora newsroom; feed unconfirmed
+  # Oromo, beside ena-ethiopia (and addis-standard); Puntland, beside somali-guardian
+  - { id: oromia-media-network, name: Oromia Media Network, url: "https://omnglobal.com/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Minneapolis, lat: 44.98, lon: -93.27 } } # diaspora-funded; feed unconfirmed
+  - { id: ena-ethiopia, name: Ethiopian News Agency, url: "https://www.ena.et/web/eng", topic: world, tier: general, desk: world, lang: en, place: { name: Addis Ababa, lat: 9.03, lon: 38.74 } } # state media; feed unconfirmed
+  - { id: garowe-online, name: Garowe Online, url: "https://www.garoweonline.com/en", topic: world, tier: general, desk: world, lang: en, place: { name: Garowe, lat: 8.41, lon: 48.48 } } # feed unconfirmed
+  # Niger Delta
+  - { id: the-tide-ph, name: The Tide, url: "https://www.thetidenewsonline.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Port Harcourt, lat: 4.82, lon: 7.05 } } # government-run (Rivers State Newspaper Corporation); feed unconfirmed
+  # Roma
+  - { id: romea, name: Romea.cz, url: "https://romea.cz/en", topic: world, tier: general, desk: world, lang: en, place: { name: Prague, lat: 50.08, lon: 14.44 } } # feed unconfirmed
+  # Crimean Tatars, beside ria-crimea (and tass, kyiv-independent)
+  - { id: qha-crimea, name: QHA Crimean News Agency, url: "https://qha.com.ua/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Kyiv, lat: 50.45, lon: 30.52 } } # exile newsroom; feed unconfirmed
+  - { id: ria-crimea, name: RIA Novosti Crimea, url: "https://crimea.ria.ru/", topic: world, tier: general, desk: world, lang: ru, place: { name: Simferopol, lat: 44.95, lon: 34.10 } } # state media (Russian state group Rossiya Segodnya); feed unconfirmed
+  # Chechnya and the North Caucasus
+  - { id: caucasian-knot, name: Caucasian Knot, url: "https://www.eng.kavkaz-uzel.eu/", topic: world, tier: general, desk: world, lang: en, place: { name: Moscow, lat: 55.76, lon: 37.62 } } # feed unconfirmed
+  - { id: grozny-inform, name: Grozny-Inform, url: "https://www.grozny-inform.ru/", topic: world, tier: general, desk: world, lang: ru, place: { name: Grozny, lat: 43.32, lon: 45.69 } } # state media (Chechen Republic); feed unconfirmed
+  # Abkhazia and South Ossetia (contested), beside gpb-1tv (and civil-ge)
+  - { id: apsnypress, name: Apsnypress, url: "https://www.apsnypress.info/", topic: world, tier: general, desk: world, lang: ru, place: { name: Sukhumi, lat: 43.00, lon: 41.02 } } # state media of the de facto Abkhaz authorities; feed unconfirmed
+  - { id: res-south-ossetia, name: RES Information Agency, url: "https://cominf.org/", topic: world, tier: general, desk: world, lang: ru, place: { name: Tskhinvali, lat: 42.23, lon: 43.97 } } # state media of the de facto South Ossetian authorities; feed unconfirmed
+  - { id: gpb-1tv, name: 1TV (Georgian Public Broadcaster), url: "https://1tv.ge/lang/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Tbilisi, lat: 41.72, lon: 44.79 } } # public broadcaster; feed unconfirmed
+  # Transnistria (contested), beside moldpres
+  - { id: novosti-pmr, name: Novosti Pridnestrovya, url: "https://novostipmr.com/", topic: world, tier: general, desk: world, lang: ru, place: { name: Tiraspol, lat: 46.84, lon: 29.63 } } # state media of the de facto Transnistrian authorities; feed unconfirmed
+  - { id: moldpres, name: Moldpres, url: "https://www.moldpres.md/config/rss.php?lang=eng", topic: world, tier: general, desk: world, lang: en, place: { name: Chișinău, lat: 47.01, lon: 28.86 } } # state media; feed seen in search
+  # Turkish Cypriots, beside cyprus-mail (same Nicosia pin); Kosovo Serbs, beside prishtina-insight (and n1-serbia)
+  - { id: yeniduzen, name: Yenidüzen, url: "https://www.yeniduzen.com/", topic: world, tier: general, desk: world, lang: tr, place: { name: Nicosia, lat: 35.17, lon: 33.36 } } # feed unconfirmed
+  - { id: kossev, name: KoSSev, url: "https://kossev.info/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Mitrovica, lat: 42.89, lon: 20.87 } } # feed unconfirmed
+  # Quebec and Indigenous press in Canada (le-devoir and nunatsiaq-news already listed)
+  - { id: le-soleil, name: Le Soleil, url: "https://www.lesoleil.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Quebec City, lat: 46.81, lon: -71.21 } } # feed unconfirmed
+  - { id: aptn-news, name: APTN News, url: "https://www.aptnnews.ca/", topic: world, tier: general, desk: world, lang: en, place: { name: Winnipeg, lat: 49.90, lon: -97.14 } } # feed unconfirmed
+  # Indigenous press in the United States, including Hawaii
+  - { id: ict-news, name: ICT, url: "https://ictnews.org/", topic: world, tier: general, desk: world, lang: en, place: { name: Phoenix, lat: 33.45, lon: -112.07 } } # feed unconfirmed
+  - { id: navajo-times, name: Navajo Times, url: "https://navajotimes.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Window Rock, lat: 35.68, lon: -109.05 } } # feed unconfirmed
+  - { id: ka-wai-ola, name: Ka Wai Ola, url: "https://kawaiola.news/", topic: world, tier: general, desk: world, lang: en, place: { name: Honolulu, lat: 21.31, lon: -157.86 } } # government-run (Office of Hawaiian Affairs, a state agency); feed unconfirmed
+  # Indigenous press in Australia and Aotearoa New Zealand
+  - { id: nitv, name: NITV, url: "https://www.sbs.com.au/nitv", topic: world, tier: general, desk: world, lang: en, place: { name: Sydney, lat: -33.87, lon: 151.21 } } # public broadcaster (SBS); feed unconfirmed
+  - { id: koori-mail, name: Koori Mail, url: "https://koorimail.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Lismore, lat: -28.81, lon: 153.28 } } # feed unconfirmed
+  - { id: te-ao-maori-news, name: Te Ao Māori News, url: "https://www.teaonews.co.nz/", topic: world, tier: general, desk: world, lang: en, place: { name: Auckland, lat: -36.85, lon: 174.76 } } # public broadcaster (Whakaata Māori); feed unconfirmed
+  # Mapuche (beside biobiochile), Andean and Maya communities
+  - { id: mapuexpress, name: Mapuexpress, url: "https://www.mapuexpress.org/", topic: world, tier: general, desk: world, lang: es, place: { name: Temuco, lat: -38.74, lon: -72.60 } } # Mapuche communication collective; newsroom city unconfirmed; feed unconfirmed
+  - { id: servindi, name: Servindi, url: "https://www.servindi.org/", topic: world, tier: general, desk: world, lang: es, place: { name: Lima, lat: -12.05, lon: -77.04 } } # feed unconfirmed
+  - { id: prensa-comunitaria, name: Prensa Comunitaria, url: "https://prensacomunitaria.org/", topic: world, tier: general, desk: world, lang: es, place: { name: Guatemala City, lat: 14.63, lon: -90.51 } } # feed unconfirmed
+  # Papua, beside antara-english (and jakarta-post)
+  - { id: jubi-papua, name: Jubi, url: "https://en.jubi.id/", topic: world, tier: general, desk: world, lang: en, place: { name: Jayapura, lat: -2.53, lon: 140.72 } } # feed unconfirmed
+  - { id: antara-english, name: ANTARA News, url: "https://en.antaranews.com/rss/news.xml", topic: world, tier: general, desk: world, lang: en, place: { name: Jakarta, lat: -6.21, lon: 106.85 } } # state media; feed seen in search
+  # Kanaks of New Caledonia, beside the French public broadcaster
+  - { id: radio-djiido, name: Radio Djiido, url: "https://radiodjiido.nc/", topic: world, tier: general, desk: world, lang: fr, place: { name: Nouméa, lat: -22.28, lon: 166.46 } } # founded by the independence movement (FLNKS) in 1985; feed unconfirmed

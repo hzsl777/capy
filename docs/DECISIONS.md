@@ -304,6 +304,43 @@ The second live test failed like the first: in a batch of 300 articles, the mode
 1. In each grouping event only the article ids decide what is written. Every other field falls back instead of failing: a malformed location becomes "no location", an unknown topic "other", an out-of-range importance 2, a missing reason blank. Titles of any length are accepted and cut to 120 characters in code, in the batch answers and the merge answer.
 2. The schema shown to the model states these defaults, so the model sees what an omitted field means.
 
+## 48. Outlets for stateless nations, minority peoples and Indigenous communities (September 29, 2026)
+
+Davis wants every stateless nation, minority people and Indigenous community on the map. The world desk gains 66 outlets in one block at the end of the world-desk section of `config/sources.yaml`. They were found by web search. The session could not reach the hosts, so 11 feeds are ones seen in search results and the rest are homepages marked `# feed unconfirmed` (decision 31). `npm run stage -- sources check` settles them.
+
+1. Every outlet is pinned at the city its newsroom publishes from, which for exile and diaspora outlets is abroad: Phayul in Dharamsala, Radio Free Asia Uyghur in Washington, Tamil Guardian in London, Shan Herald in Chiang Mai, Oromia Media Network in Minneapolis, Amazigh World News in Boston, QHA in Kyiv, Caucasian Knot in Moscow.
+2. An outlet from one side of a conflict or sovereignty dispute is added only beside the state side, either added here or already listed:
+   - Kurds in Syria: Hawar News (linked to the Autonomous Administration) beside the new SANA entry. Kurds in Turkey: Mezopotamya Agency beside the new Anadolu Agency entry and `hurriyet-daily-news`. Kurds in Iraq: `rudaw` and `shafaq-news` were already listed.
+   - Druze of Suwayda: Suwayda 24 beside SANA.
+   - Basques, Catalans and Galicians: Berria, Catalan News, VilaWeb and Nós Diario beside the new Agencia EFE entry and `el-pais-english`. Scots: The National (pro-independence) beside `scotsman` and `bbc-world`.
+   - Tibetans and Uyghurs: Phayul and Radio Free Asia Uyghur beside `xinhua-english`, `china-daily` and the new Tianshannet (Xinjiang government) entry.
+   - Tamils: Tamil Guardian beside the new state-owned Daily News and `daily-mirror-lk`.
+   - Rohingya, Karen and Shan: Kaladan Press, Karen News and Shan Herald beside `global-new-light-of-myanmar`.
+   - Sahrawi: Sahara Press Service (the Polisario Front's state media) beside the new Maghreb Arabe Presse entry, `morocco-world-news` and `hespress-english`.
+   - Oromo: Oromia Media Network beside the new Ethiopian News Agency entry and `addis-standard`. Puntland: Garowe Online beside `somali-guardian`.
+   - Crimean Tatars: QHA beside the new RIA Novosti Crimea entry (Russian state media in Simferopol), `tass` and `kyiv-independent`.
+   - Chechnya: Caucasian Knot beside the Chechen government's Grozny-Inform.
+   - Abkhazia and South Ossetia: the de facto authorities' agencies Apsnypress and RES beside the new Georgian Public Broadcaster entry and `civil-ge`.
+   - Transnistria: Novosti Pridnestrovya (de facto authorities) beside the new Moldpres entry (Moldovan state).
+   - Northern Cyprus: Yenidüzen beside `cyprus-mail`, on the same Nicosia pin. Kosovo: KoSSev (Serbian community in Mitrovica) beside `prishtina-insight` and `n1-serbia`.
+   - Papua: Jubi beside the new ANTARA entry and `jakarta-post`. New Caledonia: Radio Djiido (founded by the FLNKS) beside the French public broadcaster's Nouvelle-Calédonie La 1ère.
+   - Mapuche: Mapuexpress beside `biobiochile`.
+3. Already covered, nothing added: Palestinians (`wafa`, `maan-news`, `ramattan` beside the Israeli outlets), Kashmir (`greater-kashmir` and `jammu-kashmir-times-mzd`), Anglophone Cameroon (`mimi-mefo-info` and `cameroon-tribune`), Somaliland (`somaliland-chronicle` and `somali-guardian`), Hong Kong independent press (`hong-kong-free-press`), Baloch (`balochistan-express`), Kosovo Albanians (`prishtina-insight`), Quebec (`le-devoir`, now with Le Soleil).
+4. Place names for contested cities use the common English form: Sukhumi, Tskhinvali, Simferopol, Nicosia, Mitrovica. The panel shows the name only, never a country.
+5. Skipped:
+   - Kurds in Iran: no outlet with a known newsroom city. Kurdpa gives no location, and Hengaw is a human rights monitor, not a newsroom.
+   - Inner Mongolia: the only exile source found is a human rights organisation's news page, not a newsroom.
+   - Manipur: the Imphal papers are valley-based, and no Kuki-Zo outlet with a working news site was found to balance them during the conflict between the two communities.
+   - The Balochistan Post: it does not say where its newsroom is, and it is aligned with one side of an armed conflict.
+   - Pashtun exile radio: Radio Mashaal closed on March 31, 2026. Tribal News Network in Peshawar was added instead.
+   - Hazara, Tuareg, Circassians and Garifuna: no news outlet with a website and a known newsroom was found. The Tuareg case would also need balancing against an armed movement.
+   - Ogoni: the Ogoni news site found mostly republishes other papers. The Tide in Port Harcourt covers the Niger Delta.
+   - Zanzibar: the government paper's website could not be confirmed.
+   - Bougainville: no newsroom site with a confirmed location. The New Dawn FM blog was last active years ago.
+   - Sermitsiaq.AG (Greenland): its terms forbid public use of its RSS feeds without permission. KNR covers Greenland.
+   - China Tibet Online: its newsroom city could not be confirmed. Xinhua and China Daily cover the state side.
+6. Newsroom cities to confirm: Karen News (pinned at Mae Sot from older reports), Kaladan Press (founded in Chittagong), Mapuexpress (Temuco). The Mezopotamya Agency domain changes after each court block in Turkey, so its URL may need updating.
+
 ## 50. Every story on the map is grouped and ranked (September 29, 2026)
 
 The first complete live day showed 2,632 stories, but only about 300 had been grouped into events. The grouping stage reads each outlet's 15 newest articles (1,303 that day); of those it set aside 454 as not news and left 570 ungrouped. Everything outside a group had no importance, topic or place, so it could not be ranked, sized or placed where it happened, and ads showed as stories. The cross-batch merge proposed five joins and the checks refused all five.
