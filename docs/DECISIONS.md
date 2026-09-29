@@ -234,3 +234,14 @@ Davis wants one big word on the site and no email briefing for now, with 2DayAI 
 1. The day's word moves to the centre of the masthead and becomes the largest text on the page. Its size follows its length, so a short word like "Joy" is large and the longest, "Encouragement", still fits a 375-pixel phone. The date, the "Chosen by AI" label and the scale sit beside it on wide screens and under it on phones. Nothing is added around the word, and the label stays next to it (neutrality rule 4).
 2. 2DayAI email is parked. The code and decision 35 stay as they are, and with no reader profiles the daily run skips the briefing stages at no cost (decision 33). "Deliver" loses its two-hourly schedule, which spent about 360 Actions minutes a month on skipped runs. It can still be run by hand.
 3. When 2DayAI returns, it is an opt-in on the site with no account or login: a visitor asks for the briefing, and the site keeps only what is needed to send it. That design is its own decision.
+
+## 43. Three more designs: Pirate, Space and Cotton Candy (September 29, 2026)
+
+Davis asked for three playful looks beside the five from decision 32. They follow the same rules: no borders, no names or labels on the map, and dot size and colour keep their meaning.
+
+1. Pirate: an old sea chart in sepia ink on sea-green water, with a compass rose, rope and dashed rules, and a Pirata One masthead and word. Red marks fresh reports. Map by default.
+2. Space: the globe as a planet against a static CSS starfield, with a thin atmosphere rim and a faint city-lights texture on land. Amber marks fresh reports. The flat map reads as a star chart. Globe by default.
+3. Cotton Candy: pink land on sky-blue water with rounded chrome in Fredoka and Nunito. Magenta marks fresh reports. Map by default.
+4. Decorations are allowed on the canvas when they are clearly decorative: Pirate's small ink sea creatures (serpents, a kraken, whales) and Space's four-point stars on the flat map. They are drawn under the dots, in open strokes with no text and no filled shapes, at fixed spots in open ocean. A test checks every spot against the basemap's land and keeps it at least 14 degrees (creatures) or 8 degrees (stars) from every outlet's city in `config/sources.yaml` and the sample. On the globe, a creature fades out toward the rim and is hidden on the far side.
+5. Each design styles the word by font, weight, spacing and colour only, so its size still follows its length. "Encouragement" fits a 375-pixel phone in all three.
+6. Fonts are self-hosted from `@fontsource`: Pirata One, Space Grotesk, Fredoka and Nunito.

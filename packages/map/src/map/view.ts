@@ -9,6 +9,7 @@ import {
 } from "d3-geo";
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
+import { drawDecor } from "./decor.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -684,6 +685,7 @@ export class MapView {
       ctx.strokeRect(x0 - 11, y0 - 11, x1 - x0 + 22, y1 - y0 + 22);
     }
 
+    drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
     this.drawArcs(path, proj);
     this.drawDots(proj);
   }

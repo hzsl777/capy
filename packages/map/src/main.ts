@@ -16,6 +16,14 @@ import "@fontsource/ibm-plex-sans-condensed/600.css";
 import "@fontsource/architects-daughter/400.css";
 import "@fontsource/barlow/400.css";
 import "@fontsource/barlow/600.css";
+import "@fontsource/pirata-one/400.css";
+import "@fontsource/space-grotesk/500.css";
+import "@fontsource/space-grotesk/700.css";
+import "@fontsource/fredoka/500.css";
+import "@fontsource/fredoka/600.css";
+import "@fontsource/nunito/400.css";
+import "@fontsource/nunito/400-italic.css";
+import "@fontsource/nunito/700.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -176,7 +184,7 @@ function segmented<T extends string>(el: HTMLElement, options: [T, string][], cu
 }
 
 function renderToolbar() {
-  // Five designs sit in one menu, so the toolbar stays short.
+  // All the designs sit in one menu, so the toolbar stays short.
   $("design-current").textContent = THEMES[state.theme].label;
   $("designs").replaceChildren(
     ...THEME_IDS.map((id) => {

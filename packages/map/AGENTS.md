@@ -38,10 +38,11 @@ src/
   themes.ts              canvas colours per design; CSS tokens live in style.css
   map/view.ts            canvas map: projections, drag/zoom/pinch, tuning, highlights, drawing
   map/basemap.ts         loads the TopoJSON basemap
+  map/decor.ts           decorations under the dots: Pirate sea creatures, Space stars and rim (fixed ocean spots, tested)
   translate.ts           browser Translator API wrapper
   pins.ts                localStorage pins and prefs
   ui/dom.ts              element builder (text only, never innerHTML)
-  style.css              five designs over one layout
+  style.css              eight designs over one layout
 public/
   basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed)
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
@@ -76,15 +77,18 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Designs
 
-Five looks (decision 32), each in Map or Globe view, chosen from one Design menu:
+Eight looks (decisions 32 and 43), each in Map or Globe view, chosen from one Design menu:
 
 - **Morning Edition**: newsprint, black ink, halftone land, blackletter masthead and word. Map by default.
 - **Cabinet Map**: parchment, sepia ink, engraved water lines, hachured mountains, one red for fresh reports and the word. Map by default.
 - **Wire Room**: phosphor green on black, dot-matrix land, VT323 masthead, scanlines, scrolling ticker. Globe by default.
 - **Ops Room**: a slate situation display with one cyan, condensed sans-serif, a plotting grid. Map by default. It borrows the look of operations software, never its friend-or-foe colours or symbols.
 - **Blueprint**: cobalt drafting sheet, white linework, hand lettering, orange for fresh reports. Map by default.
+- **Pirate**: an old sea chart. Parchment land on sea-green water, sepia ink, dashed rhumb lines, a compass rose, rope and dashed rules in the chrome, a Pirata One masthead and word, red for fresh reports. Small ink sea creatures (serpents, a kraken, whales) sit at fixed spots in open ocean. Map by default.
+- **Space**: the globe as a planet against a static starfield, dark land with a faint city-lights texture, a thin atmosphere rim, Space Grotesk and IBM Plex Mono, amber for fresh reports. The flat map is a star chart, with faint four-point stars in open ocean. Globe by default.
+- **Cotton Candy**: pink land on sky-blue water, white water lines, rounded pill-shaped chrome, Fredoka and Nunito, magenta for fresh reports. Map by default.
 
-The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`).
+The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`). Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
 
 A theme is two things kept in step: a `Theme` in `src/themes.ts` (canvas) and a `:root[data-theme=...]` block in `src/style.css` (chrome and fonts). Fonts are self-hosted through `@fontsource`. See the `design-themes` skill. The word is the page's headline: centred in the masthead in every design, with its size set by its length so every word on the lists fits a phone, and always next to its date and the "Chosen by AI" label (decision 40). Anything decorative around the word must not change how it reads (a "STOP" suffix was removed because "Ceasefire stop" reads as a statement).
 
