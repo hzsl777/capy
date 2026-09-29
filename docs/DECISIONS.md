@@ -211,3 +211,11 @@ Davis wants the site at globalgist.com and tried GitHub Pages, whose DNS check f
 1. GitHub Pages can't host this site. Pages serves static files only, and the map reads each day from `/data/latest.json`, which the Worker builds from the database. Pages on a private repository also needs a paid GitHub plan.
 2. The domain goes on Cloudflare (bought there, or moved there by changing nameservers) and attaches to the Worker as a custom domain, with `www.` beside it. Cloudflare creates the DNS records and the certificate. The workers.dev address keeps working.
 3. One repository variable, `SITE_DOMAIN`, turns it on. The deploy workflow adds the domains to the Worker config only when it is set, so a deploy never fails for a domain that isn't on Cloudflare yet. Email links use it too, unless `WEB_BASE_URL` overrides it.
+
+## 38. The Worker config moves to the repository root (September 29, 2026)
+
+Davis connected the repository to Cloudflare's Git integration (Workers Builds). Its default deploy, `npx wrangler deploy` from the repository root, failed: the config was in `packages/web/`, so Wrangler found none and refused to guess in a workspace root.
+
+1. `wrangler.toml` moves to the root, with paths to `packages/web/src/index.ts` and `packages/map/dist`.
+2. Its `[build]` step builds the map and removes the sample data, so every deploy, from any path, ships the real site and never the fictional day. `npm run web:deploy` is now plain `wrangler deploy`.
+3. Either Workers Builds or the "Deploy site" workflow deploys, not both. With Workers Builds, `DATABASE_URL` is a secret on the Worker and the custom domain is attached in the dashboard. The workflow still starts "Daily run" when it finishes, even when it skips.
