@@ -525,3 +525,12 @@ Davis felt the grass still did not look like Super Mario 64's, and asked for tex
 3. **Lettering.** The name, the word and the panel title are set in Titan One: chunky rounded capitals in warm yellow with a thick dark outline and a solid drop, each letter tilted its own way and bobbing slightly out of step. Screen readers read the whole word. Motion stops for readers who ask for reduced motion. The letters' look is Rare's spirit, not their lettering, and no game is named.
 4. **Buttons** are lumpy hand-made shapes in warm cream with a thick dark outline, each tilted a little, bouncing when pointed at and pressing down when open.
 5. A frame of terrain takes about 19 ms on the tilted map and 14 ms on the globe in a software-rendered browser.
+
+## 66. Polygon Kingdom's camera sits lower (September 29, 2026)
+
+Davis asked for the camera that best gives the 64-bit overworld feel before testing on desktop. Tried side by side at 40, 50, 58 and 64 degrees with three camera distances, the flatter settings still read as a map seen at a slant. This changes item 1 of decision 63.
+
+1. **Angle.** The map is tilted back 58 degrees instead of 40, with the camera one screen height from the ground instead of farther out, so near ground is larger and the far side falls away faster toward the horizon. At 64 degrees the land in front filled the screen and the far side was too thin to read.
+2. **Zoom floor.** In Map view this design cannot zoom out past 1.8, where the whole map seen low would be a thin strip under a large sky. The Globe view and every other design keep their zoom range.
+3. **Clouds** repeat without a seam as the camera pans.
+4. Tuning, tapping, the reticle and marker sizes work as before; a vertical drag is still corrected for the tilt.

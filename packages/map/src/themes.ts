@@ -446,7 +446,7 @@ export const THEMES: Record<ThemeId, Theme> = {
       cliff: ["#c0621e", "#e08a3a", "#8a3a0c"],
       shallows: "#62c6e6",
     },
-    tilt: 40,
+    tilt: 58,
     sky: ["#6fb4f0", "#a9d6f7", "#e6f5fb"],
     fog: "#e6f5fb",
     pixel: 1.5,

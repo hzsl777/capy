@@ -325,6 +325,7 @@ export class MapView {
   }
 
   flyTo(lon: number, lat: number, zoom = Math.max(this.zoom, this.mode === "3d" ? 1.6 : 1.4), duration = 900) {
+    zoom = Math.max(zoom, this.minZoom());
     const from: [number, number] = [this.lon, this.lat];
     const to: [number, number] = [lon, lat];
     const z0 = this.zoom;
@@ -348,7 +349,7 @@ export class MapView {
   zoomBy(factor: number) {
     this.touched();
     const z0 = this.zoom;
-    const z1 = clamp(z0 * factor, 1, MAX_ZOOM);
+    const z1 = clamp(z0 * factor, this.minZoom(), MAX_ZOOM);
     this.startAnim(250, (t) => {
       this.zoom = z0 + (z1 - z0) * ease(t);
       this.clampLat();
@@ -403,8 +404,17 @@ export class MapView {
       .precision(PRECISION);
   }
 
+  /**
+   * The furthest out the map may zoom. A tilted camera over the whole world at once shows mostly far haze and near
+   * polar ice, so it starts, and stays, close enough to see the land it looks across.
+   */
+  private minZoom(): number {
+    return this.mode === "2d" && this.theme.tilt ? 1.8 : 1;
+  }
+
   private fit() {
     if (!this.w || !this.h) return;
+    this.zoom = Math.max(this.zoom, this.minZoom());
     if (this.mode === "3d") {
       this.baseScale = Math.min(this.w, this.h) * 0.46;
     } else {
@@ -487,7 +497,7 @@ export class MapView {
       const cur = { x: e.clientX, y: e.clientY };
       this.pointers.set(e.pointerId, cur);
       if (this.pointers.size === 2 && this.pinch) {
-        this.zoom = clamp((this.pinch.zoom * this.pointerDist()) / this.pinch.dist, 1, MAX_ZOOM);
+        this.zoom = clamp((this.pinch.zoom * this.pointerDist()) / this.pinch.dist, this.minZoom(), MAX_ZOOM);
         this.clampLat();
       } else if (this.pointers.size === 1) {
         const dx = cur.x - prev.x;
@@ -524,7 +534,7 @@ export class MapView {
         e.preventDefault();
         this.touched();
         this.stopAnim();
-        this.zoom = clamp(this.zoom * Math.exp(-e.deltaY * 0.0016), 1, MAX_ZOOM);
+        this.zoom = clamp(this.zoom * Math.exp(-e.deltaY * 0.0016), this.minZoom(), MAX_ZOOM);
         this.clampLat();
         this.moved();
         clearTimeout(this.wheelTimer);
@@ -837,7 +847,7 @@ export class MapView {
 
   private makeCam(tilt: number): Cam {
     const a = tilt / DEG;
-    return { cx: this.w / 2, cy: this.h / 2, sin: Math.sin(a), cos: Math.cos(a), d: this.h * 1.5 };
+    return { cx: this.w / 2, cy: this.h / 2, sin: Math.sin(a), cos: Math.cos(a), d: this.h };
   }
 
   /** A point on the flat map, raised `lift` pixels, as the tilted camera sees it, with its perspective scale. */
@@ -911,10 +921,13 @@ export class MapView {
           [-w0 * 0.45, 0, w0 * 0.42, "#ffffff"],
           [w0 * 0.45, 0, w0 * 0.42, "#ffffff"],
         ] as const) {
-          cg.beginPath();
-          cg.ellipse(x + dx, y + dy, r, r * 0.55, 0, 0, Math.PI * 2);
-          cg.fillStyle = col;
-          cg.fill();
+          // Drawn a tile to each side as well, so a cloud crossing the edge wraps without a cut.
+          for (const shift of [-128, 0, 128]) {
+            cg.beginPath();
+            cg.ellipse(x + dx + shift, y + dy, r, r * 0.55, 0, 0, Math.PI * 2);
+            cg.fillStyle = col;
+            cg.fill();
+          }
         }
       }
       this.skyTex = c;
