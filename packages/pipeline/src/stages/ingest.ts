@@ -1,8 +1,8 @@
 import Parser from "rss-parser";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, like } from "drizzle-orm";
 import { ArticleSchema, ingestWindow, type Article, type RunDate, type Source } from "@2dayai/core";
 import { articles, sources as sourcesTable, type Db } from "@2dayai/db";
-import { noControl } from "../text.js";
+import { decodeBody, noControl } from "../text.js";
 
 const parser = new Parser({ timeout: 20_000, headers: { "User-Agent": "2dayai/0.1 (+https://github.com/hzsl777/capy)" } });
 
@@ -11,7 +11,7 @@ export type FeedFetcher = (url: string) => Promise<string>;
 export const defaultFetcher: FeedFetcher = async (url) => {
   const res = await fetch(url, { headers: { "User-Agent": "2dayai/0.1 (+https://github.com/hzsl777/capy)" }, signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  return res.text();
+  return decodeBody(new Uint8Array(await res.arrayBuffer()), res.headers.get("content-type"));
 };
 
 const looksLikeFeed = (text: string) => /<(rss|feed|rdf:RDF)[\s>]/i.test(text.slice(0, 4000));
@@ -148,7 +148,17 @@ export async function runIngest(db: Db, sources: Source[], date: RunDate, fetchF
       }
       const found = await articlesFromFeed(source, doc.xml, date);
       let inserted = 0;
+      // Articles stored with broken characters, from before feeds were read in their own encoding (decision 52),
+      // take the clean text once the feed reads cleanly. One lookup per feed.
+      const clean = found.filter((a) => !a.title.includes("\uFFFD"));
+      const broken = clean.length
+        ? new Set((await db.select({ url: articles.url }).from(articles).where(and(inArray(articles.url, clean.map((a) => a.url)), like(articles.title, "%\uFFFD%")))).map((r) => r.url))
+        : new Set<string>();
       for (const a of found) {
+        if (broken.has(a.url)) {
+          await db.update(articles).set({ title: a.title, lead: a.lead, body: a.body }).where(eq(articles.url, a.url));
+          continue;
+        }
         const r = await db.insert(articles).values(a).onConflictDoNothing({ target: articles.url }).returning({ id: articles.id });
         inserted += r.length;
       }

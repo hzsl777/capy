@@ -372,3 +372,10 @@ The first three full runs at 560 outlets each stopped on one bad model answer: q
 3. A telegram score run that still breaks the rules after its retry is set aside, and another is asked, up to two more than `TELEGRAM_SCORE_RUNS`. The day's scores are the middle of the runs that passed. The checks themselves are unchanged: no rejected score is ever used.
 4. If no score run passes, or the word breaks the rules twice, the day has no word and says why in the run summary. Its stories, explanations and places still go out. Decision 26 already allows a day without a word.
 5. An outage, a spent credit balance or the spend ceiling is not a broken rule and still fails the stage loudly.
+
+## 52. Feeds and pages are read in the encoding they declare (September 29, 2026)
+
+Every feed and page was read as UTF-8. Folha de S.Paulo publishes its feed in ISO-8859-1, so each accented letter in its Portuguese headlines became the replacement character (U+FFFD), 937 of them on the first live day. The model then quoted that broken text back with null characters, which stopped the first 560-outlet run (decision 51).
+
+1. A response is decoded with the charset its Content-Type names, then the one its XML declaration or HTML meta tag names, then UTF-8. When they disagree, the reading with the fewest broken characters wins.
+2. An article already stored with broken characters takes the clean headline, lead and body the next time its feed reads cleanly. It does not count as a new article.

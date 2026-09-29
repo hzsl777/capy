@@ -5,7 +5,7 @@ import { parseHTML } from "linkedom";
 import { and, eq, gte, inArray, isNull, lt, type SQL } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
 import { articles, sources, type Db } from "@2dayai/db";
-import { noControl } from "../text.js";
+import { decodeBody, noControl } from "../text.js";
 
 export const MIN_BODY_CHARS = 400;
 export const MAX_BODY_CHARS = 30_000;
@@ -21,7 +21,7 @@ export const defaultPageFetcher: PageFetcher = async (url) => {
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const type = res.headers.get("content-type") ?? "";
   if (!type.includes("html")) throw new Error(`not html: ${type}`);
-  return res.text();
+  return decodeBody(new Uint8Array(await res.arrayBuffer()), type);
 };
 
 /** Pure: main text of an article page, or empty when the extractor finds nothing worth keeping. */
