@@ -7,24 +7,31 @@ export const WORLD_TOPICS = ["politics", "economy", "conflict", "environment", "
 export const WorldTopic = z.enum(WORLD_TOPICS);
 export type WorldTopic = z.infer<typeof WorldTopic>;
 
+/**
+ * One event from the grouping model. Only the article ids decide what the stage writes, so every other field
+ * falls back to a safe value instead of failing its batch: one malformed field among hundreds of events used to
+ * throw away a batch of 300 articles (decisions 41 and 47). Titles are cut to 120 characters in code.
+ */
 export const WorldClusterEventSchema = z.object({
-  title: z.string().min(1).max(120),
+  title: z.string().min(1),
   /**
    * Not required to be non-empty: a model sometimes returns one empty event among a hundred, and code drops it.
    * Refusing the whole batch for it failed the first live day (decision 41).
    */
   articleIds: z.array(z.number().int()),
-  importance: z.number().int().min(1).max(5),
-  importanceReason: z.string().min(1).max(200),
-  topic: WorldTopic,
+  importance: z.number().int().min(1).max(5).catch(2),
+  importanceReason: z.string().max(400).catch(""),
+  topic: WorldTopic.catch("other"),
   /**
    * Where the event happened, as the articles report it (decision 44): the city or town, its ISO 3166-1 alpha-2
-   * country code and a rough point. Null when they name no single city. Code checks it against a fixed list of
-   * cities before anything is placed; the country code only tells same-named cities apart and is never shown.
+   * country code and a rough point. Null when they name no single city; anything malformed counts as null.
+   * Code checks it against a fixed list of cities before anything is placed; the country code only tells
+   * same-named cities apart and is never shown.
    */
   where: z
-    .object({ city: z.string().min(1).max(80), country: z.string().max(3).nullish(), lat: z.number().nullish(), lon: z.number().nullish() })
-    .nullish(),
+    .object({ city: z.string().max(80), country: z.string().max(3).nullish(), lat: z.number().nullish(), lon: z.number().nullish() })
+    .nullish()
+    .catch(null),
 });
 
 export const WorldClusterResultSchema = z.object({
@@ -39,7 +46,7 @@ export type WorldClusterResult = z.infer<typeof WorldClusterResultSchema>;
  * dropped there rather than failing the whole answer.
  */
 export const WorldClusterMergeSchema = z.object({
-  groups: z.array(z.object({ eventKeys: z.array(z.string().min(1)).min(1), title: z.string().min(1).max(120) })),
+  groups: z.array(z.object({ eventKeys: z.array(z.string().min(1)).min(1), title: z.string().min(1) })),
 });
 export type WorldClusterMerge = z.infer<typeof WorldClusterMergeSchema>;
 

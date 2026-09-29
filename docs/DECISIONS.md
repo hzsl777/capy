@@ -284,3 +284,10 @@ Davis wants every country, every region within it and every stateless nation rep
 2. Dot size follows the place's most important story and its report count, so one major story reads larger than a busy city of minor ones. Merged dots take the largest weight among their places. Colour still means only "reported in the last hour", and lists stay newest first.
 3. The daily summary counts the countries and territories (225) and first-level regions (2,589) with at least one story, and lists the countries with none, so coverage can be followed day by day. Regions come from Natural Earth's populated places, added to the city list. The count is internal; the site still names no countries or regions.
 4. Growing coverage toward every region and every stateless nation is outlet work: an outlet for every country and territory (decision 45), then outlets for regions of the largest countries and for communities without a state, balanced as the add-news-source skill requires.
+
+## 47. A malformed optional field never costs a grouping batch (September 29, 2026)
+
+The second live test failed like the first: in a batch of 300 articles, the model wrote an unknown location as a location with an empty city instead of null, the answer failed its schema twice, and the day was thrown away. Decision 41 fixed one such field; this fixes the class.
+
+1. In each grouping event only the article ids decide what is written. Every other field falls back instead of failing: a malformed location becomes "no location", an unknown topic "other", an out-of-range importance 2, a missing reason blank. Titles of any length are accepted and cut to 120 characters in code, in the batch answers and the merge answer.
+2. The schema shown to the model states these defaults, so the model sees what an omitted field means.

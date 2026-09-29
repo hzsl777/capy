@@ -207,7 +207,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
       if (ids.length === 0) continue;
       ids.forEach((id) => assigned.add(id));
       n += 1;
-      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
+      batchEvents.push({ key: `b${i + 1}-e${n}`, title: ev.title.slice(0, 120), importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
     }
     skipped += [...skippedIds].filter((id) => known.has(id)).length;
     unassigned += batch.filter((r) => !assigned.has(r.id) && !skippedIds.has(r.id)).length;
@@ -276,7 +276,7 @@ function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], prom
     const lead = members.reduce((best, m) => (m.importance > best.importance ? m : best));
     out.push({
       key: members.map((m) => m.key).join("+"),
-      title: group.title,
+      title: group.title.slice(0, 120),
       importance: lead.importance,
       importanceReason: lead.importanceReason,
       topic: lead.topic,

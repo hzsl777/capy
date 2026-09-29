@@ -185,6 +185,17 @@ describe("cluster world in batches", () => {
     expect((await worldEvents()).every((e) => e.articleIds.length > 0)).toBe(true);
   });
 
+  it("keeps a batch whose events have malformed optional fields (decision 47)", async () => {
+    const sloppy: FakeAnswer = (req) => {
+      const answer = clusterAnswer(req) as { events: Record<string, unknown>[]; skipped: unknown[] };
+      return { ...answer, events: answer.events.map((e) => ({ ...e, title: `${e["title"]} ${"and more ".repeat(20)}`, topic: "war", importance: 9, importanceReason: null, where: { city: null, country: null } })) };
+    };
+    const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), new FakeLlm({ "cluster-world": sloppy, "cluster-world-merge": () => ({ groups: [] }) }), date);
+    expect(report).toMatchObject({ events: 12, placed: 0, unassigned: 0 });
+    const evs = await worldEvents();
+    expect(evs.every((e) => e.title.length <= 120 && e.topic === "other" && e.importance === 2)).toBe(true);
+  });
+
   it("keeps at most WORLD_PER_SOURCE newest articles per outlet", async () => {
     const llm = new FakeLlm({ "cluster-world": clusterAnswer });
     const report = await runClusterWorld(db, testConfig({ worldPerSource: 1 }), llm, date);
