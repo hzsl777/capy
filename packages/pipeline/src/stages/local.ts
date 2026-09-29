@@ -118,6 +118,26 @@ export function parseGkgRow(line: string, translated: boolean): GkgArticle | nul
 }
 
 /**
+ * A copy of a string that owns its characters. A substring of a line can keep the whole chunk of the file it came
+ * from alive, so anything kept past the line is copied.
+ */
+const own = (s: string): string => Buffer.from(s, "utf8").toString("utf8");
+
+/** A 53-bit fingerprint of a URL, so skipping repeats doesn't hold on to every URL of the day. */
+function fingerprint(s: string): number {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+}
+
+/**
  * Every line of every file in a GDELT zip, unzipped and decoded a chunk at a time. Unzipping a whole day's files
  * into strings ran the daily job out of memory.
  */
@@ -155,11 +175,12 @@ export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGd
 
   const { from, to } = ingestWindow(date);
   const picked = new Map<string, (GkgArticle & { at: { name: string; lat: number; lon: number } })[]>();
-  const seen = new Set<string>();
+  const seen = new Set<number>();
   let articles = 0;
   const take = (a: GkgArticle) => {
-    if (seen.has(a.url) || a.publishedAt < from || a.publishedAt >= to) return;
-    seen.add(a.url);
+    const print = fingerprint(a.url);
+    if (seen.has(print) || a.publishedAt < from || a.publishedAt >= to) return;
+    seen.add(print);
     const area = gaz.areaAt(a.town.lat, a.town.lon);
     if (!area?.region || reached.has(area.region)) return;
     const at = gaz.locate({ city: a.town.name, country: area.country, lat: a.town.lat, lon: a.town.lon });
@@ -168,7 +189,7 @@ export async function runLocal(db: Db, date: RunDate, perRegion: number, fetchGd
     const list = picked.get(area.region) ?? [];
     const key = a.title.toLowerCase();
     if (list.some((x) => x.title.toLowerCase() === key)) return;
-    list.push({ ...a, at });
+    list.push({ url: own(a.url), domain: own(a.domain), title: own(a.title), lang: a.lang, publishedAt: a.publishedAt, town: a.town, at: { ...at, name: own(at.name) } });
     // Newest first, as every list on the site is; only the newest few are kept.
     list.sort((x, y) => y.publishedAt.getTime() - x.publishedAt.getTime());
     if (list.length > perRegion) list.length = perRegion;
