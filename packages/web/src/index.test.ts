@@ -36,7 +36,85 @@ describe("the Worker's headers", () => {
     expect(page.headers.get("content-security-policy")).toContain("default-src 'none'");
     const health = await app.request("/health", {}, env);
     expect(health.headers.get("referrer-policy")).toBe("no-referrer");
-    expect(health.headers.get("content-security-policy")).toBeNull();
+    expect(health.headers.get("content-security-policy")).toBe("default-src 'none'; frame-ancestors 'none'");
+    for (const res of [page, health]) {
+      expect(res.headers.get("strict-transport-security")).toContain("max-age=");
+      expect(res.headers.get("permissions-policy")).toContain("camera=()");
+      expect(res.headers.get("x-frame-options")).toBe("DENY");
+    }
+  });
+
+  it("asks crawlers to stay out of branch previews, and only there", async () => {
+    const app = createApp(() => db);
+    const prod = await app.request("https://globalgist.huckabuck412.workers.dev/robots.txt", {}, env);
+    expect(await prod.text()).toContain("Allow: /");
+    expect(prod.headers.get("x-robots-tag")).toBeNull();
+    const custom = await app.request("https://globalgist.com/robots.txt", {}, env);
+    expect(await custom.text()).toContain("Allow: /");
+    const preview = await app.request("https://launch-fixes-globalgist.huckabuck412.workers.dev/robots.txt", {}, env);
+    expect(await preview.text()).toContain("Disallow: /");
+    expect(preview.headers.get("x-robots-tag")).toBe("noindex");
+    const data = await app.request("https://0f1e2d3c-globalgist.huckabuck412.workers.dev/data/nope.json", {}, env);
+    expect(data.headers.get("x-robots-tag")).toBe("noindex");
+  });
+
+  it("answers an unknown path with a plain 404 page", async () => {
+    const app = createApp(() => db);
+    for (const path of ["/nope", "/data/../../etc/passwd", "/.env", "/wp-login.php"]) {
+      const res = await app.request(path, {}, env);
+      expect(res.status).toBe(404);
+    }
+    const res = await app.request("/nope", { method: "POST" }, env);
+    expect(res.status).toBe(404);
+    expect(await res.text()).toContain("No page at this address");
+  });
+
+  it("hides the cause of a failure, and never caches it", async () => {
+    const secret = "postgres://user:hunter2@db.example/neondb";
+    const app = createApp(() => {
+      throw new Error(`could not connect to ${secret}`);
+    });
+    const errors: unknown[] = [];
+    const log = console.error;
+    console.error = (e: unknown) => errors.push(e);
+    try {
+      const data = await app.request(`/data/${date}.json`, {}, env);
+      expect(data.status).toBe(503);
+      expect(data.headers.get("cache-control")).toBe("no-store");
+      expect(data.headers.get("x-content-type-options")).toBe("nosniff");
+      const body = await data.text();
+      expect(JSON.parse(body)).toEqual({ error: "unavailable" });
+      const page = await app.request(`/r/0123456789abcdef0123456789abcdef/${date}`, {}, env);
+      expect(page.status).toBe(503);
+      const html = await page.text();
+      expect(html).not.toContain("hunter2");
+      expect(html).not.toContain("Error");
+      expect(errors).toHaveLength(2);
+    } finally {
+      console.error = log;
+    }
+  });
+});
+
+describe("the Worker's reader pages", () => {
+  it("refuses a malformed token, and a far date, without reading the database", async () => {
+    const app = createApp(() => {
+      throw new Error("the database should not be read");
+    });
+    for (const path of [
+      `/r/not-a-token/${date}`,
+      `/r/${"a".repeat(5000)}/${date}`,
+      `/r/0123456789ABCDEF0123456789ABCDEF/${date}`,
+      `/r/0123456789abcdef0123456789abcdef/2099-01-01`,
+      `/r/0123456789abcdef0123456789abcdef/1999-01-01/e/1`,
+      `/f/x/${date}/1/more`,
+    ]) {
+      const res = await app.request(path, {}, env);
+      expect(res.status, path).toBe(404);
+      expect(res.headers.get("cache-control"), path).toBe("private, no-store");
+    }
+    const post = await app.request(`/f/x' OR 1=1 --/${date}/1/more`, { method: "POST" }, env);
+    expect(post.status).toBe(404);
   });
 });
 
@@ -117,6 +195,34 @@ describe("the Worker's stored map files", () => {
     const tile = await app.request("/data/local/2026-09-20/40N_80W.json", {}, { ...env, MAPS });
     expect(tile.headers.get("etag")).toBe('"local/2026-09-20/40N_80W.json"');
     expect(await tile.json()).toEqual({ stored: "tile" });
+  });
+
+  it("answers 304 to a browser that has the file, and HEAD without failing", async () => {
+    const MAPS = { get: async () => ({ body: new Response('{"stored":"latest"}').body!, httpEtag: '"v1"' }) };
+    const app = createApp(() => db);
+    const again = await app.request("/data/latest.json", { headers: { "If-None-Match": '"v1"' } }, { ...env, MAPS });
+    expect(again.status).toBe(304);
+    expect(again.headers.get("etag")).toBe('"v1"');
+    const changed = await app.request("/data/latest.json", { headers: { "If-None-Match": '"v0"' } }, { ...env, MAPS });
+    expect(changed.status).toBe(200);
+    const head = await app.request("/data/latest.json", { method: "HEAD" }, { ...env, MAPS });
+    expect(head.status).toBe(200);
+  });
+
+  it("refuses dates with no data before looking anywhere", async () => {
+    const MAPS = {
+      get: async (): Promise<null> => {
+        throw new Error("the store should not be read");
+      },
+    };
+    const app = createApp(() => {
+      throw new Error("the database should not be read");
+    });
+    for (const path of ["/data/1970-01-01.json", "/data/2099-12-31.json", "/data/local/2099-12-31/40N_80W.json", "/data/local/2020-01-01/40N_80W.json", "/data/%2e%2e%2f%2e%2e%2fsecret.json", "/data/local/..%2F..%2F/40N_80W.json"]) {
+      const res = await app.request(path, {}, { ...env, MAPS });
+      expect(res.status, path).toBe(404);
+      expect(res.headers.get("content-type"), path).toContain("application/json");
+    }
   });
 
   it("falls back to the database for a day with no stored file", async () => {
