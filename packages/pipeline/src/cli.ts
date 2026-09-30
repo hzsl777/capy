@@ -5,7 +5,7 @@ import { editions, feedback, latestMapDate, loadEditionView, loadMapView, localB
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
-import { runDay } from "./day.js";
+import { mapCovers, runDay } from "./day.js";
 import { keyFor, parseSetups, renderReport, runEval, takeSnapshot, type Snapshot } from "./eval.js";
 import { createLlm } from "./llm/client.js";
 import { spentToday } from "./llm/spend.js";
@@ -373,9 +373,9 @@ switch (command) {
   case "day": {
     const d = db();
     // After a deploy the daily workflow runs with --if-missing, so the first day appears on its own and later
-    // deploys don't pay for a second run of a day that already exists.
-    if (values["if-missing"] && (await latestMapDate(d)) === date) {
-      console.log(`The map for ${date} already exists. Nothing to do.`);
+    // deploys don't pay for a second run of a day that already exists, or of one a later map has replaced.
+    if (values["if-missing"] && mapCovers(await latestMapDate(d), date)) {
+      console.log(`The map for ${date}, or a later one, already exists. Nothing to do.`);
       break;
     }
     // --fixture: the bundled three-article day instead of live feeds, so the real model can be exercised offline.

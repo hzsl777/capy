@@ -1,0 +1,10 @@
+# The secret scan in CI (ci.yml) uses gitleaks' default rules over every branch's history, with one exception.
+[extend]
+useDefault = true
+
+[allowlist]
+# The demo-data branch holds a day's map file and its tiles of local stories, written by the daily run from public
+# headlines and article links (decisions 41 and 78). News sites put long keys in article URLs ("infoKey=..."), which
+# read as API keys. Only these paths, which exist on that branch alone, are skipped.
+description = "demo-data map files: public headlines and article links"
+paths = ['''^map\.json$''', '''^local/[\w-]+/[\w-]+\.json$''']
