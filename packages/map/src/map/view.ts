@@ -175,6 +175,8 @@ type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "gras
 
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
+/** How high Polygon Kingdom's terrain stands: a height of 1 is this share of the projection's scale, in pixels. */
+const LIFT = 0.02;
 const MAX_ZOOM = 14;
 /** Screen distance under which pins merge into one dot. */
 const MERGE_PX = 13;
@@ -492,17 +494,48 @@ export class MapView {
     const dlon = wrap(lon - this.lon);
     this.startAnim(duration, (t) => {
       const k = ease(t);
+      this.zoom = z0 + (zoom - z0) * k;
       if (this.mode === "3d") {
         const [x, y] = interp(k);
         this.lon = x;
         this.lat = y;
       } else {
         this.lon = wrap(from[0] + dlon * k);
-        this.lat = from[1] + (to[1] - from[1]) * k;
+        this.lat = from[1] + (this.groundLat(lon, lat) - from[1]) * k;
       }
-      this.zoom = z0 + (zoom - z0) * k;
       this.clampLat();
     });
+    this.landing = [lon, lat];
+  }
+
+  /**
+   * Where the last flight landed, kept until the map is next moved another way, so the place stays under the
+   * reticle when the terrain under it changes (a finer mesh as the flight ends, a tile of local stories arriving).
+   */
+  private landing: [number, number] | null = null;
+
+  /**
+   * The centre latitude that puts a place's drawn point under the reticle. Polygon Kingdom's tilted camera draws a
+   * place raised by its terrain, so the flat ground at the centre is the point `height / cos(tilt)` pixels north of
+   * it on the flat map. Every other design, and the globe, centres the place itself.
+   */
+  private groundLat(lon: number, lat: number): number {
+    const m = this.terrainNow;
+    if (!m || !this.cam || this.mode !== "2d") return lat;
+    const proj = this.projection();
+    const p = proj([lon, lat]);
+    const v = (heightAt(m, lon, lat) * proj.scale() * LIFT) / Math.cos(this.tiltAngle() / DEG);
+    const c = p && proj.invert?.([p[0], p[1] - v]);
+    return c ? c[1] : lat;
+  }
+
+  /** After a flight, move the centre if the terrain under the landed place changed. */
+  private settle(): boolean {
+    if (!this.landing || this.anim) return false;
+    const before = this.lat;
+    this.lat = this.groundLat(...this.landing);
+    this.clampLat();
+    return (Math.abs(this.lat - before) / DEG) * this.baseScale * this.zoom > 0.25;
   }
 
   zoomBy(factor: number) {
@@ -527,6 +560,7 @@ export class MapView {
 
   /** Jump without animating, e.g. to a random longitude before the first spin. */
   setCenter(lon: number, lat: number) {
+    this.landing = null;
     this.lon = wrap(lon);
     this.lat = lat;
     this.clampLat();
@@ -832,6 +866,7 @@ export class MapView {
   private stopAnim() {
     cancelAnimationFrame(this.frame);
     this.anim = null;
+    this.landing = null;
   }
 
   private moved() {
@@ -848,6 +883,7 @@ export class MapView {
     requestAnimationFrame(() => {
       this.pending = false;
       this.render();
+      if (this.settle()) return this.moved();
       this.retune();
       this.events.onDraw?.();
     });
@@ -1176,7 +1212,7 @@ export class MapView {
     const cam = this.mode === "2d" && t.tilt ? this.makeCam(this.tiltAngle()) : null;
     this.cam = cam;
     this.terrainNow = null;
-    this.liftPx = R * 0.02;
+    this.liftPx = R * LIFT;
     const wp = this.warp;
     const view = wp
       ? { stream: (out: GeoStream) => proj.stream(cam ? this.tiltStream(warpStream(out, wp), cam) : warpStream(out, wp)) }
