@@ -62,7 +62,9 @@ import "@fontsource/eb-garamond/600.css";
 import "@fontsource/monoton/400.css";
 import "@fontsource/tilt-neon/400.css";
 import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/500.css";
 import "@fontsource/outfit/600.css";
+import "@fontsource/outfit/700.css";
 import "@fontsource/shrikhand/400.css";
 import "@fontsource/jost/400.css";
 import "@fontsource/jost/500.css";
@@ -82,8 +84,6 @@ import "@fontsource/playfair-display/700-italic.css";
 import "@fontsource/libre-baskerville/400.css";
 import "@fontsource/libre-baskerville/400-italic.css";
 import "@fontsource/libre-baskerville/700.css";
-import "@fontsource/barlow-condensed/500.css";
-import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/limelight/400.css";
 // Aquarium and Lava Lamp (decision 77).
 import "@fontsource/sniglet/400.css";
@@ -374,13 +374,10 @@ function flyToPlace(index: number) {
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
 const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
-// Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
-LETTER_THEMES.add("rail");
 let boardShown = "";
-/** Sleeper Car's departure board: the place name on tiles, which flip when the name changes. */
+/** Sleeper Car's on-board display: the place name slides in when it changes, like the next stop. */
 function boardName(el: HTMLElement, text: string): HTMLElement {
   if (state.theme !== "rail") return el;
-  lettered(el, text);
   if (text !== boardShown) el.classList.add("flip");
   boardShown = text;
   return el;
