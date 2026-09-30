@@ -124,6 +124,7 @@ import {
   TOPIC_LABEL,
   formatCoords,
   formatRunDate,
+  wordStatus,
   groupByPlace,
   hasTiers,
   languageName,
@@ -858,27 +859,24 @@ function scale(band: number): HTMLElement {
   );
 }
 
-/** "today's" for the current day's map (it covers the 24 hours to 09:00 UTC), "the day's" for an older one. */
-function fromDays(runDate: string): string {
-  const age = (Date.now() - Date.parse(`${runDate}T09:00:00Z`)) / 86_400_000;
-  return age < 1.5 ? "today's" : "the day's";
-}
-
 function renderTelegramStrip() {
   const el = $("telegram");
   const file = state.file;
   if (!file) {
-    el.replaceChildren(h("span", { class: "telegram-kicker" }, "Loading today's word..."));
+    el.replaceChildren(h("span", { class: "telegram-kicker" }, "Loading the word..."));
     return;
   }
   const t = file.telegram;
-  // Read like a front page: the dateline, then the day's word under its label, then who chose it.
-  const date = h("p", { class: "telegram-date" }, formatRunDate(file.runDate));
+  // Read like a front page: the word's own date, then the word under its label, then who chose it. A word belongs to
+  // a finished day and stays until the next is chosen; the status line says when that is under way (decision 81).
+  const status = wordStatus(file);
+  const date = h("p", { class: "telegram-date" }, formatRunDate(status.date));
+  const statusLine = status.note ? h("span", { class: "telegram-status" }, status.note) : null;
   if (!t) {
-    el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word yet for this day")));
+    el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word for this day"), statusLine));
     return;
   }
-  const word = lettered(h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open to see how it was chosen.` }), t.word);
+  const word = lettered(h("button", { type: "button", class: "telegram-word", "aria-label": `The word for ${formatRunDate(status.date)}: ${t.word}. Open to see how it was chosen.` }), t.word);
   word.addEventListener("click", openTelegram);
   // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
   // space without overflowing a phone.
@@ -888,8 +886,8 @@ function renderTelegramStrip() {
   how.addEventListener("click", openTelegram);
   el.replaceChildren(
     date,
-    h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "Today's word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI, weighing ${fromDays(file.runDate)} news, good and bad. `, how), scale(t.band)),
+    h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "The day's word"), word),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "Chosen by AI, weighing the day's news, good and bad. ", how), statusLine, scale(t.band)),
   );
 }
 
@@ -1035,7 +1033,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       back,
       h("p", { class: "kicker" }, [TOPIC_LABEL[ev.topic], placesText(ev)].filter(Boolean).join(" · ")),
       h("h2", { class: "reader-headline" }, ev.title),
-      sc ? h("p", { class: "event-score" }, scoreChip(sc.score), ` Scored ${BAND_LABEL[sc.score]} for today's word, because: `, h("q", {}, sc.because)) : null,
+      sc ? h("p", { class: "event-score" }, scoreChip(sc.score), ` Scored ${BAND_LABEL[sc.score]} for the day's word, because: `, h("q", {}, sc.because)) : null,
       section("What happened", ev.whatHappened),
       section("Why it matters", ev.whyItMatters),
       section("What changes next", ev.whatChangesNext),
@@ -1251,7 +1249,7 @@ async function start() {
   } catch (err) {
     const first = err instanceof Error && err.message === NO_DAY_YET;
     $("panel").replaceChildren(
-      h("p", { class: "pad" }, first ? "The first map isn't ready yet. It appears after the daily update at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
+      h("p", { class: "pad" }, first ? "The first map isn't ready yet. It appears after the day's run, which starts just after midnight UTC." : "The news couldn't be loaded. Try again in a few minutes."),
     );
     return;
   }

@@ -1,0 +1,62 @@
+name: Refresh local stories
+# Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours and right
+# after each daily run (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
+# called. About two minutes a run, 240 runs a month: see README.md, "Hosting", for the Actions budget.
+on:
+  schedule:
+    - cron: "41 */3 * * *"
+  workflow_run:
+    workflows: ["Daily run"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  refresh:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # One writer of the map at a time: a refresh waits for a daily run in progress, and the other way round, so an
+    # older day's file never replaces a newer one in R2.
+    concurrency:
+      group: map-data
+      cancel-in-progress: false
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GDELT_PER_TOWN: ${{ vars.GDELT_PER_TOWN }}
+      GDELT_MAX: ${{ vars.GDELT_MAX }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.R2_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Skip until set up
+        if: env.DATABASE_URL == '' || env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::notice::DATABASE_URL or the R2 token is not set; skipping. See docs/RUNBOOK.md, 'Launch'."
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+        with:
+          node-version: 22
+          cache: npm
+      - if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+        run: npm ci
+      - name: Refresh the local stories
+        id: refresh
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          set -o pipefail
+          npm run -s stage -- refresh | tee refresh.txt
+          if grep -q "nothing to refresh" refresh.txt; then echo "skip=1" >> "$GITHUB_OUTPUT"; fi
+      - name: Export the map
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.refresh.outputs.skip != '1'
+        run: npm run -s stage -- map export --out map.json --manifest tiles.json
+      # The same order as the daily run: the tiles first, then the day's file that lists them.
+      - name: Store the map for the site
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.refresh.outputs.skip != '1'
+        run: |
+          put() { npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
+          day=$(node -p 'require("./map.json").runDate')
+          if [ "$(node -p "require('./tiles.json').length")" != "0" ]; then npx wrangler r2 bulk put globalgist-maps --filename tiles.json --content-type application/json --remote --force; fi
+          put "$day.json" map.json
+          put latest.json map.json

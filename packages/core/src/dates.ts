@@ -13,9 +13,27 @@ export function todayRunDate(now: Date = new Date()): RunDate {
   return toRunDate(now);
 }
 
-/** The ingest window for a run date: the 24 hours ending at 09:00 UTC on that date. */
+/**
+ * The newest run date whose window has closed: yesterday in UTC (decision 81). What the daily run builds just after
+ * midnight UTC, and still builds when GitHub starts it hours late.
+ */
+export function lastFullRunDate(now: Date = new Date()): RunDate {
+  return toRunDate(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+}
+
+/**
+ * The 24 hours before now, ending at the last quarter hour: the window the map's local stories are refreshed over
+ * during the day (decision 80), as GDELT publishes a file every 15 minutes.
+ */
+export function rollingWindow(now: Date = new Date()): { from: Date; to: Date } {
+  const quarter = 15 * 60 * 1000;
+  const to = new Date(Math.floor(now.getTime() / quarter) * quarter);
+  return { from: new Date(to.getTime() - 24 * 60 * 60 * 1000), to };
+}
+
+/** The ingest window for a run date: that calendar day in UTC, midnight to midnight (decision 81). */
 export function ingestWindow(date: RunDate): { from: Date; to: Date } {
-  const to = new Date(`${date}T09:00:00.000Z`);
-  const from = new Date(to.getTime() - 24 * 60 * 60 * 1000);
+  const from = new Date(`${date}T00:00:00.000Z`);
+  const to = new Date(from.getTime() + 24 * 60 * 60 * 1000);
   return { from, to };
 }

@@ -208,11 +208,10 @@ export function worldSourcesYaml(): string {
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
-/** One RSS document per outlet, dated inside the ingest window of `runDate` (the day before, UTC hours). */
+/** One RSS document per outlet, dated inside the ingest window of `runDate` (that day, UTC hours; decision 81). */
 export function worldFeedFor(url: string, runDate: string): string {
   const outlet = new URL(url).hostname.replace(/\.example$/, "");
   const day = new Date(`${runDate}T00:00:00Z`);
-  day.setUTCDate(day.getUTCDate() - 1);
   const items = WORLD_STORIES.flatMap((s) => s.articles.filter((a) => a.outlet === outlet)).map((a) => {
     const when = new Date(day);
     when.setUTCHours(a.hour, 0, 0, 0);
