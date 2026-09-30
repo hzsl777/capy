@@ -40,7 +40,12 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
   if (ingest.length) lines.push(`Feeds: ${ok.length} read, ${failed.length} failed, ${paused.length} paused. ${ok.reduce((n, r) => n + r.inserted, 0)} new articles.`);
   if (world) lines.push(`Stories: ${world.events} from ${world.articles} articles in ${world.batches} grouping calls, ${world.placed ?? 0} placed where they happened.`);
   if (local?.error) lines.push(`Local stories: none today. ${cell(local.error)}`);
-  else if (local && !local.skipped) lines.push(`Local stories: ${local.stories} from GDELT in ${local.regionsFilled} of ${local.regionsEmpty} regions no outlet reached${local.filesFailed ? `, ${local.filesFailed} of ${local.files} files unreadable` : ""}.`);
+  else if (local && !local.skipped) {
+    const added = local.regionsAdded ? `, and ${local.regionsAdded} regions outlets reached` : "";
+    const over = local.overMax ? `, ${local.overMax} more left out by GDELT_MAX` : "";
+    const unreadable = local.filesFailed ? `, ${local.filesFailed} of ${local.files} files unreadable` : "";
+    lines.push(`Local stories: ${local.stories} from GDELT in ${local.towns ?? local.stories} towns: ${local.regionsFilled} of ${local.regionsEmpty} regions no outlet reached${added}${over}${unreadable}.`);
+  }
   if (coverage) lines.push(`Coverage: stories in ${coverage.countries} of ${coverage.countriesTotal} countries and territories, and ${coverage.regions} of ${coverage.regionsTotal} regions.`);
   if (explain) lines.push(`Explained: ${explain.usable} of ${explain.events}${explain.failed ? `, ${explain.failed} failed` : ""}.`);
   if (select && select.readers > 0) lines.push(`2DayAI: ${select.editions} editions and ${select.quiet} quiet days for ${select.readers} readers${select.failed ? `, ${select.failed} failed` : ""}.`);

@@ -74,7 +74,7 @@ const HELP = `Commands:
   select                 one edition per reader with the headline (model, batched)
   cluster world          group the world desk's articles into events with a topic (model)
   telegram               score the day's world events three times, keep the middle, pick the one-word mood (model)
-  local                  GDELT local stories for the regions no outlet reached (no model, decision 54)
+  local                  GDELT local stories from the towns no outlet reached (no model, decisions 54 and 67)
   map export [--out f]   the public map's data for the date (default: latest) as JSON
   map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
@@ -138,7 +138,7 @@ switch (command) {
   }
   case "local": {
     const d = db();
-    console.log(await recorded(d, date, "local", () => runLocal(d, date, config.gdeltPerRegion)));
+    console.log(await recorded(d, date, "local", () => runLocal(d, date, config.local)));
     break;
   }
   case "map headlines": {
@@ -215,14 +215,15 @@ switch (command) {
     const { createTestDb } = await import("./test/db.js");
     const { FakeLlm } = await import("./llm/fake.js");
     const { worldAnswers, worldFeedFor, worldSourcesYaml } = await import("./fixtures/world.js");
+    const { worldGdeltFor } = await import("./fixtures/gdelt.js");
     const { db: memory, close } = await createTestDb();
     const dir = mkdtempSync(join(tmpdir(), "capy-demo-"));
     writeFileSync(join(dir, "sources.yaml"), worldSourcesYaml());
     const report = await runDay(memory, config, new FakeLlm(worldAnswers()), date, {
       fetchFeed: async (url) => worldFeedFor(url, date),
       fetchPage: async () => "",
-      // The fictional day has no GDELT files.
-      fetchGdelt: async () => null,
+      // The fictional day's GDELT file: invented local sites about real towns.
+      fetchGdelt: async (url) => worldGdeltFor(url, date),
       sourcesPath: join(dir, "sources.yaml"),
       readersDir: dir,
     });
@@ -354,10 +355,11 @@ switch (command) {
     const summary = process.env["GITHUB_STEP_SUMMARY"];
     try {
       await runDay(d, config, createLlm(config, d), date, { ...deps, force: values.force }, out);
-      // How much of the world the day reached, for the summary (decision 46).
+      // How much of the world the day reached, for the summary (decision 46). Places are put in regions the way the
+      // local stage puts them, by the nearest listed city or town (decision 67).
       const { coverageOf } = await import("./coverage.js");
       const { Gazetteer } = await import("./places.js");
-      out["coverage"] = coverageOf(await loadMapView(d, date), Gazetteer.load());
+      out["coverage"] = coverageOf(await loadMapView(d, date), Gazetteer.loadWithTowns());
     } catch (err) {
       if (summary) appendFileSync(summary, daySummary(date, out, err instanceof Error ? err.message : String(err)));
       throw err;

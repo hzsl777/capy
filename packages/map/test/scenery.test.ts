@@ -47,7 +47,8 @@ describe("scenery", () => {
       for (const s of spots) {
         for (const p of ring(s.lon, s.lat, s.r)) expect(geoContains(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
       }
-    });
+      // The detailed coastline takes a few seconds, more when every package's tests run at once.
+    }, 30_000);
   }
 
   it("keeps every picture at least 3 degrees clear of every place", () => {

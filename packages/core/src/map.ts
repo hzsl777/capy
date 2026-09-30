@@ -44,8 +44,9 @@ export type MapItem = {
   image?: string;
   embed?: boolean;
   /**
-   * Set on a local story found through the GDELT index for a region no outlet reached (decision 54). It is placed
-   * by GDELT's city tag, checked against the city list, and its publisher is the outlet's site.
+   * Set on a local story found through the GDELT index for a town no outlet reached (decisions 54 and 67). It is
+   * placed by GDELT's city tag, checked against the city list and GeoNames' towns, its publisher is the outlet's
+   * site, and it shows only at the closest zoom.
    */
   via?: "gdelt";
 };

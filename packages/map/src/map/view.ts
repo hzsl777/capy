@@ -1546,14 +1546,25 @@ export class MapView {
     shown.sort((a, b) => b.d.weight - a.d.weight || b.d.count - a.d.count);
     const spots: Spot[] = [];
     const merge = MERGE_PX * screenK;
+    // Spots bucketed by screen cell, so a zoomed-in view of several thousand places merges in one pass. The
+    // earliest spot within reach wins, as a search through the whole list would find.
+    const cells = new Map<number, number[]>();
+    const cellKey = (cx: number, cy: number) => cx * 65536 + cy;
     for (const { d, x, y } of shown) {
-      const near = spots.find((s) => Math.hypot(s.x - x, s.y - y) < merge);
+      const [cx, cy] = [Math.floor(x / merge), Math.floor(y / merge)];
+      let first = -1;
+      for (let i = -1; i <= 1; i++)
+        for (let j = -1; j <= 1; j++)
+          for (const k of cells.get(cellKey(cx + i, cy + j)) ?? []) if ((first < 0 || k < first) && Math.hypot(spots[k]!.x - x, spots[k]!.y - y) < merge) first = k;
+      const near = spots[first];
       if (near) {
         near.indices.push(d.index);
         near.count += d.count;
         near.weight = Math.max(near.weight, d.weight);
         near.fresh ||= d.fresh;
       } else {
+        const key = cellKey(cx, cy);
+        cells.set(key, [...(cells.get(key) ?? []), spots.length]);
         spots.push({ indices: [d.index], lon: d.lon, lat: d.lat, x, y, r: 0, count: d.count, weight: d.weight, fresh: d.fresh });
       }
     }
