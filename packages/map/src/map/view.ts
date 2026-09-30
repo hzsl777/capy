@@ -364,7 +364,16 @@ export class MapView {
     this.request();
   }
 
-  flyTo(lon: number, lat: number, zoom = Math.max(this.zoom, this.mode === "3d" ? 1.6 : 1.4), duration = 900) {
+  /**
+   * How close a flight to a place comes. A globe framed by something of its own (a hoop, a stone window, a snow
+   * globe's dome) stays at its full size, so the frame isn't cut off.
+   */
+  private landingZoom(): number {
+    if (this.mode === "3d") return this.theme.globeScale ? 1 : 1.6;
+    return 1.4;
+  }
+
+  flyTo(lon: number, lat: number, zoom = Math.max(this.zoom, this.landingZoom()), duration = 900) {
     zoom = Math.max(zoom, this.minZoom());
     const from: [number, number] = [this.lon, this.lat];
     const to: [number, number] = [lon, lat];
