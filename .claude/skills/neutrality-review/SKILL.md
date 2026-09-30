@@ -18,6 +18,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
 - [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red.
+- [ ] Things a design puts at sea (Pirate's creatures, the scenery pictures, Pop-up Book's pieces on sticks, Toy Train Set's tracks and trains, Chalkboard's and Sketchbook's doodles) sit only at tested spots clear of land and far from every place (`test/decor.test.ts`, `test/scenery.test.ts`, `test/handmade.test.ts`), carry no text, faces or flags, and never move or cover a marker.
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.

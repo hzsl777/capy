@@ -58,6 +58,15 @@ import "@fontsource/grenze-gotisch/700.css";
 import "@fontsource/eb-garamond/400.css";
 import "@fontsource/eb-garamond/400-italic.css";
 import "@fontsource/eb-garamond/600.css";
+// Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76).
+import "@fontsource/sniglet/800.css";
+import "@fontsource/alfa-slab-one/400.css";
+import "@fontsource/fredericka-the-great/400.css";
+import "@fontsource/cabin-sketch/700.css";
+import "@fontsource/kalam/latin-400.css";
+import "@fontsource/kalam/latin-ext-400.css";
+import "@fontsource/kalam/latin-700.css";
+import "@fontsource/kalam/latin-ext-700.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -213,7 +222,7 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
-const LETTER_THEMES = new Set<ThemeId>(["bit64"]);
+const LETTER_THEMES = new Set<ThemeId>(["bit64", "popup"]);
 
 /** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
 function lettered(el: HTMLElement, text: string) {

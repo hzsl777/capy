@@ -41,6 +41,16 @@ export interface SurfaceFrame {
   relief?: Relief;
   isLand: (lon: number, lat: number) => boolean;
   isIce: (lon: number, lat: number) => boolean;
+  /**
+   * Decision 76: milliseconds for a design's own motion (the toy train, the pencil's line boil). Held at 0 for
+   * readers who ask for reduced motion, with `still` set, so nothing moves.
+   */
+  time?: number;
+  still?: boolean;
+  /** Where a drag passed on screen over the last moments, oldest first, with the time of each point (Chalkboard). */
+  trail?: readonly { x: number; y: number; t: number }[];
+  /** Every place ever shown, so drawn things keep clear of them (Toy Train Set's trees). Only grows. */
+  anchors?: ReadonlyMap<string, [number, number]>;
 }
 
 /** d3 draws into anything canvas-like; a Path2D only lacks beginPath, which a fresh path doesn't need. */
