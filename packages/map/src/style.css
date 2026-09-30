@@ -285,7 +285,7 @@
   --font-ui: "Barlow", "Arial", sans-serif;
 }
 
-/* ---- Lily Pond, Honeycomb, Arcana, Arcadia, Nightcap, Campus, Lasso -------------------- */
+/* ---- Frog Pond, Honeycomb, Tarot, Arcadia, Bedtime Tea, Campus, Lasso -------------------- */
 :root[data-theme="pond"] {
   color-scheme: light;
   --page: #e3efd9;
@@ -345,17 +345,17 @@
 }
 :root[data-theme="arcadia"] {
   color-scheme: light;
-  --page: #e9e7e1;
-  --panel: #f3f2ee;
-  --ink: #111111;
-  --ink-2: #2a2a2a;
-  --muted: #555555;
-  --rule: #1a1a1a;
-  --accent: #111111;
-  --on-accent: #f3f2ee;
-  --hover: rgba(0,0,0,0.06);
-  --reticle: var(--ink);
-  --grain-opacity: 0.55;
+  --page: #ebe0c8;
+  --panel: #f8f1e0;
+  --ink: #2a1c0a;
+  --ink-2: #3e2c14;
+  --muted: #6a5234;
+  --rule: #9b7a3a;
+  --accent: #8a2e1a;
+  --on-accent: #f8f1e0;
+  --hover: rgba(138, 100, 32, 0.08);
+  --reticle: #2a1c0a;
+  --grain-opacity: 0.4;
   --grain-blend: multiply;
   --font-mast: "IM Fell English SC", Georgia, serif;
   --font-head: "IM Fell English SC", Georgia, serif;
@@ -2713,19 +2713,34 @@ button.link {
   color: #e4002b;
 }
 
-/* ---- Lily Pond: pond water, lily pads, lotus pink ----------------------------------------- */
+/* ---- Frog Pond: a frog by the name, reeds at the edges, lily-pad controls ------------------- */
 :root[data-theme="pond"] body {
   background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 200'%3E%3Cg stroke='%234f7d3a' stroke-width='3' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 200C22 150 18 110 26 60'/%3E%3Cpath d='M44 200C44 160 50 120 48 90'/%3E%3Cpath d='M70 200C66 150 74 120 70 40'/%3E%3Cpath d='M92 200C96 170 100 140 110 110'/%3E%3Cpath d='M10 200C4 170 2 150 0 130'/%3E%3Cpath d='M58 200C62 180 80 160 96 150'/%3E%3C/g%3E%3Cg fill='%237a4a24' stroke='%234a2a12' stroke-width='1.5'%3E%3Crect x='21' y='58' width='10' height='34' rx='5' transform='rotate(4 26 75)'/%3E%3Crect x='65' y='36' width='10' height='38' rx='5'/%3E%3Crect x='43' y='86' width='9' height='28' rx='4.5'/%3E%3C/g%3E%3C/svg%3E") left bottom / 120px 200px no-repeat fixed,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 200'%3E%3Cg stroke='%234f7d3a' stroke-width='3' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 200C22 150 18 110 26 60'/%3E%3Cpath d='M44 200C44 160 50 120 48 90'/%3E%3Cpath d='M70 200C66 150 74 120 70 40'/%3E%3Cpath d='M92 200C96 170 100 140 110 110'/%3E%3Cpath d='M10 200C4 170 2 150 0 130'/%3E%3Cpath d='M58 200C62 180 80 160 96 150'/%3E%3C/g%3E%3Cg fill='%237a4a24' stroke='%234a2a12' stroke-width='1.5'%3E%3Crect x='21' y='58' width='10' height='34' rx='5' transform='rotate(4 26 75)'/%3E%3Crect x='65' y='36' width='10' height='38' rx='5'/%3E%3Crect x='43' y='86' width='9' height='28' rx='4.5'/%3E%3C/g%3E%3C/svg%3E") right -30px bottom / 110px 190px no-repeat fixed,
     radial-gradient(ellipse 30% 20% at 10% 10%, rgba(118, 179, 71, 0.25), transparent 70%),
     radial-gradient(ellipse 30% 20% at 90% 90%, rgba(47, 107, 95, 0.2), transparent 70%),
     var(--page);
 }
 :root[data-theme="pond"] .masthead {
-  border-bottom: 3px solid #5f8f55;
+  border-bottom: 0;
+  background:
+    radial-gradient(ellipse 14px 7px at 14px 4px, #5aa640 96%, transparent) 0 100% / 56px 10px repeat-x,
+    var(--page);
+  padding-bottom: 16px;
 }
 :root[data-theme="pond"] .mast-title {
   color: #2f6b2a;
   letter-spacing: 0.02em;
+}
+:root[data-theme="pond"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 1.15em;
+  height: 0.98em;
+  margin-right: 0.18em;
+  vertical-align: -0.12em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cellipse cx='20' cy='22' rx='17' ry='11' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='11' cy='10' r='7' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='29' cy='10' r='7' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='11' cy='10' r='4.5' fill='%23fffbe0'/%3E%3Ccircle cx='29' cy='10' r='4.5' fill='%23fffbe0'/%3E%3Cellipse cx='11.6' cy='10.6' rx='2' ry='2.7' fill='%23111'/%3E%3Cellipse cx='28.4' cy='10.6' rx='2' ry='2.7' fill='%23111'/%3E%3Cpath d='M9 23Q20 31 31 23' stroke='%231f4a17' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='7.5' cy='24' rx='2.6' ry='1.6' fill='%23ff9cc4' opacity='.7'/%3E%3Cellipse cx='32.5' cy='24' rx='2.6' ry='1.6' fill='%23ff9cc4' opacity='.7'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="pond"] .telegram-word,
 :root[data-theme="pond"] .telegram-big {
@@ -2735,16 +2750,22 @@ button.link {
   text-shadow: 2px 2px 0 #cfe6b5;
   border-bottom: 0;
 }
-/* A lily pad: round, with a notch cut toward its middle. */
+/* A lily pad: round, veined, with a notch cut toward its middle. */
 :root[data-theme="pond"] .panel,
 :root[data-theme="pond"] .menu-body,
 :root[data-theme="pond"] .key-pop {
-  border: 2px solid #5f8f55;
-  border-radius: 22px 22px 22px 4px;
-  background: radial-gradient(ellipse at 20% 0%, rgba(118, 179, 71, 0.18), transparent 60%), var(--panel);
+  border: 3px solid #4f9a3a;
+  border-radius: 26px 26px 26px 4px;
+  background:
+    repeating-conic-gradient(from 10deg at 100% 0%, rgba(79, 154, 58, 0.07) 0 3deg, transparent 3deg 18deg),
+    radial-gradient(ellipse at 20% 0%, rgba(118, 179, 71, 0.2), transparent 60%),
+    var(--panel);
 }
 :root[data-theme="pond"] .panel {
   margin: 8px;
+}
+:root[data-theme="pond"] .panel h2 {
+  color: #2f6b2a;
 }
 :root[data-theme="pond"] .tool,
 :root[data-theme="pond"] .pick select,
@@ -2753,10 +2774,16 @@ button.link {
 :root[data-theme="pond"] .zoom button,
 :root[data-theme="pond"] .key-btn,
 :root[data-theme="pond"] .key-close {
-  border: 2px solid #5f8f55;
-  border-radius: 999px;
-  background: #f4f9ee;
+  border: 2px solid #3f7f2e;
+  border-radius: 999px 999px 999px 3px;
+  background: radial-gradient(ellipse at 30% 20%, #eaf7dc, #cfe9b6);
   color: #17321a;
+}
+:root[data-theme="pond"] .menu[open] > summary,
+:root[data-theme="pond"] .key-btn[aria-expanded="true"],
+:root[data-theme="pond"] .tool[aria-pressed="true"] {
+  background: #4f9a3a;
+  color: #ffffff;
 }
 
 /* ---- Honeycomb: honey, hexagons, black and yellow stripes ----------------------------------- */
@@ -2816,7 +2843,7 @@ button.link {
   color: #1a1004;
 }
 
-/* ---- Arcana: a card in gold on midnight ----------------------------------------------------- */
+/* ---- Tarot (id arcana): a card in gold on midnight ----------------------------------------------------- */
 :root[data-theme="arcana"] body {
   background:
     radial-gradient(1.5px 1.5px at 20% 30%, rgba(245, 230, 192, 0.8), transparent) 0 0 / 150px 150px,
@@ -2880,37 +2907,45 @@ button.link {
   color: #f5e6c0;
 }
 
-/* ---- Arcadia: a black-and-white engraving under a stormy sky ------------------------------ */
+/* ---- Arcadia: a painting after The Course of Empire, hung in a gilt frame ------------------ */
 :root[data-theme="arcadia"] body {
   background:
-    radial-gradient(ellipse 60% 40% at 25% 0%, rgba(0, 0, 0, 0.12), transparent 70%),
-    radial-gradient(ellipse 50% 35% at 85% 10%, rgba(0, 0, 0, 0.1), transparent 70%),
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255, 240, 200, 0.7), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(120, 90, 50, 0.035) 0 2px, transparent 2px 9px),
     var(--page);
 }
+/* The sky around the sheet and the globe is Cole's evening: gold low in the sky, cooler above, soft clouds. */
 :root[data-theme="arcadia"] .map {
+  border: 18px solid #b8903e;
+  border-image: linear-gradient(135deg, #7a561a, #f3d98a 18%, #a8802e 32%, #6e4a14 48%, #e8c878 64%, #8a6420 82%, #f0d58a) 1;
+  box-shadow: inset 0 0 0 5px #efe3c6, inset 0 0 0 6px #9b7a3a, inset 0 0 26px 10px rgba(40, 25, 5, 0.45), 0 10px 24px rgba(40, 25, 5, 0.35);
   background:
-    radial-gradient(ellipse 45% 25% at 20% 12%, rgba(255, 255, 255, 0.55), transparent 70%),
-    radial-gradient(ellipse 35% 20% at 75% 18%, rgba(255, 255, 255, 0.4), transparent 70%),
-    linear-gradient(to bottom, #9a9892 0%, #cfccc4 45%, #e4e1d9 100%);
+    radial-gradient(ellipse 22% 9% at 18% 16%, rgba(255, 246, 222, 0.85), transparent 70%),
+    radial-gradient(ellipse 18% 7% at 70% 10%, rgba(255, 240, 210, 0.75), transparent 70%),
+    radial-gradient(ellipse 30% 12% at 88% 30%, rgba(255, 226, 170, 0.6), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 78% 72%, rgba(255, 196, 110, 0.55), transparent 70%),
+    linear-gradient(to bottom, #7f98a6 0%, #b9c2b8 30%, #edd6a0 62%, #f0b870 88%, #c98a4e 100%);
 }
 :root[data-theme="arcadia"] .masthead {
-  border-bottom: 3px double #111111;
+  border-bottom: 3px double #6e4a14;
 }
 :root[data-theme="arcadia"] .mast-title {
   letter-spacing: 0.06em;
+  color: #5a3c10;
 }
 :root[data-theme="arcadia"] .telegram-word,
 :root[data-theme="arcadia"] .telegram-big {
   font-family: var(--font-mast);
   letter-spacing: 0.08em;
-  color: #111111;
-  border-bottom: 3px double #111111;
+  color: #2a1c0a;
+  border-bottom: 0;
 }
+/* Panels are the gallery's wall cards: cream stock mounted with a thin gilt edge. */
 :root[data-theme="arcadia"] .panel,
 :root[data-theme="arcadia"] .menu-body,
 :root[data-theme="arcadia"] .key-pop {
-  border: 1px solid #111111;
-  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px #111111;
+  border: 1px solid #b8903e;
+  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px rgba(184, 144, 62, 0.6), 0 3px 10px rgba(40, 25, 5, 0.25);
 }
 :root[data-theme="arcadia"] .panel {
   margin: 8px;
@@ -2922,35 +2957,70 @@ button.link {
 :root[data-theme="arcadia"] .zoom button,
 :root[data-theme="arcadia"] .key-btn,
 :root[data-theme="arcadia"] .key-close {
-  border: 1px solid #111111;
-  border-radius: 0;
-  background: #f3f2ee;
-  color: #111111;
+  border: 1px solid #7a561a;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, #f6e2a8, #d9b460 55%, #c49a44);
+  color: #2a1c0a;
+  box-shadow: inset 0 1px 0 rgba(255, 250, 230, 0.7);
+}
+:root[data-theme="arcadia"] .menu[open] > summary,
+:root[data-theme="arcadia"] .key-btn[aria-expanded="true"],
+:root[data-theme="arcadia"] .tool[aria-pressed="true"] {
+  background: #2a1c0a;
+  color: #f6e2a8;
 }
 :root[data-theme="arcadia"] .compass {
-  display: block;
+  display: none;
 }
 
-/* ---- Nightcap: a watercolour bedtime -------------------------------------------------------- */
+/* ---- Bedtime Tea (id nightcap): a tea box at night -------------------------------------- */
 :root[data-theme="nightcap"] body {
   background:
-    radial-gradient(1.5px 1.5px at 30% 20%, rgba(255, 248, 230, 0.9), transparent) 0 0 / 130px 130px,
-    radial-gradient(ellipse 55% 45% at 50% -10%, rgba(111, 134, 187, 0.35), transparent 70%),
-    linear-gradient(to bottom, #d9def0, var(--page));
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg opacity='.35'%3E%3Cg transform='translate(30 30)'%3E%3Cg fill='%23fff' stroke='%23c9cbb0' stroke-width='.6'%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(315)'/%3E%3C/g%3E%3Ccircle r='3.5' fill='%23f2c84a'/%3E%3C/g%3E%3Cpath d='M86 96c6-8 14-6 18-14M92 92c-2-6 2-10 6-12' stroke='%238fae80' stroke-width='1.4' fill='none'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 120px 120px,
+    radial-gradient(ellipse 55% 45% at 50% -10%, rgba(111, 134, 187, 0.3), transparent 70%),
+    linear-gradient(to bottom, #e3ead6, #eef0e2);
 }
+/* The map is the box's arched picture window, with the moon and the sleeping bear drawn on the canvas. */
 :root[data-theme="nightcap"] .map {
+  border: 10px solid #f7f1dd;
+  border-radius: 46% 46% 14px 14px / 16% 16% 14px 14px;
+  box-shadow: 0 0 0 2px #b8945a, inset 0 0 0 2px #b8945a, inset 0 0 30px rgba(10, 15, 50, 0.5);
   background:
     radial-gradient(1.5px 1.5px at 30% 30%, rgba(255, 248, 230, 0.9), transparent) 0 0 / 90px 90px,
-    radial-gradient(circle at 84% 18%, #fff3d0 0 22px, rgba(255, 243, 208, 0.2) 23px 34px, transparent 35px),
-    linear-gradient(to bottom, #3e4f82, #6f86bb);
+    radial-gradient(1px 1px at 60% 70%, rgba(255, 248, 230, 0.7), transparent) 0 0 / 60px 60px,
+    linear-gradient(to bottom, #2c3766, #4a5d98 70%, #6f86bb);
+}
+:root[data-theme="nightcap"] .map .key-btn {
+  top: 16%;
+}
+/* A tea bag's tag on its string. */
+:root[data-theme="nightcap"] .key-btn::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 40px;
+  background: #d9cfb0;
 }
 :root[data-theme="nightcap"] .masthead {
-  border-bottom: 2px solid #b8c2dc;
+  border-bottom: 0;
+  background: repeating-linear-gradient(90deg, #a8c39a 0 14px, #f2c84a 14px 18px, #a8c39a 18px 32px, #7d95d0 32px 36px) bottom / 100% 5px no-repeat, transparent;
+  padding-bottom: 14px;
 }
 :root[data-theme="nightcap"] .mast-title {
   font-style: italic;
   font-weight: 600;
   color: #34466e;
+}
+:root[data-theme="nightcap"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  height: 1.1em;
+  margin-right: 0.18em;
+  vertical-align: -0.14em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cg fill='none' stroke='%238a9ac4' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M14 12c-3-3 3-5 0-9'/%3E%3Cpath d='M21 12c-3-3 3-5 0-9'/%3E%3Cpath d='M28 12c-3-3 3-5 0-9'/%3E%3C/g%3E%3Cellipse cx='21' cy='36' rx='17' ry='3.5' fill='%23dfe6f5' stroke='%2334466e' stroke-width='1.6'/%3E%3Cpath d='M7 15h28c0 11-6 19-14 19S7 26 7 15z' fill='%23fdf8e8' stroke='%2334466e' stroke-width='1.8'/%3E%3Cpath d='M34 18c6-1 7 7 0 8' fill='none' stroke='%2334466e' stroke-width='1.8'/%3E%3Cpath d='M10 20c3 1 6 1 8 0' stroke='%23a8c39a' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M30 15l3 9' stroke='%23b8945a' stroke-width='1'/%3E%3Crect x='30' y='23' width='6' height='7' rx='1' fill='%23a8c39a' stroke='%234a5e3e' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="nightcap"] .telegram-word,
 :root[data-theme="nightcap"] .telegram-big {
@@ -2961,12 +3031,13 @@ button.link {
   border-bottom: 0;
   text-shadow: 0 2px 10px rgba(111, 134, 187, 0.35);
 }
+/* Panels are the side of the box: cream card inside a sage and gold border. */
 :root[data-theme="nightcap"] .panel,
 :root[data-theme="nightcap"] .menu-body,
 :root[data-theme="nightcap"] .key-pop {
-  border: 1px solid #b8c2dc;
+  border: 3px solid #a8c39a;
   border-radius: 18px;
-  box-shadow: 0 6px 18px rgba(52, 70, 110, 0.12);
+  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px #d6b870, 0 6px 18px rgba(52, 70, 110, 0.14);
 }
 :root[data-theme="nightcap"] .panel {
   margin: 8px;
@@ -2978,10 +3049,16 @@ button.link {
 :root[data-theme="nightcap"] .zoom button,
 :root[data-theme="nightcap"] .key-btn,
 :root[data-theme="nightcap"] .key-close {
-  border: 1px solid #b8c2dc;
-  border-radius: 999px;
-  background: #fbf9f3;
+  border: 1px solid #b8945a;
+  border-radius: 6px;
+  background: #fbf7e8;
   color: #23304f;
+}
+:root[data-theme="nightcap"] .menu[open] > summary,
+:root[data-theme="nightcap"] .key-btn[aria-expanded="true"],
+:root[data-theme="nightcap"] .tool[aria-pressed="true"] {
+  background: #34466e;
+  color: #fbf7e8;
 }
 
 /* ---- Campus: maroon and cream, varsity type, pennants ------------------------------------- */
@@ -3065,18 +3142,30 @@ button.link {
   padding-right: 0;
 }
 
-/* ---- Lasso: a frontier paper, rope rules, wood type ---------------------------------------- */
+/* ---- Lasso: a trick roper's frontier, rope borders, leather and a spinning loop ------------- */
 :root[data-theme="lasso"] {
-  --rope: repeating-linear-gradient(120deg, #3a2410 0 2px, #a07a4a 2px 5px, #d9bf92 5px 7px);
+  --rope: repeating-linear-gradient(120deg, #3a2410 0 2px, #a07a4a 2px 5px, #e2c08a 5px 8px);
 }
 :root[data-theme="lasso"] .masthead {
   border-bottom: 0;
-  background: var(--rope) bottom / 100% 6px no-repeat, var(--page);
+  background: var(--rope) bottom / 100% 7px no-repeat, var(--page);
   padding-bottom: 16px;
 }
 :root[data-theme="lasso"] .mast-title {
   color: #2e1c0c;
   letter-spacing: 0.02em;
+  position: relative;
+}
+/* A hat hung on the name. */
+:root[data-theme="lasso"] .mast-title::before {
+  content: "";
+  position: absolute;
+  left: -0.32em;
+  top: -0.62em;
+  width: 1.5em;
+  height: 0.75em;
+  transform: rotate(-14deg);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M4 22C10 27 50 27 56 22C58 20 55 17 52 19C46 22 14 22 8 19C5 17 2 20 4 22Z' fill='%238a5a2c' stroke='%233a2410' stroke-width='1.6'/%3E%3Cpath d='M16 20C14 12 16 4 22 4C26 4 28 7 30 7C32 7 34 4 38 4C44 4 46 12 44 20C36 22 24 22 16 20Z' fill='%23a8703a' stroke='%233a2410' stroke-width='1.6'/%3E%3Cpath d='M16 17C24 19 36 19 44 17' stroke='%233a2410' stroke-width='3'/%3E%3Cpath d='M30 8C29 12 30 16 30 18' stroke='%237a4a20' stroke-width='1.2' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="lasso"] .telegram-word,
 :root[data-theme="lasso"] .telegram-big {
@@ -3086,11 +3175,13 @@ button.link {
   text-shadow: 2px 2px 0 #d3b184;
   border-bottom: 0;
 }
+/* Panels are framed in rope. */
 :root[data-theme="lasso"] .panel,
 :root[data-theme="lasso"] .menu-body,
 :root[data-theme="lasso"] .key-pop {
-  border: 1px solid #4a2e16;
-  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 5px #a07a4a;
+  border: 7px solid #a07a4a;
+  border-image: var(--rope) 7;
+  box-shadow: inset 0 0 0 2px #4a2e16;
 }
 :root[data-theme="lasso"] .panel {
   margin: 8px;
@@ -3098,6 +3189,7 @@ button.link {
 :root[data-theme="lasso"] .panel h2 {
   font-family: var(--font-mast);
 }
+/* Buttons are tooled leather with a stitched edge. */
 :root[data-theme="lasso"] .tool,
 :root[data-theme="lasso"] .pick select,
 :root[data-theme="lasso"] .menu > summary,
@@ -3106,12 +3198,39 @@ button.link {
 :root[data-theme="lasso"] .key-btn,
 :root[data-theme="lasso"] .key-close {
   border: 2px solid #4a2e16;
-  border-radius: 4px;
-  background: #f1e7d2;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #e8cfa2, #d3ae78);
   color: #2e1c0c;
+  outline: 1px dashed rgba(74, 46, 22, 0.6);
+  outline-offset: -5px;
+}
+:root[data-theme="lasso"] .menu[open] > summary,
+:root[data-theme="lasso"] .key-btn[aria-expanded="true"],
+:root[data-theme="lasso"] .tool[aria-pressed="true"] {
+  background: #4a2e16;
+  color: #fbf3df;
+  outline-color: rgba(251, 243, 223, 0.6);
 }
 :root[data-theme="lasso"] .compass {
   display: block;
+}
+/* The reticle is a trick-rope loop, spun flat like a roper's wedding ring. */
+:root[data-theme="lasso"] .crosshair {
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='24' cy='24' r='18' stroke='%233a2410' stroke-width='5'/%3E%3Ccircle cx='24' cy='24' r='18' stroke='%23e2c08a' stroke-width='3'/%3E%3Ccircle cx='24' cy='24' r='18' stroke='%238a5e2c' stroke-width='3' stroke-dasharray='2 3'/%3E%3Cpath d='M40 30L47 36' stroke='%233a2410' stroke-width='5'/%3E%3Cpath d='M40 30L47 36' stroke='%23e2c08a' stroke-width='3'/%3E%3C/g%3E%3Cellipse cx='40' cy='30' rx='3.2' ry='2.4' fill='%23b88a52' stroke='%233a2410' stroke-width='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: perspective(90px) rotateX(58deg);
+  animation: lasso-spin 1.6s linear infinite;
+}
+@keyframes lasso-spin {
+  from { transform: perspective(90px) rotateX(58deg) rotate(0deg); }
+  to { transform: perspective(90px) rotateX(58deg) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="lasso"] .crosshair {
+    animation: none;
+  }
 }
 
 /* ---- The map's key: a small button on the map, the key itself beside it ---------- */

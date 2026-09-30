@@ -12,6 +12,7 @@ import {
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
+import { drawScenery, drawSceneryUnder, type SceneryFrame } from "./scenery.ts";
 import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 
 export interface Dot {
@@ -208,6 +209,8 @@ export class MapView {
   private velocity = { x: 0, y: 0, t: 0 };
   private pinch: { dist: number; zoom: number } | null = null;
   private patterns = new Map<string, CanvasPattern>();
+  /** The land as projected for the current frame, for scenery that follows the coast. */
+  private landPath: Path2D | null = null;
 
   constructor(
     private container: HTMLElement,
@@ -1028,6 +1031,9 @@ export class MapView {
       ctx.stroke();
     }
 
+    const scene: SceneryFrame = { ctx, proj, theme: t, mode: this.mode, center: [this.lon, this.lat], w, h, land: null, outline, redraw: () => this.request() };
+    if (t.scenery) drawSceneryUnder(scene);
+
     ctx.beginPath();
     path(GRATICULE);
     ctx.strokeStyle = t.graticule;
@@ -1075,6 +1081,7 @@ export class MapView {
     }
 
     drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
+    if (t.scenery) drawScenery({ ...scene, land: map && !t.lowPoly ? this.landPath : null });
     this.drawArcs(path, proj);
     this.drawDots(proj);
   }
@@ -1127,6 +1134,7 @@ export class MapView {
     geoPath(proj, pathContext(land))(map.land);
     const coast = new Path2D();
     geoPath(proj, pathContext(coast))(map.coast);
+    this.landPath = land;
     const lines = t.waterlines;
     if (lines > 0) {
       ctx.lineJoin = "round";

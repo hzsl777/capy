@@ -1,3 +1,4 @@
+import type { SceneryKind } from "./map/scenery.ts";
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
@@ -86,6 +87,12 @@ export interface Theme {
    * place.
    */
   decor: "sea" | "space" | "candy" | null;
+  /**
+   * Pictures that say what a design is (src/map/scenery.ts, decision 69): lily pads and frogs, a moon with a
+   * sleeping bear, The Course of Empire's landmarks, or trick-rope loops with a denim sea. Open ocean or outside
+   * the map only, never text.
+   */
+  scenery?: SceneryKind;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -554,11 +561,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // A pond seen from above: murky green water rippling out from the shores, lily-pad land, lotus pink for fresh
-  // reports.
+  // A frog pond seen from above: murky green water, lily pads with lotus flowers, frogs and dragonflies in open
+  // water, lotus pink for fresh reports (decision 69).
   pond: {
     id: "pond",
-    label: "Lily Pond",
+    label: "Frog Pond",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     ocean: "#2f6b5f",
@@ -589,6 +596,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     shade: "rgba(0,30,20,0.45)",
     neatline: false,
     decor: null,
+    scenery: "pond",
   },
   // Inside a hive, after the feel of Bee Movie: honey land built from hexagon cells over a dark hive, black and
   // yellow stripes in the chrome, hexagon markers.
@@ -629,7 +637,7 @@ export const THEMES: Record<ThemeId, Theme> = {
   // A tarot card: midnight indigo, gold linework and stars, the sheet framed like a card.
   arcana: {
     id: "arcana",
-    label: "Arcana",
+    label: "Tarot",
     defaultView: "3d",
     projection2d: geoEqualEarth,
     ocean: "#161338",
@@ -660,49 +668,51 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: true,
     decor: null,
   },
-  // A black-and-white engraving after Thomas Cole's The Course of Empire (public domain): hatched land, ruled
-  // water, engraved mountains, a printed double frame.
+  // After Thomas Cole's The Course of Empire (public domain): a painted bay in evening light, olive land in loose
+  // strokes, and the paintings' crag, lone column, temple and broken arch standing in the water (decision 69).
   arcadia: {
     id: "arcadia",
     label: "Arcadia",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
-    ocean: "#e9e7e1",
-    land: "#d4d1c8",
-    landTexture: "hatch",
+    ocean: "#4d6b73",
+    land: "#7f7a44",
+    landTexture: "brush",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(20,20,20,0.55)",
-    coast: "#141414",
-    coastWidth: 1.1,
-    waterlines: 3,
-    waterline: "rgba(20,20,20,0.4)",
-    oceanHatch: "rgba(20,20,20,0.1)",
-    graticule: "rgba(20,20,20,0.12)",
-    graticuleDash: [2, 3],
-    river: "rgba(20,20,20,0.5)",
-    lake: "#e9e7e1",
-    ice: "#f6f5f1",
-    relief: "rgba(20,20,20,0.85)",
-    dot: "#141414",
-    dotStroke: "#f6f5f1",
-    fresh: "#141414",
-    tuned: "#141414",
-    arc: "#141414",
+    textureInk: "rgba(200,178,96,0.5)",
+    coast: "#2b2314",
+    coastWidth: 1.2,
+    waterlines: 2,
+    waterline: "rgba(255,226,160,0.35)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(255,226,160,0.5)",
+    lake: "#4d6b73",
+    ice: "#eadfc4",
+    relief: "rgba(34,27,14,0.85)",
+    dot: "#f6ecd2",
+    dotStroke: "#2a2014",
+    fresh: "#d2452a",
+    tuned: "#f6ecd2",
+    arc: "#d2452a",
     glow: false,
-    atmosphere: "rgba(60,60,60,0.25)",
-    shade: "rgba(0,0,0,0.35)",
-    neatline: true,
+    atmosphere: "rgba(255,206,130,0.5)",
+    shade: "rgba(20,14,4,0.5)",
+    neatline: false,
     decor: null,
+    scenery: "empire",
+    textureInk2: "rgba(40,44,18,0.45)",
   },
-  // A bedtime tea box: a soft watercolour night in periwinkle and sage, cream markers, a warm lamp colour for fresh
-  // reports.
+  // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a nightcap asleep
+  // in the moon beside the globe (decision 69).
   nightcap: {
     id: "nightcap",
-    label: "Nightcap",
+    label: "Bedtime Tea",
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
-    ocean: "#6f86bb",
+    ocean: "#3b4a7e",
     land: "#a8c39a",
     landTexture: "mottle",
     pixel: 1,
@@ -712,12 +722,12 @@ export const THEMES: Record<ThemeId, Theme> = {
     coast: "#34466e",
     coastWidth: 1,
     waterlines: 2,
-    waterline: "rgba(230,236,255,0.35)",
+    waterline: "rgba(200,215,255,0.3)",
     oceanHatch: null,
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "rgba(230,236,255,0.5)",
-    lake: "#6f86bb",
+    lake: "#3b4a7e",
     ice: "#f4f2ea",
     relief: "rgba(52,70,110,0.45)",
     dot: "#fff8e6",
@@ -726,10 +736,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     tuned: "#fff8e6",
     arc: "#ffb35c",
     glow: false,
-    atmosphere: "rgba(200,210,255,0.5)",
+    atmosphere: "rgba(255,240,190,0.35)",
     shade: "rgba(30,30,80,0.45)",
     neatline: false,
     decor: null,
+    scenery: "tea",
   },
   // A college campus in maroon and cream: maroon land on cream paper, varsity lettering, pennant buttons.
   campus: {
@@ -765,27 +776,28 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // A frontier newspaper: dusty tan land, faded denim water, rope rules and wood type in the chrome.
+  // A trick roper's frontier: a denim sea with orange seams along every coast, tan leather land, a rope around the
+  // sheet and spinning rope loops over the water (decision 69).
   lasso: {
     id: "lasso",
     label: "Lasso",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
-    ocean: "#8fa7b3",
-    land: "#d3b184",
-    landTexture: "hatch",
+    ocean: "#46698c",
+    land: "#c99a62",
+    landTexture: "mottle",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(90,55,25,0.35)",
+    textureInk: "rgba(240,205,150,0.4)",
     coast: "#4a2e16",
     coastWidth: 1.3,
-    waterlines: 2,
+    waterlines: 0,
     waterline: "rgba(74,46,22,0.3)",
     oceanHatch: null,
-    graticule: "rgba(74,46,22,0.12)",
-    graticuleDash: [3, 3],
-    river: "rgba(74,46,22,0.4)",
-    lake: "#8fa7b3",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(70,105,140,0.7)",
+    lake: "#46698c",
     ice: "#f1e7d2",
     relief: "rgba(90,55,25,0.7)",
     dot: "#fbf3df",
@@ -796,7 +808,9 @@ export const THEMES: Record<ThemeId, Theme> = {
     glow: false,
     atmosphere: "rgba(211,177,132,0.4)",
     shade: "rgba(60,30,0,0.35)",
-    neatline: true,
+    neatline: false,
     decor: null,
+    scenery: "rope",
+    textureInk2: "rgba(110,62,22,0.3)",
   },
 };

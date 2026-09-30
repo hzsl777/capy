@@ -534,3 +534,14 @@ Davis asked for the camera that best gives the 64-bit overworld feel before test
 2. **Zoom floor.** In Map view this design cannot zoom out past 1.8, where the whole map seen low would be a thin strip under a large sky. The Globe view and every other design keep their zoom range.
 3. **Clouds** repeat without a seam as the camera pans.
 4. Tuning, tapping, the reticle and marker sizes work as before; a vertical drag is still corrected for the tilt.
+
+## 69. Four designs show what they are, and Arcana becomes Tarot (September 29, 2026)
+
+Davis could not tell what Lily Pond, Nightcap, Arcadia and Lasso were meant to be: each was a palette, with nothing in it that said frog pond, bedtime tea, Thomas Cole or trick roping. Arcana and Arcadia sat next to each other in the menu and sounded alike. This changes the four designs from decision 62.
+
+1. **Scenery.** A design may set `scenery`: small pictures drawn on the map from SVG made once (`src/map/scenery.ts`). Each sits at a fixed spot in open water with a radius `r`, and is drawn exactly that wide, so it grows with zoom and never reaches land. `test/scenery.test.ts` checks the whole circle is off land on both coastline files and at least 3 degrees from every outlet's city and every sample place. No picture carries text, and none is small enough to be taken for a marker.
+2. **Frog Pond** (was Lily Pond): lily pads, lotus flowers, frogs sitting on pads and dragonflies, with ripples, over every ocean. A frog by the name, reeds at the edges of the page, lily-pad buttons.
+3. **Bedtime Tea** (was Nightcap): a night sea with stars, and a bear in a nightcap asleep in a crescent moon, beside the globe or over the open Pacific on the map. The map is the arched picture window of a tea box, with a teacup by the name, chamomile on the page and a tea bag's tag on the Key button. The bear is our own drawing, not a brand's character.
+4. **Arcadia**: from a grey engraving to a painting after The Course of Empire (public domain): a bay in evening light, olive land in loose strokes, and the paintings' landmarks in the water (the crag with its balanced boulder that stands in all five, a lone column under vines from Desolation, a temple on a rock, a broken arch, golden clouds). The map hangs in a gilt frame under Cole's sky on a museum wall; panels are wall cards.
+5. **Lasso**: after a trick roper. A denim sea with orange double stitching along every coast, tan leather land, a rope laid around the sheet or globe, rope loops spinning over open water, and a reticle that is a rope loop spun flat (it holds still for readers who ask for reduced motion). A hat on the name, rope-framed panels, stitched leather buttons. No person is named or drawn.
+6. **Tarot**: Arcana's menu name. The id `arcana` stays, so saved settings keep working; so do `pond` and `nightcap`.

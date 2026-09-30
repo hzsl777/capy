@@ -1,6 +1,6 @@
 ---
 name: design-themes
-description: Change the look of GlobalGist's twenty designs (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, Newsroom, Lily Pond, Honeycomb, Arcana, Arcadia, Nightcap, Campus, Lasso) or add a new one, covering canvas map styling, UI chrome, fonts, and the 2D/3D projections. Use for any visual or styling request on the map or panel.
+description: Change the look of GlobalGist's twenty designs (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, Newsroom, Frog Pond, Honeycomb, Tarot, Arcadia, Bedtime Tea, Campus, Lasso) or add a new one, covering canvas map styling, UI chrome, fonts, and the 2D/3D projections. Use for any visual or styling request on the map or panel.
 ---
 
 # Designs
@@ -19,7 +19,7 @@ Every design shows the same name and tagline from `src/brand.ts`. The row above 
 1. Add the id to `ThemeId` and an entry in `THEMES`.
 2. Add a token block in `style.css`. Pick fonts from `@fontsource` (`npm i @fontsource/<font>`) and import the weights in `src/main.ts`. Don't load fonts from a third-party CDN.
 3. Style `.telegram-word` and `.telegram-big` for the design with `font-family`, `font-weight`, `letter-spacing` and colour only, never the `font` shorthand, so the length-based size (`--len`) still applies. Check that "Encouragement" fits a 375-pixel phone.
-4. Decorations on the canvas go in `src/map/decor.ts`, called once from `render()` in `view.ts` under the dots. Use fixed lon/lat spots in open ocean and add them to `test/decor.test.ts`, which checks they are clear of land and far from every outlet's city. Open strokes only: no text, no filled circles that could read as a dot. Backgrounds outside the globe can be CSS on `.map` (see the Space starfield).
+4. Pictures that say what a design is (a frog on a pad, a moon with a bear) go in `src/map/scenery.ts` as small SVG pictures with a spot and an open-water radius `r`; add the list to `test/scenery.test.ts`. Line decorations on the canvas go in `src/map/decor.ts`, called once from `render()` in `view.ts` under the dots. Use fixed lon/lat spots in open ocean and add them to `test/decor.test.ts`, which checks they are clear of land and far from every outlet's city. Open strokes only: no text, no filled circles that could read as a dot. Backgrounds outside the globe can be CSS on `.map` (see the Space starfield).
 5. Add the id to `themes` in `scripts/screenshots.ts`.
 6. Check the look in both views and at phone width with the `run-app` skill's screenshot flow.
 

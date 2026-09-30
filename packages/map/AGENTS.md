@@ -40,6 +40,7 @@ src/
   map/basemap.ts         loads the TopoJSON basemap
   map/terrain.ts         Polygon Kingdom's triangle terrain, built once per basemap
   map/decor.ts           decorations under the dots: Pirate sea creatures, Candy Shop sweets, Space stars and rim (fixed ocean spots, tested)
+  map/scenery.ts         pictures that say what a design is: Frog Pond, Bedtime Tea, Arcadia, Lasso (open water sized to fit, tested)
   translate.ts           browser Translator API wrapper
   pins.ts                localStorage pins and prefs
   ui/dom.ts              element builder (text only, never innerHTML)
@@ -78,7 +79,7 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Designs
 
-Twenty looks (decisions 32, 43 and 57 to 66), each in Map or Globe view, chosen from one Design menu:
+Twenty looks (decisions 32, 43 and 57 to 69), each in Map or Globe view, chosen from one Design menu:
 
 - **Morning Edition**: newsprint, black ink, halftone land, blackletter masthead and word. Map by default.
 - **Cabinet Map**: parchment, sepia ink, engraved water lines, hachured mountains, one red for fresh reports and the word. Map by default.
@@ -93,17 +94,17 @@ Twenty looks (decisions 32, 43 and 57 to 66), each in Map or Globe view, chosen 
 - **Polygon Kingdom** (`bit64`): an overworld after Super Mario 64 and Ocarina of Time, lettered after Rare's games of that era (decisions 63 to 66). Map view is a camera tilted back 58 degrees (`tilt`, decision 66) over triangle terrain (`lowPoly`, `src/map/terrain.ts`): grass on three flat tiers with orange cliff walls at every step, round trees (never in a cell with a place), rock mountains with snow caps, blue shallows, soft low-resolution textures tied to the world, a pale sky with clouds that pan (`sky`) and haze at the draw distance (`fog`). Bevelled gold markers float over round shadows; fresh reports are red-orange. Panels are pause-menu subscreens. Titan One lettering in yellow with a dark outline, each letter tilted and bobbing (`LETTER_THEMES` in `main.ts`); lumpy cream buttons. Every place stands on land (tested); lakes and rivers are not drawn. Map by default.
 - **Realize**: direct inspiration from the Mezmerize and Hypnotize covers. Black ground, dark red smeared land, bone-white coasts and markers, blue for fresh reports, the striped arcs across the top, worn white Anton capitals over a red Permanent Marker word. Map by default.
 - **Newsroom**: a television news studio. The world on a glowing LED wall, glossy navy panels, the word as a white caption bar under a red tab, Oswald and Barlow, red for fresh reports, a crawl of the newest headlines. No "live" or "breaking" labels. Globe by default.
-- **Lily Pond**: murky green water rippling around every shore, lily-pad land and panels, Chewy, lotus pink for fresh reports. Map by default.
+- **Frog Pond** (`pond`): murky green water rippling around every shore, and in open water lily pads, lotus flowers, frogs sitting on pads and dragonflies (`scenery`, decision 69). A frog by the name, reeds at the page's edges, lily-pad panels and buttons, Chewy, lotus pink for fresh reports. Map by default.
 - **Honeycomb**: after the feel of Bee Movie. Honey land in hexagon cells over a dark hive, hexagon markers, black and yellow stripes, Baloo 2, white for fresh reports. Map by default.
-- **Arcana**: a tarot card. Midnight indigo, gold linework and stars, card-framed panels, Cinzel Decorative and Lora, amber for fresh reports. Globe by default.
-- **Arcadia**: a black-and-white engraving after Thomas Cole's The Course of Empire (public domain). Hatched land, ruled water, engraved mountains, a grey sky, a double frame, a compass, IM Fell English. Single-colour: fresh reports get a dotted ring. Map by default.
-- **Nightcap**: a bedtime tea box. Watercolour periwinkle and sage, a moon and stars, Lora italic, a warm lamp colour for fresh reports. Globe by default.
+- **Tarot** (`arcana`): a tarot card. Midnight indigo, gold linework and stars, card-framed panels, Cinzel Decorative and Lora, amber for fresh reports. Globe by default.
+- **Arcadia**: a painting after Thomas Cole's The Course of Empire (public domain, decision 69). A bay in evening light, olive land in loose strokes, and the paintings' landmarks in open water: the crag with its boulder, a lone column under vines, a temple on a rock, a broken arch, golden clouds. The map hangs in a gilt frame under Cole's sky on a museum wall; panels are wall cards and buttons are brass plaques. IM Fell English, vermilion for fresh reports. Map by default.
+- **Bedtime Tea** (`nightcap`): a bedtime tea box. A night sea with small stars, sage land, and a bear in a nightcap asleep in a crescent moon (beside the globe, or over the open Pacific on the map; our own drawing, not a brand's). The map is the box's arched picture window; a teacup by the name, chamomile on the page, a tea bag's tag on the Key button, Lora italic, a warm lamp colour for fresh reports. Globe by default.
 - **Campus**: a college campus in maroon and cream. Maroon masthead, varsity lettering (Graduate), pennant buttons, gold for fresh reports. Map by default.
-- **Lasso**: a frontier newspaper. Dusty tan and faded denim, rope rules, Rye and Special Elite, a compass, red for fresh reports. Map by default.
+- **Lasso**: a trick roper's frontier (decision 69). A denim sea with orange double stitching along every coast, tan leather land, a rope laid around the sheet or globe, and spinning rope loops over open water. The reticle is a rope loop spun flat. A hat hung on the name, rope-framed panels, stitched leather buttons, Rye and Special Elite, red for fresh reports. Map by default.
 
-The console, Realize, Newsroom, Honeycomb, Nightcap, Campus and Lasso designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
+The console, Realize, Newsroom, Honeycomb, Bedtime Tea, Campus and Lasso designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
 
-The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`). Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
+The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`) and `scenery` for pictures that say what the design is (`src/map/scenery.ts`). A scenery picture is drawn exactly as wide as the open water around its spot (`r`), and `test/scenery.test.ts` checks that whole circle is off land and at least 3 degrees from every place. Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
 
 A theme is two things kept in step: a `Theme` in `src/themes.ts` (canvas) and a `:root[data-theme=...]` block in `src/style.css` (chrome and fonts). Fonts are self-hosted through `@fontsource`. See the `design-themes` skill. The word is the page's headline: centred in the masthead in every design, with its size set by its length so every word on the lists fits a phone, and always next to its date and the "Chosen by AI" label (decision 40). Anything decorative around the word must not change how it reads (a "STOP" suffix was removed because "Ceasefire stop" reads as a statement).
 
