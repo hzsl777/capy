@@ -1112,7 +1112,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     pixel: 1,
     globeScale: 0.34,
     scene: "rave",
-    dotShape: "star4",
+    dotShape: "diamond",
     textureInk: "rgba(0,0,0,0)",
     coast: "#c6ff3a",
     coastWidth: 1.3,

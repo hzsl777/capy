@@ -5126,6 +5126,7 @@ button.link {
   --hover: rgba(111, 168, 255, 0.12);
   --reticle: #ffffff;
   --grain-opacity: 0;
+  --grain-blend: normal;
   --signal: #8cb8ff;
   --stripe-red: #d8283a;
   --stripe-blue: #2f6fe0;
@@ -5965,7 +5966,8 @@ button.link {
   border-color: #6f9bff;
   color: #8fb3ff;
 }
-/* Scores read like changes on the screen: green above zero, red below, amber at zero. No arrows. */
+/* Scores stay in the terminal's amber: below zero in reverse video, as every design marks them, never red or green,
+   so a day's events never read like a market's moves. */
 :root[data-theme="terminal"] .score-chip {
   background: transparent;
   border-color: currentColor;
@@ -5973,18 +5975,8 @@ button.link {
 }
 :root[data-theme="terminal"] .score-chip.s0,
 :root[data-theme="terminal"] .score-chip.s1 {
-  background: transparent;
-  color: var(--down);
-}
-:root[data-theme="terminal"] .score-chip.s3,
-:root[data-theme="terminal"] .score-chip.s4 {
-  color: var(--up);
-}
-:root[data-theme="terminal"] .scale .step:nth-child(-n + 2).on {
-  background: var(--down);
-}
-:root[data-theme="terminal"] .scale .step:nth-child(n + 4).on {
-  background: var(--up);
+  background: var(--accent);
+  color: #000000;
 }
 
 /* ---- Country Club: navy, cream and hunter green, a tartan band, a crest, pennants, a desk globe ---------- */
@@ -10554,6 +10546,8 @@ button.link {
 :root[data-theme="dual"] .map canvas {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M1 1h3l18 18v4h-4L1 4z' fill='%2316203a'/%3E%3Cpath d='M4 4l16 16v1h-1L3 5z' fill='%23c9d3df'/%3E%3C/svg%3E") 1 1, grab;
 }
+
+/* ==========================================================================
    Undersea Town and Block World: two looks after the feel of a cartoon town under the sea and a blocky sandbox
    game, with none of their characters, names, logos or art (src/map/scenery.ts, src/map/blocks.ts).
    ========================================================================== */

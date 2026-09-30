@@ -1,6 +1,6 @@
 ---
 name: run-app
-description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, Newsroom, Frog Pond, Honeycomb, Tarot, Arcadia, Bedtime Tea, Campus, Lasso, Night Drive, Cross Stitch, Rose Window, Nightclub, Poolside, Snow Globe, Spreadsheet, Market Terminal, Country Club, Sleeper Car, Aquarium, Lava Lamp, Radar Sweep, Film Noir, Arcade Cabinet, Stadium Jumbotron, Pop-up Book, Toy Train Set, Chalkboard, Sketchbook) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
+description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, Newsroom, Frog Pond, Honeycomb, Tarot, Course of Empire, Bedtime Tea, Campus, Lasso, Night Drive, Cross Stitch, Rose Window, Nightclub, Poolside, Snow Globe, Spreadsheet, Market Terminal, Country Club, Sleeper Car, Aquarium, Lava Lamp, Radar Sweep, Film Noir, Arcade Cabinet, Stadium Jumbotron, Pop-up Book, Toy Train Set, Chalkboard, Sketchbook, Rave, Console Menu, Dual Screen, Old Realm, Tactical, Undersea Town, Block World) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
 ---
 
 # Run the app
