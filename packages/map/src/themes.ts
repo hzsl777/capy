@@ -3,7 +3,7 @@ import type { SceneryKind } from "./map/scenery.ts";
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -79,7 +79,7 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava";
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -1228,4 +1228,110 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Decision 77: two designs that move a little on their own.
+  // Aquarium: the map is the back wall of a tank with gravel and plants below it and fish in open water; the globe
+  // floats in a round fishbowl with a sloshing waterline, rising bubbles and fish swimming round it.
+  aquarium: {
+    id: "aquarium",
+    label: "Aquarium",
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    surface: "aquarium",
+    globeScale: 0.29,
+    ocean: "#1f8a9e",
+    land: "#d9c48f",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "shell",
+    textureInk: "rgba(120,96,50,0.35)",
+    textureInk2: "rgba(96,140,70,0.3)",
+    coast: "#3f5a36",
+    coastWidth: 1.1,
+    waterlines: 0,
+    waterline: "rgba(190,250,240,0.4)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#1f8a9e",
+    ice: "#eef7f4",
+    relief: "#8a7a52",
+    dot: "#12324a",
+    dotStroke: "#fff8e8",
+    fresh: "#ff7a1a",
+    tuned: "#12324a",
+    arc: "#fff8e8",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Lava Lamp: a 1970s lava lamp. Warm wax drifts slowly through the dark liquid of the sea behind glowing land; on
+  // the globe the world is the lamp's glass on a metal base, with a cap on top.
+  lava: {
+    id: "lava",
+    label: "Lava Lamp",
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    surface: "lava",
+    globeScale: 0.215,
+    ocean: "#1c1240",
+    land: "#ffd98a",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "squircle",
+    textureInk: "rgba(255,240,200,0.5)",
+    coast: "#b4501c",
+    coastWidth: 1.1,
+    waterlines: 0,
+    waterline: "rgba(255,170,70,0.3)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#1c1240",
+    ice: "#fff3d6",
+    relief: "#e8a04a",
+    dot: "#139f93",
+    dotStroke: "#1a0d2e",
+    fresh: "#ffffff",
+    tuned: "#1a0d2e",
+    arc: "#fff3d6",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
 };
+
+/**
+ * The Design menu in labelled groups (decision 77). Ids missing from THEMES are skipped, so designs being added
+ * elsewhere slot in by id, and any design not listed here lands in "Other", so none ever drops out of the menu.
+ */
+export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
+  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow"] },
+  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
+  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
+];
+
+/** The Design menu's groups for the designs that exist, each design exactly once, in the order listed. */
+export function designMenu(ids: readonly string[]): { label: string; ids: ThemeId[] }[] {
+  const have = new Set(ids);
+  const placed = new Set<string>();
+  const groups: { label: string; ids: ThemeId[] }[] = [];
+  for (const g of DESIGN_GROUPS) {
+    const list: ThemeId[] = [];
+    for (const id of g.ids) {
+      if (!have.has(id) || placed.has(id)) continue;
+      placed.add(id);
+      list.push(id as ThemeId);
+    }
+    groups.push({ label: g.label, ids: list });
+  }
+  groups.push({ label: "Other", ids: ids.filter((id) => !placed.has(id)) as ThemeId[] });
+  return groups.filter((g) => g.ids.length > 0);
+}

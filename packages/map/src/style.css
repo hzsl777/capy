@@ -5927,3 +5927,429 @@ button.link {
     font-size: 22px;
   }
 }
+
+/* ==== Decision 77: Aquarium and Lava Lamp ================================================== */
+
+/* ---- Aquarium: a fish tank and a fishbowl, bubbles and pebbles ------------------------------ */
+:root[data-theme="aquarium"] {
+  color-scheme: light;
+  --page: #e2f5f3;
+  --panel: #f3fbfa;
+  --ink: #0f3340;
+  --ink-2: #1f4a58;
+  --muted: #3c6470;
+  --rule: #2a8a9a;
+  --accent: #127a8e;
+  --on-accent: #ffffff;
+  --hover: rgba(18, 122, 142, 0.1);
+  --reticle: #0f3340;
+  --grain-opacity: 0.1;
+  --grain-blend: multiply;
+  --font-mast: "Sniglet", "Nunito", sans-serif;
+  --font-head: "Sniglet", "Nunito", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+/* The room: light through water on the walls, and a few bubbles drifting up the page. */
+:root[data-theme="aquarium"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='220'%3E%3Cg fill='none' stroke='%232a8a9a' stroke-opacity='.22' stroke-width='1.4'%3E%3Ccircle cx='24' cy='190' r='6'/%3E%3Ccircle cx='34' cy='150' r='4'/%3E%3Ccircle cx='26' cy='118' r='2.6'/%3E%3Ccircle cx='118' cy='96' r='5'/%3E%3Ccircle cx='128' cy='60' r='3.2'/%3E%3Ccircle cx='121' cy='34' r='2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 160px 220px,
+    linear-gradient(to bottom, #d3f0ef, #e8f7f5 40%, #d5eeea);
+}
+/* The masthead is the water's surface: a wave along its lower edge. */
+:root[data-theme="aquarium"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='14'%3E%3Cpath d='M0 7C10 1 20 1 40 7S70 13 80 7V14H0Z' fill='%232a8a9a' fill-opacity='.9'/%3E%3Cpath d='M0 9C10 3 20 3 40 9S70 15 80 9' fill='none' stroke='%23ffffff' stroke-opacity='.8' stroke-width='1.5'/%3E%3C/svg%3E") repeat-x left bottom / 80px 14px,
+    linear-gradient(to bottom, #f1fbfa, #c9eef0);
+}
+:root[data-theme="aquarium"] .toolbar {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, #2a8a9a, #1f7788);
+  color: #ffffff;
+}
+/* The time bar is a bed of gravel. */
+:root[data-theme="aquarium"] .timebar {
+  border-top: 0;
+  background:
+    radial-gradient(ellipse 7px 5px at 10% 70%, #c9b48a 90%, transparent) 0 0 / 34px 100%,
+    radial-gradient(ellipse 6px 4px at 60% 40%, #8aa0a8 90%, transparent) 0 0 / 46px 100%,
+    radial-gradient(ellipse 5px 4px at 30% 30%, #e8dcc0 90%, transparent) 0 0 / 28px 100%,
+    #a8906a;
+  color: #0f3340;
+}
+:root[data-theme="aquarium"] .time-label {
+  background: rgba(243, 251, 250, 0.92);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+/* The wall behind the fishbowl: pale plaster with light from a window. */
+:root[data-theme="aquarium"] .map {
+  background:
+    radial-gradient(ellipse 45% 50% at 22% 18%, rgba(255, 255, 240, 0.9), transparent 70%),
+    linear-gradient(to bottom, #e6efe6, #d2e4dd);
+}
+/* A goldfish swims in front of the name and bubbles rise after it. Our own drawings. */
+:root[data-theme="aquarium"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(30px, 3.6vw, 46px);
+  color: #127a8e;
+  -webkit-text-stroke: 5px #ffffff;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 rgba(15, 51, 64, 0.22);
+  letter-spacing: 0.01em;
+}
+:root[data-theme="aquarium"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 1.05em;
+  height: 0.7em;
+  margin-right: 0.12em;
+  vertical-align: 0.05em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-64 -26 116 52'%3E%3Cpath d='M-26 0C-40 -22 -58 -36 -61 -16C-62 -8 -53 -2 -51 0C-53 2 -62 8 -61 16C-58 36 -40 22 -26 0Z' fill='%23ff9a3c' stroke='%23b8480f' stroke-width='2.4'/%3E%3Cpath d='M-6 -20C0 -36 14 -36 21 -21Z' fill='%23ffb060' stroke='%23b8480f' stroke-width='2'/%3E%3Cpath d='M46 2C44 -14 26 -24 4 -22C-14 -20 -26 -10 -30 0C-26 10 -14 20 4 22C26 24 44 16 46 2Z' fill='%23ff8a24' stroke='%23b8480f' stroke-width='2.4'/%3E%3Cpath d='M40 9C30 18 10 20 -6 16C-16 13 -24 6 -26 2C-14 8 10 12 40 9Z' fill='%23ffd08a'/%3E%3Ccircle cx='33' cy='-4' r='5.5' fill='%23fff' stroke='%23b8480f' stroke-width='1.4'/%3E%3Ccircle cx='34' cy='-4' r='3' fill='%230f1c24'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root[data-theme="aquarium"] .mast-title::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.9em;
+  margin-left: 0.08em;
+  vertical-align: 0.2em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 36'%3E%3Cg fill='%23ffffff' fill-opacity='.6' stroke='%23127a8e' stroke-width='1.6'%3E%3Ccircle cx='7' cy='29' r='5'/%3E%3Ccircle cx='13' cy='15' r='3.6'/%3E%3Ccircle cx='8' cy='5' r='2.4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root[data-theme="aquarium"] .mast-tag {
+  color: #1f4a58;
+  font-style: italic;
+}
+:root[data-theme="aquarium"] .telegram-word,
+:root[data-theme="aquarium"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #127a8e;
+  -webkit-text-stroke: 6px #ffffff;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 rgba(15, 51, 64, 0.2);
+}
+:root[data-theme="aquarium"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="aquarium"] .telegram-word:hover,
+:root[data-theme="aquarium"] .telegram-word:focus-visible {
+  background: none;
+  color: #0d5f70;
+  text-decoration: none;
+}
+:root[data-theme="aquarium"] .telegram-kicker,
+:root[data-theme="aquarium"] .telegram-date {
+  color: #1f4a58;
+}
+/* Letters float, each bobbing slowly out of step, like things in water. */
+:root[data-theme="aquarium"] .lt {
+  display: inline-block;
+  animation: aquarium-float 4.2s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.47s);
+}
+@keyframes aquarium-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(1.5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="aquarium"] .lt {
+    animation: none;
+  }
+}
+/* Buttons are glossy bubbles. */
+:root[data-theme="aquarium"] .tool,
+:root[data-theme="aquarium"] .pick select,
+:root[data-theme="aquarium"] .menu > summary,
+:root[data-theme="aquarium"] .chip,
+:root[data-theme="aquarium"] .key-btn,
+:root[data-theme="aquarium"] .key-close {
+  border: 2px solid #1f7788;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 25%, #ffffff, #e2f7f7 55%, #b8e6ea);
+  color: #0f3340;
+  box-shadow: inset 0 -2px 3px rgba(18, 122, 142, 0.25), 0 1px 2px rgba(15, 51, 64, 0.25);
+}
+:root[data-theme="aquarium"] .pick::after {
+  color: #0f3340;
+}
+:root[data-theme="aquarium"] .tool.quiet {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+:root[data-theme="aquarium"] .zoom {
+  border: 2px solid #1f7788;
+  border-radius: 18px;
+  overflow: hidden;
+  background: radial-gradient(circle at 30% 20%, #ffffff, #d4f1f3);
+  box-shadow: 0 1px 3px rgba(15, 51, 64, 0.3);
+}
+:root[data-theme="aquarium"] .zoom button {
+  color: #0f3340;
+}
+:root[data-theme="aquarium"] .zoom button + button {
+  border-top: 2px solid #1f7788;
+}
+:root[data-theme="aquarium"] .tool[aria-pressed="true"],
+:root[data-theme="aquarium"] .menu[open] > summary,
+:root[data-theme="aquarium"] .chip[aria-pressed="true"],
+:root[data-theme="aquarium"] .key-btn[aria-expanded="true"],
+:root[data-theme="aquarium"] .scale .step.on {
+  background: radial-gradient(circle at 30% 25%, #4fb8c8, #127a8e 60%, #0d5f70);
+  color: #ffffff;
+  border-color: #0d5f70;
+}
+/* Panels are panes of glass with a rim of light. */
+:root[data-theme="aquarium"] .panel,
+:root[data-theme="aquarium"] .menu-body,
+:root[data-theme="aquarium"] .key-pop,
+:root[data-theme="aquarium"] dialog {
+  background: linear-gradient(to bottom, #ffffff, var(--panel) 30%, #edf9f7);
+  border: 3px solid #2a8a9a;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.8), 0 4px 14px rgba(15, 51, 64, 0.18);
+  color: var(--ink);
+}
+:root[data-theme="aquarium"] .panel {
+  margin: 10px;
+}
+:root[data-theme="aquarium"] .panel-title,
+:root[data-theme="aquarium"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 28px;
+  color: #127a8e;
+}
+:root[data-theme="aquarium"] .dateline {
+  border-bottom: 3px dotted #2a8a9a;
+}
+:root[data-theme="aquarium"] .rule-head {
+  border-radius: 999px;
+  border: 2px solid #2a8a9a;
+  background: #e2f5f3;
+  color: #0f3340;
+}
+:root[data-theme="aquarium"] .headline {
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+
+/* ---- Lava Lamp: 1970s shag, wood grain, groovy lettering ------------------------------------ */
+:root[data-theme="lava"] {
+  color-scheme: light;
+  --page: #f6e2b3;
+  --panel: #fff3d9;
+  --ink: #3a1a08;
+  --ink-2: #5a2e12;
+  --muted: #7a4420;
+  --rule: #a8521c;
+  --accent: #c2410c;
+  --on-accent: #fff6e0;
+  --hover: rgba(194, 65, 12, 0.1);
+  --reticle: #2a0f3a;
+  --grain-opacity: 0.18;
+  --grain-blend: multiply;
+  --wood: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .09' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .22 0 0 0 0 .1 0 0 0 0 .03 0 0 0 1.2 -.35'/%3E%3C/filter%3E%3Crect width='400' height='120' filter='url(%23w)'/%3E%3C/svg%3E");
+  --shag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 .96 0 0 0 0 .55 0 0 0 0 .16 0 0 0 2.2 -.95'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23s)'/%3E%3C/svg%3E");
+  --font-mast: "Shrikhand", "Cooper Black", serif;
+  --font-head: "Righteous", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Righteous", "Trebuchet MS", sans-serif;
+}
+/* Shag carpet round everything. */
+:root[data-theme="lava"] body {
+  background: var(--shag) 0 0 / 160px 160px, var(--shag) 37px 61px / 120px 120px, #8a3a10;
+}
+/* The masthead is a wood-panelled board with three stripes along its foot. */
+:root[data-theme="lava"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 22px;
+  background:
+    linear-gradient(to bottom, transparent calc(100% - 13px), #f0a830 calc(100% - 13px) calc(100% - 9px), #e8581c calc(100% - 9px) calc(100% - 5px), #8a2e0c calc(100% - 5px)),
+    var(--wood) 0 0 / 400px 120px,
+    linear-gradient(to bottom, #6e3c18, #4e2a10);
+  color: #fff3d9;
+}
+:root[data-theme="lava"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(32px, 3.8vw, 48px);
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #e8318a, 4px 4px 0 #6b2fa0;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="lava"] .mast-tag,
+:root[data-theme="lava"] .telegram-kicker,
+:root[data-theme="lava"] .telegram-date,
+:root[data-theme="lava"] .telegram-note,
+:root[data-theme="lava"] .telegram-none {
+  color: #ffe6b8;
+}
+:root[data-theme="lava"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="lava"] .telegram-word,
+:root[data-theme="lava"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #e8318a, 4px 4px 0 #6b2fa0;
+}
+:root[data-theme="lava"] .telegram-big {
+  color: #c2410c;
+  text-shadow: 2px 2px 0 #f0a830, 4px 4px 0 #e8318a;
+}
+:root[data-theme="lava"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="lava"] .telegram-word:hover,
+:root[data-theme="lava"] .telegram-word:focus-visible {
+  background: none;
+  color: #fff3d9;
+  text-decoration: none;
+}
+/* Groovy lettering: each letter sits a little high or low and leans, like 1970s display type. */
+:root[data-theme="lava"] .lt {
+  display: inline-block;
+  translate: 0 1px;
+  rotate: -2deg;
+}
+:root[data-theme="lava"] .lt:nth-child(2n) {
+  translate: 0 -2px;
+  rotate: 2deg;
+}
+:root[data-theme="lava"] .lt:nth-child(3n) {
+  translate: 0 -1px;
+}
+/* Buttons are harvest-gold pills with a brown rim. */
+:root[data-theme="lava"] .tool,
+:root[data-theme="lava"] .pick select,
+:root[data-theme="lava"] .menu > summary,
+:root[data-theme="lava"] .chip,
+:root[data-theme="lava"] .key-btn,
+:root[data-theme="lava"] .key-close {
+  border: 2px solid #6e2a0a;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffd88a, #f0a830);
+  color: #3a1a08;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 0 #6e2a0a;
+}
+:root[data-theme="lava"] .pick::after {
+  color: #3a1a08;
+}
+/* The scale in the wood-panelled masthead: cream steps, the day's step in burnt orange. */
+:root[data-theme="lava"] .scale {
+  border: 2px solid #f0a830;
+  border-radius: 999px;
+  overflow: hidden;
+}
+:root[data-theme="lava"] .scale .step {
+  color: #ffe6b8;
+}
+:root[data-theme="lava"] .scale .step + .step {
+  border-left-color: rgba(240, 168, 48, 0.6);
+}
+:root[data-theme="lava"] .zoom {
+  border: 2px solid #6e2a0a;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #ffd88a, #f0a830);
+}
+:root[data-theme="lava"] .zoom button {
+  color: #3a1a08;
+}
+:root[data-theme="lava"] .zoom button + button {
+  border-top: 2px solid #6e2a0a;
+}
+:root[data-theme="lava"] .tool[aria-pressed="true"],
+:root[data-theme="lava"] .menu[open] > summary,
+:root[data-theme="lava"] .chip[aria-pressed="true"],
+:root[data-theme="lava"] .key-btn[aria-expanded="true"],
+:root[data-theme="lava"] .scale .step.on {
+  background: linear-gradient(to bottom, #e0602a, #c2410c);
+  color: #fff6e0;
+  border-color: #5a1a04;
+}
+/* The toolbar is a band of cream over two stripes; the time bar is wood. */
+:root[data-theme="lava"] .toolbar {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background: linear-gradient(to bottom, #f6e2b3 calc(100% - 8px), #e8318a calc(100% - 8px) calc(100% - 4px), #6b2fa0 calc(100% - 4px));
+}
+:root[data-theme="lava"] .timebar {
+  border-top: 0;
+  background: var(--wood) 0 0 / 400px 120px, linear-gradient(to bottom, #6e3c18, #4e2a10);
+  color: #ffe6b8;
+}
+/* Behind the lamp: a wood-panelled wall. */
+:root[data-theme="lava"] .map {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 62px, rgba(30, 12, 2, 0.55) 62px 64px),
+    var(--wood) 0 0 / 400px 120px,
+    linear-gradient(to bottom, #5a3014, #3e1f0a);
+}
+/* Panels are cream cards in a rounded wooden frame. */
+:root[data-theme="lava"] .panel,
+:root[data-theme="lava"] .menu-body,
+:root[data-theme="lava"] .key-pop,
+:root[data-theme="lava"] dialog {
+  background: var(--panel);
+  color: var(--ink);
+  border: 3px solid #4e2a10;
+  border-radius: 22px;
+  box-shadow: 0 0 0 5px #b8763a, 0 0 0 8px #4e2a10, 0 6px 16px 8px rgba(40, 14, 2, 0.4);
+}
+:root[data-theme="lava"] .panel {
+  margin: 16px;
+}
+:root[data-theme="lava"] .panel-title,
+:root[data-theme="lava"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 28px;
+  color: #c2410c;
+  text-shadow: 2px 2px 0 #f0a830;
+}
+:root[data-theme="lava"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background:
+    linear-gradient(#f0a830, #f0a830) left bottom / 100% 3px no-repeat,
+    linear-gradient(#e8581c, #e8581c) left calc(100% - 4px) / 100% 3px no-repeat;
+}
+:root[data-theme="lava"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right, #c2410c, #b8266e, #6b2fa0);
+  color: #fff6e0;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="aquarium"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.72)));
+  }
+  :root[data-theme="lava"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.76)));
+  }
+  :root[data-theme="aquarium"] .panel,
+  :root[data-theme="lava"] .panel {
+    margin: 8px;
+  }
+}

@@ -21,6 +21,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] Designs with their own camera or moving light (Polygon Kingdom, Nightclub, Poolside, Snow Globe): places are drawn through the same camera as the land, a marker's size never changes with distance or animation, only light falls on the map (never a shape that reads as a mark, and no colour close to the fresh colour), and nothing flashes (no 10% swing in brightness within a third of a second, `test/scenes.test.ts`).
 - [ ] Nothing drawn links one place to another except the reader's arcs: no route lines between cities (Sleeper Car's only track is in the foreground, below the map).
 - [ ] Chrome built from a place's name (Spreadsheet's formula bar, `src/ui/extras.ts`) uses `Place.name` only, as text, and adds no judgement.
+- [ ] Designs that move on their own (Aquarium's fish, bubbles and water, Lava Lamp's wax; `src/map/ambient.ts`) never move, resize, cover or tint a marker, keep moving pictures in tested open water (`FISH`, `test/aquarium.test.ts`) or outside the map, never flash, and hold still for reduced motion.
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.
