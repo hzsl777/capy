@@ -3,7 +3,7 @@ import type { SceneryKind } from "./map/scenery.ts";
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "aquarium" | "lava";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -74,9 +74,10 @@ export interface Theme {
    * Land and sea drawn a way of their own instead of the fills and textures above (decision 70): "neon" is Night
    * Drive's glowing wireframe over a ruled sea (src/map/neon.ts), "stitch" is Cross Stitch's X stitches on linen
    * (src/map/stitch.ts), "glass" is Rose Window's leaded glass (src/map/glass.ts). The colours above still set the
-   * sea, land, coast, grid and markers.
+   * sea, land, coast, grid and markers. "aquarium" is Aquarium's tank and fishbowl (src/map/aquarium.ts), "lava" is
+   * Lava Lamp's wax and lamp (src/map/lava.ts); both move a little on their own (decision 77).
    */
-  surface?: "neon" | "stitch" | "glass";
+  surface?: "neon" | "stitch" | "glass" | "aquarium" | "lava";
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -948,4 +949,112 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Decision 77: two designs that move a little on their own.
+  // Aquarium: the map is the back wall of a tank with gravel and plants below it and fish in open water; the globe
+  // floats in a round fishbowl with a sloshing waterline, rising bubbles and fish swimming round it.
+  aquarium: {
+    id: "aquarium",
+    label: "Aquarium",
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    surface: "aquarium",
+    globeScale: 0.29,
+    ocean: "#1f8a9e",
+    land: "#d9c48f",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "shell",
+    textureInk: "rgba(120,96,50,0.35)",
+    textureInk2: "rgba(96,140,70,0.3)",
+    coast: "#3f5a36",
+    coastWidth: 1.1,
+    waterlines: 0,
+    waterline: "rgba(190,250,240,0.4)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#1f8a9e",
+    ice: "#eef7f4",
+    relief: "#8a7a52",
+    dot: "#12324a",
+    dotStroke: "#fff8e8",
+    fresh: "#ff7a1a",
+    tuned: "#12324a",
+    arc: "#fff8e8",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Lava Lamp: a 1970s lava lamp. Warm wax drifts slowly through the dark liquid of the sea behind glowing land; on
+  // the globe the world is the lamp's glass on a metal base, with a cap on top.
+  lava: {
+    id: "lava",
+    label: "Lava Lamp",
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    surface: "lava",
+    globeScale: 0.215,
+    ocean: "#1c1240",
+    land: "#ffd98a",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "squircle",
+    textureInk: "rgba(255,240,200,0.5)",
+    coast: "#b4501c",
+    coastWidth: 1.1,
+    waterlines: 0,
+    waterline: "rgba(255,170,70,0.3)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#1c1240",
+    ice: "#fff3d6",
+    relief: "#e8a04a",
+    dot: "#139f93",
+    dotStroke: "#1a0d2e",
+    fresh: "#ffffff",
+    tuned: "#1a0d2e",
+    arc: "#fff3d6",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
 };
+
+/**
+ * The Design menu in labelled groups (decision 77). Ids missing from THEMES are skipped, so designs being added
+ * elsewhere slot in by id, and any design not listed here lands in "Other", so none ever drops out of the menu.
+ */
+export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
+  { label: "Paper and print", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "sheet", "chalk", "sketch", "popup"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "drive", "terminal", "radar", "noir"] },
+  { label: "Games", ids: ["bit8", "bit16", "bit64", "arcade", "pool", "trainset"] },
+  {
+    label: "Places and moods",
+    ids: ["pond", "honeycomb", "nightcap", "campus", "lasso", "candy", "space", "arcana", "realize", "glass", "aquarium", "lava", "club", "club2", "rail", "stadium", "snow"],
+  },
+];
+
+/** The Design menu's groups for the designs that exist, each design exactly once, in the order listed. */
+export function designMenu(ids: readonly string[]): { label: string; ids: ThemeId[] }[] {
+  const have = new Set(ids);
+  const placed = new Set<string>();
+  const groups: { label: string; ids: ThemeId[] }[] = [];
+  for (const g of DESIGN_GROUPS) {
+    const list: ThemeId[] = [];
+    for (const id of g.ids) {
+      if (!have.has(id) || placed.has(id)) continue;
+      placed.add(id);
+      list.push(id as ThemeId);
+    }
+    groups.push({ label: g.label, ids: list });
+  }
+  groups.push({ label: "Other", ids: ids.filter((id) => !placed.has(id)) as ThemeId[] });
+  return groups.filter((g) => g.ids.length > 0);
+}

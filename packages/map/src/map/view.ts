@@ -18,6 +18,9 @@ import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 import { drawNeon, NeonCache } from "./neon.ts";
 import { drawStitch, StitchCache } from "./stitch.ts";
 import { drawGlass, GlassCache } from "./glass.ts";
+import { AquariumCache, drawAquarium } from "./aquarium.ts";
+import { drawLava, LavaCache } from "./lava.ts";
+import { ambientDelay } from "./ambient.ts";
 import type { SurfaceFrame } from "./surface.ts";
 
 export interface Dot {
@@ -199,6 +202,10 @@ export class MapView {
   private neon = new NeonCache();
   private stitch = new StitchCache();
   private glass = new GlassCache();
+  /** Aquarium and Lava Lamp (decision 77), and the timer for the frames their own motion asks for. */
+  private aquarium = new AquariumCache();
+  private lava = new LavaCache();
+  private ambientTimer = 0;
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -981,6 +988,7 @@ export class MapView {
       drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
       this.drawArcs(path, proj);
       this.drawDots(proj);
+      this.ambient();
       return;
     }
 
@@ -1107,6 +1115,18 @@ export class MapView {
     this.drawDots(proj);
   }
 
+  /**
+   * A design with motion of its own (Aquarium, Lava Lamp; src/map/ambient.ts) asks for its next frame a little
+   * later, at a gentle rate, and never for reduced motion; a frame the reader causes by dragging simply comes
+   * first. The browser holds animation frames in a hidden tab, so the motion stops there, and the frame asked for
+   * last starts it again when the tab shows.
+   */
+  private ambient() {
+    clearTimeout(this.ambientTimer);
+    const ms = ambientDelay(this.theme);
+    if (ms) this.ambientTimer = window.setTimeout(() => this.request(), ms);
+  }
+
   private drawSurface(proj: GeoProjection, cam: Cam | null, view: { stream(out: GeoStream): GeoStream }, map: Basemap, t: Theme) {
     const base = this.low ?? this.high ?? map;
     if (!this.rasters || this.rasters.base !== base) {
@@ -1135,6 +1155,8 @@ export class MapView {
     };
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
+    else if (t.surface === "aquarium") drawAquarium(f, this.aquarium);
+    else if (t.surface === "lava") drawLava(f, this.lava);
     else drawGlass(f, this.glass);
   }
 

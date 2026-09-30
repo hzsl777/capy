@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "shell" | "squircle";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -83,6 +83,30 @@ export function markPath(shape: MarkShape, r: number): string {
     case "shield": {
       const w = r * 1.05;
       return `M${f(-w)} ${f(-r)}H${f(w)}V${f(r * 0.1)}C${f(w)} ${f(r * 0.7)} ${f(w * 0.4)} ${f(r * 1.05)} 0 ${f(r * 1.3)}C${f(-w * 0.4)} ${f(r * 1.05)} ${f(-w)} ${f(r * 0.7)} ${f(-w)} ${f(r * 0.1)}Z`;
+    }
+    case "shell": {
+      // A scallop shell (Aquarium, decision 77): a fan with a scalloped rim over two small ears at the hinge.
+      const hy = r * 0.8;
+      const R = r * 1.55;
+      const n = 6;
+      const a0 = (210 * Math.PI) / 180;
+      const span = (120 * Math.PI) / 180;
+      const at = (i: number): [number, number] => [R * Math.cos(a0 + (span * i) / n), hy + R * Math.sin(a0 + (span * i) / n)];
+      const bump = R * Math.sin(span / n / 2) * 1.08;
+      let d = `M${f(-r * 0.46)} ${f(r * 1.02)}L${f(-r * 0.4)} ${f(r * 0.62)}`;
+      const [x0, y0] = at(0);
+      d += `L${f(x0)} ${f(y0)}`;
+      for (let i = 1; i <= n; i++) {
+        const [x, y] = at(i);
+        d += `A${f(bump)} ${f(bump)} 0 0 1 ${f(x)} ${f(y)}`;
+      }
+      return `${d}L${f(r * 0.4)} ${f(r * 0.62)}L${f(r * 0.46)} ${f(r * 1.02)}Z`;
+    }
+    case "squircle": {
+      // A rounded square between a circle and a square, like a 1970s television screen (Lava Lamp, decision 77).
+      const a = r * 0.93;
+      const c = a * 0.9;
+      return `M${f(-a)} 0C${f(-a)} ${f(-c)} ${f(-c)} ${f(-a)} 0 ${f(-a)}C${f(c)} ${f(-a)} ${f(a)} ${f(-c)} ${f(a)} 0C${f(a)} ${f(c)} ${f(c)} ${f(a)} 0 ${f(a)}C${f(-c)} ${f(a)} ${f(-a)} ${f(c)} ${f(-a)} 0Z`;
     }
     default:
       // circle, bevel and button

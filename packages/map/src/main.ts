@@ -58,6 +58,12 @@ import "@fontsource/grenze-gotisch/700.css";
 import "@fontsource/eb-garamond/400.css";
 import "@fontsource/eb-garamond/400-italic.css";
 import "@fontsource/eb-garamond/600.css";
+// Aquarium and Lava Lamp (decision 77).
+import "@fontsource/sniglet/400.css";
+import "@fontsource/sniglet/800.css";
+import "@fontsource/shrikhand/latin-400.css";
+import "@fontsource/shrikhand/latin-ext-400.css";
+import "@fontsource/righteous/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -82,7 +88,7 @@ import {
   type TopicFilter,
 } from "./data.ts";
 import { markPath } from "./map/marks.ts";
-import { THEMES, type ThemeId, type ViewMode } from "./themes.ts";
+import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
 import { needsTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
@@ -213,7 +219,7 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
-const LETTER_THEMES = new Set<ThemeId>(["bit64"]);
+const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava"]);
 
 /** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
 function lettered(el: HTMLElement, text: string) {
@@ -253,6 +259,18 @@ function dropdown<T extends string>(el: HTMLSelectElement, options: [T, string][
   el.onchange = () => onPick(el.value as T);
 }
 
+/**
+ * With forty-odd designs the Design menu is sorted into labelled groups (decision 77, `designMenu` in themes.ts).
+ * The options `dropdown` made move into one optgroup each, so every design is listed exactly once.
+ */
+function groupDesigns(el: HTMLSelectElement) {
+  const byId = new Map([...el.options].map((o) => [o.value, o]));
+  el.replaceChildren(
+    ...designMenu(THEME_IDS).map((g) => h("optgroup", { label: g.label }, ...g.ids.flatMap((id) => byId.get(id) ?? []))),
+  );
+  el.value = state.theme;
+}
+
 function renderToolbar() {
   dropdown(
     $("view-select") as HTMLSelectElement,
@@ -280,6 +298,7 @@ function renderToolbar() {
       applyTheme();
     },
   );
+  groupDesigns($("design-select") as HTMLSelectElement);
 
   const chips = $("topics");
   chips.replaceChildren(
