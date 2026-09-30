@@ -19,6 +19,7 @@ import { drawStitch, StitchCache } from "./stitch.ts";
 import { drawGlass, GlassCache } from "./glass.ts";
 import { AquariumCache, drawAquarium } from "./aquarium.ts";
 import { drawLava, LavaCache } from "./lava.ts";
+import { minimapFrame } from "./minimap.ts";
 import { ambientDelay } from "./ambient.ts";
 import {
   ballGlints,
@@ -1368,6 +1369,13 @@ export class MapView {
       return;
     }
 
+    // Old Realm's round minimap: Map view is drawn inside a circle, and the page's ring goes around it.
+    const porthole = t.minimap && this.mode === "2d" ? minimapFrame(w, h) : null;
+    if (t.minimap && this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
+    if (porthole) {
+      ctx.save();
+      ctx.clip(porthole.clip!);
+    }
     if (t.sky) this.drawSky(t.sky);
     if (this.mode === "3d" && t.atmosphere) {
       const g = ctx.createRadialGradient(w / 2, h / 2, R * 0.98, w / 2, h / 2, R * 1.18);
@@ -1488,7 +1496,8 @@ export class MapView {
     drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
     if (t.scenery) drawScenery({ ...scene, land: map && !t.lowPoly ? this.landPath : null });
     this.drawArcs(path, proj);
-    this.drawDots(proj);
+    this.drawDots(proj, porthole ?? undefined);
+    if (porthole) ctx.restore();
   }
 
   /**

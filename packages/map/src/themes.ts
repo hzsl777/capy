@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -139,6 +139,11 @@ export interface Theme {
    * stage, with lasers sweeping round them.
    */
   scene?: "club" | "pool" | "snow" | "rave";
+  /**
+   * Map view only: the world seen through a round window at the frame's centre, like a game's minimap (Old Realm).
+   * Places outside it are neither drawn nor tuned; the page draws the ring around it (src/map/minimap.ts).
+   */
+  minimap?: boolean;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -1737,6 +1742,85 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Old Realm: an early-2000s fantasy online game's world map, after the look only. A muddy painted land of greens
+  // and browns on blue water, seen in Map view through a round minimap window in carved stone with a compass rose;
+  // small shields for markers. No game's name, icons or artwork.
+  realm: {
+    id: "realm",
+    // A no-break space keeps both words on a phone, where the menu shows a label's first word only.
+    label: "Old\u00a0Realm",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    minimap: true,
+    ocean: "#35647d",
+    land: "#6f7f45",
+    landTexture: "mottle",
+    pixel: 1,
+    dotShape: "shield",
+    textureInk: "rgba(122,92,48,0.55)",
+    textureInk2: "rgba(150,168,84,0.5)",
+    coast: "#3a2c16",
+    coastWidth: 1.3,
+    waterlines: 1,
+    waterline: "rgba(196,222,214,0.2)",
+    oceanHatch: null,
+    oceanPattern: "mottle",
+    shallows: "#4d7f8e",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(120,176,196,0.8)",
+    lake: "#35647d",
+    ice: "#e6e2cf",
+    relief: "rgba(58,40,18,0.62)",
+    dot: "#f4d24c",
+    dotStroke: "#2a1a08",
+    fresh: "#62e3f0",
+    tuned: "#fff4c2",
+    arc: "#f4d24c",
+    glow: false,
+    atmosphere: "rgba(240,210,140,0.35)",
+    shade: "rgba(30,20,8,0.5)",
+    neatline: false,
+    decor: null,
+  },
+  // Tactical: an overhead radar in a competitive team game's HUD, after the look only. Desaturated greys and olive
+  // on a faint grid, a clock since the map was built and a feed of the newest headlines around it (src/ui/extras.ts).
+  // Nothing martial, no game's name or logo, and a pinned place gets a ring, never a square frame.
+  tactical: {
+    id: "tactical",
+    label: "Tactical",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    pinRing: true,
+    ocean: "#262927",
+    land: "#5a5f4c",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "diamond",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#c5c8b8",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(205,210,195,0.08)",
+    oceanHatch: null,
+    oceanPattern: "tiles",
+    graticule: "rgba(205,210,195,0.13)",
+    graticuleDash: [],
+    river: "rgba(160,170,160,0.35)",
+    lake: "#262927",
+    ice: "#7d8078",
+    relief: "rgba(34,36,30,0.55)",
+    dot: "#eeeee6",
+    dotStroke: "#141614",
+    fresh: "#ff9d1e",
+    tuned: "#ffd23f",
+    arc: "#ffd23f",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(0,0,0,0.5)",
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -1746,7 +1830,7 @@ export const THEMES: Record<ThemeId, Theme> = {
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
-  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual", "realm", "tactical"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
 ];
