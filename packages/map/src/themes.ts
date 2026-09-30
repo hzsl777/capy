@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -80,7 +80,7 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's on-board route display, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -1663,6 +1663,80 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Console Menu (id cube): the clean, glossy menus of early-2000s home consoles. White plastic and pale blue light,
+  // the map in one rounded channel tile or a glossy ball over slow wavy lines, land as soft raised plastic
+  // (src/map/gloss.ts). No console maker's names, logos, menus or characters.
+  cube: {
+    id: "cube",
+    label: "Console Menu",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "gloss",
+    globeScale: 0.42,
+    ocean: "#6cc4ec",
+    land: "#e4ece6",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "#a9bfcc",
+    coast: "rgba(90,130,160,0.55)",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.3)",
+    oceanHatch: null,
+    graticule: "rgba(255,255,255,0.45)",
+    graticuleDash: [],
+    river: "rgba(80,170,225,0.7)",
+    lake: "#a6def5",
+    ice: "#fbfdff",
+    relief: "rgba(70,105,135,0.24)",
+    dot: "#1a74c4",
+    dotStroke: "#ffffff",
+    fresh: "#f07a1a",
+    tuned: "#0f4f8c",
+    arc: "rgba(26,116,196,0.85)",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Dual Screen (id dual): a two-screen handheld from the mid-2000s. The word and the stories on one screen, the map
+  // on the touch screen, drawn at a low resolution in crisp pixels. No maker's names, logos, menus or characters.
+  dual: {
+    id: "dual",
+    label: "Dual Screen",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#2f86e0",
+    land: "#98d65a",
+    landTexture: "dither",
+    pixel: 2,
+    dotShape: "square",
+    textureInk: "#6cbc3e",
+    coast: "#173f26",
+    coastWidth: 1,
+    waterlines: 2,
+    waterline: "rgba(255,255,255,0.3)",
+    oceanHatch: null,
+    shallows: "#4ea2ec",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "#4ea2ec",
+    lake: "#4ea2ec",
+    ice: "#f4f8ff",
+    relief: "#5a7a2a",
+    dot: "#ffffff",
+    dotStroke: "#16203a",
+    fresh: "#ff4f3a",
+    tuned: "#ffd23a",
+    arc: "#ffd23a",
+    glow: false,
+    atmosphere: "rgba(160,205,255,0.5)",
+    shade: "rgba(0,20,70,0.4)",
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -1672,7 +1746,7 @@ export const THEMES: Record<ThemeId, Theme> = {
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
-  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
 ];

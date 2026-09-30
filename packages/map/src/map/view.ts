@@ -65,6 +65,7 @@ import { drawPopup, PopupCache } from "./popup.ts";
 import { drawTrainset, TrainsetCache } from "./trainset.ts";
 import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
+import { drawGloss, GlossCache } from "./gloss.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -298,6 +299,7 @@ export class MapView {
   private radar = new RadarCache();
   private noir = new NoirCache();
   private arcade = new ArcadeCache();
+  private gloss = new GlossCache();
   private stadium = new StadiumCache();
   private warp: Warp | null = null;
   private warpFor = "";
@@ -1541,6 +1543,7 @@ export class MapView {
     if (t.surface === "trainset") return drawTrainset(f, this.handmade.trainset);
     if (t.surface === "chalk") return drawChalk(f, this.handmade.chalk);
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
+    if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
