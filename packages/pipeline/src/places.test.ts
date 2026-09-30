@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Gazetteer, km } from "./places.js";
+import { Gazetteer, km, regionSpellings } from "./places.js";
 
 const gaz = Gazetteer.load();
 
@@ -67,5 +67,14 @@ describe("placing a story where it happened (decision 44)", () => {
 
   it("measures distance on the globe", () => {
     expect(km(48.85, 2.35, 51.51, -0.13)).toBeCloseTo(343, -1);
+  });
+
+  it("counts a region Natural Earth spells two ways once, under its right spelling", () => {
+    const spelled = regionSpellings([["DZ", "Béchar"], ["DZ", "BZchar"], ["DZ", "Adrar"], ["AO", "Bié"], ["AO", "BiO"], ["AO", "Bengo"], ["CD", "Équateur"], ["CD", "Cquateur"]]);
+    expect(Object.fromEntries(spelled)).toEqual({ "DZ/BZchar": "Béchar", "AO/BiO": "Bié", "CD/Cquateur": "Équateur" });
+    const g = Gazetteer.loadWithTowns();
+    expect(g.regions()).toContain("DZ/Béchar");
+    expect(g.regions()).not.toContain("DZ/BZchar");
+    expect(g.regions()).not.toContain("TN/MUdenine");
   });
 });
