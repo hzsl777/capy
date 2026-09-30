@@ -8407,3 +8407,654 @@ button.link {
     font-size: 11px;
   }
 }
+
+/* ==========================================================================
+   Console Menu (id cube) and Dual Screen (id dual): two console eras. Console Menu is the clean, glossy home menu
+   of early-2000s consoles (src/map/gloss.ts); Dual Screen is a two-screen handheld, the word and the stories on one
+   screen and the map on the touch screen. No console maker's names, logos, menus or characters.
+   ========================================================================== */
+:root[data-theme="cube"] {
+  color-scheme: light;
+  --page: #eef1f4;
+  --panel: #f9fbfc;
+  --ink: #37414b;
+  --ink-2: #4b5764;
+  --muted: #63707d;
+  --rule: #c5cdd5;
+  --accent: #1476b4;
+  --on-accent: #ffffff;
+  --hover: rgba(52, 187, 232, 0.12);
+  --reticle: #1476b4;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --glow: #34bbe8;
+  --font-mast: "M PLUS Rounded 1c", "Arial Rounded MT Bold", "Nunito", sans-serif;
+  --font-head: "M PLUS Rounded 1c", "Arial Rounded MT Bold", "Nunito", sans-serif;
+  --font-body: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="dual"] {
+  color-scheme: light;
+  --page: #dfe3e8;
+  --panel: #f7f9fc;
+  --ink: #18212c;
+  --ink-2: #2a3544;
+  --muted: #4f5b6b;
+  --rule: #8c9aab;
+  --accent: #2463c9;
+  --on-accent: #ffffff;
+  --hover: rgba(36, 99, 201, 0.1);
+  --reticle: #16203a;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --bezel: #23272f;
+  --font-mast: "Tiny5", "Press Start 2P", "Courier New", monospace;
+  --font-head: "DotGothic16", "Pixelify Sans", "Courier New", monospace;
+  --font-body: "DotGothic16", "Pixelify Sans", "Courier New", monospace;
+  --font-ui: "Tiny5", "Pixelify Sans", "Courier New", monospace;
+}
+
+/* ---- Console Menu: white plastic, pale blue light, glossy bubble buttons, slow wavy lines ------------------ */
+:root[data-theme="cube"] body {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+    linear-gradient(to bottom, #f5f7f9, #e3e8ec);
+}
+:root[data-theme="cube"] .masthead {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, #ffffff, #f2f5f8);
+  box-shadow: 0 1px 0 #d6dde3, 0 4px 12px rgba(40, 80, 120, 0.08);
+  position: relative;
+  z-index: 21;
+}
+:root[data-theme="cube"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #5b6875;
+}
+:root[data-theme="cube"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .telegram-word,
+:root[data-theme="cube"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #1a82c2;
+  text-shadow: 0 1px 0 #ffffff, 0 2px 6px rgba(52, 187, 232, 0.3);
+  border-bottom: 0;
+}
+:root[data-theme="cube"] .telegram-word {
+  border-radius: 14px;
+  padding: 2px 10px 4px;
+}
+:root[data-theme="cube"] .telegram-word:hover,
+:root[data-theme="cube"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  background: rgba(52, 187, 232, 0.08);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.35);
+}
+:root[data-theme="cube"] .telegram-kicker,
+:root[data-theme="cube"] .telegram-date {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .telegram-note,
+:root[data-theme="cube"] .meta,
+:root[data-theme="cube"] .count,
+:root[data-theme="cube"] .dateline .coords {
+  font-style: normal;
+}
+:root[data-theme="cube"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px;
+}
+/* Bubble buttons: white plastic with a glossy top half, a light-blue glow when pointed at, blue when on. */
+:root[data-theme="cube"] .tool,
+:root[data-theme="cube"] .pick select,
+:root[data-theme="cube"] .menu > summary,
+:root[data-theme="cube"] .chip,
+:root[data-theme="cube"] .zoom button,
+:root[data-theme="cube"] .key-btn,
+:root[data-theme="cube"] .key-close {
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e7ecf0 52%, #f1f4f7 100%);
+  border: 1.5px solid #c3ccd4;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 4px rgba(40, 80, 120, 0.14);
+  color: var(--ink);
+  font-weight: 500;
+}
+:root[data-theme="cube"] .tool,
+:root[data-theme="cube"] .menu > summary,
+:root[data-theme="cube"] .key-btn {
+  padding-inline: 14px;
+}
+:root[data-theme="cube"] .pick select {
+  padding-left: 14px;
+}
+:root[data-theme="cube"] .tool.quiet {
+  border-color: #c3ccd4;
+}
+:root[data-theme="cube"] .tool:hover,
+:root[data-theme="cube"] .pick select:hover,
+:root[data-theme="cube"] .menu > summary:hover,
+:root[data-theme="cube"] .chip:hover,
+:root[data-theme="cube"] .zoom button:hover,
+:root[data-theme="cube"] .key-btn:hover,
+:root[data-theme="cube"] .key-close:hover {
+  border-color: var(--glow);
+  box-shadow: inset 0 1px 0 #ffffff, 0 0 0 3px rgba(52, 187, 232, 0.28), 0 2px 4px rgba(40, 80, 120, 0.14);
+}
+:root[data-theme="cube"] .tool[aria-pressed="true"],
+:root[data-theme="cube"] .menu[open] > summary,
+:root[data-theme="cube"] .key-btn[aria-expanded="true"],
+:root[data-theme="cube"] .chip[aria-pressed="true"] {
+  background: linear-gradient(to bottom, #6fd3f6 0%, #3db4e6 48%, #1f98d2 52%, #37aee3 100%);
+  border-color: #1682bb;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 60, 110, 0.45);
+}
+:root[data-theme="cube"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="cube"] .zoom button {
+  width: 38px;
+  height: 38px;
+  color: #1476b4;
+  font-weight: 800;
+}
+:root[data-theme="cube"] .zoom button + button {
+  border-top: 1.5px solid #c3ccd4;
+}
+:root[data-theme="cube"] .zoom,
+:root[data-theme="cube"] .key-btn {
+  margin: 10px;
+}
+/* Outside the channel tile or the ball: two layers of thin wavy lines drifting slowly sideways. */
+:root[data-theme="cube"] .map {
+  isolation: isolate;
+  background: linear-gradient(to bottom, #fbfcfd, #e8edf1);
+}
+:root[data-theme="cube"] .map::before,
+:root[data-theme="cube"] .map::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(100% + 1200px);
+  z-index: -1;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'%3E%3Cg fill='none' stroke='%23b9c7d3' stroke-width='1.6'%3E%3Cpath d='M0 150Q150 110 300 150T600 150T900 150T1200 150'/%3E%3Cpath d='M0 170Q150 136 300 170T600 170T900 170T1200 170' opacity='.7'/%3E%3Cpath d='M0 250Q150 290 300 250T600 250T900 250T1200 250' opacity='.8'/%3E%3C/g%3E%3C/svg%3E") 0 60% / 1200px 400px repeat-x;
+  animation: cube-drift 90s linear infinite;
+}
+:root[data-theme="cube"] .map::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cg fill='none' stroke='%239fd9f1' stroke-width='1.4'%3E%3Cpath d='M0 200Q150 250 300 200T600 200'/%3E%3Cpath d='M0 222Q150 262 300 222T600 222' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") 0 70% / 600px 400px repeat-x;
+  animation-duration: 55s;
+}
+@keyframes cube-drift {
+  to {
+    transform: translateX(-1200px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="cube"] .map::before,
+  :root[data-theme="cube"] .map::after {
+    animation: none;
+  }
+}
+/* The panel is a channel tile of its own: a white card with a rim, the stories in rounded slots. */
+:root[data-theme="cube"] .panel {
+  margin: 12px 14px 12px 4px;
+  border: 1.5px solid #cdd5dc;
+  border-radius: 22px;
+  background: linear-gradient(to bottom, #ffffff, #f3f6f8);
+  box-shadow: inset 0 0 0 4px #ffffff, 0 4px 14px rgba(40, 80, 120, 0.12);
+}
+:root[data-theme="cube"] .panel.framed {
+  overflow: hidden;
+}
+:root[data-theme="cube"] .menu-body,
+:root[data-theme="cube"] .key-pop {
+  border: 1.5px solid #cdd5dc;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(40, 80, 120, 0.18);
+}
+:root[data-theme="cube"] .place-name,
+:root[data-theme="cube"] .panel-title {
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #3f4a55;
+}
+:root[data-theme="cube"] .dateline {
+  border-bottom: 2px solid #d7dee4;
+}
+:root[data-theme="cube"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #f4f7f9, #e4eaef);
+  color: var(--muted);
+}
+:root[data-theme="cube"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="cube"] .story {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border: 1.5px solid #d3dae1;
+  border-radius: 16px;
+  background: linear-gradient(to bottom, #ffffff, #f4f7f9);
+  box-shadow: 0 2px 5px rgba(40, 80, 120, 0.08);
+}
+:root[data-theme="cube"] .story:hover,
+:root[data-theme="cube"] .story:focus-visible {
+  outline: none;
+  background: linear-gradient(to bottom, #ffffff, #eef8fd);
+  border-color: var(--glow);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.3), 0 2px 6px rgba(40, 80, 120, 0.1);
+}
+:root[data-theme="cube"] .headline {
+  font-weight: 800;
+}
+:root[data-theme="cube"] .scale {
+  border-radius: 999px;
+  overflow: hidden;
+}
+/* The bottom bar: grey plastic with a rounded top, bubble buttons at its ends. */
+:root[data-theme="cube"] .timebar {
+  border-top: 0;
+  margin: 0 10px;
+  padding: 9px 18px;
+  border-radius: 26px 26px 0 0;
+  background: linear-gradient(to bottom, #ffffff, #e2e8ed);
+  box-shadow: inset 0 1.5px 0 #ffffff, 0 -1px 0 #cdd5dc, 0 -4px 12px rgba(40, 80, 120, 0.08);
+}
+:root[data-theme="cube"] .slider input {
+  accent-color: var(--glow);
+}
+:root[data-theme="cube"] .time-label {
+  color: var(--muted);
+  font-weight: 800;
+}
+@media (max-width: 760px) {
+  :root[data-theme="cube"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 20px) / (var(--len, 8) * 0.84)));
+  }
+  :root[data-theme="cube"] .panel {
+    margin: 6px 8px 8px;
+  }
+  :root[data-theme="cube"] .tool,
+  :root[data-theme="cube"] .menu > summary {
+    padding-inline: 10px;
+  }
+  :root[data-theme="cube"] .pick select {
+    padding-left: 10px;
+  }
+  :root[data-theme="cube"] .zoom,
+  :root[data-theme="cube"] .key-btn {
+    margin: 4px;
+  }
+  :root[data-theme="cube"] .timebar {
+    margin: 0;
+  }
+}
+
+/* ---- Dual Screen: a two-screen handheld, the word and stories above, the map on the touch screen ----------- */
+/* The page is the handheld's shell. The stage steps aside so the map, the panel and the masthead are laid out as
+   two screens: side by side on a wide screen, one above the other on a phone, with the toolbar as the hinge. */
+:root[data-theme="dual"] body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--panel-w);
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "tool tool"
+    "banner banner"
+    "map mast"
+    "map panel"
+    "time time";
+  column-gap: 30px;
+  padding: 0 18px;
+  -webkit-font-smoothing: none;
+  background:
+    linear-gradient(to right, transparent calc(100% - 18px - var(--panel-w) - 30px), #aab2bc calc(100% - 18px - var(--panel-w) - 30px), #eef1f4 calc(100% - 18px - var(--panel-w) - 18px), #9aa3ae calc(100% - 18px - var(--panel-w)), transparent calc(100% - 18px - var(--panel-w))) 0 64px / 100% calc(100% - 128px) no-repeat,
+    linear-gradient(to bottom, #f1f3f6, #d5dae0);
+}
+:root[data-theme="dual"] body:has(.panel.framed) {
+  grid-template-columns: minmax(0, 1fr) min(62vw, 920px);
+  background: linear-gradient(to bottom, #f1f3f6, #d5dae0);
+}
+:root[data-theme="dual"] .stage {
+  display: contents;
+}
+:root[data-theme="dual"] .toolbar {
+  grid-area: tool;
+  border-bottom: 0;
+  padding: 10px 4px;
+}
+:root[data-theme="dual"] .banner {
+  grid-area: banner;
+  margin: 0 0 8px;
+  border: 0;
+  border-radius: 4px;
+}
+:root[data-theme="dual"] .map {
+  grid-area: map;
+  margin: 12px 12px 14px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 12px var(--bezel), 0 0 0 13px #4a505b, 0 3px 0 13px #b9c0c9;
+}
+/* The touch screen's panel: a faint grid of LCD cells over the pixels. */
+:root[data-theme="dual"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 2px);
+}
+/* The other screen: the masthead above the panel inside one black bezel. */
+:root[data-theme="dual"] .masthead {
+  grid-area: mast;
+  margin-top: 0;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px 12px 8px;
+  border: 12px solid var(--bezel);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background:
+    linear-gradient(to bottom, #d9e6f7 0, #f7f9fc 42px),
+    var(--panel);
+}
+:root[data-theme="dual"] .brand {
+  align-items: center;
+}
+:root[data-theme="dual"] .telegram {
+  grid-column: 1;
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+  justify-items: center;
+  width: 100%;
+  row-gap: 4px;
+}
+:root[data-theme="dual"] .telegram-date {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: stretch;
+  text-align: center;
+  padding: 4px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="dual"] .telegram-center {
+  grid-column: 1;
+  grid-row: auto;
+  margin-top: 2px;
+}
+:root[data-theme="dual"] .telegram-side,
+:root[data-theme="dual"] .telegram > .telegram-kicker:only-child {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: center;
+  align-items: center;
+  text-align: center;
+}
+:root[data-theme="dual"] .panel {
+  grid-area: panel;
+  border: 12px solid var(--bezel);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 14px;
+  background:
+    linear-gradient(rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(to right, rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
+    var(--panel);
+}
+:root[data-theme="dual"] .panel.framed {
+  border-top: 12px solid var(--bezel);
+  border-radius: 8px;
+}
+:root[data-theme="dual"] body:has(.panel.framed) .masthead {
+  display: none;
+}
+:root[data-theme="dual"] body:has(.panel.framed) .panel {
+  grid-row: 3 / 5;
+}
+:root[data-theme="dual"] .timebar {
+  grid-area: time;
+  border-top: 0;
+  padding: 6px 4px 10px;
+}
+:root[data-theme="dual"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+:root[data-theme="dual"] .mast-tag {
+  font-style: normal;
+  font-size: 12px;
+}
+:root[data-theme="dual"] .telegram-word,
+:root[data-theme="dual"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-shadow: 2px 2px 0 #a9c6f2;
+  border-bottom: 0;
+}
+:root[data-theme="dual"] .telegram-word {
+  font-size: min(58px, calc((var(--panel-w) - 50px) / (var(--len, 8) * 0.78)));
+  padding: 2px 8px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+:root[data-theme="dual"] .telegram-word:hover,
+:root[data-theme="dual"] .telegram-word:focus-visible {
+  text-decoration: none;
+  border-color: var(--accent);
+  background: rgba(36, 99, 201, 0.08);
+}
+:root[data-theme="dual"] .telegram-kicker,
+:root[data-theme="dual"] .telegram-date {
+  font-family: var(--font-ui);
+  color: var(--accent);
+}
+:root[data-theme="dual"] .telegram-note,
+:root[data-theme="dual"] .meta,
+:root[data-theme="dual"] .count,
+:root[data-theme="dual"] .dateline .coords {
+  font-style: normal;
+}
+:root[data-theme="dual"] .place-name,
+:root[data-theme="dual"] .panel-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="dual"] .headline {
+  font-weight: 400;
+  font-size: 16px;
+}
+:root[data-theme="dual"] .dateline {
+  border-bottom: 2px solid var(--accent);
+}
+:root[data-theme="dual"] .rule-head {
+  border: 0;
+  border-radius: 4px;
+  color: #ffffff;
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+}
+/* Stylus-sized buttons: pale plastic with a blue edge when touched, filled blue when on. */
+:root[data-theme="dual"] .tool,
+:root[data-theme="dual"] .pick select,
+:root[data-theme="dual"] .menu > summary,
+:root[data-theme="dual"] .chip,
+:root[data-theme="dual"] .zoom button,
+:root[data-theme="dual"] .key-btn,
+:root[data-theme="dual"] .key-close {
+  min-height: 34px;
+  background: linear-gradient(to bottom, #ffffff, #e3e9f1);
+  border: 1px solid #7d8a9c;
+  border-radius: 6px;
+  box-shadow: inset 0 -2px 0 #c3cdd9, 0 1px 0 rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="dual"] .tool:hover,
+:root[data-theme="dual"] .pick select:hover,
+:root[data-theme="dual"] .menu > summary:hover,
+:root[data-theme="dual"] .chip:hover,
+:root[data-theme="dual"] .zoom button:hover,
+:root[data-theme="dual"] .key-btn:hover,
+:root[data-theme="dual"] .key-close:hover {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), inset 0 -2px 0 #c3cdd9;
+}
+:root[data-theme="dual"] .tool[aria-pressed="true"],
+:root[data-theme="dual"] .menu[open] > summary,
+:root[data-theme="dual"] .key-btn[aria-expanded="true"],
+:root[data-theme="dual"] .chip[aria-pressed="true"] {
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+  border-color: #173f86;
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+:root[data-theme="dual"] .tool.quiet {
+  border-color: #7d8a9c;
+}
+:root[data-theme="dual"] .zoom {
+  border: 0;
+  background: none;
+  gap: 4px;
+  right: 10px;
+  bottom: 10px;
+}
+:root[data-theme="dual"] .zoom button {
+  width: 36px;
+  height: 36px;
+}
+:root[data-theme="dual"] .key-btn {
+  left: 10px;
+  top: 10px;
+}
+:root[data-theme="dual"] .menu-body,
+:root[data-theme="dual"] .key-pop {
+  border: 3px solid var(--bezel);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+}
+:root[data-theme="dual"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="dual"] .story {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border: 1px solid #9fb0c4;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #ffffff, #edf2f8);
+  box-shadow: inset 0 -2px 0 #d3dce7;
+}
+:root[data-theme="dual"] .story:hover,
+:root[data-theme="dual"] .story:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  background: linear-gradient(to bottom, #f4f8ff, #dde9fb);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+:root[data-theme="dual"] .scale {
+  border-radius: 4px;
+  overflow: hidden;
+}
+@media (max-width: 760px) {
+  /* A phone holds the handheld upright: the screen with the word and the stories on top, the hinge with the
+     toolbar, then the touch screen with the map. */
+  :root[data-theme="dual"] body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 0.85fr) auto minmax(0, 1.15fr) auto;
+    grid-template-areas:
+      "banner"
+      "mast"
+      "panel"
+      "tool"
+      "map"
+      "time";
+    column-gap: 0;
+    padding: 6px 8px 0;
+    background: linear-gradient(to bottom, #f1f3f6, #d5dae0);
+  }
+  :root[data-theme="dual"] body:has(.panel.reading) {
+    grid-template-rows: auto auto minmax(0, 1.4fr) auto minmax(0, 0.6fr) auto;
+  }
+  :root[data-theme="dual"] body:has(.panel.framed) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto 0 auto;
+  }
+  :root[data-theme="dual"] body:has(.panel.framed) .panel {
+    grid-row: 3;
+  }
+  :root[data-theme="dual"] body:has(.panel.framed) .map {
+    visibility: hidden;
+    margin: 0;
+  }
+  :root[data-theme="dual"] .masthead {
+    border-width: 8px;
+    border-bottom: 0;
+    padding: 8px 8px 4px;
+  }
+  :root[data-theme="dual"] .panel {
+    border: 8px solid var(--bezel);
+    border-top: 0;
+    margin: 0;
+    padding-top: 8px;
+  }
+  :root[data-theme="dual"] .panel.framed {
+    border-top: 8px solid var(--bezel);
+  }
+  /* The hinge between the two screens. */
+  :root[data-theme="dual"] .toolbar {
+    margin: 6px -8px 0;
+    padding: 7px 8px;
+    background: linear-gradient(to bottom, #aab2bc, #eef1f4 45%, #c3cad2 60%, #9aa3ae);
+  }
+  :root[data-theme="dual"] .map {
+    margin: 14px 8px 10px;
+    box-shadow: 0 0 0 8px var(--bezel), 0 0 0 9px #4a505b;
+  }
+  :root[data-theme="dual"] .timebar {
+    padding: 4px 0 8px;
+  }
+  :root[data-theme="dual"] .telegram-word {
+    font-size: min(52px, calc((100vw - 60px) / (var(--len, 8) * 0.72)));
+  }
+  :root[data-theme="dual"] .mast-title {
+    font-size: 20px;
+  }
+  :root[data-theme="dual"] .tool,
+  :root[data-theme="dual"] .pick select,
+  :root[data-theme="dual"] .menu > summary {
+    min-height: 32px;
+  }
+  :root[data-theme="dual"] #about-btn {
+    top: 4px;
+    right: 4px;
+    min-height: 28px;
+  }
+}
+/* A stylus for a pointer over the touch screen: its tip is the point that is touched. */
+:root[data-theme="dual"] .map canvas {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M1 1h3l18 18v4h-4L1 4z' fill='%2316203a'/%3E%3Cpath d='M4 4l16 16v1h-1L3 5z' fill='%23c9d3df'/%3E%3C/svg%3E") 1 1, grab;
+}

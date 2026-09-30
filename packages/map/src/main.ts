@@ -113,6 +113,13 @@ import "@fontsource/kalam/latin-400.css";
 import "@fontsource/kalam/latin-ext-400.css";
 import "@fontsource/kalam/latin-700.css";
 import "@fontsource/kalam/latin-ext-700.css";
+// Console Menu and Dual Screen.
+import "@fontsource/m-plus-rounded-1c/latin-500.css";
+import "@fontsource/m-plus-rounded-1c/latin-800.css";
+import "@fontsource/m-plus-rounded-1c/latin-ext-500.css";
+import "@fontsource/m-plus-rounded-1c/latin-ext-800.css";
+import "@fontsource/tiny5/latin-400.css";
+import "@fontsource/tiny5/latin-ext-400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
