@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { toRunDate } from "@2dayai/core";
 import { articles, citations, editions, eventExplanations, events, feedback, llmCalls, loadEditionView, recordFeedback, runs, type Db } from "@2dayai/db";
-import { runDay } from "./day.js";
+import { mapCovers, runDay } from "./day.js";
 import { FEED_XML, PROFILE_YAML } from "./fixtures/day.js";
 import { FakeLlm } from "./llm/fake.js";
 import { isDue, runDeliver } from "./stages/deliver.js";
@@ -200,5 +200,16 @@ describe("selectionProblems", () => {
     expect(problems).toContain("event 2 selected twice");
     expect(problems).toContain("event 2 is both selected and rejected");
     expect(problems).toContain("headline: question form");
+  });
+});
+
+describe("day --if-missing after a deploy (decision 81)", () => {
+  it("skips a finished day that the newest map already covers, and builds a missing one", () => {
+    // Deployed at noon on October 1: the last finished day is September 30.
+    expect(mapCovers("2026-09-30", toRunDate("2026-09-30"))).toBe(true);
+    // A deploy the day after a run built today's date under the old window: still covered, no second run.
+    expect(mapCovers("2026-10-01", toRunDate("2026-09-30"))).toBe(true);
+    expect(mapCovers("2026-09-29", toRunDate("2026-09-30"))).toBe(false);
+    expect(mapCovers(null, toRunDate("2026-09-30"))).toBe(false);
   });
 });

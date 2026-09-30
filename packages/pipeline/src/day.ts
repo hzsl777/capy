@@ -16,6 +16,15 @@ import { runPrune } from "./stages/prune.js";
 import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
 
+/**
+ * Whether the newest map already covers a run date: that day's or a later one. What `day --if-missing` checks after a
+ * deploy. The date it is given is the last finished day (decision 81), which is the day before the newest map while
+ * the refresh keeps that map's local stories current, so an exact match alone would rebuild a finished day.
+ */
+export function mapCovers(latest: string | null, date: RunDate): boolean {
+  return latest !== null && latest >= date;
+}
+
 export type DayDeps = { fetchFeed?: FeedFetcher; fetchPage?: PageFetcher; fetchGdelt?: GdeltFetcher; sourcesPath?: string; readersDir?: string; force?: boolean };
 
 /** `out` fills as stages finish, so a caller still has the finished ones when a later stage throws. */
