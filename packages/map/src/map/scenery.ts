@@ -4,13 +4,14 @@ import { STARS } from "./decor.ts";
 
 /**
  * Scenery that tells four designs apart at a glance (decision 69): lily pads, frogs and dragonflies on the Frog
- * Pond, a moon with a sleeping bear on Bedtime Tea, the crag, lone column and temple of Thomas Cole's The Course
- * of Empire on Arcadia, and trick-rope loops, a rope frame and a denim sea on Lasso. Every piece sits at a fixed
+ * Pond, a moon with a sleeping bear on Bedtime Tea, the colossus, bridge, colonnade and crag of Thomas Cole's The
+ * Course of Empire: Destruction on Course of Empire (id arcadia), and trick-rope loops, a rope frame and a denim sea
+ * on Lasso, and Tarot's gold wheel, sun and moon round the globe. Every piece sits at a fixed
  * spot in open ocean far from land and from every outlet's city (test/scenery.test.ts), or outside the map
  * itself, and none carries text. They are drawn from small SVG pictures, made once and cached.
  */
 
-export type SceneryKind = "pond" | "tea" | "empire" | "rope" | "reef";
+export type SceneryKind = "pond" | "tea" | "empire" | "rope" | "reef" | "arcana";
 
 export interface Spot {
   kind: string;
@@ -39,19 +40,24 @@ export const POND: readonly Spot[] = [
   { kind: "pads", lon: 6, lat: -58, r: 9 },
 ];
 
-/** The Course of Empire's landmarks and evening clouds, standing in open water like its bay. */
+/**
+ * The Course of Empire: Destruction's landmarks standing in open water like its harbour: the headless colossus, the
+ * broken bridge, the burning colonnade, the lone crag with its boulder, burning galleys and drifting smoke.
+ */
 export const EMPIRE: readonly Spot[] = [
-  { kind: "crag", lon: -130, lat: -30, r: 14 },
-  { kind: "column", lon: 70, lat: -10, r: 10 },
-  { kind: "temple", lon: -34, lat: 26, r: 9 },
-  { kind: "arch", lon: 162, lat: 42, r: 8 },
-  { kind: "temple", lon: -14, lat: -54, r: 14, flip: true },
-  { kind: "column", lon: 138, lat: -54, r: 9 },
+  { kind: "colossus", lon: 70, lat: -10, r: 10 },
+  { kind: "colossus", lon: -130, lat: -30, r: 14, flip: true },
+  { kind: "bridge", lon: -38, lat: 26, r: 11 },
+  { kind: "colonnade", lon: -14, lat: -54, r: 14, flip: true },
+  { kind: "colonnade", lon: 162, lat: 42, r: 8 },
+  { kind: "crag", lon: 138, lat: -54, r: 9 },
   { kind: "crag", lon: -130, lat: 26, r: 9, flip: true },
-  { kind: "column", lon: -178, lat: -1, r: 8 },
-  { kind: "cloud", lon: -142, lat: 10, r: 14 },
-  { kind: "cloud", lon: -94, lat: -6, r: 9 },
-  { kind: "cloud", lon: 90, lat: -10, r: 9 },
+  { kind: "galley", lon: -178, lat: -1, r: 8 },
+  { kind: "galley", lon: 90, lat: -10, r: 9, flip: true },
+  { kind: "galley", lon: 46, lat: -34, r: 7 },
+  { kind: "galley", lon: -94, lat: -6, r: 9 },
+  { kind: "smoke", lon: -142, lat: 10, r: 14 },
+  { kind: "smoke", lon: -22, lat: -30, r: 14, flip: true },
 ];
 
 /** On the flat map the moon with the sleeping bear hangs in the night over the open Pacific, Atlantic and Indian Ocean. */
@@ -330,6 +336,15 @@ const TIKI_HOUSE = `${MOUND}
   </g>
   <path d="M-20 30q5-4 10 0M8 36q4-3 8 0" stroke="#5f9c5a" stroke-width="3" fill="none" stroke-linecap="round"/>
   ${BUBBLES(-16, -60)}`;
+/**
+ * Course of Empire's engraving: diagonal hatching and cross-hatching in black for the shadow sides, and broken
+ * horizontal strokes for the water under each piece. Greys only.
+ */
+const ENGRAVE = `<defs>
+  <pattern id="h" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><path d="M0 0V3" stroke="#161616" stroke-width=".85"/></pattern>
+  <pattern id="x" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><path d="M0 0V3M0 0H3" stroke="#161616" stroke-width=".75"/></pattern>
+</defs>`;
+const WAKE = `<path d="M-56 55H56M-40 60H40M-24 65H24" stroke="#ececec" stroke-width="1.1" stroke-dasharray="7 3" opacity=".6"/>`;
 
 const svg = (vb: string, body: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="400" height="${Math.round((400 * Number(vb.split(" ")[3])) / Number(vb.split(" ")[2]))}">${body}</svg>`;
@@ -371,60 +386,118 @@ export const PICTURES: Record<string, string> = {
     <path d="M34-58l0 10m-5-5l10 0M86-46l0 8m-4-4l8 0M-92-54l0 8m-4-4l8 0M60-78l0 6m-3-3l6 0" stroke="#fff6c8" stroke-width="2.2" stroke-linecap="round"/>`,
   ),
 
-  // Arcadia: pictures 160 by 160, standing on a waterline at y = 50, lit from the right like Cole's evening light.
+  // Course of Empire: pictures 160 by 160 after Cole's Destruction, standing on a waterline at y = 50, engraved in
+  // greys and lit from the right. Fire is left white, as an engraver leaves it.
+  colossus: svg(
+    "-80 -80 160 160",
+    `${ENGRAVE}
+    <path d="M-46 50l4-7h8l3 7ZM33 50l3-6 7 1 2 5Z" fill="#9a9a9a" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-30 50H30V45H26V21H30V15H-30V21H-26V45H-30Z" fill="#cdcdcd" stroke="#161616" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M-26 21H-8V45H-26ZM-30 45H-8V50H-30ZM-30 15H-8V21H-30Z" fill="url(#h)"/>
+    <path d="M-26 29H26M-26 37H26M-6 21V29M10 29V37M-14 37V45M16 37V45" stroke="#161616" stroke-width=".7" opacity=".7"/>
+    <g stroke="#161616" stroke-width="1.2" stroke-linejoin="round">
+      <path d="M3-17L10 0L14 15H21L17-1L11-19Z" fill="#bdbdbd"/>
+      <path d="M-4-19L-15 5L-18 15H-9L-7 6L1-12Z" fill="#dcdcdc"/>
+      <path d="M-10-27H11L15-12H-13Z" fill="#cfcfcf"/>
+      <path d="M-12-52C-13-44-11-34-10-27H11C12-34 14-44 13-52C7-55-6-55-12-52Z" fill="#e0e0e0"/>
+      <path d="M12-51C18-49 21-41 23-33L20-30L21-34L18-31C16-38 14-43 11-45Z" fill="#d6d6d6"/>
+      <path d="M-4-54L-3-59L-1-56.5L1-60L2.5-56.5L4-54Z" fill="#bdbdbd"/>
+    </g>
+    <path d="M3-17L10 0L14 15H21L17-1L11-19Z" fill="url(#h)"/>
+    <path d="M-15 5L-18 15H-9L-7 6Z" fill="url(#h)"/>
+    <path d="M-8-25V-12M-3-26V-12M2-26V-12M7-25V-12" stroke="#161616" stroke-width=".6"/>
+    <path d="M-12-52C-13-44-11-34-10-27H-2V-54C-6-54-10-53-12-52Z" fill="url(#h)"/>
+    <path d="M1-50V-31M-7-41C-3-39 4-39 8-41" stroke="#161616" stroke-width=".6" fill="none"/>
+    <ellipse cx="-17" cy="-36" rx="10" ry="15" fill="#d2d2d2" stroke="#161616" stroke-width="1.3"/>
+    <path d="M-17-51A10 15 0 0 0-17-21A5 15 0 0 1-17-51Z" fill="url(#x)"/>
+    <ellipse cx="-17" cy="-36" rx="6.5" ry="10.5" fill="none" stroke="#161616" stroke-width=".7"/>
+    ${WAKE}`,
+  ),
   crag: svg(
     "-80 -80 160 160",
-    `<defs><linearGradient id="r" x1="0" x2="1"><stop offset="0" stop-color="#231f18"/><stop offset=".62" stop-color="#4e4230"/><stop offset="1" stop-color="#d4a55a"/></linearGradient></defs>
-    <ellipse cx="4" cy="52" rx="52" ry="7" fill="rgba(255,226,160,.3)"/>
-    <path d="M-38 52L-30 20L-24-6L-16-30L-8-44L4-48L12-36L16-12L22 14L30 36L42 52Z" fill="url(#r)" stroke="#1a160f" stroke-width="1.5" stroke-linejoin="round"/>
-    <path d="M-20-8l10 4M-4-28l12 6M8 6l12 4M-28 28l14 2" stroke="#1a160f" stroke-width="1.4" opacity=".6"/>
-    <ellipse cx="4" cy="-58" rx="12" ry="10" fill="url(#r)" stroke="#1a160f" stroke-width="1.5"/>
-    <path d="M-30 22c6-6 12-4 16 0M16 10c6-4 10-2 12 2M-14-22c4-4 8-4 10 0" stroke="#4d5c2a" stroke-width="5" stroke-linecap="round" fill="none"/>
-    <path d="M-38 54h80" stroke="#f0cf8a" stroke-width="1.5" opacity=".7"/>
-    <path d="M-30 58h56M-20 62h36" stroke="#e8c47a" stroke-width="1" opacity=".5"/>`,
+    `${ENGRAVE}
+    <path d="M-62-6C-56-16-42-16-36-10C-28-18-14-14-14-6C-4-10 6-2 0 4H-58C-66 2-68-2-62-6Z" fill="#2e2e2e" opacity=".5"/>
+    <path d="M-40 52L-32 24L-25-2L-17-26L-9-40L1-44L9-34L14-10L21 14L30 34L42 52Z" fill="#a4a4a4" stroke="#161616" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M-40 52L-32 24L-25-2L-17-26L-9-40L1-44L-1-12L-5 18L-8 52Z" fill="url(#x)"/>
+    <path d="M1-44L9-34L14-10L21 14L30 34L42 52H24L14 22L6-10Z" fill="#d8d8d8" opacity=".75"/>
+    <path d="M-16-8l8 3M-4-26l7 5M6 6l10 3M-26 30l12 2M16 30l8 6" stroke="#161616" stroke-width="1"/>
+    <path d="M-9-44C-11-52-5-60 2-59C9-58 12-51 9-45C5-42-4-41-9-44Z" fill="#c4c4c4" stroke="#161616" stroke-width="1.3"/>
+    <path d="M-9-44C-11-52-5-60 2-59C-1-54-2-48 0-42C-4-42-7-43-9-44Z" fill="url(#h)"/>
+    <path d="M14-30C22-40 38-38 42-28C52-32 60-24 56-14H18C10-16 8-24 14-30Z" fill="#2a2a2a" opacity=".6"/>
+    <path d="M22-34C28-36 34-34 38-30" stroke="#9a9a9a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    ${WAKE}`,
   ),
-  column: svg(
+  colonnade: svg(
     "-80 -80 160 160",
-    `<defs><linearGradient id="c" x1="0" x2="1"><stop offset="0" stop-color="#7a6a52"/><stop offset=".5" stop-color="#d9ccae"/><stop offset=".85" stop-color="#f6e7c4"/><stop offset="1" stop-color="#b8a27c"/></linearGradient></defs>
-    <ellipse cx="0" cy="52" rx="30" ry="5" fill="rgba(255,226,160,.3)"/>
-    <path d="M-12 50L-11-40L11-40L12 50Z" fill="url(#c)" stroke="#3a3122" stroke-width="1.5"/>
-    <path d="M-6-38V48M0-38V48M6-38V48" stroke="#6e5f46" stroke-width="1" opacity=".55"/>
-    <path d="M-18-40h36l-4-8h-28Z" fill="url(#c)" stroke="#3a3122" stroke-width="1.5"/>
-    <path d="M-20-48c0-8 6-8 8-4c2-8 8-8 12-8s10 0 12 8c2-4 8-4 8 4Z" fill="url(#c)" stroke="#3a3122" stroke-width="1.5"/>
-    <path d="M-16-52l6 4 4-8M16-52l-6 4-4-8" stroke="#6e5f46" stroke-width="1.2" fill="none"/>
-    <path d="M-14 50h28" stroke="#3a3122" stroke-width="2"/>
-    <path d="M-10 40c10-6-8-14 4-22s-6-16 6-24s-4-14 8-20" stroke="#44552a" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M-8 30l-5-3M4 18l6-2M-4 6l-6-2M8-8l6 0M-2-20l-5-4" stroke="#5f7438" stroke-width="3.5" stroke-linecap="round"/>
-    <path d="M-24 56h48M-14 60h28" stroke="#e8c47a" stroke-width="1" opacity=".5"/>`,
+    `${ENGRAVE}<g transform="translate(0 4) scale(.92)">
+    <path d="M-50-44C-58-56-44-70-32-64C-28-76-8-78-2-68C6-76 24-72 24-60C34-62 42-52 36-44C28-38 14-42 8-40C0-34-14-38-20-42C-30-36-44-36-50-44Z" fill="#262626" opacity=".85"/>
+    <path d="M-32-64C-26-66-20-64-16-60M-2-68C4-70 10-68 14-64M24-60C28-60 32-58 34-54" stroke="#8c8c8c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M-44-14C-48-28-38-34-40-46C-32-38-26-42-28-54C-18-42-14-34-18-24C-12-30-8-34-10-44C0-32 2-22-4-14Z" fill="#f4f4f4" stroke="#8a8a8a" stroke-width=".8"/>
+    <path d="M14 36C8 22 18 14 16 0C24 10 26 2 26-10C34 4 40 12 36 22C42 18 44 12 44 6C50 18 50 28 44 36Z" fill="#f0f0f0" stroke="#8a8a8a" stroke-width=".8"/>
+    <path d="M-56 50V43H52V50ZM-52 43V38H48V43Z" fill="#b8b8b8" stroke="#161616" stroke-width="1.1"/>
+    <path d="M-56 43H-20V50H-56Z" fill="url(#h)"/>
+    <g fill="#d8d8d8" stroke="#161616" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M-47 38V-8H-39V38Z"/><path d="M-29 38V-8H-21V38Z"/><path d="M-11 38V-8H-3V38Z"/><path d="M7 38V-8H15V38Z"/>
+      <path d="M25 38V6L28 3L30 7L33 4V38Z"/><path d="M41 38V26L44 22L47 27V38Z"/>
+    </g>
+    <path d="M-47 38V-8H-44V38ZM-29 38V-8H-26V38ZM-11 38V-8H-8V38ZM7 38V-8H10V38ZM25 38V6L27 4V38ZM41 38V26L43 24V38Z" fill="url(#h)"/>
+    <path d="M-51-8H18L20-12L17-16H-51Z" fill="#cfcfcf" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-51-16L-24-30L-2-19L-4-16Z" fill="#c6c6c6" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-51-12H18" stroke="#161616" stroke-width=".6"/>
+    <path d="M54 50l2-5h9l1 5Z" fill="#a0a0a0" stroke="#161616" stroke-width="1"/>
+    </g>${WAKE}`,
   ),
-  temple: svg(
+  bridge: svg(
     "-80 -80 160 160",
-    `<defs><linearGradient id="t" x1="0" x2="1"><stop offset="0" stop-color="#8a7a5e"/><stop offset=".7" stop-color="#eadcb8"/><stop offset="1" stop-color="#fff0c8"/></linearGradient>
-    <linearGradient id="k" x1="0" x2="1"><stop offset="0" stop-color="#2a241a"/><stop offset="1" stop-color="#8a6a3a"/></linearGradient></defs>
-    <ellipse cx="0" cy="52" rx="60" ry="7" fill="rgba(255,226,160,.3)"/>
-    <path d="M-56 52C-50 30-40 20-30 14H34C44 22 52 34 58 52Z" fill="url(#k)" stroke="#1a160f" stroke-width="1.5"/>
-    <path d="M-40 14H40V8H-40ZM-36 8H36V3H-36Z" fill="url(#t)" stroke="#3a3122" stroke-width="1.2"/>
-    <g fill="url(#t)" stroke="#3a3122" stroke-width="1.2"><rect x="-32" y="-30" width="7" height="33"/><rect x="-15" y="-30" width="7" height="33"/><rect x="2" y="-30" width="7" height="33"/><rect x="19" y="-30" width="7" height="33"/></g>
-    <path d="M-38-30H36V-37H-38Z" fill="url(#t)" stroke="#3a3122" stroke-width="1.2"/>
-    <path d="M-40-37L-1-56L38-37Z" fill="url(#t)" stroke="#3a3122" stroke-width="1.2" stroke-linejoin="round"/>
-    <path d="M-26-40L-1-51L24-40" stroke="#8a7a5e" stroke-width="1" fill="none"/>
-    <path d="M-48 58h96M-30 62h60" stroke="#e8c47a" stroke-width="1" opacity=".5"/>`,
+    `${ENGRAVE}<g transform="scale(.88)">
+    <path d="M-8 2C-16-8-6-16-12-28C-2-22 2-32 0-44C10-34 16-38 14-52C24-40 22-28 16-22C22-20 24-10 14-2Z" fill="#262626" opacity=".72"/>
+    <g fill="#cdcdcd" stroke="#161616" stroke-width="1.2" stroke-linejoin="round">
+      <path d="M-72 50V4H-16L-12 10L-17 16L-13 24L-14 50H-22V32A8 12 0 0 0-38 32V50H-46V32A9 12 0 0 0-64 32V50Z"/>
+      <path d="M14 50V30L10 22L15 16L11 8L16 4H72V50H64V32A9 12 0 0 0 46 32V50H38V32A8 12 0 0 0 22 32V50Z"/>
+    </g>
+    <path d="M-72 13H-15L-13 24L-14 50H-22V32A8 12 0 0 0-38 32V50H-46V32A9 12 0 0 0-64 32V50H-72ZM12 13H72V50H64V32A9 12 0 0 0 46 32V50H38V32A8 12 0 0 0 22 32V50H14V30L10 22Z" fill="url(#h)" opacity=".85"/>
+    <path d="M-72 4V-2H-18L-16 4ZM16 4L19-2H72V4Z" fill="#dcdcdc" stroke="#161616" stroke-width="1"/>
+    <path d="M-72 13H-15M13 13H72M-60 4V13M-44 4V13M-28 4V13M28 4V13M44 4V13M60 4V13" stroke="#161616" stroke-width=".6" opacity=".8"/>
+    <path d="M-8 50l3-8h8l3 8ZM3 47l6-5 5 5-3 3Z" fill="#a4a4a4" stroke="#161616" stroke-width="1"/>
+    <path d="M-62 45H-48M-36 45H-24M24 45H36M48 45H62" stroke="#ececec" stroke-width=".8" opacity=".55"/>
+    </g>${WAKE}`,
   ),
-  arch: svg(
+  galley: svg(
     "-80 -80 160 160",
-    `<defs><linearGradient id="a" x1="0" x2="1"><stop offset="0" stop-color="#6a5a44"/><stop offset=".7" stop-color="#cdbb94"/><stop offset="1" stop-color="#f2dfb2"/></linearGradient></defs>
-    <ellipse cx="0" cy="52" rx="62" ry="7" fill="rgba(255,226,160,.3)"/>
-    <path d="M-56 52V-4H-40V52ZM24 52V-4H40V52Z" fill="url(#a)" stroke="#3a3122" stroke-width="1.5"/>
-    <path d="M-58-4H-38C-38-24-20-34-4-34V-22C-16-22-26-14-26-4" fill="url(#a)" stroke="#3a3122" stroke-width="1.5"/>
-    <path d="M22-4H42C42-20 34-30 22-32L18-22C22-18 24-10 24-4Z" fill="url(#a)" stroke="#3a3122" stroke-width="1.5"/>
-    <path d="M-2-24l4-6 6 4M6-22l3-5" stroke="#3a3122" stroke-width="1.2" fill="none"/>
-    <path d="M-52 10h8M-52 26h8M28 12h8M28 30h8" stroke="#6e5f46" stroke-width="1"/>
-    <path d="M-60 58h120M-36 62h72" stroke="#e8c47a" stroke-width="1" opacity=".5"/>`,
+    `${ENGRAVE}
+    <path d="M30-4C24-16 36-24 32-38C42-30 48-42 46-56C56-44 58-32 50-22C56-18 54-6 44-4Z" fill="#262626" opacity=".78"/>
+    <path d="M0 26V-42" stroke="#161616" stroke-width="2"/>
+    <path d="M-26-36H26" stroke="#161616" stroke-width="1.6"/>
+    <path d="M0-42L-54 18M0-42L50 20" stroke="#161616" stroke-width=".6"/>
+    <path d="M-24-35C-26-14-22 2-20 10L-6 6L-2 14L8 8L20 10C23-6 25-20 24-35Z" fill="#dedede" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-24-35C-26-14-22 2-20 10L-10 7C-12-6-12-22-10-35Z" fill="url(#h)"/>
+    <path d="M-64 16L-50 22H46L58 14L54 26C40 36-40 38-54 28Z" fill="#3c3c3c" stroke="#161616" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M-50 25H48" stroke="#bdbdbd" stroke-width="1"/>
+    <path d="M-38 31l-7 16M-26 33l-6 16M-14 34l-5 16M-2 34l-4 16M10 34l-3 16M22 33l-2 16" stroke="#161616" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M30 22C26 12 34 6 32-4C40 4 42-2 42-12C48-2 52 8 46 20Z" fill="#f4f4f4" stroke="#8a8a8a" stroke-width=".8"/>
+    ${WAKE}`,
   ),
-  cloud: svg(
+  smoke: svg(
     "-80 -40 160 80",
-    `<defs><radialGradient id="w" cx=".6" cy=".3"><stop offset="0" stop-color="#fff8e4"/><stop offset=".7" stop-color="#f3d9a8"/><stop offset="1" stop-color="#c9a878" stop-opacity=".6"/></radialGradient></defs>
-    <path d="M-66 20C-76 6-60-10-44-6C-42-24-18-30-6-18C2-34 30-32 36-14C54-20 72-6 64 12C70 22 56 28 44 24H-54C-62 26-70 24-66 20Z" fill="url(#w)" opacity=".85"/>`,
+    `<path d="M-70 24C-78 10-64-4-50 0C-50-18-28-26-16-14C-10-30 16-32 24-18C38-26 60-18 58-2C72 0 76 18 64 24Z" fill="#262626" opacity=".78"/>
+    <path d="M-50 0C-44-8-34-10-26-6M-16-14C-10-20 0-22 8-18M24-18C32-20 42-18 48-12M58-2C62-2 66 2 66 6" stroke="#a0a0a0" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M-44 18C-40 8-28 6-22 12C-16 4-2 4 2 12C8 6 22 8 24 16" stroke="#5a5a5a" stroke-width="1.4" fill="none"/>`,
+  ),
+
+  // Tarot: a sun with straight and wavy rays and a crescent moon, gold line work as on the cards. No faces. 120 by 120.
+  sun: svg(
+    "-60 -60 120 120",
+    `<g fill="#e3bd62">${[...Array(12).keys()].map((i) => `<path d="M-4-27L0-54L4-27Z" transform="rotate(${i * 30})"/>`).join("")}</g>
+    <g fill="none" stroke="#e3bd62" stroke-width="2" stroke-linecap="round">${[...Array(12).keys()].map((i) => `<path d="M0-27C5-33-5-39 0-46" transform="rotate(${i * 30 + 15})"/>`).join("")}</g>
+    <circle r="24" fill="#f5e6c0" stroke="#e3bd62" stroke-width="3"/>
+    <circle r="17" fill="none" stroke="#c9973a" stroke-width="1.4"/>
+    <path d="M0-12L3-3L12 0L3 3L0 12L-3 3L-12 0L-3-3Z" fill="none" stroke="#c9973a" stroke-width="1.4" stroke-linejoin="round"/>`,
+  ),
+  moon: svg(
+    "-60 -60 120 120",
+    `<path d="M8-42A42 42 0 1 0 8 42A33 33 0 1 1 8-42Z" fill="#f5e6c0" stroke="#e3bd62" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M-2-30A32 32 0 0 0-2 30" fill="none" stroke="#c9973a" stroke-width="1.4"/>
+    <g fill="none" stroke="#f5e6c0" stroke-width="1.6" stroke-linejoin="round"><path d="M34-30Q34-24 40-24Q34-24 34-18Q34-24 28-24Q34-24 34-30Z"/><path d="M40 16Q40 21 45 21Q40 21 40 26Q40 21 35 21Q40 21 40 16Z"/></g>`,
   ),
 
   // Lasso: a spinning loop with its knot and the rope running off, with motion lines. 200 by 120.
@@ -486,18 +559,19 @@ export interface SceneryFrame {
   redraw: () => void;
 }
 
-/** Under the land, over the sea: Arcadia's evening light and Lasso's denim. Called inside the sphere's clip. */
+/** Under the land, over the sea: Course of Empire's light through smoke and Lasso's denim. Inside the sphere's clip. */
 export function drawSceneryUnder(f: SceneryFrame) {
   const { ctx, theme: t, mode, w, h } = f;
   if (t.scenery === "empire") {
+    // As in Destruction, pale light breaks through the smoke at the upper right and the far water darkens under it.
     const R = f.proj.scale();
     const [cx, cy] = f.proj.translate();
     const sx = mode === "3d" ? cx + R * 0.45 : w * 0.72;
     const sy = mode === "3d" ? cy - R * 0.55 : Math.max(0, cy - R * 1.2);
     const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, Math.max(w, h) * 0.9);
-    g.addColorStop(0, "rgba(255,226,150,0.75)");
-    g.addColorStop(0.35, "rgba(240,180,100,0.35)");
-    g.addColorStop(1, "rgba(40,60,70,0)");
+    g.addColorStop(0, "rgba(255,255,255,0.34)");
+    g.addColorStop(0.4, "rgba(255,255,255,0.1)");
+    g.addColorStop(1, "rgba(0,0,0,0.28)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
   } else if (t.scenery === "rope") {
@@ -518,7 +592,10 @@ export function drawSceneryUnder(f: SceneryFrame) {
 export function drawScenery(f: SceneryFrame) {
   const t = f.theme;
   if (t.scenery === "pond") drawSpots(f, POND, 0.95);
-  else if (t.scenery === "empire") drawSpots(f, EMPIRE, 0.95);
+  else if (t.scenery === "empire") {
+    drawSpots(f, EMPIRE, 0.95);
+    beside(f);
+  } else if (t.scenery === "arcana") wheel(f);
   else if (t.scenery === "reef") drawSpots(f, REEF, 0.95, 16);
   else if (t.scenery === "rope") {
     seam(f);
@@ -746,4 +823,95 @@ function moon(f: SceneryFrame) {
     }
   }
   drawSpots(f, TEA, 1.1);
+}
+
+/**
+ * Course of Empire's globe stands in Destruction's harbour: the headless colossus in the foreground and the lone
+ * crag in the distance, both outside the sphere. A picture is left out when
+ * any part of it would reach the globe, so it never covers land or a place.
+ */
+function beside(f: SceneryFrame) {
+  if (f.mode !== "3d") return;
+  const R = f.proj.scale();
+  const cy = f.proj.translate()[1];
+  // The colossus stands at the lower left, where the map's own buttons leave room, and faces into the harbour.
+  const big = Math.min(320, Math.max(140, R * 0.85));
+  aside(f, "colossus", big, 2, -2, true, 4);
+  aside(f, "crag", big * 0.7, -18, Math.max(4, cy - big * 0.62), true, 4);
+}
+
+/**
+ * A square picture in the margin beside the globe, placed by its corner: a negative x or y counts from the right or
+ * bottom edge. It is left out when any part of it comes within `clear` pixels of the sphere.
+ */
+function aside(f: SceneryFrame, kind: string, size: number, x0: number, y0: number, flip: boolean, clear: number) {
+  const { ctx, proj, w, h } = f;
+  const im = picture(kind, f.redraw);
+  if (!im) return;
+  const R = proj.scale();
+  const [cx, cy] = proj.translate();
+  const s = Math.min(size, w * 0.3, h * 0.5);
+  x0 = x0 < 0 ? w + x0 - s : x0;
+  y0 = y0 < 0 ? h + y0 - s : y0;
+  // The nearest point of the picture's box to the globe's centre must lie outside the globe.
+  const nx = Math.min(Math.max(cx, x0), x0 + s);
+  const ny = Math.min(Math.max(cy, y0), y0 + s);
+  if (Math.hypot(nx - cx, ny - cy) < R + clear) return;
+  ctx.save();
+  ctx.translate(x0 + s / 2, y0 + s / 2);
+  if (flip) ctx.scale(-1, 1);
+  ctx.drawImage(im, -s / 2, -s / 2, s, s);
+  ctx.restore();
+}
+
+/**
+ * Tarot: on the globe, a wheel round the sphere like the Wheel of Fortune's, two gold rings with ticks and small
+ * four-point sparkles between them, and a sun and a crescent moon in the margins. Nothing is drawn on the sphere, so
+ * the sparkles can't be taken for the star-shaped markers.
+ */
+function wheel(f: SceneryFrame) {
+  const { ctx, proj, mode } = f;
+  if (mode !== "3d") return;
+  const R = proj.scale();
+  const [cx, cy] = proj.translate();
+  const r1 = R + 9;
+  const r2 = R + 25;
+  ctx.save();
+  ctx.strokeStyle = "rgba(227,189,98,0.85)";
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r1, 0, Math.PI * 2);
+  ctx.moveTo(cx + r2, cy);
+  ctx.arc(cx, cy, r2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < 96; i++) {
+    const a = (i / 96) * Math.PI * 2;
+    const [c, s] = [Math.cos(a), Math.sin(a)];
+    const rb = i % 8 === 0 ? r2 : r1 + 4;
+    ctx.moveTo(cx + c * r1, cy + s * r1);
+    ctx.lineTo(cx + c * rb, cy + s * rb);
+  }
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+  // Sparkles in the twelve spaces between the long ticks, stroked so none reads as a filled mark.
+  ctx.beginPath();
+  const rm = (r1 + r2) / 2 + 2;
+  for (let i = 0; i < 12; i++) {
+    const a = ((i + 0.5) / 12) * Math.PI * 2;
+    const x = cx + Math.cos(a) * rm;
+    const y = cy + Math.sin(a) * rm;
+    ctx.moveTo(x, y - 4.5);
+    ctx.quadraticCurveTo(x, y, x + 4.5, y);
+    ctx.quadraticCurveTo(x, y, x, y + 4.5);
+    ctx.quadraticCurveTo(x, y, x - 4.5, y);
+    ctx.quadraticCurveTo(x, y, x, y - 4.5);
+  }
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "#f5e6c0";
+  ctx.stroke();
+  ctx.restore();
+  const size = Math.min(170, Math.max(90, R * 0.42));
+  aside(f, "moon", size, -8, 8, false, 30);
+  aside(f, "sun", size, 8, -8, false, 30);
 }

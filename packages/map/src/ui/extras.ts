@@ -2,7 +2,8 @@
 // every other design:
 // - Spreadsheet: a formula bar over the map whose line is built from the tuned place's name, the column letters
 //   and row numbers around the map, lined up with the cells the canvas draws (src/map/sheet.ts).
-// - Market Terminal: a header strip over the map with the reticle's latitude and longitude and a UTC clock.
+// - Market Terminal: a command line across the top of the page built from the tuned place's name, and a header strip
+//   over the map with the reticle's latitude and longitude and a UTC clock.
 // - Country Club: a small embroidered crest by the name: crossed oars inside a laurel, no animal and no letters.
 // - Sleeper Car: a route bar over the map with the time, a line diagram and the next stop.
 // - Rave: the DJ booth along the bottom of the map: two turntables and, between them, the waveforms of the two
@@ -47,6 +48,7 @@ let railLine: HTMLElement;
 let railClock: HTMLElement;
 let railNext: HTMLElement;
 let railPassed = -1;
+let command: HTMLElement;
 let timer = 0;
 let cell = "";
 let ring: HTMLElement;
@@ -229,6 +231,10 @@ export function mountExtras(source: ExtrasSource) {
     h("div", { class: "x-hud", "aria-hidden": "true" }, h("div", { class: "x-round" }, round, h("span", { class: "x-round-note" }, "since the map was built"))),
     h("section", { class: "x-feed", "aria-label": "Newest headlines" }, feed),
   );
+  command = h("span", { class: "x-cmd-text" });
+  document.getElementById("masthead")?.before(
+    h("div", { class: "x-cmd", "aria-hidden": "true" }, command, h("span", { class: "x-caret" }), h("span", { class: "x-go" }, "GO")),
+  );
   const brand = document.querySelector(".brand");
   brand?.prepend(crest());
   mapEl.append(routeBar());
@@ -384,6 +390,11 @@ export function refreshExtras() {
   }
   if (theme === "realm") layoutRing();
   layoutFeed();
+  if (theme === "terminal") {
+    // The command line reads as if the tuned place's reports had been asked for: its name and NEWS, or LATEST.
+    const names = src.tuned();
+    command.textContent = names?.length ? `${names[0]!.toUpperCase()}${names.length > 1 ? ` +${names.length - 1}` : ""} NEWS` : "LATEST NEWS";
+  }
   moveExtras();
   clearInterval(timer);
   timer = 0;
