@@ -3,7 +3,7 @@ import type { SceneryKind } from "./map/scenery.ts";
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -75,8 +75,11 @@ export interface Theme {
    * Drive's glowing wireframe over a ruled sea (src/map/neon.ts), "stitch" is Cross Stitch's X stitches on linen
    * (src/map/stitch.ts), "glass" is Rose Window's leaded glass (src/map/glass.ts). The colours above still set the
    * sea, land, coast, grid and markers.
+   * Decision 74 adds "sheet" (Spreadsheet's filled cells, src/map/sheet.ts), "terminal" (Market Terminal's
+   * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
+   * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail";
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -1065,6 +1068,163 @@ export const THEMES: Record<ThemeId, Theme> = {
     glow: false,
     atmosphere: null,
     shade: "rgba(40,70,110,0.35)",
+    neatline: false,
+    decor: null,
+  },
+  // Decision 74: four designs that borrow the feel of familiar things and name none of them.
+  // Spreadsheet: the world as filled cells in a grid, shaded like conditional formatting by relief; the globe is a
+  // chart object on the sheet (src/map/sheet.ts).
+  sheet: {
+    id: "sheet",
+    label: "Spreadsheet",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "sheet",
+    globeScale: 0.34,
+    ocean: "#ffffff",
+    land: "#a3d18b",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "square",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#3f6b50",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "#e1e3e6",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#ffffff",
+    ice: "#e6edf5",
+    relief: "#3f7d47",
+    dot: "#24313d",
+    dotStroke: "#ffffff",
+    fresh: "#1f63d1",
+    tuned: "#2d8653",
+    arc: "#2d8653",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Market Terminal: amber on black, the land as a dot-matrix plot over a coordinate grid, the globe a vector plot
+  // in a ring of ticks (src/map/terminal.ts). No prices, no arrows, no red or green.
+  terminal: {
+    id: "terminal",
+    label: "Market Terminal",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "terminal",
+    globeScale: 0.4,
+    ocean: "#030303",
+    land: "rgba(255,176,0,0.07)",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "block",
+    textureInk: "rgba(255,176,0,0.62)",
+    coast: "#ffb000",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(255,176,0,0.16)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#030303",
+    ice: "rgba(255,230,190,0.1)",
+    relief: "#ffd36b",
+    dot: "#f4f4f4",
+    dotStroke: "#030303",
+    fresh: "#52c7ff",
+    tuned: "#ffe066",
+    arc: "#ffe066",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Country Club: preppy heritage clothing. The flat map is embroidered on oxford cloth, land in hunter green satin
+  // stitch with a stitched edge; the globe is a leather desk globe tooled in gold on a brass stand (src/map/club.ts).
+  prep: {
+    id: "prep",
+    label: "Country Club",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "club",
+    globeScale: 0.29,
+    ocean: "#c9d7e8",
+    land: "#2f5b3f",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(255,255,255,0.13)",
+    textureInk2: "rgba(0,0,0,0.16)",
+    coast: "#1b3526",
+    coastWidth: 1.2,
+    waterlines: 0,
+    waterline: "#f7f4ec",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#c9d7e8",
+    ice: "#f1ead6",
+    relief: "#8fb07a",
+    dot: "#c9a043",
+    dotStroke: "#1d2b4f",
+    fresh: "#f6f1e4",
+    tuned: "#1d2b4f",
+    arc: "#b3262e",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Sleeper Car: the world from a long-distance train's window at dusk. Map view is the tilted camera over
+  // farmland, sea and mountains to a horizon with hills, with telegraph poles and the next track passing in the
+  // foreground; the globe hangs in the dusk sky (src/map/rail.ts). Markers are town lights.
+  rail: {
+    id: "rail",
+    label: "Sleeper Car",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "rail",
+    globeScale: 0.3,
+    tilt: 64,
+    tiltEye: 0.56,
+    tiltFar: 0.32,
+    tiltMinZoom: 1.6,
+    sky: ["#1b2550", "#6b5a8e", "#f2a86b"],
+    fog: "#e6b48f",
+    ocean: "#2a4a6e",
+    land: "#8e9a5c",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#3b3424",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(255,236,200,0.5)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#2a4a6e",
+    ice: "#eef0f2",
+    relief: "#6a5d62",
+    dot: "#ffd98a",
+    dotStroke: "#3a2a14",
+    fresh: "#8fe6ff",
+    tuned: "#fff4d6",
+    arc: "#ffe2a3",
+    glow: true,
+    atmosphere: null,
+    shade: null,
     neatline: false,
     decor: null,
   },

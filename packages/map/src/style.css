@@ -4578,3 +4578,1352 @@ button.link {
     margin: 8px;
   }
 }
+
+/* ==========================================================================
+   Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74): four designs that borrow the feel of
+   familiar things and name none of them (src/map/sheet.ts, terminal.ts, club.ts, rail.ts; chrome in
+   src/ui/extras.ts). Tokens first, then each design's chrome.
+   ========================================================================== */
+/* The extra chrome is hidden in every design that doesn't use it. */
+.x-formula,
+.x-corner,
+.x-cols,
+.x-rows,
+.x-term,
+.x-crest,
+.x-clock {
+  display: none;
+}
+:root[data-theme="sheet"] {
+  color-scheme: light;
+  --page: #f3f4f5;
+  --panel: #ffffff;
+  --ink: #202124;
+  --ink-2: #3c4043;
+  --muted: #5f6368;
+  --rule: #c6c9cc;
+  --accent: #2d8653;
+  --on-accent: #ffffff;
+  --hover: rgba(45, 134, 83, 0.08);
+  --reticle: #2d8653;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-head: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-ui: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+:root[data-theme="terminal"] {
+  color-scheme: dark;
+  --page: #000000;
+  --panel: #050505;
+  --ink: #f2f2f2;
+  --ink-2: #ffc24d;
+  --muted: #c9a15a;
+  --rule: #6b5214;
+  --accent: #ffb000;
+  --on-accent: #000000;
+  --hover: rgba(255, 176, 0, 0.12);
+  --reticle: #ffe066;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --fkey: #ffd400;
+  --font-mast: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-head: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-body: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-ui: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+}
+:root[data-theme="prep"] {
+  color-scheme: light;
+  --page: #f4efe2;
+  --panel: #fbf8f0;
+  --ink: #1d2b4d;
+  --ink-2: #34405f;
+  --muted: #555c6c;
+  --rule: #1d2b4d;
+  --accent: #2f5b3f;
+  --on-accent: #fbf8f0;
+  --hover: rgba(29, 43, 77, 0.07);
+  --reticle: #1d2b4d;
+  --grain-opacity: 0.25;
+  --grain-blend: multiply;
+  --navy: #1d2b4d;
+  --club-red: #b3262e;
+  --hunter: #2f5b3f;
+  --gold: #c9a043;
+  /* A tartan: navy and green blocks crossed by a red and a cream line. */
+  --tartan:
+    repeating-linear-gradient(90deg, transparent 0 17px, rgba(179, 38, 46, 0.9) 17px 19px, transparent 19px 22px, rgba(244, 239, 226, 0.7) 22px 23px, transparent 23px 28px),
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(179, 38, 46, 0.6) 7px 8px, transparent 8px 16px),
+    repeating-linear-gradient(0deg, rgba(47, 91, 63, 0.55) 0 5px, transparent 5px 10px, rgba(244, 239, 226, 0.25) 10px 11px, transparent 11px 16px),
+    repeating-linear-gradient(90deg, #1d2b4d 0 8px, #2f5b3f 8px 16px, #1d2b4d 16px 28px),
+    #1d2b4d;
+  --font-mast: "Playfair Display", "Didot", Georgia, serif;
+  --font-head: "Playfair Display", "Didot", Georgia, serif;
+  --font-body: "Libre Baskerville", Georgia, serif;
+  --font-ui: "Libre Baskerville", Georgia, serif;
+}
+:root[data-theme="rail"] {
+  color-scheme: dark;
+  --page: #2a1d14;
+  --panel: #15130f;
+  --ink: #f3ead6;
+  --ink-2: #e2d3b0;
+  --muted: #c4b08a;
+  --rule: #b08a3e;
+  --accent: #e8b04a;
+  --on-accent: #1a140e;
+  --hover: rgba(232, 176, 74, 0.1);
+  --reticle: #fff4d6;
+  --grain-opacity: 0.35;
+  --grain-blend: overlay;
+  --ticket: #efe2bf;
+  --font-mast: "Limelight", "Didot", Georgia, serif;
+  --font-head: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+
+/* ---- Spreadsheet: a sheet of cells, a formula bar, sheet tabs, a selected cell for the reticle ---------- */
+:root[data-theme="sheet"] body {
+  background: var(--page);
+}
+:root[data-theme="sheet"] .masthead {
+  background: #ffffff;
+  border-top: 4px solid #2d8653;
+  border-bottom: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .mast-title {
+  font-weight: 700;
+  color: #2d8653;
+  letter-spacing: -0.01em;
+}
+:root[data-theme="sheet"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+/* The word sits in a selected cell, with the small square handle at its corner. */
+:root[data-theme="sheet"] .telegram-word,
+:root[data-theme="sheet"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #202124;
+}
+:root[data-theme="sheet"] .telegram-word {
+  position: relative;
+  border: 2px solid #2d8653;
+  background: #ffffff;
+  padding: 2px 12px 0;
+  box-shadow: 0 0 0 1px #ffffff, 0 0 0 4px rgba(45, 134, 83, 0.12);
+}
+:root[data-theme="sheet"] .telegram-word::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 7px;
+  height: 7px;
+  background: #2d8653;
+  border: 1px solid #ffffff;
+}
+:root[data-theme="sheet"] .telegram-word:hover,
+:root[data-theme="sheet"] .telegram-word:focus-visible {
+  background: #e6f4ea;
+  text-decoration: none;
+}
+:root[data-theme="sheet"] .telegram-kicker,
+:root[data-theme="sheet"] .telegram-date {
+  color: #2d8653;
+  font-weight: 600;
+}
+:root[data-theme="sheet"] .telegram-note,
+:root[data-theme="sheet"] .meta,
+:root[data-theme="sheet"] .count,
+:root[data-theme="sheet"] .dateline .coords,
+:root[data-theme="sheet"] .byline {
+  font-style: normal;
+}
+/* The scale is a row of cells; the day's cell is selected. */
+:root[data-theme="sheet"] .scale {
+  border-color: #c6c9cc;
+  background: #ffffff;
+}
+:root[data-theme="sheet"] .scale .step + .step {
+  border-left-color: #e1e3e6;
+}
+:root[data-theme="sheet"] .scale .step.on {
+  background: #e6f4ea;
+  color: #0d5c35;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px #2d8653;
+}
+/* The toolbar is a ribbon: flat buttons that show a frame on hover. */
+:root[data-theme="sheet"] .toolbar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .tool,
+:root[data-theme="sheet"] .pick select,
+:root[data-theme="sheet"] .menu > summary,
+:root[data-theme="sheet"] .chip,
+:root[data-theme="sheet"] .key-btn,
+:root[data-theme="sheet"] .key-close {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #202124;
+}
+:root[data-theme="sheet"] .pick select,
+:root[data-theme="sheet"] .menu > summary {
+  border-color: #dadce0;
+  background: #ffffff;
+}
+:root[data-theme="sheet"] .tool:hover,
+:root[data-theme="sheet"] .pick select:hover,
+:root[data-theme="sheet"] .menu > summary:hover,
+:root[data-theme="sheet"] .chip:hover,
+:root[data-theme="sheet"] .key-btn:hover {
+  background: #e8eaed;
+  border-color: #c6c9cc;
+}
+:root[data-theme="sheet"] .tool[aria-pressed="true"],
+:root[data-theme="sheet"] .menu[open] > summary,
+:root[data-theme="sheet"] .chip[aria-pressed="true"],
+:root[data-theme="sheet"] .key-btn[aria-expanded="true"] {
+  background: #e6f4ea;
+  color: #0d5c35;
+  border-color: #2d8653;
+}
+:root[data-theme="sheet"] .tool.primary {
+  background: #2d8653;
+  color: #ffffff;
+}
+:root[data-theme="sheet"] .key-btn {
+  top: 54px;
+  left: 42px;
+  background: #ffffff;
+  border-color: #c6c9cc;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.25);
+}
+:root[data-theme="sheet"] .zoom {
+  border-color: #c6c9cc;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.25);
+}
+:root[data-theme="sheet"] .map {
+  background: #ffffff;
+}
+/* The formula bar: the selected cell's name, fx, and a formula made from the tuned place's name. */
+:root[data-theme="sheet"] .x-formula {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  z-index: 4;
+  background: #ffffff;
+  border-bottom: 1px solid #c6c9cc;
+  font: 14px/1 var(--font-ui);
+  color: #202124;
+}
+:root[data-theme="sheet"] .x-namebox {
+  flex: none;
+  width: 64px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid #dadce0;
+  font-size: 13px;
+}
+:root[data-theme="sheet"] .x-fx {
+  flex: none;
+  padding: 0 10px;
+  color: #80868b;
+  font: italic 600 14px/1 Georgia, serif;
+  border-right: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .x-formula-text {
+  min-width: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Column letters and row numbers, lined up with the canvas's cells by src/ui/extras.ts. */
+:root[data-theme="sheet"] .x-corner {
+  display: block;
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: 34px;
+  height: 18px;
+  z-index: 3;
+  background: linear-gradient(135deg, transparent 0 62%, #babdc1 62% 100%) right 3px bottom 3px / 8px 8px no-repeat, #f1f3f4;
+  border-right: 1px solid #c6c9cc;
+  border-bottom: 1px solid #c6c9cc;
+}
+:root[data-theme="sheet"] .x-cols,
+:root[data-theme="sheet"] .x-rows {
+  display: block;
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  background: #f1f3f4;
+  font: 11px/1 var(--font-ui);
+  color: #5f6368;
+  pointer-events: none;
+}
+:root[data-theme="sheet"] .x-cols {
+  top: 28px;
+  left: 34px;
+  right: 0;
+  height: 18px;
+  border-bottom: 1px solid #c6c9cc;
+}
+:root[data-theme="sheet"] .x-rows {
+  top: 46px;
+  left: 0;
+  bottom: 0;
+  width: 34px;
+  border-right: 1px solid #c6c9cc;
+}
+:root[data-theme="sheet"] .x-cols span,
+:root[data-theme="sheet"] .x-rows span {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+}
+:root[data-theme="sheet"] .x-cols span {
+  top: 0;
+  height: 18px;
+  border-right: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .x-rows span {
+  left: 0;
+  right: 0;
+  font-size: 10px;
+  border-bottom: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .x-cols span.on,
+:root[data-theme="sheet"] .x-rows span.on {
+  background: #d3eadb;
+  color: #0d5c35;
+  font-weight: 700;
+}
+:root[data-theme="sheet"] .x-cols span.on {
+  box-shadow: inset 0 -2px 0 #2d8653;
+}
+:root[data-theme="sheet"] .x-rows span.on {
+  box-shadow: inset -2px 0 0 #2d8653;
+}
+/* The reticle is the selected cell: a green outline one cell in size, with the fill handle at its corner. */
+:root[data-theme="sheet"] .crosshair {
+  /* One cell in size: src/ui/extras.ts sets the cell size the canvas uses. */
+  width: calc(var(--cell-w, 20px) + 3px);
+  height: calc(var(--cell-h, 13px) + 3px);
+  margin: calc(var(--cell-h, 13px) / -2 - 1.5px) 0 0 calc(var(--cell-w, 20px) / -2 - 1.5px);
+  background: none;
+  border: 2px solid #2d8653;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+  filter: none;
+}
+:root[data-theme="sheet"] .crosshair::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 6px;
+  height: 6px;
+  background: #2d8653;
+  border: 1px solid #ffffff;
+}
+/* The panel is a selected range: a tinted block of rows in a green outline, with its fill handle. */
+:root[data-theme="sheet"] .panel {
+  margin: 8px;
+  border: 2px solid #2d8653;
+  background:
+    linear-gradient(#2d8653, #2d8653) right 0 bottom 0 / 8px 8px no-repeat,
+    linear-gradient(rgba(45, 134, 83, 0.035), rgba(45, 134, 83, 0.035)),
+    #ffffff;
+}
+:root[data-theme="sheet"] .panel-title,
+:root[data-theme="sheet"] .place-name {
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+:root[data-theme="sheet"] .dateline {
+  border-bottom: 2px solid #2d8653;
+}
+:root[data-theme="sheet"] .stories li + li {
+  border-top: 1px solid #e1e3e6;
+}
+:root[data-theme="sheet"] .headline {
+  font-weight: 600;
+}
+:root[data-theme="sheet"] .rule-head {
+  text-align: left;
+  background: #f1f3f4;
+  border: 1px solid #c6c9cc;
+  padding: 5px 8px;
+  color: #3c4043;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="sheet"] .menu-body,
+:root[data-theme="sheet"] .key-pop,
+:root[data-theme="sheet"] dialog {
+  border: 1px solid #c6c9cc;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(60, 64, 67, 0.25);
+}
+/* The time bar is the row of sheet tabs: the time shown is the open tab, the scrollbar beside them. */
+:root[data-theme="sheet"] .timebar {
+  background: #f1f3f4;
+  border-top: 1px solid #c6c9cc;
+  padding-top: 0;
+  padding-bottom: 0;
+  gap: 2px;
+  align-items: stretch;
+}
+:root[data-theme="sheet"] .time-label {
+  order: -1;
+  display: grid;
+  place-items: center;
+  padding: 7px 16px 6px;
+  background: #ffffff;
+  color: #0d5c35;
+  font-weight: 700;
+  border: 1px solid #c6c9cc;
+  border-top: 0;
+  border-bottom: 3px solid #2d8653;
+  border-radius: 0 0 4px 4px;
+}
+:root[data-theme="sheet"] .timebar .tool {
+  border: 1px solid #c6c9cc;
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+  background: #e8eaed;
+  padding: 7px 14px;
+}
+:root[data-theme="sheet"] .slider {
+  align-items: center;
+  margin-left: 10px;
+}
+:root[data-theme="sheet"] .slider input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 16px;
+}
+:root[data-theme="sheet"] .slider input::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #e8eaed;
+  border: 1px solid #d5d7da;
+}
+:root[data-theme="sheet"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 48px;
+  height: 8px;
+  border-radius: 4px;
+  background: #a9adb2;
+}
+:root[data-theme="sheet"] .slider input::-moz-range-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #e8eaed;
+  border: 1px solid #d5d7da;
+}
+:root[data-theme="sheet"] .slider input::-moz-range-thumb {
+  width: 48px;
+  height: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: #a9adb2;
+}
+
+/* ---- Market Terminal: amber on black, tiled windows with yellow function-key headers ------------------ */
+:root[data-theme="terminal"] body {
+  background: #000000;
+}
+:root[data-theme="terminal"] .masthead {
+  border-bottom: 1px solid var(--accent);
+  background: #000000;
+}
+:root[data-theme="terminal"] .mast-title {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: clamp(24px, 2.8vw, 36px);
+}
+:root[data-theme="terminal"] .mast-tag,
+:root[data-theme="terminal"] .telegram-note,
+:root[data-theme="terminal"] .meta,
+:root[data-theme="terminal"] .count,
+:root[data-theme="terminal"] .dateline .coords,
+:root[data-theme="terminal"] .byline,
+:root[data-theme="terminal"] .excerpt-quote {
+  font-style: normal;
+}
+:root[data-theme="terminal"] .mast-tag {
+  color: var(--ink);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+/* The word in reverse video, a block of amber with the letters cut out in black. */
+:root[data-theme="terminal"] .telegram-word,
+:root[data-theme="terminal"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="terminal"] .telegram-word {
+  color: #000000;
+  background: var(--accent);
+  border: 0;
+  padding: 3px 12px 1px;
+}
+:root[data-theme="terminal"] .telegram-word:hover,
+:root[data-theme="terminal"] .telegram-word:focus-visible {
+  background: var(--fkey);
+  text-decoration: none;
+}
+:root[data-theme="terminal"] .telegram-big {
+  color: var(--accent);
+}
+:root[data-theme="terminal"] .telegram-kicker,
+:root[data-theme="terminal"] .telegram-date {
+  color: var(--fkey);
+}
+:root[data-theme="terminal"] .scale {
+  border-color: var(--rule);
+}
+:root[data-theme="terminal"] .scale .step.on {
+  background: var(--accent);
+  color: #000000;
+}
+:root[data-theme="terminal"] .toolbar,
+:root[data-theme="terminal"] .timebar {
+  background: #000000;
+  border-color: var(--rule);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 13px;
+}
+:root[data-theme="terminal"] .tool,
+:root[data-theme="terminal"] .pick select,
+:root[data-theme="terminal"] .menu > summary,
+:root[data-theme="terminal"] .chip,
+:root[data-theme="terminal"] .key-btn,
+:root[data-theme="terminal"] .key-close,
+:root[data-theme="terminal"] .zoom {
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  background: #000000;
+  color: var(--accent);
+}
+:root[data-theme="terminal"] .zoom button {
+  color: var(--accent);
+}
+:root[data-theme="terminal"] .pick select {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="terminal"] .zoom button + button {
+  border-top-color: var(--accent);
+}
+:root[data-theme="terminal"] .tool.quiet {
+  border-color: transparent;
+}
+:root[data-theme="terminal"] .tool[aria-pressed="true"],
+:root[data-theme="terminal"] .menu[open] > summary,
+:root[data-theme="terminal"] .chip[aria-pressed="true"],
+:root[data-theme="terminal"] .key-btn[aria-expanded="true"],
+:root[data-theme="terminal"] .tool.primary {
+  background: var(--accent);
+  color: #000000;
+}
+/* Tiled windows: the map and the panel with a gutter between, each under a yellow header. */
+:root[data-theme="terminal"] .stage {
+  gap: 4px;
+  padding: 4px;
+  background: #1b1b1b;
+}
+:root[data-theme="terminal"] .map {
+  border: 1px solid var(--rule);
+  background: #030303;
+}
+:root[data-theme="terminal"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+}
+:root[data-theme="terminal"] .x-term {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  z-index: 4;
+  padding: 0 8px 0 0;
+  background: var(--fkey);
+  color: #000000;
+  font: 700 12px/1 var(--font-ui);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+:root[data-theme="terminal"] .x-fkey {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  padding: 0 7px;
+  background: #000000;
+  color: var(--fkey);
+}
+:root[data-theme="terminal"] .x-readout {
+  margin-left: auto;
+  font-weight: 400;
+}
+:root[data-theme="terminal"] .x-utc {
+  padding-left: 10px;
+  border-left: 1px solid rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="terminal"] .key-btn {
+  top: 34px;
+}
+/* The reticle: a small bracket and thin lines across the whole plot, open at the centre. */
+:root[data-theme="terminal"] .crosshair::before,
+:root[data-theme="terminal"] .crosshair::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+:root[data-theme="terminal"] .crosshair::before {
+  top: 50%;
+  left: -200vw;
+  right: -200vw;
+  height: 1px;
+  background: linear-gradient(to right, rgba(255, 176, 0, 0.35) calc(50% - 20px), transparent calc(50% - 20px) calc(50% + 20px), rgba(255, 176, 0, 0.35) calc(50% + 20px));
+}
+:root[data-theme="terminal"] .crosshair::after {
+  left: 50%;
+  top: -200vh;
+  bottom: -200vh;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(255, 176, 0, 0.35) calc(50% - 20px), transparent calc(50% - 20px) calc(50% + 20px), rgba(255, 176, 0, 0.35) calc(50% + 20px));
+}
+:root[data-theme="terminal"] .panel,
+:root[data-theme="terminal"] .key-pop,
+:root[data-theme="terminal"] .menu-body,
+:root[data-theme="terminal"] dialog {
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--panel);
+}
+:root[data-theme="terminal"] .panel {
+  padding-top: 0;
+}
+:root[data-theme="terminal"] .panel::before {
+  content: "F2  REPORTS";
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 calc(-1 * var(--gutter)) 12px;
+  padding: 4px 8px;
+  background: var(--fkey);
+  color: #000000;
+  font: 700 12px/1.2 var(--font-ui);
+  letter-spacing: 0.04em;
+  white-space: pre;
+}
+:root[data-theme="terminal"] .panel.framed::before {
+  margin: 0;
+}
+:root[data-theme="terminal"] .key-pop {
+  padding-top: 0;
+}
+:root[data-theme="terminal"] .key-head {
+  margin: 0 -12px 8px;
+  padding: 2px 2px 2px 8px;
+  background: var(--fkey);
+  color: #000000;
+}
+:root[data-theme="terminal"] .key-head h2 {
+  font: 700 12px/1.2 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="terminal"] .key-close {
+  width: 26px;
+  height: 22px;
+  border: 0;
+  background: #000000;
+  color: var(--fkey);
+}
+:root[data-theme="terminal"] .panel-title,
+:root[data-theme="terminal"] .place-name {
+  color: var(--accent);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="terminal"] .dateline {
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="terminal"] .rule-head {
+  text-align: left;
+  color: #000000;
+  background: var(--accent);
+  border: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+:root[data-theme="terminal"] .headline {
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.35;
+}
+:root[data-theme="terminal"] .kicker,
+:root[data-theme="terminal"] .related {
+  color: var(--accent);
+}
+:root[data-theme="terminal"] .stories li + li {
+  border-top: 1px dotted var(--rule);
+}
+:root[data-theme="terminal"] .excerpt {
+  font-size: 15px;
+}
+:root[data-theme="terminal"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="terminal"] .lead img {
+  filter: grayscale(1) sepia(1) saturate(2.2) hue-rotate(-12deg) brightness(0.8) contrast(1.1);
+}
+:root[data-theme="terminal"] .reader-headline {
+  font-weight: 700;
+  font-size: clamp(20px, 2.1vw, 26px);
+  line-height: 1.2;
+}
+/* The ticker: the newest headlines only, amber place names and white text, no arrows, no prices. */
+:root[data-theme="terminal"] .ticker {
+  display: block;
+  background: #000000;
+  border-top: 1px solid var(--accent);
+}
+:root[data-theme="terminal"] .tick {
+  color: var(--ink);
+}
+:root[data-theme="terminal"] .tick b {
+  color: var(--accent);
+  font-weight: 700;
+}
+:root[data-theme="terminal"] .tick::before {
+  content: "| ";
+  color: var(--rule);
+}
+:root[data-theme="terminal"] .slider input {
+  accent-color: var(--accent);
+}
+
+/* ---- Country Club: navy, cream and hunter green, a tartan band, a crest, pennants, a desk globe ---------- */
+:root[data-theme="prep"] body {
+  background:
+    repeating-linear-gradient(0deg, rgba(29, 43, 77, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(29, 43, 77, 0.035) 0 1px, transparent 1px 3px),
+    var(--page);
+}
+/* A navy masthead over a band of tartan. */
+:root[data-theme="prep"] .masthead {
+  background: linear-gradient(var(--navy), var(--navy)) top / 100% calc(100% - 16px) no-repeat, var(--tartan);
+  border-bottom: 0;
+  padding-bottom: 26px;
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  align-items: center;
+}
+:root[data-theme="prep"] .x-crest {
+  display: block;
+  grid-row: 1 / 3;
+  width: 48px;
+  height: 56px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4));
+}
+:root[data-theme="prep"] .mast-title {
+  font-weight: 700;
+  color: #f4efe2;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="prep"] .mast-tag {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .telegram-word,
+:root[data-theme="prep"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="prep"] .telegram-word {
+  color: #f4efe2;
+  border-bottom: 3px double var(--club-red);
+}
+:root[data-theme="prep"] .telegram-word:hover,
+:root[data-theme="prep"] .telegram-word:focus-visible {
+  background: rgba(244, 239, 226, 0.08);
+}
+:root[data-theme="prep"] .telegram-big {
+  color: var(--navy);
+}
+:root[data-theme="prep"] .telegram-kicker {
+  color: var(--gold);
+}
+:root[data-theme="prep"] .telegram-date {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .masthead .telegram-note {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .masthead .scale {
+  border-color: rgba(244, 239, 226, 0.5);
+}
+:root[data-theme="prep"] .masthead .scale .step {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .masthead .scale .step + .step {
+  border-left-color: rgba(244, 239, 226, 0.35);
+}
+:root[data-theme="prep"] .scale .step.on {
+  background: var(--hunter);
+  color: #f4efe2;
+}
+:root[data-theme="prep"] #about-btn {
+  color: inherit;
+}
+/* Buttons in navy with a gold inner line, like a blazer's patch; the one that is on turns hunter green. */
+/* The toolbar is a cream cable knit: two twisted cables and a rib of purl stitches between. */
+:root[data-theme="prep"] .toolbar {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='24'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M4 0C4 6 12 6 12 12S4 18 4 24' stroke='%23b9ad8f' stroke-width='3.2'/%3E%3Cpath d='M12 0C12 6 4 6 4 12S12 18 12 24' stroke='%23fbf6ea' stroke-width='3.2'/%3E%3Cpath d='M12 0C12 6 4 6 4 12S12 18 12 24' stroke='%23cfc3a5' stroke-width='1' stroke-dasharray='1 3'/%3E%3Cpath d='M20 1V23M24 3V21' stroke='%23d3c8ab' stroke-width='1.6' stroke-dasharray='2 2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 28px 24px repeat,
+    #efe8d6;
+  border-bottom: 1px solid var(--navy);
+}
+:root[data-theme="prep"] .tool,
+:root[data-theme="prep"] .pick select,
+:root[data-theme="prep"] .menu > summary,
+:root[data-theme="prep"] .chip,
+:root[data-theme="prep"] .key-btn,
+:root[data-theme="prep"] .key-close {
+  border: 1px solid var(--navy);
+  border-radius: 2px;
+  background: var(--navy);
+  color: #f4efe2;
+  box-shadow: inset 0 0 0 2px var(--navy), inset 0 0 0 3px rgba(201, 160, 67, 0.7);
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="prep"] .pick::after {
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .tool:hover,
+:root[data-theme="prep"] .pick select:hover,
+:root[data-theme="prep"] .menu > summary:hover,
+:root[data-theme="prep"] .chip:hover {
+  background: #2a3b63;
+}
+:root[data-theme="prep"] .tool.quiet {
+  background: transparent;
+  color: var(--navy);
+  box-shadow: none;
+  border-color: transparent;
+}
+:root[data-theme="prep"] .masthead .tool.quiet {
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .tool[aria-pressed="true"],
+:root[data-theme="prep"] .menu[open] > summary,
+:root[data-theme="prep"] .chip[aria-pressed="true"],
+:root[data-theme="prep"] .key-btn[aria-expanded="true"],
+:root[data-theme="prep"] .tool.primary {
+  background: var(--hunter);
+  border-color: var(--hunter);
+  box-shadow: inset 0 0 0 2px var(--hunter), inset 0 0 0 3px rgba(201, 160, 67, 0.7);
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .zoom {
+  border: 1px solid var(--navy);
+  background: var(--navy);
+}
+:root[data-theme="prep"] .zoom button {
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .zoom button + button {
+  border-top-color: var(--gold);
+}
+/* The map sits in a grosgrain ribbon of navy with a red line; behind the desk globe, a green library wall. */
+:root[data-theme="prep"] .map {
+  margin: 10px;
+  box-shadow: 0 0 0 3px var(--navy), 0 0 0 5px var(--club-red), 0 0 0 8px var(--navy);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 16px),
+    radial-gradient(ellipse at 50% 35%, #33624a, #1b3827 75%);
+}
+/* The panel is oxford cloth, with plain pennants on a cord across its top. */
+:root[data-theme="prep"] .panel {
+  margin: 10px 10px 10px 4px;
+  border: 1px solid var(--navy);
+  padding-top: 34px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='24'%3E%3Cpath d='M0 3Q42 9 84 3' fill='none' stroke='%237a6a4a' stroke-width='1.2'/%3E%3Cpath d='M4 4.2L18 5.6L11 21Z' fill='%231d2b4d'/%3E%3Cpath d='M25 6.2L39 6.9L32 22Z' fill='%23b3262e'/%3E%3Cpath d='M46 6.9L60 6.2L53 22Z' fill='%232f5b3f'/%3E%3Cpath d='M67 5.6L81 4.2L74 21Z' fill='%23f4efe2' stroke='%23c9a043' stroke-width='0.8'/%3E%3C/svg%3E") left top 4px / 84px 24px repeat-x,
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 150, 190, 0.1) 0 1px, transparent 1px 3px),
+    #eef3f9;
+}
+:root[data-theme="prep"] .panel.framed {
+  padding-top: 0;
+}
+:root[data-theme="prep"] .panel-title,
+:root[data-theme="prep"] .place-name {
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 30px;
+  color: var(--navy);
+}
+:root[data-theme="prep"] .dateline {
+  border-bottom: 3px double var(--navy);
+}
+:root[data-theme="prep"] .rule-head {
+  font-variant: small-caps;
+  text-transform: none;
+  letter-spacing: 0.08em;
+  border-top: 2px solid var(--club-red);
+  border-bottom: 2px solid var(--hunter);
+}
+:root[data-theme="prep"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+}
+:root[data-theme="prep"] .related,
+:root[data-theme="prep"] .cite {
+  color: var(--club-red);
+}
+:root[data-theme="prep"] .menu-body,
+:root[data-theme="prep"] .key-pop,
+:root[data-theme="prep"] dialog {
+  border: 1px solid var(--navy);
+  box-shadow: 0 0 0 3px var(--panel), 0 0 0 4px var(--navy), 4px 6px 14px rgba(29, 43, 77, 0.25);
+}
+:root[data-theme="prep"] .timebar {
+  border-top: 0;
+  padding-top: 13px;
+  background: linear-gradient(#efe8d6, #efe8d6) bottom / 100% calc(100% - 6px) no-repeat, var(--tartan);
+}
+:root[data-theme="prep"] .slider input {
+  accent-color: var(--hunter);
+}
+
+/* ---- Sleeper Car: a train window, a departure board, ticket stubs, a station clock -------------------- */
+:root[data-theme="rail"] body {
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 64px),
+    linear-gradient(to bottom, #3b2819, #2a1d14);
+}
+:root[data-theme="rail"] .masthead {
+  background: linear-gradient(to bottom, #3e2a1a, #2c1e14);
+  border-bottom: 3px solid var(--rule);
+  box-shadow: 0 2px 0 #1a120b;
+}
+:root[data-theme="rail"] .brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  align-items: center;
+}
+:root[data-theme="rail"] .x-clock {
+  display: block;
+  grid-row: 1 / 3;
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+}
+:root[data-theme="rail"] .mast-title {
+  color: #f3ead6;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 0 #1a120b;
+}
+:root[data-theme="rail"] .mast-tag {
+  color: var(--ink-2);
+}
+/* The word and the panel's titles on split-flap tiles, one letter a tile. */
+:root[data-theme="rail"] .telegram-word,
+:root[data-theme="rail"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #f5efe0;
+}
+:root[data-theme="rail"] .telegram-word {
+  border: 0;
+  padding: 0;
+  font-size: min(64px, calc(38vw / var(--len, 8) / 1.2));
+}
+:root[data-theme="rail"] .telegram-word:hover,
+:root[data-theme="rail"] .telegram-word:focus-visible {
+  text-decoration: none;
+  filter: brightness(1.2);
+}
+:root[data-theme="rail"] .telegram-word .lt,
+:root[data-theme="rail"] .panel-title .lt,
+:root[data-theme="rail"] .place-name .lt {
+  display: inline-block;
+  min-width: 0.62em;
+  margin: 0 0.035em;
+  padding: 0.06em 0.07em 0.02em;
+  text-align: center;
+  line-height: 1.05;
+  border-radius: 0.07em;
+  color: #f5efe0;
+  background: linear-gradient(to bottom, #2b2925 0 48%, #0b0a08 48% 52%, #211f1b 52% 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="rail"] .telegram-kicker,
+:root[data-theme="rail"] .telegram-date {
+  color: var(--accent);
+  letter-spacing: 0.14em;
+}
+:root[data-theme="rail"] .telegram-note,
+:root[data-theme="rail"] .meta,
+:root[data-theme="rail"] .count,
+:root[data-theme="rail"] .dateline .coords,
+:root[data-theme="rail"] .byline {
+  font-style: normal;
+}
+:root[data-theme="rail"] .scale {
+  border-color: var(--rule);
+}
+:root[data-theme="rail"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+/* Buttons are ticket stubs: cream card with notched ends and a perforated edge. The one that is on is punched. */
+:root[data-theme="rail"] .tool,
+:root[data-theme="rail"] .pick select,
+:root[data-theme="rail"] .menu > summary,
+:root[data-theme="rail"] .chip,
+:root[data-theme="rail"] .key-btn {
+  border: 0;
+  border-radius: 2px;
+  color: #2a1d14;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background:
+    linear-gradient(to bottom, #8a6a3a 50%, transparent 50%) left 9px top 0 / 1px 4px repeat-y,
+    var(--ticket);
+  padding-left: 16px;
+  -webkit-mask:
+    radial-gradient(circle at 0 50%, transparent 4px, #000 4.5px) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 4px, #000 4.5px) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 50%, transparent 4px, #000 4.5px) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 4px, #000 4.5px) right / 51% 100% no-repeat;
+}
+:root[data-theme="rail"] .pick::after {
+  color: #2a1d14;
+}
+:root[data-theme="rail"] .tool:hover,
+:root[data-theme="rail"] .pick select:hover,
+:root[data-theme="rail"] .menu > summary:hover,
+:root[data-theme="rail"] .chip:hover,
+:root[data-theme="rail"] .key-btn:hover {
+  filter: brightness(1.06);
+}
+:root[data-theme="rail"] .tool.quiet {
+  background: transparent;
+  color: var(--ink);
+  -webkit-mask: none;
+  mask: none;
+}
+:root[data-theme="rail"] .tool[aria-pressed="true"],
+:root[data-theme="rail"] .menu[open] > summary,
+:root[data-theme="rail"] .chip[aria-pressed="true"],
+:root[data-theme="rail"] .key-btn[aria-expanded="true"],
+:root[data-theme="rail"] .tool.primary {
+  color: #1a140e;
+  background:
+    radial-gradient(circle at calc(100% - 11px) 50%, #2a1d14 0 3px, transparent 3.5px),
+    linear-gradient(to bottom, #8a6a3a 50%, transparent 50%) left 9px top 0 / 1px 4px repeat-y,
+    var(--accent);
+  padding-right: 22px;
+}
+:root[data-theme="rail"] .key-close {
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  color: var(--ink);
+}
+:root[data-theme="rail"] .zoom {
+  border: 2px solid var(--rule);
+  border-radius: 6px;
+  background: linear-gradient(#3b2819, #22170f);
+  right: 30px;
+  bottom: 30px;
+}
+:root[data-theme="rail"] .zoom button {
+  color: #f3ead6;
+}
+:root[data-theme="rail"] .zoom button + button {
+  border-top-color: var(--rule);
+}
+:root[data-theme="rail"] .toolbar {
+  background: #22170f;
+  border-bottom: 1px solid #120c07;
+}
+/* The window: a rounded opening in the car's wall with a brass rim, curtains at the sides and a blind at the
+   top. The map shows through it; places near its edge come into view as the map is dragged. */
+:root[data-theme="rail"] .map {
+  background: #3a2618;
+}
+:root[data-theme="rail"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 36px / 32px;
+  box-shadow:
+    0 0 0 40px #4a3121,
+    inset 0 0 0 3px #c9a45c,
+    inset 0 0 0 6px #22160e,
+    inset 0 12px 26px rgba(0, 0, 0, 0.45);
+  background:
+    repeating-linear-gradient(90deg, #2c4a3a 0 5px, #1f3a2c 5px 9px, #35574a 9px 12px) left / 3.2% 100% no-repeat,
+    repeating-linear-gradient(90deg, #2c4a3a 0 5px, #1f3a2c 5px 9px, #35574a 9px 12px) right / 3.2% 100% no-repeat;
+}
+:root[data-theme="rail"] .map::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 14px;
+  height: 7%;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 36px 36px 0 0 / 32px 32px 0 0;
+  background:
+    radial-gradient(circle at 50% calc(100% - 5px), transparent 0 3px, #c9a45c 3.2px 5px, transparent 5.2px),
+    linear-gradient(to bottom, transparent calc(100% - 3px), #9c7b43 calc(100% - 3px)),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 4px),
+    #e6d8b8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="rail"] .key-btn {
+  top: calc(7% + 26px);
+  left: 30px;
+}
+/* The panel is a departure board: black flaps in a dark housing with a brass rim. */
+:root[data-theme="rail"] .panel {
+  margin: 10px 10px 10px 4px;
+  border: 6px solid #2b2621;
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--rule), 0 6px 18px rgba(0, 0, 0, 0.5);
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px),
+    var(--panel);
+}
+:root[data-theme="rail"] .panel-title,
+:root[data-theme="rail"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+:root[data-theme="rail"] .dateline {
+  border-bottom: 2px solid var(--rule);
+}
+:root[data-theme="rail"] .dateline .coords {
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="rail"] .stories li + li {
+  border-top: 1px solid #2e2a24;
+}
+:root[data-theme="rail"] .headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.3;
+}
+:root[data-theme="rail"] .meta {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="rail"] .rule-head {
+  color: var(--accent);
+  border-color: var(--rule);
+  letter-spacing: 0.16em;
+}
+:root[data-theme="rail"] .related,
+:root[data-theme="rail"] .kicker {
+  color: var(--accent);
+}
+:root[data-theme="rail"] .menu-body,
+:root[data-theme="rail"] .key-pop,
+:root[data-theme="rail"] dialog {
+  border: 2px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+/* The flaps turn over when a new place comes up, one after another. */
+:root[data-theme="rail"] .place-name.flip .lt {
+  animation: flap 0.42s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  animation-delay: calc(var(--i, 0) * 30ms);
+  transform-origin: 50% 50%;
+}
+@keyframes flap {
+  0% {
+    transform: perspective(200px) rotateX(-88deg);
+  }
+  65% {
+    transform: perspective(200px) rotateX(14deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="rail"] .place-name.flip .lt {
+    animation: none;
+  }
+}
+/* The time bar: the slider is a length of track. */
+:root[data-theme="rail"] .timebar {
+  background: #22170f;
+  border-top: 2px solid var(--rule);
+}
+:root[data-theme="rail"] .slider input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 22px;
+}
+:root[data-theme="rail"] .slider input::-webkit-slider-runnable-track {
+  height: 14px;
+  background:
+    linear-gradient(#cfc6b2, #cfc6b2) 0 2px / 100% 2px no-repeat,
+    linear-gradient(#cfc6b2, #cfc6b2) 0 10px / 100% 2px no-repeat,
+    repeating-linear-gradient(90deg, #6a4a2c 0 5px, transparent 5px 12px);
+}
+:root[data-theme="rail"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff4d6, #e8b04a 55%, #8a6420);
+  box-shadow: 0 0 8px rgba(255, 217, 138, 0.8);
+}
+:root[data-theme="rail"] .slider input::-moz-range-track {
+  height: 14px;
+  background:
+    linear-gradient(#cfc6b2, #cfc6b2) 0 2px / 100% 2px no-repeat,
+    linear-gradient(#cfc6b2, #cfc6b2) 0 10px / 100% 2px no-repeat,
+    repeating-linear-gradient(90deg, #6a4a2c 0 5px, transparent 5px 12px);
+}
+:root[data-theme="rail"] .slider input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff4d6, #e8b04a 55%, #8a6420);
+}
+
+/* ---- Phones: the four designs keep the toolbar one row, and the word fits ------------------------------ */
+@media (max-width: 760px) {
+  :root[data-theme="sheet"] .panel,
+  :root[data-theme="terminal"] .panel,
+  :root[data-theme="prep"] .panel,
+  :root[data-theme="rail"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="sheet"] .time-label {
+    padding-inline: 10px;
+  }
+  :root[data-theme="terminal"] .toolbar {
+    letter-spacing: 0;
+    font-size: 12px;
+  }
+  :root[data-theme="terminal"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.68)));
+  }
+  :root[data-theme="terminal"] .x-term .x-term-title {
+    display: none;
+  }
+  :root[data-theme="prep"] .map {
+    margin: 9px;
+  }
+  :root[data-theme="prep"] .brand,
+  :root[data-theme="rail"] .brand {
+    justify-content: center;
+  }
+  :root[data-theme="prep"] .x-crest {
+    width: 32px;
+    height: 38px;
+  }
+  :root[data-theme="rail"] .x-clock {
+    width: 40px;
+    height: 40px;
+  }
+  :root[data-theme="rail"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.86)));
+  }
+  :root[data-theme="rail"] .map::after {
+    inset: 8px;
+    border-radius: 24px / 22px;
+  }
+  :root[data-theme="rail"] .map::before {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    border-radius: 24px 24px 0 0 / 22px 22px 0 0;
+  }
+  :root[data-theme="rail"] .key-btn {
+    left: 20px;
+  }
+  :root[data-theme="rail"] .zoom {
+    right: 20px;
+    bottom: 20px;
+  }
+  :root[data-theme="rail"] .place-name,
+  :root[data-theme="rail"] .panel-title {
+    font-size: 22px;
+  }
+}

@@ -71,6 +71,20 @@ import "@fontsource/fraunces/400.css";
 import "@fontsource/fraunces/600.css";
 import "@fontsource/fraunces/700.css";
 import "@fontsource/fraunces/600-italic.css";
+// Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74).
+import "@fontsource/source-sans-3/400.css";
+import "@fontsource/source-sans-3/600.css";
+import "@fontsource/source-sans-3/700.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/700.css";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display/700-italic.css";
+import "@fontsource/libre-baskerville/400.css";
+import "@fontsource/libre-baskerville/400-italic.css";
+import "@fontsource/libre-baskerville/700.css";
+import "@fontsource/barlow-condensed/500.css";
+import "@fontsource/barlow-condensed/700.css";
+import "@fontsource/limelight/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -102,6 +116,7 @@ import { needsTranslation, targetLanguage, translate, translationSupported } fro
 import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
+import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -188,7 +203,9 @@ const map = new MapView($("map"), THEMES[state.theme], {
     state.showAll = false;
     if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
+    refreshExtras();
   },
+  onMove: moveExtras,
   onLevel(level) {
     state.level = level;
     if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
@@ -227,6 +244,17 @@ function flyToPlace(index: number) {
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
 const LETTER_THEMES = new Set<ThemeId>(["bit64"]);
+// Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
+LETTER_THEMES.add("rail");
+let boardShown = "";
+/** Sleeper Car's departure board: the place name on tiles, which flip when the name changes. */
+function boardName(el: HTMLElement, text: string): HTMLElement {
+  if (state.theme !== "rail") return el;
+  lettered(el, text);
+  if (text !== boardShown) el.classList.add("flip");
+  boardShown = text;
+  return el;
+}
 
 /** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
 function lettered(el: HTMLElement, text: string) {
@@ -400,6 +428,7 @@ function applyTheme() {
   renderTicker();
   if (state.file && !state.reader && !state.telegram && !state.event) renderPanel();
   syncUrl();
+  refreshExtras();
 }
 
 function onFiltersChanged() {
@@ -519,13 +548,13 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
     head = h(
       "div",
       { class: "dateline" },
-      h("h2", { class: "place-name", title: formatCoords(place.lat, place.lon) }, place.name),
+      boardName(h("h2", { class: "place-name", title: formatCoords(place.lat, place.lon) }, place.name), place.name),
       h("span", { class: "coords" }, [onePublisher, count].filter(Boolean).join(" · ")),
       pin,
     );
   } else {
     const names = indices.map((i) => file.places[i].name);
-    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
+    head = h("div", { class: "dateline" }, boardName(h("h2", { class: "place-name" }, `${names.length} places`), `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
   }
   const more = hidden
     ? (() => {
@@ -942,6 +971,8 @@ function bindTimebar() {
 
 /** Designs that show a crawl of the newest headlines under the map. */
 const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
+// Market Terminal's ticker: the newest headlines only, never prices, arrows or colours for up and down.
+TICKER_THEMES.add("terminal");
 
 function renderTicker() {
   const track = $("ticker-track");
@@ -1070,6 +1101,11 @@ async function start() {
   renderPanel();
   bindTimebar();
   bindGlobal();
+  mountExtras({
+    theme: () => state.theme,
+    tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
+    center: () => map.center(),
+  });
 
   loadLow(BASE).then((low) => map.setBasemap(low));
   loadHigh(BASE)
