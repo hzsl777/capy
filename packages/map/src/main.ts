@@ -141,7 +141,7 @@ import {
   type Filters,
   type TopicFilter,
 } from "./data.ts";
-import { markPath } from "./map/marks.ts";
+import { markPath, markRing } from "./map/marks.ts";
 import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
@@ -527,7 +527,7 @@ function renderPins() {
 function renderKey() {
   const t = THEMES[state.theme];
   const NS = "http://www.w3.org/2000/svg";
-  const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string) => void) => void) => {
+  const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string, of?: number) => void) => void) => {
     const svg = document.createElementNS(NS, "svg");
     svg.setAttribute("viewBox", "-13 -13 26 26");
     svg.setAttribute("width", "22");
@@ -535,10 +535,11 @@ function renderKey() {
     svg.setAttribute("aria-hidden", "true");
     svg.style.background = t.ocean;
     svg.style.borderRadius = "4px";
-    draw((r, fill, stroke, width, dash) => {
-      // The same outline the map draws (src/map/marks.ts), so the Key always matches it.
+    draw((r, fill, stroke, width, dash, of) => {
+      // The same outline the map draws (src/map/marks.ts), so the Key always matches it; with `of`, the ring of a
+      // mark of that radius.
       const el = document.createElementNS(NS, "path");
-      el.setAttribute("d", markPath(t.dotShape, r));
+      el.setAttribute("d", of === undefined ? markPath(t.dotShape, r) : markRing(t.dotShape, of, r - of));
       el.setAttribute("fill", fill);
       el.setAttribute("stroke", stroke);
       el.setAttribute("stroke-width", String(width));
@@ -554,11 +555,11 @@ function renderKey() {
     h(
       "ul",
       {},
-      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3))), "Rated 4 or 5"),
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3, undefined, 6))), "Rated 4 or 5"),
       row(mark((add) => add(6, t.dot, t.dotStroke, 1.2)), "Rated 2 or 3"),
       row(mark((add) => add(4.5, t.dotStroke, t.dot, 1.6)), "Rated 1, or a local story from GDELT"),
       row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together (zoom in to separate)"),
-      row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2")) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
+      row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2", 5)) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
     ),
   );
 }
