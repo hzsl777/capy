@@ -18,6 +18,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
 - [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red.
+- [ ] Designs with their own camera or moving light (Polygon Kingdom, Nightclub, Poolside, Snow Globe): places are drawn through the same camera as the land, a marker's size never changes with distance or animation, only light falls on the map (never a shape that reads as a mark, and no colour close to the fresh colour), and nothing flashes (no 10% swing in brightness within a third of a second, `test/scenes.test.ts`).
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.

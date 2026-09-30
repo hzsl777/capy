@@ -58,6 +58,19 @@ import "@fontsource/grenze-gotisch/700.css";
 import "@fontsource/eb-garamond/400.css";
 import "@fontsource/eb-garamond/400-italic.css";
 import "@fontsource/eb-garamond/600.css";
+// Decision 71: Nightclub, Poolside and Snow Globe.
+import "@fontsource/monoton/400.css";
+import "@fontsource/tilt-neon/400.css";
+import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/600.css";
+import "@fontsource/shrikhand/400.css";
+import "@fontsource/jost/400.css";
+import "@fontsource/jost/500.css";
+import "@fontsource/jost/600.css";
+import "@fontsource/fraunces/400.css";
+import "@fontsource/fraunces/600.css";
+import "@fontsource/fraunces/700.css";
+import "@fontsource/fraunces/600-italic.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
