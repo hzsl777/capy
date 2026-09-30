@@ -125,8 +125,8 @@ export interface Theme {
   decor: "sea" | "space" | "candy" | null;
   /**
    * Pictures that say what a design is (src/map/scenery.ts, decision 69): lily pads and frogs, a moon with a
-   * sleeping bear, The Course of Empire's landmarks, or trick-rope loops with a denim sea. Open ocean or outside
-   * the map only, never text.
+   * sleeping bear, The Course of Empire's landmarks, trick-rope loops with a denim sea, or Tarot's wheel, sun and
+   * moon round the globe. Open ocean or outside the map only, never text.
    */
   scenery?: SceneryKind;
   /**
@@ -678,14 +678,17 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // A tarot card: midnight indigo, gold linework and stars, the sheet framed like a card.
+  // A tarot card: deep violet, gold linework and stars, the sheet framed like a card, and on the globe a gold wheel
+  // with a sun and a crescent moon beside it (src/map/scenery.ts).
   arcana: {
     id: "arcana",
     label: "Tarot",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#161338",
-    land: "#2b2560",
+    scenery: "arcana",
+    globeScale: 0.4,
+    ocean: "#1a1142",
+    land: "#33235f",
     landTexture: "matrix",
     pixel: 1,
     dotShape: "star5",
@@ -698,11 +701,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     graticule: "rgba(227,189,98,0.12)",
     graticuleDash: [1, 4],
     river: "rgba(227,189,98,0.3)",
-    lake: "#161338",
-    ice: "#3a3378",
+    lake: "#1a1142",
+    ice: "#46327a",
     relief: "rgba(227,189,98,0.45)",
     dot: "#f5e6c0",
-    dotStroke: "#161338",
+    dotStroke: "#1a1142",
     fresh: "#ff9d5c",
     tuned: "#f5e6c0",
     arc: "#e3bd62",
@@ -712,42 +715,44 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: true,
     decor: null,
   },
-  // After Thomas Cole's The Course of Empire (public domain): a painted bay in evening light, olive land in loose
-  // strokes, and the paintings' crag, lone column, temple and broken arch standing in the water (decision 69).
+  // After Thomas Cole's The Course of Empire: Destruction (1836, public domain), engraved in black and white: a dark
+  // bay in engraved lines, hatched land, and the painting's headless colossus, broken bridge, burning colonnade, lone
+  // crag and burning galleys in open water under a sky of smoke (decision 69). Greys only, so fresh reports get the
+  // dotted ring.
   arcadia: {
     id: "arcadia",
-    label: "Arcadia",
+    label: "Course of Empire",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
-    ocean: "#4d6b73",
-    land: "#7f7a44",
-    landTexture: "brush",
+    globeScale: 0.4,
+    ocean: "#5c5c5c",
+    land: "#c6c6c6",
+    landTexture: "hatch",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(200,178,96,0.5)",
-    coast: "#2b2314",
+    textureInk: "rgba(17,17,17,0.5)",
+    coast: "#111111",
     coastWidth: 1.2,
     waterlines: 2,
-    waterline: "rgba(255,226,160,0.35)",
-    oceanHatch: null,
+    waterline: "rgba(236,236,236,0.3)",
+    oceanHatch: "rgba(236,236,236,0.1)",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "rgba(255,226,160,0.5)",
-    lake: "#4d6b73",
-    ice: "#eadfc4",
-    relief: "rgba(34,27,14,0.85)",
-    dot: "#f6ecd2",
-    dotStroke: "#2a2014",
-    fresh: "#d2452a",
-    tuned: "#f6ecd2",
-    arc: "#d2452a",
+    river: "rgba(17,17,17,0.55)",
+    lake: "#5c5c5c",
+    ice: "#ececec",
+    relief: "rgba(17,17,17,0.85)",
+    dot: "#111111",
+    dotStroke: "#f2f2f2",
+    fresh: "#111111",
+    tuned: "#111111",
+    arc: "#f2f2f2",
     glow: false,
-    atmosphere: "rgba(255,206,130,0.5)",
-    shade: "rgba(20,14,4,0.5)",
+    atmosphere: "rgba(222,222,222,0.4)",
+    shade: "rgba(0,0,0,0.55)",
     neatline: false,
     decor: null,
     scenery: "empire",
-    textureInk2: "rgba(40,44,18,0.45)",
   },
   // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a nightcap asleep
   // in the moon beside the globe (decision 69).

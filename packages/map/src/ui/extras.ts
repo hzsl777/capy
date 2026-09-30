@@ -2,7 +2,8 @@
 // every other design:
 // - Spreadsheet: a formula bar over the map whose line is built from the tuned place's name, the column letters
 //   and row numbers around the map, lined up with the cells the canvas draws (src/map/sheet.ts).
-// - Market Terminal: a header strip over the map with the reticle's latitude and longitude and a UTC clock.
+// - Market Terminal: a command line across the top of the page built from the tuned place's name, and a header strip
+//   over the map with the reticle's latitude and longitude and a UTC clock.
 // - Country Club: a small embroidered crest by the name: crossed oars inside a laurel, no animal and no letters.
 // - Sleeper Car: a station clock by the name.
 // Place names go in as text, never as HTML.
@@ -32,6 +33,7 @@ let cols: HTMLElement;
 let rows: HTMLElement;
 let readout: HTMLElement;
 let utc: HTMLElement;
+let command: HTMLElement;
 let hands: { hour: SVGElement; minute: SVGElement; second: SVGElement } | null = null;
 let timer = 0;
 let cell = "";
@@ -122,6 +124,10 @@ export function mountExtras(source: ExtrasSource) {
   readout = h("span", { class: "x-readout" });
   utc = h("span", { class: "x-utc" });
   mapEl.append(h("div", { class: "x-term", "aria-hidden": "true" }, h("span", { class: "x-fkey" }, "F1"), h("span", { class: "x-term-title" }, "MAP"), readout, utc));
+  command = h("span", { class: "x-cmd-text" });
+  document.getElementById("masthead")?.before(
+    h("div", { class: "x-cmd", "aria-hidden": "true" }, command, h("span", { class: "x-caret" }), h("span", { class: "x-go" }, "GO")),
+  );
   const brand = document.querySelector(".brand");
   brand?.prepend(crest(), stationClock());
   new ResizeObserver(() => layoutSheet()).observe(mapEl);
@@ -172,6 +178,11 @@ export function refreshExtras() {
     layoutSheet();
     const names = src.tuned();
     formula.textContent = names?.length ? `=REPORTS(${names.slice(0, 3).map(quote).join(", ")}${names.length > 3 ? ", ..." : ""})` : "=LATEST()";
+  }
+  if (theme === "terminal") {
+    // The command line reads as if the tuned place's reports had been asked for: its name and NEWS, or LATEST.
+    const names = src.tuned();
+    command.textContent = names?.length ? `${names[0]!.toUpperCase()}${names.length > 1 ? ` +${names.length - 1}` : ""} NEWS` : "LATEST NEWS";
   }
   moveExtras();
   clearInterval(timer);
