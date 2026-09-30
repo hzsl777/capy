@@ -165,6 +165,13 @@ export class Gazetteer {
    * The largest listed city of a country, to name it in the coverage report. The town list gives no populations, so a
    * territory only it has is named by its first town.
    */
+  /** The largest listed city of a first-level region ("CC/Region"), with its point, to name it in the coverage report. */
+  largestInRegion(key: string): { name: string; lat: number; lon: number } | null {
+    const cc = key.slice(0, key.indexOf("/"));
+    const best = (this.byCountry.get(cc) ?? []).filter((e) => `${e.cc}/${e.region}` === key).reduce<Entry | null>((a, b) => (!a || b.pop > a.pop ? b : a), null);
+    return best ? { name: best.name, lat: best.lat, lon: best.lon } : null;
+  }
+
   largestIn(cc: string): string {
     return (this.byCountry.get(cc) ?? []).reduce<Entry | null>((a, b) => (!a || b.pop > a.pop ? b : a), null)?.name ?? this.townOnly.get(cc) ?? cc;
   }

@@ -24,6 +24,10 @@ describe("the daily coverage count (decisions 46 and 78)", () => {
     expect(c.countriesTotal).toBeGreaterThan(200);
     expect(c.missing).toContain("JP (Tokyo)");
     expect(c.missing.some((m) => m.startsWith("FR"))).toBe(false);
+    // Every region with no story is listed with its largest city and point, for outlet research.
+    expect(c.missingRegions).toHaveLength(c.regionsTotal - c.regions);
+    expect(c.missingRegions.find((r) => r.startsWith("JP/"))).toMatch(/^JP\/.+ \(.+, -?\d+\.\d\d, -?\d+\.\d\d\)$/);
+    expect(c.missingRegions.some((r) => r.startsWith("KE/Nairobi"))).toBe(false);
   });
 
   it("counts the listed towns and cities with a story out of every one on the lists", () => {

@@ -20,6 +20,8 @@ export type Coverage = {
   regionsTotal: number;
   /** Countries and territories with no story at all, each as its code and largest listed city (or first town). */
   missing: string[];
+  /** First-level regions with no story, as "CC/Region (largest listed city, lat, lon)", for outlet research. */
+  missingRegions: string[];
 };
 
 /** Pass the whole day (loadMapView), local stories included, and the gazetteer with towns for the town count. */
@@ -45,7 +47,14 @@ export function coverageOf(map: MapFile, gaz: Gazetteer): Coverage {
   // Both counts come from the one list, so the countries with a story and the ones without always add up to it.
   const all = gaz.countries();
   const missing = all.filter((c) => !countries.has(c)).map((c) => `${c} (${gaz.largestIn(c)})`);
-  return { towns: towns.size, townsTotal: gaz.size(), offList, countries: all.length - missing.length, countriesTotal: all.length, regions: regions.size, regionsTotal: gaz.regions().length, missing };
+  const allRegions = gaz.regions();
+  const missingRegions = allRegions
+    .filter((r) => !regions.has(r))
+    .map((r) => {
+      const c = gaz.largestInRegion(r);
+      return c ? `${r} (${c.name}, ${c.lat.toFixed(2)}, ${c.lon.toFixed(2)})` : r;
+    });
+  return { towns: towns.size, townsTotal: gaz.size(), offList, countries: all.length - missing.length, countriesTotal: all.length, regions: regions.size, regionsTotal: allRegions.length, missing, missingRegions };
 }
 
 const n = (x: number) => x.toLocaleString("en-US");
@@ -56,8 +65,9 @@ export function coverageLine(c: Coverage): string {
   return `Coverage: stories in ${n(c.towns)} of ${n(c.townsTotal)} listed towns and cities${off}, ${c.countries} of ${c.countriesTotal} countries and territories, and ${n(c.regions)} of ${n(c.regionsTotal)} regions.`;
 }
 
-/** `stage -- coverage`: the line, then every country and territory with no story, for outlet research. */
+/** `stage -- coverage`: the line, then every country and territory, and every region, with no story, for outlet research. */
 export function coverageReport(date: string, c: Coverage): string {
   const none = c.missing.length ? `No story in ${c.missing.length} countries and territories (code and largest listed city):\n${c.missing.join("\n")}` : "Every country and territory on the list has a story.";
-  return `${date}\n${coverageLine(c)}\n\n${none}\n`;
+  const regions = c.missingRegions.length ? `No story in ${c.missingRegions.length} first-level regions (region, then its largest listed city and point):\n${c.missingRegions.join("\n")}` : "Every first-level region on the list has a story.";
+  return `${date}\n${coverageLine(c)}\n\n${none}\n\n${regions}\n`;
 }
