@@ -53,6 +53,8 @@ export class Gazetteer {
   private byAlt = new Map<string, Entry[]>();
   private byCountry = new Map<string, Entry[]>();
   private grid = new Map<number, Entry[]>();
+  /** Countries and territories only the town list has (Kosovo, Jersey, Anguilla...), each with its first town. */
+  private townOnly = new Map<string, string>();
 
   /** How many towns were loaded beside the city list. */
   readonly townCount: number;
@@ -64,9 +66,13 @@ export class Gazetteer {
       for (const a of new Set(alts.map(norm))) push(this.byAlt, a, e);
       push(this.byCountry, cc, e);
     }
-    // Towns join the name and grid lookups only. The country and region lists, the denominators of the coverage
-    // count (decision 46), stay the city list's.
-    for (const [name, cc, lat, lon, region] of towns) this.add({ name, cc, lat, lon, pop: 0, region, town: true });
+    // Towns join the name and grid lookups. They add no regions (every town's region is one of the city list's),
+    // but they do add 22 countries and territories the city list lacks. `areaAt` can answer with those, so they join
+    // the country list too, or the coverage count would count stories in them against a total without them.
+    for (const [name, cc, lat, lon, region] of towns) {
+      this.add({ name, cc, lat, lon, pop: 0, region, town: true });
+      if (cc && !this.byCountry.has(cc) && !this.townOnly.has(cc)) this.townOnly.set(cc, name);
+    }
     this.townCount = towns.length;
   }
 
@@ -131,7 +137,7 @@ export class Gazetteer {
 
   /** Every country code on the list: the denominator of the daily coverage count. */
   countries(): string[] {
-    return [...this.byCountry.keys()].filter(Boolean).sort();
+    return [...this.byCountry.keys(), ...this.townOnly.keys()].filter(Boolean).sort();
   }
 
   /** Every first-level region on the list, as "CC/Region": the denominator of the region count. */
@@ -144,8 +150,10 @@ export class Gazetteer {
    * the daily coverage count and the local stage's regions (decisions 46 and 54). Never shown on the site.
    */
   areaAt(lat: number, lon: number): { country: string; region: string | null } | null {
-    const best = this.nearest(lat, lon, 300);
-    if (!best?.cc) return null;
+    // Natural Earth gives no country code for a dozen cities in disputed areas (Pristina, Hargeisa, Kyrenia); the
+    // nearest place that has one answers instead, so their stories count somewhere. Internal only, like the count.
+    const best = this.nearest(lat, lon, 300, (e) => e.cc !== "");
+    if (!best) return null;
     return { country: best.cc, region: best.region ? `${best.cc}/${best.region}` : null };
   }
 
@@ -153,9 +161,12 @@ export class Gazetteer {
     return this.areaAt(lat, lon)?.country ?? null;
   }
 
-  /** The largest listed city of a country, to name it in the coverage report. */
+  /**
+   * The largest listed city of a country, to name it in the coverage report. The town list gives no populations, so a
+   * territory only it has is named by its first town.
+   */
   largestIn(cc: string): string {
-    return (this.byCountry.get(cc) ?? []).reduce<Entry | null>((a, b) => (!a || b.pop > a.pop ? b : a), null)?.name ?? cc;
+    return (this.byCountry.get(cc) ?? []).reduce<Entry | null>((a, b) => (!a || b.pop > a.pop ? b : a), null)?.name ?? this.townOnly.get(cc) ?? cc;
   }
 
   /**

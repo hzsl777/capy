@@ -18,7 +18,7 @@ export type Coverage = {
   countriesTotal: number;
   regions: number;
   regionsTotal: number;
-  /** Countries and territories with no story at all, each as its code and largest listed city. */
+  /** Countries and territories with no story at all, each as its code and largest listed city (or first town). */
   missing: string[];
 };
 
@@ -42,9 +42,10 @@ export function coverageOf(map: MapFile, gaz: Gazetteer): Coverage {
     countries.add(area.country);
     if (area.region) regions.add(area.region);
   }
+  // Both counts come from the one list, so the countries with a story and the ones without always add up to it.
   const all = gaz.countries();
   const missing = all.filter((c) => !countries.has(c)).map((c) => `${c} (${gaz.largestIn(c)})`);
-  return { towns: towns.size, townsTotal: gaz.size(), offList, countries: countries.size, countriesTotal: all.length, regions: regions.size, regionsTotal: gaz.regions().length, missing };
+  return { towns: towns.size, townsTotal: gaz.size(), offList, countries: all.length - missing.length, countriesTotal: all.length, regions: regions.size, regionsTotal: gaz.regions().length, missing };
 }
 
 const n = (x: number) => x.toLocaleString("en-US");

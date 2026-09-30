@@ -35,4 +35,16 @@ describe("the daily coverage count (decisions 46 and 78)", () => {
     expect(coverageLine(c)).toMatch(/^Coverage: stories in 4 of 1\d\d,\d\d\d listed towns and cities \(and 1 other places\), 2 of 2\d\d countries and territories, and \d of 2,\d\d\d regions\.$/);
     expect(coverageReport("2026-09-30", c)).toContain("\nJP (Tokyo)\n");
   });
+
+  it("counts a story in a territory only the town list has against a total that includes it", () => {
+    const gaz = Gazetteer.loadWithTowns();
+    const pristina = { places: [{ id: "k", name: "Pristina", lat: 42.66, lon: 21.16 }], items: [{ place: 0 }] } as unknown as MapFile;
+    const c = coverageOf(pristina, gaz);
+    expect(c.countries).toBe(1);
+    expect(c.countries + c.missing.length).toBe(c.countriesTotal);
+    expect(c.missing.some((m) => m.startsWith("XK"))).toBe(false);
+    const both = coverageOf(map, gaz);
+    expect(both.countries + both.missing.length).toBe(both.countriesTotal);
+    expect(both.missing.some((m) => m.startsWith("XK "))).toBe(true);
+  });
 });
