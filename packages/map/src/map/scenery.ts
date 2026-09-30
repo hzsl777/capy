@@ -48,7 +48,7 @@ export const EMPIRE: readonly Spot[] = [
   { kind: "temple", lon: -14, lat: -54, r: 14, flip: true },
   { kind: "column", lon: 138, lat: -54, r: 9 },
   { kind: "crag", lon: -130, lat: 26, r: 9, flip: true },
-  { kind: "column", lon: -178, lat: -2, r: 9 },
+  { kind: "column", lon: -178, lat: -1, r: 8 },
   { kind: "cloud", lon: -142, lat: 10, r: 14 },
   { kind: "cloud", lon: -94, lat: -6, r: 9 },
   { kind: "cloud", lon: 90, lat: -10, r: 9 },

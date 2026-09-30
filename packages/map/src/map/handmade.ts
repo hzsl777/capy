@@ -283,7 +283,7 @@ export const DOODLES: readonly SeaSpot[] = [
   { kind: "waves", lon: -42, lat: 24, r: 11 },
   { kind: "gulls", lon: -152, lat: 40, r: 11 },
   { kind: "boat", lon: -24, lat: -34, r: 11 },
-  { kind: "waves", lon: 0, lat: -24, r: 8 },
+  { kind: "waves", lon: -1, lat: -32, r: 8 },
   { kind: "waves", lon: 86, lat: -42, r: 11 },
   { kind: "boat", lon: 52, lat: -36, r: 8 },
   { kind: "waves", lon: -138, lat: -38, r: 11 },

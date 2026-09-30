@@ -422,6 +422,45 @@ sources:
   - { id: tc-weekly-news, name: Turks and Caicos Weekly News, url: "https://tcweeklynews.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Providenciales, lat: 21.78, lon: -72.27 } } # feed unconfirmed
   - { id: iwitness-news, name: iWitness News, url: "https://www.iwnsvg.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Kingstown, lat: 13.16, lon: -61.23 } } # feed unconfirmed
   - { id: st-thomas-source, name: St. Thomas Source, url: "https://stthomassource.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Charlotte Amalie, lat: 18.34, lon: -64.93 } } # feed unconfirmed
+
+  # Places with no story on the map on 2026-09-30: a second outlet where the first is thin or unreachable, and a
+  # first outlet for territories that had none. Gathered 2026-09-30 by web search; the session could not fetch news
+  # hosts, so every entry is a homepage marked "feed unconfirmed" and `sources check` reports what ingest finds.
+  # Skipped: American Samoa and the Northern Marianas (no second local newsroom; the Saipan Tribune closed on
+  # 2024-12-31), Svalbard (Icepeople no longer publishes), Kiribati, Tuvalu, Nauru and Tokelau (government
+  # bulletins by email or Facebook only), Timor-Leste (the independent Diligente's site address not confirmed),
+  # Norfolk Island (site address not confirmed), Christmas and Cocos Islands (Commonwealth bulletins only),
+  # Pitcairn (monthly subscription newsletter). Western Sahara stays with the international desks (contested).
+
+  # Europe (Gibraltar: beside GBC News; Spanish national outlets EFE and El País are listed)
+  - { id: gibraltar-chronicle, name: Gibraltar Chronicle, url: "https://www.chronicle.gi/", topic: world, tier: general, desk: world, lang: en, place: { name: Gibraltar, lat: 36.14, lon: -5.35 } } # feed unconfirmed
+  - { id: libertas-sm, name: Libertas, url: "https://www.libertas.sm/", topic: world, tier: general, desk: world, lang: it, place: { name: San Marino, lat: 43.94, lon: 12.45 } } # feed unconfirmed
+  - { id: osservatore-romano, name: L'Osservatore Romano, url: "https://www.osservatoreromano.va/", topic: world, tier: general, desk: world, lang: it, place: { name: Vatican City, lat: 41.90, lon: 12.45 } } # state media (the Holy See's daily); feed unconfirmed
+
+  # Africa
+  - { id: imaz-press-reunion, name: Imaz Press Réunion, url: "https://imazpress.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Saint-Denis, lat: -20.88, lon: 55.45 } } # feed unconfirmed; newsroom city from knowledge, not seen in search
+
+  # Asia and the Pacific
+  - { id: the-scoop-brunei, name: The Scoop, url: "https://thescoop.co/", topic: world, tier: general, desk: world, lang: en, place: { name: Bandar Seri Begawan, lat: 4.89, lon: 114.94 } } # feed unconfirmed
+  - { id: fsm-information-services, name: FSM Information Services, url: "https://gov.fm/", topic: world, tier: general, desk: world, lang: en, place: { name: Palikir, lat: 6.92, lon: 158.16 } } # state media (national government press office); feed unconfirmed
+  - { id: guam-daily-post, name: The Guam Daily Post, url: "https://www.postguam.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Tamuning, lat: 13.49, lon: 144.78 } } # feed unconfirmed
+  - { id: bcn-niue, name: Broadcasting Corporation of Niue, url: "https://tvniue.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Alofi, lat: -19.06, lon: -169.92 } } # public broadcaster; feed unconfirmed
+  - { id: wallis-futuna-la-1ere, name: Wallis et Futuna la 1ère, url: "https://la1ere.franceinfo.fr/wallisfutuna/", topic: world, tier: general, desk: world, lang: fr, place: { name: Mata-Utu, lat: -13.28, lon: -176.17 } } # public broadcaster; feed unconfirmed (path follows the other la 1ère stations, not seen in search)
+
+  # The Americas and the Atlantic (Falklands: beside Penguin News; Clarín and MercoPress are listed)
+  - { id: noticiacla, name: NoticiaCla, url: "https://www.noticiacla.com/en/", topic: world, tier: general, desk: world, lang: en, place: { name: Oranjestad, lat: 12.52, lon: -70.03 } } # English edition of a Papiamento site; feed unconfirmed
+  - { id: fitv, name: Falkland Islands TV, url: "https://fitv.co.fk/news-and-events/", topic: world, tier: general, desk: world, lang: en, place: { name: Stanley, lat: -51.69, lon: -57.86 } } # weekly news programme; feed unconfirmed
+  - { id: france-guyane, name: France-Guyane, url: "https://www.franceguyane.fr/", topic: world, tier: general, desk: world, lang: fr, place: { name: Cayenne, lat: 4.94, lon: -52.33 } } # feed unconfirmed
+  - { id: rci-guadeloupe, name: RCI Guadeloupe, url: "https://rci.fm/guadeloupe", topic: world, tier: general, desk: world, lang: fr, place: { name: Les Abymes, lat: 16.27, lon: -61.50 } } # private radio; feed unconfirmed
+  - { id: vi-consortium, name: The Virgin Islands Consortium, url: "https://viconsortium.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Christiansted, lat: 17.75, lon: -64.70 } } # feed unconfirmed
+  - { id: anguilla-focus, name: Anguilla Focus, url: "https://anguillafocus.com/", topic: world, tier: general, desk: world, lang: en, place: { name: The Valley, lat: 18.22, lon: -63.06 } } # feed unconfirmed
+  - { id: journal-de-saint-barth, name: Journal de Saint-Barth, url: "https://www.journaldesaintbarth.com/", topic: world, tier: general, desk: world, lang: fr, place: { name: Saint-Jean, lat: 17.90, lon: -62.83 } } # feed unconfirmed
+  - { id: bes-reporter, name: BES-reporter, url: "https://bes-reporter.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Kralendijk, lat: 12.15, lon: -68.27 } } # also covers Saba and Sint Eustatius; feed unconfirmed
+  - { id: faxinfo, name: Fax Info, url: "https://www.faxinfo.fr/", topic: world, tier: general, desk: world, lang: fr, place: { name: Marigot, lat: 18.07, lon: -63.08 } } # feed unconfirmed; newsroom city from knowledge, not seen in search
+  - { id: daily-herald-sxm, name: The Daily Herald, url: "https://thedailyherald.sx/", topic: world, tier: general, desk: world, lang: en, place: { name: Philipsburg, lat: 18.03, lon: -63.05 } } # feed unconfirmed
+  - { id: montserrat-reporter, name: The Montserrat Reporter, url: "https://www.themontserratreporter.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Brades, lat: 16.79, lon: -62.21 } } # newsroom at Davy Hill, next to Brades; feed unconfirmed
+  - { id: st-helena-independent, name: St Helena Independent, url: "https://www.independent.sh/", topic: world, tier: general, desk: world, lang: en, place: { name: Jamestown, lat: -15.93, lon: -5.72 } } # feed unconfirmed
+
   # Decision 48: stateless nations, minority peoples and Indigenous communities
   # Gathered 2026-09-29 by web search; the session could not fetch these hosts. Feeds unverified until npm run stage -- sources check.
   # Balance: an outlet from a side of a conflict or sovereignty dispute sits beside the state side, named here or already listed.
