@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FILTERS, formatCoords, groupByPlace, hasTiers, passes, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
+import { FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
 import type { MapFile, MapItem } from "../src/types.ts";
 
 const base: MapItem = { id: "1", t: 100, title: "t", url: "https://x", domain: "x", publisher: "X", lang: "en", topics: [], place: 0 };
@@ -63,5 +63,27 @@ describe("zoom tiers (decision 30)", () => {
     expect(tierOf(item(), false)).toBe(0);
     expect(hasTiers({ items: [item()] } as unknown as MapFile)).toBe(false);
     expect(hasTiers({ items: [item(1, 2)] } as unknown as MapFile)).toBe(true);
+  });
+});
+
+describe("the word's date and status line (decision 81)", () => {
+  const word = (runDate: string) => ({ word: "Grief", band: -1, runDate, items: [], scores: [] }) as unknown as MapFile["telegram"];
+  const noon = new Date("2026-10-01T12:00:00Z");
+
+  it("shows a finished day's word under its own date, with nothing more to say", () => {
+    expect(wordStatus({ source: "live", runDate: "2026-09-30", telegram: word("2026-09-30") }, noon)).toEqual({ date: "2026-09-30", note: null });
+  });
+
+  it("keeps the last word after midnight and says the next one is being chosen", () => {
+    const early = new Date("2026-10-01T00:20:00Z");
+    expect(wordStatus({ source: "live", runDate: "2026-09-29", telegram: word("2026-09-29") }, early)).toEqual({ date: "2026-09-29", note: `The word for ${formatRunDate("2026-09-30")} is being chosen.` });
+  });
+
+  it("names the day that had no word when an earlier word is carried", () => {
+    expect(wordStatus({ source: "live", runDate: "2026-09-30", telegram: word("2026-09-29") }, noon)).toEqual({ date: "2026-09-29", note: `${formatRunDate("2026-09-30")} has no word: none passed the checks.` });
+  });
+
+  it("says nothing of the kind for the sample or a demo", () => {
+    expect(wordStatus({ source: "sample", runDate: "2026-09-20", telegram: word("2026-09-20") }, noon).note).toBeNull();
   });
 });

@@ -57,7 +57,7 @@ export const localBase = (runDate: string) => `local/${runDate}/`;
  * site's file and tiles (splitLocal in core). With `local: "index"` the local stories stay in the database and the
  * file lists their tiles instead, as the Worker serves a day with no stored file (decision 78).
  */
-export async function loadMapView(db: Db, runDate: string, now: Date = new Date(), opts: { local?: "inline" | "index" } = {}): Promise<MapFile> {
+export async function loadMapView(db: Db, runDate: string, now: Date = new Date(), opts: { local?: "inline" | "index"; noCarry?: boolean } = {}): Promise<MapFile> {
   const date = toRunDate(runDate);
   const { from, to } = ingestWindow(date);
 
@@ -217,7 +217,41 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     }
   }
 
-  const file: MapFile = { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), to.getTime()) / 1000), runDate: date, places, items, events, telegram };
+  // A day with no word carries the last word of the week before it, with that word's own date, its scores and the
+  // events it rests on, so the page is never without one and never passes an older word off as the day's
+  // (decision 81). Its places join the day's by id.
+  if (!telegram && !opts.noCarry) {
+    const weekBefore = new Date(from.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const prev = (
+      await db
+        .select({ d: t.telegrams.runDate })
+        .from(t.telegrams)
+        .where(and(eq(t.telegrams.scope, "world"), lt(t.telegrams.runDate, date), gte(t.telegrams.runDate, weekBefore)))
+        .orderBy(desc(t.telegrams.runDate))
+    )[0];
+    const earlier = prev ? await loadMapView(db, prev.d, now, { local: "index", noCarry: true }) : null;
+    if (earlier?.telegram) {
+      const at = (p: number): number[] => {
+        const place = earlier.places[p];
+        if (!place) return [];
+        let idx = placeIndex.get(place.id);
+        if (idx === undefined) placeIndex.set(place.id, (idx = places.push(place) - 1));
+        return [idx];
+      };
+      const ids = new Set([...earlier.telegram.items.map((i) => i.eventId), ...earlier.telegram.scores.map((sc) => sc.eventId)]);
+      for (const id of ids) {
+        const ev = earlier.events[String(id)];
+        if (ev && !events[String(id)]) events[String(id)] = { ...ev, places: ev.places.flatMap(at) };
+      }
+      telegram = earlier.telegram;
+    }
+  }
+
+  // The day's file is as new as its window's end, or its newest local story once the refresh during the day has read
+  // past that end (decision 80), and never newer than now.
+  const newestLocal = (await db.select({ at: sql<Date | null>`max(${t.localStories.publishedAt})` }).from(t.localStories).where(eq(t.localStories.runDate, date)))[0]?.at;
+  const upTo = Math.max(to.getTime(), newestLocal ? new Date(newestLocal).getTime() : 0);
+  const file: MapFile = { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), upTo) / 1000), runDate: date, places, items, events, telegram };
   if (local) file.local = local;
   return file;
 }

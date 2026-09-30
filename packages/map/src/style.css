@@ -1681,6 +1681,13 @@ button.link {
 .telegram-side .telegram-note {
   font-size: 12px;
 }
+/* When the next word is on its way, or the map's day had none (decision 81): a quiet line under the note, in every
+   design's own muted ink, never an alert. */
+.telegram-status {
+  display: block;
+  font: 12px/1.3 var(--font-body);
+  color: var(--muted);
+}
 .telegram > .telegram-kicker:only-child {
   grid-column: 2;
   justify-self: end;

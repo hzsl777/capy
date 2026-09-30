@@ -66,7 +66,7 @@ beforeAll(async () => {
       url: `https://${outlet}.example/${i}`,
       title: `${story} report from ${name.get(outlet)}`,
       lead: "A lead.",
-      publishedAt: new Date(Date.UTC(2026, 8, 26, hour)),
+      publishedAt: new Date(Date.UTC(2026, 8, 27, hour)),
     })),
   );
 });

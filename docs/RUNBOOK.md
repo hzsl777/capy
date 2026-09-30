@@ -16,7 +16,8 @@ What happens on its own:
 
 - "Deploy site" publishes the site at `https://globalgist.<account>.workers.dev` and copies `DATABASE_URL` into the Worker.
 - When the deploy finishes, "Daily run" starts if today's map doesn't exist yet. It checks the model key first, then builds the day in ten to twenty minutes. Until then the site says the first map is being made.
-- Every day at 09:00 UTC "Daily run" builds the next day, then deletes world data older than 30 days and fetched page text older than two, so the free database never fills.
+- Every day just after midnight UTC "Daily run" builds the day that just ended (midnight to midnight UTC, decision 81), then deletes world data older than 30 days and fetched page text older than two, so the free database never fills. GitHub often starts scheduled runs late, by up to several hours. Until the run finishes the site keeps the last word under its own date and says the next one is being chosen. A day whose word fails the checks shows the last word from the week before, under its own date, and says the day had none.
+- Between daily runs, "Refresh local stories" runs every three hours and right after each daily run. It replaces the latest map's local stories with the last 24 hours of GDELT and stores the map again, in about two minutes and with no model calls, so the map's towns stay current through the day. The outlets' stories, the events and the word change only with the daily run (decision 80). Run it from the Actions tab to refresh by hand.
 - GitHub emails you when a scheduled run fails. A failed day leaves the previous map up.
 
 "Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page.
