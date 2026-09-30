@@ -8,7 +8,7 @@ import { preview } from "vite";
 import { chromium } from "playwright-core";
 
 const OUT = process.env.SHOT_DIR ?? "../../docs/map/screenshots";
-const themes = ["morning", "cabinet", "wire", "ops", "blueprint", "pirate", "space", "candy", "bit8", "bit16", "bit64", "realize", "newsroom", "pond", "honeycomb", "arcana", "arcadia", "nightcap", "campus", "lasso", "drive", "stitch", "glass", "club", "pool", "snow", "rave", "sheet", "terminal", "prep", "rail", "aquarium", "lava", "radar", "noir", "arcade", "stadium", "popup", "trainset", "chalk", "sketch", "cube", "dual", "realm", "tactical"];
+const themes = ["morning", "cabinet", "wire", "ops", "blueprint", "pirate", "space", "candy", "bit8", "bit16", "bit64", "realize", "newsroom", "pond", "honeycomb", "arcana", "arcadia", "nightcap", "campus", "lasso", "drive", "stitch", "glass", "club", "pool", "snow", "rave", "sheet", "terminal", "prep", "rail", "aquarium", "lava", "radar", "noir", "arcade", "stadium", "popup", "trainset", "chalk", "sketch", "cube", "dual", "realm", "tactical", "reef", "blocks"];
 const views = ["2d", "3d"] as const;
 
 const server = await preview({ preview: { port: 4179, strictPort: true }, logLevel: "warn" });

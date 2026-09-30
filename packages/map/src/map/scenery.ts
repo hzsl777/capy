@@ -10,7 +10,7 @@ import { STARS } from "./decor.ts";
  * itself, and none carries text. They are drawn from small SVG pictures, made once and cached.
  */
 
-export type SceneryKind = "pond" | "tea" | "empire" | "rope";
+export type SceneryKind = "pond" | "tea" | "empire" | "rope" | "reef";
 
 export interface Spot {
   kind: string;
@@ -69,6 +69,26 @@ export const ROPE: readonly Spot[] = [
   { kind: "lariat", lon: 162, lat: 42, r: 8, flip: true },
   { kind: "lariat", lon: -14, lat: -54, r: 14 },
   { kind: "lariat", lon: -142, lat: 10, r: 14, flip: true },
+];
+
+/**
+ * Undersea Town: little houses on sandy mounds in open sea and flower-shaped clouds drifting in the water above,
+ * all drawn for this site. Bubbles rise outside the map, in style.css.
+ */
+export const REEF: readonly Spot[] = [
+  { kind: "fruithouse", lon: -142, lat: 10, r: 14 },
+  { kind: "domehouse", lon: -22, lat: -30, r: 14 },
+  { kind: "tikihouse", lon: 70, lat: -10, r: 10 },
+  { kind: "tikihouse", lon: 154, lat: 30, r: 9, flip: true },
+  { kind: "domehouse", lon: -158, lat: 46, r: 7, flip: true },
+  { kind: "bloomblue", lon: -38, lat: 26, r: 11 },
+  { kind: "bloompink", lon: -126, lat: -26, r: 14 },
+  { kind: "bloomgreen", lon: 130, lat: -42, r: 7 },
+  { kind: "bloomlilac", lon: -94, lat: -6, r: 9 },
+  { kind: "bloomblue", lon: 6, lat: -58, r: 9, flip: true },
+  { kind: "bloompink", lon: -166, lat: -34, r: 9, flip: true },
+  { kind: "bloomgreen", lon: 46, lat: -34, r: 7 },
+  { kind: "bloomlilac", lon: -94, lat: -58, r: 9, flip: true },
 ];
 
 const HIDE = (80 * Math.PI) / 180;
@@ -219,6 +239,98 @@ const BEAR_HEAD = `
   <circle cx="-54" cy="0" r="7.5" fill="#fbf5e6" stroke="#8d8068" stroke-width="1.6"/>
   <path d="M-59 2.5q5 4 10-.5" stroke="#c7cfe8" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
 
+// Undersea Town. A flower-shaped cloud: rounded petals around a middle in three layers, darkest outside.
+const BLOOM = (x: number, y: number, r: number, petals: number, rot: number, [edge, mid, core]: readonly [string, string, string]) => {
+  const layer = (rr: number, fill: string, dx: number, dy: number) => {
+    const d = rr * 0.56;
+    const pr = rr * 0.46;
+    const circles = Array.from({ length: petals }, (_, i) => {
+      const a = ((rot + (i * 360) / petals) * Math.PI) / 180;
+      return `<circle cx="${(dx + Math.cos(a) * d).toFixed(1)}" cy="${(dy + Math.sin(a) * d).toFixed(1)}" r="${pr.toFixed(1)}"/>`;
+    }).join("");
+    return `<g fill="${fill}">${circles}<circle cx="${dx}" cy="${dy}" r="${(rr * 0.6).toFixed(1)}"/></g>`;
+  };
+  return `<g transform="translate(${x} ${y})" opacity=".82">${layer(r + 3, edge, 0, 0)}${layer(r, mid, 0, 0)}${layer(r * 0.52, core, -r * 0.12, -r * 0.14)}</g>`;
+};
+const BLOOMS: Record<string, readonly [string, string, string]> = {
+  blue: ["#62b4f0", "#a3d9ff", "#e2f4ff"],
+  pink: ["#f27fb0", "#ffb9d6", "#ffe9f2"],
+  green: ["#6fcf7e", "#aeebb4", "#e6fbe7"],
+  lilac: ["#a784e6", "#d3bdfb", "#f3eaff"],
+};
+
+/** A thin trail of bubbles rising from a point: rings with a glint, larger as they rise. */
+const BUBBLES = (x: number, y: number) =>
+  `<g fill="rgba(230,252,255,.25)" stroke="#e9fdff" stroke-width="1.6">
+    <circle cx="${x}" cy="${y}" r="2.6"/><circle cx="${x + 5}" cy="${y - 10}" r="3.6"/><circle cx="${x - 2}" cy="${y - 23}" r="4.8"/><circle cx="${x + 6}" cy="${y - 38}" r="6"/>
+  </g>
+  <path d="M${x - 4.4} ${y - 24}a3 3 0 0 1 2.4-2.6M${x + 2.4} ${y - 40}a4 4 0 0 1 3-3" stroke="#ffffff" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+
+/** The sandy mound a house stands on, with a tuft of coral and a frond of weed. */
+const MOUND = `<path d="M-84 58C-66 38-34 34 0 34S66 38 84 58Z" fill="#f1d596" stroke="#b58646" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M-50 50q4-2 8 0M30 48q5-2 9 0M-12 54q4-2 7 0" stroke="#c89c5c" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-66 48v-14m0 6l-7-8m7 3l6-9m-6 0v-6" stroke="#b4552c" stroke-width="5"/>
+    <path d="M-66 48v-14m0 6l-7-8m7 3l6-9m-6 0v-6" stroke="#ff9a66" stroke-width="3"/>
+    <path d="M62 48c-6-8 6-14 0-22s6-12 2-20" stroke="#1e7a3c" stroke-width="5"/>
+    <path d="M62 48c-6-8 6-14 0-22s6-12 2-20" stroke="#4cc36a" stroke-width="3"/>
+  </g>`;
+
+/** A house in the shape of a fruit: a rounded body with a crossed rind, a crown of long leaves, a wooden door. */
+const FRUIT_HOUSE = `${MOUND}
+  <defs><clipPath id="b"><path d="M0-34C24-34 36-12 36 10C36 32 22 46 0 46C-22 46-36 32-36 10C-36-12-24-34 0-34Z"/></clipPath></defs>
+  <g stroke="#1f6a2a" stroke-width="2.4" stroke-linejoin="round" fill="#3fae4e">
+    <path d="M-2-30C-14-44-28-50-40-50C-30-42-20-34-12-26Z"/>
+    <path d="M2-30C14-44 28-50 40-50C30-42 20-34 12-26Z"/>
+    <path d="M-4-30C-12-50-10-62-4-70C-2-58 0-44 2-30Z" fill="#58c265"/>
+    <path d="M4-30C12-50 10-62 4-70C2-58 0-44-2-30Z" fill="#58c265"/>
+  </g>
+  <path d="M0-34C24-34 36-12 36 10C36 32 22 46 0 46C-22 46-36 32-36 10C-36-12-24-34 0-34Z" fill="#f7a92a"/>
+  <g clip-path="url(#b)" stroke="#c9741a" stroke-width="2.2" fill="none">
+    <path d="M-60-40L40 60M-44-40L56 60M-28-40L72 60M-12-40L88 60M-76-40L24 60M-92-40L8 60M-108-40L-8 60"/>
+    <path d="M60-40L-40 60M44-40L-56 60M28-40L-72 60M12-40L-88 60M76-40L-24 60M92-40L-8 60M108-40L8 60"/>
+  </g>
+  <path d="M-20-24C-26-12-28 4-24 18" stroke="#ffd36e" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M0-34C24-34 36-12 36 10C36 32 22 46 0 46C-22 46-36 32-36 10C-36-12-24-34 0-34Z" fill="none" stroke="#8a4b10" stroke-width="3"/>
+  <path d="M-11 46V31A11 11 0 0 1 11 31V46Z" fill="#b0703a" stroke="#5a3a14" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M-4 24V46M4 24V46" stroke="#7a4a20" stroke-width="1.6"/>
+  <path d="M6 37h1" stroke="#ffe28a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M-25 4V-6a7 7 0 0 1 14 0V4Z" fill="#bfe9f5" stroke="#5a3a14" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M-18-12V4M-25-3H-11" stroke="#5a3a14" stroke-width="1.6"/>
+  <path d="M-27 5h18" stroke="#4cc36a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M12 22V14a6 6 0 0 1 12 0V22Z" fill="#bfe9f5" stroke="#5a3a14" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M18 8V22" stroke="#5a3a14" stroke-width="1.4"/>
+  ${BUBBLES(24, -52)}`;
+
+/** A dome of rock with a rounded door and a crooked pipe on top. */
+const DOME_HOUSE = `${MOUND}
+  <defs><linearGradient id="d" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#c2b2a6"/><stop offset=".6" stop-color="#9c8b80"/><stop offset="1" stop-color="#7a6a60"/></linearGradient></defs>
+  <path d="M-46 44C-48 8-28-20 0-20S48 8 46 44Z" fill="url(#d)" stroke="#54463f" stroke-width="3" stroke-linejoin="round"/>
+  <g fill="#8a796f"><path d="M-30 4l8-4 6 4-2 7-9 1Z"/><path d="M14-8l9 1 3 7-6 4-7-4Z"/><path d="M22 22l8-2 4 6-5 5-7-3Z"/><path d="M-36 28l6-3 5 5-4 5-6-2Z"/></g>
+  <path d="M-30-2C-24-12-14-16-6-16" stroke="#e0d3c8" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M-12 44V32C-12 22 12 22 12 32V44Z" fill="#6a5a52" stroke="#3e322c" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M6 36h-2" stroke="#e8c35a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M10-18V-34h8" stroke="#54463f" stroke-width="6" fill="none" stroke-linejoin="round"/>
+  <path d="M10-18V-34h8" stroke="#a3938a" stroke-width="3" fill="none" stroke-linejoin="round"/>
+  ${BUBBLES(22, -40)}`;
+
+/** A tall carved stone head standing on the sand, with lit square windows for eyes and a door for a mouth. */
+const TIKI_HOUSE = `${MOUND}
+  <path d="M-26 46V-18C-26-40-14-52 0-52S26-40 26-18V46Z" fill="#8ea2a5" stroke="#3f5256" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M-26-14C-26 20-22 36-18 46M18-44C22-36 22-26 20-18" stroke="#b5c6c8" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M-30-30h8v26h-8ZM22-30h8v26h-8Z" fill="#7a8f93" stroke="#3f5256" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M-24-22H24" stroke="#3f5256" stroke-width="5" stroke-linecap="round"/>
+  <path d="M-19-17h12v9h-12ZM7-17h12v9H7Z" fill="#ffe28a" stroke="#3f5256" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M-13-17v9M13-17v9" stroke="#3f5256" stroke-width="1.4"/>
+  <path d="M0-20L-7 10C-4 13 4 13 7 10Z" fill="#7a8f93" stroke="#3f5256" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M-12 46V24H12V46Z" fill="#4a5c60" stroke="#2f3e41" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M-16 20H16" stroke="#3f5256" stroke-width="3" stroke-linecap="round"/>
+  <g fill="#3fae4e" stroke="#1f6a2a" stroke-width="2" stroke-linejoin="round">
+    <path d="M-2-50C-10-60-22-62-30-60C-22-56-12-52-6-48Z"/><path d="M2-50C10-62 22-66 30-64C22-58 12-52 6-48Z"/><path d="M0-50C-2-62 2-70 8-76C8-66 6-58 4-50Z"/>
+  </g>
+  <path d="M-20 30q5-4 10 0M8 36q4-3 8 0" stroke="#5f9c5a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  ${BUBBLES(-16, -60)}`;
+
 const svg = (vb: string, body: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="400" height="${Math.round((400 * Number(vb.split(" ")[3])) / Number(vb.split(" ")[2]))}">${body}</svg>`;
 
@@ -329,6 +441,17 @@ export const PICTURES: Record<string, string> = {
     <ellipse cx="60" cy="12" rx="7" ry="5" fill="#b88a52" stroke="#5a3a1c" stroke-width="2.5"/>
     </g>`,
   ),
+
+  // Undersea Town: houses 200 by 160 standing on a mound at y = 58, and clusters of flower clouds 200 by 140.
+  fruithouse: svg("-100 -90 200 160", FRUIT_HOUSE),
+  domehouse: svg("-100 -90 200 160", DOME_HOUSE),
+  tikihouse: svg("-100 -90 200 160", TIKI_HOUSE),
+  ...Object.fromEntries(
+    Object.entries(BLOOMS).map(([name, c]) => [
+      `bloom${name}`,
+      svg("-100 -70 200 140", `${BLOOM(-26, -8, 40, 6, 10, c)}${BLOOM(42, 26, 24, 5, -20, c)}${BLOOM(52, -40, 14, 5, 30, c)}`),
+    ]),
+  ),
 };
 
 const cache = new Map<string, HTMLImageElement>();
@@ -388,7 +511,7 @@ export function drawSceneryUnder(f: SceneryFrame) {
     g.addColorStop(1, "rgba(34,42,92,0.3)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
-  }
+  } else if (t.scenery === "reef") sunlit(f);
 }
 
 /** Over the land, under the dots. */
@@ -396,6 +519,7 @@ export function drawScenery(f: SceneryFrame) {
   const t = f.theme;
   if (t.scenery === "pond") drawSpots(f, POND, 0.95);
   else if (t.scenery === "empire") drawSpots(f, EMPIRE, 0.95);
+  else if (t.scenery === "reef") drawSpots(f, REEF, 0.95, 16);
   else if (t.scenery === "rope") {
     seam(f);
     drawSpots(f, ROPE, 0.95);
@@ -406,13 +530,15 @@ export function drawScenery(f: SceneryFrame) {
   }
 }
 
-function drawSpots(f: SceneryFrame, list: readonly Spot[], size: number) {
+/** `min`: pictures narrower than this many pixels either side are left out, so none shrinks to the size of a marker. */
+function drawSpots(f: SceneryFrame, list: readonly Spot[], size: number, min = 0) {
   const { ctx, proj, mode, center } = f;
   const [cx, cy] = proj.translate();
   // Half the width of a picture: the open water around its spot, so it grows with zoom and never reaches land.
   const perDegree = (proj.scale() * Math.PI) / 180;
   for (const c of list) {
     const s = Math.min(170, c.r * perDegree * size);
+    if (s < min) continue;
     const im = picture(c.kind, f.redraw);
     if (!im) continue;
     let alpha = 1;
@@ -441,6 +567,41 @@ function drawSpots(f: SceneryFrame, list: readonly Spot[], size: number) {
     ctx.drawImage(im, -hw, -hh, hw * 2, hh * 2);
     ctx.restore();
   }
+}
+
+/**
+ * Undersea Town's water lit from above: brighter toward the top of the picture, with a few soft shafts of light
+ * slanting down. Fixed to the screen like the surface of the sea overhead.
+ */
+function sunlit(f: SceneryFrame) {
+  const { ctx, w, h } = f;
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, "rgba(255,255,225,0.34)");
+  g.addColorStop(0.5, "rgba(255,255,225,0.06)");
+  g.addColorStop(1, "rgba(0,40,80,0.12)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+  ctx.save();
+  for (const [x, wd] of [
+    [0.12, 0.07],
+    [0.33, 0.04],
+    [0.58, 0.09],
+    [0.82, 0.05],
+  ] as const) {
+    const x0 = x * w, ww = wd * w;
+    const shaft = ctx.createLinearGradient(0, 0, 0, h * 0.85);
+    shaft.addColorStop(0, "rgba(255,255,230,0.16)");
+    shaft.addColorStop(1, "rgba(255,255,230,0)");
+    ctx.fillStyle = shaft;
+    ctx.beginPath();
+    ctx.moveTo(x0, 0);
+    ctx.lineTo(x0 + ww, 0);
+    ctx.lineTo(x0 + ww * 2.6 + h * 0.18, h * 0.85);
+    ctx.lineTo(x0 + ww * 0.6 + h * 0.18, h * 0.85);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
 }
 
 let denimPattern: { ctx: CanvasRenderingContext2D; p: CanvasPattern } | null = null;

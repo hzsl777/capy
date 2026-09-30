@@ -10060,3 +10060,466 @@ button.link {
 :root[data-theme="dual"] .map canvas {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M1 1h3l18 18v4h-4L1 4z' fill='%2316203a'/%3E%3Cpath d='M4 4l16 16v1h-1L3 5z' fill='%23c9d3df'/%3E%3C/svg%3E") 1 1, grab;
 }
+   Undersea Town and Block World: two looks after the feel of a cartoon town under the sea and a blocky sandbox
+   game, with none of their characters, names, logos or art (src/map/scenery.ts, src/map/blocks.ts).
+   ========================================================================== */
+
+/* ---- Undersea Town: turquoise water, flower clouds, bubbles, sandy floor, bubbly rounded panels ------------- */
+:root[data-theme="reef"] {
+  color-scheme: light;
+  --page: #bdeef0;
+  --panel: #f4fdfd;
+  --ink: #10374f;
+  --ink-2: #1d4a63;
+  --muted: #3d6479;
+  --rule: #1b9fb3;
+  --accent: #c42d5e;
+  --on-accent: #ffffff;
+  --hover: rgba(196, 45, 94, 0.08);
+  --reticle: #10374f;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Bubblegum Sans", "Chewy", "Comic Sans MS", sans-serif;
+  --font-head: "Bubblegum Sans", "Nunito", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+/* The sky seen through the water: light from above and flower-shaped clouds drifting in it. */
+:root[data-theme="reef"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='360'%3E%3Cg opacity='.6'%3E%3Cg transform='translate(60 70)'%3E%3Cg fill='%2362b4f0'%3E%3Ccircle cx='20.4' cy='3.6' r='17'/%3E%3Ccircle cx='7.1' cy='19.5' r='17'/%3E%3Ccircle cx='-13.3' cy='15.9' r='17'/%3E%3Ccircle cx='-20.4' cy='-3.6' r='17'/%3E%3Ccircle cx='-7.1' cy='-19.5' r='17'/%3E%3Ccircle cx='13.3' cy='-15.9' r='17'/%3E%3Ccircle cx='0' cy='0' r='22.2'/%3E%3C/g%3E%3Cg fill='%23a3d9ff'%3E%3Ccircle cx='18.8' cy='3.3' r='15.6'/%3E%3Ccircle cx='6.5' cy='17.9' r='15.6'/%3E%3Ccircle cx='-12.2' cy='14.6' r='15.6'/%3E%3Ccircle cx='-18.8' cy='-3.3' r='15.6'/%3E%3Ccircle cx='-6.5' cy='-17.9' r='15.6'/%3E%3Ccircle cx='12.2' cy='-14.6' r='15.6'/%3E%3Ccircle cx='0' cy='0' r='20.4'/%3E%3C/g%3E%3Cg fill='%23e2f4ff'%3E%3Ccircle cx='5.7' cy='-3' r='8.1'/%3E%3Ccircle cx='-0.7' cy='4.5' r='8.1'/%3E%3Ccircle cx='-10.4' cy='2.8' r='8.1'/%3E%3Ccircle cx='-13.8' cy='-6.5' r='8.1'/%3E%3Ccircle cx='-7.5' cy='-14.1' r='8.1'/%3E%3Ccircle cx='2.3' cy='-12.3' r='8.1'/%3E%3Ccircle cx='-4.1' cy='-4.8' r='10.6'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(300 50)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='7' r='11.5'/%3E%3Ccircle cx='-2.9' cy='13.7' r='11.5'/%3E%3Ccircle cx='-13.9' cy='1.5' r='11.5'/%3E%3Ccircle cx='-5.7' cy='-12.8' r='11.5'/%3E%3Ccircle cx='10.4' cy='-9.4' r='11.5'/%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.7' cy='6.2' r='10.1'/%3E%3Ccircle cx='-2.6' cy='12.1' r='10.1'/%3E%3Ccircle cx='-12.3' cy='1.3' r='10.1'/%3E%3Ccircle cx='-5' cy='-11.3' r='10.1'/%3E%3Ccircle cx='9.2' cy='-8.2' r='10.1'/%3E%3Ccircle cx='0' cy='0' r='13.2'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='2.9' cy='0.1' r='5.3'/%3E%3Ccircle cx='-4' cy='3.2' r='5.3'/%3E%3Ccircle cx='-9' cy='-2.4' r='5.3'/%3E%3Ccircle cx='-5.2' cy='-8.9' r='5.3'/%3E%3Ccircle cx='2.1' cy='-7.4' r='5.3'/%3E%3Ccircle cx='-2.6' cy='-3.1' r='6.9'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(210 200)'%3E%3Cg fill='%23a784e6'%3E%3Ccircle cx='23.7' cy='-4.2' r='19.8'/%3E%3Ccircle cx='15.5' cy='18.4' r='19.8'/%3E%3Ccircle cx='-8.2' cy='22.6' r='19.8'/%3E%3Ccircle cx='-23.7' cy='4.2' r='19.8'/%3E%3Ccircle cx='-15.5' cy='-18.4' r='19.8'/%3E%3Ccircle cx='8.2' cy='-22.6' r='19.8'/%3E%3Ccircle cx='0' cy='0' r='25.8'/%3E%3C/g%3E%3Cg fill='%23d3bdfb'%3E%3Ccircle cx='22.1' cy='-3.9' r='18.4'/%3E%3Ccircle cx='14.4' cy='17.2' r='18.4'/%3E%3Ccircle cx='-7.7' cy='21' r='18.4'/%3E%3Ccircle cx='-22.1' cy='3.9' r='18.4'/%3E%3Ccircle cx='-14.4' cy='-17.2' r='18.4'/%3E%3Ccircle cx='7.7' cy='-21' r='18.4'/%3E%3Ccircle cx='0' cy='0' r='24'/%3E%3C/g%3E%3Cg fill='%23f3eaff'%3E%3Ccircle cx='6.7' cy='-7.6' r='9.6'/%3E%3Ccircle cx='2.7' cy='3.3' r='9.6'/%3E%3Ccircle cx='-8.8' cy='5.3' r='9.6'/%3E%3Ccircle cx='-16.3' cy='-3.6' r='9.6'/%3E%3Ccircle cx='-12.3' cy='-14.5' r='9.6'/%3E%3Ccircle cx='-0.8' cy='-16.5' r='9.6'/%3E%3Ccircle cx='-4.8' cy='-5.6' r='12.5'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(380 280)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='16.2' cy='0' r='13.3'/%3E%3Ccircle cx='5' cy='15.4' r='13.3'/%3E%3Ccircle cx='-13.1' cy='9.5' r='13.3'/%3E%3Ccircle cx='-13.1' cy='-9.5' r='13.3'/%3E%3Ccircle cx='5' cy='-15.4' r='13.3'/%3E%3Ccircle cx='0' cy='0' r='17.4'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='14.6' cy='0' r='12'/%3E%3Ccircle cx='4.5' cy='13.8' r='12'/%3E%3Ccircle cx='-11.8' cy='8.6' r='12'/%3E%3Ccircle cx='-11.8' cy='-8.6' r='12'/%3E%3Ccircle cx='4.5' cy='-13.8' r='12'/%3E%3Ccircle cx='0' cy='0' r='15.6'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='4.5' cy='-3.6' r='6.2'/%3E%3Ccircle cx='-0.8' cy='3.6' r='6.2'/%3E%3Ccircle cx='-9.2' cy='0.8' r='6.2'/%3E%3Ccircle cx='-9.2' cy='-8.1' r='6.2'/%3E%3Ccircle cx='-0.8' cy='-10.8' r='6.2'/%3E%3Ccircle cx='-3.1' cy='-3.6' r='8.1'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(70 300)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='4.4' r='10.6'/%3E%3Ccircle cx='-0.4' cy='12.9' r='10.6'/%3E%3Ccircle cx='-12.4' cy='3.6' r='10.6'/%3E%3Ccircle cx='-7.2' cy='-10.7' r='10.6'/%3E%3Ccircle cx='7.9' cy='-10.1' r='10.6'/%3E%3Ccircle cx='0' cy='0' r='13.8'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.5' cy='3.8' r='9.2'/%3E%3Ccircle cx='-0.4' cy='11.2' r='9.2'/%3E%3Ccircle cx='-10.8' cy='3.1' r='9.2'/%3E%3Ccircle cx='-6.3' cy='-9.3' r='9.2'/%3E%3Ccircle cx='6.9' cy='-8.8' r='9.2'/%3E%3Ccircle cx='0' cy='0' r='12'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='3.1' cy='-0.8' r='4.8'/%3E%3Ccircle cx='-2.6' cy='3' r='4.8'/%3E%3Ccircle cx='-8' cy='-1.2' r='4.8'/%3E%3Ccircle cx='-5.7' cy='-7.6' r='4.8'/%3E%3Ccircle cx='1.2' cy='-7.4' r='4.8'/%3E%3Ccircle cx='-2.4' cy='-2.8' r='6.2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(150 130)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='8.4' cy='0' r='6.9'/%3E%3Ccircle cx='2.6' cy='8' r='6.9'/%3E%3Ccircle cx='-6.8' cy='4.9' r='6.9'/%3E%3Ccircle cx='-6.8' cy='-4.9' r='6.9'/%3E%3Ccircle cx='2.6' cy='-8' r='6.9'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='6.7' cy='0' r='5.5'/%3E%3Ccircle cx='2.1' cy='6.4' r='5.5'/%3E%3Ccircle cx='-5.4' cy='3.9' r='5.5'/%3E%3Ccircle cx='-5.4' cy='-3.9' r='5.5'/%3E%3Ccircle cx='2.1' cy='-6.4' r='5.5'/%3E%3Ccircle cx='0' cy='0' r='7.2'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='2.1' cy='-1.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='1.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='0.4' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-3.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='-5' r='2.9'/%3E%3Ccircle cx='-1.4' cy='-1.7' r='3.7'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0 / 420px 360px,
+    linear-gradient(to bottom, #a8ecf0, #7fdce6 55%, #62cfdc);
+  background-attachment: fixed;
+}
+/* The masthead ends in a sandy wave. */
+:root[data-theme="reef"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='14'%3E%3Cpath d='M0 7C10 1 20 1 40 7S70 13 80 7V14H0Z' fill='%23f1d596'/%3E%3Cpath d='M0 7C10 1 20 1 40 7S70 13 80 7' fill='none' stroke='%23b58646' stroke-width='2'/%3E%3C/svg%3E") repeat-x left bottom / 80px 14px,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cg opacity='.45'%3E%3Cg transform='translate(40 30)'%3E%3Cg fill='%2362b4f0'%3E%3Ccircle cx='13.8' cy='2.4' r='11.5'/%3E%3Ccircle cx='4.8' cy='13.2' r='11.5'/%3E%3Ccircle cx='-9' cy='10.7' r='11.5'/%3E%3Ccircle cx='-13.8' cy='-2.4' r='11.5'/%3E%3Ccircle cx='-4.8' cy='-13.2' r='11.5'/%3E%3Ccircle cx='9' cy='-10.7' r='11.5'/%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3C/g%3E%3Cg fill='%23a3d9ff'%3E%3Ccircle cx='12.1' cy='2.1' r='10.1'/%3E%3Ccircle cx='4.2' cy='11.6' r='10.1'/%3E%3Ccircle cx='-7.9' cy='9.4' r='10.1'/%3E%3Ccircle cx='-12.1' cy='-2.1' r='10.1'/%3E%3Ccircle cx='-4.2' cy='-11.6' r='10.1'/%3E%3Ccircle cx='7.9' cy='-9.4' r='10.1'/%3E%3Ccircle cx='0' cy='0' r='13.2'/%3E%3C/g%3E%3Cg fill='%23e2f4ff'%3E%3Ccircle cx='3.7' cy='-2' r='5.3'/%3E%3Ccircle cx='-0.4' cy='2.9' r='5.3'/%3E%3Ccircle cx='-6.8' cy='1.8' r='5.3'/%3E%3Ccircle cx='-8.9' cy='-4.2' r='5.3'/%3E%3Ccircle cx='-4.8' cy='-9.1' r='5.3'/%3E%3Ccircle cx='1.5' cy='-8' r='5.3'/%3E%3Ccircle cx='-2.6' cy='-3.1' r='6.9'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(170 86)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='10.2' cy='5.9' r='9.7'/%3E%3Ccircle cx='-2.4' cy='11.5' r='9.7'/%3E%3Ccircle cx='-11.7' cy='1.2' r='9.7'/%3E%3Ccircle cx='-4.8' cy='-10.7' r='9.7'/%3E%3Ccircle cx='8.7' cy='-7.9' r='9.7'/%3E%3Ccircle cx='0' cy='0' r='12.6'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='8.7' cy='5' r='8.3'/%3E%3Ccircle cx='-2.1' cy='9.9' r='8.3'/%3E%3Ccircle cx='-10' cy='1.1' r='8.3'/%3E%3Ccircle cx='-4.1' cy='-9.2' r='8.3'/%3E%3Ccircle cx='7.5' cy='-6.7' r='8.3'/%3E%3Ccircle cx='0' cy='0' r='10.8'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='2.4' cy='0.1' r='4.3'/%3E%3Ccircle cx='-3.2' cy='2.6' r='4.3'/%3E%3Ccircle cx='-7.4' cy='-2' r='4.3'/%3E%3Ccircle cx='-4.3' cy='-7.3' r='4.3'/%3E%3Ccircle cx='1.7' cy='-6' r='4.3'/%3E%3Ccircle cx='-2.2' cy='-2.5' r='5.6'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(262 26)'%3E%3Cg fill='%23a784e6'%3E%3Ccircle cx='9.4' cy='-1.7' r='7.8'/%3E%3Ccircle cx='4.5' cy='8.4' r='7.8'/%3E%3Ccircle cx='-6.6' cy='6.8' r='7.8'/%3E%3Ccircle cx='-8.6' cy='-4.2' r='7.8'/%3E%3Ccircle cx='1.3' cy='-9.4' r='7.8'/%3E%3Ccircle cx='0' cy='0' r='10.2'/%3E%3C/g%3E%3Cg fill='%23d3bdfb'%3E%3Ccircle cx='7.7' cy='-1.4' r='6.4'/%3E%3Ccircle cx='3.7' cy='6.9' r='6.4'/%3E%3Ccircle cx='-5.4' cy='5.6' r='6.4'/%3E%3Ccircle cx='-7' cy='-3.4' r='6.4'/%3E%3Ccircle cx='1.1' cy='-7.8' r='6.4'/%3E%3Ccircle cx='0' cy='0' r='8.4'/%3E%3C/g%3E%3Cg fill='%23f3eaff'%3E%3Ccircle cx='2.3' cy='-2.7' r='3.3'/%3E%3Ccircle cx='0.2' cy='1.6' r='3.3'/%3E%3Ccircle cx='-4.5' cy='1' r='3.3'/%3E%3Ccircle cx='-5.3' cy='-3.7' r='3.3'/%3E%3Ccircle cx='-1.1' cy='-6' r='3.3'/%3E%3Ccircle cx='-1.7' cy='-2' r='4.4'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(112 104)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='7.3' cy='0' r='6'/%3E%3Ccircle cx='2.2' cy='6.9' r='6'/%3E%3Ccircle cx='-5.9' cy='4.3' r='6'/%3E%3Ccircle cx='-5.9' cy='-4.3' r='6'/%3E%3Ccircle cx='2.2' cy='-6.9' r='6'/%3E%3Ccircle cx='0' cy='0' r='7.8'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='5.6' cy='0' r='4.6'/%3E%3Ccircle cx='1.7' cy='5.3' r='4.6'/%3E%3Ccircle cx='-4.5' cy='3.3' r='4.6'/%3E%3Ccircle cx='-4.5' cy='-3.3' r='4.6'/%3E%3Ccircle cx='1.7' cy='-5.3' r='4.6'/%3E%3Ccircle cx='0' cy='0' r='6'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='1.7' cy='-1.4' r='2.4'/%3E%3Ccircle cx='-0.3' cy='1.4' r='2.4'/%3E%3Ccircle cx='-3.6' cy='0.3' r='2.4'/%3E%3Ccircle cx='-3.6' cy='-3.1' r='2.4'/%3E%3Ccircle cx='-0.3' cy='-4.2' r='2.4'/%3E%3Ccircle cx='-1.2' cy='-1.4' r='3.1'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0 / 300px 120px,
+    linear-gradient(to bottom, #d9f8f8, #b3ecef);
+}
+:root[data-theme="reef"] .toolbar {
+  border-bottom: 0;
+  background: #f1d596;
+  box-shadow: inset 0 -3px 0 #d9b872;
+}
+:root[data-theme="reef"] .timebar {
+  border-top: 0;
+  background:
+    radial-gradient(ellipse 5px 3px at 20% 40%, #d9b872 90%, transparent) 0 0 / 38px 100%,
+    radial-gradient(ellipse 4px 3px at 70% 70%, #fff1cc 90%, transparent) 0 0 / 30px 100%,
+    #f1d596;
+  color: var(--ink);
+}
+/* The map is a rounded porthole onto the water, with bubbles rising behind the world. */
+:root[data-theme="reef"] .map {
+  margin: 10px;
+  border: 3px solid #10374f;
+  border-radius: 28px;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.5);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='360'%3E%3Cg opacity='.6'%3E%3Cg transform='translate(60 70)'%3E%3Cg fill='%2362b4f0'%3E%3Ccircle cx='20.4' cy='3.6' r='17'/%3E%3Ccircle cx='7.1' cy='19.5' r='17'/%3E%3Ccircle cx='-13.3' cy='15.9' r='17'/%3E%3Ccircle cx='-20.4' cy='-3.6' r='17'/%3E%3Ccircle cx='-7.1' cy='-19.5' r='17'/%3E%3Ccircle cx='13.3' cy='-15.9' r='17'/%3E%3Ccircle cx='0' cy='0' r='22.2'/%3E%3C/g%3E%3Cg fill='%23a3d9ff'%3E%3Ccircle cx='18.8' cy='3.3' r='15.6'/%3E%3Ccircle cx='6.5' cy='17.9' r='15.6'/%3E%3Ccircle cx='-12.2' cy='14.6' r='15.6'/%3E%3Ccircle cx='-18.8' cy='-3.3' r='15.6'/%3E%3Ccircle cx='-6.5' cy='-17.9' r='15.6'/%3E%3Ccircle cx='12.2' cy='-14.6' r='15.6'/%3E%3Ccircle cx='0' cy='0' r='20.4'/%3E%3C/g%3E%3Cg fill='%23e2f4ff'%3E%3Ccircle cx='5.7' cy='-3' r='8.1'/%3E%3Ccircle cx='-0.7' cy='4.5' r='8.1'/%3E%3Ccircle cx='-10.4' cy='2.8' r='8.1'/%3E%3Ccircle cx='-13.8' cy='-6.5' r='8.1'/%3E%3Ccircle cx='-7.5' cy='-14.1' r='8.1'/%3E%3Ccircle cx='2.3' cy='-12.3' r='8.1'/%3E%3Ccircle cx='-4.1' cy='-4.8' r='10.6'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(300 50)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='7' r='11.5'/%3E%3Ccircle cx='-2.9' cy='13.7' r='11.5'/%3E%3Ccircle cx='-13.9' cy='1.5' r='11.5'/%3E%3Ccircle cx='-5.7' cy='-12.8' r='11.5'/%3E%3Ccircle cx='10.4' cy='-9.4' r='11.5'/%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.7' cy='6.2' r='10.1'/%3E%3Ccircle cx='-2.6' cy='12.1' r='10.1'/%3E%3Ccircle cx='-12.3' cy='1.3' r='10.1'/%3E%3Ccircle cx='-5' cy='-11.3' r='10.1'/%3E%3Ccircle cx='9.2' cy='-8.2' r='10.1'/%3E%3Ccircle cx='0' cy='0' r='13.2'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='2.9' cy='0.1' r='5.3'/%3E%3Ccircle cx='-4' cy='3.2' r='5.3'/%3E%3Ccircle cx='-9' cy='-2.4' r='5.3'/%3E%3Ccircle cx='-5.2' cy='-8.9' r='5.3'/%3E%3Ccircle cx='2.1' cy='-7.4' r='5.3'/%3E%3Ccircle cx='-2.6' cy='-3.1' r='6.9'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(210 200)'%3E%3Cg fill='%23a784e6'%3E%3Ccircle cx='23.7' cy='-4.2' r='19.8'/%3E%3Ccircle cx='15.5' cy='18.4' r='19.8'/%3E%3Ccircle cx='-8.2' cy='22.6' r='19.8'/%3E%3Ccircle cx='-23.7' cy='4.2' r='19.8'/%3E%3Ccircle cx='-15.5' cy='-18.4' r='19.8'/%3E%3Ccircle cx='8.2' cy='-22.6' r='19.8'/%3E%3Ccircle cx='0' cy='0' r='25.8'/%3E%3C/g%3E%3Cg fill='%23d3bdfb'%3E%3Ccircle cx='22.1' cy='-3.9' r='18.4'/%3E%3Ccircle cx='14.4' cy='17.2' r='18.4'/%3E%3Ccircle cx='-7.7' cy='21' r='18.4'/%3E%3Ccircle cx='-22.1' cy='3.9' r='18.4'/%3E%3Ccircle cx='-14.4' cy='-17.2' r='18.4'/%3E%3Ccircle cx='7.7' cy='-21' r='18.4'/%3E%3Ccircle cx='0' cy='0' r='24'/%3E%3C/g%3E%3Cg fill='%23f3eaff'%3E%3Ccircle cx='6.7' cy='-7.6' r='9.6'/%3E%3Ccircle cx='2.7' cy='3.3' r='9.6'/%3E%3Ccircle cx='-8.8' cy='5.3' r='9.6'/%3E%3Ccircle cx='-16.3' cy='-3.6' r='9.6'/%3E%3Ccircle cx='-12.3' cy='-14.5' r='9.6'/%3E%3Ccircle cx='-0.8' cy='-16.5' r='9.6'/%3E%3Ccircle cx='-4.8' cy='-5.6' r='12.5'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(380 280)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='16.2' cy='0' r='13.3'/%3E%3Ccircle cx='5' cy='15.4' r='13.3'/%3E%3Ccircle cx='-13.1' cy='9.5' r='13.3'/%3E%3Ccircle cx='-13.1' cy='-9.5' r='13.3'/%3E%3Ccircle cx='5' cy='-15.4' r='13.3'/%3E%3Ccircle cx='0' cy='0' r='17.4'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='14.6' cy='0' r='12'/%3E%3Ccircle cx='4.5' cy='13.8' r='12'/%3E%3Ccircle cx='-11.8' cy='8.6' r='12'/%3E%3Ccircle cx='-11.8' cy='-8.6' r='12'/%3E%3Ccircle cx='4.5' cy='-13.8' r='12'/%3E%3Ccircle cx='0' cy='0' r='15.6'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='4.5' cy='-3.6' r='6.2'/%3E%3Ccircle cx='-0.8' cy='3.6' r='6.2'/%3E%3Ccircle cx='-9.2' cy='0.8' r='6.2'/%3E%3Ccircle cx='-9.2' cy='-8.1' r='6.2'/%3E%3Ccircle cx='-0.8' cy='-10.8' r='6.2'/%3E%3Ccircle cx='-3.1' cy='-3.6' r='8.1'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(70 300)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='4.4' r='10.6'/%3E%3Ccircle cx='-0.4' cy='12.9' r='10.6'/%3E%3Ccircle cx='-12.4' cy='3.6' r='10.6'/%3E%3Ccircle cx='-7.2' cy='-10.7' r='10.6'/%3E%3Ccircle cx='7.9' cy='-10.1' r='10.6'/%3E%3Ccircle cx='0' cy='0' r='13.8'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.5' cy='3.8' r='9.2'/%3E%3Ccircle cx='-0.4' cy='11.2' r='9.2'/%3E%3Ccircle cx='-10.8' cy='3.1' r='9.2'/%3E%3Ccircle cx='-6.3' cy='-9.3' r='9.2'/%3E%3Ccircle cx='6.9' cy='-8.8' r='9.2'/%3E%3Ccircle cx='0' cy='0' r='12'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='3.1' cy='-0.8' r='4.8'/%3E%3Ccircle cx='-2.6' cy='3' r='4.8'/%3E%3Ccircle cx='-8' cy='-1.2' r='4.8'/%3E%3Ccircle cx='-5.7' cy='-7.6' r='4.8'/%3E%3Ccircle cx='1.2' cy='-7.4' r='4.8'/%3E%3Ccircle cx='-2.4' cy='-2.8' r='6.2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(150 130)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='8.4' cy='0' r='6.9'/%3E%3Ccircle cx='2.6' cy='8' r='6.9'/%3E%3Ccircle cx='-6.8' cy='4.9' r='6.9'/%3E%3Ccircle cx='-6.8' cy='-4.9' r='6.9'/%3E%3Ccircle cx='2.6' cy='-8' r='6.9'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='6.7' cy='0' r='5.5'/%3E%3Ccircle cx='2.1' cy='6.4' r='5.5'/%3E%3Ccircle cx='-5.4' cy='3.9' r='5.5'/%3E%3Ccircle cx='-5.4' cy='-3.9' r='5.5'/%3E%3Ccircle cx='2.1' cy='-6.4' r='5.5'/%3E%3Ccircle cx='0' cy='0' r='7.2'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='2.1' cy='-1.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='1.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='0.4' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-3.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='-5' r='2.9'/%3E%3Ccircle cx='-1.4' cy='-1.7' r='3.7'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 40px 30px / 420px 360px,
+    linear-gradient(to bottom, #9be6ee, #4cc6d6 60%, #2fb4c8);
+}
+:root[data-theme="reef"] .map::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(100% + 400px);
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='400'%3E%3Cg fill='rgba(255,255,255,.18)' stroke='rgba(240,253,255,.85)' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='30' cy='380' r='5'/%3E%3Cpath d='M27.3 379.5a3 3 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='38' cy='340' r='3.5'/%3E%3Cpath d='M36.1 339.6a2.1 2.1 0 0 1 1.8-1.8' stroke='%23fff'/%3E%3Ccircle cx='28' cy='300' r='7'/%3E%3Cpath d='M24.1 299.3a4.2 4.2 0 0 1 3.5-3.5' stroke='%23fff'/%3E%3Ccircle cx='36' cy='250' r='4'/%3E%3Cpath d='M33.8 249.6a2.4 2.4 0 0 1 2-2' stroke='%23fff'/%3E%3Ccircle cx='150' cy='200' r='6'/%3E%3Cpath d='M146.7 199.4a3.6 3.6 0 0 1 3-3' stroke='%23fff'/%3E%3Ccircle cx='158' cy='160' r='3.5'/%3E%3Cpath d='M156.1 159.7a2.1 2.1 0 0 1 1.8-1.8' stroke='%23fff'/%3E%3Ccircle cx='146' cy='128' r='8'/%3E%3Cpath d='M141.6 127.2a4.8 4.8 0 0 1 4-4' stroke='%23fff'/%3E%3Ccircle cx='152' cy='80' r='4'/%3E%3Cpath d='M149.8 79.6a2.4 2.4 0 0 1 2-2' stroke='%23fff'/%3E%3Ccircle cx='90' cy='60' r='5'/%3E%3Cpath d='M87.3 59.5a3 3 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='98' cy='24' r='3'/%3E%3Cpath d='M96.3 23.7a1.8 1.8 0 0 1 1.5-1.5' stroke='%23fff'/%3E%3Ccircle cx='200' cy='330' r='4.5'/%3E%3Cpath d='M197.5 329.6a2.7 2.7 0 0 1 2.3-2.3' stroke='%23fff'/%3E%3Ccircle cx='194' cy='290' r='7'/%3E%3Cpath d='M190.2 289.3a4.2 4.2 0 0 1 3.5-3.5' stroke='%23fff'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 220px 400px;
+  animation: reef-rise 48s linear infinite;
+}
+@keyframes reef-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-400px);
+  }
+}
+/* Cartoon lettering: sunny yellow with a thick dark outline, each letter tipped its own way. */
+:root[data-theme="reef"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(32px, 3.8vw, 48px);
+  letter-spacing: 0.02em;
+  color: #ffe14d;
+  -webkit-text-stroke: 5px #10374f;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #10374f;
+}
+:root[data-theme="reef"] .lt {
+  display: inline-block;
+  rotate: -5deg;
+  animation: reef-bob 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.41s);
+}
+:root[data-theme="reef"] .lt:nth-child(2n) {
+  rotate: 4deg;
+  translate: 0 -3px;
+}
+:root[data-theme="reef"] .lt:nth-child(3n) {
+  rotate: -2deg;
+  translate: 0 2px;
+}
+:root[data-theme="reef"] .lt:nth-child(5n) {
+  rotate: 7deg;
+}
+@keyframes reef-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="reef"] .lt,
+  :root[data-theme="reef"] .map::before {
+    animation: none;
+  }
+}
+:root[data-theme="reef"] .mast-tag {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 700;
+}
+:root[data-theme="reef"] .telegram-word,
+:root[data-theme="reef"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ff5d93;
+  -webkit-text-stroke: 5px #10374f;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #10374f;
+}
+:root[data-theme="reef"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="reef"] .telegram-word:hover,
+:root[data-theme="reef"] .telegram-word:focus-visible {
+  background: none;
+  color: #ffe14d;
+  text-decoration: none;
+}
+:root[data-theme="reef"] .telegram-kicker,
+:root[data-theme="reef"] .telegram-date {
+  color: var(--ink);
+  font-weight: 700;
+}
+/* Buttons are bubbly yellow pills with a dark cartoon outline. */
+:root[data-theme="reef"] .tool,
+:root[data-theme="reef"] .pick select,
+:root[data-theme="reef"] .menu > summary,
+:root[data-theme="reef"] .chip,
+:root[data-theme="reef"] .key-btn,
+:root[data-theme="reef"] .key-close {
+  border: 2.5px solid #10374f;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at 35% 25%, #fff8c8, #ffe45c 60%, #f7c928);
+  color: #10374f;
+  font-weight: 700;
+  box-shadow: 0 2px 0 #10374f;
+}
+:root[data-theme="reef"] .pick::after {
+  color: #10374f;
+}
+:root[data-theme="reef"] .tool.quiet {
+  border-color: #10374f;
+}
+:root[data-theme="reef"] .tool[aria-pressed="true"],
+:root[data-theme="reef"] .menu[open] > summary,
+:root[data-theme="reef"] .chip[aria-pressed="true"],
+:root[data-theme="reef"] .key-btn[aria-expanded="true"],
+:root[data-theme="reef"] .scale .step.on {
+  background: radial-gradient(ellipse at 35% 25%, #ff8fb4, #d6386c 60%, #b8245a);
+  color: #ffffff;
+  border-color: #10374f;
+}
+:root[data-theme="reef"] .zoom {
+  border: 2.5px solid #10374f;
+  border-radius: 999px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 35% 25%, #fff8c8, #ffe45c 60%, #f7c928);
+  box-shadow: 0 2px 0 #10374f;
+}
+:root[data-theme="reef"] .zoom button {
+  color: #10374f;
+}
+:root[data-theme="reef"] .zoom button + button {
+  border-top: 2.5px solid #10374f;
+}
+/* The day's scale is a row of bubbles in one pill. */
+:root[data-theme="reef"] .scale {
+  border: 2px solid #10374f;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f4fdfd;
+}
+/* Panels are big soft bubbles: round corners, a dark outline and a glossy rim. */
+:root[data-theme="reef"] .panel,
+:root[data-theme="reef"] .menu-body,
+:root[data-theme="reef"] .key-pop,
+:root[data-theme="reef"] dialog {
+  background: radial-gradient(ellipse 120% 40% at 30% 0%, #ffffff, var(--panel) 60%), var(--panel);
+  border: 3px solid #10374f;
+  border-radius: 26px;
+  box-shadow: inset 0 0 0 4px #c9f3f5, 0 4px 0 rgba(16, 55, 79, 0.3);
+  color: var(--ink);
+}
+:root[data-theme="reef"] .panel {
+  margin: 10px;
+}
+:root[data-theme="reef"] .panel-title,
+:root[data-theme="reef"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 30px;
+  color: var(--accent);
+}
+:root[data-theme="reef"] .dateline {
+  border-bottom: 3px dotted var(--rule);
+}
+:root[data-theme="reef"] .rule-head {
+  border: 2px solid #10374f;
+  border-radius: 999px;
+  background: #ffe45c;
+  color: #10374f;
+}
+:root[data-theme="reef"] .headline {
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+:root[data-theme="reef"] .lead img {
+  filter: none;
+  border-radius: 18px;
+}
+
+/* ---- Block World: a dirt backdrop, a grass-block edge, a hotbar of slots, grey inventory panels ------------ */
+:root[data-theme="blocks"] {
+  color-scheme: dark;
+  --page: #3b2615;
+  --panel: #c6c6c6;
+  --ink: #ffffff;
+  --ink-2: #e6e6e6;
+  --muted: #d0d0d0;
+  --rule: #8b8b8b;
+  --accent: #2f6e1c;
+  --on-accent: #ffffff;
+  --hover: rgba(255, 255, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Courier New", monospace;
+  --font-head: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "Pixelify Sans", "Courier New", monospace;
+  --font-ui: "Pixelify Sans", "Courier New", monospace;
+}
+:root[data-theme="blocks"] body {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%235a3b1f'/%3E%3Crect x='8' y='0' width='4' height='4' fill='%236b4726'/%3E%3Crect x='16' y='0' width='4' height='4' fill='%236b4726'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%233f2814'/%3E%3Crect x='12' y='4' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='4' width='4' height='4' fill='%236b4726'/%3E%3Crect x='12' y='8' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='16' y='8' width='4' height='4' fill='%236b4726'/%3E%3Crect x='0' y='12' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='4' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='8' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='12' y='12' width='4' height='4' fill='%233f2814'/%3E%3Crect x='16' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='12' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='16' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='12' y='16' width='4' height='4' fill='%233f2814'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%236b4726'/%3E%3Crect x='20' y='16' width='4' height='4' fill='%236b4726'/%3E%3Crect x='24' y='16' width='4' height='4' fill='%233f2814'/%3E%3Crect x='4' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='20' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='12' y='20' width='4' height='4' fill='%236b4726'/%3E%3Crect x='16' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='24' y='20' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='4' y='24' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='24' width='4' height='4' fill='%233f2814'/%3E%3Crect x='12' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='20' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='24' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='28' y='28' width='4' height='4' fill='%233f2814'/%3E%3C/svg%3E") 0 0 / 64px 64px;
+  -webkit-font-smoothing: none;
+}
+/* The masthead stands on a row of grass blocks seen from the side. */
+:root[data-theme="blocks"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 34px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%2386562a'/%3E%3Crect x='0' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='0' width='4' height='4' fill='%239a6636'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='24' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='28' y='0' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='4' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='4' width='4' height='4' fill='%236f4522'/%3E%3Crect x='24' y='4' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='8' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='8' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='12' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='12' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='12' width='4' height='4' fill='%236f4522'/%3E%3Crect x='0' y='16' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='16' width='4' height='4' fill='%236f4522'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%236f4522'/%3E%3Crect x='0' y='20' width='4' height='4' fill='%236f4522'/%3E%3Crect x='16' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='24' y='20' width='4' height='4' fill='%236f4522'/%3E%3Crect x='28' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='24' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='24' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='28' width='4' height='4' fill='%239a6636'/%3E%3Crect x='12' y='28' width='4' height='4' fill='%239a6636'/%3E%3Crect width='32' height='8' fill='%235b9c33'/%3E%3Crect x='8' y='8' width='4' height='4' fill='%235b9c33'/%3E%3Crect x='20' y='8' width='4' height='4' fill='%235b9c33'/%3E%3Crect x='12' y='0' width='4' height='4' fill='%2374ba47'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%2374ba47'/%3E%3C/svg%3E") left bottom / 24px 24px repeat-x;
+}
+:root[data-theme="blocks"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 40px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #dcdcdc;
+  text-shadow: 0 3px 0 #7a7a7a, 0 6px 0 #4a4a4a, 0 8px 6px rgba(0, 0, 0, 0.5);
+}
+/* The tagline in the bright yellow games use for a pop-up line. */
+:root[data-theme="blocks"] .mast-tag {
+  color: #ffff55;
+  font-style: normal;
+  text-shadow: 2px 2px 0 #3f3f15;
+}
+:root[data-theme="blocks"] .telegram-word,
+:root[data-theme="blocks"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 3px 3px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="blocks"] .telegram-word:hover,
+:root[data-theme="blocks"] .telegram-word:focus-visible {
+  background: none;
+  color: #ffff55;
+  text-shadow: 3px 3px 0 #3f3f15;
+  text-decoration: none;
+}
+:root[data-theme="blocks"] .telegram-kicker,
+:root[data-theme="blocks"] .telegram-date,
+:root[data-theme="blocks"] .telegram-note,
+:root[data-theme="blocks"] .time-label {
+  color: #e6e6e6;
+  font-style: normal;
+  text-shadow: 2px 2px 0 #2a2a2a;
+}
+/* The sample's note reads dark on the grey of the panels. */
+:root[data-theme="blocks"] .banner {
+  background: #c6c6c6;
+  color: #3f3f3f;
+  border-bottom: 2px solid #555555;
+}
+/* The toolbar and the time bar are hotbars: a dark strip of square slots. */
+:root[data-theme="blocks"] .toolbar,
+:root[data-theme="blocks"] .timebar {
+  background: rgba(0, 0, 0, 0.55);
+  border: 0;
+  border-top: 2px solid #1b1b1b;
+  border-bottom: 2px solid #1b1b1b;
+}
+:root[data-theme="blocks"] .tool,
+:root[data-theme="blocks"] .pick select,
+:root[data-theme="blocks"] .menu > summary,
+:root[data-theme="blocks"] .chip,
+:root[data-theme="blocks"] .key-btn,
+:root[data-theme="blocks"] .key-close {
+  border: 3px solid #8b8b8b;
+  border-radius: 0;
+  background: rgba(24, 24, 24, 0.82);
+  box-shadow: inset 2px 2px 0 #2a2a2a, inset -2px -2px 0 #5a5a5a;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .pick::after {
+  color: #ffffff;
+  opacity: 1;
+}
+:root[data-theme="blocks"] .tool.quiet {
+  border-color: #8b8b8b;
+}
+:root[data-theme="blocks"] .tool:hover,
+:root[data-theme="blocks"] .pick select:hover,
+:root[data-theme="blocks"] .menu > summary:hover,
+:root[data-theme="blocks"] .chip:hover {
+  background: rgba(70, 70, 70, 0.9);
+}
+/* The chosen slot gets the white frame. */
+:root[data-theme="blocks"] .tool[aria-pressed="true"],
+:root[data-theme="blocks"] .menu[open] > summary,
+:root[data-theme="blocks"] .chip[aria-pressed="true"],
+:root[data-theme="blocks"] .key-btn[aria-expanded="true"] {
+  border-color: #ffffff;
+  background: rgba(24, 24, 24, 0.82);
+  box-shadow: inset 0 0 0 2px #000000, inset 2px 2px 0 2px #2a2a2a;
+  color: #ffff55;
+  text-shadow: 2px 2px 0 #3f3f15;
+}
+:root[data-theme="blocks"] .zoom {
+  border: 3px solid #8b8b8b;
+  border-radius: 0;
+  background: rgba(24, 24, 24, 0.82);
+}
+:root[data-theme="blocks"] .zoom button {
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .zoom button + button {
+  border-top: 3px solid #8b8b8b;
+}
+:root[data-theme="blocks"] .map {
+  margin: 6px;
+  border: 3px solid #000000;
+}
+/* Panels are the grey inventory window: a light top-left edge, a dark bottom-right edge, a black outline. */
+:root[data-theme="blocks"] .panel,
+:root[data-theme="blocks"] .menu-body,
+:root[data-theme="blocks"] .key-pop,
+:root[data-theme="blocks"] dialog {
+  --ink: #3f3f3f;
+  --ink-2: #373737;
+  --muted: #4a4a4a;
+  --rule: #8b8b8b;
+  --accent: #1f5212;
+  --on-accent: #ffffff;
+  --hover: rgba(255, 255, 255, 0.35);
+  background: #c6c6c6;
+  color: #3f3f3f;
+  border: 3px solid #000000;
+  border-radius: 4px;
+  box-shadow: inset 4px 4px 0 #ffffff, inset -4px -4px 0 #555555;
+}
+:root[data-theme="blocks"] .panel {
+  margin: 6px;
+}
+:root[data-theme="blocks"] .panel-title,
+:root[data-theme="blocks"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 24px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #3f3f3f;
+}
+:root[data-theme="blocks"] .dateline {
+  border-bottom: 2px solid #8b8b8b;
+}
+/* Section heads are inventory slots: sunken grey. */
+:root[data-theme="blocks"] .rule-head {
+  border: 0;
+  background: #8b8b8b;
+  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .headline {
+  font-weight: 700;
+}
+:root[data-theme="blocks"] .scale {
+  border: 3px solid #000000;
+  border-radius: 0;
+}
+:root[data-theme="blocks"] .scale .step.on {
+  background: #2f6e1c;
+  color: #ffffff;
+}
+:root[data-theme="blocks"] .lead img {
+  image-rendering: pixelated;
+  border: 3px solid #000000;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="reef"] .map {
+    margin: 6px;
+    border-radius: 22px;
+  }
+  :root[data-theme="reef"] .panel,
+  :root[data-theme="blocks"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="reef"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.68)));
+  }
+  :root[data-theme="blocks"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.74)));
+  }
+  :root[data-theme="reef"] .tool,
+  :root[data-theme="reef"] .menu > summary,
+  :root[data-theme="blocks"] .tool,
+  :root[data-theme="blocks"] .menu > summary {
+    padding-inline: 8px;
+  }
+}

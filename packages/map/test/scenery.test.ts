@@ -7,7 +7,7 @@ import type { FeatureCollection } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import { describe, expect, it } from "vitest";
-import { EMPIRE, POND, ROPE, TEA } from "../src/map/scenery.ts";
+import { EMPIRE, POND, REEF, ROPE, TEA } from "../src/map/scenery.ts";
 import { samplePlaces } from "./sample.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
@@ -39,7 +39,7 @@ function ring(lon: number, lat: number, deg: number): [number, number][] {
 
 describe("scenery", () => {
   const all = places();
-  const spots = [...POND, ...EMPIRE, ...ROPE, ...TEA];
+  const spots = [...POND, ...EMPIRE, ...ROPE, ...TEA, ...REEF];
 
   for (const file of ["world-110m.json", "world-50m.json"]) {
     it(`keeps every picture's whole circle off land (${file})`, () => {
@@ -48,7 +48,7 @@ describe("scenery", () => {
         for (const p of ring(s.lon, s.lat, s.r)) expect(geoContains(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
       }
       // The detailed coastline takes a few seconds, more when every package's tests run at once.
-    }, 30_000);
+    }, 60_000);
   }
 
   it("keeps every picture at least 3 degrees clear of every place", () => {

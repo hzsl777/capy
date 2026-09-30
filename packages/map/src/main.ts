@@ -129,6 +129,8 @@ import "@fontsource/alegreya/400.css";
 import "@fontsource/alegreya/700.css";
 import "@fontsource/teko/500.css";
 import "@fontsource/teko/600.css";
+// Undersea Town (Block World uses Pixelify Sans, above).
+import "@fontsource/bubblegum-sans/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -390,6 +392,8 @@ function flyToPlace(index: number) {
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
 const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
+// Undersea Town's cartoon lettering tips and bobs each letter its own way.
+LETTER_THEMES.add("reef");
 let boardShown = "";
 /** Sleeper Car's on-board display: the place name slides in when it changes, like the next stop. */
 function boardName(el: HTMLElement, text: string): HTMLElement {
