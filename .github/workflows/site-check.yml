@@ -25,9 +25,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --no-save --no-package-lock playwright-core@1
+      # Only the browser driver, installed apart from the workspaces so it takes seconds.
+      - run: npm install --prefix "$RUNNER_TEMP/pw" --no-save --no-package-lock --no-audit --no-fund playwright-core@1 && cp tools/site-check.mjs "$RUNNER_TEMP/pw/"
       - name: Check the site
-        run: node tools/site-check.mjs "$SITE_URL" "$(command -v google-chrome || command -v chromium)" site-check
+        run: node "$RUNNER_TEMP/pw/site-check.mjs" "$SITE_URL" "$(command -v google-chrome || command -v chromium)" site-check
       - if: always()
         uses: actions/upload-artifact@v4
         with:
