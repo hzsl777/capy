@@ -26,6 +26,10 @@ jobs:
     if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && inputs.demo_run_id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    # One writer of the map at a time, shared with the refresh during the day (refresh.yml, decision 80).
+    concurrency:
+      group: map-data
+      cancel-in-progress: false
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       # Decisions 28 and 29. Unset variables mean OpenAI: gpt-5.4-nano for the bulk stages, gpt-5.4-mini for the word.

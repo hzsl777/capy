@@ -217,7 +217,11 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     }
   }
 
-  const file: MapFile = { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), to.getTime()) / 1000), runDate: date, places, items, events, telegram };
+  // The day's file is as new as its window's end, or its newest local story once the refresh during the day has read
+  // past that end (decision 80), and never newer than now.
+  const newestLocal = (await db.select({ at: sql<Date | null>`max(${t.localStories.publishedAt})` }).from(t.localStories).where(eq(t.localStories.runDate, date)))[0]?.at;
+  const upTo = Math.max(to.getTime(), newestLocal ? new Date(newestLocal).getTime() : 0);
+  const file: MapFile = { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), upTo) / 1000), runDate: date, places, items, events, telegram };
   if (local) file.local = local;
   return file;
 }

@@ -1,7 +1,7 @@
 // Local stories from GDELT (decisions 54, 67 and 78) on a real Postgres engine, with GDELT's files built here: no network.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { zipSync, strToU8 } from "fflate";
-import { toRunDate } from "@2dayai/core";
+import { ingestWindow, rollingWindow, toRunDate } from "@2dayai/core";
 import { articles, eventArticles, events, loadMapView, localStories, sources, type Db } from "@2dayai/db";
 import { gkgRow as row, gkgZip as zip } from "./fixtures/gdelt.js";
 import { forEachLine, gdeltFileUrls, parseGkgRow, pickLocal, runLocal, type LocalCandidate, type TownCandidates } from "./stages/local.js";
@@ -64,7 +64,7 @@ describe("reading a GDELT row", () => {
   });
 
   it("lists every quarter hour of the day's window, in English and translated", () => {
-    const urls = gdeltFileUrls(date);
+    const urls = gdeltFileUrls(ingestWindow(date));
     expect(urls).toHaveLength(96 * 2);
     expect(urls[0]).toBe("http://data.gdeltproject.org/gdeltv2/20260926090000.gkg.csv.zip");
     expect(urls[1]).toBe("http://data.gdeltproject.org/gdeltv2/20260926090000.translation.gkg.csv.zip");
@@ -165,6 +165,29 @@ describe("local stories for towns no outlet reached", () => {
     await db.insert(localStories).values([story("2026-09-23", 1), story("2026-09-24", 2), story("2026-09-26", 3)]);
     expect((await runPrune(db, date, 30)).localStories).toBe(1);
     expect((await db.select().from(localStories)).map((r) => r.url).sort()).toContain("https://a.example/2");
+    await db.delete(localStories);
+  });
+
+  it("refreshes the day's local stories from the last 24 hours, past the day's window (decision 80)", async () => {
+    const afternoon = row({ url: "https://www.ladige.it/pm", title: "Trento, the afternoon council session ends early", when: "20260927131500", towns: [TRENTO] });
+    const morning = row({ url: "https://www.ladige.it/am", title: "Trento, the morning market moves to the square", when: "20260927030000", towns: [TRENTO] });
+    const refreshFiles = async (url: string) => (url.endsWith("20260927131500.gkg.csv.zip") ? zip([afternoon]) : url.endsWith("20260927030000.gkg.csv.zip") ? zip([morning]) : null);
+    // The daily run reads the day's window, which closes at 09:00: the afternoon story is not in it yet.
+    await runLocal(db, date, limits(2), refreshFiles);
+    expect((await db.select().from(localStories)).map((r) => r.title)).toEqual(["Trento, the morning market moves to the square"]);
+    const before = await loadMapView(db, date, new Date("2026-09-27T14:07:00Z"));
+    expect(before.generatedAt).toBe(Date.parse("2026-09-27T09:00:00Z") / 1000);
+
+    const window = rollingWindow(new Date("2026-09-27T14:07:00Z"));
+    expect(window).toEqual({ from: new Date("2026-09-26T14:00:00Z"), to: new Date("2026-09-27T14:00:00Z") });
+    const report = await runLocal(db, date, limits(2), refreshFiles, undefined, window);
+    expect(report).toMatchObject({ files: 192, stories: 2 });
+    const titles = (await db.select().from(localStories)).map((r) => r.title).sort();
+    expect(titles).toEqual(["Trento, the afternoon council session ends early", "Trento, the morning market moves to the square"]);
+    // The file says it is as new as its newest story, never newer than now.
+    const after = await loadMapView(db, date, new Date("2026-09-27T14:07:00Z"));
+    expect(after.generatedAt).toBe(Date.parse("2026-09-27T13:15:00Z") / 1000);
+    expect((await loadMapView(db, date, new Date("2026-09-27T12:00:00Z"))).generatedAt).toBe(Date.parse("2026-09-27T12:00:00Z") / 1000);
     await db.delete(localStories);
   });
 

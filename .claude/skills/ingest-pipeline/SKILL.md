@@ -29,7 +29,9 @@ config/sources.yaml (desk: world, with place)
                                          skipped. pickLocal: the newest GDELT_PER_TOWN (2) of each town, every
                                          town's newest before any town's second, GDELT_MAX (80000) a day as a
                                          safety valve. Own table local_stories; a GDELT outage costs only these.
-                                         Decisions 54, 67, 78.
+                                         Decisions 54, 67, 78. `stage -- refresh` (refresh.yml, every three hours
+                                         and after each daily run) reads the last 24 hours (rollingWindow) into the
+                                         latest map's date instead, run recorded as "refresh". Decision 80.
   -> loadMapView     db/src/map.ts       the whole day. splitLocal (core) cuts it into the site's file and 10-degree
                                          tiles of local stories; map export writes both, the daily run stores both
                                          in R2 (latest.json, <date>.json, local/<date>/<tile>.json), and the Worker
