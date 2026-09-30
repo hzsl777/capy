@@ -17,6 +17,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] Zoom decides visibility only by the tiers in `tierOf` (`src/data.ts`, decisions 30 and 46): importance and outlet-city reach. No other signal decides which places show.
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
+- [ ] Designs with their own camera or moving light (Polygon Kingdom, Nightclub, Poolside, Snow Globe): places are drawn through the same camera as the land, a marker's size never changes with distance or animation, only light falls on the map (never a shape that reads as a mark, and no colour close to the fresh colour), and nothing flashes (no 10% swing in brightness within a third of a second, `test/scenes.test.ts`).
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.

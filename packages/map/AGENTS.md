@@ -39,11 +39,12 @@ src/
   map/view.ts            canvas map: projections, drag/zoom/pinch, tuning, highlights, drawing
   map/basemap.ts         loads the TopoJSON basemap
   map/terrain.ts         Polygon Kingdom's triangle terrain, built once per basemap
+  map/scenes.ts          Nightclub, Poolside and Snow Globe: mirror ball, dance floor, caustics, lens, snow (decision 71)
   map/decor.ts           decorations under the dots: Pirate sea creatures, Candy Shop sweets, Space stars and rim (fixed ocean spots, tested)
   translate.ts           browser Translator API wrapper
   pins.ts                localStorage pins and prefs
   ui/dom.ts              element builder (text only, never innerHTML)
-  style.css              twenty designs over one layout
+  style.css              twenty-three designs over one layout
 public/
   basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed)
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
@@ -78,7 +79,7 @@ Before pushing: `npm run check && npm run map:build`.
 
 ## Designs
 
-Twenty looks (decisions 32, 43 and 57 to 66), each in Map or Globe view, chosen from one Design menu:
+Twenty-three looks (decisions 32, 43, 57 to 66 and 71), each in Map or Globe view, chosen from one Design menu:
 
 - **Morning Edition**: newsprint, black ink, halftone land, blackletter masthead and word. Map by default.
 - **Cabinet Map**: parchment, sepia ink, engraved water lines, hachured mountains, one red for fresh reports and the word. Map by default.
@@ -100,8 +101,13 @@ Twenty looks (decisions 32, 43 and 57 to 66), each in Map or Globe view, chosen 
 - **Nightcap**: a bedtime tea box. Watercolour periwinkle and sage, a moon and stars, Lora italic, a warm lamp colour for fresh reports. Globe by default.
 - **Campus**: a college campus in maroon and cream. Maroon masthead, varsity lettering (Graduate), pennant buttons, gold for fresh reports. Map by default.
 - **Lasso**: a frontier newspaper. Dusty tan and faded denim, rope rules, Rye and Special Elite, a compass, red for fresh reports. Map by default.
+- **Nightclub** (`club`, decision 71): the globe is a mirror ball of square facets (pink over land, silver-blue over sea) under drifting glints, with specks of light circling the dark room and spotlight cones sweeping behind it. The map is a light-up dance floor under a tilted camera (`tilt`): square tiles, neon land tiles that each move to the next colour over four seconds, lasers fanning up from the horizon. Neon on black, Monoton and Tilt Neon, wristband buttons, acrylic panels, yellow for fresh reports (the floor never uses yellow, tested). Globe by default.
+- **Poolside** (`pool`, decision 71): Hollywood-hills noir at a pool. The map lies on the pool floor in square tiles under rippling light and a slow wobble, framed by coping, tiles and a lane rope; the globe floats on the pool at night under a string of lights, bobbing, its lower part seen through the water. Dusk purple into teal, starbursts and boomerangs, Shrikhand and Jost, amber for fresh reports. Map by default.
+- **Snow Globe** (`snow`, decision 71): the globe in a glass snow globe on a wooden base, seen slightly from below; dragging stirs the snow, which settles. The map is seen through curved glass that enlarges the centre like a fisheye, with frost in the corners. Warm wood, a shop sign with snow on top, frosted panels, Fraunces and Nunito, red for fresh reports. Globe by default.
 
-The console, Realize, Newsroom, Honeycomb, Nightcap, Campus and Lasso designs borrow a feel, never a game's or album's art, names or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
+The console, Realize, Newsroom, Honeycomb, Nightcap, Campus, Lasso and Poolside designs borrow a feel, never a game's, album's or show's art, names, characters, lettering or layouts, and the site names none of them. Settings (design, view, Translate, topics) are saved in the browser only (`src/pins.ts`).
+
+Nightclub, Poolside and Snow Globe are scenes (`scene` in the theme, `src/map/scenes.ts`): the map is drawn once per view into an off-screen canvas, and only their light moves, twelve frames a second, none while the tab is hidden, none at all with reduced motion, and none once the snow has settled. Places go through the same camera as the land (`scenePlace` in `view.ts`), so tuning, tapping, dragging and zooming work as everywhere. Only light falls on the map; the room, snow, frost, glass, spotlights and lasers stay outside it. Nothing may flash: no light swings 10% in brightness within a third of a second (WCAG 2.3.1, tested in `test/scenes.test.ts`).
 
 The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`). Decorations are open ink strokes with no text, sit only at fixed open-ocean spots far from every outlet's city (checked against the basemap and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet.
 

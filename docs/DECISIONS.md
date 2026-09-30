@@ -534,3 +534,32 @@ Davis asked for the camera that best gives the 64-bit overworld feel before test
 2. **Zoom floor.** In Map view this design cannot zoom out past 1.8, where the whole map seen low would be a thin strip under a large sky. The Globe view and every other design keep their zoom range.
 3. **Clouds** repeat without a seam as the camera pans.
 4. Tuning, tapping, the reticle and marker sizes work as before; a vertical drag is still corrected for the tilt.
+
+## 71. Three designs with their own camera: Nightclub, Poolside and Snow Globe (September 30, 2026)
+
+Davis loved Polygon Kingdom's tilted camera and asked for a couple more designs with different camera work, different perspectives and angles, more fun and more playful. Each of these three sees the world its own way, and its light moves (`scene` in `src/themes.ts`, `src/map/scenes.ts`).
+
+1. **Nightclub** (`club`), a club night. Globe by default.
+   - The globe is a mirror ball hanging from a chain: rows of small square mirror facets fixed to the world, pink over land and silver-blue over sea, each shaded by one key light with a fixed sparkle of its own. Soft spots of coloured light drift across the facets, specks of light circle the dark room around the ball, and coloured spotlight cones sweep behind it.
+   - The map is a light-up dance floor under a tilted camera (56 degrees, the same camera as Polygon Kingdom's). Land and sea are square floor tiles: the sea a dark checkerboard, the land lit in neon colours, each tile moving to the next colour over four seconds. Laser beams fan up from the horizon into the haze above the floor.
+   - Chrome: neon on black, Monoton for the name, the word as a steady neon tube in Tilt Neon, Outfit for text, buttons like festival wristbands, panels like backlit acrylic.
+2. **Poolside** (`pool`), Hollywood-hills noir at a swimming pool, in flat teal, pink, purple and gold. Map by default.
+   - The map lies on the pool's floor, laid in square tiles under deep water, with light rippling over it and a slow sideways wobble from the water. The frame is the pool's edge: cream coping, a band of tiles and a lane rope.
+   - The globe floats on the pool at night, seen at an angle. It bobs gently, the part below the waterline is seen through the water, and rings spread from it. Behind it are a purple sky, dark hills with a lit house, palms, and a string of lights whose reflections wobble on the water.
+   - Chrome: a dusk-sky masthead with a starburst and a boomerang, Shrikhand for the name and for the word like a motel sign, Jost for text, buttons and panels with uneven mid-century curves.
+   - It borrows a feel only. No show, character, title, logo or lettering is used or named.
+3. **Snow Globe** (`snow`). Globe by default.
+   - The globe stands in a glass snow globe on a wooden base, on a shelf in a shop window at night, seen slightly from below: the base's rims bow upward. Snow drifts in the water around the world. Dragging the globe stirs it up, and it settles again on the mound the world rests on.
+   - The map is seen through curved glass: an oval window where the picture is enlarged at the centre and squeezed toward the rim, like a fisheye, with frost and settling snow in the corners outside it.
+   - Chrome: warm wood, a painted shop sign with snow along its top, frosted panels in wooden frames, Fraunces and Nunito.
+
+The rules they keep:
+
+- **One camera for land and places.** Every place is drawn through the same camera as the land: the tilt, the lens, the water's wobble and the float's bob. Tuning, tapping a dot, dragging and zooming work as in every design. A drag through the lens is corrected for its enlargement at the centre. Places past the dance floor's draw distance, or outside the lens, wait until you drag closer, as places off screen do.
+- **Markers.** A marker's symbol and size never change with the camera or the light. Fresh reports are yellow on the dance floor, whose colours leave yellow out (tested), amber at the pool and red in the snow globe.
+- **What falls on the map.** There is no text on the canvas and no shape that reads as a mark. Only light falls on the map: the ball's glints, the floor's colours, the pool's rippling light, and the water over the float's lower part. Everything else stays outside the map: the room, the specks, spotlights and lasers, the night pool and its ripples, the snow, the frost and the glass. They sit off the ball, above the floor, outside the globe or outside the lens. Seen up close, the snow globe's glass shows only as faint highlights in the frame's corners.
+- **Nothing flashes** (WCAG 2.3.1). Every light moves or changes colour over seconds, and no neon flickers. No spot brightens and fades faster than about once a second, and no part of the picture swings 10% in brightness within a third of a second (tested for the floor colours and the ball's glints). With reduced motion everything holds still and the snow lies settled.
+- **Cost.**
+  - The map is drawn once per view into an off-screen canvas. While the view holds still, only the light is repainted, twelve times a second. Nothing is repainted while the tab is hidden, and the snow asks for no frames once it has settled. Soft light (the pool's ripples and the spotlights) is drawn at a third of the resolution.
+  - Measured in a software-rendered browser at 1440 by 900, counting all main-thread work: a dragged frame takes 8 to 18 ms, against 25 to 67 ms for Polygon Kingdom measured the same way. Idle, the club and the pool use 6 to 14% of one core. The snow globe uses none once the snow has settled, about fifteen seconds after a stir.
+- **Room around the globe.** These designs draw the globe smaller (`globeScale`), so the ball, the float and the dome have room around them. At the zoom a link or a tap flies to, the snow globe's base is partly below the frame; it shows whole when zoomed out.

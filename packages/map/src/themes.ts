@@ -1,7 +1,7 @@
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "club" | "pool" | "snow";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -86,6 +86,16 @@ export interface Theme {
    * place.
    */
   decor: "sea" | "space" | "candy" | null;
+  /**
+   * A design with its own camera and moving light (decision 71, src/map/scenes.ts), drawn as a still picture kept
+   * off screen plus a few animated extras:
+   * "club" a mirror ball globe and a light-up dance floor under a tilted camera;
+   * "pool" the map on a swimming pool's floor under rippling light, and the globe afloat at night;
+   * "snow" the globe in a snow globe, and the map through curved glass that bulges at the centre.
+   */
+  scene?: "club" | "pool" | "snow";
+  /** Globe only: the globe's radius as a share of the frame's shorter side, when a scene needs room around it. */
+  globeScale?: number;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -797,6 +807,118 @@ export const THEMES: Record<ThemeId, Theme> = {
     atmosphere: "rgba(211,177,132,0.4)",
     shade: "rgba(60,30,0,0.35)",
     neatline: true,
+    decor: null,
+  },
+  // ---- Decision 71: three designs, each with its own camera ----
+  // A club night: the globe is a mirror ball, the map a light-up dance floor under a tilted camera.
+  club: {
+    id: "club",
+    label: "Nightclub",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    ocean: "#1b1530",
+    land: "#6b2a8f",
+    landTexture: "none",
+    pixel: 1,
+    tilt: 56,
+    fog: "#1a0b2e",
+    globeScale: 0.3,
+    scene: "club",
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "rgba(0,0,0,0)",
+    coastWidth: 0,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#1b1530",
+    ice: "#cfd6ea",
+    relief: "rgba(0,0,0,0)",
+    dot: "#ffffff",
+    dotStroke: "#12001c",
+    fresh: "#ffe14d",
+    tuned: "#ffffff",
+    arc: "#5ff6ff",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Hollywood-hills noir: the map on a swimming pool's floor, the globe afloat at night under string lights.
+  pool: {
+    id: "pool",
+    label: "Poolside",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#2fb8c6",
+    land: "#f7a8c4",
+    landTexture: "none",
+    pixel: 1,
+    globeScale: 0.28,
+    scene: "pool",
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#4a1f73",
+    coastWidth: 1.4,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.22)",
+    oceanHatch: null,
+    oceanPattern: "tiles",
+    graticule: "rgba(255,255,255,0.18)",
+    graticuleDash: [],
+    river: "rgba(74,31,115,0.35)",
+    lake: "#2fb8c6",
+    ice: "#fde7ef",
+    relief: "rgba(74,31,115,0.55)",
+    dot: "#ffffff",
+    dotStroke: "#3a1260",
+    fresh: "#ffb300",
+    tuned: "#3a1260",
+    arc: "#3a1260",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(20,10,60,0.4)",
+    neatline: false,
+    decor: null,
+  },
+  // A snow globe on a wooden base; the flat map is seen through curved glass.
+  snow: {
+    id: "snow",
+    label: "Snow Globe",
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#b9d4e8",
+    land: "#fbfaf5",
+    landTexture: "none",
+    pixel: 1,
+    globeScale: 0.24,
+    scene: "snow",
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#34506e",
+    coastWidth: 1,
+    waterlines: 2,
+    waterline: "rgba(52,80,110,0.18)",
+    oceanHatch: null,
+    graticule: "rgba(52,80,110,0.2)",
+    graticuleDash: [],
+    river: "rgba(52,80,110,0.35)",
+    lake: "#b9d4e8",
+    ice: "#ffffff",
+    relief: "rgba(52,80,110,0.5)",
+    dot: "#1d3557",
+    dotStroke: "#ffffff",
+    fresh: "#d62839",
+    tuned: "#1d3557",
+    arc: "#1d3557",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(40,70,110,0.35)",
+    neatline: false,
     decor: null,
   },
 };
