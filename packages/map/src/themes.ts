@@ -116,8 +116,8 @@ export interface Theme {
   /** Map only: a double rule around the sheet, like a printed chart. */
   neatline: boolean;
   /**
-   * Decoration drawn under the dots (src/map/decor.ts): "sea" fills open ocean with engraved sea monsters, ships,
-   * whirlpools, compass roses and wave marks,
+   * Decoration drawn under the dots (src/map/decor.ts): "sea" puts a few large engraved sea monsters and ships in
+   * the big oceans, with wave marks over open water,
    * "space" adds a thin bright rim to the globe and faint stars in the flat map's ocean, "candy" puts small
    * outlined sweets in open ocean. Never text, never on land, never near a
    * place.
@@ -314,7 +314,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#eddab0",
     landTexture: "none",
     pixel: 1,
-    dotShape: "star4",
+    dotShape: "x",
     textureInk: "rgba(59,38,20,0.4)",
     coast: "#3b2614",
     coastWidth: 1.1,
@@ -1097,7 +1097,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoEquirectangular,
     surface: "sheet",
     globeScale: 0.34,
-    ocean: "#ffffff",
+    ocean: "#dbe8f7",
     land: "#a3d18b",
     landTexture: "none",
     pixel: 1,

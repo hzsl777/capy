@@ -1,7 +1,7 @@
 // Spreadsheet (decision 74): the world as filled cells in a grid. The frame is a sheet of cells fixed to the screen,
 // wider than tall, with one cell centred under the reticle (the selected cell). Land cells are filled like
 // conditional formatting: a colour scale from pale near the coast to deep green inland and on mountains, with
-// sand and ice cells of their own; coasts get cell borders. The sea is blank cells with gridlines. In Globe view
+// sand and ice cells of their own; coasts get cell borders. The sea is pale blue cells with gridlines. In Globe view
 // the globe is a chart object on the sheet: a white box with selection handles, its plot area a disc of cells.
 // The column letters and row numbers are chrome (src/ui/extras.ts), never on the canvas.
 
@@ -42,7 +42,9 @@ export function columnName(i: number): string {
 // The colour scale, pale to deep: coast, near the coast, inland, far inland, near mountains, mountains. Never red.
 const SCALE = ["#e2f0d2", "#c6e4ae", "#a6d28e", "#84bd72", "#62a05e", "#467f4b"];
 const SAND = "#f4e3a1";
-const ICE = "#e4ebf3";
+const ICE = "#f6f7f8";
+/** Gridlines over the pale blue sea cells (the sea's fill is the theme's `ocean`). */
+const SEA_GRID = "#bfd2e8";
 const K_SAND = 6;
 const K_ICE = 7;
 
@@ -59,7 +61,8 @@ export function drawSheet(f: SurfaceFrame, cache: SheetCache) {
   const [gx, gy] = proj.translate();
   const R = proj.scale();
 
-  ctx.fillStyle = t.ocean;
+  // In Map view every sea cell has a pale blue fill; in Globe view the sheet around the chart is blank.
+  ctx.fillStyle = globe ? "#ffffff" : t.ocean;
   ctx.fillRect(0, 0, w, h);
   // Gridlines over the whole sheet.
   const grid: string[] = [];
@@ -67,7 +70,7 @@ export function drawSheet(f: SurfaceFrame, cache: SheetCache) {
   for (let j = 0; j <= rows; j++) grid.push(`M0 ${y0 + j * ch + 0.5}H${w}`);
   const gridPath = new Path2D(grid.join(""));
   ctx.lineWidth = 1;
-  ctx.strokeStyle = t.waterline;
+  ctx.strokeStyle = globe ? t.waterline : SEA_GRID;
   ctx.stroke(gridPath);
 
   const disc = new Path2D();
@@ -184,10 +187,10 @@ export function drawSheet(f: SurfaceFrame, cache: SheetCache) {
     // The plot area: the sea as pale blue cells, the grid over it.
     ctx.save();
     ctx.clip(disc);
-    ctx.fillStyle = "#e7f0fa";
+    ctx.fillStyle = t.ocean;
     ctx.fillRect(gx - R, gy - R, R * 2, R * 2);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "#cfdcea";
+    ctx.strokeStyle = SEA_GRID;
     ctx.stroke(gridPath);
     ctx.restore();
   }

@@ -11,7 +11,7 @@ import {
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
-import { markPath2D } from "./marks.ts";
+import { markPath2D, markRing2D } from "./marks.ts";
 import { drawScenery, drawSceneryUnder, type SceneryFrame } from "./scenery.ts";
 import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 import { drawNeon, NeonCache } from "./neon.ts";
@@ -2018,6 +2018,13 @@ export class MapView {
         oy = y;
       }
     };
+    /** The outer ring `gap` outside a marker (a circle round Pirate's X, marks.ts). */
+    const ringShape = (x: number, y: number, r: number, gap: number) => {
+      if (t.dotShape === "square") return shape(x, y, r + gap);
+      cur = markRing2D(t.dotShape, r, gap);
+      ox = x;
+      oy = y;
+    };
     const fillShape = () => {
       ctx.translate(ox, oy);
       ctx.fill(cur);
@@ -2118,9 +2125,9 @@ export class MapView {
       ctx.lineWidth = hollow ? 1.6 : 1.2;
       ctx.strokeStyle = hollow ? ink : t.dotStroke;
       strokeShape();
-      const ring = s.weight >= 4 ? r + 2.6 : r;
+      const ringGap = s.weight >= 4 ? 2.6 : 0;
       if (s.weight >= 4) {
-        shape(x, y, ring);
+        ringShape(x, y, r, ringGap);
         ctx.lineWidth = 1.3;
         ctx.strokeStyle = ink;
         strokeShape();
@@ -2136,7 +2143,7 @@ export class MapView {
         // Monochrome designs mark fresh reports with a dashed ring, so it never reads as the importance ring.
         ctx.save();
         ctx.setLineDash([2, 2]);
-        shape(x, y, ring + 2.6);
+        ringShape(x, y, r, ringGap + 2.6);
         ctx.lineWidth = 0.9;
         ctx.strokeStyle = t.dot;
         strokeShape();

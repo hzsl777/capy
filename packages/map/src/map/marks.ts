@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -23,6 +23,11 @@ function star(points: number, outer: number, inner: number, turn = -Math.PI / 2)
   }
   return polygon(pts);
 }
+
+/** The X's arm ends and bar width, as shares of r, and how far its corners reach from the centre. */
+const X_END = 1.3;
+const X_BAR = 0.6;
+const X_REACH = Math.hypot(X_END, X_END - X_BAR);
 
 /** The outline of a marker of radius r, as SVG path data. */
 export function markPath(shape: MarkShape, r: number): string {
@@ -138,10 +143,25 @@ export function markPath(shape: MarkShape, r: number): string {
       }
       return `${d}Z`;
     }
+    case "x": {
+      // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
+      // (markRing), since an X drawn larger would sit too close to read as a ring.
+      const e = r * X_END;
+      const h = r * X_BAR;
+      return polygon([[-e, -e + h], [-e + h, -e], [0, -h], [e - h, -e], [e, -e + h], [h, 0], [e, e - h], [e - h, e], [0, h], [-e + h, e], [-e, e - h], [-h, 0]]);
+    }
     default:
       // circle, bevel and button
       return `M${f(-r)} 0A${f(r)} ${f(r)} 0 1 0 ${f(r)} 0A${f(r)} ${f(r)} 0 1 0 ${f(-r)} 0Z`;
   }
+}
+
+/**
+ * The outer ring of a marker of radius r, `gap` outside it: the same outline drawn larger, or for the X a circle
+ * round its corners.
+ */
+export function markRing(shape: MarkShape, r: number, gap: number): string {
+  return shape === "x" ? markPath("circle", r * X_REACH + gap) : markPath(shape, r + gap);
 }
 
 const cache = new Map<string, Path2D>();
@@ -157,4 +177,9 @@ export function markPath2D(shape: MarkShape, r: number): Path2D {
     cache.set(key, p);
   }
   return p;
+}
+
+/** markRing as a Path2D centred on 0,0. */
+export function markRing2D(shape: MarkShape, r: number, gap: number): Path2D {
+  return shape === "x" ? markPath2D("circle", r * X_REACH + gap) : markPath2D(shape, r + gap);
 }
