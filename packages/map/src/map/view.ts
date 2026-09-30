@@ -47,6 +47,7 @@ import {
   type Warp as SceneWarp,
 } from "./scenes.ts";
 import { drawSheet, SheetCache } from "./sheet.ts";
+import { BlocksCache, drawBlocks } from "./blocks.ts";
 import { drawTerminal, TerminalCache } from "./terminal.ts";
 import { drawClub, ClubCache } from "./club.ts";
 import { drawRail, RailCache } from "./rail.ts";
@@ -249,6 +250,8 @@ export class MapView {
   private glass = new GlassCache();
   /** Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74). */
   private sheet = new SheetCache();
+  /** Block World: its textures, the grid read back from the basemap, and the sky. */
+  private blocks = new BlocksCache();
   private terminal = new TerminalCache();
   private club = new ClubCache();
   private rail = new RailCache();
@@ -1426,6 +1429,7 @@ export class MapView {
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
+    else if (t.surface === "blocks") drawBlocks(f, this.blocks);
     else if (t.surface === "terminal") drawTerminal(f, this.terminal);
     else if (t.surface === "club") drawClub(f, this.club);
     else if (t.surface === "rail") drawRail(f, this.rail);

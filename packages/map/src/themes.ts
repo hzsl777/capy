@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "reef" | "blocks";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -80,7 +80,7 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "blocks";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -1630,6 +1630,84 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Undersea Town: after the feel of a bright cartoon town on the sea floor, with none of its characters or names.
+  // Turquoise water lit from above, sandy seabed land with a pale lagoon along the coasts, flower-shaped clouds
+  // drifting in the water, and a few little houses in open sea (a fruit, a rock dome, a carved stone head), all
+  // drawn for this site (src/map/scenery.ts). Bubbles rise outside the map (style.css).
+  reef: {
+    id: "reef",
+    label: "Undersea Town",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#1fb2c6",
+    land: "#f1d596",
+    landTexture: "mottle",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(255,241,204,0.75)",
+    textureInk2: "rgba(200,152,84,0.5)",
+    coast: "#8a5a26",
+    coastWidth: 1.8,
+    waterlines: 0,
+    waterline: "rgba(220,252,255,0.4)",
+    oceanHatch: null,
+    shallows: "#6ddbd6",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(31,178,198,0.8)",
+    lake: "#1fb2c6",
+    ice: "#fff6e2",
+    relief: "rgba(150,100,48,0.55)",
+    dot: "#48237a",
+    dotStroke: "#ffffff",
+    fresh: "#ff4f86",
+    tuned: "#ff4f86",
+    arc: "#ff4f86",
+    glow: false,
+    atmosphere: "rgba(170,245,255,0.55)",
+    shade: "rgba(0,60,90,0.35)",
+    neatline: false,
+    decor: null,
+    scenery: "reef",
+  },
+  // Block World: after the feel of a blocky sandbox game, with none of its characters, names or art. The world as
+  // square blocks with one pixel texture per kind: grass, sand, stone, snow, and translucent water, with dirt showing
+  // on the front faces (src/map/blocks.ts); a sky with square clouds around it; a hotbar toolbar and grey
+  // inventory panels.
+  blocks: {
+    id: "blocks",
+    label: "Block World",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "blocks",
+    ocean: "#2f5fcf",
+    land: "#63a83a",
+    landTexture: "none",
+    pixel: 2,
+    dotShape: "square",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#3b2a16",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.1)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#2f5fcf",
+    ice: "#f2f6fa",
+    relief: "#6c6c6c",
+    dot: "#ffffff",
+    dotStroke: "#1b1b1b",
+    fresh: "#ff3b30",
+    tuned: "#ffe14a",
+    arc: "#ffe14a",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -1639,7 +1717,7 @@ export const THEMES: Record<ThemeId, Theme> = {
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive"] },
-  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "blocks", "arcade", "trainset", "candy", "snow", "reef"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
 ];

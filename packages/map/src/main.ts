@@ -113,6 +113,8 @@ import "@fontsource/kalam/latin-400.css";
 import "@fontsource/kalam/latin-ext-400.css";
 import "@fontsource/kalam/latin-700.css";
 import "@fontsource/kalam/latin-ext-700.css";
+// Undersea Town (Block World uses Pixelify Sans, above).
+import "@fontsource/bubblegum-sans/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -376,6 +378,8 @@ function flyToPlace(index: number) {
 const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
 // Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
 LETTER_THEMES.add("rail");
+// Undersea Town's cartoon lettering tips and bobs each letter its own way.
+LETTER_THEMES.add("reef");
 let boardShown = "";
 /** Sleeper Car's departure board: the place name on tiles, which flip when the name changes. */
 function boardName(el: HTMLElement, text: string): HTMLElement {
