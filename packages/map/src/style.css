@@ -11,6 +11,9 @@
 }
 
 /* ---- Morning Edition: newsprint, black ink ------------------------------ */
+/* Also every page's defaults, for the first paint before the script names a design: a host that serves the body
+   inside its own <html> leaves out our data-theme or sets one of its own (light, dark). Every design sets all of these. */
+:root,
 :root[data-theme="morning"] {
   color-scheme: light;
   --page: #f3efe4;
@@ -593,6 +596,7 @@ summary {
   opacity: 0.45;
   cursor: not-allowed;
 }
+:root:not([data-theme]) .toolbar,
 :root[data-theme="morning"] .toolbar,
 :root[data-theme="cabinet"] .toolbar {
   font-variant: small-caps;
@@ -2069,6 +2073,7 @@ button.link {
 /* ---- Phones: the toolbar stays one row in every design --------------------- */
 @media (max-width: 760px) {
   :root[data-theme="wire"] .toolbar,
+  :root:not([data-theme]) .toolbar,
   :root[data-theme="morning"] .toolbar,
   :root[data-theme="cabinet"] .toolbar,
   :root[data-theme="pirate"] .toolbar {

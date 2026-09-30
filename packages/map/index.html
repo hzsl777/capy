@@ -28,8 +28,9 @@
     </header>
 
     <nav class="toolbar" id="toolbar" aria-label="Map controls">
-      <label class="pick"><span class="sr">View</span><select id="view-select"></select></label>
-      <label class="pick"><span class="sr">Design</span><select id="design-select"></select></label>
+      <!-- The defaults, so the boxes are full size before the script fills them in. -->
+      <label class="pick"><span class="sr">View</span><select id="view-select"><option value="2d">Map</option></select></label>
+      <label class="pick"><span class="sr">Design</span><select id="design-select"><option value="morning">Morning Edition</option></select></label>
       <details class="menu" id="topics-menu">
         <summary>Topics <span id="topics-count"></span></summary>
         <div class="menu-body chips" id="topics"></div>
