@@ -31,7 +31,7 @@ if (page.res.status !== 200) fail(`/ answered ${page.res.status}`);
 for (const h of ["content-security-policy", "x-content-type-options", "referrer-policy", "x-frame-options", "strict-transport-security", "permissions-policy", "cache-control", "x-robots-tag"]) {
   log(`  ${h}: ${page.res.headers.get(h) ?? "(none)"}`);
 }
-for (const h of ["content-security-policy", "x-content-type-options", "referrer-policy"]) if (!page.res.headers.get(h)) fail(`/ has no ${h}`);
+for (const h of ["content-security-policy", "x-content-type-options", "referrer-policy", "strict-transport-security"]) if (!page.res.headers.get(h)) fail(`/ has no ${h}`);
 if (/noindex/i.test(page.res.headers.get("x-robots-tag") ?? "")) fail("the production page says noindex");
 
 const latest = await get("/data/latest.json", { headers: { "accept-encoding": "gzip, br" } });

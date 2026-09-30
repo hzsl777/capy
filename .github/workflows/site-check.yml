@@ -1,21 +1,20 @@
 name: Site check
-# Checks the live site from outside after each daily run and on demand: the page and its headers, the day's map
-# file and a tile, paths that must 404, and the page in a real browser at desktop and phone width. About a minute a
-# run, 30 a month. Needs the repository variable SITE_URL (for example https://globalgist.<account>.workers.dev) or
-# SITE_DOMAIN.
+# Checks the live site from outside once a day, after the refresh that follows the daily run, and on demand: the page
+# and its headers, the day's map file and a tile, paths that must 404, and the page in a real browser at desktop and
+# phone width, with screenshots kept for a week. A failure emails the owner like any failed run. About a minute a
+# run, 30 a month. The address is the repository variable SITE_URL, or SITE_DOMAIN, or the workers.dev address.
 on:
   workflow_run:
     workflows: ["Refresh local stories"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
-  push:
-    branches: ["claude/**"]
-    paths: [".github/workflows/site-check.yml", "tools/site-check.mjs"]
 permissions:
   contents: read
 jobs:
   check:
+    # Only the refresh started by the daily run, not the one every three hours.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.event == 'workflow_run'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
