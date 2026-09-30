@@ -171,7 +171,7 @@ const hexRgb = (hex: string): [number, number, number] => {
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
 
-type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "tiles" | "shimmer";
+type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "tiles" | "shimmer";
 
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
@@ -982,6 +982,86 @@ export class MapView {
         g.arc(cx - r * 0.25, cy - r * 0.3, r * 0.22, 0, Math.PI * 2);
         g.fillStyle = ink2;
         g.fill();
+      }
+      p = this.ctx.createPattern(pc, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
+    if (kind === "lilypads") {
+      // Frog Pond's land: a mat of lily pads over dark water. Each is a round leaf with its slit to the stalk at the
+      // centre and veins from there; pads keep a gap between them, and the few that overlap lie wholly on top with
+      // their own outline. No flowers here: at this size they would read as markers (the lotuses stay in open water,
+      // in the scenery). Pads near the tile's edge are drawn again one tile over, so the pattern wraps without a seam.
+      const size = 220;
+      const pc = document.createElement("canvas");
+      pc.width = pc.height = Math.round(size * this.dpr);
+      const g = pc.getContext("2d")!;
+      g.scale(this.dpr, this.dpr);
+      g.fillStyle = ink2;
+      g.fillRect(0, 0, size, size);
+      let seed = 23;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const wrap = (d: number) => d - size * Math.round(d / size);
+      const pads: { x: number; y: number; r: number; rot: number; tone: number; over: boolean }[] = [];
+      for (let tries = 0; tries < 4000 && pads.length < 40; tries++) {
+        const r = 9 + rnd() * rnd() * 12;
+        const x = rnd() * size;
+        const y = rnd() * size;
+        const over = pads.length > 16 && rnd() < 0.12;
+        const ok = pads.every((q) => {
+          const d = Math.hypot(wrap(x - q.x), wrap(y - q.y));
+          // A pad laid over another sits well inside the gap, off its neighbour's middle, so it reads as a layer.
+          return over ? d > Math.max(r, q.r) * 0.75 : d > r + q.r + 3;
+        });
+        if (ok) pads.push({ x, y, r, rot: rnd() * 360, tone: Math.floor(rnd() * 4), over });
+      }
+      pads.sort((a, b) => Number(a.over) - Number(b.over));
+      const tones = ["#7cbb4b", "#6db244", "#8ac657", "#93b150"];
+      const leaf = (r: number) => {
+        const a = (14 * Math.PI) / 180;
+        g.beginPath();
+        g.moveTo(0, r * 0.05);
+        g.lineTo(Math.sin(a) * r, -Math.cos(a) * r);
+        g.arc(0, 0, r, -Math.PI / 2 + a, -Math.PI / 2 - a + Math.PI * 2);
+        g.closePath();
+      };
+      for (const q of pads) {
+        for (const ox of [-size, 0, size])
+          for (const oy of [-size, 0, size]) {
+            const x = q.x + ox;
+            const y = q.y + oy;
+            if (x < -q.r - 2 || y < -q.r - 2 || x > size + q.r + 2 || y > size + q.r + 2) continue;
+            g.save();
+            g.translate(x, y);
+            g.save();
+            g.translate(q.r * 0.12, q.r * 0.14);
+            g.rotate((q.rot * Math.PI) / 180);
+            leaf(q.r);
+            g.fillStyle = "rgba(10,40,20,0.22)";
+            g.fill();
+            g.restore();
+            g.rotate((q.rot * Math.PI) / 180);
+            leaf(q.r);
+            g.fillStyle = tones[q.tone]!;
+            g.fill();
+            g.strokeStyle = ink;
+            g.lineWidth = 0.8;
+            g.lineCap = "round";
+            g.beginPath();
+            for (let d = 40; d < 340; d += 40) {
+              const t = (d * Math.PI) / 180;
+              g.moveTo(0, 0);
+              g.lineTo(Math.sin(t) * q.r * 0.82, -Math.cos(t) * q.r * 0.82);
+            }
+            g.stroke();
+            leaf(q.r);
+            g.strokeStyle = "rgba(30,72,24,0.6)";
+            g.lineWidth = 1;
+            g.lineJoin = "round";
+            g.stroke();
+            g.restore();
+          }
       }
       p = this.ctx.createPattern(pc, "repeat")!;
       p.setTransform(new DOMMatrix().scale(1 / this.dpr));

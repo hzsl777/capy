@@ -364,15 +364,15 @@
 }
 :root[data-theme="nightcap"] {
   color-scheme: light;
-  --page: #e8ebf5;
-  --panel: #f8f6ee;
+  --page: #e6e9f2;
+  --panel: #fbf6e8;
   --ink: #23304f;
   --ink-2: #34466e;
   --muted: #5b6788;
-  --rule: #b8c2dc;
-  --accent: #3f5a96;
+  --rule: #bccbae;
+  --accent: #b23a30;
   --on-accent: #ffffff;
-  --hover: rgba(63,90,150,0.08);
+  --hover: rgba(178,58,48,0.08);
   --reticle: var(--ink);
   --grain-opacity: 0.25;
   --grain-blend: multiply;
@@ -2764,7 +2764,7 @@ button.link {
   height: 0.98em;
   margin-right: 0.18em;
   vertical-align: -0.12em;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cellipse cx='20' cy='22' rx='17' ry='11' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='11' cy='10' r='7' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='29' cy='10' r='7' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='11' cy='10' r='4.5' fill='%23fffbe0'/%3E%3Ccircle cx='29' cy='10' r='4.5' fill='%23fffbe0'/%3E%3Cellipse cx='11.6' cy='10.6' rx='2' ry='2.7' fill='%23111'/%3E%3Cellipse cx='28.4' cy='10.6' rx='2' ry='2.7' fill='%23111'/%3E%3Cpath d='M9 23Q20 31 31 23' stroke='%231f4a17' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='7.5' cy='24' rx='2.6' ry='1.6' fill='%23ff9cc4' opacity='.7'/%3E%3Cellipse cx='32.5' cy='24' rx='2.6' ry='1.6' fill='%23ff9cc4' opacity='.7'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cpath d='M2 22C2 14 10 11 20 11C30 11 38 14 38 22C38 28 30 32 20 32C10 32 2 28 2 22z' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Cpath d='M3 21.5Q20 30 37 21.5' stroke='%23173a10' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M17.5 17.5l1.4 1M22.5 17.5l-1.4 1' stroke='%23173a10' stroke-width='1.3' stroke-linecap='round'/%3E%3Ccircle cx='10.5' cy='10.5' r='7' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Ccircle cx='29.5' cy='10.5' r='7' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Ccircle cx='10.5' cy='11' r='4.6' fill='%23e7bb3c' stroke='%236b4a10' stroke-width='.8'/%3E%3Ccircle cx='29.5' cy='11' r='4.6' fill='%23e7bb3c' stroke='%236b4a10' stroke-width='.8'/%3E%3Cellipse cx='10.5' cy='11' rx='3.3' ry='1.5' fill='%23111'/%3E%3Cellipse cx='29.5' cy='11' rx='3.3' ry='1.5' fill='%23111'/%3E%3Cpath d='M4.5 9.5Q10.5 2.5 16.5 9.5M23.5 9.5Q29.5 2.5 35.5 9.5' stroke='%233f8a25' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="pond"] .telegram-word,
 :root[data-theme="pond"] .telegram-big {
@@ -3001,8 +3001,12 @@ button.link {
 :root[data-theme="nightcap"] body {
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg opacity='.35'%3E%3Cg transform='translate(30 30)'%3E%3Cg fill='%23fff' stroke='%23c9cbb0' stroke-width='.6'%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(315)'/%3E%3C/g%3E%3Ccircle r='3.5' fill='%23f2c84a'/%3E%3C/g%3E%3Cpath d='M86 96c6-8 14-6 18-14M92 92c-2-6 2-10 6-12' stroke='%238fae80' stroke-width='1.4' fill='none'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 120px 120px,
-    radial-gradient(ellipse 55% 45% at 50% -10%, rgba(111, 134, 187, 0.3), transparent 70%),
-    linear-gradient(to bottom, #e3ead6, #eef0e2);
+    radial-gradient(ellipse 60% 40% at 50% -8%, rgba(111, 128, 200, 0.42), transparent 70%),
+    radial-gradient(ellipse 45% 30% at 8% 18%, rgba(142, 159, 216, 0.3), transparent 70%),
+    radial-gradient(ellipse 50% 32% at 92% 30%, rgba(169, 186, 236, 0.3), transparent 70%),
+    radial-gradient(ellipse 70% 26% at 20% 104%, rgba(127, 158, 116, 0.42), transparent 70%),
+    radial-gradient(ellipse 60% 22% at 85% 104%, rgba(169, 195, 154, 0.45), transparent 70%),
+    linear-gradient(to bottom, #dfe4f4, #ecedf0 55%, #e6ecdc);
 }
 /* The map is the box's arched picture window, with the moon and the sleeping bear drawn on the canvas. */
 :root[data-theme="nightcap"] .map {
@@ -3029,8 +3033,11 @@ button.link {
 }
 :root[data-theme="nightcap"] .masthead {
   border-bottom: 0;
-  background: repeating-linear-gradient(90deg, #a8c39a 0 14px, #f2c84a 14px 18px, #a8c39a 18px 32px, #7d95d0 32px 36px) bottom / 100% 5px no-repeat, transparent;
-  padding-bottom: 14px;
+  background:
+    repeating-linear-gradient(90deg, #fdf8ea 0 3px, transparent 3px 6px) 0 calc(100% - 4px) / 100% 1px no-repeat,
+    linear-gradient(90deg, #a9c39a 0 16px, #8e9fd8 16px 32px, #e2c47a 32px 48px, #c0433a 48px 64px, #7f9e74 64px 80px, #6f7fc0 80px 96px) 0 100% / 96px 9px repeat-x,
+    transparent;
+  padding-bottom: 16px;
 }
 :root[data-theme="nightcap"] .mast-title {
   font-style: italic;
@@ -3044,7 +3051,7 @@ button.link {
   height: 1.1em;
   margin-right: 0.18em;
   vertical-align: -0.14em;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cg fill='none' stroke='%238a9ac4' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M14 12c-3-3 3-5 0-9'/%3E%3Cpath d='M21 12c-3-3 3-5 0-9'/%3E%3Cpath d='M28 12c-3-3 3-5 0-9'/%3E%3C/g%3E%3Cellipse cx='21' cy='36' rx='17' ry='3.5' fill='%23dfe6f5' stroke='%2334466e' stroke-width='1.6'/%3E%3Cpath d='M7 15h28c0 11-6 19-14 19S7 26 7 15z' fill='%23fdf8e8' stroke='%2334466e' stroke-width='1.8'/%3E%3Cpath d='M34 18c6-1 7 7 0 8' fill='none' stroke='%2334466e' stroke-width='1.8'/%3E%3Cpath d='M10 20c3 1 6 1 8 0' stroke='%23a8c39a' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M30 15l3 9' stroke='%23b8945a' stroke-width='1'/%3E%3Crect x='30' y='23' width='6' height='7' rx='1' fill='%23a8c39a' stroke='%234a5e3e' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Ccircle cx='11' cy='15' r='5' fill='%23a2714a' stroke='%234a2e1a' stroke-width='1.5'/%3E%3Ccircle cx='34' cy='15' r='5' fill='%23a2714a' stroke='%234a2e1a' stroke-width='1.5'/%3E%3Cellipse cx='22.5' cy='25' rx='14' ry='12.5' fill='%23a2714a' stroke='%234a2e1a' stroke-width='1.6'/%3E%3Cellipse cx='22.5' cy='30' rx='7' ry='5' fill='%23ecd4ae' stroke='%234a2e1a' stroke-width='1.1'/%3E%3Cpath d='M19.8 27.6q2.7-2 5.4 0q-1.2 2.6-2.7 2.6t-2.7-2.6z' fill='%233a2414'/%3E%3Cpath d='M13.5 24q2.5 2.6 5 0M26.5 24q2.5 2.6 5 0' stroke='%233a2414' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M21 5C11 1 4 8 3 21C6 15 10 11 16 10z' fill='%23b8352c' stroke='%236e1c15' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M10 17C9 7 20 1 30 4C36 6 37 11 36 17z' fill='%23c9413a' stroke='%236e1c15' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M8.5 17.5C10 12 35 12 37 17.5C35 21 10 21 8.5 17.5z' fill='%23a52d25' stroke='%236e1c15' stroke-width='1.1'/%3E%3Ccircle cx='3.6' cy='22' r='3.4' fill='%23fbf5e6' stroke='%238d8068' stroke-width='1.1'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="nightcap"] .telegram-word,
 :root[data-theme="nightcap"] .telegram-big {
@@ -3065,6 +3072,14 @@ button.link {
 }
 :root[data-theme="nightcap"] .panel {
   margin: 8px;
+  padding-top: 24px;
+  /* A strip of the quilt along the top, and the warm glow of a bedside lamp in the corner. */
+  background:
+    repeating-linear-gradient(90deg, #fdf8ea 0 3px, transparent 3px 6px) 0 9px / 100% 1px no-repeat local,
+    linear-gradient(90deg, #a9c39a 0 16px, #8e9fd8 16px 32px, #e2c47a 32px 48px, #c0433a 48px 64px, #7f9e74 64px 80px, #6f7fc0 80px 96px) 0 4px / 96px 10px repeat-x local,
+    radial-gradient(ellipse 80% 45% at 100% 0%, rgba(255, 200, 110, 0.38), transparent 70%),
+    radial-gradient(ellipse 60% 30% at 0% 100%, rgba(142, 159, 216, 0.14), transparent 70%),
+    var(--panel);
 }
 :root[data-theme="nightcap"] .tool,
 :root[data-theme="nightcap"] .pick select,
@@ -3081,8 +3096,9 @@ button.link {
 :root[data-theme="nightcap"] .menu[open] > summary,
 :root[data-theme="nightcap"] .key-btn[aria-expanded="true"],
 :root[data-theme="nightcap"] .tool[aria-pressed="true"] {
-  background: #34466e;
-  color: #fbf7e8;
+  background: #b23a30;
+  border-color: #7e231c;
+  color: #fdf8ea;
 }
 
 /* ---- Campus: maroon and cream, varsity type, pennants ------------------------------------- */
