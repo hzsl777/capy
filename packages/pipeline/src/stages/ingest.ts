@@ -53,12 +53,37 @@ export function feedLinksIn(html: string, pageUrl: string): string[] {
 export const COMMON_FEED_PATHS = ["/feed/", "/rss", "/rss.xml", "/feed.xml", "/index.xml", "/index.rss", "/rss/", "/atom.xml", "/?feed=rss2", "/feeds/posts/default", "/arc/outboundfeeds/rss/", "/rss/news"];
 
 /**
+ * Whether a feed a section's page links to belongs to that section: on another host (a feed service such as
+ * FeedBurner), or under the section's first path segment, with or without an extension ("/english/" takes
+ * "/english/rss/", "/en.html" takes "/en.rss.xml"). A site's page often links to every section's feed, and the first
+ * one is rarely this section's (decision 82).
+ */
+export function inSection(feedUrl: string, pageUrl: string): boolean {
+  const page = new URL(pageUrl);
+  const feed = new URL(feedUrl);
+  const host = (h: string) => h.replace(/^www\./, "");
+  if (host(feed.hostname) !== host(page.hostname)) return true;
+  const segment = page.pathname.split("/")[1]?.replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+  if (!segment) return true;
+  const path = feed.pathname.toLowerCase();
+  return path === `/${segment}` || path.startsWith(`/${segment}/`) || path.startsWith(`/${segment}.`);
+}
+
+/** Said when an address with a path finds no feed of its own, so the failure explains why nothing else was tried. */
+const SECTION_NOTE = "an address with a path gets no feed from the site's root (decision 82)";
+
+/**
  * The configured URL's feed. When it answers with a web page instead (a homepage in sources.yaml), the feed the
  * page links to, or one at a common path. Only a response that parses as RSS or Atom counts (decision 31).
+ * Common paths are tried only for a site's root address. An address with a path is a section or an edition, and the
+ * site's own feed would pin another section's or edition's news at this outlet's place, so it fails instead: it is
+ * asked once more after an error, its page's feeds count only when they are in its section, and nothing else is
+ * tried (decision 82). declared lists the feeds the page links to, for `sources check` to show.
  */
-export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Promise<{ xml: string; feedUrl: string }> {
-  const origin = new URL(url).origin;
-  const common = COMMON_FEED_PATHS.map((p) => origin + p).filter((c) => c !== url);
+export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Promise<{ xml: string; feedUrl: string; declared?: string[] }> {
+  const { origin, pathname, search } = new URL(url);
+  const atRoot = pathname === "/" && !search;
+  const common = atRoot ? COMMON_FEED_PATHS.map((p) => origin + p).filter((c) => c !== url) : [];
   let first: string;
   try {
     first = await fetchFeed(url);
@@ -74,20 +99,31 @@ export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Pr
         // Try the next path.
       }
     }
-    throw err;
+    // Some servers refuse the first request and answer the next, so a section's address is asked once more, unless
+    // the server asked for fewer requests.
+    if (atRoot) throw err;
+    if (err.message.startsWith("429")) throw new HttpError(`${err.message}; ${SECTION_NOTE}`);
+    try {
+      first = await fetchFeed(url);
+    } catch (again) {
+      throw again instanceof HttpError ? new HttpError(`${again.message}; ${SECTION_NOTE}`) : again;
+    }
   }
   if (looksLikeFeed(first)) return { xml: first, feedUrl: url };
   const declared = feedLinksIn(first, url);
-  const candidates = declared.length ? declared.slice(0, 3) : common;
+  const own = atRoot ? declared : declared.filter((d) => inSection(d, url));
+  if (declared.length && !own.length) throw new Error(`page links to ${declared.length} feed(s), none in its section: ${declared.slice(0, 3).join(" ")}; ${SECTION_NOTE}`);
+  const candidates = own.length ? own.slice(0, 3) : common;
   for (const candidate of candidates) {
     try {
       const text = await fetchFeed(candidate);
-      if (looksLikeFeed(text)) return { xml: text, feedUrl: candidate };
+      if (looksLikeFeed(text)) return { xml: text, feedUrl: candidate, declared };
     } catch {
       // Try the next candidate.
     }
   }
-  throw new Error(declared.length ? `page links to ${declared.length} feed(s), none answered` : "not a feed, and the page links to none");
+  if (own.length) throw new Error(`page links to ${own.length} feed(s), none answered: ${own.slice(0, 3).join(" ")}`);
+  throw new Error(atRoot ? "not a feed, and the page links to none" : `not a feed, and the page links to none; ${SECTION_NOTE}`);
 }
 
 /** Feed text as plain text. Some feeds give a field as an object ({ _: text, $: attributes }) instead of a string. */
@@ -125,8 +161,12 @@ export async function articlesFromFeed(source: Source, xml: string, date: RunDat
  * feedUrl is set when the feed was found through the configured page, so sources.yaml can be updated.
  * failedDays is the failure streak including today. paused is set for a source skipped today because it keeps failing.
  */
-/** feedTitle is set by `sources check` only: the feed's own name, to confirm a new outlet's address is really its. */
-export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; feedTitle?: string; error?: string; failedDays?: number; paused?: boolean };
+/**
+ * Set by `sources check` only. feedTitle is the feed's own name and headlines its first three, to confirm a new
+ * outlet's address is really its and in its language. declared lists every feed a page links to when the feed was
+ * found through the page, so a section's own feed can be picked when the page links to the whole site's first.
+ */
+export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; feedTitle?: string; headlines?: string[]; declared?: string[]; error?: string; failedDays?: number; paused?: boolean };
 
 /** Feeds fetched at once. Hundreds of outlets one after another could take an hour on a slow day. */
 const INGEST_CONCURRENCY = 8;
@@ -219,10 +259,20 @@ export async function checkSources(sources: Source[], date: RunDate, fetchFeed: 
   const reports = new Map<string, IngestReport>();
   await inPool(sources, INGEST_CONCURRENCY, async (source) => {
     try {
-      const { xml, feedUrl } = await fetchFeedDocument(source.url, fetchFeed);
+      const { xml, feedUrl, declared } = await fetchFeedDocument(source.url, fetchFeed);
       const found = await articlesFromFeed(source, xml, date);
-      const feedTitle = stripHtml((await parser.parseString(xml)).title).slice(0, 120);
-      reports.set(source.id, { source: source.id, fetched: found.length, inserted: 0, ...(feedUrl !== source.url ? { feedUrl } : {}), ...(feedTitle ? { feedTitle } : {}) });
+      const feed = await parser.parseString(xml);
+      const feedTitle = stripHtml(feed.title).slice(0, 120);
+      const headlines = feed.items.slice(0, 3).map((i) => stripHtml(i.title).slice(0, 100)).filter(Boolean);
+      reports.set(source.id, {
+        source: source.id,
+        fetched: found.length,
+        inserted: 0,
+        ...(feedUrl !== source.url ? { feedUrl } : {}),
+        ...(feedTitle ? { feedTitle } : {}),
+        ...(headlines.length ? { headlines } : {}),
+        ...(declared && declared.length > 1 ? { declared } : {}),
+      });
     } catch (err) {
       reports.set(source.id, { source: source.id, fetched: 0, inserted: 0, error: err instanceof Error ? err.message : String(err) });
     }
