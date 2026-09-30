@@ -585,6 +585,15 @@ Davis liked that Polygon Kingdom does not just recolour the map but draws the wo
 6. **Speed.** Stitches, glass pieces and wires are handed to the canvas as SVG path text, a few paths per colour; skies, the hoop and the tracery are drawn once per frame size and globe radius into offscreen canvases; the far side of the wire planet and the stitch grid use the light basemap. A frame while dragging, measured in a software-rendered browser at 1440 by 900 with Polygon Kingdom measured the same way on the same machine (20 ms on its tilted map, 32 ms on its globe): Night Drive 5 ms tilted and 10 ms on the globe, Cross Stitch 10 and 10 ms, Rose Window 7 and 7 ms, and after two steps of zoom between 10 and 23 ms, under Polygon Kingdom's 21 to 30 ms there.
 7. A test checks that Rose Window's pieces leave no gap in the world and that every piece with land in it, small islands included, gets land glass.
 
+## 72. Each design can have its own marker shape, drawn the same on the map and in the Key (September 30, 2026)
+
+Davis asked for markers that fit each design instead of circles everywhere, as long as the Key stays true to what the map shows. This extends decision 57, whose three symbols are unchanged.
+
+1. Every shape is one outline in `src/map/marks.ts`: circle, square, diamond, bevelled disc, sewn button, hexagon, lily pad, four-, five- and six-point stars, flower, gumdrop and shield. The map draws markers from these outlines and the Key draws its symbols from the same ones, so the two can't disagree.
+2. Hollow, filled and filled with an outer ring are drawn from the same outline in every shape, and each shape was checked at marker size for all three. Size still means the number of reports and the fresh colour still means the last hour. A shape means nothing.
+3. Frog Pond uses lily pads, Candy Shop gumdrops, Tarot five-point stars, Bedtime Tea flowers, Campus shields, Lasso six-point stars and Pirate four-point compass stars. Ops Room keeps circles, because diamonds and other frames carry meaning in military map symbols. No heart or other shape that could read as a feeling about a place is used.
+4. Rose Window's land glass is now mixed: nearly half its land pieces take any land colour, so no continent reads as one coloured region (neutrality rule 1). This changes item 3 of decision 70.
+
 ## 73. The site serves the day's map from R2 (September 30, 2026)
 
 The Worker built `/data/latest.json` from the database on every edge-cache miss. Decision 67 makes a real day about 4.7 MB with some 6,000 places, and building and writing out that much takes far longer than the 10 ms of CPU a request gets on Cloudflare's free plan. Davis chose R2. This changes decision 25's read path, not its data.

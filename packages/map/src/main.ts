@@ -81,6 +81,7 @@ import {
   type Filters,
   type TopicFilter,
 } from "./data.ts";
+import { markPath } from "./map/marks.ts";
 import { THEMES, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
@@ -348,22 +349,9 @@ function renderKey() {
     svg.style.background = t.ocean;
     svg.style.borderRadius = "4px";
     draw((r, fill, stroke, width, dash) => {
-      const el = document.createElementNS(NS, t.dotShape === "square" ? "rect" : t.dotShape === "diamond" || t.dotShape === "hex" ? "polygon" : "circle");
-      if (t.dotShape === "diamond") {
-        const d = r * 1.3;
-        el.setAttribute("points", `0,${-d} ${d},0 0,${d} ${-d},0`);
-      } else if (t.dotShape === "hex") {
-        const pts = Array.from({ length: 6 }, (_, i) => {
-          const a = Math.PI / 6 + (i * Math.PI) / 3;
-          return `${(r * 1.1 * Math.cos(a)).toFixed(2)},${(r * 1.1 * Math.sin(a)).toFixed(2)}`;
-        });
-        el.setAttribute("points", pts.join(" "));
-      } else if (t.dotShape === "square") {
-        el.setAttribute("x", String(-r));
-        el.setAttribute("y", String(-r));
-        el.setAttribute("width", String(r * 2));
-        el.setAttribute("height", String(r * 2));
-      } else el.setAttribute("r", String(r));
+      // The same outline the map draws (src/map/marks.ts), so the Key always matches it.
+      const el = document.createElementNS(NS, "path");
+      el.setAttribute("d", markPath(t.dotShape, r));
       el.setAttribute("fill", fill);
       el.setAttribute("stroke", stroke);
       el.setAttribute("stroke-width", String(width));

@@ -12,6 +12,7 @@ import {
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
+import { markPath2D } from "./marks.ts";
 import { drawScenery, drawSceneryUnder, type SceneryFrame } from "./scenery.ts";
 import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 import { drawNeon, NeonCache } from "./neon.ts";
@@ -1653,23 +1654,40 @@ export class MapView {
     ctx.save();
     if (t.glow) ctx.shadowBlur = 8;
     // A circle, or a square snapped to whole canvas pixels for the pixel designs.
+    // Every shape comes from marks.ts, the same outlines the Key draws (decision 72). The square snaps to whole
+    // canvas pixels for the pixel designs.
+    let cur: Path2D = new Path2D();
+    let ox = 0;
+    let oy = 0;
     const shape = (x: number, y: number, r: number) => {
-      if (t.dotShape === "square") ctx.rect(Math.round(x - r), Math.round(y - r), Math.round(r * 2), Math.round(r * 2));
-      else if (t.dotShape === "hex") {
-        for (let i = 0; i < 6; i++) {
-          const a = Math.PI / 6 + (i * Math.PI) / 3;
-          if (i === 0) ctx.moveTo(x + r * 1.1 * Math.cos(a), y + r * 1.1 * Math.sin(a));
-          else ctx.lineTo(x + r * 1.1 * Math.cos(a), y + r * 1.1 * Math.sin(a));
-        }
-        ctx.closePath();
-      } else if (t.dotShape === "diamond") {
-        const d = r * 1.3;
-        ctx.moveTo(x, y - d);
-        ctx.lineTo(x + d, y);
-        ctx.lineTo(x, y + d);
-        ctx.lineTo(x - d, y);
-        ctx.closePath();
-      } else ctx.arc(x, y, r, 0, Math.PI * 2);
+      if (t.dotShape === "square") {
+        cur = new Path2D();
+        cur.rect(Math.round(x - r), Math.round(y - r), Math.round(r * 2), Math.round(r * 2));
+        ox = oy = 0;
+      } else {
+        cur = markPath2D(t.dotShape, r);
+        ox = x;
+        oy = y;
+      }
+    };
+    const fillShape = () => {
+      ctx.translate(ox, oy);
+      ctx.fill(cur);
+      ctx.translate(-ox, -oy);
+    };
+    const strokeShape = () => {
+      ctx.translate(ox, oy);
+      ctx.stroke(cur);
+      ctx.translate(-ox, -oy);
+    };
+    /** A light-and-shade gradient centred on the marker, filled over its shape. */
+    const shadeShape = (x: number, y: number, r: number, stops: [number, string][]) => {
+      const g = ctx.createRadialGradient(x - r * 0.33, y - r * 0.38, 0, x, y, r);
+      for (const [at, c] of stops) g.addColorStop(at, c);
+      ctx.fillStyle = g;
+      const p = new Path2D();
+      p.addPath(cur, new DOMMatrix([1, 0, 0, 1, ox, oy]));
+      ctx.fill(p);
     };
     // Three symbols by the place's most important story (decision 57), drawn least important first so the most
     // important always sit on top: hollow for importance 1 and GDELT local stories, filled for 2 and 3, filled
@@ -1679,23 +1697,15 @@ export class MapView {
       const ink = s.fresh ? t.fresh : t.dot;
       const hollow = s.weight <= 1;
       if (t.glow) ctx.shadowColor = ink;
-      ctx.beginPath();
       shape(x, y, r);
       ctx.fillStyle = hollow ? t.dotStroke : ink;
-      ctx.fill();
+      fillShape();
       if (t.dotShape === "bevel" && !hollow) {
         // A bevelled disc: light on the upper left, a darker rim below.
         ctx.save();
         ctx.shadowBlur = 0;
-        const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, 0, x, y, r);
-        g.addColorStop(0, "rgba(255,255,255,0.65)");
-        g.addColorStop(0.45, "rgba(255,255,255,0)");
-        g.addColorStop(1, "rgba(0,0,0,0.25)");
-        ctx.fillStyle = g;
-        ctx.fill();
+        shadeShape(x, y, r, [[0, "rgba(255,255,255,0.65)"], [0.45, "rgba(255,255,255,0)"], [1, "rgba(0,0,0,0.25)"]]);
         ctx.restore();
-        ctx.beginPath();
-        shape(x, y, r);
       }
       if (t.dotShape === "diamond" && !hollow) {
         // Cut like a gem: the right half in shadow and a glint on the upper left facet.
@@ -1717,20 +1727,13 @@ export class MapView {
         ctx.fillStyle = "rgba(255,255,255,0.55)";
         ctx.fill();
         ctx.restore();
-        ctx.beginPath();
-        shape(x, y, r);
       }
       if (t.dotShape === "button" && !hollow) {
         // A sewn button: a raised rim, four holes and the thread crossed through them. Size and rings still mean
         // what they mean in every design.
         ctx.save();
         ctx.shadowBlur = 0;
-        const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, 0, x, y, r);
-        g.addColorStop(0, "rgba(255,255,255,0.35)");
-        g.addColorStop(0.6, "rgba(255,255,255,0)");
-        g.addColorStop(1, "rgba(0,0,0,0.3)");
-        ctx.fillStyle = g;
-        ctx.fill();
+        shadeShape(x, y, r, [[0, "rgba(255,255,255,0.35)"], [0.6, "rgba(255,255,255,0)"], [1, "rgba(0,0,0,0.3)"]]);
         if (r >= 3.5) {
           const o = r * 0.3;
           ctx.beginPath();
@@ -1744,37 +1747,32 @@ export class MapView {
           ctx.stroke();
         }
         ctx.restore();
-        ctx.beginPath();
-        shape(x, y, r);
       }
       ctx.lineWidth = hollow ? 1.6 : 1.2;
       ctx.strokeStyle = hollow ? ink : t.dotStroke;
-      ctx.stroke();
+      strokeShape();
       const ring = s.weight >= 4 ? r + 2.6 : r;
       if (s.weight >= 4) {
-        ctx.beginPath();
         shape(x, y, ring);
         ctx.lineWidth = 1.3;
         ctx.strokeStyle = ink;
-        ctx.stroke();
+        strokeShape();
       }
       if (s.indices.length > 1) {
         // Merged places: a thin inner ring, so a cluster reads differently from one busy city.
-        ctx.beginPath();
         shape(x, y, Math.max(1.2, r * 0.45));
         ctx.lineWidth = 1;
         ctx.strokeStyle = hollow ? ink : t.dotStroke;
-        ctx.stroke();
+        strokeShape();
       }
       if (s.fresh && t.fresh === t.dot) {
         // Monochrome designs mark fresh reports with a dashed ring, so it never reads as the importance ring.
         ctx.save();
         ctx.setLineDash([2, 2]);
-        ctx.beginPath();
         shape(x, y, ring + 2.6);
         ctx.lineWidth = 0.9;
         ctx.strokeStyle = t.dot;
-        ctx.stroke();
+        strokeShape();
         ctx.restore();
       }
       if (s.indices.some((i) => this.pinned.has(i))) {

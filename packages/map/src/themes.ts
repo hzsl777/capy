@@ -1,3 +1,4 @@
+import type { MarkShape } from "./map/marks.ts";
 import type { SceneryKind } from "./map/scenery.ts";
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
@@ -34,7 +35,7 @@ export interface Theme {
   /** Distance haze: toward the globe's rim, or toward the far edge of a tilted map. The colour of the horizon. */
   fog?: string;
   /** Place dots as circles, squares (the pixel designs), diamonds, bevelled discs or hexagons. */
-  dotShape: "circle" | "square" | "diamond" | "bevel" | "hex" | "button";
+  dotShape: MarkShape;
   textureInk: string;
   textureInk2?: string;
   coast: string;
@@ -286,7 +287,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#eddab0",
     landTexture: "none",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "star4",
     textureInk: "rgba(59,38,20,0.4)",
     coast: "#3b2614",
     coastWidth: 1.1,
@@ -352,7 +353,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#ffd8ec",
     landTexture: "none",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "gumdrop",
     textureInk: "rgba(226,127,180,0.3)",
     coast: "#e27fb4",
     coastWidth: 1.2,
@@ -588,7 +589,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#76b347",
     landTexture: "mottle",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "pad",
     textureInk: "rgba(170,220,110,0.7)",
     textureInk2: "rgba(40,110,40,0.55)",
     coast: "#24501d",
@@ -660,7 +661,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#2b2560",
     landTexture: "matrix",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "star5",
     textureInk: "rgba(232,196,110,0.4)",
     coast: "#e3bd62",
     coastWidth: 1.2,
@@ -732,7 +733,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#a8c39a",
     landTexture: "mottle",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "flower",
     textureInk: "rgba(235,240,210,0.55)",
     textureInk2: "rgba(90,130,100,0.35)",
     coast: "#34466e",
@@ -768,7 +769,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#881c1c",
     landTexture: "hatch",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "shield",
     textureInk: "rgba(255,255,255,0.18)",
     coast: "#4e0d0d",
     coastWidth: 1,
@@ -803,7 +804,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#c99a62",
     landTexture: "mottle",
     pixel: 1,
-    dotShape: "circle",
+    dotShape: "star6",
     textureInk: "rgba(240,205,150,0.4)",
     coast: "#4a2e16",
     coastWidth: 1.3,
