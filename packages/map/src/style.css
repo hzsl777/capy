@@ -1768,9 +1768,6 @@ button.link {
   outline: 4px double var(--rule);
   outline-offset: 4px;
 }
-:root[data-theme="pirate"] .compass {
-  display: block;
-}
 :root[data-theme="pirate"] .panel {
   margin: 10px 10px 10px 0;
   border: 2px dashed var(--rule);

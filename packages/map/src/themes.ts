@@ -96,7 +96,8 @@ export interface Theme {
   /** Map only: a double rule around the sheet, like a printed chart. */
   neatline: boolean;
   /**
-   * Decoration drawn under the dots (src/map/decor.ts): "sea" puts small ink sea creatures in open ocean,
+   * Decoration drawn under the dots (src/map/decor.ts): "sea" fills open ocean with engraved sea monsters, ships,
+   * whirlpools, compass roses and wave marks,
    * "space" adds a thin bright rim to the globe and faint stars in the flat map's ocean, "candy" puts small
    * outlined sweets in open ocean. Never text, never on land, never near a
    * place.
