@@ -54,8 +54,12 @@ export const EMPIRE: readonly Spot[] = [
   { kind: "cloud", lon: 90, lat: -10, r: 9 },
 ];
 
-/** On the flat map the moon with the sleeping bear hangs in the night over the open Pacific. */
-export const TEA: readonly Spot[] = [{ kind: "bear", lon: -142, lat: 10, r: 14 }];
+/** On the flat map the moon with the sleeping bear hangs in the night over the open Pacific, Atlantic and Indian Ocean. */
+export const TEA: readonly Spot[] = [
+  { kind: "bear", lon: -142, lat: 10, r: 14 },
+  { kind: "bear", lon: -22, lat: -30, r: 14, flip: true },
+  { kind: "bear", lon: 90, lat: -10, r: 9 },
+];
 
 /** Trick-rope loops over the sea. */
 export const ROPE: readonly Spot[] = [
@@ -72,21 +76,40 @@ const FADE = (62 * Math.PI) / 180;
 
 // ---- pictures ------------------------------------------------------------------------------------------------
 
-const PAD = (x: number, y: number, r: number, rot: number, fill = "#5aa640") => {
-  const a = (15 * Math.PI) / 180;
-  const nx = Math.sin(a) * r;
-  const ny = -Math.cos(a) * r;
-  const vein = [0, 45, 90, 135, 180, 225, 270, 315]
-    .map((d) => {
-      const t = ((d + 22) * Math.PI) / 180;
-      return `M0 0L${(Math.sin(t) * r * 0.9).toFixed(1)} ${(-Math.cos(t) * r * 0.9).toFixed(1)}`;
-    })
+/** Lily pad greens: leaf, outline, veins and rim, and the last is an older pad turning bronze. */
+const PAD_TONES = [
+  ["#5da63e", "#1f4c17", "#8fcc62"],
+  ["#4a9434", "#1b4414", "#7cbd55"],
+  ["#6db44b", "#24541a", "#a2d875"],
+  ["#86a03c", "#44461a", "#bcca72"],
+] as const;
+
+/**
+ * One lily pad seen from above: a round leaf with the slit that runs from its edge to the stalk at the centre,
+ * veins radiating from there, a pale upturned rim and its shadow on the water. `rot` turns the slit (0 is up).
+ */
+const PAD = (x: number, y: number, r: number, rot: number, tone = 0) => {
+  const [fill, edge, light] = PAD_TONES[tone % PAD_TONES.length]!;
+  const a = (13 * Math.PI) / 180;
+  const pt = (deg: number, f: number) => {
+    const t = (deg * Math.PI) / 180;
+    return `${(Math.sin(t) * r * f).toFixed(1)} ${(-Math.cos(t) * r * f).toFixed(1)}`;
+  };
+  const nx = (Math.sin(a) * r).toFixed(1);
+  const ny = (-Math.cos(a) * r).toFixed(1);
+  const leaf = `M0 ${(r * 0.04).toFixed(1)}L${nx} ${ny}A${r} ${r} 0 1 1 ${-nx} ${ny}Z`;
+  const veins = Array.from({ length: 11 }, (_, i) => 30 + i * 30)
+    .filter((d) => d < 340)
+    .map((d) => `M0 0Q${pt(d - 6, 0.5)} ${pt(d, 0.9)}`)
     .join("");
+  const w = Math.max(1.4, r * 0.055).toFixed(1);
   return `<g transform="translate(${x} ${y}) rotate(${rot})">
-    <ellipse cx="3" cy="4" rx="${r}" ry="${r * 0.96}" fill="rgba(10,40,25,.35)"/>
-    <path d="M0 0L${nx.toFixed(1)} ${ny.toFixed(1)}A${r} ${r} 0 1 1 ${(-nx).toFixed(1)} ${ny.toFixed(1)}Z" fill="${fill}" stroke="#2c6424" stroke-width="2.4" stroke-linejoin="round"/>
-    <path d="${vein}" stroke="#397c2c" stroke-width="1.5" opacity=".7"/>
-    <ellipse cx="${-r * 0.3}" cy="${r * 0.3}" rx="${r * 0.45}" ry="${r * 0.25}" fill="#9bd872" opacity=".35"/>
+    <path d="${leaf}" transform="translate(${(r * 0.1).toFixed(1)} ${(r * 0.12).toFixed(1)})" fill="rgba(8,34,22,.42)"/>
+    <path d="${leaf}" fill="${fill}"/>
+    <path d="M${pt(20, 0.9)}A${r * 0.9} ${r * 0.9} 0 1 1 ${pt(-20, 0.9)}" fill="none" stroke="${light}" stroke-width="${(r * 0.1).toFixed(1)}" opacity=".45"/>
+    <path d="${veins}" fill="none" stroke="${light}" stroke-width="${(r * 0.035).toFixed(1)}" stroke-linecap="round" opacity=".75"/>
+    <ellipse cx="${(-r * 0.32).toFixed(1)}" cy="${(r * 0.28).toFixed(1)}" rx="${(r * 0.38).toFixed(1)}" ry="${(r * 0.22).toFixed(1)}" transform="rotate(-30 ${(-r * 0.32).toFixed(1)} ${(r * 0.28).toFixed(1)})" fill="#ffffff" opacity=".12"/>
+    <path d="${leaf}" fill="none" stroke="${edge}" stroke-width="${w}" stroke-linejoin="round"/>
   </g>`;
 };
 
@@ -96,33 +119,60 @@ const RIPPLES = (x: number, y: number, r: number) =>
     <ellipse cx="${x}" cy="${y}" rx="${r * 1.7}" ry="${r * 1.4}" stroke-width="1.2" opacity=".25" stroke-dasharray="${r * 0.6} ${r * 0.6}"/>
   </g>`;
 
+/** Half a frog sitting on a pad and facing us: the left thigh folded, shin and long webbed toes, and the arm. */
+const FROG_SIDE = `
+  <path d="M-12-6C-24-20-46-12-47 4C-48 18-36 24-22 20C-15 16-11 6-12-6Z" fill="#4c9a2c" stroke="#173a10" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M-36-4c3-2 7-1 8 2c-2 3-6 3-8-2ZM-26 9c3-1 5 1 5 3c-2 2-5 1-5-3Z" fill="#2c661a"/>
+  <path d="M-44 11C-49 24-40 31-27 30L-22 25C-31 25-37 19-38 12Z" fill="#4c9a2c" stroke="#173a10" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M-26 28Q-40 28-55 25Q-44 32-55 34Q-44 36-49 42Q-41 38-39 45Q-35 38-30 43Z" fill="#7cba4c" opacity=".35"/>
+  <path d="M-26 28Q-40 28-55 25M-26 28Q-42 32-55 34M-26 28Q-40 36-49 42M-26 28Q-34 38-39 45M-26 28Q-28 36-30 43" stroke="#173a10" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+  <path d="M-26 28Q-40 28-55 25M-26 28Q-42 32-55 34M-26 28Q-40 36-49 42M-26 28Q-34 38-39 45M-26 28Q-28 36-30 43" stroke="#5aa634" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <path d="M-13 12C-18 17-19 22-17 27" stroke="#173a10" stroke-width="7.5" stroke-linecap="round" fill="none"/>
+  <path d="M-13 12C-18 17-19 22-17 27" stroke="#5aa634" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <path d="M-17 27l-7 3m7-3l-4 6m4-6l1 6m-1-6l5 4" stroke="#173a10" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M-17 27l-7 3m7-3l-4 6m4-6l1 6m-1-6l5 4" stroke="#5aa634" stroke-width="1.6" stroke-linecap="round"/>`;
+
+/** Its eye: a bulging dome on top of the head with a gold iris and a frog's level pupil. */
+const FROG_EYE = `
+  <circle cx="-12" cy="-11" r="8" fill="#5aa634" stroke="#173a10" stroke-width="2"/>
+  <circle cx="-12" cy="-10.5" r="5.4" fill="#e7bb3c" stroke="#6b4a10" stroke-width="1"/>
+  <ellipse cx="-12" cy="-10.5" rx="3.8" ry="1.8" fill="#111"/>
+  <path d="M-14.5-13.2l2-.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M-20-12.5Q-12-21-4-12.5" stroke="#3f8a25" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <ellipse cx="-24" cy="-2" rx="3.6" ry="3.2" fill="#3d8424" stroke="#2a5c18" stroke-width="1"/>`;
+
+/**
+ * A green frog sitting on a pad, facing us and seen a little from above: a wide flat head with the mouth line
+ * across it, bulging eyes on top, a darker spotted back, a pale throat and belly, and folded legs.
+ */
 const FROG = `<g>
-  <path d="M-13 6C-30 2-36 20-26 27C-20 31-14 25-11 18Z" fill="#4f9e2d" stroke="#1f4a17" stroke-width="2"/>
-  <path d="M13 6C30 2 36 20 26 27C20 31 14 25 11 18Z" fill="#4f9e2d" stroke="#1f4a17" stroke-width="2"/>
-  <path d="M-27 26l-7 4m7-4l-3 7m29-7" stroke="#1f4a17" stroke-width="2.2" stroke-linecap="round"/>
-  <path d="M27 26l7 4m-7-4l3 7" stroke="#1f4a17" stroke-width="2.2" stroke-linecap="round"/>
-  <path d="M-9-6C-19-4-22 3-19 8M9-6C19-4 22 3 19 8" stroke="#1f4a17" stroke-width="6" stroke-linecap="round" fill="none"/>
-  <path d="M-9-6C-19-4-22 3-19 8M9-6C19-4 22 3 19 8" stroke="#66bb3a" stroke-width="3" stroke-linecap="round" fill="none"/>
-  <ellipse cx="0" cy="6" rx="15" ry="18" fill="#6cc040" stroke="#1f4a17" stroke-width="2"/>
-  <ellipse cx="-5" cy="10" rx="3.2" ry="2.4" fill="#3f8a25"/><ellipse cx="6" cy="14" rx="2.6" ry="2" fill="#3f8a25"/><ellipse cx="2" cy="3" rx="2.2" ry="1.8" fill="#3f8a25"/>
-  <ellipse cx="0" cy="-11" rx="14" ry="10" fill="#6cc040" stroke="#1f4a17" stroke-width="2"/>
-  <circle cx="-8" cy="-18" r="6.2" fill="#6cc040" stroke="#1f4a17" stroke-width="2"/>
-  <circle cx="8" cy="-18" r="6.2" fill="#6cc040" stroke="#1f4a17" stroke-width="2"/>
-  <circle cx="-8" cy="-19" r="3.8" fill="#fffbe0"/><circle cx="8" cy="-19" r="3.8" fill="#fffbe0"/>
-  <ellipse cx="-8" cy="-19" rx="1.4" ry="2.6" fill="#141414"/><ellipse cx="8" cy="-19" rx="1.4" ry="2.6" fill="#141414"/>
-  <path d="M-8-7Q0-3 8-7" stroke="#1f4a17" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <ellipse cx="-4" cy="-2" rx="6" ry="3" fill="#a6e07a" opacity=".45"/>
+  <ellipse cx="0" cy="31" rx="46" ry="9" fill="rgba(8,34,22,.35)"/>
+  ${FROG_SIDE}<g transform="scale(-1 1)">${FROG_SIDE}</g>
+  <path d="M-22 0C-27-26-11-38 0-38C11-38 27-26 22 0Z" fill="#3f8a25" stroke="#173a10" stroke-width="2"/>
+  <path d="M-13-8C-15-20-11-30-5-34M13-8C15-20 11-30 5-34" stroke="#9bd062" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M-6-30c3-2 6 0 5 3c-3 2-6 0-5-3ZM3-33c3-1 5 1 4 3c-2 1-4 0-4-3ZM1-23c2-2 5 0 4 2c-2 2-4 1-4-2Z" fill="#285a17"/>
+  <path d="M-15 12C-14 24-8 29 0 29C8 29 14 24 15 12Z" fill="#e6edb8" stroke="#173a10" stroke-width="1.6"/>
+  <path d="M-8 20q8 3 16 0M-9 25q9 3 18 0" stroke="#c9d58e" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M-27 1C-27-9-15-14 0-14C15-14 27-9 27 1C27 9 15 14 0 14C-15 14-27 9-27 1Z" fill="#5aa634" stroke="#173a10" stroke-width="2"/>
+  <path d="M-26 3Q0 13 26 3" stroke="#173a10" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M-26 3Q0 13 26 3" stroke="#c9dd8a" stroke-width="1" fill="none" stroke-linecap="round" transform="translate(0 2.4)" opacity=".8"/>
+  <path d="M-5-4l2 1.4M5-4l-2 1.4" stroke="#173a10" stroke-width="1.6" stroke-linecap="round"/>
+  ${FROG_EYE}<g transform="scale(-1 1)">${FROG_EYE}</g>
 </g>`;
 
+/** A lotus flower open on the water: two rings of pointed petals, pink at the tips, round a golden seed head. */
 const LOTUS = (x: number, y: number, s: number) => {
-  const outer = [0, 45, 90, 135, 180, 225, 270, 315]
-    .map((d) => `<ellipse cx="0" cy="-10" rx="5.5" ry="11" transform="rotate(${d})" fill="#ffb0cf" stroke="#cf4f8a" stroke-width="1.2"/>`)
-    .join("");
-  const inner = [22, 82, 142, 202, 262, 322]
-    .map((d) => `<ellipse cx="0" cy="-6" rx="4" ry="7.5" transform="rotate(${d})" fill="#ffd9e8" stroke="#e07aa8" stroke-width="1"/>`)
-    .join("");
-  return `<g transform="translate(${x} ${y}) scale(${s})">${outer}${inner}<circle r="3.6" fill="#ffd84a" stroke="#c9901a" stroke-width="1"/></g>`;
+  const petal = (len: number, wid: number, d: number, fill: string, stroke: string) =>
+    `<path d="M0 0C${wid} ${-len * 0.3} ${wid * 0.7} ${-len * 0.82} 0 ${-len}C${-wid * 0.7} ${-len * 0.82} ${-wid} ${-len * 0.3} 0 0Z" transform="rotate(${d})" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+  const outer = [0, 45, 90, 135, 180, 225, 270, 315].map((d) => petal(17, 7.5, d, "url(#lp)", "#c24d84")).join("");
+  const inner = [22, 67, 112, 157, 202, 247, 292, 337].map((d) => petal(11.5, 5.5, d, "#ffe3ee", "#dd78a6")).join("");
+  return `<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="3" cy="4" rx="17" ry="15" fill="rgba(8,34,22,.3)"/>${outer}${inner}<circle r="4.4" fill="#f4d24a" stroke="#b98a1c" stroke-width="1"/><path d="M-2-1.5h.1M2-1.5h.1M0 1.8h.1" stroke="#9a7212" stroke-width="1.4" stroke-linecap="round"/></g>`;
 };
+const LOTUS_DEFS = `<defs><radialGradient id="lp" cx=".5" cy="1" r="1"><stop offset="0" stop-color="#fff2f7"/><stop offset=".6" stop-color="#ffb7d3"/><stop offset="1" stop-color="#ef7fae"/></radialGradient></defs>`;
+
+/** A closed lotus bud standing up out of the water, seen from above. */
+const BUD = (x: number, y: number, s: number) =>
+  `<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="3" cy="3" rx="6" ry="9" fill="rgba(8,34,22,.3)"/><path d="M0 9C-7 4-7-4 0-10C7-4 7 4 0 9Z" fill="#f59cc2" stroke="#c24d84" stroke-width="1.2"/><path d="M0 9C-3 3-3-4 0-10" stroke="#ffd6e6" stroke-width="1.6" fill="none"/></g>`;
 
 const DRAGONFLY = `<g transform="rotate(-24)">
   <g fill="rgba(215,244,255,.6)" stroke="#2b6f7c" stroke-width="1">
@@ -136,39 +186,77 @@ const DRAGONFLY = `<g transform="rotate(-24)">
   <circle cx="0" cy="-13" r="4.5" fill="#35b2c4" stroke="#1d5560" stroke-width="1.4"/>
 </g>`;
 
+/** The quilt over the sleeping bear: his body under it, its hem hanging over the moon's front. */
+const QUILT = "M-30 26C-26 2 10-14 44-6C62-2 74 4 82 4L80 12C62 42 32 55 0 56C-16 56-26 50-30 42Z";
+const QUILT_PATCHES = (() => {
+  const colours = ["#a9c39a", "#f4ecd6", "#8e9fd8", "#c0433a", "#f4ecd6", "#7f9e74"];
+  let out = "";
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 6; j++) out += `<rect x="${-36 + i * 14}" y="${-16 + j * 14}" width="14" height="14" fill="${colours[(i * 2 + j * 3) % colours.length]}"/>`;
+  }
+  const seams = Array.from({ length: 9 }, (_, i) => `M${-36 + i * 14} -20V64`).join("") + Array.from({ length: 6 }, (_, j) => `M-40 ${-16 + j * 14}H96`).join("");
+  return `<g transform="rotate(-8 20 20)">${out}<path d="${seams}" stroke="#fdf8ea" stroke-width="1.2" stroke-dasharray="2.5 2"/></g>`;
+})();
+
+/**
+ * The bear's head, facing us, asleep: round ears, a pale muzzle, closed eyes, and a red nightcap with a rolled cuff
+ * whose long tip flops over to one side and ends in a white pom-pom.
+ */
+const BEAR_HEAD = `
+  <circle cx="-17" cy="-14" r="8" fill="#a2714a" stroke="#4a2e1a" stroke-width="2.2"/><circle cx="-17" cy="-14" r="4.2" fill="#e6c9a0"/>
+  <circle cx="17" cy="-14" r="8" fill="#a2714a" stroke="#4a2e1a" stroke-width="2.2"/><circle cx="17" cy="-14" r="4.2" fill="#e6c9a0"/>
+  <ellipse cx="0" cy="0" rx="22" ry="20" fill="#a2714a" stroke="#4a2e1a" stroke-width="2.5"/>
+  <ellipse cx="0" cy="8" rx="11" ry="8" fill="#ecd4ae" stroke="#4a2e1a" stroke-width="1.6"/>
+  <path d="M-4.5 3.5Q0 0.5 4.5 3.5Q2.5 7.5 0 7.5Q-2.5 7.5-4.5 3.5Z" fill="#3a2414"/>
+  <path d="M0 7.5v2.5M-4 10.5q2 2.2 4 0q2 2.2 4 0" stroke="#3a2414" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M-14-1q4 4 8 0M6-1q4 4 8 0" stroke="#3a2414" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="-14" cy="6" rx="4" ry="2.6" fill="#e8978a" opacity=".55"/><ellipse cx="14" cy="6" rx="4" ry="2.6" fill="#e8978a" opacity=".55"/>
+  <path d="M-8-38C-30-46-50-32-54-2C-49-12-43-22-30-26C-22-28-17-26-13-21Z" fill="#b8352c" stroke="#6e1c15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M-19-14C-22-34-6-46 10-42C22-38 24-26 20-14Z" fill="#c9413a" stroke="#6e1c15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M-4-40C0-32 6-26 15-21M-40-30C-46-24-50-14-52-6" stroke="#8f261f" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M-23-11C-21-21 21-21 23-11C21-4-21-4-23-11Z" fill="#a52d25" stroke="#6e1c15" stroke-width="1.8"/>
+  <path d="M-19-10.5C-12-15 12-15 19-10.5" stroke="#d9695d" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <circle cx="-54" cy="0" r="7.5" fill="#fbf5e6" stroke="#8d8068" stroke-width="1.6"/>
+  <path d="M-59 2.5q5 4 10-.5" stroke="#c7cfe8" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+
 const svg = (vb: string, body: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="400" height="${Math.round((400 * Number(vb.split(" ")[3])) / Number(vb.split(" ")[2]))}">${body}</svg>`;
 
 export const PICTURES: Record<string, string> = {
-  // Pond: each picture is 200 by 140, centred.
-  frog: svg("-100 -70 200 140", `${RIPPLES(0, 4, 40)}${PAD(0, 4, 40, 18)}<g transform="translate(-2 2) scale(1.15)">${FROG}</g>`),
-  lotus: svg("-100 -70 200 140", `${RIPPLES(-10, 0, 36)}${PAD(34, 18, 22, -60, "#4c9637")}${PAD(-12, -2, 36, 200)}${LOTUS(-12, -4, 1.35)}`),
-  pads: svg("-100 -70 200 140", `${RIPPLES(0, 0, 38)}${PAD(-30, -14, 26, 40)}${PAD(22, -18, 20, 160, "#4c9637")}${PAD(4, 20, 30, 280)}
-    <g transform="translate(-34 -18)"><ellipse cx="0" cy="-2" rx="5" ry="9" fill="#ff9cc4" stroke="#cf4f8a" stroke-width="1.2"/><ellipse cx="0" cy="-4" rx="2.6" ry="6" fill="#ffd9e8"/></g>`),
-  dragonfly: svg("-100 -70 200 140", `${RIPPLES(-24, 26, 18)}${PAD(-24, 26, 18, 120, "#4c9637")}<ellipse cx="14" cy="18" rx="26" ry="8" fill="rgba(10,40,25,.25)"/><g transform="translate(14 -10) scale(1.3)">${DRAGONFLY}</g>`),
+  // Pond: each picture is 200 by 140, centred. Pads keep open water between them and overlap only as one leaf
+  // lying on another, so each reads as its own leaf.
+  frog: svg("-100 -70 200 140", `${RIPPLES(0, 6, 46)}${PAD(74, -44, 15, 60, 1)}${PAD(0, 8, 50, 140)}<g transform="translate(0 -2) scale(1.02)">${FROG}</g>`),
+  lotus: svg(
+    "-100 -70 200 140",
+    `${LOTUS_DEFS}${RIPPLES(-10, 2, 40)}${PAD(56, 36, 19, -70, 1)}${PAD(-72, -42, 13, 120, 3)}${PAD(-10, 4, 40, 205)}${LOTUS(-14, -2, 1.3)}`,
+  ),
+  pads: svg(
+    "-100 -70 200 140",
+    `${RIPPLES(0, 0, 40)}${PAD(-42, -14, 29, 35)}${PAD(-20, 18, 16, 250, 3)}${PAD(22, -32, 20, 170, 1)}${PAD(44, 22, 26, 300, 2)}${BUD(26, -34, 1)}`,
+  ),
+  dragonfly: svg(
+    "-100 -70 200 140",
+    `${RIPPLES(-24, 26, 18)}${PAD(-24, 26, 19, 120, 1)}${PAD(-66, -26, 11, 30, 2)}<ellipse cx="14" cy="18" rx="26" ry="8" fill="rgba(10,40,25,.25)"/><g transform="translate(14 -10) scale(1.3)">${DRAGONFLY}</g>`,
+  ),
 
-  // Bedtime Tea: a bear in a nightcap asleep in a crescent moon, under a patchwork quilt. 240 by 180.
+  // Bedtime Tea: a bear asleep in a red nightcap with a pom-pom, lying in a crescent moon with his head on a pillow
+  // under a patchwork quilt that hangs over the moon's edge. Our own drawing, in the palette of a bedtime tea box
+  // (periwinkle, sage, cream and a warm red). 240 by 180.
   bear: svg(
     "-120 -90 240 180",
-    `<defs><radialGradient id="g"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></radialGradient></defs>
-    <circle cx="0" cy="10" r="88" fill="url(#g)"/>
-    <path d="M-78-4A78 78 0 0 0 78-4A80 54 0 0 1-78-4Z" fill="#fff0b3" stroke="#e6c46a" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M-60 26A70 60 0 0 0 40 50" stroke="#f2d27e" stroke-width="6" fill="none" stroke-linecap="round" opacity=".7"/>
-    <ellipse cx="8" cy="8" rx="46" ry="20" fill="#9a6a44" stroke="#4a2e1a" stroke-width="3"/>
-    <path d="M-30 4C-24-16 30-18 52-2C58 6 54 22 40 26L-22 26C-32 22-34 12-30 4Z" fill="#b9d3a8" stroke="#4a5e3e" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M-8-10L-6 26M16-12L18 26M38-6L38 24M-30 8L54 6" stroke="#6f8c5f" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
-    <path d="M-20-6l6 6m18-8l6 6m18-2l6 6" stroke="#f3e2b0" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="-42" cy="-10" r="22" fill="#a8744a" stroke="#4a2e1a" stroke-width="3"/>
-    <circle cx="-26" cy="-28" r="8" fill="#a8744a" stroke="#4a2e1a" stroke-width="3"/>
-    <ellipse cx="-56" cy="-2" rx="11" ry="8" fill="#e2c29a" stroke="#4a2e1a" stroke-width="2.5"/>
-    <ellipse cx="-63" cy="-5" rx="4" ry="3" fill="#3a2414"/>
-    <path d="M-48-14q5 4 10 0" stroke="#3a2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M-38-3q5 4 9 1" stroke="#c98a7a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
-    <path d="M-62-22C-60-44-36-52-18-46C0-40 14-48 22-62C26-40 12-26-8-26C-22-26-30-18-38-16C-48-14-58-14-62-22Z" fill="#7d95d0" stroke="#34466e" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M-60-24C-48-30-30-30-20-26" stroke="#fdf8e8" stroke-width="7" stroke-linecap="round" fill="none"/>
-    <path d="M-44-44l8 14M-26-46l4 16M-8-42l2 12M8-50l0 12" stroke="#b7c6ee" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="24" cy="-64" r="8" fill="#fdf8e8" stroke="#34466e" stroke-width="2.5"/>
-    <path d="M30-30l4 0m-2-2l0 4M78-50l6 0m-3-3l0 6M-86-40l6 0m-3-3l0 6" stroke="#fff6c8" stroke-width="2" stroke-linecap="round"/>`,
+    `<defs><radialGradient id="g"><stop offset="0" stop-color="#fff6d2" stop-opacity=".75"/><stop offset=".6" stop-color="#e9ecff" stop-opacity=".25"/><stop offset="1" stop-color="#e9ecff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff5cf"/><stop offset="1" stop-color="#f3d98c"/></linearGradient>
+    <clipPath id="q"><path d="${QUILT}"/></clipPath></defs>
+    <circle cx="0" cy="8" r="90" fill="url(#g)"/>
+    <path d="M-84-6A84 70 0 0 0 84-6A86 46 0 0 1-84-6Z" fill="url(#m)" stroke="#cfa94e" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M-70 20A80 58 0 0 0 30 58" stroke="#fffbe8" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+    <g transform="translate(-60 16) rotate(-18)"><ellipse rx="22" ry="12" fill="#f7f1e3" stroke="#6f7fa8" stroke-width="2"/><path d="M-14-6v12M-4-10v20M6-10v20M15-6v12" stroke="#b7c4e8" stroke-width="2.2" stroke-linecap="round"/></g>
+    <g clip-path="url(#q)">${QUILT_PATCHES}</g>
+    <path d="${QUILT}" fill="none" stroke="#4d5a82" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M80 12C62 42 32 55 0 56C-16 56-26 50-30 42" fill="none" stroke="#c0433a" stroke-width="4" stroke-linecap="round"/>
+    <g transform="translate(-44 0) rotate(-12)">${BEAR_HEAD}</g>
+    <g transform="translate(-16 16) rotate(-10)"><ellipse rx="10" ry="7.5" fill="#a2714a" stroke="#4a2e1a" stroke-width="2.2"/><path d="M-4-6v4M1-7v4M6-5v4" stroke="#4a2e1a" stroke-width="1.6" stroke-linecap="round"/></g>
+    <path d="M34-58l0 10m-5-5l10 0M86-46l0 8m-4-4l8 0M-92-54l0 8m-4-4l8 0M60-78l0 6m-3-3l6 0" stroke="#fff6c8" stroke-width="2.2" stroke-linecap="round"/>`,
   ),
 
   // Arcadia: pictures 160 by 160, standing on a waterline at y = 50, lit from the right like Cole's evening light.
@@ -291,6 +379,14 @@ export function drawSceneryUnder(f: SceneryFrame) {
     ctx.fillRect(0, 0, w, h);
   } else if (t.scenery === "rope") {
     ctx.fillStyle = denim(ctx);
+    ctx.fillRect(0, 0, w, h);
+  } else if (t.scenery === "tea") {
+    // A watercolour night: a paler periwinkle wash from the moon's side, pooling darker toward the bottom.
+    const g = ctx.createRadialGradient(w * 0.8, 0, 0, w * 0.8, 0, Math.max(w, h) * 1.1);
+    g.addColorStop(0, "rgba(160,176,236,0.45)");
+    g.addColorStop(0.5, "rgba(128,146,214,0.18)");
+    g.addColorStop(1, "rgba(34,42,92,0.3)");
+    ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
   }
 }
@@ -461,10 +557,10 @@ function stars(f: SceneryFrame) {
 
 /**
  * The moon with the sleeping bear: on the globe it hangs outside the sphere at the upper right, and on the flat map
- * it sits in the night over the open Pacific (TEA).
+ * (or a globe zoomed in too far for it) it sits in the night over open ocean (TEA).
  */
 function moon(f: SceneryFrame) {
-  const { ctx, proj, mode, w } = f;
+  const { ctx, proj, mode, w, h } = f;
   if (mode === "2d") {
     drawSpots(f, TEA, 1.1);
     return;
@@ -473,12 +569,20 @@ function moon(f: SceneryFrame) {
   if (!im) return;
   const R = proj.scale();
   const [cx, cy] = proj.translate();
-  const s = Math.min(230, Math.max(110, R * 0.55));
-  let x = cx + R * 0.92;
-  let y = cy - R * 0.78;
-  // Keep it on screen and clear of the sphere; when zoomed in too far there is no room, and it is left out.
-  x = Math.min(x, w - s * 0.5);
-  y = Math.max(y, s * 0.36);
-  if (Math.hypot(x - cx, y - cy) < R + s * 0.28) return;
-  ctx.drawImage(im, x - s / 2, y - (s * 0.75) / 2, s, s * 0.75);
+  // Upper right beside the globe, below the window's arch; when the globe fills that corner, the lower left. The moon
+  // shrinks to the room there; when neither corner has enough, the bears sleep on the globe's own sea instead, at the
+  // flat map's open-water spots, so zoomed in the bear is still there.
+  const spots = [
+    (s: number) => [Math.min(cx + R * 0.92, w - s * 0.5), Math.max(cy - R * 0.78, s * 0.36 + h * 0.08)],
+    (s: number) => [s * 0.5 + 10, h - s * 0.36 - 6],
+  ];
+  for (const at of spots) {
+    for (let s = Math.min(230, Math.max(110, R * 0.55)); s >= 120; s -= 8) {
+      const [x, y] = at(s) as [number, number];
+      if (Math.hypot(x - cx, y - cy) < R + s * 0.3) continue;
+      ctx.drawImage(im, x - s / 2, y - (s * 0.75) / 2, s, s * 0.75);
+      return;
+    }
+  }
+  drawSpots(f, TEA, 1.1);
 }

@@ -23,7 +23,7 @@ export interface Theme {
    * tiled game stage, pixel grass, loose paint strokes, or plain fill. Blocks, grass and paint use `textureInk2`
    * as their second colour.
    */
-  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "none";
+  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "none";
   /**
    * Screen pixels per canvas pixel. 1 draws at full resolution; 3 draws a third as many pixels and scales them up
    * unsmoothed, so lines, coasts and dots come out as chunky pixels (Stage Select and Overworld).
@@ -605,8 +605,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // A frog pond seen from above: murky green water, lily pads with lotus flowers, frogs and dragonflies in open
-  // water, lotus pink for fresh reports (decision 69).
+  // A frog pond seen from above: murky green water, land as a mat of lily pads, pads with lotus flowers, frogs and
+  // dragonflies in open water, lotus pink for fresh reports (decision 69).
   pond: {
     id: "pond",
     label: "Frog Pond",
@@ -614,11 +614,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoNaturalEarth1,
     ocean: "#2f6b5f",
     land: "#76b347",
-    landTexture: "mottle",
+    landTexture: "lilypads",
     pixel: 1,
     dotShape: "pad",
-    textureInk: "rgba(170,220,110,0.7)",
-    textureInk2: "rgba(40,110,40,0.55)",
+    textureInk: "rgba(190,232,130,0.6)",
+    textureInk2: "rgba(40,110,40,0.4)",
     coast: "#24501d",
     coastWidth: 1.4,
     waterlines: 3,
@@ -749,14 +749,14 @@ export const THEMES: Record<ThemeId, Theme> = {
     scenery: "empire",
     textureInk2: "rgba(40,44,18,0.45)",
   },
-  // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a nightcap asleep
-  // in the moon beside the globe (decision 69).
+  // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a red nightcap
+  // asleep in the moon beside the globe (decision 69). Fresh reports take the cap's red.
   nightcap: {
     id: "nightcap",
     label: "Bedtime Tea",
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
-    ocean: "#3b4a7e",
+    ocean: "#4a5a9c",
     land: "#a8c39a",
     landTexture: "mottle",
     pixel: 1,
@@ -771,16 +771,16 @@ export const THEMES: Record<ThemeId, Theme> = {
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "rgba(230,236,255,0.5)",
-    lake: "#3b4a7e",
+    lake: "#4a5a9c",
     ice: "#f4f2ea",
     relief: "rgba(52,70,110,0.45)",
     dot: "#fff8e6",
     dotStroke: "#34466e",
-    fresh: "#ffb35c",
+    fresh: "#e0493c",
     tuned: "#fff8e6",
-    arc: "#ffb35c",
+    arc: "#e0493c",
     glow: false,
-    atmosphere: "rgba(255,240,190,0.35)",
+    atmosphere: "rgba(255,226,170,0.42)",
     shade: "rgba(30,30,80,0.45)",
     neatline: false,
     decor: null,
