@@ -81,8 +81,10 @@ export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Pr
         // Try the next path.
       }
     }
+    // Some servers refuse the first request and answer the next, so a section's address is asked once more, unless
+    // the server asked for fewer requests.
     if (atRoot) throw err;
-    // Some servers refuse the first request and answer the next, so a section's address is asked once more.
+    if (err.message.startsWith("429")) throw new HttpError(`${err.message}; ${SECTION_NOTE}`);
     try {
       first = await fetchFeed(url);
     } catch (again) {

@@ -115,6 +115,10 @@ describe("feed discovery (decision 31)", () => {
       return rss;
     });
     expect(got.feedUrl).toBe("https://outlet.example/rss");
+    // A server that asks for fewer requests is not asked again.
+    let limited = 0;
+    await expect(fetchFeedDocument("https://outlet.example/rss", async () => { limited++; throw new HttpError("429 Too Many Requests"); })).rejects.toThrow(/^429 Too Many Requests; an address with a path/);
+    expect(limited).toBe(1);
   });
 
   it("still follows the feed a section's page links to", async () => {
