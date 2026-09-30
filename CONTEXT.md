@@ -89,7 +89,7 @@ Three runtimes on free tiers, one language, one database as the contract between
 
 | Part | Runs on | Job |
 |---|---|---|
-| Pipeline | GitHub Actions cron, 09:00 UTC daily; delivery every two hours | ingest, enrich, readers sync, cluster, explain, select, deliver |
+| Pipeline | GitHub Actions cron, just after midnight UTC daily (decision 81); local stories refreshed every three hours (decision 80); delivery every two hours | ingest, enrich, readers sync, cluster, explain, select, deliver |
 | Database | Neon Postgres | every artifact of every run, plus feedback and spend |
 | Web | Cloudflare Worker (Hono) | the public map (static build of packages/map) and its data from the database. 2DayAI reader pages and feedback (server-rendered, no client JS) |
 
@@ -111,7 +111,7 @@ Cost estimate, Sonnet 5, ten readers, batched: about 0.40 USD a day. One reader:
 
 Milestones 0 through 3, three build commits plus a review round, merged onto capy's initial commit on September 27, 2026.
 
-- Ingest from RSS with a 24-hour window ending 09:00 UTC per run date; article pages fetched and extracted with Readability for citation text.
+- Ingest from RSS with a window of the run date's own calendar day, midnight to midnight UTC (decision 81; was 24 hours ending 09:00 UTC); article pages fetched and extracted with Readability for citation text.
 - Cluster in one model call; unknown article ids from the model are dropped and counted.
 - Explain, batched, with the verification above.
 - Select per reader, validated in code (ids exist, no duplicates, no overlap, one outside-interests slot, at least three when three exist, headline rules), one retry with the problems spelled out, then a loud failure.

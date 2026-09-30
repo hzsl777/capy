@@ -10,12 +10,12 @@ const xml = readFileSync(join(here, "..", "fixtures", "sample-feed.xml"), "utf8"
 const source: Source = { id: "sample", name: "Sample", url: "https://example.gov/feed.xml", topic: "tax", tier: "primary", desk: "briefing", lang: "en" };
 
 describe("articlesFromFeed", () => {
-  it("keeps only linked items inside the 24 hour window ending 09:00 UTC on the run date", async () => {
-    const out = await articlesFromFeed(source, xml, toRunDate("2026-09-04"));
+  it("keeps only linked items inside the run date's window, midnight to midnight UTC (decision 81)", async () => {
+    const out = await articlesFromFeed(source, xml, toRunDate("2026-09-03"));
     expect(out.map((a) => a.url)).toEqual(["https://example.gov/news/2026-09-03-deferred-revenue"]);
   });
   it("strips markup from titles and bodies", async () => {
-    const [a] = await articlesFromFeed(source, xml, toRunDate("2026-09-04"));
+    const [a] = await articlesFromFeed(source, xml, toRunDate("2026-09-03"));
     expect(a?.title).toBe("Agency issues guidance on deferred revenue timing");
     expect(a?.body).toContain("tax years beginning after December 31, 2026");
     expect(a?.body).not.toContain("<p>");
@@ -24,7 +24,7 @@ describe("articlesFromFeed", () => {
 
 describe("checkSources", () => {
   it("reports fetch failures per source without throwing", async () => {
-    const reports = await checkSources([source, { ...source, id: "broken", url: "https://example.gov/broken" }], toRunDate("2026-09-04"), async (url) => {
+    const reports = await checkSources([source, { ...source, id: "broken", url: "https://example.gov/broken" }], toRunDate("2026-09-03"), async (url) => {
       if (url.endsWith("broken")) throw new Error("503 Service Unavailable");
       return xml;
     });
@@ -84,7 +84,7 @@ describe("feed discovery (decision 31)", () => {
     await expect(fetchFeedDocument("https://outlet.example/", async () => { throw new HttpError("403 Forbidden"); })).rejects.toThrow("403 Forbidden");
   });
 
-  it("never looks for a section's or edition's feed at the site's root (decision 81)", async () => {
+  it("never looks for a section's or edition's feed at the site's root (decision 82)", async () => {
     // The site feed at /rss.xml is another section's news, in another language, and would be pinned at this outlet.
     for (const url of ["https://outlet.example/english/", "https://outlet.example/cebu", "https://outlet.example/?edition=en"]) {
       const fetched: string[] = [];

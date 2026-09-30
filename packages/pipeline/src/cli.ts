@@ -1,6 +1,6 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
-import { placeIdFor, renderEditionText, todayRunDate, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import { editions, feedback, latestMapDate, loadEditionView, loadMapView, localBase, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
@@ -50,7 +50,8 @@ const { values, positionals } = parseArgs({
 
 // `prompt <name>` takes an argument; every other command is its words.
 const command = positionals[0] === "prompt" ? "prompt" : positionals.join(" ");
-const date = values.date ? toRunDate(values.date) : todayRunDate();
+// Without --date, the last day that has ended: the daily run builds it just after midnight UTC (decision 81).
+const date = values.date ? toRunDate(values.date) : lastFullRunDate();
 const config = loadConfig();
 
 function printReports(reports: IngestReport[]): void {
@@ -79,6 +80,7 @@ const HELP = `Commands:
   cluster world          group the world desk's articles into events with a topic (model)
   telegram               score the day's world events three times, keep the middle, pick the one-word mood (model)
   local                  GDELT local stories from the towns no outlet reached (no model, decisions 54, 67 and 78)
+  refresh                the latest map's local stories again, from the last 24 hours of GDELT (no model, decision 80)
   map export [--out f]   the public map's data for the date (default: latest): the day's file, and its tiles of local
                          stories in local/<date>/ beside it; --manifest f lists the tiles for wrangler r2 bulk put
   coverage               towns, countries and regions with a story on the date (default: latest), and the countries
@@ -146,6 +148,19 @@ switch (command) {
   case "local": {
     const d = db();
     console.log(await recorded(d, date, "local", () => runLocal(d, date, config.local)));
+    break;
+  }
+  case "refresh": {
+    // During the day, between daily runs: the latest map keeps its outlets' stories and its word, and its local
+    // stories become the last 24 hours' (decision 80).
+    const d = db();
+    const day = await latestMapDate(d);
+    if (!day) {
+      console.log("No world-desk run yet; nothing to refresh.");
+      break;
+    }
+    const latest = toRunDate(day);
+    console.log(await recorded(d, latest, "refresh", () => runLocal(d, latest, config.local, undefined, undefined, rollingWindow())));
     break;
   }
   case "map headlines": {

@@ -63,9 +63,9 @@ export type LocalReport = {
   skipped?: string;
 };
 
-/** Every quarter-hour file of the run date's window: the English stream and the translated one. */
-export function gdeltFileUrls(date: RunDate): string[] {
-  const { from, to } = ingestWindow(date);
+/** Every quarter-hour file of a window (a run date's, or the last 24 hours): the English stream and the translated one. */
+export function gdeltFileUrls(window: { from: Date; to: Date }): string[] {
+  const { from, to } = window;
   const out: string[] = [];
   for (let t = from.getTime(); t < to.getTime(); t += 15 * 60 * 1000) {
     const stamp = new Date(t).toISOString().replace(/[-:T]/g, "").slice(0, 14);
@@ -225,7 +225,18 @@ function nearAny(points: { lat: number; lon: number }[]): (lat: number, lon: num
   };
 }
 
-export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetchGdelt: GdeltFetcher = defaultGdeltFetcher, gaz = Gazetteer.loadWithTowns()): Promise<LocalReport> {
+/**
+ * The run date's local stories, from its ingest window, or from `window` instead: the refresh during the day reads
+ * the last 24 hours and replaces the day's local stories with them (decision 80).
+ */
+export async function runLocal(
+  db: Db,
+  date: RunDate,
+  limits: LocalLimits,
+  fetchGdelt: GdeltFetcher = defaultGdeltFetcher,
+  gaz = Gazetteer.loadWithTowns(),
+  window: { from: Date; to: Date } = ingestWindow(date),
+): Promise<LocalReport> {
   const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0 };
   // Re-running the day replaces its local stories, and the map below must not count the old ones as coverage.
   await db.delete(localStories).where(eq(localStories.runDate, date));
@@ -266,7 +277,7 @@ export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetch
     return spot;
   };
 
-  const { from, to } = ingestWindow(date);
+  const { from, to } = window;
   const towns = new Map<string, TownCandidates>();
   /** Headlines already taken in each region, so a story syndicated across its towns counts once. */
   const titles = new Map<string, Map<string, number>>();
@@ -302,7 +313,7 @@ export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetch
     }
   };
 
-  const urls = gdeltFileUrls(date);
+  const urls = gdeltFileUrls(window);
   let filesMissing = 0;
   let filesFailed = 0;
   let next = 0;
