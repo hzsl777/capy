@@ -82,10 +82,10 @@ export const ROPE: readonly Spot[] = [
  * all drawn for this site. Bubbles rise outside the map, in style.css.
  */
 export const REEF: readonly Spot[] = [
-  { kind: "fruithouse", lon: -142, lat: 10, r: 14 },
+  { kind: "shellhouse", lon: -142, lat: 10, r: 14 },
   { kind: "domehouse", lon: -22, lat: -30, r: 14 },
-  { kind: "tikihouse", lon: 70, lat: -10, r: 10 },
-  { kind: "tikihouse", lon: 154, lat: 30, r: 9, flip: true },
+  { kind: "coralhouse", lon: 70, lat: -10, r: 10 },
+  { kind: "coralhouse", lon: 154, lat: 30, r: 9, flip: true },
   { kind: "domehouse", lon: -158, lat: 46, r: 7, flip: true },
   { kind: "bloomblue", lon: -38, lat: 26, r: 11 },
   { kind: "bloompink", lon: -126, lat: -26, r: 14 },
@@ -282,31 +282,41 @@ const MOUND = `<path d="M-84 58C-66 38-34 34 0 34S66 38 84 58Z" fill="#f1d596" s
     <path d="M62 48c-6-8 6-14 0-22s6-12 2-20" stroke="#4cc36a" stroke-width="3"/>
   </g>`;
 
-/** A house in the shape of a fruit: a rounded body with a crossed rind, a crown of long leaves, a wooden door. */
-const FRUIT_HOUSE = `${MOUND}
-  <defs><clipPath id="b"><path d="M0-34C24-34 36-12 36 10C36 32 22 46 0 46C-22 46-36 32-36 10C-36-12-24-34 0-34Z"/></clipPath></defs>
-  <g stroke="#1f6a2a" stroke-width="2.4" stroke-linejoin="round" fill="#3fae4e">
-    <path d="M-2-30C-14-44-28-50-40-50C-30-42-20-34-12-26Z"/>
-    <path d="M2-30C14-44 28-50 40-50C30-42 20-34 12-26Z"/>
-    <path d="M-4-30C-12-50-10-62-4-70C-2-58 0-44 2-30Z" fill="#58c265"/>
-    <path d="M4-30C12-50 10-62 4-70C2-58 0-44-2-30Z" fill="#58c265"/>
+/**
+ * A big conch shell lying on its side on the sand: its coiled spire points up and away, a row of blunt knobs runs
+ * along the shoulder, and in the flared opening sit a round wooden door and a porthole. A clay chimney and a frond
+ * of weed on top.
+ */
+const SHELL_HOUSE = `${MOUND}
+  <defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fcc4a8"/><stop offset="1" stop-color="#e8876c"/></linearGradient></defs>
+  <g fill="url(#sg)" stroke="#95493a" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M-66-40L-50-36C-46-30-50-26-56-26Z"/>
+    <path d="M-58-27C-58-36-44-38-38-32C-32-26-38-16-48-18C-54-19-58-22-58-27Z"/>
+    <path d="M-48-17C-50-30-32-34-22-26C-12-18-18-2-32-2C-42-2-47-9-48-17Z"/>
+    <path d="M-21-15L-21-26L-13-21ZM-6-25L-3-35L3-28ZM24-31L31-40L34-28ZM42-23L52-27L49-15Z"/>
+    <path d="M-24 44C-36 30-36 6-24-10C-12-26 14-36 36-28C54-20 64 2 60 24C58 36 52 44 44 44Z"/>
   </g>
-  <path d="M0-34C24-34 36-12 36 10C36 32 22 46 0 46C-22 46-36 32-36 10C-36-12-24-34 0-34Z" fill="#f7a92a"/>
-  <g clip-path="url(#b)" stroke="#c9741a" stroke-width="2.2" fill="none">
-    <path d="M-60-40L40 60M-44-40L56 60M-28-40L72 60M-12-40L88 60M-76-40L24 60M-92-40L8 60M-108-40L-8 60"/>
-    <path d="M60-40L-40 60M44-40L-56 60M28-40L-72 60M12-40L-88 60M76-40L-24 60M92-40L-8 60M108-40L8 60"/>
+  <g fill="none" stroke="#fde9d2" stroke-linecap="round" opacity=".85">
+    <path d="M-54-24C-50-30-44-31-40-28M-44-12C-40-22-30-26-24-22" stroke-width="3"/>
+    <path d="M-28 30C-30 6-14-18 16-26" stroke-width="5"/>
+    <path d="M-12 40C-16 20-6 0 12-8" stroke-width="4"/>
   </g>
-  <path d="M-20-24C-26-12-28 4-24 18" stroke="#ffd36e" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
-  <path d="M0-34C24-34 36-12 36 10C36 32 22 46 0 46C-22 46-36 32-36 10C-36-12-24-34 0-34Z" fill="none" stroke="#8a4b10" stroke-width="3"/>
-  <path d="M-11 46V31A11 11 0 0 1 11 31V46Z" fill="#b0703a" stroke="#5a3a14" stroke-width="2.6" stroke-linejoin="round"/>
-  <path d="M-4 24V46M4 24V46" stroke="#7a4a20" stroke-width="1.6"/>
-  <path d="M6 37h1" stroke="#ffe28a" stroke-width="3" stroke-linecap="round"/>
-  <path d="M-25 4V-6a7 7 0 0 1 14 0V4Z" fill="#bfe9f5" stroke="#5a3a14" stroke-width="2.6" stroke-linejoin="round"/>
-  <path d="M-18-12V4M-25-3H-11" stroke="#5a3a14" stroke-width="1.6"/>
-  <path d="M-27 5h18" stroke="#4cc36a" stroke-width="4" stroke-linecap="round"/>
-  <path d="M12 22V14a6 6 0 0 1 12 0V22Z" fill="#bfe9f5" stroke="#5a3a14" stroke-width="2.4" stroke-linejoin="round"/>
-  <path d="M18 8V22" stroke="#5a3a14" stroke-width="1.4"/>
-  ${BUBBLES(24, -52)}`;
+  <path d="M-30 2C-28-6-22-14-14-18" stroke="#fff4e6" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+  <ellipse cx="32" cy="14" rx="22" ry="30" transform="rotate(-8 32 14)" fill="#fff1dc" stroke="#95493a" stroke-width="2.6"/>
+  <ellipse cx="32" cy="16" rx="15" ry="24" transform="rotate(-8 32 16)" fill="#ffc9ad" stroke="#d98468" stroke-width="2"/>
+  <circle cx="33" cy="-2" r="6.5" fill="#bfe9f5" stroke="#8a5a26" stroke-width="3"/>
+  <path d="M30-4a4 4 0 0 1 3.5-2.5" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <circle cx="31" cy="28" r="11" fill="#b0703a" stroke="#5a3a14" stroke-width="2.6"/>
+  <path d="M27 18V38M31 17.5V38.5M35 18V38" stroke="#7a4a20" stroke-width="1.5"/>
+  <path d="M37.5 29h1" stroke="#ffe28a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M8-30V-39h10V-31" fill="#c9774e" stroke="#6e3a22" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M6-40h14" stroke="#6e3a22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M6-40h14" stroke="#e0936a" stroke-width="2.4" stroke-linecap="round"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-10-26c-5-6 3-10-2-17s3-9 0-15" stroke="#1e7a3c" stroke-width="5"/>
+    <path d="M-10-26c-5-6 3-10-2-17s3-9 0-15" stroke="#4cc36a" stroke-width="3"/>
+  </g>
+  ${BUBBLES(13, -45)}`;
 
 /** A dome of rock with a rounded door and a crooked pipe on top. */
 const DOME_HOUSE = `${MOUND}
@@ -320,22 +330,41 @@ const DOME_HOUSE = `${MOUND}
   <path d="M10-18V-34h8" stroke="#a3938a" stroke-width="3" fill="none" stroke-linejoin="round"/>
   ${BUBBLES(22, -40)}`;
 
-/** A tall carved stone head standing on the sand, with lit square windows for eyes and a door for a mouth. */
-const TIKI_HOUSE = `${MOUND}
-  <path d="M-26 46V-18C-26-40-14-52 0-52S26-40 26-18V46Z" fill="#8ea2a5" stroke="#3f5256" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M-26-14C-26 20-22 36-18 46M18-44C22-36 22-26 20-18" stroke="#b5c6c8" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".7"/>
-  <path d="M-30-30h8v26h-8ZM22-30h8v26h-8Z" fill="#7a8f93" stroke="#3f5256" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M-24-22H24" stroke="#3f5256" stroke-width="5" stroke-linecap="round"/>
-  <path d="M-19-17h12v9h-12ZM7-17h12v9H7Z" fill="#ffe28a" stroke="#3f5256" stroke-width="2.4" stroke-linejoin="round"/>
-  <path d="M-13-17v9M13-17v9" stroke="#3f5256" stroke-width="1.4"/>
-  <path d="M0-20L-7 10C-4 13 4 13 7 10Z" fill="#7a8f93" stroke="#3f5256" stroke-width="2.4" stroke-linejoin="round"/>
-  <path d="M-12 46V24H12V46Z" fill="#4a5c60" stroke="#2f3e41" stroke-width="2.6" stroke-linejoin="round"/>
-  <path d="M-16 20H16" stroke="#3f5256" stroke-width="3" stroke-linecap="round"/>
-  <g fill="#3fae4e" stroke="#1f6a2a" stroke-width="2" stroke-linejoin="round">
-    <path d="M-2-50C-10-60-22-62-30-60C-22-56-12-52-6-48Z"/><path d="M2-50C10-62 22-66 30-64C22-58 12-52 6-48Z"/><path d="M0-50C-2-62 2-70 8-76C8-66 6-58 4-50Z"/>
+/** A small sea anemone: a short column with a crown of waving tentacles. */
+const ANEMONE = (x: number, y: number, s: number, [body, tips]: readonly [string, string]) =>
+  `<g transform="translate(${x} ${y}) scale(${s})" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-7-9c-2 6-1 10 0 9h14c1 1 2-3 0-9Z" fill="${body}" stroke="#3d2a5c" stroke-width="2"/>
+    <path d="M-7-9q-7-3-8-10M-4-10q-3-6-1-12M0-10q0-7 2-12M4-10q3-6 7-9M7-9q6-1 8-7" fill="none" stroke="#3d2a5c" stroke-width="4.2"/>
+    <path d="M-7-9q-7-3-8-10M-4-10q-3-6-1-12M0-10q0-7 2-12M4-10q3-6 7-9M7-9q6-1 8-7" fill="none" stroke="${tips}" stroke-width="2.4"/>
+  </g>`;
+
+/**
+ * A tower grown from branching coral, orange fading to warm yellow at the top, with its branches reaching up and
+ * out, round windows climbing it in a zigzag, an arched door at its foot and sea anemones round the base.
+ */
+const CORAL_BRANCHES = "M-12-34C-18-46-30-50-34-66M-28-54C-36-56-42-58-48-50M0-38C-2-54 4-64 2-80M12-34C20-46 30-48 34-64M28-50C36-48 42-42 46-34M20-4C30-6 34-14 36-26M-20 14C-30 12-36 4-38-6M2-62C8-64 12-68 14-74";
+const CORAL_HOUSE = `${MOUND}
+  <defs><linearGradient id="cg" x1="0" x2="0" y1="1" y2="0"><stop offset="0" stop-color="#ef7a2c"/><stop offset=".7" stop-color="#f9a23a"/><stop offset="1" stop-color="#ffc94a"/></linearGradient></defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="${CORAL_BRANCHES}" stroke="#9c4418" stroke-width="15"/>
+    <path d="M-24 46C-26 20-22-10-18-30C-14-44 14-44 18-30C22-10 26 20 24 46Z" fill="#9c4418" stroke="#9c4418" stroke-width="5.5"/>
+    <path d="${CORAL_BRANCHES}" stroke="#f9a23a" stroke-width="10"/>
+    <path d="M-24 46C-26 20-22-10-18-30C-14-44 14-44 18-30C22-10 26 20 24 46Z" fill="url(#cg)"/>
+    <path d="M-12-34C-18-46-30-50-34-66M0-38C-2-54 4-64 2-80M12-34C20-46 30-48 34-64" stroke="#ffd96a" stroke-width="3.5" transform="translate(-2 0)"/>
+    <path d="M-16-28C-19-10-21 12-20 36" stroke="#ffc94a" stroke-width="3.5" opacity=".8"/>
   </g>
-  <path d="M-20 30q5-4 10 0M8 36q4-3 8 0" stroke="#5f9c5a" stroke-width="3" fill="none" stroke-linecap="round"/>
-  ${BUBBLES(-16, -60)}`;
+  <path d="M-14 34v-7M15 26v-7M-3-30v-5M16-14v-6M-17 8v-6M-2 4v-5" stroke="#d0661f" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <g stroke="#7a3312" stroke-width="2.6" fill="#bfe9f5">
+    <circle cx="7" cy="-26" r="6"/><circle cx="-9" cy="-6" r="6.5"/><circle cx="10" cy="12" r="5.5"/>
+  </g>
+  <path d="M7-32V-20M1-26H13M-9-12.5V.5M-15.5-6H-2.5" stroke="#7a3312" stroke-width="1.4"/>
+  <path d="M-11 46V32A10 10 0 0 1 9 32V46Z" fill="#b0703a" stroke="#5a3a14" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M-4 23V46M2 23V46" stroke="#7a4a20" stroke-width="1.5"/>
+  <path d="M4 37h1" stroke="#ffe28a" stroke-width="3" stroke-linecap="round"/>
+  ${ANEMONE(-34, 46, 0.9, ["#a784e6", "#d3bdfb"])}
+  ${ANEMONE(32, 47, 0.8, ["#2f9e8c", "#8fe3cf"])}
+  ${ANEMONE(-46, 50, 0.6, ["#2f9e8c", "#8fe3cf"])}
+  ${BUBBLES(58, -42)}`;
 /**
  * Course of Empire's engraving: diagonal hatching and cross-hatching in black for the shadow sides, and broken
  * horizontal strokes for the water under each piece. Greys only.
@@ -516,9 +545,9 @@ export const PICTURES: Record<string, string> = {
   ),
 
   // Undersea Town: houses 200 by 160 standing on a mound at y = 58, and clusters of flower clouds 200 by 140.
-  fruithouse: svg("-100 -90 200 160", FRUIT_HOUSE),
+  shellhouse: svg("-100 -90 200 160", SHELL_HOUSE),
   domehouse: svg("-100 -90 200 160", DOME_HOUSE),
-  tikihouse: svg("-100 -90 200 160", TIKI_HOUSE),
+  coralhouse: svg("-100 -90 200 160", CORAL_HOUSE),
   ...Object.fromEntries(
     Object.entries(BLOOMS).map(([name, c]) => [
       `bloom${name}`,
