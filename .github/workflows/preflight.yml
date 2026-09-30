@@ -34,6 +34,9 @@ jobs:
       - name: Feeds
         if: always()
         # A feed that fails is left off the map that day, so this reports and never fails the job.
+        # The whole report goes to the log; the summary keeps the count, then every feed that failed and every homepage
+        # whose feed was found, the lines someone acts on.
         run: |
           out=$(npm run -s stage -- sources check 2>&1 || true)
-          printf '## Feeds\n```\n%s\n```\n' "$(echo "$out" | tail -n 300)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "$out"
+          printf '## Feeds\n%s\n\n```\n%s\n```\n' "$(echo "$out" | tail -n 1)" "$(echo "$out" | grep -E '^[a-z0-9-]+ +(FAIL|ok .*feed found at)')" >> "$GITHUB_STEP_SUMMARY"
