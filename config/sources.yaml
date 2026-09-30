@@ -1003,8 +1003,3 @@ sources:
   - { id: brisbane-times, name: Brisbane Times, url: "https://www.brisbanetimes.com.au/rss/feed.xml", topic: world, tier: general, desk: world, lang: en, place: { name: Brisbane, lat: -27.47, lon: 153.03 } } # feed checked September 29, 2026
   - { id: the-press-nz, name: The Press, url: "https://www.thepress.co.nz/rss", topic: world, tier: general, desk: world, lang: en, place: { name: Christchurch, lat: -43.53, lon: 172.64 } } # feed checked September 29, 2026
   - { id: waikato-times, name: Waikato Times, url: "https://www.waikatotimes.co.nz/rss", topic: world, tier: general, desk: world, lang: en, place: { name: Hamilton, lat: -37.79, lon: 175.28 } } # feed checked September 29, 2026
-
-  # ---- PROBES, temporary. Removed before this branch is finished. ----
-  - { id: probe-nation-malawi-1, name: Probe, url: "https://www.mwnation.com/feed/", topic: world, tier: general, desk: world, lang: en, place: { name: Blantyre, lat: -15.79, lon: 35.01 } }
-  - { id: probe-nation-malawi-2, name: Probe, url: "https://www.mwnation.com/", topic: world, tier: general, desk: world, lang: en, place: { name: Blantyre, lat: -15.79, lon: 35.01 } }
-  - { id: probe-nation-malawi-3, name: Probe, url: "http://mwnation.com/feed/", topic: world, tier: general, desk: world, lang: en, place: { name: Blantyre, lat: -15.79, lon: 35.01 } }
