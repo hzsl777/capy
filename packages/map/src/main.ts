@@ -45,6 +45,19 @@ import "@fontsource/oswald/500.css";
 import "@fontsource/oswald/600.css";
 import "@fontsource/dotgothic16/latin-400.css";
 import "@fontsource/dotgothic16/latin-ext-400.css";
+// Night Drive, Cross Stitch and Rose Window (decision 70).
+import "@fontsource/kanit/400.css";
+import "@fontsource/kanit/600.css";
+import "@fontsource/kanit/400-italic.css";
+import "@fontsource/kanit/900-italic.css";
+import "@fontsource/mr-dafoe/400.css";
+import "@fontsource/dancing-script/700.css";
+import "@fontsource/silkscreen/400.css";
+import "@fontsource/silkscreen/700.css";
+import "@fontsource/grenze-gotisch/700.css";
+import "@fontsource/eb-garamond/400.css";
+import "@fontsource/eb-garamond/400-italic.css";
+import "@fontsource/eb-garamond/600.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
