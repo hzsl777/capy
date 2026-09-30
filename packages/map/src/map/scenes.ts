@@ -7,6 +7,8 @@ import type { GeoProjection, GeoStream } from "d3-geo";
  *   floor seen from a tilted camera, with lasers fanning up from the horizon.
  * - Poolside: the map lies on a swimming pool's floor under rippling light; the globe floats on the water at night.
  * - Snow Globe: the globe stands in a glass snow globe on a wooden base; the map is seen through curved glass.
+ * - Rave (a later design on the same scene code): the map on the LED wall behind the DJ booth under the lighting
+ *   rig, the globe a round screen hung over the stage, with laser fans and beams sweeping round them.
  *
  * This file holds the parts that need no MapView state: geometry, textures and the snow. MapView (view.ts) draws the
  * map itself once into an off-screen canvas and repaints only these extras while the light moves.
@@ -812,4 +814,208 @@ export function drawPoolRipples(g: CanvasRenderingContext2D, w: number, h: numbe
     g.stroke();
   }
   g.restore();
+}
+
+// ---- Rave's light show ---------------------------------------------------------------------------------------
+
+/** Laser colours: acid green, UV violet, magenta and cyan. Lasers never fall on the map, so markers keep theirs. */
+export const RAVE_COLORS: readonly RGB[] = ["#9dff2e", "#8a4dff", "#ff3fd4", "#3ff0ff"].map(hexRGB);
+
+/** A fan's colour at time t: each fan moves to the next colour over five seconds, gently eased. */
+export function raveColor(fan: number, t: number): RGB {
+  const u = t / 5 + fan * 1.3;
+  const i = Math.floor(u);
+  const n = RAVE_COLORS.length;
+  return mix(RAVE_COLORS[(((i + fan) % n) + n) % n], RAVE_COLORS[(((i + fan + 1) % n) + n) % n], smooth(u - i));
+}
+
+/** The lighting rig above the LED wall and the DJ booth below it (chrome in src/ui/extras.ts), each this tall. */
+export function raveBand(h: number): number {
+  return Math.round(Math.min(84, Math.max(40, h * 0.13)));
+}
+
+/** The fastest any laser turns, in radians a second: slow sweeps, never a flick. */
+export const RAVE_MAX_TURN = 0.3;
+
+export interface RaveFan {
+  /** Where the beams start, and whether they point up (from the floor) or down (from the rig). */
+  x: number;
+  y: number;
+  up: boolean;
+  n: number;
+  /** Half the fan's width in radians when fully open, its resting direction, and its sweep. */
+  spread: number;
+  lean: number;
+  speed: number;
+  phase: number;
+  color: number;
+}
+
+/**
+ * The laser fans. Globe view: three fans from the stage floor behind the booth and two from the rig, all sweeping
+ * round the globe. Map view: a row of fans along the top of the LED wall, opening up into the rig.
+ */
+export function raveFans(w: number, h: number, band: number, globe: boolean): RaveFan[] {
+  if (!globe) {
+    const n = Math.max(3, Math.min(7, Math.round(w / 170)));
+    return Array.from({ length: n }, (_, i) => ({ x: ((i + 0.5) / n) * w, y: band, up: true, n: 5, spread: 0.95, lean: 0, speed: 0.34 + (i % 3) * 0.05, phase: i * 1.9, color: i }));
+  }
+  const floor = h - band;
+  return [
+    { x: w * 0.5, y: floor, up: true, n: 9, spread: 0.85, lean: 0, speed: 0.3, phase: 0, color: 0 },
+    { x: w * 0.1, y: floor, up: true, n: 4, spread: 0.3, lean: 0.45, speed: 0.4, phase: 2, color: 1 },
+    { x: w * 0.9, y: floor, up: true, n: 4, spread: 0.3, lean: -0.45, speed: 0.37, phase: 4, color: 2 },
+    { x: w * 0.22, y: band * 0.45, up: false, n: 3, spread: 0.22, lean: -0.5, speed: 0.33, phase: 1, color: 3 },
+    { x: w * 0.78, y: band * 0.45, up: false, n: 3, spread: 0.22, lean: 0.5, speed: 0.36, phase: 3, color: 2 },
+  ];
+}
+
+/**
+ * A fan's beams at time t, in radians from straight up (or straight down for a fan in the rig): the fan swings and
+ * opens and closes slowly. Every beam is always on; nothing blinks.
+ */
+export function raveBeamAngles(f: RaveFan, t: number): number[] {
+  const swing = Math.sin(t * f.speed + f.phase) * 0.35;
+  const open = 0.75 + 0.25 * Math.sin(t * f.speed * 0.7 + f.phase * 2);
+  return Array.from({ length: f.n }, (_, i) => f.lean + swing + (f.n === 1 ? 0 : (i / (f.n - 1) - 0.5) * 2 * f.spread * open));
+}
+
+/** Where the light may go: the rig in Map view; round the globe and above the booth in Globe view. */
+function raveClip(g: CanvasRenderingContext2D, w: number, h: number, band: number, globe: { cx: number; cy: number; R: number } | null) {
+  g.beginPath();
+  if (!globe) {
+    g.rect(0, 0, w, band);
+    g.clip();
+    return;
+  }
+  g.rect(0, 0, w, h - band);
+  g.arc(globe.cx, globe.cy, globe.R + 2, 0, Math.PI * 2, true);
+  g.clip("evenodd");
+}
+
+/** The laser beams: a thin bright core in a soft glow, one path per fan. Kept off the map. */
+export function drawRaveLasers(g: CanvasRenderingContext2D, w: number, h: number, band: number, globe: { cx: number; cy: number; R: number } | null, t: number) {
+  g.save();
+  raveClip(g, w, h, band, globe);
+  g.globalCompositeOperation = "lighter";
+  g.lineCap = "round";
+  const len = Math.hypot(w, h);
+  for (const f of raveFans(w, h, band, !!globe)) {
+    const p = new Path2D();
+    for (const a of raveBeamAngles(f, t)) {
+      p.moveTo(f.x, f.y);
+      p.lineTo(f.x + Math.sin(a) * len, f.y + (f.up ? -1 : 1) * Math.cos(a) * len);
+    }
+    const col = raveColor(f.color, t);
+    g.strokeStyle = css(col, 0.13);
+    g.lineWidth = 7;
+    g.stroke(p);
+    g.strokeStyle = css(mix(col, [255, 255, 255], 0.25), 0.8);
+    g.lineWidth = 1.2;
+    g.stroke(p);
+  }
+  g.restore();
+}
+
+/** The haze the beams light: a soft cone round each fan and a glow where it starts. For a low-resolution buffer. */
+export function drawRaveHaze(g: CanvasRenderingContext2D, w: number, h: number, band: number, globe: { cx: number; cy: number; R: number } | null, t: number) {
+  g.save();
+  raveClip(g, w, h, band, globe);
+  g.globalCompositeOperation = "lighter";
+  const len = globe ? h : band * 1.6;
+  for (const f of raveFans(w, h, band, !!globe)) {
+    const angles = raveBeamAngles(f, t);
+    const a0 = angles[0]! - 0.08, a1 = angles[angles.length - 1]! + 0.08;
+    const dir = f.up ? -1 : 1;
+    const col = raveColor(f.color, t);
+    const grad = g.createRadialGradient(f.x, f.y, 0, f.x, f.y, len);
+    grad.addColorStop(0, css(col, 0.2));
+    grad.addColorStop(0.5, css(col, 0.06));
+    grad.addColorStop(1, css(col, 0));
+    g.fillStyle = grad;
+    g.beginPath();
+    g.moveTo(f.x, f.y);
+    for (let k = 0; k <= 8; k++) {
+      const a = a0 + ((a1 - a0) * k) / 8;
+      g.lineTo(f.x + Math.sin(a) * len, f.y + dir * Math.cos(a) * len);
+    }
+    g.closePath();
+    g.fill();
+  }
+  g.restore();
+}
+
+/**
+ * The warehouse behind the lights, which holds still: dark walls in UV haze, the truss of the lighting rig with its
+ * fixtures across the top, and in Globe view the speaker stacks either side of the stage.
+ */
+export function drawRaveRoom(g: CanvasRenderingContext2D, w: number, h: number, band: number, globe: boolean) {
+  const bg = g.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, "#04010a");
+  bg.addColorStop(0.6, "#0b0319");
+  bg.addColorStop(1, "#160530");
+  g.fillStyle = bg;
+  g.fillRect(0, 0, w, h);
+  const haze = g.createRadialGradient(w / 2, h - band, 0, w / 2, h - band, Math.max(w, h) * 0.75);
+  haze.addColorStop(0, "rgba(138,77,255,0.3)");
+  haze.addColorStop(0.5, "rgba(90,30,170,0.1)");
+  haze.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = haze;
+  g.fillRect(0, 0, w, h);
+  // The truss: two chords with a zigzag between them.
+  const y0 = band * 0.18, y1 = band * 0.38;
+  g.strokeStyle = "#3a3150";
+  g.lineWidth = 1.5;
+  g.beginPath();
+  g.moveTo(0, y0);
+  g.lineTo(w, y0);
+  g.moveTo(0, y1);
+  g.lineTo(w, y1);
+  const s = y1 - y0;
+  for (let x = 0; x < w + s; x += s) {
+    g.moveTo(x, y0);
+    g.lineTo(x + s / 2, y1);
+    g.lineTo(x + s, y0);
+  }
+  g.stroke();
+  // Fixtures hung under it: dark heads with a dim ring for the lens.
+  const heads = Math.max(4, Math.round(w / 90));
+  for (let i = 0; i < heads; i++) {
+    const x = ((i + 0.5) / heads) * w;
+    g.fillStyle = "#1b1528";
+    g.fillRect(x - 6, y1 + 1, 12, 7);
+    g.strokeStyle = "rgba(157,255,46,0.35)";
+    g.lineWidth = 1;
+    g.strokeRect(x - 3.5, y1 + 8.5, 7, 3);
+  }
+  if (!globe) return;
+  // Speaker stacks at the sides of the stage: dark cabinets with the rings of their cones.
+  const cab = Math.min(w * 0.09, h * 0.12);
+  for (const side of [0, 1]) {
+    const x = side ? w - cab * 1.1 : cab * 0.1;
+    for (let k = 0; k < 3; k++) {
+      const y = h - band - (k + 1) * cab * 1.02;
+      g.fillStyle = "#0e0a16";
+      g.fillRect(x, y, cab, cab);
+      g.strokeStyle = "#2a2238";
+      g.lineWidth = 1;
+      g.strokeRect(x + 0.5, y + 0.5, cab - 1, cab - 1);
+      g.beginPath();
+      g.arc(x + cab / 2, y + cab / 2, cab * 0.36, 0, Math.PI * 2);
+      g.moveTo(x + cab / 2 + cab * 0.18, y + cab / 2);
+      g.arc(x + cab / 2, y + cab / 2, cab * 0.18, 0, Math.PI * 2);
+      g.stroke();
+    }
+  }
+}
+
+/** A small tile of dark gaps between LED pixels, laid over the wall and the round screen. */
+export function ledTile(size = 3): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "rgba(2,0,8,0.42)";
+  g.fillRect(size - 1, 0, 1, size);
+  g.fillRect(0, size - 1, size - 1, 1);
+  return c;
 }

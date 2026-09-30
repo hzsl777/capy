@@ -4606,6 +4606,280 @@ button.link {
   }
 }
 
+/* ---- Rave: UV black, acid and magenta; the LED wall, the rig and the DJ booth ------------------------------
+   The lasers and the wall are on the canvas (src/map/scenes.ts); the booth is chrome (src/ui/extras.ts). Nothing
+   here flashes: the records turn and the waveforms scroll steadily, and both hold still for reduced motion. */
+.x-booth {
+  display: none;
+}
+:root[data-theme="rave"] {
+  color-scheme: dark;
+  --page: #06010f;
+  --panel: #0f0720;
+  --ink: #f3efff;
+  --ink-2: #ddd4ff;
+  --muted: #b3a6d9;
+  --rule: rgba(157, 255, 46, 0.4);
+  --accent: #c6ff3a;
+  --on-accent: #0b0214;
+  --hover: rgba(198, 255, 58, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --acid: #c6ff3a;
+  --uv: #8a4dff;
+  --magenta: #ff3fd4;
+  --font-mast: "Unbounded", "Arial Black", sans-serif;
+  --font-head: "Unbounded", "Arial Black", sans-serif;
+  --font-body: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="rave"] body {
+  background:
+    radial-gradient(ellipse 50% 40% at 10% 100%, rgba(138, 77, 255, 0.22), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(255, 63, 212, 0.14), transparent 70%),
+    #06010f;
+}
+/* The masthead over a level meter: bars from acid through UV to magenta, lit to a fixed height. */
+:root[data-theme="rave"] .masthead {
+  position: relative;
+  border-bottom: 0;
+  padding-bottom: 16px;
+  background: linear-gradient(to bottom, #0b0418, #06010f);
+}
+:root[data-theme="rave"] .masthead::after {
+  content: "";
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 4px;
+  height: 6px;
+  background: linear-gradient(90deg, var(--acid), var(--uv) 55%, var(--magenta));
+  -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 9px);
+  mask-image: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 9px);
+  opacity: 0.85;
+}
+:root[data-theme="rave"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--acid);
+  text-shadow: 0 0 10px rgba(198, 255, 58, 0.45), 3px 3px 0 var(--uv);
+}
+:root[data-theme="rave"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--magenta);
+}
+/* The word as a projection on the wall: white, split into cyan and magenta at its edges. */
+:root[data-theme="rave"] .telegram-word,
+:root[data-theme="rave"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  border-bottom: 0;
+  text-shadow: -2px 0 0 #3ff0ff, 2px 0 0 var(--magenta), 0 0 22px rgba(138, 77, 255, 0.85);
+}
+:root[data-theme="rave"] .telegram-word {
+  font-size: min(84px, calc(38vw / var(--len, 8) / 1.3));
+}
+:root[data-theme="rave"] .telegram-word:hover {
+  background: rgba(198, 255, 58, 0.08);
+}
+:root[data-theme="rave"] .telegram-kicker,
+:root[data-theme="rave"] .telegram-date {
+  color: var(--acid);
+  letter-spacing: 0.2em;
+}
+:root[data-theme="rave"] .telegram-note {
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="rave"] .toolbar,
+:root[data-theme="rave"] .timebar {
+  background: #0b0616;
+  border-color: #2e2542;
+}
+/* Buttons as the pads on a DJ controller: dark rubber, lit round the edge when pressed. */
+:root[data-theme="rave"] .tool,
+:root[data-theme="rave"] .pick select,
+:root[data-theme="rave"] .menu > summary,
+:root[data-theme="rave"] .chip,
+:root[data-theme="rave"] .key-btn {
+  border: 1px solid #3a3150;
+  border-radius: 5px;
+  background: linear-gradient(to bottom, #221a33, #151020);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="rave"] .pick option {
+  background: #0f0720;
+  color: var(--ink);
+}
+:root[data-theme="rave"] .tool:hover,
+:root[data-theme="rave"] .pick select:hover,
+:root[data-theme="rave"] .menu > summary:hover,
+:root[data-theme="rave"] .chip:hover,
+:root[data-theme="rave"] .key-btn:hover {
+  border-color: var(--acid);
+}
+:root[data-theme="rave"] .menu[open] > summary,
+:root[data-theme="rave"] .tool[aria-pressed="true"],
+:root[data-theme="rave"] .chip[aria-pressed="true"],
+:root[data-theme="rave"] .key-btn[aria-expanded="true"] {
+  background: var(--acid);
+  border-color: var(--acid);
+  color: var(--on-accent);
+  box-shadow: 0 0 12px rgba(198, 255, 58, 0.55);
+}
+:root[data-theme="rave"] .zoom {
+  bottom: calc(var(--rave-band, 64px) + 10px);
+  border: 1px solid #3a3150;
+  border-radius: 5px;
+  background: #151020;
+  overflow: hidden;
+}
+:root[data-theme="rave"] .zoom button {
+  color: var(--acid);
+}
+:root[data-theme="rave"] .zoom button + button {
+  border-top-color: #3a3150;
+}
+/* Panels as the screen on a deck: dark glass in a hardware bezel. */
+:root[data-theme="rave"] .panel,
+:root[data-theme="rave"] .menu-body,
+:root[data-theme="rave"] .key-pop,
+:root[data-theme="rave"] dialog {
+  background: linear-gradient(to bottom, #120a24, #0b0616);
+  border: 1px solid #2e2542;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px #16111f, 0 0 0 4px #3a3150, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="rave"] .panel {
+  margin: 10px;
+}
+:root[data-theme="rave"] .panel-title,
+:root[data-theme="rave"] .place-name,
+:root[data-theme="rave"] .panel h2,
+:root[data-theme="rave"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--acid);
+}
+:root[data-theme="rave"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #ffffff;
+}
+:root[data-theme="rave"] .kicker {
+  color: var(--magenta);
+}
+:root[data-theme="rave"] .story:hover {
+  background: linear-gradient(90deg, rgba(138, 77, 255, 0.2), transparent);
+}
+:root[data-theme="rave"] .scale .step.on {
+  background: var(--acid);
+  color: var(--on-accent);
+}
+:root[data-theme="rave"] .map {
+  background: #04010a;
+}
+/* The DJ booth along the bottom of the map, as tall as the rig the canvas draws above the wall. */
+:root[data-theme="rave"] .x-booth {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--rave-band, 64px);
+  padding: 5px 8px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #1c1629, #0c0913);
+  border-top: 2px solid var(--uv);
+  box-shadow: 0 -8px 22px rgba(138, 77, 255, 0.35);
+}
+:root[data-theme="rave"] .x-deck {
+  flex: none;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1;
+}
+:root[data-theme="rave"] .x-booth-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+:root[data-theme="rave"] .x-wave {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background: #05030a;
+  border-radius: 3px;
+}
+:root[data-theme="rave"] .x-mixer {
+  flex: none;
+  width: 100%;
+  height: 38%;
+}
+:root[data-theme="rave"] .x-record {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rave-spin 1.8s linear infinite;
+}
+:root[data-theme="rave"] .x-wave-run {
+  animation: rave-wave 30s linear infinite;
+}
+@keyframes rave-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rave-wave {
+  to {
+    transform: translateX(-600px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="rave"] .x-record,
+  :root[data-theme="rave"] .x-wave-run {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="rave"] .telegram-word {
+    font-size: min(44px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 1.08)));
+  }
+  :root[data-theme="rave"] .tool,
+  :root[data-theme="rave"] .pick select,
+  :root[data-theme="rave"] .menu > summary {
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  :root[data-theme="rave"] .pick select {
+    padding-right: 19px;
+  }
+  :root[data-theme="rave"] .panel {
+    margin: 8px;
+  }
+}
+
 /* ==========================================================================
    Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74): four designs that borrow the feel of
    familiar things and name none of them (src/map/sheet.ts, terminal.ts, club.ts, rail.ts; chrome in

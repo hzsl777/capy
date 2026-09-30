@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -134,9 +134,11 @@ export interface Theme {
    * off screen plus a few animated extras:
    * "club" a mirror ball globe and a light-up dance floor under a tilted camera;
    * "pool" the map on a swimming pool's floor under rippling light, and the globe afloat at night;
-   * "snow" the globe in a snow globe, and the map through curved glass that bulges at the centre.
+   * "snow" the globe in a snow globe, and the map through curved glass that bulges at the centre;
+   * "rave" the map on an LED wall between the lighting rig and the DJ booth, and the globe a round screen over the
+   * stage, with lasers sweeping round them.
    */
-  scene?: "club" | "pool" | "snow";
+  scene?: "club" | "pool" | "snow" | "rave";
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -1087,6 +1089,43 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // A warehouse rave seen from the DJ booth: the map on the LED wall behind the decks, the globe a round screen
+  // hung over the stage, lasers and beams sweeping slowly round them in UV and acid colours (src/map/scenes.ts).
+  rave: {
+    id: "rave",
+    label: "Rave",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    ocean: "#0b0322",
+    land: "#2c0d68",
+    landTexture: "none",
+    pixel: 1,
+    globeScale: 0.34,
+    scene: "rave",
+    dotShape: "star4",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#c6ff3a",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(255,63,212,0.16)",
+    graticuleDash: [],
+    river: "rgba(63,240,255,0.35)",
+    lake: "#0b0322",
+    ice: "#d8d0ff",
+    relief: "rgba(198,255,58,0.3)",
+    dot: "#f4ff4a",
+    dotStroke: "#12002a",
+    fresh: "#ff3fd4",
+    tuned: "#ffffff",
+    arc: "#3ff0ff",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(10,0,30,0.45)",
+    neatline: false,
+    decor: null,
+  },
   // Decision 74: four designs that borrow the feel of familiar things and name none of them.
   // Spreadsheet: the world as filled cells in a grid, shaded like conditional formatting by relief; the globe is a
   // chart object on the sheet (src/map/sheet.ts).
@@ -1638,7 +1677,7 @@ export const THEMES: Record<ThemeId, Theme> = {
  */
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
-  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
   { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
