@@ -103,14 +103,18 @@ jobs:
       # The site's copy: the Worker streams these files from R2 instead of building the map on every request, which
       # takes longer than the free plan's 10 ms (decision 73). The day's tiles first, 20 at a time, then the day's
       # file, so a file never lists a tile that isn't stored yet (decision 78). latest.json and the day's own date;
-      # a run for an earlier date also refreshes that date's files.
+      # a run for an earlier date also refreshes that date's files. A file that fails the checks (not JSON, no outlet
+      # stories, no explained event and no local story, a listed tile missing) stops the step before anything is
+      # stored, so the site keeps the file it has. Each upload is tried three times, as R2 and the network blip.
       - name: Store the map for the site
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != ''
         env:
           DATE: ${{ inputs.date }}
         run: |
-          put() { npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
-          tiles() { if [ "$(node -p "require('./$1').length")" != "0" ]; then npx wrangler r2 bulk put globalgist-maps --filename "$1" --content-type application/json --remote --force; fi; }
+          retry() { for i in 1 2 3; do "$@" && return 0; echo "::warning::upload attempt $i of 3 failed"; [ "$i" = 3 ] || sleep $((i * 20)); done; return 1; }
+          put() { retry npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
+          tiles() { if [ "$(node -p "require('./$1').length")" != "0" ]; then retry npx wrangler r2 bulk put globalgist-maps --filename "$1" --content-type application/json --remote --force; fi; }
+          npm run -s stage -- map check --in map.json --manifest tiles.json
           day=$(node -p 'require("./map.json").runDate')
           tiles tiles.json
           put "$day.json" map.json
@@ -118,6 +122,7 @@ jobs:
           if [ -n "$DATE" ] && [ "$DATE" != "$day" ]; then
             if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then echo "::error::date must be YYYY-MM-DD"; exit 1; fi
             npm run -s stage -- map export --date "$DATE" --out dated.json --manifest dated-tiles.json
+            npm run -s stage -- map check --in dated.json --manifest dated-tiles.json
             tiles dated-tiles.json
             put "$DATE.json" dated.json
           fi

@@ -135,5 +135,10 @@ export function renderFeedbackPage(kind: string, title: string): string {
 }
 
 export function renderNotFound(): string {
-  return page("Not found", `<h1>Nothing here.</h1><p class="muted">No edition at this address.</p>`);
+  return page("Not found", `<h1>Nothing here.</h1><p class="muted">No page at this address. <a href="/">Open the map</a>.</p>`);
+}
+
+/** What the Worker shows when something failed, such as the database being down. Says nothing about the cause. */
+export function renderUnavailable(): string {
+  return page("Unavailable", `<h1>Not available right now.</h1><p class="muted">Try again in a few minutes. <a href="/">Open the map</a>.</p>`);
 }

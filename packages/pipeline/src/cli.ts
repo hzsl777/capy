@@ -1,7 +1,7 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
 import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
-import { editions, feedback, latestMapDate, loadEditionView, loadMapView, localBase, readers } from "@2dayai/db";
+import { editions, feedback, latestFinishedMapDate, latestMapDate, loadEditionView, loadMapView, localBase, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
@@ -22,7 +22,7 @@ import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
 import { runLocal } from "./stages/local.js";
 import { daySummary } from "./summary.js";
-import { writeMapFiles } from "./map-files.js";
+import { checkMapFile, writeMapFiles } from "./map-files.js";
 import { FEED_XML } from "./fixtures/day.js";
 import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -83,6 +83,7 @@ const HELP = `Commands:
   refresh                the latest map's local stories again, from the last 24 hours of GDELT (no model, decision 80)
   map export [--out f]   the public map's data for the date (default: latest): the day's file, and its tiles of local
                          stories in local/<date>/ beside it; --manifest f lists the tiles for wrangler r2 bulk put
+  map check --in f       refuses (exit 1) a day's file not fit to be the site's latest; --manifest f checks its tiles
   coverage               towns, countries and regions with a story on the date (default: latest), and the countries
                          and territories with none
   map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
@@ -152,9 +153,10 @@ switch (command) {
   }
   case "refresh": {
     // During the day, between daily runs: the latest map keeps its outlets' stories and its word, and its local
-    // stories become the last 24 hours' (decision 80).
+    // stories become the last 24 hours' (decision 80). The latest finished day: a daily run that failed part way
+    // leaves the day before up.
     const d = db();
-    const day = await latestMapDate(d);
+    const day = await latestFinishedMapDate(d);
     if (!day) {
       console.log("No world-desk run yet; nothing to refresh.");
       break;
@@ -219,7 +221,7 @@ switch (command) {
   }
   case "map export": {
     const d = db();
-    const day = values.date ?? (await latestMapDate(d));
+    const day = values.date ?? (await latestFinishedMapDate(d));
     if (!day) {
       console.error("No world-desk run yet; nothing to export.");
       process.exit(1);
@@ -232,6 +234,17 @@ switch (command) {
     const kb = (n: number) => `${Math.round(n / 1024)} KB`;
     console.log(`${out}: ${main.items.length} items, ${main.places.length} places, ${Object.keys(main.events).length} explained events, telegram ${main.telegram ? `"${main.telegram.word}"` : "none"}, ${kb(bytes.main)}`);
     console.log(`${tiles.length} tiles of local stories in ${join(dirname(out), localBase(day))}: ${Object.values(main.local?.tiles ?? {}).reduce((a, b) => a + b, 0)} stories, ${kb(bytes.tiles)}, the largest ${kb(bytes.largestTile)}`);
+    break;
+  }
+  case "map check": {
+    // Before the site's copy is replaced: a broken file fails the run and the file already stored stays up.
+    if (!values.in) throw new Error("--in <map.json> is required");
+    const problems = checkMapFile(values.in, values.manifest);
+    if (problems.length) {
+      console.error(`${values.in} is not fit to publish: ${problems.join("; ")}.`);
+      process.exit(1);
+    }
+    console.log(`${values.in} passes the checks before publishing.`);
     break;
   }
   case "coverage": {
@@ -376,7 +389,7 @@ switch (command) {
     const d = db();
     // After a deploy the daily workflow runs with --if-missing, so the first day appears on its own and later
     // deploys don't pay for a second run of a day that already exists, or of one a later map has replaced.
-    if (values["if-missing"] && mapCovers(await latestMapDate(d), date)) {
+    if (values["if-missing"] && mapCovers(await latestFinishedMapDate(d), date)) {
       console.log(`The map for ${date}, or a later one, already exists. Nothing to do.`);
       break;
     }

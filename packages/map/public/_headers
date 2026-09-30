@@ -1,5 +1,7 @@
-# Cloudflare static-asset headers (the Worker's own /data responses set theirs in packages/web).
+# Cloudflare static-asset headers, index.html included (the Worker's own /data responses set theirs in packages/web).
+# robots.txt is not a file here: the Worker writes it, so a branch preview can ask crawlers to stay out.
 /*
+  Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()

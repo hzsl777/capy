@@ -308,7 +308,7 @@ export class MapView {
     this.theme = theme;
     this.canvas = document.createElement("canvas");
     this.canvas.setAttribute("role", "img");
-    this.canvas.setAttribute("aria-label", "Map of reported places. Drag to turn, scroll to zoom.");
+    this.canvas.setAttribute("aria-label", "Map of reported places. Drag or use the arrow keys to turn. Scroll or press plus and minus to zoom.");
     this.canvas.tabIndex = 0;
     container.prepend(this.canvas);
     this.ctx = this.canvas.getContext("2d")!;

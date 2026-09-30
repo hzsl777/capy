@@ -51,12 +51,21 @@ jobs:
       - name: Export the map
         if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.refresh.outputs.skip != '1'
         run: npm run -s stage -- map export --out map.json --manifest tiles.json
-      # The same order as the daily run: the tiles first, then the day's file that lists them.
+      # The same checks and order as the daily run: nothing is stored from a broken file, then the tiles first, then the
+      # day's file that lists them, each upload tried three times.
       - name: Store the map for the site
         if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.refresh.outputs.skip != '1'
         run: |
-          put() { npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
+          retry() { for i in 1 2 3; do "$@" && return 0; echo "::warning::upload attempt $i of 3 failed"; [ "$i" = 3 ] || sleep $((i * 20)); done; return 1; }
+          put() { retry npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
+          npm run -s stage -- map check --in map.json --manifest tiles.json
           day=$(node -p 'require("./map.json").runDate')
-          if [ "$(node -p "require('./tiles.json').length")" != "0" ]; then npx wrangler r2 bulk put globalgist-maps --filename tiles.json --content-type application/json --remote --force; fi
+          if [ "$(node -p "require('./tiles.json').length")" != "0" ]; then retry npx wrangler r2 bulk put globalgist-maps --filename tiles.json --content-type application/json --remote --force; fi
           put "$day.json" map.json
           put latest.json map.json
+          # A daily run GitHub dropped or cancelled sends no email. The refresh does: from the third day without a
+          # finished daily run it fails after storing, every run until one finishes.
+          if [[ "$day" < "$(date -u -d '2 days ago' +%F)" ]]; then
+            echo "::error::The newest finished map is for $day. The daily run has not finished a day since; see its runs in the Actions tab."
+            exit 1
+          fi

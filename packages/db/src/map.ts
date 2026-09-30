@@ -2,7 +2,7 @@
 // pipeline's static export. A story sits where it happened when the grouping stage placed its event (decision 44),
 // and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
 // reported.
-import { and, desc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
+import { and, desc, eq, exists, gte, inArray, lt, lte, sql } from "drizzle-orm";
 import { ingestWindow, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
 import type { Db } from "./types.js";
@@ -46,6 +46,20 @@ function asTopic(v: string | null): WorldTopic {
 /** The newest run date with world events, or null when the world desk has never run. */
 export async function latestMapDate(db: Db): Promise<string | null> {
   const row = (await db.select({ d: t.events.runDate }).from(t.events).where(eq(t.events.desk, "world")).orderBy(desc(t.events.runDate)).limit(1))[0];
+  return row?.d ?? null;
+}
+
+/**
+ * The newest run date with world events whose telegram stage finished: a day the daily run carried past the word,
+ * with or without one. A day that failed part way (grouped, but explain or the telegram stopped) is not one, so the
+ * refresh and the export keep the day before up instead of publishing a half-built day.
+ */
+export async function latestFinishedMapDate(db: Db): Promise<string | null> {
+  const finished = db
+    .select({ x: sql`1` })
+    .from(t.runs)
+    .where(and(eq(t.runs.runDate, t.events.runDate), eq(t.runs.stage, "telegram"), eq(t.runs.status, "ok")));
+  const row = (await db.select({ d: t.events.runDate }).from(t.events).where(and(eq(t.events.desk, "world"), exists(finished))).orderBy(desc(t.events.runDate)).limit(1))[0];
   return row?.d ?? null;
 }
 

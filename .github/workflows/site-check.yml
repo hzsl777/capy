@@ -1,0 +1,36 @@
+name: Site check
+# Checks the live site from outside once a day, after the refresh that follows the daily run, and on demand: the page
+# and its headers, the day's map file and a tile, paths that must 404, and the page in a real browser at desktop and
+# phone width, with screenshots kept for a week. A failure emails the owner like any failed run. About a minute a
+# run, 30 a month. The address is the repository variable SITE_URL, or SITE_DOMAIN, or the workers.dev address.
+on:
+  workflow_run:
+    workflows: ["Refresh local stories"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    # Only the refresh started by the daily run, not the one every three hours.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.event == 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE_URL: ${{ vars.SITE_URL || (vars.SITE_DOMAIN && format('https://{0}', vars.SITE_DOMAIN)) || 'https://globalgist.huckabuck412.workers.dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Only the browser driver, installed apart from the workspaces so it takes seconds.
+      - run: npm install --prefix "$RUNNER_TEMP/pw" --no-save --no-package-lock --no-audit --no-fund playwright-core@1 && cp tools/site-check.mjs "$RUNNER_TEMP/pw/"
+      - name: Check the site
+        run: node "$RUNNER_TEMP/pw/site-check.mjs" "$SITE_URL" "$(command -v google-chrome || command -v chromium)" site-check
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-check
+          path: site-check
+          retention-days: 7

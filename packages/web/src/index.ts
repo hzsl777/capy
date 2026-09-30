@@ -4,10 +4,26 @@
 // stored file exists. Never calls the model.
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { Hono } from "hono";
-import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedbackPage, renderNotFound, tileBounds, toRunDate } from "@2dayai/core";
+import { Hono, type Context } from "hono";
+import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedbackPage, renderNotFound, renderUnavailable, tileBounds, toRunDate } from "@2dayai/core";
 import * as schema from "@2dayai/db";
 import { findEditionEvent, latestMapDate, loadEditionView, loadLocalTile, loadMapView, recordFeedback, type Db } from "@2dayai/db";
+
+/** No run date before this one has data: the project began in September 2026. */
+const FIRST_DATE = "2026-09-01";
+const DAY_MS = 24 * 60 * 60 * 1000;
+const PAGE_CSP = "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' https: data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+const PERMISSIONS = "camera=(), microphone=(), geolocation=(), payment=()";
+// No includeSubDomains: other names under a custom domain may not serve HTTPS.
+const HSTS = "max-age=31536000";
+
+/**
+ * A branch or version preview on workers.dev (<branch>-globalgist.<account>.workers.dev). Only the production
+ * address, globalgist.<account>.workers.dev, and a custom domain should be indexed by search engines.
+ */
+export function isPreview(hostname: string): boolean {
+  return hostname.endsWith(".workers.dev") && !hostname.startsWith("globalgist.");
+}
 
 /** The part of an R2 bucket the Worker uses: reading one stored map file. */
 export interface MapStore {
@@ -35,19 +51,35 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     res.headers.set("X-Content-Type-Options", "nosniff");
     res.headers.set("Referrer-Policy", "no-referrer");
     res.headers.set("X-Frame-Options", "DENY");
-    if ((res.headers.get("content-type") ?? "").includes("text/html")) {
-      res.headers.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' https: data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
-    }
+    res.headers.set("Permissions-Policy", PERMISSIONS);
+    res.headers.set("Strict-Transport-Security", HSTS);
+    const html = (res.headers.get("content-type") ?? "").includes("text/html");
+    res.headers.set("Content-Security-Policy", html ? PAGE_CSP : "default-src 'none'; frame-ancestors 'none'");
+    if (isPreview(new URL(c.req.url).hostname)) res.headers.set("X-Robots-Tag", "noindex");
     c.res = res;
+  });
+  // Any failure (the database down, a missing secret) answers with a plain message. The error itself goes to the
+  // Worker's logs only, so no stack trace or connection string reaches the public, and nothing is cached.
+  app.onError((err, c) => {
+    console.error(err);
+    const headers = { "Cache-Control": "no-store" };
+    if (new URL(c.req.url).pathname.startsWith("/data/")) return c.json({ error: "unavailable" }, 503, headers);
+    return c.html(renderUnavailable(), 503, headers);
   });
   const KINDS = new Set(["more", "less", "wrong", "promote"]);
   const ID = /^\d{1,9}$/;
+  // Reader tokens are 32 hex characters (packages/pipeline/src/profiles.ts). Anything else is refused before the database.
+  const TOKEN = /^[0-9a-f]{32}$/;
 
-  /** A real calendar date in YYYY-MM-DD, or null. */
+  /**
+   * A real calendar date in YYYY-MM-DD from FIRST_DATE to tomorrow in UTC, or null. No other date has data, and
+   * refusing it here keeps made-up dates from each costing a database read.
+   */
   function validDate(s: string): string | null {
     try {
       const d = toRunDate(s);
-      return new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d ? d : null;
+      if (new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) !== d) return null;
+      return d >= FIRST_DATE && d <= toRunDate(new Date(Date.now() + DAY_MS)) ? d : null;
     } catch {
       return null;
     }
@@ -55,16 +87,36 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
 
   app.get("/health", (c) => c.json({ ok: true, service: "2dayai-web" }));
 
+  // robots.txt comes from here, not from a static file, so a branch preview asks crawlers to stay out.
+  app.get("/robots.txt", (c) =>
+    c.text(isPreview(new URL(c.req.url).hostname) ? "User-agent: *\nDisallow: /\n" : "User-agent: *\nAllow: /\n", 200, { "Cache-Control": "public, max-age=3600" }),
+  );
+
   // The public map's data (decision 25). Cached for five minutes at the edge with the Cache API, so a busy
   // day costs the database one read per location per five minutes, not one per visitor.
   const MAP_CACHE = "public, max-age=300, s-maxage=300";
   const edgeCache = (): Cache | null => (typeof caches !== "undefined" ? (caches as unknown as { default: Cache }).default : null);
-  async function cachedJson(req: Request, build: () => Promise<Response>): Promise<Response> {
+  async function cachedJson(c: Context<{ Bindings: Bindings }>, build: () => Promise<Response>): Promise<Response> {
+    // One cache entry per path: a query string can't skip the cache, and a HEAD request, which the Cache API refuses,
+    // shares the GET entry.
+    const url = new URL(c.req.url);
+    const key = new Request(`${url.origin}${url.pathname}`);
     const cache = edgeCache();
-    const hit = cache ? await cache.match(req) : undefined;
-    if (hit) return hit;
-    const res = await build();
-    if (cache && res.status === 200) await cache.put(req, res.clone());
+    let res = cache ? await cache.match(key) : undefined;
+    if (!res) {
+      res = await build();
+      if (cache && res.status === 200) {
+        const put = cache.put(key, res.clone());
+        try {
+          c.executionCtx.waitUntil(put);
+        } catch {
+          await put;
+        }
+      }
+    }
+    // The site asks for the day's file with `no-cache`, so a browser that has it gets a 304, not the whole file again.
+    const etag = res.headers.get("ETag");
+    if (etag && c.req.header("If-None-Match") === etag) return new Response(null, { status: 304, headers: res.headers });
     return res;
   }
 
@@ -79,7 +131,7 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   }
 
   app.get("/data/latest.json", (c) =>
-    cachedJson(c.req.raw, async () => {
+    cachedJson(c, async () => {
       const file = await stored(c.env, "latest.json");
       if (file) return file;
       const db = dbOf(c.env);
@@ -96,7 +148,7 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     const m = /^(\d{1,2}[NS]_\d{1,3}[EW])\.json$/.exec(c.req.param("file"));
     const key = m && tileBounds(m[1]!) ? m[1]! : null;
     if (!date || !key) return c.json({ error: "not found" }, 404);
-    return cachedJson(c.req.raw, async () => {
+    return cachedJson(c, async () => {
       const file = await stored(c.env, `local/${date}/${key}.json`);
       if (file) return file;
       const tile = await loadLocalTile(dbOf(c.env), date, key);
@@ -108,13 +160,21 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     const m = /^(\d{4}-\d{2}-\d{2})\.json$/.exec(c.req.param("file"));
     const date = m ? validDate(m[1]!) : null;
     if (!date) return c.json({ error: "not found" }, 404);
-    return cachedJson(c.req.raw, async () => (await stored(c.env, `${date}.json`)) ?? c.json(await loadMapView(dbOf(c.env), date, new Date(), { local: "index" }), 200, { "Cache-Control": MAP_CACHE }));
+    return cachedJson(c, async () => (await stored(c.env, `${date}.json`)) ?? c.json(await loadMapView(dbOf(c.env), date, new Date(), { local: "index" }), 200, { "Cache-Control": MAP_CACHE }));
   });
+
+  // A reader's pages and feedback show that reader's edition, so no browser or proxy keeps a copy.
+  for (const path of ["/r/*", "/f/*"]) {
+    app.use(path, async (c, next) => {
+      await next();
+      c.header("Cache-Control", "private, no-store");
+    });
+  }
 
   app.get("/r/:token/:date", async (c) => {
     const { token } = c.req.param();
     const date = validDate(c.req.param("date"));
-    if (!date) return c.html(renderNotFound(), 404);
+    if (!date || !TOKEN.test(token)) return c.html(renderNotFound(), 404);
     const view = await loadEditionView(dbOf(c.env), { readerToken: token, runDate: date });
     if (!view) return c.html(renderNotFound(), 404);
     return c.html(renderEditionPage(view, linksOf(c.env, c.req.raw)));
@@ -123,7 +183,7 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   app.get("/r/:token/:date/e/:eventId", async (c) => {
     const { token, eventId } = c.req.param();
     const date = validDate(c.req.param("date"));
-    if (!date || !ID.test(eventId)) return c.html(renderNotFound(), 404);
+    if (!date || !TOKEN.test(token) || !ID.test(eventId)) return c.html(renderNotFound(), 404);
     const view = await loadEditionView(dbOf(c.env), { readerToken: token, runDate: date });
     const item = view?.items.find((it) => it.eventId === Number(eventId));
     if (!view || !item) return c.html(renderNotFound(), 404);
@@ -133,7 +193,7 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   app.get("/f/:token/:date/:eventId/:kind", async (c) => {
     const { token, eventId, kind } = c.req.param();
     const date = validDate(c.req.param("date"));
-    if (!date || !ID.test(eventId) || !KINDS.has(kind)) return c.html(renderNotFound(), 404);
+    if (!date || !TOKEN.test(token) || !ID.test(eventId) || !KINDS.has(kind)) return c.html(renderNotFound(), 404);
     const found = await findEditionEvent(dbOf(c.env), { readerToken: token, runDate: date, eventId: Number(eventId) });
     if (!found) return c.html(renderNotFound(), 404);
     return c.html(renderFeedbackConfirm(kind, found.title, new URL(c.req.url).pathname));
@@ -142,7 +202,7 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   app.post("/f/:token/:date/:eventId/:kind", async (c) => {
     const { token, eventId, kind } = c.req.param();
     const date = validDate(c.req.param("date"));
-    if (!date || !ID.test(eventId) || !KINDS.has(kind)) return c.html(renderNotFound(), 404);
+    if (!date || !TOKEN.test(token) || !ID.test(eventId) || !KINDS.has(kind)) return c.html(renderNotFound(), 404);
     const result = await recordFeedback(dbOf(c.env), { readerToken: token, runDate: date, eventId: Number(eventId), kind });
     if (!result) return c.html(renderNotFound(), 404);
     return c.html(renderFeedbackPage(kind, result.title));

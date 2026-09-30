@@ -199,6 +199,16 @@ describe("local stories for towns no outlet reached", () => {
     expect(await db.select().from(localStories)).toHaveLength(0);
     await expect(runLocal(db, date, limits(2), async () => { throw new Error("fetch failed"); })).rejects.toThrow(/none of the 192 GDELT files/);
   });
+
+  it("keeps the day's local stories when GDELT is down or has no file at all", async () => {
+    const story = row({ url: "https://www.ladige.it/keep", title: "Trento, the bridge reopens to traffic today", when: "20260927030000", towns: [TRENTO] });
+    await runLocal(db, date, limits(2), async (url) => (url.endsWith("20260927030000.gkg.csv.zip") ? zip([story]) : null));
+    expect(await db.select().from(localStories)).toHaveLength(1);
+    await expect(runLocal(db, date, limits(2), async () => { throw new Error("fetch failed"); })).rejects.toThrow(/none of the 192 GDELT files/);
+    await expect(runLocal(db, date, limits(2), async () => null)).rejects.toThrow(/none of the 192 GDELT files/);
+    expect((await db.select().from(localStories)).map((r) => r.url)).toEqual(["https://www.ladige.it/keep"]);
+    await db.delete(localStories);
+  });
 });
 
 describe("choosing the day's local stories (decision 78)", () => {
