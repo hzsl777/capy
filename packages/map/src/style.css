@@ -3270,3 +3270,538 @@ button.link {
     padding-right: 18px;
   }
 }
+
+/* ==========================================================================
+   Night Drive, Cross Stitch and Rose Window (decision 70): designs that draw the world a way of their own
+   (src/map/neon.ts, stitch.ts, glass.ts). Tokens first, then each design's chrome.
+   ========================================================================== */
+:root[data-theme="drive"] {
+  color-scheme: dark;
+  --page: #0b0118;
+  --panel: #140427;
+  --ink: #f6ecff;
+  --ink-2: #ddc9f7;
+  --muted: #bfa3e0;
+  --rule: #ff4fd8;
+  --accent: #6ff6ff;
+  --on-accent: #0b0118;
+  --hover: rgba(111, 246, 255, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0.08;
+  --grain-blend: screen;
+  --font-mast: "Kanit", "Arial Black", sans-serif;
+  --font-head: "Kanit", "Arial", sans-serif;
+  --font-body: "Kanit", "Arial", sans-serif;
+  --font-ui: "Kanit", "Arial", sans-serif;
+}
+:root[data-theme="stitch"] {
+  color-scheme: light;
+  --page: #efe6d2;
+  --panel: #f8f2e4;
+  --ink: #3a2a20;
+  --ink-2: #553f30;
+  --muted: #6c5645;
+  --rule: #8a6a4a;
+  --accent: #a82a44;
+  --on-accent: #fff8ec;
+  --hover: rgba(168, 42, 68, 0.08);
+  --reticle: #3a2a20;
+  --grain-opacity: 0.3;
+  --grain-blend: multiply;
+  --font-mast: "Dancing Script", "Brush Script MT", cursive;
+  --font-head: "Lora", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
+  --font-ui: "Lora", Georgia, serif;
+}
+:root[data-theme="glass"] {
+  color-scheme: dark;
+  --page: #15111b;
+  --panel: #1d1824;
+  --ink: #f4eddc;
+  --ink-2: #e2d8c2;
+  --muted: #bcae95;
+  --rule: #8c8374;
+  --accent: #e8b83a;
+  --on-accent: #15111b;
+  --hover: rgba(232, 184, 58, 0.1);
+  --reticle: #fff4d2;
+  --grain-opacity: 0.12;
+  --grain-blend: overlay;
+  --font-mast: "Grenze Gotisch", "UnifrakturMaguntia", serif;
+  --font-head: "EB Garamond", Georgia, serif;
+  --font-body: "EB Garamond", Georgia, serif;
+  --font-ui: "EB Garamond", Georgia, serif;
+}
+
+/* ---- Night Drive: chrome lettering, neon edges, magenta and cyan ------------------------------ */
+:root[data-theme="drive"] body {
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255, 79, 216, 0.16), transparent 70%),
+    linear-gradient(to bottom, #0b0118, #12022a 60%, #0b0118);
+}
+:root[data-theme="drive"] .masthead {
+  border-bottom: 2px solid #ff4fd8;
+  box-shadow: 0 2px 14px rgba(255, 79, 216, 0.55);
+  background: linear-gradient(to bottom, #0b0118, #1a0536);
+}
+:root[data-theme="drive"] .toolbar,
+:root[data-theme="drive"] .timebar {
+  border-color: rgba(111, 246, 255, 0.45);
+  background: #0d0220;
+}
+:root[data-theme="drive"] .map {
+  background: #07010f;
+}
+/* Chrome lettering: bright sky above a dark horizon line, pink ground below, in heavy italic capitals. */
+:root[data-theme="drive"] .mast-title,
+:root[data-theme="drive"] .telegram-word,
+:root[data-theme="drive"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: transparent;
+  background-image: linear-gradient(to bottom, #ffffff 0%, #c4ecff 36%, #6f7fd6 47%, #1d0e45 50%, #ff7ad0 58%, #ffe3f5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 6px rgba(255, 79, 216, 0.75)) drop-shadow(0 2px 0 #3a0a5a);
+  padding-right: 0.12em;
+}
+:root[data-theme="drive"] .telegram-word {
+  border-bottom: 3px solid #6ff6ff;
+}
+:root[data-theme="drive"] .telegram-word:hover,
+:root[data-theme="drive"] .telegram-word:focus-visible {
+  background-image: linear-gradient(to bottom, #ffffff 0%, #c4ecff 36%, #6f7fd6 47%, #1d0e45 50%, #ff7ad0 58%, #ffe3f5 100%);
+  filter: drop-shadow(0 0 10px rgba(111, 246, 255, 0.9)) drop-shadow(0 2px 0 #3a0a5a);
+  text-decoration: none;
+}
+/* The tagline in a neon script, humming gently. */
+:root[data-theme="drive"] .mast-tag {
+  font-family: "Mr Dafoe", cursive;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  color: #ff6fe0;
+  text-shadow: 0 0 4px #ff4fd8, 0 0 12px rgba(255, 79, 216, 0.8);
+  transform: rotate(-4deg);
+  transform-origin: left center;
+  animation: neon-hum 5s ease-in-out infinite;
+}
+@keyframes neon-hum {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  47% {
+    opacity: 1;
+  }
+  48% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+  52% {
+    opacity: 0.75;
+  }
+  54% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="drive"] .mast-tag {
+    animation: none;
+  }
+}
+:root[data-theme="drive"] .telegram-kicker,
+:root[data-theme="drive"] .telegram-date {
+  color: #6ff6ff;
+  text-shadow: 0 0 6px rgba(111, 246, 255, 0.6);
+  font-style: normal;
+}
+:root[data-theme="drive"] .telegram-note {
+  font-style: normal;
+  color: var(--ink-2);
+}
+:root[data-theme="drive"] .meta,
+:root[data-theme="drive"] .count,
+:root[data-theme="drive"] .dateline .coords {
+  font-style: normal;
+}
+/* Buttons with a neon edge; the one that is on lights up magenta. */
+:root[data-theme="drive"] .tool,
+:root[data-theme="drive"] .pick select,
+:root[data-theme="drive"] .menu > summary,
+:root[data-theme="drive"] .chip,
+:root[data-theme="drive"] .zoom,
+:root[data-theme="drive"] .key-btn,
+:root[data-theme="drive"] .key-close {
+  border: 1px solid #6ff6ff;
+  border-radius: 3px;
+  background: rgba(10, 2, 30, 0.85);
+  color: #eaffff;
+  box-shadow: 0 0 6px rgba(111, 246, 255, 0.5), inset 0 0 6px rgba(111, 246, 255, 0.18);
+  font-weight: 600;
+}
+:root[data-theme="drive"] .zoom button {
+  color: #eaffff;
+}
+:root[data-theme="drive"] .zoom button + button {
+  border-top-color: rgba(111, 246, 255, 0.5);
+}
+:root[data-theme="drive"] .tool.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="drive"] .tool[aria-pressed="true"],
+:root[data-theme="drive"] .menu[open] > summary,
+:root[data-theme="drive"] .chip[aria-pressed="true"],
+:root[data-theme="drive"] .key-btn[aria-expanded="true"],
+:root[data-theme="drive"] .scale .step.on {
+  background: linear-gradient(to bottom, #ff6fe0, #b01fc8);
+  border-color: #ffb3f0;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 79, 216, 0.8);
+}
+:root[data-theme="drive"] .scale {
+  border-color: rgba(111, 246, 255, 0.6);
+}
+/* Dark panels with a neon edge. */
+:root[data-theme="drive"] .panel,
+:root[data-theme="drive"] .menu-body,
+:root[data-theme="drive"] .key-pop,
+:root[data-theme="drive"] dialog {
+  background: linear-gradient(to bottom, rgba(34, 7, 66, 0.97), rgba(13, 2, 30, 0.98));
+  border: 1px solid #ff4fd8;
+  border-radius: 6px;
+  box-shadow: 0 0 16px rgba(255, 79, 216, 0.45), inset 0 0 22px rgba(111, 246, 255, 0.08);
+}
+:root[data-theme="drive"] .panel {
+  margin: 8px;
+}
+:root[data-theme="drive"] .panel-title,
+:root[data-theme="drive"] .place-name {
+  font-style: italic;
+  font-weight: 900;
+  color: #6ff6ff;
+  text-shadow: 0 0 8px rgba(111, 246, 255, 0.55);
+}
+:root[data-theme="drive"] .dateline {
+  border-bottom: 2px solid #ff4fd8;
+  box-shadow: 0 4px 8px -6px rgba(255, 79, 216, 0.9);
+}
+:root[data-theme="drive"] .rule-head {
+  color: #ff8ae6;
+  border-color: rgba(255, 79, 216, 0.6);
+}
+:root[data-theme="drive"] .headline {
+  font-weight: 600;
+}
+
+/* ---- Cross Stitch: linen, stitched edges, a sampler's border of X stitches --------------------- */
+:root[data-theme="stitch"] body {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.07) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(120, 96, 60, 0.07) 0 1px, transparent 1px 4px),
+    var(--page);
+}
+/* A band of cross stitches under the masthead, raspberry and green in turn. */
+:root[data-theme="stitch"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12'%3E%3Cg stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M2.5 9.5L9.5 2.5' stroke='%237a1c30'/%3E%3Cpath d='M2.5 2.5L9.5 9.5' stroke='%23b83250'/%3E%3Cpath d='M14.5 9.5L21.5 2.5' stroke='%232c5236'/%3E%3Cpath d='M14.5 2.5L21.5 9.5' stroke='%234a8052'/%3E%3C/g%3E%3C/svg%3E") repeat-x left bottom 6px / 24px 12px;
+}
+:root[data-theme="stitch"] .toolbar {
+  border-bottom: 2px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .timebar {
+  border-top: 2px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .map {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.09) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 96, 60, 0.09) 0 1px, transparent 1px 3px),
+    #e6dcc4;
+}
+/* Running stitch around the sampler's edge. */
+:root[data-theme="stitch"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 2px dashed rgba(168, 42, 68, 0.7);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="stitch"] .mast-title {
+  font-weight: 700;
+  color: #a82a44;
+  font-size: clamp(32px, 3.8vw, 48px);
+  letter-spacing: 0;
+}
+:root[data-theme="stitch"] .mast-tag {
+  font-style: italic;
+  color: #3f6a44;
+}
+/* The word in stitched block letters: a pixel face filled with X stitches. */
+:root[data-theme="stitch"] .telegram-word,
+:root[data-theme="stitch"] .telegram-big {
+  font-family: "Silkscreen", "Press Start 2P", monospace;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%23a82a44'/%3E%3Cpath d='M1.2 6.8L6.8 1.2' stroke='%236a1428' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M1.2 1.2L6.8 6.8' stroke='%23d0506c' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 0.125em 0.125em;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(1px 1px 0 rgba(90, 20, 36, 0.35));
+}
+:root[data-theme="stitch"] .telegram-word {
+  font-size: min(80px, calc(38vw / var(--len, 8) / 1.15));
+  border-bottom: 2px dashed #3f6a44;
+  padding-bottom: 6px;
+}
+:root[data-theme="stitch"] .telegram-word:hover,
+:root[data-theme="stitch"] .telegram-word:focus-visible {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%233f6a44'/%3E%3Cpath d='M1.2 6.8L6.8 1.2' stroke='%23284a2e' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M1.2 1.2L6.8 6.8' stroke='%235f9a64' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  text-decoration: none;
+}
+:root[data-theme="stitch"] .telegram-kicker,
+:root[data-theme="stitch"] .telegram-date {
+  color: #3f6a44;
+}
+/* Buttons are felt patches stitched on with a dashed thread. */
+:root[data-theme="stitch"] .tool,
+:root[data-theme="stitch"] .pick select,
+:root[data-theme="stitch"] .menu > summary,
+:root[data-theme="stitch"] .chip,
+:root[data-theme="stitch"] .key-btn,
+:root[data-theme="stitch"] .key-close {
+  border: 1.5px dashed #8a6a4a;
+  border-radius: 7px;
+  background: #fbf6ea;
+  box-shadow: 0 0 0 2px #fbf6ea, 0 0 0 3px #cdb892, 1px 2px 0 3px rgba(120, 96, 60, 0.18);
+}
+:root[data-theme="stitch"] .zoom {
+  border: 1.5px dashed #8a6a4a;
+  border-radius: 7px;
+  background: #fbf6ea;
+  box-shadow: 0 0 0 2px #fbf6ea, 0 0 0 3px #cdb892;
+}
+:root[data-theme="stitch"] .zoom button + button {
+  border-top: 1.5px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .tool.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="stitch"] .tool[aria-pressed="true"],
+:root[data-theme="stitch"] .menu[open] > summary,
+:root[data-theme="stitch"] .chip[aria-pressed="true"],
+:root[data-theme="stitch"] .key-btn[aria-expanded="true"],
+:root[data-theme="stitch"] .scale .step.on {
+  background: #a82a44;
+  color: #fff8ec;
+  border-color: #f3d9c9;
+}
+/* Panels are a stitched square of linen. */
+:root[data-theme="stitch"] .panel,
+:root[data-theme="stitch"] .menu-body,
+:root[data-theme="stitch"] .key-pop {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.06) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(120, 96, 60, 0.06) 0 1px, transparent 1px 4px),
+    var(--panel);
+  border: 2px dashed #a82a44;
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px var(--panel), 0 0 0 5px #cdb892, 2px 4px 10px 4px rgba(80, 56, 30, 0.18);
+}
+:root[data-theme="stitch"] .panel {
+  margin: 12px;
+}
+:root[data-theme="stitch"] .panel-title,
+:root[data-theme="stitch"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 32px;
+  color: #a82a44;
+}
+:root[data-theme="stitch"] .dateline {
+  border-bottom: 2px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .rule-head {
+  border-top-style: dashed;
+  border-bottom-style: dashed;
+  border-color: #8a6a4a;
+}
+
+/* ---- Rose Window: stone, lead and jewel glass, gothic lettering, arched panels ------------------ */
+:root[data-theme="glass"] body {
+  background:
+    radial-gradient(ellipse 45% 35% at 15% 0%, rgba(31, 79, 168, 0.22), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 85% 0%, rgba(176, 40, 63, 0.2), transparent 70%),
+    var(--page);
+}
+:root[data-theme="glass"] .masthead {
+  border-bottom: 3px double #8c8374;
+}
+:root[data-theme="glass"] .toolbar,
+:root[data-theme="glass"] .timebar {
+  border-color: #5e574c;
+}
+/* Ashlar stone behind the window, lit by the colours coming through it. */
+:root[data-theme="glass"] .map {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(232, 184, 58, 0.1), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='48'%3E%3Crect width='96' height='48' fill='%23231d29'/%3E%3Cpath d='M0 1H96M0 25H96M1 1V25M49 1V25M25 25V49M73 25V49' stroke='%23120e16' stroke-width='2' fill='none'/%3E%3Cpath d='M0 3H96M0 27H96' stroke='%23332b3a' stroke-width='1' fill='none'/%3E%3C/svg%3E") 0 0 / 96px 48px,
+    #1d1824;
+}
+:root[data-theme="glass"] .mast-title,
+:root[data-theme="glass"] .panel-title,
+:root[data-theme="glass"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #e8b83a;
+  text-shadow: 0 0 12px rgba(232, 184, 58, 0.35);
+}
+:root[data-theme="glass"] .mast-title {
+  font-size: clamp(32px, 3.8vw, 48px);
+}
+:root[data-theme="glass"] .place-name {
+  font-size: 32px;
+}
+/* The word in amber glass behind a dark lead outline, lit from behind. */
+:root[data-theme="glass"] .telegram-word,
+:root[data-theme="glass"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: transparent;
+  background-image:
+    radial-gradient(ellipse 55% 60% at 50% 40%, rgba(255, 250, 225, 0.75), transparent 70%),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.12) 0 3px, transparent 3px 11px),
+    linear-gradient(to bottom, #f7cf5a, #e0a020 55%, #b87410);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 1.5px #0e0b12;
+  filter: drop-shadow(0 0 10px rgba(232, 184, 58, 0.35));
+}
+:root[data-theme="glass"] .telegram-word {
+  font-size: min(104px, calc(40vw / var(--len, 8)));
+  border-bottom: 2px solid #8c8374;
+}
+:root[data-theme="glass"] .telegram-word:hover,
+:root[data-theme="glass"] .telegram-word:focus-visible {
+  text-decoration: none;
+  filter: drop-shadow(0 0 16px rgba(232, 184, 58, 0.7));
+}
+:root[data-theme="glass"] .telegram-kicker,
+:root[data-theme="glass"] .telegram-date {
+  color: #e8b83a;
+  letter-spacing: 0.16em;
+}
+:root[data-theme="glass"] .mast-tag,
+:root[data-theme="glass"] .telegram-note {
+  color: var(--ink-2);
+}
+/* Buttons are small arched stones; the one that is on is gold glass. */
+:root[data-theme="glass"] .tool,
+:root[data-theme="glass"] .pick select,
+:root[data-theme="glass"] .menu > summary,
+:root[data-theme="glass"] .chip,
+:root[data-theme="glass"] .key-btn,
+:root[data-theme="glass"] .key-close,
+:root[data-theme="glass"] .zoom {
+  border: 1px solid #8c8374;
+  border-radius: 14px 14px 3px 3px;
+  background: linear-gradient(to bottom, #3a333f, #231e29);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 248, 230, 0.2), 0 2px 0 #0e0b12;
+}
+:root[data-theme="glass"] .zoom button + button {
+  border-top-color: #5e574c;
+}
+:root[data-theme="glass"] .tool.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="glass"] .tool[aria-pressed="true"],
+:root[data-theme="glass"] .menu[open] > summary,
+:root[data-theme="glass"] .chip[aria-pressed="true"],
+:root[data-theme="glass"] .key-btn[aria-expanded="true"],
+:root[data-theme="glass"] .scale .step.on {
+  background: radial-gradient(ellipse at 50% 30%, #ffe08a, #e8b83a 55%, #a87a14);
+  color: #15111b;
+  border-color: #0e0b12;
+}
+/* Panels are tall arched windows in a stone frame, a small roundel of glass in the arch. */
+:root[data-theme="glass"] .panel:not(.framed) {
+  margin: 10px;
+  padding-top: 84px;
+  border: 5px solid #6f6758;
+  border-radius: 50% 50% 8px 8px / 76px 76px 8px 8px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-20 -20 40 40'%3E%3Cg stroke='%2316121c' stroke-width='1.6'%3E%3Ccircle r='18.5' fill='%231f4fa8'/%3E%3Cpath d='M0 0L0 -18.5A18.5 18.5 0 0 1 13.1 -13.1Z' fill='%23b0283f'/%3E%3Cpath d='M0 0L13.1 13.1A18.5 18.5 0 0 1 0 18.5Z' fill='%23b0283f'/%3E%3Cpath d='M0 0L-13.1 -13.1A18.5 18.5 0 0 1 0 -18.5Z' fill='%231a9a66'/%3E%3Cpath d='M0 0L0 18.5A18.5 18.5 0 0 1 -13.1 13.1Z' fill='%231a9a66'/%3E%3Cpath d='M0 0L18.5 0A18.5 18.5 0 0 1 13.1 13.1Z' fill='%23d9a21a'/%3E%3Cpath d='M0 0L-18.5 0A18.5 18.5 0 0 1 -13.1 -13.1Z' fill='%23d9a21a'/%3E%3Ccircle r='6' fill='%23e8c050'/%3E%3C/g%3E%3C/svg%3E") no-repeat center 16px / 52px 52px,
+    radial-gradient(ellipse 80% 90px at 50% 0%, rgba(232, 184, 58, 0.12), transparent),
+    var(--panel);
+  box-shadow: inset 0 0 0 2px #16121c, inset 0 0 0 4px rgba(255, 248, 230, 0.12), 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="glass"] .menu-body,
+:root[data-theme="glass"] .key-pop,
+:root[data-theme="glass"] dialog {
+  border: 3px solid #6f6758;
+  border-radius: 50% 50% 6px 6px / 28px 28px 6px 6px;
+  padding-top: 26px;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px #16121c, 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="glass"] .dateline {
+  border-bottom-color: #8c8374;
+}
+:root[data-theme="glass"] .rule-head {
+  color: #e8b83a;
+  border-color: #5e574c;
+}
+:root[data-theme="glass"] .headline {
+  font-weight: 600;
+  font-size: 18px;
+}
+:root[data-theme="glass"] .meta {
+  font-size: 14px;
+}
+
+/* ---- Phones: the three designs keep the toolbar one row, and the word fits ------------------- */
+@media (max-width: 760px) {
+  :root[data-theme="drive"] .mast-tag {
+    font-size: 20px;
+    transform: rotate(-3deg);
+    transform-origin: center;
+  }
+  :root[data-theme="stitch"] .telegram-word {
+    font-size: min(48px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.86)));
+  }
+  :root[data-theme="glass"] .telegram-word {
+    font-size: min(72px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.54)));
+  }
+  :root[data-theme="drive"] .panel,
+  :root[data-theme="stitch"] .panel {
+    margin: 6px;
+  }
+  /* A lower arch without the roundel, so the story list keeps its room. */
+  :root[data-theme="glass"] .panel:not(.framed) {
+    margin: 6px;
+    padding-top: 30px;
+    border-radius: 50% 50% 8px 8px / 26px 26px 8px 8px;
+    background: radial-gradient(ellipse 80% 40px at 50% 0%, rgba(232, 184, 58, 0.12), transparent), var(--panel);
+  }
+}

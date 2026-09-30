@@ -1,7 +1,7 @@
 import type { RGB } from "./map/terrain.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -33,7 +33,7 @@ export interface Theme {
   /** Distance haze: toward the globe's rim, or toward the far edge of a tilted map. The colour of the horizon. */
   fog?: string;
   /** Place dots as circles, squares (the pixel designs), diamonds, bevelled discs or hexagons. */
-  dotShape: "circle" | "square" | "diamond" | "bevel" | "hex";
+  dotShape: "circle" | "square" | "diamond" | "bevel" | "hex" | "button";
   textureInk: string;
   textureInk2?: string;
   coast: string;
@@ -60,6 +60,21 @@ export interface Theme {
   tilt?: number;
   /** A sky drawn behind the map: zenith, middle and horizon colours, with clouds that pan with the camera. */
   sky?: [string, string, string];
+  /** With `tilt`: the eye's distance from the picture in frame heights (default 1). Smaller is stronger perspective. */
+  tiltEye?: number;
+  /** With `tilt`: the draw distance, as the smallest perspective scale drawn (default 0.5). */
+  tiltFar?: number;
+  /** With `tilt`: the furthest out Map view may zoom (default 1.8). */
+  tiltMinZoom?: number;
+  /** The globe's radius at the widest zoom, as a share of the frame's shorter side (default 0.46). */
+  globeScale?: number;
+  /**
+   * Land and sea drawn a way of their own instead of the fills and textures above (decision 70): "neon" is Night
+   * Drive's glowing wireframe over a ruled sea (src/map/neon.ts), "stitch" is Cross Stitch's X stitches on linen
+   * (src/map/stitch.ts), "glass" is Rose Window's leaded glass (src/map/glass.ts). The colours above still set the
+   * sea, land, coast, grid and markers.
+   */
+  surface?: "neon" | "stitch" | "glass";
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -797,6 +812,124 @@ export const THEMES: Record<ThemeId, Theme> = {
     atmosphere: "rgba(211,177,132,0.4)",
     shade: "rgba(60,30,0,0.35)",
     neatline: true,
+    decor: null,
+  },
+  // Decision 70: three designs that draw the world a way of their own.
+  // Night Drive: a 1980s night drive. The flat map is seen low over a black sea ruled by a glowing magenta grid,
+  // receding to a horizon under a striped setting sun; land is a cyan wireframe with wire mountains.
+  drive: {
+    id: "drive",
+    label: "Night Drive",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "neon",
+    globeScale: 0.32,
+    tilt: 66,
+    tiltEye: 0.5,
+    tiltFar: 0.3,
+    tiltMinZoom: 1.4,
+    sky: ["#0d0221", "#4a1068", "#ff7a3d"],
+    fog: "#ff4f9a",
+    ocean: "#07010f",
+    land: "#0d0628",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(111,246,255,0.45)",
+    coast: "#6ff6ff",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "#ff4fd8",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#07010f",
+    ice: "#0d0628",
+    relief: "#9ffbff",
+    dot: "#ffe14d",
+    dotStroke: "#1a0530",
+    fresh: "#ff4fd8",
+    tuned: "#ffffff",
+    arc: "#6ff6ff",
+    glow: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Cross Stitch: an embroidered sampler. Land in X stitches on linen aida cloth, threads by climate and relief,
+  // coasts in backstitch, the globe held in a wooden embroidery hoop, markers as sewn buttons.
+  stitch: {
+    id: "stitch",
+    label: "Cross Stitch",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "stitch",
+    globeScale: 0.32,
+    ocean: "#efe6d2",
+    land: "#6f9a4a",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "button",
+    textureInk: "rgba(120,96,60,0.28)",
+    coast: "#4a3326",
+    coastWidth: 1.6,
+    waterlines: 0,
+    waterline: "#a9c6db",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#efe6d2",
+    ice: "#fbfaf5",
+    relief: "#8a6040",
+    dot: "#9e1f4a",
+    dotStroke: "#f6efdd",
+    fresh: "#1f6fd1",
+    tuned: "#4a3326",
+    arc: "#b0304a",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Rose Window: stained glass. Land and sea cut into pieces of jewel-toned glass held in dark lead, lit from
+  // behind; the globe is the centre of a round window in stone tracery.
+  glass: {
+    id: "glass",
+    label: "Rose Window",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "glass",
+    globeScale: 0.27,
+    ocean: "#1b3f8f",
+    land: "#2f8a4a",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#16121c",
+    coastWidth: 3.2,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#1b3f8f",
+    ice: "#dfe8f2",
+    relief: "#7a4a9a",
+    dot: "#fff4d2",
+    dotStroke: "#16121c",
+    fresh: "#ffc21a",
+    tuned: "#fff4d2",
+    arc: "#fff4d2",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
     decor: null,
   },
 };

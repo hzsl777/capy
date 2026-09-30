@@ -13,6 +13,10 @@ import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
 import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
+import { drawNeon, NeonCache } from "./neon.ts";
+import { drawStitch, StitchCache } from "./stitch.ts";
+import { drawGlass, GlassCache } from "./glass.ts";
+import type { SurfaceFrame } from "./surface.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -70,6 +74,8 @@ interface Cam {
   cos: number;
   /** Distance from the eye to the picture, in pixels. Smaller means stronger perspective. */
   d: number;
+  /** The draw distance: nothing is drawn where the camera's scale falls below this. */
+  far: number;
 }
 
 /** Grid spacing for Polygon Kingdom's terrain by zoom: coarse at the whole world, finer as you zoom in. */
@@ -187,6 +193,10 @@ export class MapView {
   private anchors = new Map<string, [number, number]>();
   private terrainNow: Terrain | null = null;
   private skyTex?: HTMLCanvasElement;
+  /** Night Drive, Cross Stitch and Rose Window keep what they can reuse between frames here. */
+  private neon = new NeonCache();
+  private stitch = new StitchCache();
+  private glass = new GlassCache();
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -409,14 +419,14 @@ export class MapView {
    * polar ice, so it starts, and stays, close enough to see the land it looks across.
    */
   private minZoom(): number {
-    return this.mode === "2d" && this.theme.tilt ? 1.8 : 1;
+    return this.mode === "2d" && this.theme.tilt ? (this.theme.tiltMinZoom ?? 1.8) : 1;
   }
 
   private fit() {
     if (!this.w || !this.h) return;
     this.zoom = Math.max(this.zoom, this.minZoom());
     if (this.mode === "3d") {
-      this.baseScale = Math.min(this.w, this.h) * 0.46;
+      this.baseScale = Math.min(this.w, this.h) * (this.theme.globeScale ?? 0.46);
     } else {
       // Cover the frame rather than fit inside it: the world fills the height (or the width, in a tall frame),
       // and longitude wraps as you drag, so nothing is lost off the sides.
@@ -847,7 +857,7 @@ export class MapView {
 
   private makeCam(tilt: number): Cam {
     const a = tilt / DEG;
-    return { cx: this.w / 2, cy: this.h / 2, sin: Math.sin(a), cos: Math.cos(a), d: this.h };
+    return { cx: this.w / 2, cy: this.h / 2, sin: Math.sin(a), cos: Math.cos(a), d: this.h * (this.theme.tiltEye ?? 1), far: this.theme.tiltFar ?? 0.5 };
   }
 
   /** A point on the flat map, raised `lift` pixels, as the tilted camera sees it, with its perspective scale. */
@@ -959,6 +969,16 @@ export class MapView {
     // don't change shape when the map is touched or let go (decision 42). The whole world at once gets the light
     // file, where the finer one adds nothing visible and drags slowly; zooming in switches to the fine one.
     const map = (proj.scale() >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
+
+    if (t.surface && map) {
+      // Night Drive, Cross Stitch and Rose Window draw land and sea their own way (decision 70). Places, arcs and
+      // tuning are the same as in every design.
+      this.drawSurface(proj, cam, view, map, t);
+      drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
+      this.drawArcs(path, proj);
+      this.drawDots(proj);
+      return;
+    }
 
     if (t.sky) this.drawSky(t.sky);
     if (this.mode === "3d" && t.atmosphere) {
@@ -1079,6 +1099,37 @@ export class MapView {
     this.drawDots(proj);
   }
 
+  private drawSurface(proj: GeoProjection, cam: Cam | null, view: { stream(out: GeoStream): GeoStream }, map: Basemap, t: Theme) {
+    const base = this.low ?? this.high ?? map;
+    if (!this.rasters || this.rasters.base !== base) {
+      this.rasters = { base, isLand: raster(base.land), isIce: raster(base.ice) };
+      this.meshes.clear();
+    }
+    const f: SurfaceFrame = {
+      ctx: this.ctx,
+      w: this.w,
+      h: this.h,
+      dpr: this.dpr,
+      mode: this.mode,
+      theme: t,
+      proj,
+      cam,
+      tp: (x, y, lift) => (cam ? this.tp(x, y, lift, cam) : [x, y, 1]),
+      view,
+      zoom: this.zoom,
+      lon: this.lon,
+      lat: this.lat,
+      map,
+      low: base,
+      relief: this.relief,
+      isLand: this.rasters.isLand,
+      isIce: this.rasters.isIce,
+    };
+    if (t.surface === "neon") drawNeon(f, this.neon);
+    else if (t.surface === "stitch") drawStitch(f, this.stitch);
+    else drawGlass(f, this.glass);
+  }
+
   private n64Tex?: HTMLCanvasElement;
 
   /**
@@ -1123,10 +1174,13 @@ export class MapView {
     const { ctx } = this;
     // The coastline is projected once per frame and reused for every fill and stroke below. Projecting it again
     // for each ripple line cost more than the drawing itself.
+    // Under a tilted camera the outlines go through it as well, so any design can take the tilt.
+    const cam = this.cam;
+    const seen = cam ? ({ stream: (out: GeoStream) => proj.stream(this.tiltStream(out, cam)) } as GeoProjection) : proj;
     const land = new Path2D();
-    geoPath(proj, pathContext(land))(map.land);
+    geoPath(seen, pathContext(land))(map.land);
     const coast = new Path2D();
-    geoPath(proj, pathContext(coast))(map.coast);
+    geoPath(seen, pathContext(coast))(map.coast);
     const lines = t.waterlines;
     if (lines > 0) {
       ctx.lineJoin = "round";
@@ -1472,9 +1526,9 @@ export class MapView {
     ctx.beginPath();
     for (const [lon, lat] of relief.peaks) {
       if (!this.visible(lon, lat)) continue;
-      const p = proj([lon, lat]);
-      if (!p) continue;
-      const [x, y] = p;
+      const q = this.placeAt(proj, lon, lat);
+      if (!q) continue;
+      const { x, y } = q;
       if (x < -10 || y < -10 || x > this.w + 10 || y > this.h + 10) continue;
       // A small engraved peak: two strokes, the right flank shaded.
       ctx.moveTo(x - s, y + s * 0.55);
@@ -1487,10 +1541,10 @@ export class MapView {
     ctx.fillStyle = t.relief;
     for (const [lon, lat] of relief.dunes) {
       if (!this.visible(lon, lat)) continue;
-      const p = proj([lon, lat]);
+      const p = this.placeAt(proj, lon, lat);
       if (!p) continue;
-      ctx.fillRect(p[0], p[1], 1, 1);
-      ctx.fillRect(p[0] + s * 0.8, p[1] + s * 0.4, 1, 1);
+      ctx.fillRect(p.x, p.y, 1, 1);
+      ctx.fillRect(p.x + s * 0.8, p.y + s * 0.4, 1, 1);
     }
   }
 
@@ -1531,7 +1585,7 @@ export class MapView {
       const p = this.placeAt(proj, d.lon, d.lat);
       if (!p) continue;
       // Beyond the tilted camera's draw distance the map is haze; its places are reached by dragging closer.
-      if (this.cam && p.s < 0.5) continue;
+      if (this.cam && p.s < this.cam.far) continue;
       if (p.x < -20 || p.y < -20 || p.x > this.w + 20 || p.y > this.h + 20) continue;
       shown.push({ d, x: p.x, y: p.y, s: p.s });
     }
@@ -1643,6 +1697,33 @@ export class MapView {
         ctx.closePath();
         ctx.fillStyle = "rgba(255,255,255,0.55)";
         ctx.fill();
+        ctx.restore();
+        ctx.beginPath();
+        shape(x, y, r);
+      }
+      if (t.dotShape === "button" && !hollow) {
+        // A sewn button: a raised rim, four holes and the thread crossed through them. Size and rings still mean
+        // what they mean in every design.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, 0, x, y, r);
+        g.addColorStop(0, "rgba(255,255,255,0.35)");
+        g.addColorStop(0.6, "rgba(255,255,255,0)");
+        g.addColorStop(1, "rgba(0,0,0,0.3)");
+        ctx.fillStyle = g;
+        ctx.fill();
+        if (r >= 3.5) {
+          const o = r * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(x - o, y - o);
+          ctx.lineTo(x + o, y + o);
+          ctx.moveTo(x + o, y - o);
+          ctx.lineTo(x - o, y + o);
+          ctx.lineWidth = Math.max(1, r * 0.16);
+          ctx.lineCap = "round";
+          ctx.strokeStyle = t.dotStroke;
+          ctx.stroke();
+        }
         ctx.restore();
         ctx.beginPath();
         shape(x, y, r);
