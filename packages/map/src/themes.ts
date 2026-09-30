@@ -78,7 +78,7 @@ export interface Theme {
    * sea, land, coast, grid and markers.
    * Decision 74 adds "sheet" (Spreadsheet's filled cells, src/map/sheet.ts), "terminal" (Market Terminal's
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
-   * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
+   * "rail" (Sleeper Car's on-board route display, src/map/rail.ts).
    */
   surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
   /**
@@ -1200,45 +1200,39 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Sleeper Car: the world from a long-distance train's window at dusk. Map view is the tilted camera over
-  // farmland, sea and mountains to a horizon with hills, with telegraph poles and the next track passing in the
-  // foreground; the globe hangs in the dusk sky (src/map/rail.ts). Markers are town lights.
+  // Sleeper Car: a modern long-distance train's on-board route display. A navy screen with slate land, a silver
+  // coast and the Equator, tropics and polar circles as red, blue and silver route lines across the sea; the globe
+  // in a fine dial on the same screen (src/map/rail.ts). Markers are station dots.
   rail: {
     id: "rail",
     label: "Sleeper Car",
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "rail",
-    globeScale: 0.3,
-    tilt: 64,
-    tiltEye: 0.56,
-    tiltFar: 0.32,
-    tiltMinZoom: 1.6,
-    sky: ["#1b2550", "#6b5a8e", "#f2a86b"],
-    fog: "#e6b48f",
-    ocean: "#2a4a6e",
-    land: "#8e9a5c",
+    globeScale: 0.34,
+    ocean: "#0c1c36",
+    land: "#1f3659",
     landTexture: "none",
     pixel: 1,
     dotShape: "circle",
     textureInk: "rgba(0,0,0,0)",
-    coast: "#3b3424",
-    coastWidth: 1,
+    coast: "#a9bbd2",
+    coastWidth: 0.9,
     waterlines: 0,
-    waterline: "rgba(255,236,200,0.5)",
+    waterline: "rgba(0,0,0,0)",
     oceanHatch: null,
-    graticule: "rgba(0,0,0,0)",
+    graticule: "rgba(150,180,225,0.08)",
     graticuleDash: [],
     river: "rgba(0,0,0,0)",
-    lake: "#2a4a6e",
-    ice: "#eef0f2",
-    relief: "#6a5d62",
-    dot: "#ffd98a",
-    dotStroke: "#3a2a14",
-    fresh: "#8fe6ff",
-    tuned: "#fff4d6",
-    arc: "#ffe2a3",
-    glow: true,
+    lake: "#0c1c36",
+    ice: "#3a5379",
+    relief: "rgba(175,198,228,0.4)",
+    dot: "#f4f8fd",
+    dotStroke: "#0a1830",
+    fresh: "#ff5566",
+    tuned: "#ffffff",
+    arc: "#8cb8ff",
+    glow: false,
     atmosphere: null,
     shade: null,
     neatline: false,
