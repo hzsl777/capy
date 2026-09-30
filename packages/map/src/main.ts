@@ -58,6 +58,19 @@ import "@fontsource/grenze-gotisch/700.css";
 import "@fontsource/eb-garamond/400.css";
 import "@fontsource/eb-garamond/400-italic.css";
 import "@fontsource/eb-garamond/600.css";
+// Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron (decision 75).
+import "@fontsource/michroma/400.css";
+import "@fontsource/b612-mono/400.css";
+import "@fontsource/b612-mono/700.css";
+import "@fontsource/limelight/400.css";
+import "@fontsource/poiret-one/400.css";
+import "@fontsource/courier-prime/400.css";
+import "@fontsource/courier-prime/700.css";
+import "@fontsource/bungee/400.css";
+import "@fontsource/share-tech-mono/400.css";
+import "@fontsource/jersey-10/400.css";
+import "@fontsource/big-shoulders-display/600";
+import "@fontsource/big-shoulders-display/800";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -213,7 +226,7 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
-const LETTER_THEMES = new Set<ThemeId>(["bit64"]);
+const LETTER_THEMES = new Set<ThemeId>(["bit64", "stadium"]);
 
 /** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
 function lettered(el: HTMLElement, text: string) {

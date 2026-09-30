@@ -17,7 +17,8 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] Zoom decides visibility only by the tiers in `tierOf` (`src/data.ts`, decisions 30 and 46): importance and outlet-city reach. No other signal decides which places show.
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
-- [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red.
+- [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red. Textures and light laid over the map (Radar Sweep's speckle and beam, Film Noir's lamp and blinds, Arcade Cabinet's scanlines, Stadium Jumbotron's LED mesh) are the same over all land or fixed to the screen, never tied to a place.
+- [ ] Screens and cameras (decision 75) read as what they are and nothing more: Radar Sweep has no friend-or-foe symbols, target boxes or tracks; Stadium Jumbotron has no scores, flags, or team, league or sponsor names or colours; Arcade Cabinet names no game and draws no game's characters. Motion never moves, resizes or hides a marker and stops for reduced motion.
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.

@@ -3921,3 +3921,1128 @@ button.link {
     background: radial-gradient(ellipse 80% 40px at 50% 0%, rgba(232, 184, 58, 0.12), transparent), var(--panel);
   }
 }
+
+/* ==========================================================================
+   Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron (decision 75): screens and cameras
+   (src/map/radar.ts, noir.ts, arcade.ts, stadium.ts, warp.ts). Tokens first, then each design's chrome.
+   ========================================================================== */
+:root[data-theme="radar"] {
+  color-scheme: dark;
+  --page: #262e29;
+  --panel: #1a211d;
+  --ink: #e2efe6;
+  --ink-2: #c3d6c9;
+  --muted: #9db3a4;
+  --rule: #4c5a51;
+  --accent: #78ffaa;
+  --on-accent: #04170c;
+  --hover: rgba(120, 255, 170, 0.08);
+  --reticle: #eafff2;
+  --grain-opacity: 0.1;
+  --grain-blend: overlay;
+  --font-mast: "Michroma", "Eurostile", sans-serif;
+  --font-head: "B612 Mono", "IBM Plex Mono", monospace;
+  --font-body: "B612 Mono", "IBM Plex Mono", monospace;
+  --font-ui: "B612 Mono", "IBM Plex Mono", monospace;
+}
+:root[data-theme="noir"] {
+  color-scheme: dark;
+  --page: #121212;
+  --panel: #e9e6de;
+  --ink: #161616;
+  --ink-2: #2e2e2c;
+  --muted: #555451;
+  --rule: #3a3a38;
+  --accent: #161616;
+  --on-accent: #f2f0e8;
+  --hover: rgba(0, 0, 0, 0.07);
+  --reticle: #ffffff;
+  --grain-opacity: 0.32;
+  --grain-blend: overlay;
+  --font-mast: "Limelight", "Poiret One", serif;
+  --font-head: "Courier Prime", "Courier New", monospace;
+  --font-body: "Courier Prime", "Courier New", monospace;
+  --font-ui: "Courier Prime", "Courier New", monospace;
+}
+:root[data-theme="arcade"] {
+  color-scheme: dark;
+  --page: #140a26;
+  --panel: #0c0818;
+  --ink: #f4f1ff;
+  --ink-2: #d6d0f2;
+  --muted: #aaa2d0;
+  --rule: #5b4a9a;
+  --accent: #ffe03d;
+  --on-accent: #1a1000;
+  --hover: rgba(255, 224, 61, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0.08;
+  --grain-blend: screen;
+  --font-mast: "Bungee", "Arial Black", sans-serif;
+  --font-head: "Bungee", "Arial Black", sans-serif;
+  --font-body: "Share Tech Mono", "IBM Plex Mono", monospace;
+  --font-ui: "Share Tech Mono", "IBM Plex Mono", monospace;
+}
+:root[data-theme="stadium"] {
+  color-scheme: dark;
+  --page: #070c18;
+  --panel: #0e1626;
+  --ink: #f2f5fb;
+  --ink-2: #d2dae8;
+  --muted: #a3b0c6;
+  --rule: #3b4a66;
+  --accent: #ffd23a;
+  --on-accent: #1a1200;
+  --hover: rgba(255, 210, 58, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0.06;
+  --grain-blend: screen;
+  --font-mast: "Big Shoulders Display", "Oswald", sans-serif;
+  --font-head: "Big Shoulders Display", "Oswald", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Big Shoulders Display", "Oswald", sans-serif;
+}
+
+/* ---- Radar Sweep: an instrument console, engraved plates, lit push buttons, a phosphor readout ---------- */
+:root[data-theme="radar"] body {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 40%, #303a34, transparent 75%),
+    linear-gradient(to bottom, #2c3530, #1f2622);
+}
+/* The masthead is an engraved plate held by four screws. */
+:root[data-theme="radar"] .masthead {
+  border-bottom: 0;
+  margin: 8px 8px 0;
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 10px 10px, #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 10px) 10px, #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    linear-gradient(to bottom, #3d4741, #2d3631);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="radar"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(22px, 2.5vw, 32px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #dfe8e2;
+  /* Engraved: a dark cut with light catching its lower lip. */
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+:root[data-theme="radar"] .mast-tag {
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b4c7ba;
+}
+/* The word is a phosphor readout behind glass, in a small bezel. */
+:root[data-theme="radar"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #9dffc4;
+  text-shadow: 0 0 6px rgba(120, 255, 170, 0.75), 0 0 18px rgba(120, 255, 170, 0.3);
+  background: radial-gradient(ellipse at 50% 40%, #0b3321, #031a0f 70%);
+  border: 0;
+  border-radius: 14px;
+  padding: 6px 18px 4px;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.8), 0 0 0 3px #1a201c, 0 0 0 5px #7d877f, 0 2px 0 5px #2a302c;
+}
+:root[data-theme="radar"] .telegram-word:hover,
+:root[data-theme="radar"] .telegram-word:focus-visible {
+  background: radial-gradient(ellipse at 50% 40%, #0f4a2f, #052414 70%);
+  text-decoration: none;
+}
+:root[data-theme="radar"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #9dffc4;
+  text-shadow: 0 0 6px rgba(120, 255, 170, 0.6);
+}
+:root[data-theme="radar"] .telegram-kicker,
+:root[data-theme="radar"] .telegram-date {
+  color: #c3d6c9;
+  letter-spacing: 0.16em;
+}
+:root[data-theme="radar"] .telegram-center {
+  gap: 8px;
+}
+:root[data-theme="radar"] .toolbar,
+:root[data-theme="radar"] .timebar {
+  border-color: #141a16;
+  background: linear-gradient(to bottom, #2f3833, #262e29);
+}
+:root[data-theme="radar"] .map {
+  background: #262e29;
+}
+/* Square push buttons with a lit cap: dark until on, then green. */
+:root[data-theme="radar"] .tool,
+:root[data-theme="radar"] .pick select,
+:root[data-theme="radar"] .menu > summary,
+:root[data-theme="radar"] .chip,
+:root[data-theme="radar"] .key-btn,
+:root[data-theme="radar"] .key-close {
+  border: 1px solid #0e120f;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #48534c, #333c36);
+  color: #e2efe6;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 0 #121714, 0 3px 4px rgba(0, 0, 0, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+}
+:root[data-theme="radar"] .tool.quiet {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+}
+:root[data-theme="radar"] .tool[aria-pressed="true"],
+:root[data-theme="radar"] .menu[open] > summary,
+:root[data-theme="radar"] .chip[aria-pressed="true"],
+:root[data-theme="radar"] .key-btn[aria-expanded="true"] {
+  background: radial-gradient(ellipse at 50% 35%, #b8ffd4, #58d98c 70%);
+  color: #04170c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 #121714, 0 0 12px rgba(120, 255, 170, 0.55);
+  transform: translateY(1px);
+}
+:root[data-theme="radar"] .scale {
+  border-color: #121714;
+  background: #111612;
+}
+:root[data-theme="radar"] .scale .step + .step {
+  border-left-color: #2b332e;
+}
+:root[data-theme="radar"] .scale .step.on {
+  background: #78ffaa;
+  color: #04170c;
+  box-shadow: 0 0 10px rgba(120, 255, 170, 0.6);
+}
+/* The zoom is a pair of knurled knobs. */
+:root[data-theme="radar"] .zoom {
+  border: 0;
+  background: none;
+  gap: 8px;
+}
+:root[data-theme="radar"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #e8f2eb;
+  background:
+    radial-gradient(circle at 40% 35%, #79847d 0 30%, #353d38 62%, transparent 63%),
+    repeating-conic-gradient(#1a1f1c 0 5deg, #4a544e 5deg 10deg);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 0 #000;
+}
+:root[data-theme="radar"] .zoom button + button {
+  border-top: 0;
+}
+/* The reticle is the station at the centre of the rings. */
+:root[data-theme="radar"] .crosshair {
+  border: 1.5px solid #eafff2;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 3px rgba(120, 255, 170, 0.8));
+}
+/* Panels are a dark console bay with a green phosphor rule. */
+:root[data-theme="radar"] .panel,
+:root[data-theme="radar"] .menu-body,
+:root[data-theme="radar"] .key-pop,
+:root[data-theme="radar"] dialog {
+  background: linear-gradient(to bottom, #1e2621, #171d19);
+  border: 1px solid #0e120f;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="radar"] .panel {
+  margin: 8px 8px 8px 0;
+  border-radius: 6px;
+  border-top: 2px solid #78ffaa;
+}
+:root[data-theme="radar"] .key-pop {
+  --key-bg: #03140b;
+}
+:root[data-theme="radar"] .panel-title,
+:root[data-theme="radar"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #9dffc4;
+  text-shadow: 0 0 8px rgba(120, 255, 170, 0.35);
+}
+:root[data-theme="radar"] .dateline {
+  border-bottom: 1px solid #4c5a51;
+}
+:root[data-theme="radar"] .rule-head {
+  color: #9dffc4;
+  border-color: #4c5a51;
+}
+:root[data-theme="radar"] .headline {
+  font-weight: 700;
+}
+:root[data-theme="radar"] .meta,
+:root[data-theme="radar"] .telegram-note {
+  font-style: normal;
+}
+
+/* ---- Film Noir: title cards in deco lettering, typewriter keys, a typed report, rain on the glass ---------- */
+:root[data-theme="noir"] body {
+  background: radial-gradient(ellipse 80% 60% at 30% 10%, #262626, #0c0c0c 70%);
+  color: #ecebe6;
+}
+/* Rain running slowly down the glass over the page: thin streaks of two lengths, drifting down, faint. */
+:root[data-theme="noir"] body::before {
+  content: "";
+  position: fixed;
+  inset: -200px 0 0;
+  pointer-events: none;
+  z-index: 49;
+  opacity: 0.22;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='200'%3E%3Cg stroke='%23fff' stroke-linecap='round' fill='none'%3E%3Cpath d='M12 10v38' stroke-width='1' opacity='.7'/%3E%3Cpath d='M58 70v24' stroke-width='.8' opacity='.5'/%3E%3Cpath d='M97 20v52' stroke-width='1.1' opacity='.6'/%3E%3Cpath d='M141 120v30' stroke-width='.8' opacity='.5'/%3E%3Cpath d='M30 130v44' stroke-width='1' opacity='.6'/%3E%3Cpath d='M120 160v20' stroke-width='.7' opacity='.45'/%3E%3Cpath d='M166 40v34' stroke-width='.9' opacity='.55'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='150'%3E%3Cg stroke='%23fff' stroke-linecap='round' fill='none' opacity='.4'%3E%3Cpath d='M20 30v18'/%3E%3Cpath d='M75 90v26'/%3E%3Cpath d='M110 10v14'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 180px 200px, 130px 150px;
+  animation: noir-rain 9s linear infinite;
+}
+@keyframes noir-rain {
+  to {
+    transform: translateY(200px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="noir"] body::before {
+    animation: none;
+  }
+}
+/* The masthead is a title card: black, a deco frame of thin double lines with stepped corners. */
+:root[data-theme="noir"] .masthead {
+  position: relative;
+  border-bottom: 0;
+  background: #0a0a0a;
+  color: #f2f0e8;
+  margin: 6px;
+  outline: 1px solid #d8d6ce;
+  outline-offset: -5px;
+  box-shadow: inset 0 0 0 8px #0a0a0a, inset 0 0 0 9px rgba(216, 214, 206, 0.55), 0 0 40px rgba(0, 0, 0, 0.7);
+}
+:root[data-theme="noir"] .masthead::before,
+:root[data-theme="noir"] .masthead::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  background:
+    linear-gradient(#d8d6ce, #d8d6ce) 0 0 / 100% 1px no-repeat,
+    linear-gradient(#d8d6ce, #d8d6ce) 0 0 / 1px 100% no-repeat,
+    linear-gradient(#d8d6ce, #d8d6ce) 6px 6px / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(#d8d6ce, #d8d6ce) 6px 6px / 1px calc(100% - 6px) no-repeat;
+}
+:root[data-theme="noir"] .masthead::before {
+  left: 12px;
+}
+:root[data-theme="noir"] .masthead::after {
+  right: 12px;
+  transform: scaleX(-1);
+}
+:root[data-theme="noir"] .brand {
+  padding-left: 22px;
+}
+:root[data-theme="noir"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(28px, 3vw, 40px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f7f5ee;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+}
+:root[data-theme="noir"] .mast-tag {
+  font-family: "Poiret One", var(--font-mast);
+  font-style: normal;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #d9d7cf;
+}
+/* The word in deco capitals, lit like a title card, between two rules with a diamond. */
+:root[data-theme="noir"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #fbfaf5;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.3), 0 2px 0 #000;
+  border-bottom: 0;
+  padding: 2px 10px 8px;
+  background:
+    linear-gradient(#d8d6ce, #d8d6ce) left bottom / calc(50% - 10px) 1px no-repeat,
+    linear-gradient(#d8d6ce, #d8d6ce) right bottom / calc(50% - 10px) 1px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L10 5L5 10L0 5Z' fill='%23d8d6ce'/%3E%3C/svg%3E") center bottom -4px / 9px 9px no-repeat;
+}
+:root[data-theme="noir"] .telegram-word:hover,
+:root[data-theme="noir"] .telegram-word:focus-visible {
+  text-decoration: none;
+  text-shadow: 0 0 22px rgba(255, 255, 255, 0.55), 0 2px 0 #000;
+}
+:root[data-theme="noir"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #161616;
+}
+:root[data-theme="noir"] .telegram-kicker,
+:root[data-theme="noir"] .telegram-date {
+  font-family: "Poiret One", var(--font-ui);
+  font-weight: 400;
+  color: #e9e7df;
+  letter-spacing: 0.26em;
+}
+:root[data-theme="noir"] .masthead .telegram-note,
+:root[data-theme="noir"] .masthead .note-link {
+  color: #d9d7cf;
+}
+:root[data-theme="noir"] .masthead .scale {
+  border-color: #8a8984;
+  color: #d9d7cf;
+}
+:root[data-theme="noir"] .masthead .scale .step {
+  color: #c9c7c0;
+}
+:root[data-theme="noir"] .masthead .scale .step + .step {
+  border-left-color: #6a6965;
+}
+:root[data-theme="noir"] .masthead .scale .step.on {
+  background: #f2f0e8;
+  color: #111;
+}
+:root[data-theme="noir"] .toolbar,
+:root[data-theme="noir"] .timebar {
+  background: #0d0d0d;
+  border-color: #3a3a38;
+  color: #ecebe6;
+}
+:root[data-theme="noir"] .banner {
+  background: #1a1a19;
+  color: #d9d7cf;
+  border-color: #3a3a38;
+}
+:root[data-theme="noir"] .map {
+  background: #0b0b0b;
+}
+:root[data-theme="noir"] .slider input {
+  accent-color: #d9d7cf;
+}
+/* More rain on the window in front of the map. */
+:root[data-theme="noir"] .map::after {
+  content: "";
+  position: absolute;
+  inset: -240px 0 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='240'%3E%3Cg stroke='%23fff' stroke-linecap='round' fill='none'%3E%3Cpath d='M20 10c1 20-1 40 0 64' stroke-width='1.2' opacity='.7'/%3E%3Cpath d='M22 76v3' stroke-width='2.4' opacity='.6'/%3E%3Cpath d='M88 120c-1 18 1 40 0 56' stroke-width='1' opacity='.55'/%3E%3Cpath d='M130 40v36' stroke-width='.8' opacity='.5'/%3E%3Cpath d='M60 190v30' stroke-width='.9' opacity='.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 150px 240px;
+  animation: noir-rain-map 12s linear infinite;
+}
+@keyframes noir-rain-map {
+  to {
+    transform: translateY(240px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="noir"] .map::after {
+    animation: none;
+  }
+}
+/* Buttons are typewriter keys: a black cap in a bright metal ring, white letters. */
+:root[data-theme="noir"] .tool,
+:root[data-theme="noir"] .pick select,
+:root[data-theme="noir"] .menu > summary,
+:root[data-theme="noir"] .key-btn,
+:root[data-theme="noir"] .key-close,
+:root[data-theme="noir"] .toolbar .chip {
+  border: 1px solid #000;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at 50% 30%, #3a3a38, #0e0e0e 70%);
+  color: #f4f2ea;
+  box-shadow: 0 0 0 2px #bdbbb4, 0 0 0 3px #4a4a47, 0 3px 4px 3px rgba(0, 0, 0, 0.55);
+  font-weight: 700;
+}
+:root[data-theme="noir"] .pick::after {
+  color: #f4f2ea;
+}
+:root[data-theme="noir"] .tool.quiet {
+  box-shadow: none;
+  background: transparent;
+  border-color: transparent;
+}
+:root[data-theme="noir"] .tool[aria-pressed="true"],
+:root[data-theme="noir"] .menu[open] > summary,
+:root[data-theme="noir"] .key-btn[aria-expanded="true"] {
+  background: radial-gradient(ellipse at 50% 30%, #fbfaf5, #cfcdc6 70%);
+  color: #111;
+  transform: translateY(1px);
+}
+:root[data-theme="noir"] .zoom {
+  border: 0;
+  background: none;
+  gap: 10px;
+}
+:root[data-theme="noir"] .zoom button {
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 30%, #3a3a38, #0e0e0e 70%);
+  color: #f4f2ea;
+  box-shadow: 0 0 0 2px #bdbbb4, 0 0 0 3px #4a4a47, 0 3px 4px 3px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="noir"] .zoom button + button {
+  border-top: 0;
+}
+/* Panels are typed report sheets: off-white paper, a faint rule every line, a paper clip at the top. */
+:root[data-theme="noir"] .panel,
+:root[data-theme="noir"] .menu-body,
+:root[data-theme="noir"] .key-pop,
+:root[data-theme="noir"] dialog {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 25px, rgba(0, 0, 0, 0.05) 25px 26px),
+    linear-gradient(to bottom, #efece4, #e2dfd6);
+  color: #161616;
+  border: 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+:root[data-theme="noir"] .menu-body {
+  color: #161616;
+}
+:root[data-theme="noir"] .panel {
+  margin: 14px 12px 12px 4px;
+  padding-top: 26px;
+}
+:root[data-theme="noir"] .panel::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 22px;
+  width: 16px;
+  height: 44px;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 44'%3E%3Cpath d='M11 10v24a4 4 0 0 1-8 0V6a3 3 0 0 1 6 0v26a1 1 0 0 1-2 0V10' fill='none' stroke='%23a9a8a3' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.4));
+}
+:root[data-theme="noir"] .key-pop {
+  --key-bg: #2b2b29;
+}
+:root[data-theme="noir"] .panel-title,
+:root[data-theme="noir"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: #111;
+}
+:root[data-theme="noir"] .dateline {
+  border-bottom: 1px dashed #3a3a38;
+}
+:root[data-theme="noir"] .headline {
+  font-weight: 700;
+}
+:root[data-theme="noir"] .panel .tool,
+:root[data-theme="noir"] .panel .chip,
+:root[data-theme="noir"] .menu-body .chip,
+:root[data-theme="noir"] .key-close {
+  border-radius: 3px;
+  background: #f4f2ea;
+  color: #111;
+  border: 1px solid #111;
+  box-shadow: 2px 2px 0 #111;
+  font-weight: 700;
+}
+:root[data-theme="noir"] .panel .tool[aria-pressed="true"],
+:root[data-theme="noir"] .chip[aria-pressed="true"] {
+  background: #111;
+  color: #f4f2ea;
+}
+:root[data-theme="noir"] .crosshair {
+  filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 1px #000);
+}
+/* Filled marks on the paper: white type on black, since the page colour is as dark as the ink. */
+:root[data-theme="noir"] .tool.primary,
+:root[data-theme="noir"] .score-chip.s0,
+:root[data-theme="noir"] .score-chip.s1,
+:root[data-theme="noir"] .panel .scale .step.on {
+  background: #161616;
+  color: #f2f0e8;
+}
+
+/* ---- Arcade Cabinet: a lit marquee, side art of stripes and starbursts, a control deck of round buttons ------ */
+/* The cabinet's side art, our own: bold diagonal stripes and starbursts on deep violet, showing round the screen. */
+:root[data-theme="arcade"] body {
+  background:
+    repeating-conic-gradient(from 0deg at 4% 88%, rgba(255, 224, 61, 0.9) 0 6deg, transparent 6deg 18deg),
+    repeating-conic-gradient(from 9deg at 97% 22%, rgba(255, 61, 110, 0.85) 0 5deg, transparent 5deg 15deg),
+    linear-gradient(118deg, transparent 0 38%, #ffe03d 38% 40.5%, transparent 40.5% 42%, #ff8a1f 42% 44.5%, transparent 44.5% 46%, #ff3d6e 46% 48.5%, transparent 48.5% 50%, #7a3dff 50% 52.5%, transparent 52.5%),
+    #140a26;
+  background-attachment: fixed;
+}
+/* The marquee: a backlit panel across the top, bright in the middle where the tube behind it sits. */
+:root[data-theme="arcade"] .masthead {
+  border-bottom: 0;
+  margin: 8px 8px 0;
+  border-radius: 10px 10px 4px 4px;
+  background:
+    radial-gradient(ellipse 60% 120% at 50% 50%, rgba(255, 255, 255, 0.35), transparent 70%),
+    repeating-linear-gradient(118deg, rgba(255, 255, 255, 0) 0 22px, rgba(255, 255, 255, 0.07) 22px 26px),
+    linear-gradient(to bottom, #3d1f8f, #6b2fd6 45%, #3d1f8f);
+  box-shadow: 0 0 0 3px #0c0818, 0 0 0 5px #ffe03d, 0 0 28px 6px rgba(160, 110, 255, 0.55), inset 0 0 30px rgba(255, 255, 255, 0.25);
+}
+:root[data-theme="arcade"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(26px, 3vw, 40px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffe03d;
+  -webkit-text-stroke: 1.5px #1a0a3a;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #ff3d6e, 5px 5px 0 #1a0a3a, 0 0 18px rgba(255, 224, 61, 0.6);
+}
+:root[data-theme="arcade"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff6c9;
+  text-shadow: 0 1px 0 #1a0a3a;
+}
+:root[data-theme="arcade"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  -webkit-text-stroke: 2px #1a0a3a;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #ff3d6e, 6px 6px 0 #1a0a3a, 0 0 22px rgba(255, 255, 255, 0.6);
+  border-bottom: 0;
+  padding: 0 8px 4px;
+}
+:root[data-theme="arcade"] .telegram-word:hover,
+:root[data-theme="arcade"] .telegram-word:focus-visible {
+  color: #ffe03d;
+  text-decoration: none;
+}
+:root[data-theme="arcade"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffe03d;
+  text-shadow: 3px 3px 0 #ff3d6e;
+}
+:root[data-theme="arcade"] .telegram-kicker,
+:root[data-theme="arcade"] .telegram-date,
+:root[data-theme="arcade"] .masthead .telegram-note,
+:root[data-theme="arcade"] .masthead .note-link {
+  color: #fff6c9;
+  text-shadow: 0 1px 0 #1a0a3a;
+  font-style: normal;
+}
+:root[data-theme="arcade"] .masthead .scale {
+  background: rgba(12, 8, 24, 0.75);
+  border-color: #ffe03d;
+}
+:root[data-theme="arcade"] .scale .step.on {
+  background: #ffe03d;
+  color: #1a1000;
+}
+/* The control deck: black laminate edged with yellow trim. */
+:root[data-theme="arcade"] .toolbar,
+:root[data-theme="arcade"] .timebar {
+  background: linear-gradient(to bottom, #1b1530, #0c0818);
+  border: 0;
+  margin: 8px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px #0c0818, 0 0 0 4px #ffe03d;
+}
+:root[data-theme="arcade"] .banner {
+  margin: 0 8px;
+  background: #0c0818;
+  color: #fff6c9;
+  border: 0;
+}
+/* The screen sits in the cabinet with the side art showing round it. */
+:root[data-theme="arcade"] .map {
+  margin: 8px 8px 8px 34px;
+  border-radius: 14px;
+  background: #0c0a12;
+  box-shadow: 0 0 0 3px #05030a, 0 0 0 5px #7a3dff, 0 0 24px rgba(122, 61, 255, 0.5);
+}
+:root[data-theme="arcade"] .panel {
+  margin: 8px 34px 8px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #0c0818;
+  box-shadow: 0 0 0 3px #05030a, 0 0 0 5px #ff3d6e, 0 0 20px rgba(255, 61, 110, 0.4);
+}
+:root[data-theme="arcade"] .menu-body,
+:root[data-theme="arcade"] .key-pop,
+:root[data-theme="arcade"] dialog {
+  background: #0c0818;
+  border: 2px solid #ffe03d;
+  border-radius: 10px;
+  box-shadow: 0 0 18px rgba(255, 224, 61, 0.35);
+}
+:root[data-theme="arcade"] .key-pop {
+  --key-bg: #04030b;
+}
+:root[data-theme="arcade"] .panel-title,
+:root[data-theme="arcade"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  color: #ffe03d;
+  text-shadow: 2px 2px 0 #ff3d6e;
+}
+:root[data-theme="arcade"] .headline,
+:root[data-theme="arcade"] .reader-headline,
+:root[data-theme="arcade"] .source-title {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="arcade"] .dateline {
+  border-bottom: 2px solid #7a3dff;
+}
+:root[data-theme="arcade"] .rule-head {
+  color: #ffe03d;
+  border-color: #7a3dff;
+}
+/* Buttons: a big round arcade button beside each label, convex, in the deck's colours. */
+:root[data-theme="arcade"] .tool,
+:root[data-theme="arcade"] .pick select,
+:root[data-theme="arcade"] .menu > summary,
+:root[data-theme="arcade"] .chip,
+:root[data-theme="arcade"] .key-close {
+  border: 2px solid #3a2f63;
+  border-radius: 999px;
+  background: #1b1530;
+  color: #f4f1ff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="arcade"] .toolbar .tool,
+:root[data-theme="arcade"] .toolbar .menu > summary,
+:root[data-theme="arcade"] .timebar .tool {
+  position: relative;
+  padding-left: 34px;
+}
+:root[data-theme="arcade"] .toolbar .pick select {
+  padding-left: 34px;
+}
+:root[data-theme="arcade"] .toolbar .tool::before,
+:root[data-theme="arcade"] .toolbar .menu > summary::before,
+:root[data-theme="arcade"] .toolbar .pick::before,
+:root[data-theme="arcade"] .timebar .tool::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 38% 32%, #ffffff 0 12%, var(--btn, #ff3d6e) 38%, color-mix(in srgb, var(--btn, #ff3d6e) 60%, #000) 100%);
+  box-shadow: 0 0 0 2px #0c0818, 0 0 0 3px #6d6a80, 0 2px 0 3px #000;
+}
+:root[data-theme="arcade"] .toolbar .pick {
+  position: relative;
+}
+:root[data-theme="arcade"] .toolbar .pick::before {
+  z-index: 1;
+}
+:root[data-theme="arcade"] .toolbar .pick:nth-of-type(1) {
+  --btn: #2f7bff;
+}
+:root[data-theme="arcade"] .toolbar .pick:nth-of-type(2) {
+  --btn: #ffe03d;
+}
+:root[data-theme="arcade"] #topics-menu {
+  --btn: #3ddc84;
+}
+:root[data-theme="arcade"] #translate {
+  --btn: #ff8a1f;
+}
+:root[data-theme="arcade"] .tool.quiet {
+  border-color: transparent;
+  background: transparent;
+  padding-left: 10px;
+}
+:root[data-theme="arcade"] .tool.quiet::before {
+  display: none;
+}
+:root[data-theme="arcade"] .tool[aria-pressed="true"],
+:root[data-theme="arcade"] .menu[open] > summary,
+:root[data-theme="arcade"] .chip[aria-pressed="true"] {
+  background: #ffe03d;
+  color: #1a1000;
+  border-color: #fff6c9;
+}
+/* Zoom and the Key are big round buttons on the screen's edge. */
+:root[data-theme="arcade"] .zoom {
+  border: 0;
+  background: none;
+  gap: 12px;
+  right: 24px;
+  bottom: 24px;
+}
+:root[data-theme="arcade"] .zoom button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font: 400 22px/1 var(--font-mast);
+  color: #fff;
+  text-shadow: 0 1px 0 #000;
+  background: radial-gradient(circle at 38% 30%, #ff9ab4 0 10%, #ff3d6e 45%, #9a1238 100%);
+  box-shadow: 0 0 0 3px #0c0818, 0 0 0 5px #8a879c, 0 4px 0 5px #000;
+}
+:root[data-theme="arcade"] .zoom button + button {
+  border-top: 0;
+  background: radial-gradient(circle at 38% 30%, #9ac4ff 0 10%, #2f7bff 45%, #10318a 100%);
+}
+:root[data-theme="arcade"] .zoom button:active {
+  transform: translateY(2px);
+}
+:root[data-theme="arcade"] .key-btn {
+  left: 24px;
+  top: 24px;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: var(--font-mast);
+  color: #1a1000;
+  background: radial-gradient(ellipse at 40% 30%, #fff6c9 0 12%, #ffe03d 50%, #b89a00 100%);
+  box-shadow: 0 0 0 3px #0c0818, 0 0 0 5px #8a879c, 0 3px 0 5px #000;
+}
+:root[data-theme="arcade"] .key-btn[aria-expanded="true"] {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 3px #0c0818, 0 0 0 5px #8a879c, 0 1px 0 5px #000;
+}
+/* The deck's joystick: a ball top on a shaft in a round dust washer, drawn at the start of the time bar. */
+:root[data-theme="arcade"] .timebar {
+  position: relative;
+  padding-left: 76px;
+}
+:root[data-theme="arcade"] .timebar::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin-top: -34px;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Cdefs%3E%3CradialGradient id='b' cx='.38' cy='.32' r='.7'%3E%3Cstop offset='0' stop-color='%23ffd0dc'/%3E%3Cstop offset='.45' stop-color='%23ff3d6e'/%3E%3Cstop offset='1' stop-color='%23801030'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx='26' cy='44' rx='20' ry='6' fill='%23000'/%3E%3Cellipse cx='26' cy='42' rx='18' ry='5' fill='%233a3650'/%3E%3Crect x='23.5' y='18' width='5' height='24' rx='2' fill='%23c8c6d6'/%3E%3Crect x='24.5' y='18' width='1.6' height='24' fill='%23fff' opacity='.6'/%3E%3Ccircle cx='26' cy='15' r='12' fill='url(%23b)'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* A coin door at the end of the deck: two slots with lit return buttons, no words. */
+:root[data-theme="arcade"] .timebar::after {
+  content: "";
+  flex: none;
+  width: 62px;
+  height: 36px;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 36'%3E%3Crect x='1' y='1' width='60' height='34' rx='4' fill='%23222030' stroke='%238a879c' stroke-width='1.5'/%3E%3Crect x='9' y='7' width='16' height='22' rx='2' fill='%230c0a14' stroke='%23555266'/%3E%3Crect x='37' y='7' width='16' height='22' rx='2' fill='%230c0a14' stroke='%23555266'/%3E%3Crect x='15.5' y='10' width='3' height='9' rx='1' fill='%23000'/%3E%3Crect x='43.5' y='10' width='3' height='9' rx='1' fill='%23000'/%3E%3Crect x='12' y='22' width='10' height='4' rx='1' fill='%23ff3d6e'/%3E%3Crect x='40' y='22' width='10' height='4' rx='1' fill='%23ff3d6e'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+@media (max-width: 760px) {
+  :root[data-theme="arcade"] .map {
+    margin: 6px 6px 6px 18px;
+  }
+  :root[data-theme="arcade"] .panel {
+    margin: 6px 18px 6px 6px;
+  }
+  :root[data-theme="arcade"] .toolbar .tool,
+  :root[data-theme="arcade"] .toolbar .menu > summary,
+  :root[data-theme="arcade"] .toolbar .pick select {
+    padding-left: 8px;
+  }
+  :root[data-theme="arcade"] .toolbar .tool::before,
+  :root[data-theme="arcade"] .toolbar .menu > summary::before,
+  :root[data-theme="arcade"] .toolbar .pick::before {
+    display: none;
+  }
+  :root[data-theme="arcade"] .toolbar,
+  :root[data-theme="arcade"] .timebar {
+    margin: 6px;
+  }
+  :root[data-theme="arcade"] .timebar {
+    padding-left: 54px;
+  }
+  :root[data-theme="arcade"] .timebar::before {
+    left: 8px;
+    width: 40px;
+    height: 40px;
+    margin-top: -26px;
+  }
+  :root[data-theme="arcade"] .timebar .tool {
+    padding-left: 10px;
+  }
+  :root[data-theme="arcade"] .timebar .tool::before {
+    display: none;
+  }
+  :root[data-theme="arcade"] .timebar::after {
+    display: none;
+  }
+  :root[data-theme="arcade"] .zoom {
+    right: 16px;
+    bottom: 16px;
+  }
+  :root[data-theme="arcade"] .key-btn {
+    left: 18px;
+    top: 18px;
+  }
+}
+
+/* ---- Stadium Jumbotron: a scoreboard for the word and the date, stadium signs for buttons, steel and night ---- */
+:root[data-theme="stadium"] body {
+  background:
+    radial-gradient(ellipse 40% 50% at 0% 0%, rgba(190, 210, 255, 0.16), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 100% 0%, rgba(190, 210, 255, 0.16), transparent 70%),
+    linear-gradient(to bottom, #070c18, #0c1428 60%, #070c18);
+}
+/* The masthead is the scoreboard: a black board in a steel frame. */
+:root[data-theme="stadium"] .masthead {
+  border-bottom: 0;
+  margin: 8px 8px 0;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.05) 0.8px, transparent 1.2px) 0 0 / 5px 5px,
+    linear-gradient(to bottom, #0b0d12, #050608);
+  box-shadow: 0 0 0 3px #2a3142, 0 0 0 5px #6b7690, 0 0 0 7px #1b2130, 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="stadium"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(30px, 3.4vw, 46px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+}
+:root[data-theme="stadium"] .mast-title .lt {
+  display: inline-block;
+}
+:root[data-theme="stadium"] .mast-tag {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffd23a;
+}
+/* The word in LED lettering, each letter on its own dark panel of the board. */
+:root[data-theme="stadium"] .telegram-word {
+  font-family: "Jersey 10", var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #ffc21a;
+  text-shadow: 0 0 6px rgba(255, 194, 26, 0.85), 0 0 16px rgba(255, 150, 0, 0.35);
+  border-bottom: 0;
+  padding: 0;
+  display: inline-flex;
+  gap: 0.06em;
+}
+:root[data-theme="stadium"] .telegram-word .lt {
+  display: inline-block;
+  min-width: 0.62em;
+  text-align: center;
+  padding: 0.02em 0.06em 0;
+  border-radius: 0.04em;
+  background:
+    radial-gradient(circle, rgba(255, 194, 26, 0.12) 0.9px, transparent 1.3px) 0 0 / 4px 4px,
+    linear-gradient(to bottom, #15171d 0 49%, #07080b 51% 100%);
+  box-shadow: inset 0 0 0 1px #2a2e38, 0 2px 0 #000;
+}
+:root[data-theme="stadium"] .telegram-word:hover,
+:root[data-theme="stadium"] .telegram-word:focus-visible {
+  text-decoration: none;
+  color: #ffe27a;
+}
+:root[data-theme="stadium"] .telegram-big {
+  font-family: "Jersey 10", var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #ffc21a;
+  text-shadow: 0 0 8px rgba(255, 194, 26, 0.6);
+}
+:root[data-theme="stadium"] .telegram-kicker {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  color: #dfe6f3;
+  letter-spacing: 0.2em;
+}
+/* The date sits in its own small board, amber on black, like the board's clock panel but only a date. */
+:root[data-theme="stadium"] .telegram-date {
+  font-family: "Jersey 10", var(--font-ui);
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: #ffc21a;
+  text-shadow: 0 0 6px rgba(255, 194, 26, 0.7);
+  background: #050608;
+  padding: 3px 10px 1px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px #2a2e38;
+}
+:root[data-theme="stadium"] .telegram-note {
+  font-style: normal;
+  color: var(--ink-2);
+}
+:root[data-theme="stadium"] .scale {
+  border-color: #2a2e38;
+  background: #050608;
+}
+:root[data-theme="stadium"] .scale .step.on {
+  background: #ffc21a;
+  color: #1a1200;
+  box-shadow: 0 0 10px rgba(255, 194, 26, 0.6);
+}
+:root[data-theme="stadium"] .toolbar,
+:root[data-theme="stadium"] .timebar {
+  border-color: #1f2940;
+  background: linear-gradient(to bottom, #0f1628, #0a1020);
+}
+:root[data-theme="stadium"] .map {
+  background: #060b18;
+}
+/* Buttons are stadium signs: a dark blue board with a white inner border and bold condensed capitals. */
+:root[data-theme="stadium"] .tool,
+:root[data-theme="stadium"] .pick select,
+:root[data-theme="stadium"] .menu > summary,
+:root[data-theme="stadium"] .chip,
+:root[data-theme="stadium"] .key-btn,
+:root[data-theme="stadium"] .key-close {
+  border: 0;
+  border-radius: 4px;
+  background: #16345e;
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 2px #16345e, inset 0 0 0 3.5px #ffffff, 0 2px 0 #06101f, 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="stadium"] .tool.quiet {
+  background: transparent;
+  box-shadow: none;
+}
+/* The one that is on turns into the yellow sign. */
+:root[data-theme="stadium"] .tool[aria-pressed="true"],
+:root[data-theme="stadium"] .menu[open] > summary,
+:root[data-theme="stadium"] .chip[aria-pressed="true"],
+:root[data-theme="stadium"] .key-btn[aria-expanded="true"] {
+  background: #ffd23a;
+  color: #111;
+  box-shadow: inset 0 0 0 2px #ffd23a, inset 0 0 0 3.5px #111, 0 2px 0 #06101f;
+}
+:root[data-theme="stadium"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="stadium"] .zoom button {
+  border-radius: 4px;
+  background: #16345e;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 2px #16345e, inset 0 0 0 3.5px #ffffff, 0 2px 0 #06101f;
+}
+:root[data-theme="stadium"] .zoom button + button {
+  border-top: 0;
+}
+/* Panels are a concourse board: dark, a steel frame, a yellow band at the top. */
+:root[data-theme="stadium"] .panel,
+:root[data-theme="stadium"] .menu-body,
+:root[data-theme="stadium"] .key-pop,
+:root[data-theme="stadium"] dialog {
+  background: linear-gradient(to bottom, #111b2e, #0b1220);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px #2a3142, 0 0 0 4px #5d6883, 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="stadium"] .panel {
+  margin: 10px 10px 10px 6px;
+  border-top: 5px solid #ffd23a;
+}
+:root[data-theme="stadium"] .key-pop {
+  --key-bg: #0a2a66;
+}
+:root[data-theme="stadium"] .panel-title,
+:root[data-theme="stadium"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+:root[data-theme="stadium"] .headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+:root[data-theme="stadium"] .dateline {
+  border-bottom: 2px solid #ffd23a;
+}
+:root[data-theme="stadium"] .rule-head {
+  color: #ffd23a;
+  border-color: #3b4a66;
+}
+:root[data-theme="stadium"] .meta {
+  font-style: normal;
+}
+
+/* ---- Phones: the four designs keep the toolbar one row, and the word fits ------------------------------ */
+@media (max-width: 760px) {
+  :root[data-theme="radar"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 48px) / (var(--len, 8) * 1.08)));
+    padding: 5px 12px 3px;
+  }
+  :root[data-theme="radar"] .masthead {
+    margin: 6px 6px 0;
+  }
+  :root[data-theme="radar"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="noir"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.9)));
+  }
+  :root[data-theme="noir"] .brand {
+    padding-left: 0;
+  }
+  :root[data-theme="noir"] .masthead::before {
+    top: 10px;
+    width: 18px;
+    height: 18px;
+  }
+  /* About sits in this corner on a phone. */
+  :root[data-theme="noir"] .masthead::after {
+    display: none;
+  }
+  :root[data-theme="noir"] .panel {
+    margin: 10px 8px 8px;
+  }
+  :root[data-theme="arcade"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.82)));
+  }
+  :root[data-theme="stadium"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.7)));
+  }
+  :root[data-theme="stadium"] .tool,
+  :root[data-theme="stadium"] .pick select,
+  :root[data-theme="stadium"] .menu > summary {
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+  :root[data-theme="stadium"] .panel {
+    margin: 8px 6px 6px;
+  }
+}

@@ -18,7 +18,12 @@ import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 import { drawNeon, NeonCache } from "./neon.ts";
 import { drawStitch, StitchCache } from "./stitch.ts";
 import { drawGlass, GlassCache } from "./glass.ts";
-import type { SurfaceFrame } from "./surface.ts";
+import type { SurfaceFrame, SurfaceResult } from "./surface.ts";
+import { makeWarp, warpStream, type Warp } from "./warp.ts";
+import { drawRadar, RadarCache } from "./radar.ts";
+import { drawNoir, NoirCache } from "./noir.ts";
+import { drawArcade, ArcadeCache } from "./arcade.ts";
+import { drawStadium, StadiumCache } from "./stadium.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -199,6 +204,15 @@ export class MapView {
   private neon = new NeonCache();
   private stitch = new StitchCache();
   private glass = new GlassCache();
+  /** Decision 75: Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron, and the warp of the current frame. */
+  private radar = new RadarCache();
+  private noir = new NoirCache();
+  private arcade = new ArcadeCache();
+  private stadium = new StadiumCache();
+  private warp: Warp | null = null;
+  private warpFor = "";
+  private motionTimer = 0;
+  private lastDraw = 0;
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -238,6 +252,25 @@ export class MapView {
     new ResizeObserver(() => this.resize()).observe(container);
     this.bindInput();
     this.resize();
+    document.addEventListener("visibilitychange", () => this.syncMotion());
+    this.syncMotion();
+  }
+
+  /**
+   * Designs that move on their own (decision 75) are redrawn at most 20 times a second, never while the tab is
+   * hidden, and not at all for readers who ask for reduced motion.
+   */
+  private syncMotion() {
+    clearInterval(this.motionTimer);
+    this.motionTimer = 0;
+    if (!this.theme.motion || this.still() || document.hidden) return;
+    this.motionTimer = window.setInterval(() => {
+      if (performance.now() - this.lastDraw > 45) this.request();
+    }, 50);
+  }
+
+  private still(): boolean {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
   // ---- public API -------------------------------------------------------
@@ -255,6 +288,7 @@ export class MapView {
     this.patterns.clear();
     if (resample) this.resize();
     this.fit();
+    this.syncMotion();
     this.request();
   }
 
@@ -397,10 +431,12 @@ export class MapView {
         .scale(this.baseScale * this.zoom)
         .translate([this.w / 2, this.h / 2])
         .clipAngle(90)
-        .clipExtent([
-          [-CLIP_MARGIN, -CLIP_MARGIN],
-          [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
-        ])
+        .clipExtent(
+          this.warpExtent() ?? [
+            [-CLIP_MARGIN, -CLIP_MARGIN],
+            [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
+          ],
+        )
         .precision(PRECISION);
     }
     return this.theme
@@ -411,11 +447,28 @@ export class MapView {
       .translate([this.w / 2, this.h / 2])
       // Only what is on screen, plus room for the widest coast ripple, is resampled and drawn. Zoomed in, that
       // is a small part of the world.
-      .clipExtent([
-        [-CLIP_MARGIN, -CLIP_MARGIN],
-        [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
-      ])
+      .clipExtent(
+        this.warpExtent() ?? [
+          [-CLIP_MARGIN, -CLIP_MARGIN],
+          [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
+        ],
+      )
       .precision(PRECISION);
+  }
+
+  /** Under a warp (decision 75), the part of the flat picture that lands on screen: the frame's edges taken back. */
+  private warpExtent(): [[number, number], [number, number]] | null {
+    const wp = this.warp;
+    if (!wp) return null;
+    const { w, h } = this;
+    const pts = [[0, 0], [w, 0], [0, h], [w, h], [w / 2, 0], [w / 2, h], [0, h / 2], [w, h / 2]].map(([x, y]) => wp.inv(x!, y!));
+    const xs = pts.map((p) => p[0]);
+    const ys = pts.map((p) => p[1]);
+    const lim = 4 * Math.max(w, h);
+    return [
+      [Math.max(-lim, Math.min(0, ...xs) - CLIP_MARGIN), Math.max(-lim, Math.min(0, ...ys) - CLIP_MARGIN)],
+      [Math.min(lim, Math.max(w, ...xs) + CLIP_MARGIN), Math.min(lim, Math.max(h, ...ys) + CLIP_MARGIN)],
+    ];
   }
 
   /**
@@ -483,6 +536,8 @@ export class MapView {
   // ---- input ------------------------------------------------------------
 
   private pan(dx: number, dy: number) {
+    // Under a warp a drag moves the flat picture under the centre by as much as it moves on screen (decision 75).
+    if (this.warp) [dx, dy] = this.warp.unpan(dx, dy);
     const k = this.baseScale * this.zoom;
     this.lon = wrap(this.lon - (dx / k) * DEG);
     // Under a tilted camera the ground is foreshortened, so a drag moves further north or south.
@@ -896,7 +951,15 @@ export class MapView {
     const hgt = m ? heightAt(m, lon, lat) * this.liftPx : 0;
     if (this.cam) {
       const [x, y, s] = this.tp(p[0], p[1], hgt, this.cam);
+      if (this.warp) {
+        const [wx, wy] = this.warp.fwd(x, y);
+        return { x: wx, y: wy, s };
+      }
       return { x, y, s };
+    }
+    if (this.warp) {
+      const [wx, wy] = this.warp.fwd(p[0], p[1]);
+      return { x: wx, y: wy, s: 1 };
     }
     if (m && this.mode === "3d") {
       const [cx, cy] = proj.translate();
@@ -960,6 +1023,14 @@ export class MapView {
     const { ctx, w, h, theme: t } = this;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
+    this.lastDraw = performance.now();
+    // A warp bends the whole picture (decision 75); the picture tube's curve is Map view's only.
+    const wk = t.warp && !(t.warp === "barrel" && this.mode === "3d") ? t.warp : null;
+    if (!wk) this.warp = null;
+    else if (this.warp?.kind !== wk || this.warpFor !== `${w}x${h}:${this.mode}`) {
+      this.warp = makeWarp(wk, w, h, this.mode === "3d");
+      this.warpFor = `${w}x${h}:${this.mode}`;
+    }
     const proj = this.projection();
     const R = proj.scale();
     // The tilted camera applies to the flat map; the globe is already a solid seen in perspective.
@@ -967,7 +1038,12 @@ export class MapView {
     this.cam = cam;
     this.terrainNow = null;
     this.liftPx = R * 0.02;
-    const view = cam ? { stream: (out: GeoStream) => proj.stream(this.tiltStream(out, cam)) } : proj;
+    const wp = this.warp;
+    const view = wp
+      ? { stream: (out: GeoStream) => proj.stream(cam ? this.tiltStream(warpStream(out, wp), cam) : warpStream(out, wp)) }
+      : cam
+        ? { stream: (out: GeoStream) => proj.stream(this.tiltStream(out, cam)) }
+        : proj;
     const path = geoPath(view as GeoProjection, ctx);
     // Detail follows the map's size on screen, never whether it is being dragged, so coasts, lakes and rivers
     // don't change shape when the map is touched or let go (decision 42). The whole world at once gets the light
@@ -977,10 +1053,16 @@ export class MapView {
     if (t.surface && map) {
       // Night Drive, Cross Stitch and Rose Window draw land and sea their own way (decision 70). Places, arcs and
       // tuning are the same as in every design.
-      this.drawSurface(proj, cam, view, map, t);
+      const framed = this.drawSurface(proj, cam, view, map, t);
       drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
-      this.drawArcs(path, proj);
-      this.drawDots(proj);
+      if (framed?.clip) {
+        ctx.save();
+        ctx.clip(framed.clip);
+        this.drawArcs(path, proj);
+        ctx.restore();
+      } else this.drawArcs(path, proj);
+      this.drawDots(proj, framed);
+      framed?.over?.();
       return;
     }
 
@@ -1107,7 +1189,7 @@ export class MapView {
     this.drawDots(proj);
   }
 
-  private drawSurface(proj: GeoProjection, cam: Cam | null, view: { stream(out: GeoStream): GeoStream }, map: Basemap, t: Theme) {
+  private drawSurface(proj: GeoProjection, cam: Cam | null, view: { stream(out: GeoStream): GeoStream }, map: Basemap, t: Theme): SurfaceResult | void {
     const base = this.low ?? this.high ?? map;
     if (!this.rasters || this.rasters.base !== base) {
       this.rasters = { base, isLand: raster(base.land), isIce: raster(base.ice) };
@@ -1132,7 +1214,14 @@ export class MapView {
       relief: this.relief,
       isLand: this.rasters.isLand,
       isIce: this.rasters.isIce,
+      now: performance.now(),
+      still: this.still(),
+      warp: this.warp,
     };
+    if (t.surface === "radar") return drawRadar(f, this.radar);
+    if (t.surface === "noir") return drawNoir(f, this.noir);
+    if (t.surface === "arcade") return drawArcade(f, this.arcade);
+    if (t.surface === "stadium") return drawStadium(f, this.stadium);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else drawGlass(f, this.glass);
@@ -1579,7 +1668,7 @@ export class MapView {
     ctx.restore();
   }
 
-  private drawDots(proj: GeoProjection) {
+  private drawDots(proj: GeoProjection, framed?: SurfaceResult | void) {
     const { ctx, theme: t } = this;
     // Smaller screens get smaller dots so a phone-sized world isn't all ink.
     const screenK = clamp(Math.min(this.w, this.h) / 720, 0.6, 1);
@@ -1596,6 +1685,8 @@ export class MapView {
       // Beyond the tilted camera's draw distance the map is haze; its places are reached by dragging closer.
       if (this.cam && p.s < this.cam.far) continue;
       if (p.x < -20 || p.y < -20 || p.x > this.w + 20 || p.y > this.h + 20) continue;
+      // A design that frames the map (a radar scope, a picture tube, a big screen) shows places inside it only.
+      if (framed?.inside && !framed.inside(p.x, p.y)) continue;
       shown.push({ d, x: p.x, y: p.y, s: p.s });
     }
     shown.sort((a, b) => b.d.weight - a.d.weight || b.d.count - a.d.count);
@@ -1638,6 +1729,9 @@ export class MapView {
       }
     }
     this.screen = spots;
+    ctx.save();
+    if (framed?.clip) ctx.clip(framed.clip);
+    framed?.under?.(spots);
     if (float) {
       ctx.save();
       ctx.fillStyle = "rgba(0,0,0,0.28)";
@@ -1777,10 +1871,14 @@ export class MapView {
       }
       if (s.indices.some((i) => this.pinned.has(i))) {
         ctx.beginPath();
-        ctx.rect(x - r - 3.5, y - r - 3.5, (r + 3.5) * 2, (r + 3.5) * 2);
+        if (t.pinRing) ctx.arc(x, y, r + 7, 0, Math.PI * 2);
+        else ctx.rect(x - r - 3.5, y - r - 3.5, (r + 3.5) * 2, (r + 3.5) * 2);
         ctx.lineWidth = 1;
         ctx.strokeStyle = t.tuned;
+        // A ring of fine dots, so it reads as neither the importance ring nor a highlight.
+        if (t.pinRing) ctx.setLineDash([1.5, 3]);
         ctx.stroke();
+        ctx.setLineDash([]);
       }
       if (s.indices.some((i) => this.highlight.has(i))) {
         ctx.save();
@@ -1804,5 +1902,6 @@ export class MapView {
       ctx.lineWidth = 1.2;
       ctx.stroke();
     }
+    ctx.restore();
   }
 }
