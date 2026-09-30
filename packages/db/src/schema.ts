@@ -63,8 +63,8 @@ export const events = pgTable("events", {
 });
 
 /**
- * Local stories from the GDELT index for regions no outlet reached that day (decision 54). Placed by GDELT's own
- * city tag checked against the city list. No model reads them, and they never join an event.
+ * Local stories from the GDELT index for towns no outlet reached that day (decisions 54 and 67). Placed by GDELT's
+ * own city tag checked against the city list and GeoNames' towns. No model reads them, and they never join an event.
  */
 export const localStories = pgTable(
   "local_stories",
@@ -80,7 +80,7 @@ export const localStories = pgTable(
     placeName: text("place_name").notNull(),
     lat: doublePrecision("lat").notNull(),
     lon: doublePrecision("lon").notNull(),
-    /** "CC/Region", the region it fills. */
+    /** "CC/Region", the region its town is in ("CC/" where the city list gives the country no regions). */
     region: text("region").notNull(),
   },
   (t) => [uniqueIndex("local_stories_date_url_idx").on(t.runDate, t.url)],

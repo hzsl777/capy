@@ -6,8 +6,10 @@ import { eq } from "drizzle-orm";
 import { dayBand, medianScores, MOOD_WORDS, scoreProblems, toRunDate, wordProblems } from "@2dayai/core";
 import { events, loadMapView, latestMapDate, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
+import { worldGdeltFor } from "./fixtures/gdelt.js";
 import { worldAnswers, worldFeedFor, worldSourcesYaml } from "./fixtures/world.js";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
+import { runLocal } from "./stages/local.js";
 import { runTelegram } from "./stages/telegram.js";
 import { createTestDb } from "./test/db.js";
 import { testConfig } from "./test/config.js";
@@ -88,6 +90,27 @@ describe("the world desk on a real Postgres engine", () => {
     expect(map.telegram!.scores.at(-1)!.score).toBe(2);
     const talksScore = map.telegram!.scores.find((sc) => sc.eventId === talks.id)!;
     expect(talks.whatHappened.map((x) => x.text)).toContain(talksScore.because);
+  });
+
+  it("adds GDELT's local stories from towns the outlets did not reach, in every region (decision 67)", async () => {
+    // The daily run's defaults; the test config turns GDELT off.
+    const report = await runLocal(db, date, { perRegion: 6, perReachedRegion: 3, max: 8000 }, async (url) => worldGdeltFor(url, date));
+    const map = await loadMapView(db, date, new Date("2026-09-27T12:00:00Z"));
+    const local = map.items.filter((i) => i.via === "gdelt");
+    const at = (name: string) => local.filter((i) => map.places[i.place]!.name === name);
+    // Espoo is 16 km from Helsinki's outlet and Valparaíso has the port story: both stay the outlets' alone.
+    expect(at("Espoo")).toHaveLength(0);
+    expect(at("Valparaíso")).toHaveLength(0);
+    // A region no outlet reached gets every town's stories up to its limit.
+    expect(at("Kisumu")).toHaveLength(2);
+    expect(at("Mombasa").length + at("Malindi").length).toBe(2);
+    // Regions outlets reached (Sindh through Karachi, New South Wales through Sydney) get their other towns.
+    expect(at("Hyderabad")).toHaveLength(1);
+    expect(at("Wollongong")).toHaveLength(1);
+    expect(report).toMatchObject({ stories: 25, towns: 24, overMax: 0 });
+    expect(local.every((i) => i.importance === 1 && i.topics.length === 0 && i.event === undefined)).toBe(true);
+    // The outlets' stories and places are unchanged.
+    expect(map.items.filter((i) => i.via !== "gdelt")).toHaveLength(15);
   });
 
   it("scores three times and keeps each event's middle score, so one odd run doesn't move the word (decision 36)", async () => {

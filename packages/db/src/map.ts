@@ -60,13 +60,34 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     .where(and(eq(t.sources.desk, "world"), gte(t.articles.publishedAt, from), lt(t.articles.publishedAt, to)));
 
   // Pins: one per city. Publishers in the same city share a pin, and a story's city within SAME_CITY_KM of a
-  // publisher's city shares that pin, so one city is one dot.
+  // publisher's city shares that pin, so one city is one dot. A GDELT town shares a pin only with the same point:
+  // towns a few kilometres apart are different places, and the site merges nearby dots by zoom, naming each
+  // (decision 67). A grid of half-degree cells finds nearby pins, since a day can have several thousand.
   const places: MapPlace[] = [];
   const placeIndex = new Map<string, number>();
-  const pin = (name: string, lat: number, lon: number): number => {
+  const grid = new Map<string, number[]>();
+  const cellOf = (lat: number, lon: number) => [Math.floor(lat * 2), Math.floor(lon * 2)] as const;
+  const nearby = (lat: number, lon: number): number => {
+    const [cy, cx] = cellOf(lat, lon);
+    const cols = Math.min(360, Math.ceil(SAME_CITY_KM / (55 * Math.max(Math.cos((Math.min(89, Math.abs(lat)) * Math.PI) / 180), 0.02))));
+    let best = -1;
+    for (let y = cy - 1; y <= cy + 1; y++)
+      for (let x = cx - cols; x <= cx + cols; x++)
+        for (const i of grid.get(`${y},${((((x + 360) % 720) + 720) % 720) - 360}`) ?? []) {
+          const p = places[i]!;
+          if ((best < 0 || i < best) && km(p.lat, p.lon, lat, lon) <= SAME_CITY_KM) best = i;
+        }
+    return best;
+  };
+  const pin = (name: string, lat: number, lon: number, merge = true): number => {
     const id = placeIdFor(lat, lon);
-    let idx = placeIndex.get(id) ?? places.findIndex((p) => km(p.lat, p.lon, lat, lon) <= SAME_CITY_KM);
-    if (idx < 0) idx = places.push({ id, name, lat, lon }) - 1;
+    let idx = placeIndex.get(id) ?? (merge ? nearby(lat, lon) : -1);
+    if (idx < 0) {
+      idx = places.push({ id, name, lat, lon }) - 1;
+      const [y, x] = cellOf(lat, lon);
+      const key = `${y},${x}`;
+      grid.set(key, [...(grid.get(key) ?? []), idx]);
+    }
     placeIndex.set(id, idx);
     return idx;
   };
@@ -125,7 +146,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     if (article.lead) item.excerpt = clip(article.lead, EXCERPT_MAX);
     items.push(item);
   }
-  // Local stories from the GDELT index for regions no outlet reached (decision 54): the lowest rank, placed by
+  // Local stories from the GDELT index for towns no outlet reached (decisions 54 and 67): the lowest rank, placed by
   // GDELT's checked city tag, published by the outlet's site.
   for (const s of await db.select().from(t.localStories).where(eq(t.localStories.runDate, date))) {
     items.push({
@@ -137,7 +158,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
       publisher: s.domain,
       lang: s.lang ?? "",
       topics: [],
-      place: pin(s.placeName, s.lat, s.lon),
+      place: pin(s.placeName, s.lat, s.lon, false),
       reach: 1,
       importance: 1,
       via: "gdelt",

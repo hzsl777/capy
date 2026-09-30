@@ -48,11 +48,13 @@ export const TIERS = 5;
  *   1: importance 3, or three cities
  *   2: importance 2, or two cities
  *   3: importance 1
- *   4: anything not grouped (only days grouped before decision 50)
+ *   4: anything not grouped: GDELT local stories, which no model rates (decisions 54 and 67), and days grouped
+ *      before decision 50. There can be several thousand, so they wait for the closest zoom.
  * A file without event data (a demo, or a day before grouping ran) shows everything from the start.
  */
 export function tierOf(item: MapItem, tiered: boolean): number {
   if (!tiered) return 0;
+  if (item.via === "gdelt") return TIERS - 1;
   const reach = item.reach ?? 1;
   const importance = item.importance ?? 1;
   if (item.importance === undefined && item.reach === undefined) return 4;
