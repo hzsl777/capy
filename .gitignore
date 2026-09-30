@@ -12,6 +12,9 @@ config/readers/*.yaml
 # Map
 .cache/
 packages/map/public/data/latest.json
+# Tiles of local stories exported with a real day (decision 78); the sample's own tiles are committed.
+packages/map/public/data/local/*
+!packages/map/public/data/local/sample/
 
 # Model evals: snapshots hold third-party article text
 .eval/

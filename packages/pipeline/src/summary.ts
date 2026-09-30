@@ -1,7 +1,7 @@
 // The daily run's page on GitHub Actions (decision 36): the word, the counts, the spend and the feeds that need a
 // person, readable in a minute without opening the logs.
 import { MOOD_BAND_LABEL, type RunDate } from "@2dayai/core";
-import type { Coverage } from "./coverage.js";
+import { coverageLine, type Coverage } from "./coverage.js";
 import type { WorldClusterReport } from "./stages/cluster.js";
 import type { ExplainReport } from "./stages/explain.js";
 import type { IngestReport } from "./stages/ingest.js";
@@ -41,12 +41,13 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
   if (world) lines.push(`Stories: ${world.events} from ${world.articles} articles in ${world.batches} grouping calls, ${world.placed ?? 0} placed where they happened.`);
   if (local?.error) lines.push(`Local stories: none today. ${cell(local.error)}`);
   else if (local && !local.skipped) {
-    const added = local.regionsAdded ? `, and ${local.regionsAdded} regions outlets reached` : "";
-    const over = local.overMax ? `, ${local.overMax} more left out by GDELT_MAX` : "";
+    const n = (x: number) => x.toLocaleString("en-US");
+    const tagged = local.townsTagged !== undefined ? ` of the ${n(local.townsTagged)} GDELT placed today (${n(local.townsNearOutlet)} left to the outlets there)` : "";
+    const over = local.overMax ? `, and ${n(local.overMax)} more left out by GDELT_MAX` : "";
     const unreadable = local.filesFailed ? `, ${local.filesFailed} of ${local.files} files unreadable` : "";
-    lines.push(`Local stories: ${local.stories} from GDELT in ${local.towns ?? local.stories} towns: ${local.regionsFilled} of ${local.regionsEmpty} regions no outlet reached${added}${over}${unreadable}.`);
+    lines.push(`Local stories: ${n(local.stories)} from GDELT in ${n(local.towns ?? local.stories)} towns${tagged}, reaching ${n(local.regionsFilled)} of ${n(local.regionsEmpty)} regions no outlet reached${over}${unreadable}.`);
   }
-  if (coverage) lines.push(`Coverage: stories in ${coverage.countries} of ${coverage.countriesTotal} countries and territories, and ${coverage.regions} of ${coverage.regionsTotal} regions.`);
+  if (coverage) lines.push(coverageLine(coverage));
   if (explain) lines.push(`Explained: ${explain.usable} of ${explain.events}${explain.failed ? `, ${explain.failed} failed` : ""}.`);
   if (select && select.readers > 0) lines.push(`2DayAI: ${select.editions} editions and ${select.quiet} quiet days for ${select.readers} readers${select.failed ? `, ${select.failed} failed` : ""}.`);
   if (spend !== undefined) lines.push(`Model spend: $${spend.toFixed(3)}.`);
@@ -58,7 +59,7 @@ export function daySummary(date: RunDate, out: Record<string, unknown>, failure?
     for (const r of worst.slice(0, MAX_ROWS)) lines.push(`| ${r.source} | ${r.failedDays ?? 1} | ${cell(r.error!)} |`);
     if (worst.length > MAX_ROWS) lines.push("", `And ${worst.length - MAX_ROWS} more; see the log.`);
   }
-  if (coverage?.missing.length) lines.push("", "### Countries and territories with no story today", "", coverage.missing.join(", "));
+  if (coverage?.missing.length) lines.push("", "### Countries and territories with no story today", "", "Places to look for outlets (code and largest listed city). `npm run stage -- coverage --date <date>` prints the same list.", "", coverage.missing.join(", "));
   if (paused.length) lines.push("", "### Paused feeds", "", paused.map((r) => `${r.source} (${r.failedDays} days)`).join(", "));
   const found = ok.filter((r) => r.feedUrl);
   if (found.length) {

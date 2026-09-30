@@ -9,7 +9,7 @@ Paths are relative to the repository root. Every outlet is a pin at the city it 
 
 ## Steps
 
-1. **Check the gap.** Which region or language does it cover that the map is missing? Count the `desk: world` entries per region. Don't add a third outlet for one city while a region has none.
+1. **Check the gap.** Which region or language does it cover that the map is missing? Count the `desk: world` entries per region. Don't add a third outlet for one city while a region has none. The daily run's summary, or `npm run stage -- coverage --date <date>` with `DATABASE_URL` set, lists the countries and territories with no story that day (decision 78): start there.
 2. **Check the balance.** For an outlet based in a party to a conflict, add one only alongside an equivalent outlet from the other side, and say so to Davis. Prefer outlets not based in either.
 3. **Find the official feed** on the outlet's own site (`<link rel="alternate" type="application/rss+xml">`, or a /rss or /feed page). Never invent a URL. If the session can't fetch it, use the outlet's homepage and add `# feed unconfirmed`: ingest follows the feed link the page declares, and `sources check` prints the feed it found so you can replace the homepage (decision 31).
 4. **Add the entry** under the world-desk section of `config/sources.yaml`:

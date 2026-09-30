@@ -3,9 +3,9 @@
 // gets the model's point only when it sits near a listed city of the same country. Anything else returns null,
 // and the story stays at its outlet's city.
 //
-// GDELT's local stories are also checked against smaller towns (data/towns.json, from GeoNames, decision 67). A
-// town is matched only by its name near GDELT's own point, never by name alone, and towns never change where the
-// grouping model's stories go.
+// GDELT's local stories are also checked against smaller towns (data/towns.txt, GeoNames' places of 1,000 people or
+// more, decisions 67 and 78). A town is matched only by its name near GDELT's own point, never by name alone, and
+// towns never change where the grouping model's stories go.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,8 +15,8 @@ export type Where = { city: string; country?: string | null | undefined; lat?: n
 export type Located = { name: string; lat: number; lon: number };
 
 type Row = [name: string, cc: string, lat: number, lon: number, pop: number, alts: string[], region?: string];
-/** data/towns.json, built by scripts/build-towns.ts. Each town's region is an index into `regions`. */
-type TownsFile = { regions: string[]; towns: [name: string, cc: string, lat: number, lon: number, region: number][] };
+/** One town of data/towns.txt, built by scripts/build-towns.ts. */
+export type Town = [name: string, cc: string, lat: number, lon: number, region: string];
 type Entry = { name: string; cc: string; lat: number; lon: number; pop: number; region: string; town: boolean };
 
 const DATA = join(dirname(fileURLToPath(import.meta.url)), "..", "data");
@@ -54,7 +54,10 @@ export class Gazetteer {
   private byCountry = new Map<string, Entry[]>();
   private grid = new Map<number, Entry[]>();
 
-  constructor(rows: Row[], towns?: TownsFile) {
+  /** How many towns were loaded beside the city list. */
+  readonly townCount: number;
+
+  constructor(rows: Row[], towns: Town[] = []) {
     for (const [name, cc, lat, lon, pop, alts, region] of rows) {
       const e: Entry = { name, cc, lat, lon, pop, region: region ?? "", town: false };
       this.add(e);
@@ -63,7 +66,8 @@ export class Gazetteer {
     }
     // Towns join the name and grid lookups only. The country and region lists, the denominators of the coverage
     // count (decision 46), stay the city list's.
-    for (const [name, cc, lat, lon, region] of towns?.towns ?? []) this.add({ name, cc, lat, lon, pop: 0, region: towns!.regions[region] ?? "", town: true });
+    for (const [name, cc, lat, lon, region] of towns) this.add({ name, cc, lat, lon, pop: 0, region, town: true });
+    this.townCount = towns.length;
   }
 
   /** The city list alone: what the grouping stage's places are checked against (decision 44). */
@@ -71,9 +75,26 @@ export class Gazetteer {
     return new Gazetteer(JSON.parse(readFileSync(file, "utf8")) as Row[]);
   }
 
-  /** The city list and GeoNames' towns of 5,000 people or more: what GDELT's towns are checked against (decision 67). */
+  /**
+   * The city list and GeoNames' places of 1,000 people or more: what GDELT's towns are checked against (decisions 67
+   * and 78).
+   */
   static loadWithTowns(dir = DATA): Gazetteer {
-    return new Gazetteer(JSON.parse(readFileSync(join(dir, "places.json"), "utf8")) as Row[], JSON.parse(readFileSync(join(dir, "towns.json"), "utf8")) as TownsFile);
+    return new Gazetteer(JSON.parse(readFileSync(join(dir, "places.json"), "utf8")) as Row[], parseTowns(readFileSync(join(dir, "towns.txt"), "utf8")));
+  }
+
+  /** Every place on the list: the cities and, when loaded, the towns. The denominator of the town count. */
+  size(): number {
+    return [...this.byCountry.values()].reduce((n, l) => n + l.length, 0) + this.townCount;
+  }
+
+  /**
+   * The listed city or town at a point, within `maxKm`, as a key that is the same for every point near it: how the
+   * coverage report counts towns with a story (decision 78).
+   */
+  placeAt(lat: number, lon: number, maxKm = 2): string | null {
+    const e = this.nearest(lat, lon, maxKm);
+    return e ? `${e.cc}|${e.name}|${e.lat}|${e.lon}` : null;
   }
 
   private add(e: Entry) {
@@ -188,4 +209,28 @@ function push<K>(map: Map<K, Entry[]>, key: K, e: Entry) {
   const list = map.get(key);
   if (list) list.push(e);
   else map.set(key, [e]);
+}
+
+/**
+ * data/towns.txt: "=CC<tab>Region" starts a block, and each line after it is a town, its latitude and longitude in
+ * hundredths of a degree counted from the line before (scripts/build-towns.ts, decision 78).
+ */
+export function parseTowns(text: string): Town[] {
+  const out: Town[] = [];
+  let cc = "";
+  let region = "";
+  let [lat, lon] = [0, 0];
+  for (const line of text.split("\n")) {
+    if (!line || line[0] === "#") continue;
+    const f = line.split("\t");
+    if (line[0] === "=") {
+      [cc, region] = [f[0]!.slice(1), f[1] ?? ""];
+      [lat, lon] = [0, 0];
+      continue;
+    }
+    lat += Number(f[1]);
+    lon += Number(f[2]);
+    out.push([f[0]!, cc, lat / 100, lon / 100, region]);
+  }
+  return out;
 }

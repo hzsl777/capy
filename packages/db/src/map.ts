@@ -2,8 +2,8 @@
 // pipeline's static export. A story sits where it happened when the grouping stage placed its event (decision 44),
 // and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
 // reported.
-import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
-import { ingestWindow, placeIdFor, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapSentence, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { and, desc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
+import { ingestWindow, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
 import type { Db } from "./types.js";
 
@@ -49,7 +49,15 @@ export async function latestMapDate(db: Db): Promise<string | null> {
   return row?.d ?? null;
 }
 
-export async function loadMapView(db: Db, runDate: string, now: Date = new Date()): Promise<MapFile> {
+/** Where a day's tiles are, relative to the folder its file is served from (decision 78). */
+export const localBase = (runDate: string) => `local/${runDate}/`;
+
+/**
+ * The day's map. By default the whole day, local stories and all: what the pipeline counts and splits into the
+ * site's file and tiles (splitLocal in core). With `local: "index"` the local stories stay in the database and the
+ * file lists their tiles instead, as the Worker serves a day with no stored file (decision 78).
+ */
+export async function loadMapView(db: Db, runDate: string, now: Date = new Date(), opts: { local?: "inline" | "index" } = {}): Promise<MapFile> {
   const date = toRunDate(runDate);
   const { from, to } = ingestWindow(date);
 
@@ -146,24 +154,11 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     if (article.lead) item.excerpt = clip(article.lead, EXCERPT_MAX);
     items.push(item);
   }
-  // Local stories from the GDELT index for towns no outlet reached (decisions 54 and 67): the lowest rank, placed by
-  // GDELT's checked city tag, published by the outlet's site.
-  for (const s of await db.select().from(t.localStories).where(eq(t.localStories.runDate, date))) {
-    items.push({
-      id: `g${s.id}`,
-      t: Math.floor(s.publishedAt.getTime() / 1000),
-      title: s.title,
-      url: s.url,
-      domain: s.domain,
-      publisher: s.domain,
-      lang: s.lang ?? "",
-      topics: [],
-      place: pin(s.placeName, s.lat, s.lon, false),
-      reach: 1,
-      importance: 1,
-      via: "gdelt",
-    });
-  }
+  // Local stories from the GDELT index for towns no outlet reached (decisions 54, 67 and 78): the lowest rank, placed
+  // by GDELT's checked city tag, published by the outlet's site.
+  let local: MapFile["local"];
+  if (opts.local === "index") local = { deg: LOCAL_TILE_DEG, base: localBase(date), tiles: await localTileCounts(db, date) };
+  else for (const s of await db.select().from(t.localStories).where(eq(t.localStories.runDate, date)).orderBy(...LOCAL_ORDER)) items.push(localItem(s, pin(s.placeName, s.lat, s.lon, false)));
   items.sort((a, b) => b.t - a.t);
 
   // Level 2 and 3 for every explained world event: sentences, and the sources with the passages they quote.
@@ -222,5 +217,72 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     }
   }
 
-  return { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), to.getTime()) / 1000), runDate: date, places, items, events, telegram };
+  const file: MapFile = { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), to.getTime()) / 1000), runDate: date, places, items, events, telegram };
+  if (local) file.local = local;
+  return file;
+}
+
+/** Newest first, then by id: the order the whole day and a single tile both read local stories in, so they agree. */
+const LOCAL_ORDER = [desc(t.localStories.publishedAt), t.localStories.id] as const;
+
+function localItem(s: typeof t.localStories.$inferSelect, place: number): MapItem {
+  return {
+    id: `g${s.id}`,
+    t: Math.floor(s.publishedAt.getTime() / 1000),
+    title: s.title,
+    url: s.url,
+    domain: s.domain,
+    publisher: s.domain,
+    lang: s.lang ?? "",
+    topics: [],
+    place,
+    reach: 1,
+    importance: 1,
+    via: "gdelt",
+  };
+}
+
+/** How many local stories each tile of a day has, counted in the database (decision 78). */
+async function localTileCounts(db: Db, date: string): Promise<Record<string, number>> {
+  const deg = LOCAL_TILE_DEG;
+  const rows = await db
+    .select({ south: sql<number>`least(floor(${t.localStories.lat} / ${deg}) * ${deg}, ${90 - deg})`, west: sql<number>`least(floor(${t.localStories.lon} / ${deg}) * ${deg}, ${180 - deg})`, n: sql<number>`count(*)` })
+    .from(t.localStories)
+    .where(eq(t.localStories.runDate, date))
+    .groupBy(sql`1`, sql`2`);
+  const out: Record<string, number> = {};
+  for (const r of rows) {
+    const key = tileKey(Number(r.south), Number(r.west), deg);
+    out[key] = (out[key] ?? 0) + Number(r.n);
+  }
+  return Object.fromEntries(Object.entries(out).sort(([a], [b]) => (a < b ? -1 : 1)));
+}
+
+/**
+ * One tile of a day's local stories from the database, or null when it has none: what the Worker serves when the
+ * daily run stored no file for it (decision 78). The same places and stories splitLocal cuts from the whole day.
+ */
+export async function loadLocalTile(db: Db, runDate: string, key: string): Promise<MapTile | null> {
+  const date = toRunDate(runDate);
+  const cell = tileBounds(key);
+  if (!cell) return null;
+  const rows = (
+    await db
+      .select()
+      .from(t.localStories)
+      .where(and(eq(t.localStories.runDate, date), gte(t.localStories.lat, cell.south), lte(t.localStories.lat, cell.north), gte(t.localStories.lon, cell.west), lte(t.localStories.lon, cell.east)))
+      .orderBy(...LOCAL_ORDER)
+  ).filter((s) => tileKey(s.lat, s.lon) === key);
+  if (rows.length === 0) return null;
+  const places: MapPlace[] = [];
+  const index = new Map<string, number>();
+  const items = rows.map((s) => {
+    const id = placeIdFor(s.lat, s.lon);
+    let at = index.get(id);
+    if (at === undefined) index.set(id, (at = places.push({ id, name: s.placeName, lat: s.lat, lon: s.lon }) - 1));
+    const it = localItem(s, at);
+    return [it.id, it.t, it.title, it.url, it.domain, it.lang, at] as MapTile["items"][number];
+  });
+  items.sort((a, b) => b[1] - a[1]);
+  return { version: 2, runDate: date, key, places, items };
 }

@@ -1,4 +1,4 @@
-import { TOPICS, type MapFile, type MapItem, type Topic } from "./types.ts";
+import { TOPICS, type MapFile, type MapItem, type MapLocalIndex, type MapTile, type Topic } from "./types.ts";
 
 export type TopicFilter = Topic;
 export const FILTERS: TopicFilter[] = [...TOPICS];
@@ -143,3 +143,59 @@ export const TOPIC_LABEL: Record<TopicFilter, string> = {
   sport: "Sport",
   other: "Other",
 };
+
+// ---- tiles of local stories (decision 78) -------------------------------------
+
+/**
+ * The key of the tile holding a point, as tileKey in core names it ("40N_80W"). Repeated here as a value so the site
+ * stays free of core's code; test/tiles.test.ts checks the two agree.
+ */
+export function tileKeyOf(lat: number, lon: number, deg: number): string {
+  const south = Math.max(-90, Math.min(90 - deg, Math.floor(lat / deg) * deg));
+  const west = Math.max(-180, Math.min(180 - deg, Math.floor(lon / deg) * deg));
+  return `${Math.abs(south)}${south < 0 ? "S" : "N"}_${Math.abs(west)}${west < 0 ? "W" : "E"}`;
+}
+
+/** A tile key's cell in degrees, or null for a key that isn't one. */
+export function tileCell(key: string, deg: number): { south: number; west: number; north: number; east: number } | null {
+  const m = /^(\d{1,2})([NS])_(\d{1,3})([EW])$/.exec(key);
+  if (!m) return null;
+  const south = Number(m[1]) * (m[2] === "S" ? -1 : 1);
+  const west = Number(m[3]) * (m[4] === "W" ? -1 : 1);
+  return { south, west, north: south + deg, east: west + deg };
+}
+
+/** Where a tile is, next to the day's file; null when the file's index names a folder the site never uses. */
+export function tileUrl(dataBase: string, index: MapLocalIndex, key: string): string | null {
+  if (!/^local\/[\w-]+\/$/.test(index.base) || !tileCell(key, index.deg)) return null;
+  return `${dataBase}data/${index.base}${key}.json`;
+}
+
+/** A tile's rows as the site's stories: every one a GDELT local story, the lowest rank, no topic. */
+export function tileItems(tile: MapTile, placeOf: (i: number) => number): MapItem[] {
+  return tile.items.map(([id, t, title, url, domain, lang, place]) => ({ id, t, title, url, domain, publisher: domain, lang, topics: [], place: placeOf(place), reach: 1, importance: 1, via: "gdelt" }));
+}
+
+/**
+ * Adds loaded tiles to the day: places the file already has (by id) are the same places, new ones are appended so
+ * every index the page holds stays valid, and the stories join the day's list. Returns how many stories were added.
+ */
+export function mergeTiles(file: MapFile, placeIds: Map<string, number>, tiles: MapTile[]): number {
+  let added = 0;
+  const known = new Set(file.items.map((i) => i.id));
+  for (const tile of tiles) {
+    if (tile.version !== 2 || !Array.isArray(tile.places) || !Array.isArray(tile.items)) continue;
+    const at = tile.places.map((p) => {
+      let i = placeIds.get(p.id);
+      if (i === undefined) placeIds.set(p.id, (i = file.places.push({ id: p.id, name: p.name, lat: p.lat, lon: p.lon }) - 1));
+      return i;
+    });
+    for (const it of tileItems(tile, (i) => at[i]!)) {
+      if (known.has(it.id) || it.place === undefined) continue;
+      known.add(it.id);
+      file.items.push(it);
+      added += 1;
+    }
+  }
+  return added;
+}

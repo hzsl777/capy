@@ -1,4 +1,4 @@
-// Fictional GDELT files for the fictional world day (decisions 54 and 67): invented local sites and headlines about
+// Fictional GDELT files for the fictional world day (decisions 54, 67 and 78): invented local sites and headlines about
 // real towns, in the GKG 2.1 layout the local stage reads. Used by the tests and by `stage -- demo`, so the site's
 // sample shows local stories the way a live day does. Nothing here is real news.
 import { strToU8, zipSync } from "fflate";
@@ -25,11 +25,17 @@ export const gkgZip = (rows: string[]): Uint8Array => zipSync({ "x.gkg.csv": str
 type Local = { site: string; town: GkgTown; hour: number; title: string; lang?: string };
 const town = (name: string, lat: number, lon: number, id: string): GkgTown => ({ name, lat, lon, id });
 
-// Towns in regions the fictional outlets never reach, a few in regions they do, and one next to an outlet's city
-// (Espoo, beside Helsinki), which the local stage leaves to the outlet.
+// Towns in regions the fictional outlets never reach, towns in regions they do, small municipalities of a few thousand
+// people (Stanmore near London, Ikinu north of Nairobi), a municipality next to an outlet's city (Espoo, 16 km from
+// Helsinki), which gets its own stories, and two stories from outlets' own towns (Helsinki, and Valparaíso, where
+// the port story sits), which the local stage leaves to the outlets. Kisumu has three, one more than a town keeps.
 const LOCAL: Local[] = [
   { site: "lakeside-gazette", town: town("Kisumu, Nyanza, Kenya", -0.1, 34.75, "F1"), hour: 10, title: "Kisumu market traders get a new covered hall" },
   { site: "lakeside-gazette", town: town("Kisumu, Nyanza, Kenya", -0.1, 34.75, "F1"), hour: 18, title: "Ferry timetable on the gulf changes next month" },
+  { site: "lakeside-gazette", town: town("Kisumu, Nyanza, Kenya", -0.1, 34.75, "F1"), hour: 6, title: "Kisumu bus park gets new shelters before the rains" },
+  { site: "highlands-voice", town: town("Ikinu, Kiambu, Kenya", -1.108, 36.792, "F27"), hour: 14, title: "Ikinu tea growers open a shared collection shed" },
+  { site: "harrow-local", town: town("Stanmore, Greater London, United Kingdom", 51.6167, -0.3167, "F28"), hour: 9, title: "Stanmore library extends its weekend opening hours" },
+  { site: "baltic-local", town: town("Helsinki, Southern Finland, Finland", 60.1756, 24.9342, "F29"), hour: 15, title: "Helsingin raitiovaunulinja saa uusia pysäkkejä", lang: "fin" },
   { site: "coast-weekly", town: town("Mombasa, Coast, Kenya", -4.05, 39.67, "F2"), hour: 12, title: "Mombasa port extends night shifts for cargo" },
   { site: "coast-weekly", town: town("Malindi, Coast, Kenya", -3.22, 40.12, "F3"), hour: 20, title: "Malindi beach clean-up draws hundreds of volunteers" },
   { site: "savanna-news", town: town("Kano, Kano, Nigeria", 12.0, 8.52, "F4"), hour: 9, title: "Kano state opens registration for farm input loans" },

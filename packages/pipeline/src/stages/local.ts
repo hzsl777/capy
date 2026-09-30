@@ -1,9 +1,8 @@
-// Local stories from the towns no outlet reached (decisions 54 and 67). GDELT reads news sites worldwide in 65
+// Local stories from the towns no outlet reached (decisions 54, 67 and 78). GDELT reads news sites worldwide in 65
 // languages and publishes, every 15 minutes, each article's URL, title and the places it names. This stage takes
-// the newest few articles about towns in every first-level region: more where no outlet's story sits in the region,
-// fewer where one does, and never in a town an outlet's story already sits in. The place comes from GDELT's city
-// tag, checked against the city list and GeoNames' towns. No model reads these stories: they cost nothing, never
-// join an event and sit at the lowest zoom tier.
+// the newest few articles about every town GDELT tags that day, never in a town an outlet's story already sits in.
+// The place comes from GDELT's city tag, checked against the city list and GeoNames' places of 1,000 people or more.
+// No model reads these stories: they cost nothing, never join an event and sit at the lowest zoom tier.
 import { Unzip, UnzipInflate } from "fflate";
 import { eq } from "drizzle-orm";
 import { ingestWindow, placeIdFor, type RunDate } from "@2dayai/core";
@@ -28,18 +27,19 @@ export const defaultGdeltFetcher: GdeltFetcher = async (url) => {
   return new Uint8Array(await res.arrayBuffer());
 };
 
-/** How many local stories a day takes (decision 67). */
+/** How many local stories a day takes (decision 78). */
 export type LocalLimits = {
-  /** Per region with no outlet story that day (GDELT_PER_REGION). 0 turns the stage off. */
-  perRegion: number;
-  /** Per region with an outlet story, from its other towns (GDELT_PER_REACHED_REGION). */
-  perReachedRegion: number;
-  /** In all (GDELT_MAX), so the day's map file stays small enough for a phone. */
+  /** The newest stories of each town (GDELT_PER_TOWN). 0 turns the stage off. */
+  perTown: number;
+  /** In all (GDELT_MAX): a safety valve set well above a normal day, so a runaway day can't flood the map. */
   max: number;
 };
 
-/** A GDELT town this close to a place with an outlet's story is that place, and gets no local stories. */
-const OUTLET_KM = 25;
+/**
+ * A GDELT town this close to a place with an outlet's story is that place, and gets no local stories (decision 78).
+ * A few kilometres: the same town, whatever point either list gives it, but not the next municipality.
+ */
+export const OUTLET_KM = 3;
 
 export type LocalReport = {
   files: number;
@@ -47,14 +47,18 @@ export type LocalReport = {
   filesFailed: number;
   /** Articles with a title and a town placed away from the outlets' places. */
   articles: number;
+  /** Towns GDELT's articles were placed at that day, and how many of them sat at an outlet story's place. */
+  townsTagged: number;
+  townsNearOutlet: number;
   /** Regions on the city list with no outlet story that day, and how many of them got local stories. */
   regionsEmpty: number;
   regionsFilled: number;
   /** Regions with an outlet story that got local stories from other towns. */
   regionsAdded: number;
+  /** Towns with a local story. */
   towns: number;
   stories: number;
-  /** Stories left out by the day's limit, after every region had its first ones. */
+  /** Stories left out by the day's limit, after every town had its first. */
   overMax: number;
   skipped?: string;
 };
@@ -187,33 +191,19 @@ export function forEachLine(bytes: Uint8Array, onLine: (line: string) => void): 
 
 /** One article kept as a candidate. Only copied strings go in here (see own); nothing that points back into a file. */
 export type LocalCandidate = { url: string; domain: string; title: string; lang: string | null; publishedAt: Date; at: Located };
-/** A region's candidates by town (the town's place id), each town's newest first. */
-export type RegionCandidates = { reached: boolean; towns: Map<string, LocalCandidate[]> };
+/** One town's candidates, newest first, and its region, which only says whether an outlet reached it. */
+export type TownCandidates = { region: string; reached: boolean; stories: LocalCandidate[] };
 export type LocalPick = LocalCandidate & { region: string; town: string; reached: boolean };
 
 /**
- * The day's local stories from every region's candidates (decision 67). Within a region, as many towns as possible:
- * the newest story of each town, newest town first, then each town's second newest, and so on, up to the region's
- * limit. Across regions, the same: every region's first story before any region's second, regions with no outlet
- * story first, then newest first, up to `max`. Nothing but time and place decides.
+ * The day's local stories from every town's candidates (decision 78): the newest `perTown` of each town, and, over
+ * the day's `max`, every town's newest before any town's second. Within a round, towns in a region no outlet reached
+ * come first, then the newest. Nothing but time and place decides.
  */
-export function pickLocal(regions: Map<string, RegionCandidates>, limits: LocalLimits): { picked: LocalPick[]; overMax: number } {
+export function pickLocal(towns: Map<string, TownCandidates>, limits: LocalLimits): { picked: LocalPick[]; overMax: number } {
   const ranked: (LocalPick & { rank: number })[] = [];
-  for (const [region, { reached, towns }] of regions) {
-    const cap = reached ? limits.perReachedRegion : limits.perRegion;
-    const order = [...towns].sort(([ak, a], [bk, b]) => b[0]!.publishedAt.getTime() - a[0]!.publishedAt.getTime() || (ak < bk ? -1 : 1));
-    let rank = 0;
-    for (let round = 0; rank < cap; round++) {
-      const before = rank;
-      for (const [town, list] of order) {
-        const c = list[round];
-        if (!c || rank >= cap) continue;
-        ranked.push({ ...c, region, town, reached, rank: rank++ });
-      }
-      if (rank === before) break;
-    }
-  }
-  ranked.sort((a, b) => a.rank - b.rank || Number(a.reached) - Number(b.reached) || b.publishedAt.getTime() - a.publishedAt.getTime() || (a.url < b.url ? -1 : 1));
+  for (const [town, { region, reached, stories }] of towns) stories.slice(0, limits.perTown).forEach((c, rank) => ranked.push({ ...c, region, town, reached, rank }));
+  ranked.sort((a, b) => a.rank - b.rank || Number(a.reached) - Number(b.reached) || b.publishedAt.getTime() - a.publishedAt.getTime() || (a.url < b.url ? -1 : a.url > b.url ? 1 : 0));
   const picked = ranked.slice(0, limits.max).map(({ rank: _, ...p }) => p);
   return { picked, overMax: ranked.length - picked.length };
 }
@@ -236,10 +226,10 @@ function nearAny(points: { lat: number; lon: number }[]): (lat: number, lon: num
 }
 
 export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetchGdelt: GdeltFetcher = defaultGdeltFetcher, gaz = Gazetteer.loadWithTowns()): Promise<LocalReport> {
-  const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0 };
+  const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0 };
   // Re-running the day replaces its local stories, and the map below must not count the old ones as coverage.
   await db.delete(localStories).where(eq(localStories.runDate, date));
-  if (limits.perRegion === 0) return { ...empty, skipped: "GDELT_PER_REGION is 0" };
+  if (limits.perTown === 0) return { ...empty, skipped: "GDELT_PER_TOWN is 0" };
 
   // A region counts as reached when any outlet's story on the day's map sits in it, the way the coverage count sees
   // it. A country the list gives no regions counts as one.
@@ -256,6 +246,8 @@ export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetch
   // Where each GDELT town goes, worked out once per town: most of a day's articles name a town seen before.
   type Spot = { region: string; town: string; at: Located } | null;
   const spots = new Map<string, Spot>();
+  const tagged = new Set<string>();
+  const nearOutlets = new Set<string>();
   const spotOf = (t: GkgArticle["town"]): Spot => {
     const key = `${t.name}|${t.lat}|${t.lon}`;
     let spot = spots.get(key);
@@ -263,15 +255,21 @@ export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetch
     spot = null;
     const area = gaz.areaAt(t.lat, t.lon);
     const at = area ? gaz.locate({ city: t.name, country: area.country, lat: t.lat, lon: t.lon }, true) : null;
+    const town = at ? placeIdFor(at.lat, at.lon) : "";
+    if (at) tagged.add(town);
     // A town an outlet's story already sits in keeps its outlets' stories alone.
-    const region = at && !nearOutlet(at.lat, at.lon) ? regionOf(at.lat, at.lon) : null;
-    if (at && region) spot = { region: own(region), town: placeIdFor(at.lat, at.lon), at: { name: own(at.name), lat: at.lat, lon: at.lon } };
+    const outlet = at ? nearOutlet(at.lat, at.lon) : false;
+    if (outlet) nearOutlets.add(town);
+    const region = at && !outlet ? regionOf(at.lat, at.lon) : null;
+    if (at && region) spot = { region: own(region), town, at: { name: own(at.name), lat: at.lat, lon: at.lon } };
     spots.set(own(key), spot);
     return spot;
   };
 
   const { from, to } = ingestWindow(date);
-  const regions = new Map<string, RegionCandidates & { titles: Map<string, number> }>();
+  const towns = new Map<string, TownCandidates>();
+  /** Headlines already taken in each region, so a story syndicated across its towns counts once. */
+  const titles = new Map<string, Map<string, number>>();
   const seen = new Set<number>();
   let articles = 0;
   const take = (a: GkgArticle) => {
@@ -281,27 +279,27 @@ export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetch
     const spot = spotOf(a.town);
     if (!spot) return;
     articles += 1;
-    const isReached = reached.has(spot.region);
-    const cap = isReached ? limits.perReachedRegion : limits.perRegion;
-    if (cap === 0) return;
-    let r = regions.get(spot.region);
-    if (!r) regions.set(spot.region, (r = { reached: isReached, towns: new Map(), titles: new Map() }));
+    let seenTitles = titles.get(spot.region);
+    if (!seenTitles) titles.set(spot.region, (seenTitles = new Map()));
     // The same headline twice in a region is one story, whichever site ran it.
     const title = a.title.toLowerCase();
-    if (r.titles.has(title)) return;
-    const list = r.towns.get(spot.town) ?? [];
+    if (seenTitles.has(title)) return;
+    let town = towns.get(spot.town);
+    if (!town) towns.set(spot.town, (town = { region: spot.region, reached: reached.has(spot.region), stories: [] }));
+    const list = town.stories;
+    // A town full of newer stories has no room for an older one.
+    if (list.length >= limits.perTown && list[list.length - 1]!.publishedAt >= a.publishedAt) return;
     const c: LocalCandidate = { url: own(a.url), domain: own(a.domain), title: own(a.title), lang: a.lang, publishedAt: a.publishedAt, at: spot.at };
-    // Newest first, as every list on the site is. A town never needs more than the region's limit.
+    // Newest first, as every list on the site is. A town never needs more than its limit.
     const i = list.findIndex((x) => x.publishedAt < c.publishedAt);
     list.splice(i < 0 ? list.length : i, 0, c);
-    r.titles.set(own(title), (r.titles.get(title) ?? 0) + 1);
-    if (list.length > cap) {
+    seenTitles.set(own(title), (seenTitles.get(title) ?? 0) + 1);
+    if (list.length > limits.perTown) {
       const dropped = list.pop()!.title.toLowerCase();
-      const n = (r.titles.get(dropped) ?? 1) - 1;
-      if (n > 0) r.titles.set(dropped, n);
-      else r.titles.delete(dropped);
+      const n = (seenTitles.get(dropped) ?? 1) - 1;
+      if (n > 0) seenTitles.set(dropped, n);
+      else seenTitles.delete(dropped);
     }
-    r.towns.set(spot.town, list);
   };
 
   const urls = gdeltFileUrls(date);
@@ -339,15 +337,18 @@ export async function runLocal(db: Db, date: RunDate, limits: LocalLimits, fetch
   // GDELT unreachable is an outage, not a quiet day: say so instead of writing nothing.
   if (filesFailed > 0 && filesFailed + filesMissing === urls.length) throw new Error(`local: none of the ${urls.length} GDELT files could be read`);
 
-  const { picked, overMax } = pickLocal(regions, limits);
+  const { picked, overMax } = pickLocal(towns, limits);
   const rows = picked.map((a) => ({ runDate: date, url: a.url, title: a.title, domain: a.domain.replace(/^www\./, ""), lang: a.lang, publishedAt: a.publishedAt, placeName: a.at.name, lat: a.at.lat, lon: a.at.lon, region: a.region }));
-  for (let i = 0; i < rows.length; i += 500) await db.insert(localStories).values(rows.slice(i, i + 500)).onConflictDoNothing();
+  // A thousand rows a statement: tens of thousands of stories go to the database in a few dozen round trips.
+  for (let i = 0; i < rows.length; i += 1000) await db.insert(localStories).values(rows.slice(i, i + 1000)).onConflictDoNothing();
   const filled = new Set(picked.map((p) => p.region));
   return {
     files: urls.length,
     filesMissing,
     filesFailed,
     articles,
+    townsTagged: tagged.size,
+    townsNearOutlet: nearOutlets.size,
     regionsEmpty,
     regionsFilled: [...filled].filter((r) => !reached.has(r)).length,
     regionsAdded: [...filled].filter((r) => reached.has(r)).length,

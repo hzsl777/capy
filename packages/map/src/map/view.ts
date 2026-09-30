@@ -1,5 +1,4 @@
 import {
-  geoDistance,
   geoEquirectangular,
   geoGraticule,
   geoInterpolate,
@@ -92,6 +91,8 @@ export interface MapEvents {
   onLand?(): void;
   /** The person touched the map: the spin stops and the idle timer restarts. */
   onInteract?(): void;
+  /** A frame was drawn: the view may have moved or zoomed. Called often; keep it cheap. */
+  onDraw?(): void;
 }
 
 /** One drawn dot: a single place, or nearby places merged at this zoom. */
@@ -177,6 +178,9 @@ const TUNE_RADIUS = 22;
 const MAX_ZOOM = 14;
 /** Screen distance under which pins merge into one dot. */
 const MERGE_PX = 13;
+/** The cell places are kept in for the globe to pass over (degrees), and the most any point is from its middle (radians). */
+const DOT_CELL = 10;
+const DOT_CELL_RADIUS = 0.125;
 /** d3 draws into anything canvas-like; a Path2D only lacks beginPath, which a fresh path doesn't need. */
 function pathContext(p: Path2D) {
   return { beginPath() {}, moveTo: p.moveTo.bind(p), lineTo: p.lineTo.bind(p), arc: p.arc.bind(p), closePath: p.closePath.bind(p) };
@@ -266,6 +270,11 @@ export class MapView {
   /** The next frame a handmade design's own motion asked for (the train, the line boil, a fading smudge). */
   private handTimer = 0;
   private dots: Dot[] = [];
+  /**
+   * The same places by 10-degree cell of longitude and latitude, so the globe passes over whole cells on its far
+   * side or off screen instead of looking at each of tens of thousands of towns (decision 78).
+   */
+  private dotCells: { lon: number; lat: number; dots: Dot[] }[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
   private lastLevel = -1;
@@ -356,6 +365,15 @@ export class MapView {
 
   setDots(dots: Dot[]) {
     this.dots = [...dots].sort((a, b) => a.count - b.count);
+    const cells = new Map<number, { lon: number; lat: number; dots: Dot[] }>();
+    for (const d of this.dots) {
+      const [y, x] = [Math.floor(d.lat / DOT_CELL), Math.floor(d.lon / DOT_CELL)];
+      const k = y * 1000 + x;
+      let c = cells.get(k);
+      if (!c) cells.set(k, (c = { lon: (x + 0.5) * DOT_CELL, lat: (y + 0.5) * DOT_CELL, dots: [] }));
+      c.dots.push(d);
+    }
+    this.dotCells = [...cells.values()];
     let added = false;
     for (const d of dots) {
       const k = `${d.lon},${d.lat}`;
@@ -396,6 +414,34 @@ export class MapView {
     const steps = this.mode === "3d" ? [1.6, 2.4, 3.4, 4.8] : [1.4, 2.1, 3, 4.2];
     const i = steps.findIndex((s) => this.zoom < s);
     return i < 0 ? steps.length : i;
+  }
+
+  /** The zoom at which `level` begins, a little past the step, for flying to a place that shows only there. */
+  levelZoom(level: number): number {
+    const steps = this.mode === "3d" ? [1.6, 2.4, 3.4, 4.8] : [1.4, 2.1, 3, 4.2];
+    return Math.min(MAX_ZOOM, level <= 0 ? this.zoom : steps[Math.min(level, steps.length) - 1]! * 1.15);
+  }
+
+  /**
+   * Whether any of a cell of longitude and latitude is on screen, tested at points a degree or so apart through the
+   * same camera as the places: which tiles of local stories to load (decision 78).
+   */
+  cellInView(south: number, west: number, north: number, east: number): boolean {
+    const off = wrap(this.lon - west);
+    if (this.lat >= south && this.lat < north && off >= 0 && off < east - west) return true;
+    const proj = this.projection();
+    const n = Math.max(4, Math.ceil(Math.max(north - south, east - west)));
+    const m = 40;
+    for (let i = 0; i <= n; i++)
+      for (let j = 0; j <= n; j++) {
+        const lon = west + ((east - west) * i) / n;
+        const lat = south + ((north - south) * j) / n;
+        if (!this.visible(lon, lat)) continue;
+        const p = this.placeAt(proj, lon, lat);
+        if (!p || (this.cam && p.s < this.cam.far)) continue;
+        if (p.x >= -m && p.y >= -m && p.x <= this.w + m && p.y <= this.h + m) return true;
+      }
+    return false;
   }
 
   get isSpinning(): boolean {
@@ -576,9 +622,18 @@ export class MapView {
     }
   }
 
+  /**
+   * The cosine of the angle between a point and the view's centre. The same test as d3's geoDistance, which sums
+   * with extra precision and is too slow to run for tens of thousands of places a frame (decision 78).
+   */
+  private cosFromCenter(lon: number, lat: number): number {
+    const r = Math.PI / 180;
+    return Math.sin(lat * r) * Math.sin(this.lat * r) + Math.cos(lat * r) * Math.cos(this.lat * r) * Math.cos((lon - this.lon) * r);
+  }
+
   private visible(lon: number, lat: number): boolean {
     if (this.mode === "2d") return true;
-    return geoDistance([lon, lat], [this.lon, this.lat]) < Math.PI / 2 - 0.03;
+    return this.cosFromCenter(lon, lat) > Math.sin(0.03);
   }
 
   private resize() {
@@ -760,7 +815,8 @@ export class MapView {
     const tick = (now: number) => {
       const a = this.anim;
       if (!a) return;
-      const t = Math.min(1, (now - a.start) / a.duration);
+      // A frame's time can be a little before the animation started; a negative step would run the easing backwards.
+      const t = clamp((now - a.start) / a.duration, 0, 1);
       a.step(t);
       if (t < 1) {
         this.moved();
@@ -793,6 +849,7 @@ export class MapView {
       this.pending = false;
       this.render();
       this.retune();
+      this.events.onDraw?.();
     });
   }
 
@@ -1782,6 +1839,29 @@ export class MapView {
     ctx.restore();
   }
 
+  /**
+   * The places that may be on screen. On the globe, whole cells on the far side are passed over, and with the plain
+   * camera (no tilt, warp, scene or terrain) so are cells whose every point is off screen: an orthographic globe
+   * never draws two points further apart than their angle times its radius.
+   */
+  private *candidates(proj: GeoProjection): Iterable<Dot> {
+    if (this.mode !== "3d") {
+      yield* this.dots;
+      return;
+    }
+    const plain = !this.cam && !this.warp && !this.theme.scene && !this.terrainNow;
+    const reach = proj.scale() * DOT_CELL_RADIUS + 24;
+    for (const c of this.dotCells) {
+      // Every point of the cell is further round than the edge of the globe's face.
+      if (this.cosFromCenter(c.lon, c.lat) <= Math.sin(0.03 - DOT_CELL_RADIUS)) continue;
+      if (plain) {
+        const p = proj([c.lon, c.lat]);
+        if (p && (p[0] < -reach || p[1] < -reach || p[0] > this.w + reach || p[1] > this.h + reach)) continue;
+      }
+      yield* c.dots;
+    }
+  }
+
   private drawDots(proj: GeoProjection, framed?: SurfaceResult | void) {
     const { ctx, theme: t } = this;
     // Smaller screens get smaller dots so a phone-sized world isn't all ink.
@@ -1792,7 +1872,7 @@ export class MapView {
     // Project the places shown at this zoom, then merge those that would overlap on screen.
     // Largest first, so a merged dot sits on its busiest place.
     const shown: { d: Dot; x: number; y: number; s: number }[] = [];
-    for (const d of this.dots) {
+    for (const d of this.candidates(proj)) {
       if (d.tier > level || !this.visible(d.lon, d.lat)) continue;
       const p = this.placeAt(proj, d.lon, d.lat);
       if (!p) continue;
@@ -1803,19 +1883,40 @@ export class MapView {
       if (framed?.inside && !framed.inside(p.x, p.y)) continue;
       shown.push({ d, x: p.x, y: p.y, s: p.s });
     }
-    shown.sort((a, b) => b.d.weight - a.d.weight || b.d.count - a.d.count);
+    // Heaviest first, then most reports, then the list's order, each place as one number sorted natively: a day with
+    // tens of thousands of towns can put ten thousand places on screen at the closest zoom (decision 78). The low
+    // bits carry the place's position in `shown`.
+    const order = new Float64Array(shown.length);
+    shown.forEach((e, i) => {
+      order[i] = (((5 - clamp(e.d.weight, 1, 5)) * 1024 + (1023 - clamp(e.d.count, 0, 1023))) * 2 ** 21 + (e.d.index % 2 ** 21)) * 2 ** 17 + i;
+    });
+    order.sort();
     const spots: Spot[] = [];
     const merge = MERGE_PX * screenK;
-    // Spots bucketed by screen cell, so a zoomed-in view of several thousand places merges in one pass. The
-    // earliest spot within reach wins, as a search through the whole list would find.
-    const cells = new Map<number, number[]>();
-    const cellKey = (cx: number, cy: number) => cx * 65536 + cy;
-    for (const { d, x, y } of shown) {
-      const [cx, cy] = [Math.floor(x / merge), Math.floor(y / merge)];
+    const merge2 = merge * merge;
+    // Spots bucketed by screen cell in flat arrays, each cell a chain of its spots, so a zoomed-in view of ten
+    // thousand places merges in one pass. The earliest spot within reach wins, as a search through the whole list
+    // would find. Places are within 20 pixels of the frame (above), so the grid covers it with a cell to spare.
+    const cols = Math.ceil((this.w + 40) / merge) + 2;
+    const rows = Math.ceil((this.h + 40) / merge) + 2;
+    const head = new Int32Array(cols * rows).fill(-1);
+    const next: number[] = [];
+    for (const o of order) {
+      const { d, x, y } = shown[o % 2 ** 17]!;
+      const cx = Math.floor((x + 20) / merge) + 1;
+      const cy = Math.floor((y + 20) / merge) + 1;
       let first = -1;
       for (let i = -1; i <= 1; i++)
-        for (let j = -1; j <= 1; j++)
-          for (const k of cells.get(cellKey(cx + i, cy + j)) ?? []) if ((first < 0 || k < first) && Math.hypot(spots[k]!.x - x, spots[k]!.y - y) < merge) first = k;
+        for (let j = -1; j <= 1; j++) {
+          const c = (cy + j) * cols + cx + i;
+          if (c < 0 || c >= head.length) continue;
+          for (let k = head[c]!; k >= 0; k = next[k]!) {
+            if (first >= 0 && k > first) continue;
+            const dx = spots[k]!.x - x;
+            const dy = spots[k]!.y - y;
+            if (dx * dx + dy * dy < merge2) first = k;
+          }
+        }
       const near = spots[first];
       if (near) {
         near.indices.push(d.index);
@@ -1823,8 +1924,11 @@ export class MapView {
         near.weight = Math.max(near.weight, d.weight);
         near.fresh ||= d.fresh;
       } else {
-        const key = cellKey(cx, cy);
-        cells.set(key, [...(cells.get(key) ?? []), spots.length]);
+        const c = cy * cols + cx;
+        if (c >= 0 && c < head.length) {
+          next[spots.length] = head[c]!;
+          head[c] = spots.length;
+        }
         spots.push({ indices: [d.index], lon: d.lon, lat: d.lat, x, y, r: 0, count: d.count, weight: d.weight, fresh: d.fresh });
       }
     }

@@ -21,7 +21,9 @@ What happens on its own:
 
 "Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page.
 
-Each "Daily run" writes a short summary on its page in the Actions tab: the word, how many feeds were read, failed or paused, the stories and explanations, the model spend, and a table of the feeds that need a person. A failed run says which stage failed and lists the stages that finished.
+Each "Daily run" writes a short summary on its page in the Actions tab: the word, how many feeds were read, failed or paused, the stories and explanations, the local stories and their towns, the coverage line, the model spend, and a table of the feeds that need a person. A failed run says which stage failed and lists the stages that finished.
+
+The coverage line reads "Coverage: stories in 31,180 of 171,587 listed towns and cities (and 95 other places), 214 of 225 countries and territories, and 2,450 of 2,589 regions." Towns and cities are the city list and GeoNames' places of 1,000 people or more; "other places" are places more than 5 km from any of them, such as an outlet pinned away from its city's listed point. Below the tables, "Countries and territories with no story today" lists each by its code and largest listed city: that is where outlet research helps most (see the add-news-source skill). `npm run stage -- coverage --date <date>` prints the same line and list from the database at any time (decision 78).
 
 ## Turn on 2DayAI
 
@@ -80,7 +82,7 @@ npm run stage -- telegram --date 2026-09-04
 The Worker in `packages/web` serves three things:
 
 - the public map, which is the static build of `packages/map`
-- the map's data at `/data/latest.json` and `/data/<date>.json`: the files the daily run stores in R2, streamed as they are, or read from the database for a day with no stored file; cached for five minutes
+- the map's data at `/data/latest.json` and `/data/<date>.json`, and the day's local stories in tiles at `/data/local/<date>/<tile>.json` (decision 78): the files the daily run stores in R2, streamed as they are, or read from the database for a day with no stored file; cached for five minutes
 - the 2DayAI reader pages
 
 The Worker's config is `wrangler.toml` at the repository root. Its build step builds the map and drops the sample data, so a plain `npx wrangler deploy` from the root is a full deploy (decision 38). There are two ways to run it. Pick one: with both, every push deploys twice.
@@ -113,16 +115,17 @@ The daily run needs no deploy: it stores the new day's file in R2, and the Worke
 
 ### Map files in R2
 
-A day's map is several megabytes. Building it from the database takes longer than the 10 ms of CPU a request gets on Cloudflare's free plan, so the daily run stores the finished file in R2 and the Worker streams it (decision 73). R2's free tier (10 GB stored, a million writes and ten million reads a month) covers this many times over.
+A day's map is several megabytes. Building it from the database takes longer than the 10 ms of CPU a request gets on Cloudflare's free plan, so the daily run stores the finished file in R2 and the Worker streams it (decision 73). Since decision 78 the day's file holds the outlets' stories, the events and the word, tens of kilobytes, and the day's GDELT local stories go in tiles beside it: one file per 10-degree cell of longitude and latitude that has any, about 250 files and 10 to 15 MB (3 to 4 MB compressed) on a day of 40,000 to 50,000 local stories, stored as `local/<date>/<tile>.json`. The site asks for the tiles in view only when someone zooms in all the way. R2's free tier (10 GB stored, a million writes and ten million reads a month) covers this many times over.
 
 1. **Turn on R2.** In the Cloudflare dashboard, open R2 Object Storage. The first time, Cloudflare asks for a payment method to activate R2, even on the free tier; nothing is charged within the free limits.
 2. **Create the bucket.** Create bucket, name it exactly `globalgist-maps` (the name in `wrangler.toml`), location Automatic, storage class Standard. Leave public access off: no public bucket URL and no custom domain on the bucket. The Worker reads it through its binding, and nothing else needs to.
 3. **Give the daily run a token that can write to it.**
    - With the GitHub Actions deploy: edit the token in `CLOUDFLARE_API_TOKEN` (My Profile, then API Tokens) and check it has Account, then Workers R2 Storage, then Edit. The "Edit Cloudflare Workers" template includes it. Nothing else to add.
    - With Cloudflare's Git integration: create a token with only Account, then Workers R2 Storage, then Edit, for this account. Add it as the GitHub secret `R2_API_TOKEN`, and add the account id as `CLOUDFLARE_ACCOUNT_ID`. Don't add `CLOUDFLARE_API_TOKEN`, or every push deploys twice.
-4. **Deploy.** The next deploy binds the bucket to the Worker as `MAPS`. The next daily run stores `latest.json` and `<date>.json`. To store today's file straight away, run "Daily run" from the Actions tab with the stage `local`, which takes a few minutes and costs no model calls.
+4. **Deploy.** The next deploy binds the bucket to the Worker as `MAPS`. The next daily run stores the day's tiles under `local/<date>/` (with `wrangler r2 bulk put`, 20 at a time), then `<date>.json` and `latest.json`. To store today's files straight away, run "Daily run" from the Actions tab with the stage `local`, which takes a few minutes and costs no model calls.
+5. **Optional: let old tiles expire.** Each day adds 10 to 15 MB of tiles. In the bucket's Settings, under Object lifecycle rules, add a rule for the prefix `local/` that deletes objects 30 days after upload. Without it the free 10 GB lasts about two years.
 
-Check it worked: the bucket lists `latest.json` in the dashboard, and the "Store the map for the site" step of the daily run is green. Until the first file is stored, the Worker builds the map from the database as before.
+Check it worked: the bucket lists `latest.json` and a `local/<date>/` folder in the dashboard, and the "Store the map for the site" step of the daily run is green. Until the first file is stored, the Worker builds the day's file from the database with only the list of tiles, and each tile from the database when it is asked for.
 
 ## The world desk and the telegram
 
@@ -131,9 +134,9 @@ World sources are the `desk: world` entries in `config/sources.yaml`. Each one h
 1. `cluster world` groups their articles into events. It keeps the newest `WORLD_PER_SOURCE` (default 15) articles per source and sends them in batches of at most `WORLD_CLUSTER_BATCH` (default 300), newest first so each batch mixes places. With more than one batch, one merge call names the batch events that report the same story, and code joins them after checking every key. The run report counts `batches`, `merged` and `mergeDropped`. If any batch fails, the stage fails and writes nothing.
 2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
 3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
-4. `local` adds local stories from the towns none of them reached (decisions 54 and 67). It reads the day's GDELT files (one every 15 minutes, English and translated, about 192 a day) and takes the newest stories town by town: up to `GDELT_PER_REGION` (default 6; 0 turns the stage off) in each region with no outlet story, up to `GDELT_PER_REACHED_REGION` (default 3; 0 leaves those regions to the outlets) in each region with one, and `GDELT_MAX` (default 8,000) in all, which keeps the day's map file near 5 MB (1.5 MB as sent). A town within 25 km of a place with an outlet's story gets none. Set any of the three as a repository variable to change it. No model is involved. Run it alone with `npm run stage -- local --date <date>`. If GDELT is down the day still goes out, and the summary says so.
+4. `local` adds local stories from the towns none of them reached (decisions 54, 67 and 78). It reads the day's GDELT files (one every 15 minutes, English and translated, about 192 a day) and takes the newest `GDELT_PER_TOWN` stories (default 2; 0 turns the stage off) of every town GDELT tags, every town's newest before any town's second. `GDELT_MAX` (default 80,000) is a safety valve, not the day's limit: a normal day is expected at 25,000 to 45,000, and the summary says how many it left out if it ever binds. A town within 3 km of a place with an outlet's story is that place and gets none; the next municipality gets its own. Set either as a repository variable to change it. No model is involved. Run it alone with `npm run stage -- local --date <date>`. If GDELT is down the day still goes out, and the summary says so. The run report's `townsTagged` is how many towns GDELT's articles were placed at that day.
 
-GDELT's towns are checked against the city list and GeoNames' towns of 5,000 people or more (`packages/pipeline/data/towns.json`). Rebuild that file with `npm run towns:build` when you want newer GeoNames data: it reads a pinned copy from PyPI and checks its checksum, so update the URL and checksum in `packages/pipeline/scripts/build-towns.ts` together.
+GDELT's towns are checked against the city list and GeoNames' places of 1,000 people or more, with every seat of local government however small (`packages/pipeline/data/towns.txt`, 164,257 towns). Rebuild that file with `npm run towns:build` when you want newer GeoNames data: it reads a pinned copy from PyPI and checks its checksum, so update the URL and checksum in `packages/pipeline/scripts/build-towns.ts` together.
 
 Feeds look after themselves (decision 36):
 
@@ -147,7 +150,10 @@ To look at a day without the site:
 
 ```
 npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
+npm run stage -- coverage --date 2026-09-27
 ```
+
+`map export` writes the day's local stories as tiles in `local/<date>/` beside the file (here `/tmp/local/2026-09-27/`); `--manifest f` also lists them for `wrangler r2 bulk put`.
 
 To see the whole site with no database, no key and no network, run `npm run map:sample`, then `npm run map:dev`. The first command runs the fictional world fixture through the real stages in memory and writes `packages/map/public/data/sample.json`.
 

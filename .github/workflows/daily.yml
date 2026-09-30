@@ -40,10 +40,9 @@ jobs:
       # The word's score call runs this many times and keeps each event's middle score (decision 36). 1 saves
       # about two cents a day.
       TELEGRAM_SCORE_RUNS: ${{ vars.TELEGRAM_SCORE_RUNS }}
-      # GDELT local stories (decisions 54 and 67), no model cost: per region no outlet reached (default 6; 0 turns
-      # them off), per region an outlet reached, from its other towns (default 3), and per day (default 8000).
-      GDELT_PER_REGION: ${{ vars.GDELT_PER_REGION }}
-      GDELT_PER_REACHED_REGION: ${{ vars.GDELT_PER_REACHED_REGION }}
+      # GDELT local stories (decisions 54, 67 and 78), no model cost: the newest per town (default 2; 0 turns them
+      # off) and a daily safety valve (default 80000).
+      GDELT_PER_TOWN: ${{ vars.GDELT_PER_TOWN }}
       GDELT_MAX: ${{ vars.GDELT_MAX }}
       # Stores the finished map file in R2 for the site (decision 73): R2_API_TOKEN when the site deploys through
       # Cloudflare's Git integration, otherwise the deploy token.
@@ -91,32 +90,39 @@ jobs:
             npm run stage -- day $IF_MISSING
           fi
       # The day's map as a downloadable file, kept a week: what the site shows, for checking a day or loading it into
-      # a demo without database access (decision 41).
+      # a demo without database access (decision 41). Its local stories go in tiles beside it, in local/<date>/, and
+      # tiles.json lists them for R2 (decision 78).
       - name: Export the map
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
-        run: npm run -s stage -- map export --out map.json
+        run: npm run -s stage -- map export --out map.json --manifest tiles.json
       # The site's copy: the Worker streams these files from R2 instead of building the map on every request, which
-      # takes longer than the free plan's 10 ms (decision 73). latest.json and the day's own date; a run for an
-      # earlier date also refreshes that date's file.
+      # takes longer than the free plan's 10 ms (decision 73). The day's tiles first, 20 at a time, then the day's
+      # file, so a file never lists a tile that isn't stored yet (decision 78). latest.json and the day's own date;
+      # a run for an earlier date also refreshes that date's files.
       - name: Store the map for the site
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != ''
         env:
           DATE: ${{ inputs.date }}
         run: |
           put() { npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
+          tiles() { if [ "$(node -p "require('./$1').length")" != "0" ]; then npx wrangler r2 bulk put globalgist-maps --filename "$1" --content-type application/json --remote --force; fi; }
           day=$(node -p 'require("./map.json").runDate')
+          tiles tiles.json
           put "$day.json" map.json
           put latest.json map.json
           if [ -n "$DATE" ] && [ "$DATE" != "$day" ]; then
             if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then echo "::error::date must be YYYY-MM-DD"; exit 1; fi
-            npm run -s stage -- map export --date "$DATE" --out dated.json
+            npm run -s stage -- map export --date "$DATE" --out dated.json --manifest dated-tiles.json
+            tiles dated-tiles.json
             put "$DATE.json" dated.json
           fi
       - uses: actions/upload-artifact@v4
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         with:
           name: map
-          path: map.json
+          path: |
+            map.json
+            local/
           retention-days: 7
 
   # A day's map file on its own branch, so a session that can reach GitHub over git but not the artifact store can
@@ -139,8 +145,8 @@ jobs:
           TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          mkdir demo && mv map.json demo/ && cd demo
+          mkdir demo && mv map.json demo/ && if [ -d local ]; then mv local demo/; fi && cd demo
           git init -q -b demo-data
-          git add map.json
+          git add map.json $( [ -d local ] && echo local )
           git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -qm "Map file for the demo page"
           git push -qf "https://x-access-token:${TOKEN}@github.com/${REPO}.git" demo-data

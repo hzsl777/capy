@@ -1,12 +1,13 @@
 // Reader pages (levels 1 to 3), feedback endpoints, and the public map's data. The map itself is static
 // assets (packages/map/dist) served by this Worker. Its data is the finished file the daily run stores in R2
-// (decision 73), read from the database only when no stored file exists. Never calls the model.
+// (decision 73), with the day's local stories in tiles beside it (decision 78), read from the database only when no
+// stored file exists. Never calls the model.
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { Hono } from "hono";
-import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedbackPage, renderNotFound, toRunDate } from "@2dayai/core";
+import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedbackPage, renderNotFound, tileBounds, toRunDate } from "@2dayai/core";
 import * as schema from "@2dayai/db";
-import { findEditionEvent, latestMapDate, loadEditionView, loadMapView, recordFeedback, type Db } from "@2dayai/db";
+import { findEditionEvent, latestMapDate, loadEditionView, loadLocalTile, loadMapView, recordFeedback, type Db } from "@2dayai/db";
 
 /** The part of an R2 bucket the Worker uses: reading one stored map file. */
 export interface MapStore {
@@ -84,15 +85,30 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
       const db = dbOf(c.env);
       const date = await latestMapDate(db);
       if (!date) return c.json({ error: "no map data yet" }, 404);
-      return c.json(await loadMapView(db, date), 200, { "Cache-Control": MAP_CACHE });
+      return c.json(await loadMapView(db, date, new Date(), { local: "index" }), 200, { "Cache-Control": MAP_CACHE });
     }),
   );
+
+  // One tile of a day's local stories (decision 78), which the site asks for once zoomed in: the file the daily run
+  // stored in R2 at local/<date>/<key>.json, else built from the database, else nothing.
+  app.get("/data/local/:date/:file", async (c) => {
+    const date = validDate(c.req.param("date"));
+    const m = /^(\d{1,2}[NS]_\d{1,3}[EW])\.json$/.exec(c.req.param("file"));
+    const key = m && tileBounds(m[1]!) ? m[1]! : null;
+    if (!date || !key) return c.json({ error: "not found" }, 404);
+    return cachedJson(c.req.raw, async () => {
+      const file = await stored(c.env, `local/${date}/${key}.json`);
+      if (file) return file;
+      const tile = await loadLocalTile(dbOf(c.env), date, key);
+      return tile ? c.json(tile, 200, { "Cache-Control": MAP_CACHE }) : c.json({ error: "not found" }, 404);
+    });
+  });
 
   app.get("/data/:file", async (c) => {
     const m = /^(\d{4}-\d{2}-\d{2})\.json$/.exec(c.req.param("file"));
     const date = m ? validDate(m[1]!) : null;
     if (!date) return c.json({ error: "not found" }, 404);
-    return cachedJson(c.req.raw, async () => (await stored(c.env, `${date}.json`)) ?? c.json(await loadMapView(dbOf(c.env), date), 200, { "Cache-Control": MAP_CACHE }));
+    return cachedJson(c.req.raw, async () => (await stored(c.env, `${date}.json`)) ?? c.json(await loadMapView(dbOf(c.env), date, new Date(), { local: "index" }), 200, { "Cache-Control": MAP_CACHE }));
   });
 
   app.get("/r/:token/:date", async (c) => {
