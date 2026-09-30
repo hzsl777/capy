@@ -5,6 +5,8 @@
 // - Market Terminal: a header strip over the map with the reticle's latitude and longitude and a UTC clock.
 // - Country Club: a small embroidered crest by the name: crossed oars inside a laurel, no animal and no letters.
 // - Sleeper Car: a route bar over the map with the time, a line diagram and the next stop.
+// - Rave: the DJ booth along the bottom of the map: two turntables and, between them, the waveforms of the two
+//   tracks over a mixer. Our own plain drawings, no brand's deck; no text.
 // Place names go in as text, never as HTML.
 
 import type { ThemeId } from "../themes.ts";
@@ -98,6 +100,94 @@ function routeBar(): HTMLElement {
   );
 }
 
+/** A turntable seen from above: the plinth, the platter with a record whose label turns, and the tone arm. */
+function turntable(label: string): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 100 100", class: "x-deck", "aria-hidden": "true" });
+  s.append(
+    svg("rect", { x: 2, y: 2, width: 96, height: 96, rx: 7, fill: "#16111f", stroke: "#2e2542", "stroke-width": 1.5 }),
+    svg("circle", { cx: 44, cy: 50, r: 41, fill: "#0b0911", stroke: "#3a3150", "stroke-width": 1.5 }),
+  );
+  const record = svg("g", { class: "x-record" });
+  record.append(svg("circle", { cx: 44, cy: 50, r: 37, fill: "#050308" }));
+  for (const r of [33, 29, 25, 21, 17]) record.append(svg("circle", { cx: 44, cy: 50, r, fill: "none", stroke: "rgba(255,255,255,0.07)", "stroke-width": 0.8 }));
+  // A sheen across the grooves and a stripe on the label, so the record is seen to turn.
+  record.append(
+    svg("path", { d: "M44 50L44 13A37 37 0 0 1 70 24Z", fill: "rgba(255,255,255,0.06)" }),
+    svg("circle", { cx: 44, cy: 50, r: 11, fill: label }),
+    svg("rect", { x: 42.5, y: 39.5, width: 3, height: 8, fill: "#0b0911" }),
+  );
+  s.append(
+    record,
+    svg("circle", { cx: 44, cy: 50, r: 1.6, fill: "#d8d2e6" }),
+    svg("circle", { cx: 87, cy: 15, r: 6, fill: "#2a2238", stroke: "#4a4060", "stroke-width": 1 }),
+    svg("path", { d: "M87 15L85 58L72 70", fill: "none", stroke: "#b9b3c8", "stroke-width": 2.4, "stroke-linecap": "round", "stroke-linejoin": "round" }),
+    svg("rect", { x: 66, y: 67, width: 9, height: 6, rx: 1, fill: "#d8d2e6", transform: "rotate(-40 70.5 70)" }),
+    svg("rect", { x: 8, y: 84, width: 13, height: 8, rx: 2, fill: "none", stroke: label, "stroke-width": 1.4 }),
+  );
+  return s;
+}
+
+/**
+ * The two tracks' waveforms scrolling past the playhead, as on a DJ's screen: bars of a fixed made-up track, drawn
+ * twice over so the loop has no seam.
+ */
+function waveform(): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 600 40", preserveAspectRatio: "none", class: "x-wave", "aria-hidden": "true" });
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const lanes = [
+    { y: 10, color: "#9dff2e", d: "" },
+    { y: 30, color: "#3ff0ff", d: "" },
+  ];
+  lanes.forEach((lane, k) => {
+    const amps = Array.from({ length: 150 }, (_, i) => {
+      // A kick every eighth bar and a slow swell over the phrase.
+      const kick = (i + k * 3) % 8 === 0 ? 0.35 : 0;
+      return Math.min(1, 0.2 + 0.45 * Math.abs(Math.sin((i + k * 20) * 0.09)) * (0.5 + rnd() * 0.5) + kick);
+    });
+    for (let copy = 0; copy < 2; copy++)
+      amps.forEach((a, i) => {
+        const x = copy * 600 + i * 4 + 2;
+        lane.d += `M${x} ${(lane.y - a * 8.5).toFixed(1)}V${(lane.y + a * 8.5).toFixed(1)}`;
+      });
+  });
+  const run = svg("g", { class: "x-wave-run" });
+  for (const lane of lanes) run.append(svg("path", { d: lane.d, stroke: lane.color, "stroke-width": 2.2, fill: "none" }));
+  s.append(run, svg("line", { x1: 300, y1: 0, x2: 300, y2: 40, stroke: "#ffffff", "stroke-width": 1.4 }));
+  return s;
+}
+
+/** The mixer between the decks: a knob column and a meter per channel, and the crossfader. */
+function mixer(): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 200 30", class: "x-mixer", "aria-hidden": "true" });
+  s.append(svg("rect", { x: 1, y: 1, width: 198, height: 28, rx: 4, fill: "#16111f", stroke: "#2e2542", "stroke-width": 1 }));
+  for (const [x0, dir] of [
+    [14, 1],
+    [186, -1],
+  ] as const) {
+    for (let k = 0; k < 3; k++) {
+      const x = x0 + dir * k * 15;
+      s.append(
+        svg("circle", { cx: x, cy: 15, r: 5, fill: "#241c34", stroke: "#4a4060", "stroke-width": 1 }),
+        svg("line", { x1: x, y1: 15, x2: x + dir * 2.5, y2: 11, stroke: "#d8d2e6", "stroke-width": 1.2 }),
+      );
+    }
+    // A level meter, lit to a fixed height: green, then violet at the top.
+    for (let k = 0; k < 6; k++)
+      s.append(svg("rect", { x: x0 + dir * 50 - 2, y: 24 - k * 3.4, width: 4, height: 2.4, fill: k < 4 ? "#9dff2e" : k < 5 ? "#8a4dff" : "#2e2542" }));
+  }
+  s.append(
+    svg("rect", { x: 72, y: 14, width: 56, height: 2.4, rx: 1.2, fill: "#05030a" }),
+    svg("rect", { x: 96, y: 8, width: 8, height: 14, rx: 1.5, fill: "#d8d2e6" }),
+    svg("line", { x1: 100, y1: 9.5, x2: 100, y2: 20.5, stroke: "#ff3fd4", "stroke-width": 1.2 }),
+  );
+  return s;
+}
+
+function booth(): HTMLElement {
+  return h("div", { class: "x-booth", "aria-hidden": "true" }, turntable("#9dff2e"), h("div", { class: "x-booth-mid" }, waveform(), mixer()), turntable("#ff3fd4"));
+}
+
 export function mountExtras(source: ExtrasSource) {
   src = source;
   mapEl = document.getElementById("map")!;
@@ -116,6 +206,7 @@ export function mountExtras(source: ExtrasSource) {
   readout = h("span", { class: "x-readout" });
   utc = h("span", { class: "x-utc" });
   mapEl.append(h("div", { class: "x-term", "aria-hidden": "true" }, h("span", { class: "x-fkey" }, "F1"), h("span", { class: "x-term-title" }, "MAP"), readout, utc));
+  mapEl.append(booth());
   const brand = document.querySelector(".brand");
   brand?.prepend(crest());
   mapEl.append(routeBar());

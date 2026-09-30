@@ -38,6 +38,11 @@ import {
   lensOf,
   lensPoint,
   mix,
+  drawRaveHaze,
+  drawRaveLasers,
+  drawRaveRoom,
+  ledTile,
+  raveBand,
   Snow,
   snowFloor,
   warped,
@@ -150,6 +155,39 @@ function raster(fc: Basemap["land"] | undefined): (lon: number, lat: number) => 
     const y = Math.min(H - 1, Math.max(0, Math.floor(((90 - lat) / 180) * H)));
     return px[(y * W + x) * 4 + 3]! > 127;
   };
+}
+
+/**
+ * Which half-degree cells hold any land or touch it, read back from a small plate carrée drawing of the land with
+ * its coast thickened: a generous test of whether a box of longitude and latitude may hold land, for Nightclub's
+ * tiles and facets, whose exact shape the coast then cuts. `near` says whether a point is on or beside land.
+ */
+function landReach(fc: Basemap["land"]): { box: (w: number, s: number, e: number, n: number) => boolean; near: (lon: number, lat: number) => boolean } {
+  const W = 720;
+  const H = 360;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const g = canvas.getContext("2d", { willReadFrequently: true })!;
+  const proj = geoEquirectangular().scale(W / (2 * Math.PI)).translate([W / 2, H / 2]).precision(0.2);
+  g.beginPath();
+  geoPath(proj, g)(fc);
+  g.fillStyle = g.strokeStyle = "#fff";
+  g.lineWidth = 2;
+  g.fill();
+  g.stroke();
+  const px = g.getImageData(0, 0, W, H).data;
+  const cells = new Uint8Array(W * H);
+  for (let i = 0; i < cells.length; i++) cells[i] = px[i * 4 + 3]! > 0 ? 1 : 0;
+  const row = (lat: number) => Math.min(H - 1, Math.max(0, Math.floor(((90 - lat) / 180) * H)));
+  const col = (lon: number) => ((Math.floor(((lon + 180) / 360) * W) % W) + W) % W;
+  const box = (w: number, s: number, e: number, n: number) => {
+    const x0 = Math.floor(((w + 180) / 360) * W), x1 = Math.floor(((e + 180) / 360) * W - 1e-9);
+    for (let y = row(n); y <= row(s); y++)
+      for (let x = x0; x <= Math.max(x0, x1); x++) if (cells[y * W + (((x % W) + W) % W)]) return true;
+    return false;
+  };
+  return { box, near: (lon, lat) => cells[row(lat) * W + col(lon)] === 1 };
 }
 
 const unitOf = (lon: number, lat: number): [number, number, number] => {
@@ -2282,7 +2320,6 @@ export class MapView {
     ball?: Ball;
     floor?: Floor;
   } | null = null;
-  private sceneLand?: { base: Basemap; isLand: (lon: number, lat: number) => boolean };
   /** The camera after the projection (tilt, lens, ripple or bob) for this frame, shared by land, arcs and dots. */
   private sceneWarp: SceneWarp | null = null;
   private sceneTimer = 0;
@@ -2302,6 +2339,11 @@ export class MapView {
   private scenePlace(proj: GeoProjection, lon: number, lat: number): { x: number; y: number; s: number } | null {
     const p = proj([lon, lat]);
     if (!p) return null;
+    if (this.theme.scene === "rave") {
+      // Rave: behind the DJ booth, or up in the rig above the LED wall, a place is out of sight.
+      const band = raveBand(this.h);
+      return p[1] > this.h - band || (this.mode === "2d" && p[1] < band) ? null : { x: p[0], y: p[1], s: 1 };
+    }
     const f = this.sceneWarp;
     if (!f) return { x: p[0], y: p[1], s: 1 };
     const q = f(p[0], p[1]);
@@ -2344,11 +2386,18 @@ export class MapView {
     }
   }
 
-  private landTest(): (lon: number, lat: number) => boolean {
-    const base = this.low ?? this.high;
-    if (!base) return () => false;
-    if (!this.sceneLand || this.sceneLand.base !== base) this.sceneLand = { base, isLand: raster(base.land) };
-    return this.sceneLand.isLand;
+  private sceneLand?: { base: Basemap; test: ReturnType<typeof landReach> };
+
+  /**
+   * Nightclub's land: the finer basemap whenever it has loaded, so every strait it has shows between the lit tiles
+   * and mirrors; what may hold land; and the places it misses, whose tile or facet is lit whole.
+   */
+  private clubLand(anchors: [number, number][]) {
+    const map = this.high ?? this.low;
+    if (!map) return { map, box: () => false, stranded: anchors };
+    if (this.sceneLand?.base !== map) this.sceneLand = { base: map, test: landReach(map.land) };
+    const { box, near } = this.sceneLand.test;
+    return { map, box, stranded: anchors.filter(([lon, lat]) => !near(lon, lat)) };
   }
 
   /** Ask for the next frame of moving light, twelve a second, and none while the tab is hidden. */
@@ -2370,6 +2419,9 @@ export class MapView {
     const now = still ? 9 : performance.now() / 1000;
     // The page frames some scenes by view (the pool's edge in Map view), so it needs to know which is showing.
     if (this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
+    // Rave: the DJ booth (chrome in src/ui/extras.ts) is as tall as the rig the canvas draws above the wall.
+    const band = kind === "rave" ? raveBand(h) : 0;
+    if (band && this.container.style.getPropertyValue("--rave-band") !== `${band}px`) this.container.style.setProperty("--rave-band", `${band}px`);
     if (!this.sceneWatching) {
       this.sceneWatching = true;
       document.addEventListener("visibilitychange", () => {
@@ -2396,7 +2448,8 @@ export class MapView {
     const ripple = (y: number) => Math.sin(y / 38 + now * 1.4) * 1.4;
     this.sceneWarp = kind === "pool" ? (globe ? (x, y) => [x, y + bob, 1] : still ? null : (x, y) => [x + ripple(y), y, 1]) : fixed;
 
-    const map = (R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
+    // Nightclub cuts its land to the finer coast at every zoom, so narrow seas and straits stay open (clubLand).
+    const map = kind === "club" ? (this.high ?? this.low) : ((R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high);
     const backKey = [kind, this.mode, w, h, this.dpr].join("|");
     let c = this.sceneCache;
     if (!c || c.backKey !== backKey) {
@@ -2404,6 +2457,7 @@ export class MapView {
       this.paintInto(c.back, (g) => {
         if (kind === "club") drawClubRoom(g, w, h, cam ? this.horizonY(cam) : null);
         if (kind === "pool" && globe) drawPoolNight(g, w, h, h / 2 - this.baseScale);
+        if (kind === "rave") drawRaveRoom(g, w, h, band, globe);
       });
     }
     const key = [this.lon.toFixed(5), this.lat.toFixed(5), this.zoom.toFixed(5), this.anchors.size].join("|");
@@ -2418,9 +2472,17 @@ export class MapView {
     const ctx = this.ctx;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    if (kind === "club" || (kind === "pool" && globe)) ctx.drawImage(c.back, 0, 0, w, h);
+    if (kind === "club" || kind === "rave" || (kind === "pool" && globe)) ctx.drawImage(c.back, 0, 0, w, h);
     if (kind === "club" && globe) this.softLight(ctx, (g) => drawSpotlights(g, w, h, now));
+    if (kind === "rave") {
+      // The light show, round the globe or in the rig above the wall; the still picture then covers the screen.
+      const disc = globe ? { cx, cy, R } : null;
+      this.softLight(ctx, (g) => drawRaveHaze(g, w, h, band, disc, now));
+      drawRaveLasers(ctx, w, h, band, disc, now);
+    }
     if (kind === "club" && cam) drawLasers(ctx, w, this.horizonY(cam), now);
+    // The floor's lit tiles lie under the still picture, which is cut open along the coast.
+    if (kind === "club" && !globe && c.floor) this.drawFloorLight(ctx, c.floor, now);
     if (kind === "pool" && globe) drawPoolRipples(ctx, w, h, cx, cy + R * 0.45, R, now);
 
     if (kind === "pool" && !globe && !still) {
@@ -2436,13 +2498,20 @@ export class MapView {
 
     let moving = 1;
     if (kind === "club" && globe && c.ball) this.drawBallLight(ctx, c.ball, cx, cy, R, now);
-    if (kind === "club" && !globe && c.floor) this.drawFloorLight(ctx, c.floor, now);
     if (kind === "pool" && !globe) this.drawCaustics(ctx, now);
     if (kind === "pool" && globe) this.drawWaterline(ctx, cx, cy, R, bob);
     if (kind === "snow") moving = this.drawSnow(ctx, globe, cx, cy, R, now, still);
 
     const view = this.sceneWarp ? warped(proj, this.sceneWarp) : proj;
-    this.drawArcs(geoPath(view, ctx), proj);
+    if (band) {
+      // Arcs stay on the screen, never in the rig or behind the booth.
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, globe ? 0 : band, w, globe ? h - band : h - 2 * band);
+      ctx.clip();
+      this.drawArcs(geoPath(view, ctx), proj);
+      ctx.restore();
+    } else this.drawArcs(geoPath(view, ctx), proj);
     this.drawDots(proj);
     if (!still && moving > 0) this.scheduleScene();
   }
@@ -2510,6 +2579,7 @@ export class MapView {
       g.fillStyle = "#0a0710";
       g.fill();
       const step = BALL_STEPS.find((s) => (s * R) / DEG >= 15) ?? BALL_STEPS[BALL_STEPS.length - 1]!;
+      const land = this.clubLand(anchors);
       const ball = buildBall({
         proj,
         lon: this.lon,
@@ -2517,14 +2587,26 @@ export class MapView {
         w,
         h,
         step,
-        isLand: this.landTest(),
-        anchors,
-        land: [hexRGB("#2c0b40"), hexRGB("#ff9be9")],
-        sea: [hexRGB("#101626"), hexRGB("#dfe9ff")],
+        isLand: land.box,
+        anchors: land.stranded,
+        land: BALL_LAND,
+        sea: BALL_SEA,
       });
       for (const [col, list] of ball.fills) {
         g.fillStyle = col;
         g.fill(new Path2D(list.join("")));
+      }
+      // The land's mirrors, cut to the coast: a facet across a strait is part pink, part silver.
+      if (land.map) {
+        g.save();
+        g.beginPath();
+        geoPath(proj, g)(land.map.land);
+        g.clip();
+        for (const [col, list] of ball.land) {
+          g.fillStyle = col;
+          g.fill(new Path2D(list.join("")));
+        }
+        g.restore();
       }
       g.strokeStyle = "rgba(255,255,255,0.3)";
       g.lineWidth = 0.8;
@@ -2544,6 +2626,7 @@ export class MapView {
     if (kind === "club") {
       const cam = this.cam!;
       const step = FLOOR_STEPS.find(([z]) => this.zoom < z)![1];
+      const land = this.clubLand(anchors);
       const floor = buildFloor({
         proj,
         tp: (x, y) => this.tp(x, y, 0, cam),
@@ -2553,8 +2636,8 @@ export class MapView {
         h,
         step,
         cutoff: SCENE_CUTOFF,
-        isLand: this.landTest(),
-        anchors,
+        isLand: land.box,
+        anchors: land.stranded,
         sea: [hexRGB("#140d26"), hexRGB("#1e1438")],
         fog: hexRGB(t.fog ?? "#1a0b2e"),
       });
@@ -2574,6 +2657,22 @@ export class MapView {
       glow.addColorStop(1, "rgba(190,80,255,0)");
       g.fillStyle = glow;
       g.fillRect(0, hy, w, h - hy);
+      // Cut the floor open over the land, inside the tiles that hold it, so the lit tiles underneath show in the
+      // coast's own shape and every strait stays dark floor between them.
+      g.save();
+      g.globalCompositeOperation = "destination-out";
+      g.fillStyle = "#000";
+      g.fill(floor.whole);
+      if (land.map) {
+        g.beginPath();
+        g.rect(0, hy, w, h - hy);
+        g.clip();
+        g.clip(floor.reach);
+        g.beginPath();
+        geoPath({ stream: (out: GeoStream) => proj.stream(this.tiltStream(out, cam)) } as GeoProjection, g)(land.map.land);
+        g.fill();
+      }
+      g.restore();
       c.floor = floor;
       return;
     }
@@ -2610,6 +2709,11 @@ export class MapView {
       water.addColorStop(1, "rgba(12,36,96,0.55)");
       g.fillStyle = water;
       g.fillRect(0, 0, w, h);
+      return;
+    }
+
+    if (kind === "rave") {
+      this.paintRave(g, proj, map, t, globe);
       return;
     }
 
@@ -2712,6 +2816,72 @@ export class MapView {
     g.strokeStyle = "rgba(60,90,125,0.55)";
     g.lineWidth = 1.2;
     g.stroke();
+  }
+
+  private ledPattern?: CanvasPattern;
+
+  /**
+   * Rave's screens, which hold still for the view: the map on the LED wall between the rig and the booth, or the
+   * globe as a round LED screen hung from the rig on two cables, both with the dark gaps between their pixels.
+   */
+  private paintRave(g: CanvasRenderingContext2D, proj: GeoProjection, map: Basemap | undefined, t: Theme, globe: boolean) {
+    const { w, h } = this;
+    const band = raveBand(h);
+    const led = (this.ledPattern ??= g.createPattern(ledTile(), "repeat")!);
+    if (globe) {
+      const R = proj.scale();
+      const [cx, cy] = proj.translate();
+      const rig = band * 0.38;
+      if (cy - R > rig) {
+        g.strokeStyle = "#3a3150";
+        g.lineWidth = 1.5;
+        g.beginPath();
+        for (const s of [-0.45, 0.45]) {
+          g.moveTo(cx + s * R, rig);
+          g.lineTo(cx + s * R, cy - Math.sqrt(1 - s * s) * R);
+        }
+        g.stroke();
+      }
+      this.paintWorld(g, proj, map, t);
+      g.save();
+      g.beginPath();
+      g.arc(cx, cy, R, 0, Math.PI * 2);
+      g.clip();
+      g.fillStyle = led;
+      g.fillRect(0, 0, w, h);
+      g.restore();
+      // The screen's rim, lit UV.
+      g.beginPath();
+      g.arc(cx, cy, R + 1.5, 0, Math.PI * 2);
+      g.strokeStyle = "rgba(138,77,255,0.85)";
+      g.lineWidth = 2.5;
+      g.stroke();
+      return;
+    }
+    const top = band, tall = h - 2 * band;
+    g.save();
+    g.beginPath();
+    g.rect(0, top, w, tall);
+    g.clip();
+    g.fillStyle = t.ocean;
+    g.fillRect(0, top, w, tall);
+    const path = geoPath(proj, g);
+    g.beginPath();
+    path(GRATICULE);
+    g.strokeStyle = t.graticule;
+    g.lineWidth = 0.6;
+    g.stroke();
+    if (map) this.drawMap(path, proj, map, t);
+    g.fillStyle = led;
+    g.fillRect(0, top, w, tall);
+    g.restore();
+    // The wall's edge: a dark frame, lit UV along its outside.
+    g.strokeStyle = "#000000";
+    g.lineWidth = 3;
+    g.strokeRect(-3, top - 1.5, w + 6, tall + 3);
+    g.strokeStyle = "rgba(138,77,255,0.8)";
+    g.lineWidth = 1;
+    g.strokeRect(-3, top - 3.5, w + 6, tall + 7);
   }
 
   /** The globe inside a glass dome on a wooden base, seen slightly from below. */
@@ -3088,6 +3258,9 @@ const SCENE_CUTOFF = 0.6;
 const SNOW_DOME = 1.26;
 /** Mirror ball facet sizes in degrees; the smallest that is still at least 15 pixels across is used. */
 const BALL_STEPS = [0.25, 0.5, 1, 1.5, 2, 3, 4, 6];
+/** The mirror ball's land and sea mirrors, from unlit to lit. */
+const BALL_LAND: [RGB, RGB] = [hexRGB("#3a0850"), hexRGB("#ff7ae6")];
+const BALL_SEA: [RGB, RGB] = [hexRGB("#0b1430"), hexRGB("#b4dcff")];
 /** Dance floor tile sizes in degrees by zoom: large tiles at the whole world, smaller as you zoom in. */
 const FLOOR_STEPS: [number, number][] = [
   [3, 3],

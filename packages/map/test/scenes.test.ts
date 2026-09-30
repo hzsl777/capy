@@ -1,6 +1,6 @@
 import { geoOrthographic } from "d3-geo";
 import { describe, expect, it } from "vitest";
-import { ballGlints, buildBall, css, FLOOR_COLORS, floorColor, hexRGB, lensInverse, lensOf, lensPoint, mix, Snow, type RGB } from "../src/map/scenes.ts";
+import { ballGlints, buildBall, css, FLOOR_COLORS, floorColor, hexRGB, lensInverse, lensOf, lensPoint, mix, RAVE_COLORS, RAVE_MAX_TURN, raveBand, raveBeamAngles, raveColor, raveFans, Snow, type RGB } from "../src/map/scenes.ts";
 import { THEMES } from "../src/themes.ts";
 
 /** WCAG relative luminance of an sRGB colour. */
@@ -110,6 +110,42 @@ describe("no flashing (WCAG 2.3.1)", () => {
       }
     }
   });
+});
+
+describe("Rave's light show never flashes (WCAG 2.3.1)", () => {
+  it("the lasers' colours change slowly: no 10% swing in brightness within a third of a second", () => {
+    for (let fan = 0; fan < RAVE_COLORS.length; fan++) {
+      for (let f = 0; f < 60 * FPS; f++) {
+        const t = f / FPS;
+        const a = luminance(raveColor(fan, t));
+        const b = luminance(raveColor(fan, t + 1 / 3));
+        expect(Math.abs(a - b), `fan ${fan} at ${t.toFixed(2)} s`).toBeLessThan(0.1);
+      }
+    }
+  });
+
+  for (const globe of [false, true]) {
+    it(`every beam stays on and sweeps slowly (${globe ? "Globe" : "Map"} view)`, () => {
+      const w = 1000, h = 700;
+      const fans = raveFans(w, h, raveBand(h), globe);
+      // The largest turn in a third of a second and the widest angle, gathered first so the test stays quick.
+      let turn = 0, widest = 0;
+      for (const fan of fans) {
+        for (let f = 0; f < 60 * FPS; f++) {
+          const t = f / FPS;
+          const now = raveBeamAngles(fan, t), later = raveBeamAngles(fan, t + 1 / 3);
+          expect(now.length).toBe(fan.n);
+          for (let i = 0; i < now.length; i++) {
+            turn = Math.max(turn, Math.abs(later[i]! - now[i]!));
+            widest = Math.max(widest, Math.abs(now[i]!));
+          }
+        }
+      }
+      expect(turn).toBeLessThan(RAVE_MAX_TURN / 3);
+      // In Map view the beams rise from the top of the wall into the rig, never down across the map.
+      if (!globe) expect(widest).toBeLessThan(Math.PI / 2);
+    });
+  }
 });
 
 describe("mirror ball facets", () => {
