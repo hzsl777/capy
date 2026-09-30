@@ -57,6 +57,10 @@ import { drawRadar, RadarCache } from "./radar.ts";
 import { drawNoir, NoirCache } from "./noir.ts";
 import { drawArcade, ArcadeCache } from "./arcade.ts";
 import { drawStadium, StadiumCache } from "./stadium.ts";
+import { drawPopup, PopupCache } from "./popup.ts";
+import { drawTrainset, TrainsetCache } from "./trainset.ts";
+import { drawChalk, ChalkCache } from "./chalk.ts";
+import { drawSketch, SketchCache } from "./sketch.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -255,6 +259,12 @@ export class MapView {
   private warpFor = "";
   private motionTimer = 0;
   private lastDraw = 0;
+  /** Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76). */
+  private handmade = { popup: new PopupCache(), trainset: new TrainsetCache(), chalk: new ChalkCache(), sketch: new SketchCache() };
+  /** Where the current or last drag passed on screen, for Chalkboard's smudge. */
+  private trail: { x: number; y: number; t: number }[] = [];
+  /** The next frame a handmade design's own motion asked for (the train, the line boil, a fading smudge). */
+  private handTimer = 0;
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -292,6 +302,10 @@ export class MapView {
     container.prepend(this.canvas);
     this.ctx = this.canvas.getContext("2d")!;
     new ResizeObserver(() => this.resize()).observe(container);
+    // A design's own motion pauses while the tab is hidden and picks up again when it shows.
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) this.request();
+    });
     this.bindInput();
     this.resize();
     document.addEventListener("visibilitychange", () => this.syncMotion());
@@ -623,6 +637,11 @@ export class MapView {
         const dx = cur.x - prev.x;
         const dy = cur.y - prev.y;
         this.pan(dx, dy);
+        if (this.theme.surface === "chalk" && !this.still()) {
+          const rect = c.getBoundingClientRect();
+          this.trail.push({ x: cur.x - rect.left, y: cur.y - rect.top, t: performance.now() });
+          if (this.trail.length > 90) this.trail.shift();
+        }
         const now = performance.now();
         const dt = Math.max(1, now - this.velocity.t);
         this.velocity = { x: dx / dt, y: dy / dt, t: now };
@@ -965,6 +984,16 @@ export class MapView {
     return p;
   }
 
+  /** The camera's tilt now: fixed, or with `tiltOut` flatter when zoomed out (Pop-up Book, decision 76). */
+  private tiltAngle(): number {
+    const t = this.theme;
+    if (!t.tiltOut) return t.tilt ?? 0;
+    const [flat, by] = t.tiltOut;
+    const lo = t.tiltMinZoom ?? 1.8;
+    const k = clamp((this.zoom - lo) / Math.max(0.01, by - lo), 0, 1);
+    return flat + ((t.tilt ?? flat) - flat) * (1 - (1 - k) * (1 - k));
+  }
+
   private makeCam(tilt: number): Cam {
     const a = tilt / DEG;
     return { cx: this.w / 2, cy: this.h / 2, sin: Math.sin(a), cos: Math.cos(a), d: this.h * (this.theme.tiltEye ?? 1), far: this.theme.tiltFar ?? 0.5 };
@@ -1087,7 +1116,7 @@ export class MapView {
     const proj = this.projection();
     const R = proj.scale();
     // The tilted camera applies to the flat map; the globe is already a solid seen in perspective.
-    const cam = this.mode === "2d" && t.tilt ? this.makeCam(t.tilt) : null;
+    const cam = this.mode === "2d" && t.tilt ? this.makeCam(this.tiltAngle()) : null;
     this.cam = cam;
     this.terrainNow = null;
     this.liftPx = R * 0.02;
@@ -1106,7 +1135,9 @@ export class MapView {
     if (t.surface && map) {
       // Night Drive, Cross Stitch and Rose Window draw land and sea their own way (decision 70). Places, arcs and
       // tuning are the same as in every design.
-      const framed = this.drawSurface(proj, cam, view, map, t);
+      const drawn = this.drawSurface(proj, cam, view, map, t);
+      const framed = typeof drawn === "object" ? drawn : undefined;
+      const again = typeof drawn === "number" ? drawn : 0;
       drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
       if (framed?.clip) {
         ctx.save();
@@ -1117,6 +1148,10 @@ export class MapView {
       this.drawDots(proj, framed);
       framed?.over?.();
       this.ambient();
+      // Decision 76: a handmade design with its own motion asks for its next frame, never while the tab is hidden or
+      // for readers who ask for reduced motion.
+      clearTimeout(this.handTimer);
+      if (again && !this.still() && !document.hidden) this.handTimer = window.setTimeout(() => this.request(), again);
       return;
     }
 
@@ -1255,7 +1290,7 @@ export class MapView {
     if (ms) this.ambientTimer = window.setTimeout(() => this.request(), ms);
   }
 
-  private drawSurface(proj: GeoProjection, cam: Cam | null, view: { stream(out: GeoStream): GeoStream }, map: Basemap, t: Theme): SurfaceResult | void {
+  private drawSurface(proj: GeoProjection, cam: Cam | null, view: { stream(out: GeoStream): GeoStream }, map: Basemap, t: Theme): SurfaceResult | number | void {
     const base = this.low ?? this.high ?? map;
     if (!this.rasters || this.rasters.base !== base) {
       this.rasters = { base, isLand: raster(base.land), isIce: raster(base.ice) };
@@ -1283,11 +1318,18 @@ export class MapView {
       now: performance.now(),
       still: this.still(),
       warp: this.warp,
+      time: this.still() ? 0 : performance.now(),
+      trail: this.trail,
+      anchors: this.anchors,
     };
     if (t.surface === "radar") return drawRadar(f, this.radar);
     if (t.surface === "noir") return drawNoir(f, this.noir);
     if (t.surface === "arcade") return drawArcade(f, this.arcade);
     if (t.surface === "stadium") return drawStadium(f, this.stadium);
+    if (t.surface === "popup") return drawPopup(f, this.handmade.popup);
+    if (t.surface === "trainset") return drawTrainset(f, this.handmade.trainset);
+    if (t.surface === "chalk") return drawChalk(f, this.handmade.chalk);
+    if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
@@ -1912,6 +1954,25 @@ export class MapView {
           ctx.strokeStyle = t.dotStroke;
           ctx.stroke();
         }
+        ctx.restore();
+      }
+      if (t.dotShape === "loop" && !hollow && r >= 3.5) {
+        // Chalk or pencil scribbled back and forth inside the drawn circle (decision 76). The symbol is still a
+        // filled mark; the scribble is only its texture.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.moveTo(x - r * 0.62, y + r * 0.1);
+        ctx.lineTo(x - r * 0.05, y - r * 0.62);
+        ctx.lineTo(x - r * 0.35, y + r * 0.5);
+        ctx.lineTo(x + r * 0.4, y - r * 0.45);
+        ctx.lineTo(x + r * 0.12, y + r * 0.62);
+        ctx.lineTo(x + r * 0.62, y - r * 0.02);
+        ctx.lineWidth = Math.max(0.7, r * 0.1);
+        ctx.lineJoin = "round";
+        ctx.globalAlpha = 0.45;
+        ctx.strokeStyle = t.dotStroke;
+        ctx.stroke();
         ctx.restore();
       }
       ctx.lineWidth = hollow ? 1.6 : 1.2;

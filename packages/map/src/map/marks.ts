@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -110,6 +110,33 @@ export function markPath(shape: MarkShape, r: number): string {
       const a = r * 0.93;
       const c = a * 0.9;
       return `M${f(-a)} 0C${f(-a)} ${f(-c)} ${f(-c)} ${f(-a)} 0 ${f(-a)}C${f(c)} ${f(-a)} ${f(a)} ${f(-c)} ${f(a)} 0C${f(a)} ${f(c)} ${f(c)} ${f(a)} 0 ${f(a)}C${f(-c)} ${f(a)} ${f(-a)} ${f(c)} ${f(-a)} 0Z`;
+    }
+    case "house": {
+      // A little model house: square walls under a pitched roof (Toy Train Set, decision 76).
+      const w = r * 0.95;
+      return polygon([[-w, r * 0.95], [-w, -r * 0.2], [0, -r * 1.2], [w, -r * 0.2], [w, r * 0.95]]);
+    }
+    case "loop": {
+      // A circle drawn by hand: its radius wanders a little, the same way every time (Chalkboard and Sketchbook,
+      // decision 76). A smooth curve through ten points, from the middle of the last edge round to it again.
+      const n = 10;
+      const pts: [number, number][] = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        const k = r * (1 + 0.07 * Math.sin(2 * a + 0.6) + 0.04 * Math.sin(3 * a + 2));
+        pts.push([k * Math.cos(a), k * Math.sin(a)]);
+      }
+      const mid = (i: number): [number, number] => {
+        const p = pts[i % n]!, q = pts[(i + 1) % n]!;
+        return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+      };
+      const start = mid(n - 1);
+      let d = `M${f(start[0])} ${f(start[1])}`;
+      for (let i = 0; i < n; i++) {
+        const m = mid(i);
+        d += `Q${f(pts[i]![0])} ${f(pts[i]![1])} ${f(m[0])} ${f(m[1])}`;
+      }
+      return `${d}Z`;
     }
     default:
       // circle, bevel and button

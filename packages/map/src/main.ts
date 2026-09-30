@@ -104,6 +104,15 @@ import "@fontsource/share-tech-mono/400.css";
 import "@fontsource/jersey-10/400.css";
 import "@fontsource/big-shoulders-display/600";
 import "@fontsource/big-shoulders-display/800";
+// Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76).
+import "@fontsource/sniglet/800.css";
+import "@fontsource/alfa-slab-one/400.css";
+import "@fontsource/fredericka-the-great/400.css";
+import "@fontsource/cabin-sketch/700.css";
+import "@fontsource/kalam/latin-400.css";
+import "@fontsource/kalam/latin-ext-400.css";
+import "@fontsource/kalam/latin-700.css";
+import "@fontsource/kalam/latin-ext-700.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -262,7 +271,7 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
-const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium"]);
+const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
 // Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
 LETTER_THEMES.add("rail");
 let boardShown = "";

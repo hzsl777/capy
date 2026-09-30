@@ -7478,3 +7478,905 @@ button.link {
     margin: 8px 6px 6px;
   }
 }
+
+/* ==========================================================================
+   Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76): handmade, tabletop and paper worlds
+   (src/map/popup.ts, trainset.ts, chalk.ts, sketch.ts). Tokens first, then each design's chrome.
+   ========================================================================== */
+:root[data-theme="popup"] {
+  color-scheme: light;
+  --page: #fff3d6;
+  --panel: #fffaf0;
+  --ink: #1f2a44;
+  --ink-2: #33415e;
+  --muted: #56617a;
+  --rule: #27405a;
+  --accent: #e8453c;
+  --on-accent: #ffffff;
+  --hover: rgba(47, 79, 201, 0.08);
+  --reticle: #1d2440;
+  --grain-opacity: 0.3;
+  --grain-blend: multiply;
+  --font-mast: "Sniglet", "Chewy", "Comic Sans MS", sans-serif;
+  --font-head: "Sniglet", "Nunito", sans-serif;
+  --font-body: "Nunito", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Nunito", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="trainset"] {
+  color-scheme: light;
+  --page: #f6ecd6;
+  --panel: #fffaf0;
+  --ink: #2a1d12;
+  --ink-2: #4a3522;
+  --muted: #6a5238;
+  --rule: #3a2a1c;
+  --accent: #c3262c;
+  --on-accent: #fff8ec;
+  --hover: rgba(195, 38, 44, 0.08);
+  --reticle: #fbf4e4;
+  --grain-opacity: 0.25;
+  --grain-blend: multiply;
+  --font-mast: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --font-head: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="chalk"] {
+  color-scheme: dark;
+  --page: #1f2c25;
+  --panel: #24332b;
+  --ink: #f2efe6;
+  --ink-2: #dcd8cc;
+  --muted: #b9b6aa;
+  --rule: rgba(242, 239, 230, 0.55);
+  --accent: #ffd84d;
+  --on-accent: #1f2c25;
+  --hover: rgba(242, 239, 230, 0.07);
+  --reticle: #ff9ec4;
+  --grain-opacity: 0.16;
+  --grain-blend: screen;
+  --font-mast: "Fredericka the Great", "Chalkduster", cursive;
+  --font-head: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-body: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-ui: "Patrick Hand", "Comic Sans MS", cursive;
+}
+:root[data-theme="sketch"] {
+  color-scheme: light;
+  --page: #f6f1e6;
+  --panel: #fbf8f1;
+  --ink: #26262c;
+  --ink-2: #3c3c44;
+  --muted: #5d5d66;
+  --rule: #5d5d66;
+  --accent: #1f5fd6;
+  --on-accent: #ffffff;
+  --hover: rgba(47, 47, 54, 0.06);
+  --reticle: #1f5fd6;
+  --grain-opacity: 0.35;
+  --grain-blend: multiply;
+  --font-mast: "Cabin Sketch", "Comic Sans MS", cursive;
+  --font-head: "Kalam", "Comic Sans MS", cursive;
+  --font-body: "Kalam", "Comic Sans MS", cursive;
+  --font-ui: "Kalam", "Comic Sans MS", cursive;
+}
+
+/* ---- Pop-up Book: an open book of card, cut-paper letters, paper tabs and pull tabs ------------------------ */
+:root[data-theme="popup"] {
+  --font-head: "Nunito", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="popup"] body {
+  background:
+    radial-gradient(circle at 12px 12px, rgba(232, 69, 60, 0.13) 0 3px, transparent 3.5px) 0 0 / 34px 34px,
+    radial-gradient(circle at 29px 29px, rgba(47, 79, 201, 0.1) 0 3px, transparent 3.5px) 0 0 / 34px 34px,
+    var(--page);
+}
+/* A strip of red paper cut with pinking shears under the masthead. */
+:root[data-theme="popup"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='12'%3E%3Cpath d='M0 0H16V6L12 11L8 6L4 11L0 6Z' fill='%23e8453c'/%3E%3Cpath d='M0 6L4 11L8 6L12 11L16 6' fill='none' stroke='%23a8322a' stroke-width='1'/%3E%3C/svg%3E") repeat-x left bottom 2px / 16px 12px;
+}
+:root[data-theme="popup"] .toolbar {
+  border-bottom: 2px solid var(--rule);
+  background: #fffaf0;
+}
+:root[data-theme="popup"] .timebar {
+  border-top: 2px solid var(--rule);
+  background: #fffaf0;
+}
+/* Hand-cut paper letters: each one its own colour of card with a white cut edge, set a little crooked. */
+:root[data-theme="popup"] .mast-title,
+:root[data-theme="popup"] .telegram-word,
+:root[data-theme="popup"] .telegram-big,
+:root[data-theme="popup"] .panel-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: #2f4fc9;
+  -webkit-text-stroke: 5px #ffffff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 2px 0 rgba(39, 64, 90, 0.55)) drop-shadow(0 4px 3px rgba(39, 64, 90, 0.25));
+  border-bottom: 0;
+}
+:root[data-theme="popup"] .mast-title {
+  font-size: clamp(30px, 3.6vw, 44px);
+}
+:root[data-theme="popup"] .telegram-word {
+  font-size: min(92px, calc(40vw / var(--len, 8)));
+  text-transform: uppercase;
+  padding: 4px 6px 6px;
+}
+:root[data-theme="popup"] .telegram-word:hover,
+:root[data-theme="popup"] .telegram-word:focus-visible {
+  background: none;
+  text-decoration: none;
+  filter: drop-shadow(0 3px 0 rgba(39, 64, 90, 0.6)) drop-shadow(0 7px 4px rgba(39, 64, 90, 0.3));
+}
+:root[data-theme="popup"] .panel-title {
+  font-size: 26px;
+  -webkit-text-stroke-width: 4px;
+}
+:root[data-theme="popup"] .lt {
+  display: inline-block;
+  rotate: -5deg;
+  translate: 0 1px;
+}
+/* Five colours of card, not four, so the letters never read as any company's four-colour name. */
+:root[data-theme="popup"] .lt:nth-child(5n + 1) {
+  color: #e8453c;
+}
+:root[data-theme="popup"] .lt:nth-child(5n + 2) {
+  color: #f08a24;
+}
+:root[data-theme="popup"] .lt:nth-child(5n + 3) {
+  color: #16928e;
+}
+:root[data-theme="popup"] .lt:nth-child(5n + 4) {
+  color: #7a4cc4;
+}
+:root[data-theme="popup"] .lt:nth-child(5n) {
+  color: #3f9a45;
+}
+:root[data-theme="popup"] .lt:nth-child(3n + 1) {
+  rotate: 4deg;
+  translate: 0 -2px;
+}
+:root[data-theme="popup"] .lt:nth-child(3n + 2) {
+  rotate: -3deg;
+  translate: 0 2px;
+}
+:root[data-theme="popup"] .lt:nth-child(7n) {
+  rotate: 7deg;
+}
+:root[data-theme="popup"] .mast-tag {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+:root[data-theme="popup"] .telegram-kicker,
+:root[data-theme="popup"] .telegram-date {
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.12em;
+}
+:root[data-theme="popup"] .telegram-note {
+  font-style: normal;
+}
+/* Buttons are paper tabs: white card, a dark cut line, a card's thickness underneath. */
+:root[data-theme="popup"] .tool,
+:root[data-theme="popup"] .pick select,
+:root[data-theme="popup"] .menu > summary,
+:root[data-theme="popup"] .chip,
+:root[data-theme="popup"] .key-close {
+  border: 2px solid var(--rule);
+  border-radius: 12px 12px 5px 5px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 0 3px 0 #d9c7a2, 0 3px 0 2px var(--rule);
+}
+:root[data-theme="popup"] .tool.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="popup"] .tool[aria-pressed="true"],
+:root[data-theme="popup"] .menu[open] > summary,
+:root[data-theme="popup"] .chip[aria-pressed="true"],
+:root[data-theme="popup"] .scale .step.on {
+  background: #ffcf3a;
+  color: var(--ink);
+  translate: 0 2px;
+  box-shadow: 0 1px 0 #d9a01c, 0 1px 0 2px var(--rule);
+}
+:root[data-theme="popup"] .scale {
+  border: 2px solid var(--rule);
+  border-radius: 8px;
+  background: #fff;
+}
+/* The Key is a pull tab sticking out of the page: a yellow strip with a finger hole and an arrow to pull. */
+:root[data-theme="popup"] .key-btn {
+  border: 2px solid var(--rule);
+  border-left: 0;
+  border-radius: 0 14px 14px 0;
+  left: 0;
+  padding: 6px 12px 6px 22px;
+  background:
+    radial-gradient(circle at 10px 50%, #27405a 0 3.5px, transparent 4px),
+    linear-gradient(to bottom, #ffe07a, #ffc93a);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: 2px 3px 0 rgba(39, 64, 90, 0.35);
+}
+:root[data-theme="popup"] .key-btn::after {
+  content: " \2192" / "";
+}
+:root[data-theme="popup"] .key-btn[aria-expanded="true"] {
+  background:
+    radial-gradient(circle at 10px 50%, #27405a 0 3.5px, transparent 4px),
+    linear-gradient(to bottom, #ff8a7f, #e8453c);
+  color: #fff;
+  padding-left: 30px;
+}
+/* The zoom buttons are a paper wheel's two tabs. */
+:root[data-theme="popup"] .zoom {
+  border: 2px solid var(--rule);
+  border-radius: 14px;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 3px 0 #d9c7a2, 0 3px 0 2px var(--rule);
+}
+:root[data-theme="popup"] .zoom button {
+  font-weight: 800;
+  color: var(--ink);
+}
+:root[data-theme="popup"] .zoom button + button {
+  border-top: 2px dashed #9fb0c2;
+}
+/* The map is the open book: pages stacked under it, a red cloth cover round it, a page curling at the corner. */
+:root[data-theme="popup"] .map {
+  margin: 14px 16px 22px;
+  border-radius: 6px;
+  background: #8fd0ee;
+  box-shadow:
+    0 2px 0 0 #fffaf0,
+    0 3px 0 0 #d9c7a2,
+    0 5px 0 0 #fffaf0,
+    0 6px 0 0 #d9c7a2,
+    0 8px 0 0 #fffaf0,
+    0 9px 0 0 #cdb88f,
+    0 0 0 9px #d9483b,
+    0 12px 0 9px #a8322a,
+    0 18px 26px 9px rgba(60, 30, 10, 0.3);
+}
+:root[data-theme="popup"] .map::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 58px;
+  height: 58px;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(45deg, #fffaf0 0%, #f3e7cc 30%, #e2cfa6 44%, #b99d6c 49%, #27405a 50%);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  filter: drop-shadow(2px -2px 3px rgba(39, 64, 90, 0.35));
+}
+/* Panels are pages of the book with a coloured index tab at the top. */
+:root[data-theme="popup"] .panel,
+:root[data-theme="popup"] .menu-body,
+:root[data-theme="popup"] .key-pop,
+:root[data-theme="popup"] dialog {
+  background:
+    linear-gradient(135deg, transparent 50%, #efe2c4 50%, #d9c7a2 100%) right bottom / 26px 26px no-repeat,
+    radial-gradient(circle at 100% 0, rgba(255, 207, 58, 0.18), transparent 40%),
+    var(--panel);
+  border: 2px solid var(--rule);
+  border-radius: 14px 14px 0 14px;
+  box-shadow: 0 3px 0 #fffaf0, 0 4px 0 #d9c7a2, 0 6px 0 #fffaf0, 0 7px 0 #cdb88f, 0 12px 18px rgba(60, 30, 10, 0.2);
+}
+:root[data-theme="popup"] .panel {
+  margin: 20px 14px 18px 8px;
+}
+:root[data-theme="popup"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #e8453c;
+  -webkit-text-stroke: 4px #ffffff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 2px 0 rgba(39, 64, 90, 0.5));
+  font-size: 30px;
+}
+:root[data-theme="popup"] .dateline {
+  border-bottom: 3px dotted var(--rule);
+}
+:root[data-theme="popup"] .rule-head {
+  border-color: var(--rule);
+  font-weight: 800;
+}
+:root[data-theme="popup"] .headline {
+  font-weight: 800;
+}
+:root[data-theme="popup"] .meta,
+:root[data-theme="popup"] .count {
+  font-style: normal;
+}
+:root[data-theme="popup"] input[type="range"] {
+  accent-color: #e8453c;
+}
+
+/* ---- Toy Train Set: a toy box lid, wooden blocks, a station sign and the table's wooden edge ---------------- */
+:root[data-theme="trainset"] body {
+  background:
+    repeating-linear-gradient(90deg, rgba(195, 38, 44, 0.07) 0 14px, transparent 14px 44px),
+    var(--page);
+}
+/* The lid: cream card between red bands, with a length of track along its bottom edge. */
+:root[data-theme="trainset"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 26px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14'%3E%3Crect y='5' width='20' height='6' fill='%23a89478'/%3E%3Cpath d='M4 3V13M14 3V13' stroke='%236b4a2e' stroke-width='3'/%3E%3Cpath d='M0 5.5H20M0 10.5H20' stroke='%23c9ced4' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x left bottom 3px / 20px 14px,
+    linear-gradient(to bottom, #c3262c 0 6px, #f6ecd6 6px);
+  box-shadow: inset 0 -2px 0 #3a2a1c;
+}
+:root[data-theme="trainset"] .toolbar {
+  border-bottom: 3px solid #c3262c;
+  background: #1d3f7a;
+}
+:root[data-theme="trainset"] .timebar {
+  border-top: 3px solid #c3262c;
+  background: #1d3f7a;
+  color: #fff8ec;
+}
+:root[data-theme="trainset"] .time-label {
+  color: #fff8ec;
+}
+/* Slab lettering printed on the lid: red with a cream edge and a navy shadow. */
+:root[data-theme="trainset"] .mast-title,
+:root[data-theme="trainset"] .telegram-word,
+:root[data-theme="trainset"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #c3262c;
+  -webkit-text-stroke: 4px #fff8ec;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #1d3f7a;
+}
+:root[data-theme="trainset"] .mast-title {
+  font-size: clamp(30px, 3.6vw, 44px);
+}
+:root[data-theme="trainset"] .telegram-word {
+  color: #1d3f7a;
+  text-shadow: 3px 3px 0 #c3262c;
+  border-bottom: 0;
+  padding: 2px 8px;
+  font-size: min(90px, calc(38vw / var(--len, 8)));
+}
+:root[data-theme="trainset"] .telegram-word:hover,
+:root[data-theme="trainset"] .telegram-word:focus-visible {
+  background: none;
+  text-decoration: none;
+  text-shadow: 4px 4px 0 #c3262c;
+}
+:root[data-theme="trainset"] .telegram-big {
+  color: #1d3f7a;
+  text-shadow: 3px 3px 0 #c3262c;
+}
+:root[data-theme="trainset"] .mast-tag,
+:root[data-theme="trainset"] .telegram-note {
+  font-style: normal;
+  font-weight: 600;
+}
+:root[data-theme="trainset"] .telegram-kicker,
+:root[data-theme="trainset"] .telegram-date {
+  font-weight: 700;
+  color: #1d3f7a;
+  letter-spacing: 0.14em;
+}
+/* Buttons are painted wooden blocks in the toy box's four colours. */
+:root[data-theme="trainset"] .tool,
+:root[data-theme="trainset"] .pick select,
+:root[data-theme="trainset"] .menu > summary,
+:root[data-theme="trainset"] .chip,
+:root[data-theme="trainset"] .key-close {
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #e0473f, #c3262c);
+  color: #fff8ec;
+  font-weight: 700;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.25), 0 2px 0 #3a2a1c;
+}
+:root[data-theme="trainset"] .toolbar > :nth-child(2) select,
+:root[data-theme="trainset"] .chip:nth-child(3n + 2) {
+  background: linear-gradient(to bottom, #f7c64a, #e0a21c);
+  color: #2a1d12;
+}
+:root[data-theme="trainset"] .toolbar > :nth-child(3) > summary,
+:root[data-theme="trainset"] .chip:nth-child(3n) {
+  background: linear-gradient(to bottom, #3fa35a, #2f8a4a);
+}
+:root[data-theme="trainset"] .toolbar > :nth-child(4),
+:root[data-theme="trainset"] .timebar .tool {
+  background: linear-gradient(to bottom, #fff8ec, #e9dcc0);
+  color: #2a1d12;
+}
+:root[data-theme="trainset"] .pick::after {
+  color: inherit;
+}
+:root[data-theme="trainset"] .tool.quiet {
+  background: transparent;
+  box-shadow: none;
+  color: #fff8ec;
+}
+:root[data-theme="trainset"] .masthead .tool.quiet {
+  color: var(--ink);
+}
+:root[data-theme="trainset"] .tool[aria-pressed="true"],
+:root[data-theme="trainset"] .menu[open] > summary,
+:root[data-theme="trainset"] .chip[aria-pressed="true"] {
+  translate: 0 2px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 #3a2a1c;
+  outline: 2px solid #fff8ec;
+  outline-offset: -4px;
+}
+:root[data-theme="trainset"] .scale {
+  border: 2px solid #1d3f7a;
+  border-radius: 4px;
+  background: #fffaf0;
+}
+:root[data-theme="trainset"] .scale .step.on {
+  background: #c3262c;
+  color: #fff8ec;
+}
+/* The Key is a station sign: a green board with a cream border. */
+:root[data-theme="trainset"] .key-btn {
+  border: 2px solid #fff8ec;
+  outline: 2px solid #1f4a2c;
+  border-radius: 3px;
+  background: #2c6a3e;
+  color: #fff8ec;
+  font-family: var(--font-mast);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  box-shadow: 0 4px 0 -1px #6b4426, 3px 6px 6px rgba(0, 0, 0, 0.3);
+}
+:root[data-theme="trainset"] .key-btn[aria-expanded="true"] {
+  background: #c3262c;
+}
+:root[data-theme="trainset"] .zoom {
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #f7c64a, #e0a21c);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), 0 3px 0 #3a2a1c;
+}
+:root[data-theme="trainset"] .zoom button {
+  color: #2a1d12;
+  font-weight: 700;
+}
+:root[data-theme="trainset"] .zoom button + button {
+  border-top: 2px solid #b98415;
+}
+/* The table's wooden edge round the board. */
+:root[data-theme="trainset"] .map {
+  margin: 8px 10px;
+  border: 12px solid transparent;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(88deg, rgba(60, 30, 10, 0.18) 0 1px, transparent 1px 9px),
+    linear-gradient(to bottom, #c08f5c, #8a5530) border-box;
+  box-shadow: inset 0 0 0 2px rgba(40, 20, 5, 0.45), 0 5px 0 #5a3418, 0 10px 18px rgba(40, 20, 5, 0.3);
+}
+/* Panels are the side of the toy box: cream card, a red band and a navy rule. */
+:root[data-theme="trainset"] .panel,
+:root[data-theme="trainset"] .menu-body,
+:root[data-theme="trainset"] .key-pop,
+:root[data-theme="trainset"] dialog {
+  background: var(--panel);
+  border: 4px solid #c3262c;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px #fffaf0, inset 0 0 0 5px #1d3f7a, 0 6px 14px rgba(40, 20, 5, 0.25);
+}
+:root[data-theme="trainset"] .panel {
+  margin: 8px 10px 8px 0;
+  padding-top: 18px;
+}
+:root[data-theme="trainset"] .panel-title,
+:root[data-theme="trainset"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #c3262c;
+  font-size: 28px;
+}
+:root[data-theme="trainset"] .dateline {
+  border-bottom: 3px double #1d3f7a;
+}
+:root[data-theme="trainset"] .rule-head {
+  color: #1d3f7a;
+  border-color: #1d3f7a;
+  font-weight: 700;
+}
+:root[data-theme="trainset"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 18px;
+}
+:root[data-theme="trainset"] .meta,
+:root[data-theme="trainset"] .count {
+  font-style: normal;
+}
+:root[data-theme="trainset"] input[type="range"] {
+  accent-color: #f7c64a;
+}
+
+/* ---- Chalkboard: a classroom board in a wooden frame, a chalk tray, chalk lettering, boxes drawn by hand ---- */
+:root[data-theme="chalk"] {
+  /* Grain that lets the board show through chalk: speckled holes, more solid than not. */
+  --chalk-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -2.2 2.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* A box drawn by hand: each corner rounds a different amount. */
+  --hand-box: 255px 14px 225px 14px / 14px 225px 14px 255px;
+}
+:root[data-theme="chalk"] body {
+  background:
+    radial-gradient(ellipse 40% 30% at 20% 10%, rgba(230, 236, 226, 0.06), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(230, 236, 226, 0.05), transparent 70%),
+    var(--page);
+}
+:root[data-theme="chalk"] .masthead {
+  border-bottom: 0;
+  background:
+    linear-gradient(to right, transparent 2%, rgba(242, 239, 230, 0.35) 2% 98%, transparent 98%) left bottom 4px / 100% 1.5px no-repeat;
+}
+:root[data-theme="chalk"] .toolbar,
+:root[data-theme="chalk"] .timebar {
+  border-color: rgba(242, 239, 230, 0.25);
+}
+/* Chalk lettering: dusty white, the board's grain showing through. */
+:root[data-theme="chalk"] .mast-title,
+:root[data-theme="chalk"] .telegram-word,
+:root[data-theme="chalk"] .telegram-big,
+:root[data-theme="chalk"] .panel-title,
+:root[data-theme="chalk"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #f4f1e8;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.55), 0 0 8px rgba(255, 255, 255, 0.12);
+  -webkit-mask-image: var(--chalk-mask);
+  mask-image: var(--chalk-mask);
+}
+:root[data-theme="chalk"] .mast-title {
+  font-size: clamp(30px, 3.6vw, 44px);
+}
+:root[data-theme="chalk"] .mast-tag {
+  font-style: normal;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+/* The teacher boxes the day's word. */
+:root[data-theme="chalk"] .telegram-word {
+  font-size: min(84px, calc(36vw / var(--len, 8)));
+  padding: 4px 18px 2px;
+  border: 2.5px solid rgba(244, 241, 232, 0.85);
+  border-radius: var(--hand-box);
+  color: #ffe98a;
+}
+:root[data-theme="chalk"] .telegram-word:hover,
+:root[data-theme="chalk"] .telegram-word:focus-visible {
+  background: rgba(244, 241, 232, 0.06);
+  text-decoration: none;
+}
+:root[data-theme="chalk"] .telegram-kicker,
+:root[data-theme="chalk"] .telegram-date {
+  font-size: 14px;
+  color: #ffd84d;
+  letter-spacing: 0.12em;
+}
+:root[data-theme="chalk"] .telegram-note,
+:root[data-theme="chalk"] .meta,
+:root[data-theme="chalk"] .count {
+  font-style: normal;
+}
+:root[data-theme="chalk"] .telegram-side .telegram-note {
+  font-size: 14px;
+}
+/* Buttons are boxes drawn in chalk. */
+:root[data-theme="chalk"] .tool,
+:root[data-theme="chalk"] .pick select,
+:root[data-theme="chalk"] .menu > summary,
+:root[data-theme="chalk"] .chip,
+:root[data-theme="chalk"] .key-btn,
+:root[data-theme="chalk"] .key-close,
+:root[data-theme="chalk"] .zoom {
+  border: 2px solid rgba(244, 241, 232, 0.8);
+  border-radius: var(--hand-box);
+  background: rgba(36, 51, 43, 0.9);
+  color: #f4f1e8;
+  font-size: 16px;
+}
+:root[data-theme="chalk"] .pick select option {
+  background: #24332b;
+}
+:root[data-theme="chalk"] .zoom button {
+  color: #f4f1e8;
+}
+:root[data-theme="chalk"] .zoom button + button {
+  border-top: 2px dashed rgba(244, 241, 232, 0.5);
+}
+:root[data-theme="chalk"] .tool.quiet {
+  border-color: transparent;
+  background: transparent;
+}
+:root[data-theme="chalk"] .tool[aria-pressed="true"],
+:root[data-theme="chalk"] .menu[open] > summary,
+:root[data-theme="chalk"] .chip[aria-pressed="true"],
+:root[data-theme="chalk"] .key-btn[aria-expanded="true"],
+:root[data-theme="chalk"] .scale .step.on {
+  background: repeating-linear-gradient(-45deg, rgba(255, 216, 77, 0.35) 0 2px, transparent 2px 5px), rgba(36, 51, 43, 0.9);
+  border-color: #ffd84d;
+  color: #ffe98a;
+}
+:root[data-theme="chalk"] .scale {
+  border-color: rgba(244, 241, 232, 0.6);
+  border-radius: var(--hand-box);
+}
+/* A wooden frame round the board, with a chalk tray along its bottom holding three sticks of chalk and an eraser. */
+:root[data-theme="chalk"] .map {
+  margin: 8px 10px 6px;
+  border: 12px solid transparent;
+  border-bottom-width: 30px;
+  border-radius: 4px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='26'%3E%3Crect x='6' y='13' width='62' height='8' rx='4' fill='%23f4f1e8'/%3E%3Crect x='6' y='13' width='62' height='3' rx='1.5' fill='%23ffffff' opacity='.6'/%3E%3Crect x='78' y='14' width='36' height='7' rx='3.5' fill='%23ffd84d'/%3E%3Crect x='122' y='14.5' width='22' height='6.5' rx='3.2' fill='%23ff9ec4'/%3E%3Crect x='160' y='3' width='80' height='11' rx='2.5' fill='%238a5530'/%3E%3Crect x='160' y='3' width='80' height='3' rx='1.5' fill='%23b27842'/%3E%3Crect x='161' y='13' width='78' height='9' rx='1.5' fill='%239aa3a8'/%3E%3Cpath d='M164 16H236M164 19H236' stroke='%23788287' stroke-width='1'/%3E%3C/svg%3E") right 36px bottom 1px / 250px 26px no-repeat border-box,
+    linear-gradient(to bottom, #5a3418 0 2px, #b27842 2px 5px, #8a5530 5px 100%) left bottom / 100% 30px no-repeat border-box,
+    repeating-linear-gradient(90deg, rgba(60, 30, 10, 0.15) 0 1px, transparent 1px 11px) border-box,
+    linear-gradient(135deg, #9a6236, #6f4222) border-box;
+  box-shadow: inset 0 0 0 2px rgba(20, 10, 0, 0.5), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+/* Panels are a smaller board with a line of chalk round them. */
+:root[data-theme="chalk"] .panel,
+:root[data-theme="chalk"] .menu-body,
+:root[data-theme="chalk"] .key-pop,
+:root[data-theme="chalk"] dialog {
+  background: var(--panel);
+  border: 2px solid rgba(244, 241, 232, 0.7);
+  border-radius: var(--hand-box);
+  color: var(--ink);
+}
+:root[data-theme="chalk"] .panel {
+  margin: 10px 10px 10px 0;
+}
+:root[data-theme="chalk"] .place-name,
+:root[data-theme="chalk"] .panel-title {
+  font-size: 30px;
+  color: #ffd84d;
+}
+:root[data-theme="chalk"] .dateline {
+  border-bottom: 2px dashed rgba(244, 241, 232, 0.5);
+}
+:root[data-theme="chalk"] .rule-head {
+  color: #ff9ec4;
+  border-color: rgba(244, 241, 232, 0.4);
+}
+:root[data-theme="chalk"] .headline {
+  font-size: 19px;
+  font-weight: 400;
+}
+:root[data-theme="chalk"] .related {
+  color: #ffd84d;
+}
+:root[data-theme="chalk"] input[type="range"] {
+  accent-color: #f4f1e8;
+}
+
+/* ---- Sketchbook: a spiral-bound page, pencil boxes, and doodles in the margins -------------------------------- */
+:root[data-theme="sketch"] {
+  /* A box drawn by hand in pencil. */
+  --hand-box: 225px 12px 255px 10px / 12px 255px 10px 225px;
+}
+:root[data-theme="sketch"] body {
+  background:
+    radial-gradient(circle at 92% 94%, transparent 0 30px, rgba(140, 90, 40, 0.22) 31px, rgba(140, 90, 40, 0.07) 34px, rgba(140, 90, 40, 0.16) 36px, transparent 38px),
+    var(--page);
+}
+/* A coffee ring at the page's top, half off the edge, and an arrow drawn toward the day's word. */
+:root[data-theme="sketch"] .masthead {
+  border-bottom: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cpath d='M6 48C30 50 58 44 78 26C84 20 90 15 100 12' fill='none' stroke='%2334343a' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M88 8L101 11.5L92 21' fill='none' stroke='%2334343a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M8 51C32 52 60 46 79 29' fill='none' stroke='%2334343a' stroke-width='.8' stroke-linecap='round' opacity='.6'/%3E%3C/svg%3E") calc(50% - 250px) 70% / 120px 60px no-repeat,
+    radial-gradient(circle at 34% -8px, transparent 0 34px, rgba(140, 90, 40, 0.24) 35px, rgba(140, 90, 40, 0.08) 38px, rgba(140, 90, 40, 0.18) 40px, transparent 42px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='6'%3E%3Cpath d='M2 3C40 1 80 5 120 3S200 1 240 4 290 2 298 3' fill='none' stroke='%2334343a' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") left bottom 2px / 300px 6px repeat-x;
+}
+:root[data-theme="sketch"] .toolbar,
+:root[data-theme="sketch"] .timebar {
+  border-color: rgba(52, 52, 58, 0.4);
+}
+/* Pencil lettering: a sketched face for the name and the word, a hand for reading. */
+:root[data-theme="sketch"] .mast-title,
+:root[data-theme="sketch"] .telegram-word,
+:root[data-theme="sketch"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #2a2a30;
+}
+:root[data-theme="sketch"] .mast-title {
+  font-size: clamp(32px, 3.8vw, 46px);
+}
+:root[data-theme="sketch"] .telegram-word {
+  font-size: min(92px, calc(40vw / var(--len, 8)));
+  border-bottom: 0;
+  padding: 0 8px 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='14' preserveAspectRatio='none'%3E%3Cpath d='M3 5C50 3 120 6 197 4M8 10C60 8 130 11 190 9' fill='none' stroke='%231f5fd6' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center bottom / 100% 14px no-repeat;
+}
+:root[data-theme="sketch"] .telegram-word:hover,
+:root[data-theme="sketch"] .telegram-word:focus-visible {
+  text-decoration: none;
+  color: #1f5fd6;
+}
+:root[data-theme="sketch"] .mast-tag,
+:root[data-theme="sketch"] .telegram-note {
+  font-style: normal;
+}
+:root[data-theme="sketch"] .telegram-kicker,
+:root[data-theme="sketch"] .telegram-date {
+  color: var(--ink-2);
+  letter-spacing: 0.12em;
+}
+/* Buttons are boxes drawn in pencil; the one that is on is shaded in blue pencil. */
+:root[data-theme="sketch"] .tool,
+:root[data-theme="sketch"] .pick select,
+:root[data-theme="sketch"] .menu > summary,
+:root[data-theme="sketch"] .chip,
+:root[data-theme="sketch"] .key-btn,
+:root[data-theme="sketch"] .key-close,
+:root[data-theme="sketch"] .zoom {
+  border: 1.6px solid #3c3c44;
+  border-radius: var(--hand-box);
+  background: rgba(251, 248, 241, 0.92);
+  color: var(--ink);
+}
+:root[data-theme="sketch"] .zoom button + button {
+  border-top: 1.5px solid #3c3c44;
+}
+:root[data-theme="sketch"] .tool.quiet {
+  border-color: transparent;
+  background: transparent;
+}
+:root[data-theme="sketch"] .tool[aria-pressed="true"],
+:root[data-theme="sketch"] .menu[open] > summary,
+:root[data-theme="sketch"] .chip[aria-pressed="true"],
+:root[data-theme="sketch"] .key-btn[aria-expanded="true"],
+:root[data-theme="sketch"] .scale .step.on {
+  background: repeating-linear-gradient(-50deg, rgba(31, 95, 214, 0.28) 0 1.5px, transparent 1.5px 4px), #fbf8f1;
+  border-color: #1f5fd6;
+  color: #173f8f;
+}
+:root[data-theme="sketch"] .scale {
+  border-color: #3c3c44;
+  border-radius: var(--hand-box);
+}
+/* The map is a page of the sketchbook: wire coils through punched holes along its top, pages stacked under it. */
+:root[data-theme="sketch"] .map {
+  margin: 6px 12px 12px;
+  border: 1px solid rgba(52, 52, 58, 0.35);
+  border-top: 26px solid transparent;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='26'%3E%3Cellipse cx='13' cy='19' rx='3' ry='2.6' fill='%233a3a40'/%3E%3Cpath d='M9 21C4 14 6 3 12 2.5S19 9 15.5 19' fill='none' stroke='%2366666e' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M9.5 20C5.5 14 7 4 12 3.5' fill='none' stroke='%23c8c8ce' stroke-width='.9' stroke-linecap='round'/%3E%3C/svg%3E") 6px 0 / 24px 26px repeat-x border-box,
+    linear-gradient(#fbf8f1, #fbf8f1) border-box;
+  box-shadow: 2px 3px 0 -1px #fbf8f1, 2px 3px 0 0 rgba(52, 52, 58, 0.3), 4px 6px 0 -1px #fbf8f1, 4px 6px 0 0 rgba(52, 52, 58, 0.25), 6px 10px 16px rgba(60, 50, 30, 0.2);
+}
+/* Panels are pages torn out and clipped on, with a paper clip over the top edge. */
+:root[data-theme="sketch"] .panel,
+:root[data-theme="sketch"] .menu-body,
+:root[data-theme="sketch"] .key-pop,
+:root[data-theme="sketch"] dialog {
+  background: var(--panel);
+  border: 1.6px solid #3c3c44;
+  border-radius: var(--hand-box);
+  box-shadow: 3px 4px 0 rgba(52, 52, 58, 0.12);
+}
+:root[data-theme="sketch"] .panel:not(.framed) {
+  margin: 6px 12px 12px 4px;
+  padding-top: 30px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='48'%3E%3Cpath d='M7 40V9a4 4 0 0 1 8 0v30a6 6 0 0 1-12 0V6a8 8 0 0 1 16 0v26' fill='none' stroke='%2378787f' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M7.6 40V10' fill='none' stroke='%23d8d8de' stroke-width='.8'/%3E%3C/svg%3E") right 26px top -8px / 22px 48px no-repeat,
+    var(--panel);
+}
+:root[data-theme="sketch"] .panel-title,
+:root[data-theme="sketch"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 32px;
+}
+:root[data-theme="sketch"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='6'%3E%3Cpath d='M2 3C40 1 80 5 120 3S200 1 240 4 290 2 298 3' fill='none' stroke='%2334343a' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 300px 6px repeat-x;
+}
+:root[data-theme="sketch"] .rule-head {
+  border-color: rgba(52, 52, 58, 0.45);
+  color: var(--ink-2);
+}
+:root[data-theme="sketch"] .headline {
+  font-weight: 700;
+  font-size: 18px;
+}
+:root[data-theme="sketch"] .meta,
+:root[data-theme="sketch"] .count {
+  font-style: normal;
+}
+:root[data-theme="sketch"] input[type="range"] {
+  accent-color: #3c3c44;
+}
+
+/* ---- Phones: the four keep the toolbar one row, and the word fits --------------------------------------------- */
+@media (max-width: 760px) {
+  :root[data-theme="popup"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.92)));
+    -webkit-text-stroke-width: 4px;
+  }
+  :root[data-theme="trainset"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.86)));
+  }
+  :root[data-theme="chalk"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.7)));
+  }
+  :root[data-theme="sketch"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.62)));
+  }
+  :root[data-theme="popup"] .map {
+    margin: 10px 12px 18px;
+  }
+  :root[data-theme="popup"] .panel {
+    margin: 10px 8px 12px;
+  }
+  :root[data-theme="trainset"] .map,
+  :root[data-theme="chalk"] .map {
+    margin: 6px 6px 4px;
+    border-width: 8px;
+  }
+  :root[data-theme="chalk"] .map {
+    border-bottom-width: 26px;
+  }
+  :root[data-theme="trainset"] .panel,
+  :root[data-theme="chalk"] .panel {
+    margin: 4px 6px 6px;
+  }
+  :root[data-theme="sketch"] .map {
+    margin: 4px 8px 10px;
+  }
+  :root[data-theme="sketch"] .panel:not(.framed) {
+    margin: 4px 8px 8px;
+  }
+  :root[data-theme="sketch"] .masthead {
+    background-size: 0 0, auto, 300px 6px;
+  }
+  :root[data-theme="chalk"] .tool,
+  :root[data-theme="chalk"] .pick select,
+  :root[data-theme="chalk"] .menu > summary {
+    font-size: 15px;
+  }
+}
+
+/* Radar Sweep on a phone: tighter capitals, so the toolbar stays one row at 360 pixels. */
+@media (max-width: 420px) {
+  :root[data-theme="radar"] .tool,
+  :root[data-theme="radar"] .pick select,
+  :root[data-theme="radar"] .menu > summary {
+    letter-spacing: 0.02em;
+    font-size: 11px;
+  }
+}

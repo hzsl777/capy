@@ -46,6 +46,12 @@ export interface SurfaceFrame {
   now?: number;
   still?: boolean;
   warp?: Warp | null;
+  /** Decision 76: the time for handmade designs' motion (ms), held at 0 for reduced motion. */
+  time?: number;
+  /** Where a drag passed on screen over the last moments, oldest first, with the time of each point (Chalkboard). */
+  trail?: readonly { x: number; y: number; t: number }[];
+  /** Every place ever shown, so drawn things keep clear of them (Toy Train Set's trees). Only grows. */
+  anchors?: ReadonlyMap<string, [number, number]>;
 }
 
 /** A marker as the view places it this frame, for designs that light markers up (Radar Sweep's glow). */

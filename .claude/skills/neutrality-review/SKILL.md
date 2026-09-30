@@ -23,6 +23,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] Chrome built from a place's name (Spreadsheet's formula bar, `src/ui/extras.ts`) uses `Place.name` only, as text, and adds no judgement.
 - [ ] Designs that move on their own (Aquarium's fish, bubbles and water, Lava Lamp's wax; `src/map/ambient.ts`) never move, resize, cover or tint a marker, keep moving pictures in tested open water (`FISH`, `test/aquarium.test.ts`) or outside the map, never flash, and hold still for reduced motion.
 - [ ] Screens and cameras (decision 75) read as what they are and nothing more: Radar Sweep has no friend-or-foe symbols, target boxes or tracks; Stadium Jumbotron has no scores, flags, or team, league or sponsor names or colours; Arcade Cabinet names no game and draws no game's characters. Motion never moves, resizes or hides a marker and stops for reduced motion.
+- [ ] Things a design puts at sea (Pirate's creatures, the scenery pictures, Pop-up Book's pieces on sticks, Toy Train Set's tracks and trains, Chalkboard's and Sketchbook's doodles) sit only at tested spots clear of land and far from every place (`test/decor.test.ts`, `test/scenery.test.ts`, `test/handmade.test.ts`), carry no text, faces or flags, and never move or cover a marker.
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.

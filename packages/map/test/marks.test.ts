@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { markPath, type MarkShape } from "../src/map/marks.ts";
 
-const SHAPES: MarkShape[] = ["circle", "square", "diamond", "bevel", "hex", "pad", "star4", "star5", "star6", "flower", "gumdrop", "shield", "block", "shell", "squircle"];
+const SHAPES: MarkShape[] = ["circle", "square", "diamond", "bevel", "hex", "pad", "star4", "star5", "star6", "flower", "gumdrop", "shield", "block", "shell", "squircle", "house", "loop"];
 
 describe("marker shapes", () => {
   for (const s of SHAPES) {

@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -80,7 +80,7 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -91,6 +91,11 @@ export interface Theme {
   motion?: boolean;
   /** Decision 75: a pinned place gets a ring instead of a square frame, so nothing reads as a target box. */
   pinRing?: boolean;
+  /**
+   * With `tilt`: [the tilt at the widest zoom, the zoom by which it has risen to `tilt`], so zooming out lays the
+   * map flatter and zooming in stands it up (Pop-up Book, decision 76).
+   */
+  tiltOut?: [number, number];
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -1463,6 +1468,163 @@ export const THEMES: Record<ThemeId, Theme> = {
     tuned: "#ffffff",
     arc: "#ffd23a",
     glow: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Pop-up Book (decision 76, src/map/popup.ts): the continents are thick paper cut-outs standing up off the page
+  // of a children's pop-up book. Zooming out lays the page flatter, zooming in stands it up.
+  popup: {
+    id: "popup",
+    label: "Pop-up Book",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "popup",
+    globeScale: 0.4,
+    tilt: 54,
+    tiltOut: [24, 3.4],
+    tiltEye: 1.15,
+    tiltFar: 0.6,
+    tiltMinZoom: 1,
+    ocean: "#8fd0ee",
+    land: "#8ccd5c",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(255,255,255,0.5)",
+    coast: "#2f6b34",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "#c4e9f8",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#8fd0ee",
+    ice: "#f7fbff",
+    relief: "#9a6b45",
+    dot: "#2f4fc9",
+    dotStroke: "#ffffff",
+    fresh: "#ffbf1a",
+    tuned: "#1d2440",
+    arc: "#1d2440",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Toy Train Set (decision 76, src/map/trainset.ts): a model railway on a tabletop, seen from above at an angle:
+  // green felt land, painted mountains, model trees, and toy trains running round oval tracks out at sea.
+  trainset: {
+    id: "trainset",
+    label: "Toy Train Set",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "trainset",
+    globeScale: 0.33,
+    tilt: 52,
+    tiltEye: 2.6,
+    tiltFar: 0.6,
+    tiltMinZoom: 1.3,
+    ocean: "#4f9ccb",
+    land: "#5f9b3d",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "house",
+    textureInk: "rgba(255,255,255,0.3)",
+    coast: "#7a5a3a",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "#e6d3a0",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#4f9ccb",
+    ice: "#f4f7f8",
+    relief: "#8a7460",
+    dot: "#fbf4e4",
+    dotStroke: "#3a2a1c",
+    fresh: "#ffb81f",
+    tuned: "#fbf4e4",
+    arc: "#fbf4e4",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Chalkboard (decision 76, src/map/chalk.ts): the world drawn in chalk on a classroom board, the globe a chalk
+  // circle with hatching; dragging leaves a faint smudge that fades.
+  chalk: {
+    id: "chalk",
+    label: "Chalkboard",
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    surface: "chalk",
+    globeScale: 0.42,
+    ocean: "#26362e",
+    land: "#26362e",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "loop",
+    textureInk: "rgba(240,238,228,0.3)",
+    coast: "#f3f0e6",
+    coastWidth: 2,
+    waterlines: 0,
+    waterline: "rgba(240,238,228,0.12)",
+    oceanHatch: null,
+    graticule: "rgba(240,238,228,0.16)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#26362e",
+    ice: "#26362e",
+    relief: "rgba(240,238,228,0.55)",
+    dot: "#f5f2e8",
+    dotStroke: "#22302a",
+    fresh: "#ffd84d",
+    tuned: "#ff9ec4",
+    arc: "#ff9ec4",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Sketchbook (decision 76, src/map/sketch.ts): a pencil sketch on paper. Wobbly coasts redrawn a little
+  // differently a few times a second, cross-hatched land, graphite and a touch of watercolour for the sea.
+  sketch: {
+    id: "sketch",
+    label: "Sketchbook",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "sketch",
+    globeScale: 0.42,
+    ocean: "#f6f1e6",
+    land: "#f6f1e6",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "loop",
+    textureInk: "rgba(52,52,60,0.34)",
+    coast: "#2f2f36",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "#7fb0dc",
+    oceanHatch: null,
+    graticule: "rgba(47,47,54,0.12)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#f6f1e6",
+    ice: "#f6f1e6",
+    relief: "rgba(47,47,54,0.6)",
+    dot: "#2f2f36",
+    dotStroke: "#f6f1e6",
+    fresh: "#1f5fd6",
+    tuned: "#1f5fd6",
+    arc: "#1f5fd6",
+    glow: false,
     atmosphere: null,
     shade: null,
     neatline: false,
