@@ -1252,6 +1252,13 @@ async function start() {
   document.title = `${SITE_NAME}: world news on a map`;
   for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
   document.documentElement.dataset.theme = state.theme;
+  // Every design's chrome hangs on this attribute. A host page that wraps the site may set its own (a light or dark
+  // mode), which would strip the chrome, so it is put back; a few times at most, so two pages can never trade it forever.
+  let restores = 0;
+  new MutationObserver(() => {
+    const root = document.documentElement;
+    if (root.dataset.theme !== state.theme && restores++ < 20) root.dataset.theme = state.theme;
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   renderMasthead();
   renderToolbar();
   renderKey();

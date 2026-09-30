@@ -45,7 +45,7 @@ export class StillLayer {
  * once into an offscreen canvas and copied from there.
  */
 export function stillLayer(f: SurfaceFrame, cache: StillLayer, extra: string, draw: (g: CanvasRenderingContext2D) => void) {
-  const key = `${f.mode}:${f.w}:${f.h}:${f.dpr}:${f.lon}:${f.lat}:${f.zoom}:${idOf(f.map)}:${idOf(f.relief)}:${extra}`;
+  const key = `${f.mode}:${f.w}:${f.h}:${f.dpr}:${f.lon}:${f.lat}:${f.zoom}:${f.cam?.sin ?? ""}:${idOf(f.map)}:${idOf(f.relief)}:${extra}`;
   if (cache.key === key && cache.canvas) {
     f.ctx.drawImage(cache.canvas, 0, 0, f.w, f.h);
     return;

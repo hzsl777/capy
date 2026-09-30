@@ -60,6 +60,7 @@ import { drawPopup, PopupCache } from "./popup.ts";
 import { drawTrainset, TrainsetCache } from "./trainset.ts";
 import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
+import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -295,7 +296,15 @@ export class MapView {
   private pointers = new Map<number, { x: number; y: number }>();
   private down: { x: number; y: number; t: number } | null = null;
   private velocity = { x: 0, y: 0, t: 0 };
-  private pinch: { dist: number; zoom: number } | null = null;
+  /**
+   * Two fingers down: where they started (gap and midpoint height), the zoom and tilt then, and whether they are
+   * pinching or tilting, which is decided once they have moved a little.
+   */
+  private pinch: { dist: number; zoom: number; mid: number; by: number; mode: "tilt" | "pinch" | null } | null = null;
+  /** A tilt drag with the right mouse button, or Shift or Ctrl held: where it started and the reader's tilt then. */
+  private tiltDrag: { y: number; by: number } | null = null;
+  /** The reader's change to the camera's tilt in Map view, in degrees (src/map/tilt.ts). Reset with the design. */
+  private tiltOffset = 0;
   private patterns = new Map<string, CanvasPattern>();
   /** The land as projected for the current frame, for scenery that follows the coast. */
   private landPath: Path2D | null = null;
@@ -308,7 +317,7 @@ export class MapView {
     this.theme = theme;
     this.canvas = document.createElement("canvas");
     this.canvas.setAttribute("role", "img");
-    this.canvas.setAttribute("aria-label", "Map of reported places. Drag or use the arrow keys to turn. Scroll or press plus and minus to zoom.");
+    this.label();
     this.canvas.tabIndex = 0;
     container.prepend(this.canvas);
     this.ctx = this.canvas.getContext("2d")!;
@@ -352,6 +361,8 @@ export class MapView {
   setTheme(theme: Theme) {
     const resample = theme.pixel !== this.theme.pixel;
     this.theme = theme;
+    this.tiltOffset = 0;
+    this.label();
     this.patterns.clear();
     if (resample) this.resize();
     this.fit();
@@ -361,6 +372,7 @@ export class MapView {
 
   setMode(mode: ViewMode) {
     this.mode = mode;
+    this.label();
     this.fit();
     this.request();
   }
@@ -650,7 +662,9 @@ export class MapView {
       this.lat = clamp(this.lat, -80, 80);
     } else {
       const k = this.baseScale * this.zoom;
-      const halfDeg = (this.h / 2 / k) * DEG * (this.theme.tilt ? 0.5 : 1);
+      // A tilted camera shows the far side smaller, so the centre may go nearer the pole; a reader's tilt eases in.
+      const far = this.tiltOffset ? 1 - 0.5 * Math.min(1, this.tiltAngle() / 45) : this.theme.tilt ? 0.5 : 1;
+      const halfDeg = (this.h / 2 / k) * DEG * far;
       const max = Math.max(0, 84 - halfDeg);
       this.lat = clamp(this.lat, -max, max);
     }
@@ -701,16 +715,28 @@ export class MapView {
 
   private bindInput() {
     const c = this.canvas;
+    // The right button tilts the map where it can, so there the browser's menu stays off the canvas; elsewhere the
+    // right button does nothing to the map and the menu is the browser's as usual.
+    c.addEventListener("contextmenu", (e) => {
+      if (this.canTilt()) e.preventDefault();
+    });
     c.addEventListener("pointerdown", (e) => {
+      if (e.button === 2 && !this.canTilt()) return;
       this.touched();
       c.setPointerCapture(e.pointerId);
       this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       this.stopAnim();
-      if (this.pointers.size === 1) {
+      const tiltButton = e.button === 2 || (e.button === 0 && (e.shiftKey || e.ctrlKey));
+      if (this.pointers.size === 1 && tiltButton && this.canTilt()) {
+        this.tiltDrag = { y: e.clientY, by: this.tiltOffset };
+        this.down = null;
+      } else if (this.pointers.size === 1) {
         this.down = { x: e.clientX, y: e.clientY, t: performance.now() };
         this.velocity = { x: 0, y: 0, t: performance.now() };
       } else if (this.pointers.size === 2) {
-        this.pinch = { dist: this.pointerDist(), zoom: this.zoom };
+        this.tiltDrag = null;
+        const [a, b] = [...this.pointers.values()];
+        this.pinch = { dist: this.pointerDist(), zoom: this.zoom, mid: (a!.y + b!.y) / 2, by: this.tiltOffset, mode: this.canTilt() ? null : "pinch" };
         this.down = null;
       }
     });
@@ -719,9 +745,18 @@ export class MapView {
       if (!prev) return;
       const cur = { x: e.clientX, y: e.clientY };
       this.pointers.set(e.pointerId, cur);
-      if (this.pointers.size === 2 && this.pinch) {
-        this.zoom = clamp((this.pinch.zoom * this.pointerDist()) / this.pinch.dist, this.minZoom(), MAX_ZOOM);
-        this.clampLat();
+      if (this.tiltDrag) {
+        this.setTilt(this.tiltDrag.by, (this.tiltDrag.y - cur.y) * TILT_PER_PX);
+      } else if (this.pointers.size === 2 && this.pinch) {
+        // Both fingers up or down together tilt the map; spreading or closing them zooms.
+        const [a, b] = [...this.pointers.values()];
+        const rise = this.pinch.mid - (a!.y + b!.y) / 2;
+        this.pinch.mode ??= twoFingerGesture(rise, this.pointerDist() - this.pinch.dist, true);
+        if (this.pinch.mode === "tilt") this.setTilt(this.pinch.by, rise * TILT_PER_PX);
+        else if (this.pinch.mode === "pinch") {
+          this.zoom = clamp((this.pinch.zoom * this.pointerDist()) / this.pinch.dist, this.minZoom(), MAX_ZOOM);
+          this.clampLat();
+        }
       } else if (this.pointers.size === 1) {
         const dx = cur.x - prev.x;
         const dy = cur.y - prev.y;
@@ -742,6 +777,11 @@ export class MapView {
       this.pointers.delete(e.pointerId);
       if (this.pointers.size === 1) this.pinch = null;
       if (this.pointers.size > 0) return;
+      if (this.tiltDrag) {
+        this.tiltDrag = null;
+        this.moved();
+        return;
+      }
       const d = this.down;
       this.down = null;
       if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5 && performance.now() - d.t < 500) {
@@ -784,9 +824,11 @@ export class MapView {
         "+": () => this.zoomBy(1.5),
         "=": () => this.zoomBy(1.5),
         "-": () => this.zoomBy(1 / 1.5),
+        PageUp: () => this.tiltStep(TILT_KEY_STEP),
+        PageDown: () => this.tiltStep(-TILT_KEY_STEP),
       };
       const fn = keys[e.key];
-      if (fn) {
+      if (fn && (!e.key.startsWith("Page") || this.canTilt())) {
         e.preventDefault();
         fn();
       }
@@ -794,6 +836,33 @@ export class MapView {
   }
 
   private wheelTimer = 0;
+
+  /** Whether the reader may tilt the camera: Map view, in a design whose picture can take it (src/map/tilt.ts). */
+  private canTilt(): boolean {
+    return this.mode === "2d" && tiltRange(this.theme) !== null;
+  }
+
+  /** The reader's tilt `delta` degrees from `from`, kept in the design's range. */
+  private setTilt(from: number, delta: number) {
+    this.tiltOffset = stepTilt(this.baseTilt(), from, delta, tiltRange(this.theme));
+    this.clampLat();
+  }
+
+  /** Page Up and Page Down: tilt a step, eased like the zoom buttons. */
+  private tiltStep(delta: number) {
+    const from = this.tiltOffset;
+    const to = stepTilt(this.baseTilt(), from, delta, tiltRange(this.theme));
+    this.startAnim(250, (t) => {
+      this.tiltOffset = from + (to - from) * ease(t);
+      this.clampLat();
+    });
+  }
+
+  /** The canvas's description for screen readers, which names tilting only where it works. */
+  private label() {
+    const tilt = this.canTilt() ? " Drag with the right mouse button or two fingers, or press Page Up and Page Down, to tilt." : "";
+    this.canvas.setAttribute("aria-label", `Map of reported places. Drag or use the arrow keys to turn. Scroll or press plus and minus to zoom.${tilt}`);
+  }
 
   private touched() {
     this.stopSpin();
@@ -1077,8 +1146,13 @@ export class MapView {
     return p;
   }
 
-  /** The camera's tilt now: fixed, or with `tiltOut` flatter when zoomed out (Pop-up Book, decision 76). */
+  /** The camera's tilt now: the design's, with the reader's change on top. */
   private tiltAngle(): number {
+    return readerTilt(this.baseTilt(), this.tiltOffset, tiltRange(this.theme));
+  }
+
+  /** The design's own tilt: fixed, or with `tiltOut` flatter when zoomed out (Pop-up Book, decision 76). */
+  private baseTilt(): number {
     const t = this.theme;
     if (!t.tiltOut) return t.tilt ?? 0;
     const [flat, by] = t.tiltOut;
@@ -1209,7 +1283,8 @@ export class MapView {
     const proj = this.projection();
     const R = proj.scale();
     // The tilted camera applies to the flat map; the globe is already a solid seen in perspective.
-    const cam = this.mode === "2d" && t.tilt ? this.makeCam(this.tiltAngle()) : null;
+    const angle = this.mode === "2d" ? this.tiltAngle() : 0;
+    const cam = this.mode === "2d" && (t.tilt || angle > 0) ? this.makeCam(angle) : null;
     this.cam = cam;
     this.terrainNow = null;
     this.liftPx = R * LIFT;
@@ -1355,7 +1430,7 @@ export class MapView {
     ctx.strokeStyle = t.coast;
     ctx.lineWidth = this.mode === "3d" ? 1 : 1.2;
     ctx.stroke();
-    if (this.mode === "2d" && t.neatline) {
+    if (this.mode === "2d" && t.neatline && !cam) {
       // A printed chart's double frame around the whole sheet.
       const [[x0, y0], [x1, y1]] = path.bounds(SPHERE);
       ctx.strokeStyle = t.coast;
@@ -2292,7 +2367,7 @@ export class MapView {
     const proj = this.projection();
     const R = proj.scale();
     const [cx, cy] = proj.translate();
-    const cam = kind === "club" && !globe && t.tilt ? this.makeCam(t.tilt) : null;
+    const cam = kind === "club" && !globe && t.tilt ? this.makeCam(this.tiltAngle()) : null;
     this.cam = cam;
     this.terrainNow = null;
     const lens = kind === "snow" && !globe ? lensOf(w, h) : null;
@@ -2310,7 +2385,7 @@ export class MapView {
     this.sceneWarp = kind === "pool" ? (globe ? (x, y) => [x, y + bob, 1] : still ? null : (x, y) => [x + ripple(y), y, 1]) : fixed;
 
     const map = (R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
-    const backKey = [kind, this.mode, w, h, this.dpr].join("|");
+    const backKey = [kind, this.mode, w, h, this.dpr, cam?.sin.toFixed(5)].join("|");
     let c = this.sceneCache;
     if (!c || c.backKey !== backKey) {
       c = this.sceneCache = { key: "", backKey, front: this.sceneCanvas(c?.front), back: this.sceneCanvas(c?.back) };
@@ -2319,7 +2394,7 @@ export class MapView {
         if (kind === "pool" && globe) drawPoolNight(g, w, h, h / 2 - this.baseScale);
       });
     }
-    const key = [this.lon.toFixed(5), this.lat.toFixed(5), this.zoom.toFixed(5), this.anchors.size].join("|");
+    const key = [this.lon.toFixed(5), this.lat.toFixed(5), this.zoom.toFixed(5), this.anchors.size, cam?.sin.toFixed(5)].join("|");
     if (c.key !== key || c.map !== map || c.relief !== this.relief) {
       const cache = c;
       cache.key = key;
