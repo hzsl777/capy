@@ -1,7 +1,7 @@
 // The files the site reads for one day (decision 78): the day's file, with the outlets' stories, the events, the word
 // and an index of tiles, and one small file per tile of GDELT local stories beside it. `map export` and `demo`
 // write them; the daily run stores the same files in R2.
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { splitLocal, type MapFile } from "@2dayai/core";
 
@@ -38,4 +38,45 @@ export function writeMapFiles(full: MapFile, out: string, base: string): Written
     largest = Math.max(largest, bytes);
   }
   return { main, bytes: { main: Buffer.byteLength(text), tiles: total, largestTile: largest }, tiles: written };
+}
+
+/**
+ * Why a written day's file must not go up as the site's latest.json, or none when it may. The daily run and the
+ * refresh check the file on disk before they store it, so a broken export fails the run and the file already up
+ * stays. Broken means: not JSON or not a day's file, a story at a place the file lacks, no outlet stories, no
+ * explained event and no local story either, or a tile the file lists that is not on disk to be stored with it. A
+ * day without a word is fine (decision 81).
+ */
+export function mapFileProblems(text: string, tiles: { key: string; file: string }[]): string[] {
+  let file: MapFile;
+  try {
+    file = JSON.parse(text) as MapFile;
+  } catch {
+    return ["the file is not valid JSON"];
+  }
+  const shaped = file && typeof file === "object" && file.version === 2 && /^\d{4}-\d{2}-\d{2}$/.test(String(file.runDate));
+  if (!shaped || !Array.isArray(file.items) || !Array.isArray(file.places) || !file.events || typeof file.events !== "object") {
+    return ["the file is not a day's map (version 2, a run date, places, items and events)"];
+  }
+  const problems: string[] = [];
+  if (file.items.some((i) => !Number.isInteger(i.place) || i.place < 0 || i.place >= file.places.length)) problems.push("a story points at a place the file does not have");
+  const outlets = file.items.filter((i) => i.via !== "gdelt").length;
+  const listed = file.local?.tiles ?? {};
+  const local = Object.values(listed).reduce((a, b) => a + b, 0) + file.items.length - outlets;
+  if (outlets === 0) problems.push("no outlet stories");
+  if (Object.keys(file.events).length === 0 && local === 0) problems.push("no explained events and no local stories");
+  const base = file.local?.base ?? "";
+  const onDisk = new Map(tiles.map((t) => [t.key, t.file]));
+  const missing = Object.keys(listed).filter((k) => {
+    const f = onDisk.get(`${base}${k}.json`);
+    return !f || !existsSync(f);
+  });
+  if (missing.length) problems.push(`${missing.length} listed tiles are not on disk, for example ${base}${missing[0]}.json`);
+  return problems;
+}
+
+/** mapFileProblems for a file on disk and the tile list `map export --manifest` wrote beside it. */
+export function checkMapFile(path: string, manifest?: string): string[] {
+  const tiles = manifest ? (JSON.parse(readFileSync(manifest, "utf8")) as { key: string; file: string }[]) : [];
+  return mapFileProblems(readFileSync(path, "utf8"), tiles);
 }

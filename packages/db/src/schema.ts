@@ -1,7 +1,7 @@
 // The data model from docs/SPEC.md section 7. This file is the source of truth; the spec is the map.
 // Cascades exist so that re-running a stage for a date can delete its own output and everything derived from it
 // (spec decision 6). Feedback is never cascaded away: it keeps the event title and drops the id.
-import { boolean, date, doublePrecision, integer, jsonb, numeric, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, date, doublePrecision, index, integer, jsonb, numeric, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const sources = pgTable("sources", {
   id: text("id").primaryKey(),
@@ -43,24 +43,30 @@ export const articles = pgTable(
     fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
     enrichedAt: timestamp("enriched_at", { withTimezone: true }),
   },
-  (t) => [uniqueIndex("articles_url_idx").on(t.url)],
+  // The map reads a day's articles by publish time, and the prune deletes older ones by it.
+  (t) => [uniqueIndex("articles_url_idx").on(t.url), index("articles_published_at_idx").on(t.publishedAt)],
 );
 
-export const events = pgTable("events", {
-  id: serial("id").primaryKey(),
-  runDate: date("run_date").notNull(),
-  title: text("title").notNull(),
-  importance: integer("importance").notNull(),
-  importanceReason: text("importance_reason").notNull(),
-  promptVersion: text("prompt_version").notNull(),
-  desk: text("desk").notNull().default("briefing"),
-  /** World desk only: one of WORLD_TOPICS. */
-  topic: text("topic"),
-  /** World desk only: where the event happened, checked against the city list (decision 44). Null means unplaced. */
-  placeName: text("place_name"),
-  lat: doublePrecision("lat"),
-  lon: doublePrecision("lon"),
-});
+export const events = pgTable(
+  "events",
+  {
+    id: serial("id").primaryKey(),
+    runDate: date("run_date").notNull(),
+    title: text("title").notNull(),
+    importance: integer("importance").notNull(),
+    importanceReason: text("importance_reason").notNull(),
+    promptVersion: text("prompt_version").notNull(),
+    desk: text("desk").notNull().default("briefing"),
+    /** World desk only: one of WORLD_TOPICS. */
+    topic: text("topic"),
+    /** World desk only: where the event happened, checked against the city list (decision 44). Null means unplaced. */
+    placeName: text("place_name"),
+    lat: doublePrecision("lat"),
+    lon: doublePrecision("lon"),
+  },
+  // Every stage and the map read a day's events; the newest map date is the top of this index.
+  (t) => [index("events_desk_run_date_idx").on(t.desk, t.runDate)],
+);
 
 /**
  * Local stories from the GDELT index for towns no outlet reached that day (decisions 54 and 67). Placed by GDELT's
@@ -92,7 +98,8 @@ export const eventArticles = pgTable(
     eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
     articleId: integer("article_id").notNull().references(() => articles.id),
   },
-  (t) => [uniqueIndex("event_articles_idx").on(t.eventId, t.articleId)],
+  // By article too: deleting an old article checks this table for it, once per article, in the daily prune.
+  (t) => [uniqueIndex("event_articles_idx").on(t.eventId, t.articleId), index("event_articles_article_idx").on(t.articleId)],
 );
 
 export const eventExplanations = pgTable("event_explanations", {

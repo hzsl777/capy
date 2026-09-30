@@ -238,13 +238,15 @@ export async function runLocal(
   window: { from: Date; to: Date } = ingestWindow(date),
 ): Promise<LocalReport> {
   const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0 };
-  // Re-running the day replaces its local stories, and the map below must not count the old ones as coverage.
-  await db.delete(localStories).where(eq(localStories.runDate, date));
-  if (limits.perTown === 0) return { ...empty, skipped: "GDELT_PER_TOWN is 0" };
+  if (limits.perTown === 0) {
+    await db.delete(localStories).where(eq(localStories.runDate, date));
+    return { ...empty, skipped: "GDELT_PER_TOWN is 0" };
+  }
 
   // A region counts as reached when any outlet's story on the day's map sits in it, the way the coverage count sees
-  // it. A country the list gives no regions counts as one.
-  const map = await loadMapView(db, date);
+  // it. A country the list gives no regions counts as one. The day's local stories stay in the database (the index
+  // only), so the old ones never count as outlets' places.
+  const map = await loadMapView(db, date, undefined, { local: "index", noCarry: true });
   const outletPlaces = [...new Set(map.items.map((i) => i.place))].flatMap((p) => (map.places[p] ? [map.places[p]] : []));
   const regionOf = (lat: number, lon: number): string | null => {
     const area = gaz.areaAt(lat, lon);
@@ -345,13 +347,19 @@ export async function runLocal(
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-  // GDELT unreachable is an outage, not a quiet day: say so instead of writing nothing.
-  if (filesFailed > 0 && filesFailed + filesMissing === urls.length) throw new Error(`local: none of the ${urls.length} GDELT files could be read`);
+  // GDELT unreachable is an outage, not a quiet day: say so instead of writing nothing. GDELT publishes every quarter
+  // hour, so a window with no file at all is an outage too. Either way the day keeps the local stories it had.
+  if (urls.length > 0 && filesFailed + filesMissing === urls.length) throw new Error(`local: none of the ${urls.length} GDELT files could be read`);
 
   const { picked, overMax } = pickLocal(towns, limits);
   const rows = picked.map((a) => ({ runDate: date, url: a.url, title: a.title, domain: a.domain.replace(/^www\./, ""), lang: a.lang, publishedAt: a.publishedAt, placeName: a.at.name, lat: a.at.lat, lon: a.at.lon, region: a.region }));
-  // A thousand rows a statement: tens of thousands of stories go to the database in a few dozen round trips.
-  for (let i = 0; i < rows.length; i += 1000) await db.insert(localStories).values(rows.slice(i, i + 1000)).onConflictDoNothing();
+  // Re-running the day, or the refresh, replaces its local stories, only once the new ones are in hand, and in one
+  // transaction, so a failure part way leaves the old ones. A thousand rows a statement: tens of thousands of stories
+  // go to the database in a few dozen round trips.
+  await db.transaction(async (tx) => {
+    await tx.delete(localStories).where(eq(localStories.runDate, date));
+    for (let i = 0; i < rows.length; i += 1000) await tx.insert(localStories).values(rows.slice(i, i + 1000)).onConflictDoNothing();
+  });
   const filled = new Set(picked.map((p) => p.region));
   return {
     files: urls.length,
