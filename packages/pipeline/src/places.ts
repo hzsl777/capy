@@ -49,10 +49,11 @@ export function km(aLat: number, aLon: number, bLat: number, bLon: number): numb
 }
 
 /**
- * Natural Earth spells some first-level regions two ways in one country: right ("Béchar") and with each accented
- * letter replaced by a wrong ASCII one ("BZchar"). Left alone, one region counts twice and its garbled half is listed
- * as having no story. This maps each garbled spelling to the right one: an all-ASCII name of the same length as an
- * accented name of the same country, equal wherever the accented name's letter is ASCII.
+ * Natural Earth spells some first-level regions two ways in one country: right ("Béchar", "Goiás") and garbled, with
+ * each accented letter replaced by a wrong ASCII one ("BZchar") or the name cut off at one ("Goi"). Left alone, one
+ * region counts twice and its garbled half is listed as having no story. This maps each garbled spelling to the right
+ * one: an all-ASCII name of three letters or more that matches exactly one accented name of the same country wherever
+ * that name's letter is ASCII, and either has its length or stops just before one of its accented letters.
  */
 export function regionSpellings(pairs: Iterable<[cc: string, region: string]>): Map<string, string> {
   const byCountry = new Map<string, Set<string>>();
@@ -63,8 +64,13 @@ export function regionSpellings(pairs: Iterable<[cc: string, region: string]>): 
     const accented = [...names].filter((n) => !ascii(n));
     for (const bad of names) {
       if (!ascii(bad)) continue;
-      const good = accented.find((g) => g.length === bad.length && [...g].every((c, i) => c === bad[i] || !ascii(c)));
-      if (good) out.set(`${cc}/${bad}`, good);
+      if (bad.length < 3) continue;
+      const fits = (g: string) =>
+        g.length >= bad.length &&
+        [...bad].every((c, i) => c === g[i] || !ascii(g[i]!)) &&
+        (g.length === bad.length || !ascii(g[bad.length]!));
+      const matches = accented.filter(fits);
+      if (matches.length === 1) out.set(`${cc}/${bad}`, matches[0]!);
     }
   }
   return out;
