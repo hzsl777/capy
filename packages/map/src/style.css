@@ -7507,6 +7507,610 @@ button.link {
 }
 
 /* ==========================================================================
+   Old Realm and Tactical: two games' looks, borrowed and named after none of them. Old Realm is an early-2000s
+   fantasy online game's stone and wood interface around a round minimap; Tactical is a team game's overhead radar
+   with a HUD. Chrome around the map is in src/ui/extras.ts. Tokens first, then each design's chrome.
+   ========================================================================== */
+.x-ring,
+.x-hud,
+.x-feed {
+  display: none;
+}
+:root[data-theme="realm"] {
+  color-scheme: dark;
+  --page: #2e2a26;
+  --panel: #2a1c10;
+  --ink: #f3e5b8;
+  --ink-2: #e8d7a2;
+  --muted: #c7b68a;
+  --rule: #6e5634;
+  --accent: #f2c94c;
+  --on-accent: #2a1a08;
+  --hover: rgba(242, 201, 76, 0.1);
+  --reticle: #fff1c0;
+  --grain-opacity: 0.18;
+  --grain-blend: overlay;
+  --font-mast: "MedievalSharp", "Palatino Linotype", serif;
+  --font-head: "MedievalSharp", "Palatino Linotype", serif;
+  --font-body: "Alegreya", Georgia, serif;
+  --font-ui: "Alegreya", Georgia, serif;
+  /* Carved stone blocks in two courses with offset joints, drawn here, no pictures borrowed. */
+  --realm-stone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='64'%3E%3Crect width='96' height='64' fill='%234a4640'/%3E%3Crect x='1' y='1' width='46' height='30' fill='%23524d46'/%3E%3Crect x='49' y='1' width='46' height='30' fill='%2346423c'/%3E%3Crect x='-23' y='33' width='46' height='30' fill='%234e4a43'/%3E%3Crect x='25' y='33' width='46' height='30' fill='%2355504a'/%3E%3Crect x='73' y='33' width='46' height='30' fill='%234e4a43'/%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.28'%3E%3Cpath d='M0 32.5H96M0 .5H96M48.5 0V32M24.5 32V64M72.5 32V64'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.08'%3E%3Cpath d='M1 1.5H47M49 1.5H95M25 33.5H71M73 33.5H96M0 33.5H23'/%3E%3C/g%3E%3C/svg%3E");
+  /* Dark planks with a grain line and a seam. */
+  --realm-wood: repeating-linear-gradient(90deg, #4c3019 0 140px, #2e1d0e 140px 142px, #563720 142px 300px, #2e1d0e 300px 302px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 5px);
+  /* Four brass rivets, one in each corner. */
+  --realm-rivets:
+    radial-gradient(circle at 9px 9px, #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at 9px calc(100% - 9px), #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px);
+}
+:root[data-theme="tactical"] {
+  color-scheme: dark;
+  --page: #1c1e1d;
+  --panel: #1f2220;
+  --ink: #ecece4;
+  --ink-2: #cfd1c7;
+  --muted: #a5a99e;
+  --rule: #414540;
+  --accent: #ff9d1e;
+  --on-accent: #1a1004;
+  --hover: rgba(255, 157, 30, 0.1);
+  --reticle: #f4f4ec;
+  --grain-opacity: 0.06;
+  --grain-blend: overlay;
+  --font-mast: "Teko", "Oswald", sans-serif;
+  --font-head: "Teko", "Oswald", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+
+/* ---- Old Realm: carved stone, dark wood and brass rivets; a quest log for the panel -------------------- */
+:root[data-theme="realm"] body {
+  background: radial-gradient(ellipse 90% 70% at 50% 30%, rgba(80, 74, 66, 0.55), transparent 75%), var(--realm-stone) 0 0 / 96px 64px, #3a3631;
+}
+/* The masthead is a slab of carved stone on a wooden beam, held by brass rivets. */
+:root[data-theme="realm"] .masthead {
+  border-bottom: 0;
+  background:
+    var(--realm-rivets),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.18)),
+    var(--realm-stone) 0 0 / 96px 64px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 6px 0 #3a2413, 0 7px 0 #1c1108, 0 9px 8px rgba(0, 0, 0, 0.45);
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="realm"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(30px, 3.6vw, 46px);
+  letter-spacing: 0.02em;
+  color: #f6d772;
+  /* Gilded letters cut into the stone. */
+  text-shadow: 0 -1px 0 #fff3bf, 0 2px 0 #5a3a10, 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+:root[data-theme="realm"] .mast-tag {
+  font-style: italic;
+  font-size: 14px;
+  color: #f3e7c6;
+  text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.8);
+}
+/* The word is a gilded plaque on a dark board. */
+:root[data-theme="realm"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #ffd65c;
+  text-shadow: 0 2px 0 #3a2208, 0 0 10px rgba(255, 200, 80, 0.35);
+  background: linear-gradient(to bottom, rgba(40, 25, 12, 0.92), rgba(26, 16, 8, 0.92));
+  border: 2px solid #b08a3e;
+  border-radius: 4px;
+  padding: 4px 16px 2px;
+  box-shadow: inset 0 0 0 1px #3a2608, 0 0 0 2px #2a1a0b, 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="realm"] .telegram-word:hover,
+:root[data-theme="realm"] .telegram-word:focus-visible {
+  background: linear-gradient(to bottom, rgba(64, 40, 18, 0.95), rgba(36, 22, 10, 0.95));
+  text-decoration: none;
+}
+:root[data-theme="realm"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffd65c;
+}
+:root[data-theme="realm"] .telegram-kicker,
+:root[data-theme="realm"] .telegram-date {
+  color: #f3e7c6;
+  text-shadow: 0 1px 2px #000;
+}
+:root[data-theme="realm"] .telegram-side .telegram-note,
+:root[data-theme="realm"] .telegram-status {
+  color: #bff3f8;
+  text-shadow: 0 1px 2px #000;
+}
+:root[data-theme="realm"] .toolbar,
+:root[data-theme="realm"] .timebar {
+  border: 0;
+  background: var(--realm-wood);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+  color: #fff4cf;
+}
+:root[data-theme="realm"] .timebar {
+  border-top: 2px solid #1c1108;
+}
+:root[data-theme="realm"] .toolbar {
+  border-bottom: 2px solid #1c1108;
+}
+/* Buttons are small carved stones; pressed, they turn to brass. */
+:root[data-theme="realm"] .tool,
+:root[data-theme="realm"] .pick select,
+:root[data-theme="realm"] .menu > summary,
+:root[data-theme="realm"] .chip,
+:root[data-theme="realm"] .key-btn,
+:root[data-theme="realm"] .key-close {
+  border: 1px solid #1f1c19;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #8a857b, #5c5850);
+  color: #fff6d8;
+  font-weight: 700;
+  text-shadow: 0 1px 1px #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="realm"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+:root[data-theme="realm"] .tool[aria-pressed="true"],
+:root[data-theme="realm"] .menu[open] > summary,
+:root[data-theme="realm"] .chip[aria-pressed="true"],
+:root[data-theme="realm"] .key-btn[aria-expanded="true"] {
+  background: linear-gradient(to bottom, #f5d878, #b88a30);
+  color: #2a1a08;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+/* Behind the minimap and the globe: the same stone wall, lit in the middle. */
+:root[data-theme="realm"] .map {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 230, 170, 0.1), transparent 60%), var(--realm-stone) 0 0 / 96px 64px, #3a3631;
+}
+:root[data-theme="realm"] .map[data-view="2d"] .x-ring {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+:root[data-theme="realm"] .x-ring svg {
+  display: block;
+}
+/* Two round stone buttons for the zoom. */
+:root[data-theme="realm"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="realm"] .zoom button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #b08a3e;
+  color: #fff6d8;
+  font-weight: 700;
+  text-shadow: 0 1px 1px #000;
+  background: radial-gradient(circle at 40% 35%, #8f8a80, #4d4943 75%);
+  box-shadow: 0 0 0 1px #1f1c19, 0 2px 4px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="realm"] .zoom button + button {
+  border-top: 2px solid #b08a3e;
+}
+:root[data-theme="realm"] .crosshair {
+  filter: drop-shadow(0 0 1px #2a1a08) drop-shadow(0 0 1px #2a1a08) drop-shadow(0 1px 1px #000);
+}
+/* The panel is a quest log: dark translucent brown in a wooden frame with a brass line and rivets, yellow and cyan
+   text. */
+:root[data-theme="realm"] .panel,
+:root[data-theme="realm"] .menu-body,
+:root[data-theme="realm"] .key-pop,
+:root[data-theme="realm"] dialog {
+  background: var(--realm-rivets), linear-gradient(rgba(42, 28, 16, 0.9), rgba(30, 19, 10, 0.93));
+  border: 3px solid #5a3b1e;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #1c1108, inset 0 0 0 1px #c9a049, inset 0 0 26px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: var(--ink);
+}
+:root[data-theme="realm"] .panel {
+  margin: 0 8px 8px 0;
+}
+:root[data-theme="realm"] .key-pop {
+  --key-bg: #35647d;
+}
+:root[data-theme="realm"] .panel-title,
+:root[data-theme="realm"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #ffd65c;
+  text-shadow: 0 1px 0 #000, 0 0 8px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="realm"] .dateline {
+  border-bottom: 2px solid #6e5634;
+}
+:root[data-theme="realm"] .dateline .coords,
+:root[data-theme="realm"] .meta {
+  font-style: normal;
+  color: #86e4ee;
+}
+:root[data-theme="realm"] .rule-head {
+  color: #86e4ee;
+  border-color: #6e5634;
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="realm"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #ffdf73;
+  text-shadow: 0 1px 1px #000;
+}
+:root[data-theme="realm"] .story:hover {
+  background: rgba(134, 228, 238, 0.08);
+}
+
+/* ---- Tactical: an overhead radar in a HUD: greys and olive, orange accents, condensed capitals ---------------- */
+:root[data-theme="tactical"] body {
+  background: linear-gradient(to bottom, #202321, #161817);
+}
+:root[data-theme="tactical"] .masthead {
+  border-bottom: 2px solid #ff9d1e;
+  background: linear-gradient(to bottom, #242725, #1b1d1c);
+  box-shadow: 0 2px 0 #0c0d0c;
+}
+:root[data-theme="tactical"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  font-size: clamp(34px, 3.8vw, 50px);
+  line-height: 0.85;
+  letter-spacing: 0.06em;
+  color: #f4f4ec;
+  padding-top: 4px;
+}
+:root[data-theme="tactical"] .mast-title::before {
+  /* A slanted orange bar before the name, a HUD's accent. */
+  content: "";
+  display: inline-block;
+  width: 0.24em;
+  height: 0.62em;
+  margin-right: 0.28em;
+  background: #ff9d1e;
+  transform: skewX(-18deg);
+  vertical-align: 0.02em;
+}
+:root[data-theme="tactical"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b9bcb2;
+}
+:root[data-theme="tactical"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffb445;
+  background: linear-gradient(to right, rgba(255, 157, 30, 0.14), rgba(255, 157, 30, 0.02));
+  border: 0;
+  border-left: 4px solid #ff9d1e;
+  padding: 4px 14px 0;
+  line-height: 0.95;
+}
+:root[data-theme="tactical"] .telegram-word:hover,
+:root[data-theme="tactical"] .telegram-word:focus-visible {
+  background: linear-gradient(to right, rgba(255, 157, 30, 0.26), rgba(255, 157, 30, 0.06));
+  text-decoration: none;
+}
+:root[data-theme="tactical"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #ffb445;
+}
+:root[data-theme="tactical"] .telegram-kicker,
+:root[data-theme="tactical"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: #cfd1c7;
+}
+:root[data-theme="tactical"] .toolbar,
+:root[data-theme="tactical"] .timebar {
+  border-color: #0c0d0c;
+  background: #1d201e;
+}
+:root[data-theme="tactical"] .tool,
+:root[data-theme="tactical"] .pick select,
+:root[data-theme="tactical"] .menu > summary,
+:root[data-theme="tactical"] .chip,
+:root[data-theme="tactical"] .key-btn,
+:root[data-theme="tactical"] .key-close {
+  border: 1px solid #4a4f48;
+  border-radius: 0;
+  background: rgba(40, 44, 41, 0.92);
+  color: #ecece4;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="tactical"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+}
+:root[data-theme="tactical"] .tool[aria-pressed="true"],
+:root[data-theme="tactical"] .menu[open] > summary,
+:root[data-theme="tactical"] .chip[aria-pressed="true"],
+:root[data-theme="tactical"] .key-btn[aria-expanded="true"] {
+  background: #ff9d1e;
+  border-color: #ff9d1e;
+  color: #1a1004;
+}
+:root[data-theme="tactical"] .scale .step.on {
+  background: #ff9d1e;
+  color: #1a1004;
+}
+/* Behind the globe: dark glass with a faint grid, like the rest of the radar. */
+:root[data-theme="tactical"] .map {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45)),
+    repeating-linear-gradient(0deg, rgba(205, 210, 195, 0.05) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(205, 210, 195, 0.05) 0 1px, transparent 1px 40px),
+    #181a19;
+}
+:root[data-theme="tactical"] .zoom {
+  border: 1px solid #4a4f48;
+  background: rgba(24, 26, 25, 0.9);
+}
+:root[data-theme="tactical"] .zoom button {
+  color: #ecece4;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+:root[data-theme="tactical"] .zoom button + button {
+  border-top-color: #4a4f48;
+}
+/* A HUD's centre mark: four thin arms around a gap, outlined dark so it reads on land and sea. */
+:root[data-theme="tactical"] .crosshair {
+  --arm: 8px;
+  --weight: 2px;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+}
+/* Corner brackets around the map, and the clock at the top: time since the day's map was built. */
+:root[data-theme="tactical"] .x-hud {
+  display: block;
+  position: absolute;
+  inset: 8px;
+  z-index: 2;
+  pointer-events: none;
+  --c: rgba(236, 236, 228, 0.55);
+  background:
+    linear-gradient(var(--c), var(--c)) left top / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left top / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 2px 22px no-repeat;
+}
+:root[data-theme="tactical"] .x-round {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 26px 5px;
+  background: rgba(18, 20, 19, 0.86);
+  border-bottom: 2px solid #ff9d1e;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 14px 100%);
+}
+:root[data-theme="tactical"] .x-round-time {
+  font: 600 32px/0.9 var(--font-mast);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4ec;
+  min-width: 4.6em;
+  text-align: center;
+  padding-top: 3px;
+}
+:root[data-theme="tactical"] .x-round-note {
+  font: 600 10px/1.2 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffb445;
+}
+/* The feed: the newest headlines in the corner, newest on top, text only. */
+:root[data-theme="tactical"] .x-feed {
+  display: block;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: min(430px, calc(50% - 110px));
+}
+:root[data-theme="tactical"] .x-feed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+:root[data-theme="tactical"] .x-feed-list li {
+  max-width: 100%;
+}
+:root[data-theme="tactical"] .x-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 3px 9px 2px;
+  border: 0;
+  border-right: 3px solid #ff9d1e;
+  background: rgba(16, 18, 17, 0.8);
+  color: #ecece4;
+  font: 500 14px/1.25 var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+:root[data-theme="tactical"] .x-feed-item:hover {
+  background: rgba(40, 36, 28, 0.92);
+}
+:root[data-theme="tactical"] .x-feed-item b {
+  flex: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffb445;
+}
+:root[data-theme="tactical"] .x-feed-sep {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 5px solid #8e9388;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+:root[data-theme="tactical"] .x-feed-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-theme="tactical"] .key-btn {
+  top: 18px;
+  left: 18px;
+}
+:root[data-theme="tactical"] .panel,
+:root[data-theme="tactical"] .menu-body,
+:root[data-theme="tactical"] .key-pop,
+:root[data-theme="tactical"] dialog {
+  background: #1f2220;
+  border: 1px solid #3a3e39;
+  box-shadow: none;
+}
+:root[data-theme="tactical"] .panel {
+  border-top: 0;
+  border-left: 1px solid #0c0d0c;
+}
+:root[data-theme="tactical"] .key-pop {
+  --key-bg: #262927;
+}
+:root[data-theme="tactical"] .panel-title,
+:root[data-theme="tactical"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: #f4f4ec;
+  padding-top: 4px;
+}
+:root[data-theme="tactical"] .dateline {
+  border-bottom: 2px solid #ff9d1e;
+}
+:root[data-theme="tactical"] .rule-head {
+  font-family: var(--font-ui);
+  color: #ffb445;
+  border-color: #3a3e39;
+  text-align: left;
+}
+:root[data-theme="tactical"] .headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+}
+:root[data-theme="tactical"] .meta,
+:root[data-theme="tactical"] .dateline .coords,
+:root[data-theme="tactical"] .count {
+  font-family: var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="tactical"] .story:hover {
+  background: rgba(255, 157, 30, 0.07);
+}
+
+/* ---- Phones: both keep the toolbar one row, and the word fits ------------------------------------------- */
+@media (max-width: 760px) {
+  :root[data-theme="realm"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.78)));
+    padding: 3px 12px 1px;
+  }
+  :root[data-theme="realm"] .masthead {
+    margin-bottom: 6px;
+  }
+  :root[data-theme="realm"] .panel {
+    margin: 0 6px 6px;
+  }
+  :root[data-theme="tactical"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.62)));
+  }
+  :root[data-theme="tactical"] .panel {
+    border-left: 0;
+    border-top: 2px solid #0c0d0c;
+  }
+  :root[data-theme="tactical"] .x-round {
+    padding: 3px 18px 4px;
+  }
+  :root[data-theme="tactical"] .x-round-time {
+    font-size: 24px;
+  }
+  :root[data-theme="tactical"] .x-round-note {
+    font-size: 9px;
+  }
+  /* On a phone the feed moves to the lower left, three lines, clear of the clock and the zoom. */
+  :root[data-theme="tactical"] .x-feed {
+    top: auto;
+    right: auto;
+    left: 12px;
+    bottom: 12px;
+    width: calc(100% - 76px);
+  }
+  :root[data-theme="tactical"] .x-feed-list {
+    align-items: flex-start;
+  }
+  :root[data-theme="tactical"] .x-feed-list li:nth-child(n + 4) {
+    display: none;
+  }
+  :root[data-theme="tactical"] .x-feed-list.short li:nth-child(n + 2) {
+    display: none;
+  }
+  :root[data-theme="tactical"] .x-feed-item {
+    font-size: 12px;
+    border-right: 0;
+    border-left: 3px solid #ff9d1e;
+  }
+}
+@media (max-width: 420px) {
+  :root[data-theme="realm"] .tool,
+  :root[data-theme="realm"] .pick select,
+  :root[data-theme="realm"] .menu > summary {
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
    Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76): handmade, tabletop and paper worlds
    (src/map/popup.ts, trainset.ts, chalk.ts, sketch.ts). Tokens first, then each design's chrome.
    ========================================================================== */

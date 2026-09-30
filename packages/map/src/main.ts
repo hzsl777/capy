@@ -113,6 +113,12 @@ import "@fontsource/kalam/latin-400.css";
 import "@fontsource/kalam/latin-ext-400.css";
 import "@fontsource/kalam/latin-700.css";
 import "@fontsource/kalam/latin-ext-700.css";
+// Old Realm and Tactical.
+import "@fontsource/medievalsharp/400.css";
+import "@fontsource/alegreya/400.css";
+import "@fontsource/alegreya/700.css";
+import "@fontsource/teko/500.css";
+import "@fontsource/teko/600.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -408,7 +414,7 @@ function renderMasthead() {
   const t = THEMES[state.theme];
   // One row: the name and tagline on the left, the day's word on the right (renderTelegramStrip).
   $("mast-title").removeAttribute("aria-label");
-  lettered($("mast-title"), t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME);
+  lettered($("mast-title"), t.id === "wire" || t.id === "ops" || t.id === "tactical" ? SITE_NAME.toUpperCase() : SITE_NAME);
   $("mast-tag").textContent = SITE_TAGLINE;
 }
 
@@ -1124,6 +1130,8 @@ const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
 TICKER_THEMES.add("terminal");
 
 function renderTicker() {
+  // Tactical's feed of the newest headlines follows the same stories as the ticker (src/ui/extras.ts).
+  if (state.theme === "tactical") refreshExtras();
   const track = $("ticker-track");
   if (!state.file || !TICKER_THEMES.has(state.theme)) {
     track.replaceChildren();
@@ -1263,6 +1271,13 @@ async function start() {
     theme: () => state.theme,
     tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
     center: () => map.center(),
+    latest: () =>
+      [...state.byPlace.values()]
+        .flat()
+        .sort((a, b) => b.t - a.t)
+        .slice(0, 5)
+        .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
+    builtAt: () => state.file?.generatedAt ?? null,
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.

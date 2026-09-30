@@ -5,10 +5,14 @@
 // - Market Terminal: a header strip over the map with the reticle's latitude and longitude and a UTC clock.
 // - Country Club: a small embroidered crest by the name: crossed oars inside a laurel, no animal and no letters.
 // - Sleeper Car: a station clock by the name.
+// - Old Realm: a carved stone ring with brass rivets and a compass rose around the round minimap in Map view.
+// - Tactical: a HUD around the map: corner brackets, a clock since the day's map was built, and a short feed of the
+//   newest headlines in the corner, newest first, as text.
 // Place names go in as text, never as HTML.
 
 import type { ThemeId } from "../themes.ts";
 import { columnName, sheetGrid } from "../map/sheet.ts";
+import { minimapDisc, minimapMargin } from "../map/minimap.ts";
 import { h } from "./dom.ts";
 
 export interface ExtrasSource {
@@ -16,6 +20,10 @@ export interface ExtrasSource {
   /** The names of the places under the reticle, or null. */
   tuned(): string[] | null;
   center(): [number, number];
+  /** Tactical's feed: the newest headlines, newest first, each with its place and how to open it. */
+  latest?(): { place: string; title: string; open(): void }[];
+  /** When the day's map was built, in seconds, or null before it loads. */
+  builtAt?(): number | null;
 }
 
 const NS = "http://www.w3.org/2000/svg";
@@ -35,6 +43,11 @@ let utc: HTMLElement;
 let hands: { hour: SVGElement; minute: SVGElement; second: SVGElement } | null = null;
 let timer = 0;
 let cell = "";
+let ring: HTMLElement;
+let ringFor = "";
+let round: HTMLElement;
+let feed: HTMLElement;
+let feedKey = "";
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
@@ -122,9 +135,22 @@ export function mountExtras(source: ExtrasSource) {
   readout = h("span", { class: "x-readout" });
   utc = h("span", { class: "x-utc" });
   mapEl.append(h("div", { class: "x-term", "aria-hidden": "true" }, h("span", { class: "x-fkey" }, "F1"), h("span", { class: "x-term-title" }, "MAP"), readout, utc));
+  ring = h("div", { class: "x-ring", "aria-hidden": "true" });
+  round = h("span", { class: "x-round-time" });
+  feed = h("ol", { class: "x-feed-list" });
+  mapEl.append(
+    ring,
+    h("div", { class: "x-hud", "aria-hidden": "true" }, h("div", { class: "x-round" }, round, h("span", { class: "x-round-note" }, "since the map was built"))),
+    h("section", { class: "x-feed", "aria-label": "Newest headlines" }, feed),
+  );
   const brand = document.querySelector(".brand");
   brand?.prepend(crest(), stationClock());
-  new ResizeObserver(() => layoutSheet()).observe(mapEl);
+  new ResizeObserver(() => {
+    layoutSheet();
+    layoutRing();
+    // A short map (a phone with the reader open) keeps only the newest line of Tactical's feed.
+    feed.classList.toggle("short", mapEl.clientHeight < 220);
+  }).observe(mapEl);
   document.addEventListener("visibilitychange", () => refreshExtras());
   refreshExtras();
 }
@@ -162,6 +188,98 @@ function layoutSheet() {
   nameBox.textContent = cell;
 }
 
+/**
+ * Old Realm's ring: carved grey stone with a brass lip, brass rivets, and a small compass rose set into it at the
+ * upper right. Built again only when the map's size changes; the canvas clips the map to the same circle.
+ */
+function layoutRing() {
+  if (!src || src.theme() !== "realm") return;
+  const w = mapEl.clientWidth, hh = mapEl.clientHeight;
+  const key = `${w}x${hh}`;
+  if (!w || !hh || key === ringFor) return;
+  ringFor = key;
+  const { cx, cy, r } = minimapDisc(w, hh);
+  const m = minimapMargin(w, hh);
+  const band = m * 0.95;
+  const s = svg("svg", { viewBox: `0 0 ${w} ${hh}`, width: w, height: hh });
+  const defs = svg("defs", {});
+  const stone = svg("radialGradient", { id: "x-stone", cx, cy, r: r + band, gradientUnits: "userSpaceOnUse" });
+  stone.append(
+    svg("stop", { offset: (r / (r + band)).toFixed(3), "stop-color": "#4c4a45" }),
+    svg("stop", { offset: ((r + band * 0.45) / (r + band)).toFixed(3), "stop-color": "#8d8a80" }),
+    svg("stop", { offset: "1", "stop-color": "#3e3c38" }),
+  );
+  const boss = svg("radialGradient", { id: "x-boss", cx: "40%", cy: "35%", r: "70%" });
+  boss.append(svg("stop", { offset: "0", "stop-color": "#9a968b" }), svg("stop", { offset: "1", "stop-color": "#45423d" }));
+  const brass = svg("radialGradient", { id: "x-brass", cx: "35%", cy: "30%", r: "75%" });
+  brass.append(svg("stop", { offset: "0", "stop-color": "#fff0b8" }), svg("stop", { offset: "0.45", "stop-color": "#c99a3c" }), svg("stop", { offset: "1", "stop-color": "#5e3f12" }));
+  defs.append(stone, boss, brass);
+  s.append(defs);
+  // A soft shadow inside the window, then the stone band, its chisel marks, and the brass lip.
+  s.append(svg("circle", { cx, cy, r: r + 3, fill: "none", stroke: "rgba(0,0,0,0.45)", "stroke-width": 8 }));
+  s.append(svg("circle", { cx, cy, r: r + band / 2, fill: "none", stroke: "url(#x-stone)", "stroke-width": band }));
+  s.append(svg("circle", { cx, cy, r: r + band - 1, fill: "none", stroke: "#23211e", "stroke-width": 2 }));
+  s.append(svg("circle", { cx, cy, r: r + band * 0.5, fill: "none", stroke: "rgba(30,28,24,0.35)", "stroke-width": 1, "stroke-dasharray": "3 9 1 6" }));
+  s.append(svg("circle", { cx, cy, r: r + 1.5, fill: "none", stroke: "#d8b060", "stroke-width": 3 }));
+  s.append(svg("circle", { cx, cy, r: r + 3.5, fill: "none", stroke: "#5e3f12", "stroke-width": 1 }));
+  // Rivets around the band, leaving room for the compass rose.
+  const n = w < 520 ? 12 : 16;
+  const rose = -Math.PI / 4;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2 + Math.PI / n;
+    if (Math.abs(Math.atan2(Math.sin(a - rose), Math.cos(a - rose))) < 0.35) continue;
+    const rr = r + band * 0.55;
+    s.append(svg("circle", { cx: (cx + Math.cos(a) * rr).toFixed(1), cy: (cy + Math.sin(a) * rr).toFixed(1), r: Math.max(2.2, band * 0.16).toFixed(1), fill: "url(#x-brass)", stroke: "#2c1d08", "stroke-width": 0.8 }));
+  }
+  // The compass rose on a stone boss: four long points and four short ones, north in red, no letters.
+  const k = Math.max(17, m * 0.95);
+  const bx = cx + Math.cos(rose) * (r + band * 0.5);
+  const by = cy + Math.sin(rose) * (r + band * 0.5);
+  const g = svg("g", { transform: `translate(${bx.toFixed(1)} ${by.toFixed(1)})` });
+  g.append(
+    svg("circle", { r: k, fill: "url(#x-boss)", stroke: "#23211e", "stroke-width": 2 }),
+    svg("circle", { r: k - 3, fill: "#3b2a18", stroke: "#d8b060", "stroke-width": 2 }),
+  );
+  const pt = (len: number, wid: number, turn: number, fill: string) =>
+    svg("path", { d: `M0 ${(-len).toFixed(1)}L${wid.toFixed(1)} 0L0 ${wid.toFixed(1)}L${(-wid).toFixed(1)} 0Z`, fill, stroke: "#2c1d08", "stroke-width": 0.6, transform: `rotate(${turn})` });
+  for (const turn of [45, 135, 225, 315]) g.append(pt(k * 0.55, k * 0.16, turn, "#9c7a3a"));
+  for (const turn of [90, 180, 270]) g.append(pt(k * 0.8, k * 0.2, turn, "#e9d9a6"));
+  g.append(pt(k * 0.8, k * 0.2, 0, "#c8402c"), svg("circle", { r: (k * 0.12).toFixed(1), fill: "url(#x-brass)" }));
+  s.append(g);
+  ring.replaceChildren(s);
+}
+
+/** Tactical's feed: rebuilt only when its headlines change, so a button keeps focus while the map turns. */
+function layoutFeed() {
+  const list = src?.theme() === "tactical" ? (src.latest?.() ?? []) : [];
+  const key = list.map((it) => `${it.place}|${it.title}`).join("\n");
+  if (key === feedKey) return;
+  feedKey = key;
+  feed.replaceChildren(
+    ...list.map((it) => {
+      const b = h("button", { type: "button", class: "x-feed-item", title: it.title }, h("b", {}, it.place), h("span", { class: "x-feed-sep", "aria-hidden": "true" }), h("span", { class: "x-feed-title" }, it.title));
+      b.addEventListener("click", () => it.open());
+      return h("li", {}, b);
+    }),
+  );
+}
+
+/** Tactical's clock: hours, minutes and seconds since the day's map was built; past 99 hours it counts days. */
+function tickRound(now: Date) {
+  const built = src?.builtAt?.();
+  if (!built) {
+    round.textContent = "--:--";
+    return;
+  }
+  const total = Math.max(0, Math.floor(now.getTime() / 1000 - built));
+  const hrs = Math.floor(total / 3600);
+  const two = (v: number) => String(v).padStart(2, "0");
+  const mins = two(Math.floor(total / 60) % 60);
+  if (hrs > 99) round.textContent = `${Math.floor(hrs / 24)}d ${two(hrs % 24)}:${mins}`;
+  // With reduced motion the seconds don't run; the clock steps once a minute.
+  else round.textContent = reduced ? `${two(hrs)}:${mins}` : `${two(hrs)}:${mins}:${two(total % 60)}`;
+}
+
 const quote = (s: string) => `"${s.replace(/"/g, "'")}"`;
 
 /** Everything that follows the design or the tuned place. Cheap: called on every tune and theme change. */
@@ -173,18 +291,21 @@ export function refreshExtras() {
     const names = src.tuned();
     formula.textContent = names?.length ? `=REPORTS(${names.slice(0, 3).map(quote).join(", ")}${names.length > 3 ? ", ..." : ""})` : "=LATEST()";
   }
+  if (theme === "realm") layoutRing();
+  layoutFeed();
   moveExtras();
   clearInterval(timer);
   timer = 0;
-  if ((theme === "rail" || theme === "terminal") && document.visibilityState === "visible") {
+  if ((theme === "rail" || theme === "terminal" || theme === "tactical") && document.visibilityState === "visible") {
     tick();
-    // The station clock's second hand steps once a second; with reduced motion only the minute changes.
-    timer = window.setInterval(tick, theme === "rail" && !reduced ? 1000 : 15000);
+    // The station clock's second hand and Tactical's clock step once a second; with reduced motion only the minute.
+    timer = window.setInterval(tick, (theme === "rail" || theme === "tactical") && !reduced ? 1000 : 15000);
   }
 }
 
 function tick() {
   const now = new Date();
+  if (src?.theme() === "tactical") return tickRound(now);
   utc.textContent = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
   if (!hands) return;
   const m = now.getMinutes() + now.getSeconds() / 60;
