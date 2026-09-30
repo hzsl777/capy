@@ -72,4 +72,6 @@ The model provider is config (decisions 28 and 29). OpenAI's gpt-5.4-nano, with 
 
 ## Hosting
 
-The Worker serves the map, its data and the reader pages on Cloudflare's free plan, so the repository can stay private. `.github/workflows/deploy-site.yml` deploys on code changes once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. The daily run needs no deploy because the Worker reads the database. Actions has 2,000 free minutes a month on a private repository: the daily run, delivery every two hours, and CI fit inside it.
+The Worker serves the map, its data and the reader pages on Cloudflare's free plan, so the repository can stay private. `.github/workflows/deploy-site.yml` deploys on code changes once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. The daily run needs no deploy: it stores the day's file and its tiles of local stories in R2, and the Worker serves them (decisions 73 and 78). Actions has 2,000 free minutes a month on a private repository: the daily run, delivery every two hours, and CI fit inside it. Local stories from every town (decision 78) add an estimated one to two minutes to the daily run, 30 to 60 minutes a month.
+
+The free Workers plan allows 100,000 requests a day. The day's file is one request per visit; someone who zooms in all the way asks for the tiles in view, typically 5 to 25 more. At about 20 tile requests per visitor who zooms in, that is room for some 4,000 such visitors a day before the paid plan (5 USD a month, 10 million requests) is needed.

@@ -8,19 +8,19 @@ compatibility_flags = ["nodejs_compat"]
 # Secrets: DATABASE_URL. The "Deploy site" workflow copies it from GitHub; with Workers Builds alone, add it
 # under the Worker's Settings, then Variables and Secrets.
 
-# Runs before every deploy: builds the map, then drops the fictional sample so the live site never falls back
-# to it.
+# Runs before every deploy: builds the map, then drops the fictional sample and any exported day, with their tiles of
+# local stories, so the live site never falls back to them and a static file never hides the Worker's /data/local/.
 [build]
-command = "npm run map:build && rm -f packages/map/dist/data/sample.json packages/map/dist/data/latest.json"
+command = "npm run map:build && rm -rf packages/map/dist/data/sample.json packages/map/dist/data/latest.json packages/map/dist/data/local"
 
 # The public map (packages/map). Files that exist are served as-is; everything else, including /data/*.json and
 # the reader pages, falls through to the Worker.
 [assets]
 directory = "packages/map/dist"
 
-# The day's finished map files, stored by the daily run (decision 73): latest.json and one per date. The Worker
-# streams them instead of building the map on each request. Create the bucket once before deploying:
-# docs/RUNBOOK.md, "Map files in R2".
+# The day's finished map files, stored by the daily run (decision 73): latest.json, one per date, and the day's
+# tiles of local stories at local/<date>/<tile>.json (decision 78). The Worker streams them instead of building the
+# map on each request. Create the bucket once before deploying: docs/RUNBOOK.md, "Map files in R2".
 [[r2_buckets]]
 binding = "MAPS"
 bucket_name = "globalgist-maps"

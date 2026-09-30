@@ -49,17 +49,15 @@ const EnvSchema = z.object({
   /** Most articles in one cluster world call. A larger day is split into batches, then merged across them. */
   WORLD_CLUSTER_BATCH: z.coerce.number().int().min(1).default(300),
   /**
-   * Local stories taken from the GDELT index per region with no outlet story that day (decisions 54 and 67). 0 turns
-   * the local stage off. They cost no model calls.
+   * The newest local stories taken from the GDELT index for each town, every town's newest before any town's second
+   * (decision 78). 0 turns the local stage off. They cost no model calls.
    */
-  GDELT_PER_REGION: z.coerce.number().int().min(0).max(20).default(6),
-  /** Local stories per region an outlet's story reached, from its other towns (decision 67). 0 leaves those regions to the outlets. */
-  GDELT_PER_REACHED_REGION: z.coerce.number().int().min(0).max(20).default(3),
+  GDELT_PER_TOWN: z.coerce.number().int().min(0).max(20).default(2),
   /**
-   * Local stories per day in all (decision 67). Each adds about 400 bytes to the map file before compression; 8,000
-   * keeps a full day under about 5 MB, 1.7 MB gzipped.
+   * Local stories per day in all (decision 78): a safety valve, not the day's limit. A normal day is estimated at
+   * 25,000 to 45,000 with two a town. They go into tiles the site loads when zoomed in, not the day's main file.
    */
-  GDELT_MAX: z.coerce.number().int().min(0).max(50_000).default(8000),
+  GDELT_MAX: z.coerce.number().int().min(0).max(250_000).default(80_000),
   /** Times the telegram's score call runs; each event keeps its middle score (decision 36). Odd, so there is a middle. */
   TELEGRAM_SCORE_RUNS: z.coerce
     .number()
@@ -110,8 +108,8 @@ export type Config = {
   worldPerSource: number;
   worldClusterBatch: number;
   telegramScoreRuns: number;
-  /** GDELT local stories (decision 67): per region with no outlet story, per region with one, and per day. */
-  local: { perRegion: number; perReachedRegion: number; max: number };
+  /** GDELT local stories (decision 78): per town, and per day. */
+  local: { perTown: number; max: number };
   /** Effort per stage (decision 8). */
   effort: { cluster: Effort; explain: Effort; select: Effort; telegram: Effort };
 };
@@ -145,7 +143,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     worldPerSource: e.WORLD_PER_SOURCE,
     worldClusterBatch: e.WORLD_CLUSTER_BATCH,
     telegramScoreRuns: e.TELEGRAM_SCORE_RUNS,
-    local: { perRegion: e.GDELT_PER_REGION, perReachedRegion: e.GDELT_PER_REACHED_REGION, max: e.GDELT_MAX },
+    local: { perTown: e.GDELT_PER_TOWN, max: e.GDELT_MAX },
     effort: { cluster: "low", explain: "medium", select: "high", telegram: "high" },
   };
 }

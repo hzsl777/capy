@@ -53,9 +53,15 @@ describe("placing a story where it happened (decision 44)", () => {
     // Towns never answer the grouping model's names, which come without a precise point.
     expect(towns.locate({ city: "Rovereto", country: "IT" })).toBeNull();
     expect(towns.locate({ city: "Springfield", country: "US" })).toEqual(gaz.locate({ city: "Springfield", country: "US" }));
-    // The coverage count's denominators stay the city list's.
+    // Towns add no regions, but they add the territories the city list lacks, so a story there counts against a
+    // total that includes it.
     expect(towns.regions()).toEqual(gaz.regions());
-    expect(towns.countries()).toEqual(gaz.countries());
+    expect(towns.countries()).toEqual(expect.arrayContaining(gaz.countries()));
+    expect(towns.countries()).toContain("XK");
+    expect(gaz.countries()).not.toContain("XK");
+    expect(towns.countries().length).toBe(gaz.countries().length + 22);
+    expect(towns.countryAt(42.66, 21.16)).toBe("XK");
+    expect(towns.largestIn("XK")).not.toBe("XK");
     expect(towns.areaAt(45.89, 11.04)).toEqual({ country: "IT", region: "IT/Trentino-Alto Adige" });
   });
 

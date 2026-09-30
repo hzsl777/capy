@@ -12,6 +12,7 @@ import { DOODLES } from "../src/map/handmade.ts";
 import { POPUP_SPOTS } from "../src/map/popup.ts";
 import { TRACKS } from "../src/map/trainset.ts";
 import { THEMES } from "../src/themes.ts";
+import { samplePlaces } from "./sample.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
@@ -25,8 +26,7 @@ function land(file: string): FeatureCollection {
 function places(): [number, number][] {
   const yaml = readFileSync(here("../../../config/sources.yaml"), "utf8");
   const out: [number, number][] = [...yaml.matchAll(/lat:\s*(-?[\d.]+),\s*lon:\s*(-?[\d.]+)/g)].map((m) => [Number(m[2]), Number(m[1])]);
-  const sample = JSON.parse(readFileSync(here("../public/data/sample.json"), "utf8")) as { places: { lat: number; lon: number }[] };
-  for (const p of sample.places) out.push([p.lon, p.lat]);
+  for (const p of samplePlaces()) out.push([p.lon, p.lat]);
   return out;
 }
 

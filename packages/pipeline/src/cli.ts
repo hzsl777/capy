@@ -1,7 +1,7 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
 import { placeIdFor, renderEditionText, todayRunDate, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
-import { editions, feedback, latestMapDate, loadEditionView, loadMapView, readers } from "@2dayai/db";
+import { editions, feedback, latestMapDate, loadEditionView, loadMapView, localBase, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
@@ -22,6 +22,7 @@ import { runSelect } from "./stages/select.js";
 import { runTelegram } from "./stages/telegram.js";
 import { runLocal } from "./stages/local.js";
 import { daySummary } from "./summary.js";
+import { writeMapFiles } from "./map-files.js";
 import { FEED_XML } from "./fixtures/day.js";
 import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -39,6 +40,7 @@ const { values, positionals } = parseArgs({
     force: { type: "boolean", default: false },
     "if-missing": { type: "boolean", default: false },
     out: { type: "string" },
+    manifest: { type: "string" },
     in: { type: "string" },
     setups: { type: "string" },
     snapshot: { type: "string" },
@@ -74,8 +76,11 @@ const HELP = `Commands:
   select                 one edition per reader with the headline (model, batched)
   cluster world          group the world desk's articles into events with a topic (model)
   telegram               score the day's world events three times, keep the middle, pick the one-word mood (model)
-  local                  GDELT local stories from the towns no outlet reached (no model, decisions 54 and 67)
-  map export [--out f]   the public map's data for the date (default: latest) as JSON
+  local                  GDELT local stories from the towns no outlet reached (no model, decisions 54, 67 and 78)
+  map export [--out f]   the public map's data for the date (default: latest): the day's file, and its tiles of local
+                         stories in local/<date>/ beside it; --manifest f lists the tiles for wrangler r2 bulk put
+  coverage               towns, countries and regions with a story on the date (default: latest), and the countries
+                         and territories with none
   map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
   eval [--setups s]      compare models on one day's world articles: cost, the code checks, every score (decision 28)
@@ -202,11 +207,26 @@ switch (command) {
       console.error("No world-desk run yet; nothing to export.");
       process.exit(1);
     }
-    const map = await loadMapView(d, day);
     const out = values.out ?? "packages/map/public/data/latest.json";
     mkdirSync(dirname(out), { recursive: true });
-    writeFileSync(out, JSON.stringify(map));
-    console.log(`${out}: ${map.items.length} items, ${map.places.length} places, ${Object.keys(map.events).length} explained events, telegram ${map.telegram ? `"${map.telegram.word}"` : "none"}`);
+    // The day's file and, beside it, its local stories in tiles (decision 78).
+    const { main, bytes, tiles } = writeMapFiles(await loadMapView(d, day), out, localBase(day));
+    if (values.manifest) writeFileSync(values.manifest, JSON.stringify(tiles));
+    const kb = (n: number) => `${Math.round(n / 1024)} KB`;
+    console.log(`${out}: ${main.items.length} items, ${main.places.length} places, ${Object.keys(main.events).length} explained events, telegram ${main.telegram ? `"${main.telegram.word}"` : "none"}, ${kb(bytes.main)}`);
+    console.log(`${tiles.length} tiles of local stories in ${join(dirname(out), localBase(day))}: ${Object.values(main.local?.tiles ?? {}).reduce((a, b) => a + b, 0)} stories, ${kb(bytes.tiles)}, the largest ${kb(bytes.largestTile)}`);
+    break;
+  }
+  case "coverage": {
+    const d = db();
+    const day = values.date ?? (await latestMapDate(d));
+    if (!day) {
+      console.error("No world-desk run yet; nothing to count.");
+      process.exit(1);
+    }
+    const { coverageOf, coverageReport } = await import("./coverage.js");
+    const { Gazetteer } = await import("./places.js");
+    console.log(coverageReport(day, coverageOf(await loadMapView(d, day), Gazetteer.loadWithTowns())));
     break;
   }
   case "demo": {
@@ -227,13 +247,14 @@ switch (command) {
       sourcesPath: join(dir, "sources.yaml"),
       readersDir: dir,
     });
-    const map = { ...(await loadMapView(memory, date)), source: "sample" as const };
+    const full = { ...(await loadMapView(memory, date)), source: "sample" as const };
     await close();
     const out = values.out ?? "packages/map/public/data/sample.json";
     mkdirSync(dirname(out), { recursive: true });
-    writeFileSync(out, JSON.stringify(map));
-    console.log(JSON.stringify({ clusterWorld: report["clusterWorld"], explain: report["explain"], telegram: report["telegram"] }));
-    console.log(`${out}: ${map.items.length} items, ${map.places.length} places, telegram ${map.telegram ? `"${map.telegram.word}"` : "none"}`);
+    // The sample's tiles sit in local/sample/, so regenerating it on another day leaves no stale folder behind.
+    const { main, tiles } = writeMapFiles(full, out, "local/sample/");
+    console.log(JSON.stringify({ clusterWorld: report["clusterWorld"], explain: report["explain"], telegram: report["telegram"], local: report["local"] }));
+    console.log(`${out}: ${main.items.length} items, ${main.places.length} places, telegram ${main.telegram ? `"${main.telegram.word}"` : "none"}, and ${tiles.length} tiles of local stories`);
     break;
   }
   case "eval": {

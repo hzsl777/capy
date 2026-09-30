@@ -115,7 +115,7 @@ import "@fontsource/kalam/latin-700.css";
 import "@fontsource/kalam/latin-ext-700.css";
 import "./style.css";
 
-import type { MapEvent, MapFile, MapItem } from "./types.ts";
+import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
 
 type Item = MapItem;
 type NewsFile = MapFile;
@@ -128,7 +128,11 @@ import {
   hasTiers,
   languageName,
   loadNews,
+  mergeTiles,
   NO_DAY_YET,
+  tileCell,
+  tileUrl,
+  TIERS,
   storyIndex,
   tierOf,
   weightOf,
@@ -187,6 +191,10 @@ const state = {
   event: null as { id: number; back: "telegram" | "reader" } | null,
   pins: loadPins(),
   playing: 0,
+  /** Every place's index by id, so a tile's places join the ones the page already has (decision 78). */
+  placeIds: new Map<string, number>(),
+  /** Tiles of local stories asked for, by key: loading, loaded, or the time a load failed. */
+  tiles: new Map<string, "loading" | "loaded" | number>(),
 };
 // A link's view wins; otherwise the visitor's last choice, saved in their own browser only.
 const savedView = prefs<ViewMode | "">("view", "", ["2d", "3d", ""]);
@@ -240,6 +248,7 @@ const map = new MapView($("map"), THEMES[state.theme], {
   },
   onInteract: armIdleSpin,
   onLand: armIdleSpin,
+  onDraw: tilesSoon,
 });
 map.setMode(viewOf());
 
@@ -255,6 +264,87 @@ function refreshDots() {
   }
   map.setDots(dots);
   map.setPinned(pinnedIndices());
+}
+
+// ---- local stories in tiles (decision 78) -------------------------------------
+
+const TILE_RETRY_MS = 60_000;
+let tileTimer = 0;
+let tileCheckedAt = 0;
+
+/**
+ * Looks for tiles that came into view at most a few times a second. A pending look is never pushed back, since the
+ * designs that move on their own draw a frame many times a second even while the map holds still.
+ */
+function tilesSoon() {
+  if (!state.file?.local || tileTimer) return;
+  const wait = Math.max(150, 400 - (performance.now() - tileCheckedAt));
+  tileTimer = window.setTimeout(() => {
+    tileTimer = 0;
+    loadTilesInView();
+  }, wait);
+}
+
+/**
+ * Loads the tiles of local stories in view, once the map is zoomed in to where they show (the last zoom step, as
+ * every GDELT story sits in the lowest tier). The page never waits for them: the day's file is already drawn, and
+ * each batch of tiles joins the map when it arrives. Loaded tiles stay, so panning back costs nothing.
+ */
+function loadTilesInView() {
+  tileCheckedAt = performance.now();
+  const file = state.file;
+  const index = file?.local;
+  if (!file || !index) return;
+  // Also for a day without zoom tiers, so a whole world of tiles never loads at once.
+  if (map.level() < TIERS - 1) return;
+  const wanted: string[] = [];
+  for (const key of Object.keys(index.tiles)) {
+    const seen = state.tiles.get(key);
+    if (seen === "loading" || seen === "loaded" || (typeof seen === "number" && tileCheckedAt - seen < TILE_RETRY_MS)) continue;
+    const cell = tileCell(key, index.deg);
+    if (cell && map.cellInView(cell.south, cell.west, cell.north, cell.east)) wanted.push(key);
+  }
+  if (!wanted.length) return;
+  for (const key of wanted) state.tiles.set(key, "loading");
+  Promise.all(
+    wanted.map(async (key): Promise<MapTile | null> => {
+      const url = tileUrl(BASE, index, key);
+      try {
+        const res = url ? await fetch(url) : null;
+        if (!res?.ok) throw new Error(String(res?.status));
+        const tile = (await res.json()) as MapTile;
+        state.tiles.set(key, "loaded");
+        return tile;
+      } catch {
+        state.tiles.set(key, performance.now());
+        return null;
+      }
+    }),
+  ).then((tiles) => {
+    if (state.file !== file) return;
+    const added = mergeTiles(file, state.placeIds, tiles.filter((t): t is MapTile => t !== null));
+    if (!added) return;
+    refreshDots();
+    renderTicker();
+    syncTranslate();
+    if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
+  });
+}
+
+/** A place by id, or by the point its id names when it lives in a tile not loaded yet (a pin, or a shared link). */
+function flyToId(id: string): boolean {
+  const idx = state.placeIds.get(id);
+  if (idx !== undefined) {
+    flyToPlace(idx);
+    return true;
+  }
+  const m = /^ll:(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/.exec(id);
+  if (!m || !state.file?.local) return false;
+  const [lat, lon] = [Number(m[1]), Number(m[2])];
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return false;
+  // Local stories show only at the closest zoom, so land there; the tile loads and the place is tuned as it lands.
+  map.flyTo(lon, lat, map.levelZoom(TIERS - 1));
+  return true;
 }
 
 function pinnedIndices(): number[] {
@@ -389,12 +479,16 @@ function renderToolbar() {
 
   // Only offered where the browser can translate on the device.
   const tr = $("translate");
-  // Shown only where the browser can translate and the day has a story in another language.
-  tr.hidden = !translationSupported() || !state.file?.items.some((it) => needsTranslation(it.lang));
+  syncTranslate();
   tr.setAttribute("aria-pressed", String(state.translate));
   tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
 
   renderPins();
+}
+
+/** Shown only where the browser can translate and the day has a story in another language. */
+function syncTranslate() {
+  $("translate").hidden = !translationSupported() || !state.file?.items.some((it) => needsTranslation(it.lang));
 }
 
 function renderPins() {
@@ -406,9 +500,8 @@ function renderPins() {
     ...state.pins.map((pin) => {
       const b = h("button", { type: "button", class: "menu-item" }, pin.name);
       b.addEventListener("click", () => {
-        const idx = state.file?.places.findIndex((p) => p.id === pin.id) ?? -1;
         closeMenus();
-        if (idx >= 0) flyToPlace(idx);
+        flyToId(pin.id);
       });
       return b;
     }),
@@ -1164,6 +1257,7 @@ async function start() {
   }
   state.stories = storyIndex(state.file);
   state.tiered = hasTiers(state.file);
+  state.file.places.forEach((p, i) => state.placeIds.set(p.id, i));
   if (state.file.source !== "live") {
     const banner = $("banner");
     banner.hidden = false;
@@ -1179,11 +1273,11 @@ async function start() {
   renderTicker();
   renderPanel();
 
+  // A shared link lands on its place, even one whose local stories load only when zoomed in.
   const start = params.get("place");
-  const idx = start ? state.file.places.findIndex((p) => p.id === start) : -1;
-  if (idx >= 0) flyToPlace(idx);
+  const landed = !!start && flyToId(start);
   // Like a radio dial: the map turns on its own until a place lands under the cross.
-  else if (!reducedMotion) {
+  if (!landed && !reducedMotion) {
     // A different stretch of the world each visit, a little north of the equator where most places are.
     map.setCenter(Math.random() * 360 - 180, 18);
     map.startSpin();

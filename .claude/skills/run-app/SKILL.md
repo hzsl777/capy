@@ -8,7 +8,7 @@ description: Start the GlobalGist news map locally, open a specific design (Morn
 Paths in this skill are relative to `packages/map/`. Run npm scripts from the repository root.
 
 1. Install if needed: `npm install` at the repository root.
-2. Sample data: `npm run map:sample` runs the fictional world fixture through the real pipeline stages in memory and writes `public/data/sample.json`. The file is committed. Rerun the command after you change a stage or the read model.
+2. Sample data: `npm run map:sample` runs the fictional world fixture through the real pipeline stages in memory and writes `public/data/sample.json`, with its fictional local stories in tiles in `public/data/local/sample/` (decision 78). Both are committed. Rerun the command after you change a stage or the read model. Local stories load only at the closest zoom: `&place=ll:-0.09,34.75` flies to Kisumu, a town in a tile.
 3. Dev server: `npm run map:dev`, then open http://localhost:5173. Without `public/data/latest.json` the site loads the sample and shows a "Sample data" banner. That is expected.
 4. URL parameters pick the state directly:
    - `?theme=morning|cabinet|wire|ops|blueprint|pirate|space|candy|bit8|bit16|bit64|realize|newsroom|pond|honeycomb|arcana|arcadia|nightcap|campus|lasso|drive|stitch|glass|club|pool|snow|sheet|terminal|prep|rail|aquarium|lava|radar|noir|arcade|stadium|popup|trainset|chalk|sketch`
@@ -32,4 +32,6 @@ Look at the images before reporting a visual change as done. Check: dots visible
 
 ## Live data locally
 
-With `DATABASE_URL` set: `npm run stage -- map export --out packages/map/public/data/latest.json`, then reload. Delete that file to go back to the sample.
+With `DATABASE_URL` set: `npm run stage -- map export --out packages/map/public/data/latest.json`, then reload. It writes the day's tiles to `public/data/local/<date>/` too. Delete `latest.json` to go back to the sample.
+
+To see the map with tens of thousands of local stories: `npx tsx packages/pipeline/scripts/synthetic-day.ts 50000 --out packages/map/public/data`, a made-up day, then reload and zoom in all the way.

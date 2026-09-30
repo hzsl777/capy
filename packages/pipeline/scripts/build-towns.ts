@@ -1,5 +1,6 @@
-// Builds data/towns.json, the list of smaller towns that GDELT's local stories are checked against (decision 67),
-// from GeoNames (geonames.org, CC BY 4.0): every town of 5,000 people or more. Run with `npm run towns:build`.
+// Builds data/towns.txt, the list of towns that GDELT's local stories are checked against (decisions 67 and 78),
+// from GeoNames (geonames.org, CC BY 4.0): its cities1000 list, every place of 1,000 people or more and every seat of
+// a local government down to the third administrative level, however small. Run with `npm run towns:build`.
 //
 // GeoNames' own download host changes its files daily, so the build reads the copy packaged in geonamescache 3.0.2
 // on PyPI (July 2026), pinned by its checksum: the same input always gives the same file. Pass a path to a copy of
@@ -11,8 +12,10 @@
 // Otherwise the town takes the region of the nearest listed city in its country. Neither the country nor the region
 // is ever shown on the site.
 //
-// Output: { regions: string[], towns: [name, country, lat, lon, region index][] }. A town already on the city list
-// (same name and country within 30 km) is left out: the list's entry wins.
+// Output, compact because it is committed (decision 78): a line "=CC<tab>Region" starts a country and region, and
+// each line after it is one town of it: the name, then its latitude and longitude in hundredths of a degree, each
+// counted from the town on the line before (from zero at the block's first town). Towns in a block run south to
+// north. A town already on the city list (same name and country within 30 km) is left out: the list's entry wins.
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -22,7 +25,7 @@ import { km, norm } from "../src/places.js";
 
 const WHEEL = "https://files.pythonhosted.org/packages/48/c2/52f1b29de8839b4b55cd2641dfd722a6a94953d74fa82514e26084a92318/geonamescache-3.0.2-py3-none-any.whl";
 const SHA256 = "b830e8942f2d58c7e68782dcf4dff2ffe8c4104a35ee881ed1ad4023cefcdba4";
-const MEMBER = "geonamescache/data/cities5000.json";
+const MEMBER = "geonamescache/data/cities1000.json";
 const DATA = join(dirname(fileURLToPath(import.meta.url)), "..", "data");
 /** A town this close to a listed city of the same name and country is that city. */
 const SAME_KM = 30;
@@ -103,21 +106,14 @@ for (const c of cities) {
   const k = `${norm(c[0])}|${c[1]}`;
   listed.set(k, [...(listed.get(k) ?? []), c]);
 }
-const round = (n: number) => Math.round(n * 100) / 100;
-const regions: string[] = [];
-const regionIndex = new Map<string, number>();
-const indexOf = (r: string) => {
-  let i = regionIndex.get(r);
-  if (i === undefined) regionIndex.set(r, (i = regions.push(r) - 1));
-  return i;
-};
-indexOf("");
 let byVote = 0;
 let byNearest = 0;
 let dropped = 0;
-const rows: [string, string, number, number, number][] = [];
+/** Towns by "CC<tab>Region": name, latitude and longitude in hundredths of a degree. */
+const blocks = new Map<string, [string, number, number][]>();
+let count = 0;
 for (const t of towns) {
-  const name = t.name.trim();
+  const name = t.name.replace(/\s+/g, " ").trim().replace(/^[=#]+/, "");
   if (!name || !t.countrycode) continue;
   if ((listed.get(`${norm(name)}|${t.countrycode}`) ?? []).some((c) => km(c[2], c[3], t.latitude, t.longitude) <= SAME_KM)) {
     dropped += 1;
@@ -129,8 +125,24 @@ for (const t of towns) {
     region = nearestCity(t.latitude, t.longitude, 300, (c) => c[1] === t.countrycode && !!c[6])?.[6] ?? "";
     if (region) byNearest += 1;
   }
-  rows.push([name, t.countrycode, round(t.latitude), round(t.longitude), indexOf(region)]);
+  const key = `${t.countrycode}\t${region}`;
+  const block = blocks.get(key) ?? [];
+  block.push([name, Math.round(t.latitude * 100), Math.round(t.longitude * 100)]);
+  blocks.set(key, block);
+  count += 1;
 }
-rows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[2] - b[2] || a[3] - b[3]));
-await writeFile(join(DATA, "towns.json"), `{"regions":${JSON.stringify(regions)},\n"towns":[\n${rows.map((r) => JSON.stringify(r)).join(",\n")}\n]}\n`);
-console.log(`towns.json: ${rows.length} towns (${dropped} already on the city list), region by GeoNames code ${byVote}, by nearest listed city ${byNearest}, none ${rows.length - byVote - byNearest}`);
+// South to north within each block, so the differences between lines stay small.
+const lines = [
+  "# GeoNames' cities1000 (geonames.org, CC BY 4.0), from geonamescache 3.0.2. Built by packages/pipeline/scripts/build-towns.ts; do not edit.",
+  "# \"=CC<tab>Region\" starts a country and its Natural Earth region. Each town: name<tab>latitude<tab>longitude, in hundredths of a degree, each counted from the line before.",
+];
+for (const key of [...blocks.keys()].sort()) {
+  lines.push(`=${key}`);
+  let [lat0, lon0] = [0, 0];
+  for (const [name, lat, lon] of blocks.get(key)!.sort((a, b) => a[1] - b[1] || a[2] - b[2] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))) {
+    lines.push(`${name}\t${lat - lat0}\t${lon - lon0}`);
+    [lat0, lon0] = [lat, lon];
+  }
+}
+await writeFile(join(DATA, "towns.txt"), `${lines.join("\n")}\n`);
+console.log(`towns.txt: ${count} towns (${dropped} already on the city list), region by GeoNames code ${byVote}, by nearest listed city ${byNearest}, none ${count - byVote - byNearest}`);

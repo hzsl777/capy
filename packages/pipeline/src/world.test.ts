@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { dayBand, medianScores, MOOD_WORDS, scoreProblems, toRunDate, wordProblems } from "@2dayai/core";
-import { events, loadMapView, latestMapDate, telegrams, type Db } from "@2dayai/db";
+import { dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, wordProblems } from "@2dayai/core";
+import { events, loadLocalTile, loadMapView, latestMapDate, localBase, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
 import { worldGdeltFor } from "./fixtures/gdelt.js";
 import { worldAnswers, worldFeedFor, worldSourcesYaml } from "./fixtures/world.js";
@@ -92,25 +92,42 @@ describe("the world desk on a real Postgres engine", () => {
     expect(talks.whatHappened.map((x) => x.text)).toContain(talksScore.because);
   });
 
-  it("adds GDELT's local stories from towns the outlets did not reach, in every region (decision 67)", async () => {
+  it("adds GDELT's local stories from every town the outlets did not reach, two a town (decisions 67 and 78)", async () => {
     // The daily run's defaults; the test config turns GDELT off.
-    const report = await runLocal(db, date, { perRegion: 6, perReachedRegion: 3, max: 8000 }, async (url) => worldGdeltFor(url, date));
+    const report = await runLocal(db, date, { perTown: 2, max: 80_000 }, async (url) => worldGdeltFor(url, date));
     const map = await loadMapView(db, date, new Date("2026-09-27T12:00:00Z"));
     const local = map.items.filter((i) => i.via === "gdelt");
     const at = (name: string) => local.filter((i) => map.places[i.place]!.name === name);
-    // Espoo is 16 km from Helsinki's outlet and Valparaíso has the port story: both stay the outlets' alone.
-    expect(at("Espoo")).toHaveLength(0);
+    // Helsinki has its outlet and Valparaíso the port story: both stay the outlets' alone.
+    expect(at("Helsinki").filter((i) => i.via === "gdelt")).toHaveLength(0);
     expect(at("Valparaíso")).toHaveLength(0);
-    // A region no outlet reached gets every town's stories up to its limit.
-    expect(at("Kisumu")).toHaveLength(2);
+    // Espoo, 16 km from Helsinki, is a town of its own.
+    expect(at("Espoo")).toHaveLength(1);
+    // Every town keeps its two newest stories.
+    expect(at("Kisumu").map((i) => i.title)).toEqual(["Ferry timetable on the gulf changes next month", "Kisumu market traders get a new covered hall"]);
     expect(at("Mombasa").length + at("Malindi").length).toBe(2);
-    // Regions outlets reached (Sindh through Karachi, New South Wales through Sydney) get their other towns.
+    // Small municipalities from GeoNames' places of 1,000 people or more, and towns in regions outlets reached.
+    expect(at("Stanmore")).toHaveLength(1);
+    expect(at("Ikinu")).toHaveLength(1);
     expect(at("Hyderabad")).toHaveLength(1);
     expect(at("Wollongong")).toHaveLength(1);
-    expect(report).toMatchObject({ stories: 25, towns: 24, overMax: 0 });
+    expect(report).toMatchObject({ stories: 28, towns: 27, overMax: 0, townsNearOutlet: 2 });
     expect(local.every((i) => i.importance === 1 && i.topics.length === 0 && i.event === undefined)).toBe(true);
     // The outlets' stories and places are unchanged.
     expect(map.items.filter((i) => i.via !== "gdelt")).toHaveLength(15);
+
+    // Decision 78: the site's file keeps the outlets' stories and lists the tiles; each tile has its own places.
+    const { main, tiles } = splitLocal(map, localBase(date));
+    expect(main.items.every((i) => i.via !== "gdelt" && main.places[i.place])).toBe(true);
+    expect(main.places).toHaveLength(13);
+    expect(Object.values(main.events).every((e) => e.places.every((p) => main.places[p]))).toBe(true);
+    expect([...tiles.values()].reduce((n, t) => n + t.items.length, 0)).toBe(28);
+    const kisumu = tiles.get("10S_30E")!;
+    expect(kisumu.items.filter(([, , , , , , p]) => kisumu.places[p]!.name === "Kisumu")).toHaveLength(2);
+    // The Worker builds the same tiles and index from the database when no file is stored.
+    for (const [key, tile] of tiles) expect(await loadLocalTile(db, date, key)).toEqual(tile);
+    const indexed = await loadMapView(db, date, new Date("2026-09-27T12:00:00Z"), { local: "index" });
+    expect(indexed).toEqual(main);
   });
 
   it("scores three times and keeps each event's middle score, so one odd run doesn't move the word (decision 36)", async () => {
