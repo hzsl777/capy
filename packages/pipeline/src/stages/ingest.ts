@@ -52,6 +52,23 @@ export function feedLinksIn(html: string, pageUrl: string): string[] {
  */
 export const COMMON_FEED_PATHS = ["/feed/", "/rss", "/rss.xml", "/feed.xml", "/index.xml", "/index.rss", "/rss/", "/atom.xml", "/?feed=rss2", "/feeds/posts/default", "/arc/outboundfeeds/rss/", "/rss/news"];
 
+/**
+ * Whether a feed a section's page links to belongs to that section: on another host (a feed service such as
+ * FeedBurner), or under the section's first path segment, with or without an extension ("/english/" takes
+ * "/english/rss/", "/en.html" takes "/en.rss.xml"). A site's page often links to every section's feed, and the first
+ * one is rarely this section's (decision 81).
+ */
+export function inSection(feedUrl: string, pageUrl: string): boolean {
+  const page = new URL(pageUrl);
+  const feed = new URL(feedUrl);
+  const host = (h: string) => h.replace(/^www\./, "");
+  if (host(feed.hostname) !== host(page.hostname)) return true;
+  const segment = page.pathname.split("/")[1]?.replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+  if (!segment) return true;
+  const path = feed.pathname.toLowerCase();
+  return path === `/${segment}` || path.startsWith(`/${segment}/`) || path.startsWith(`/${segment}.`);
+}
+
 /** Said when an address with a path finds no feed of its own, so the failure explains why nothing else was tried. */
 const SECTION_NOTE = "an address with a path gets no feed from the site's root (decision 81)";
 
@@ -60,7 +77,8 @@ const SECTION_NOTE = "an address with a path gets no feed from the site's root (
  * page links to, or one at a common path. Only a response that parses as RSS or Atom counts (decision 31).
  * Common paths are tried only for a site's root address. An address with a path is a section or an edition, and the
  * site's own feed would pin another section's or edition's news at this outlet's place, so it fails instead: it is
- * asked once more after an error, and nothing else is (decision 81). declared lists the feeds the page links to, for `sources check` to show.
+ * asked once more after an error, its page's feeds count only when they are in its section, and nothing else is
+ * tried (decision 81). declared lists the feeds the page links to, for `sources check` to show.
  */
 export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Promise<{ xml: string; feedUrl: string; declared?: string[] }> {
   const { origin, pathname, search } = new URL(url);
@@ -93,7 +111,9 @@ export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Pr
   }
   if (looksLikeFeed(first)) return { xml: first, feedUrl: url };
   const declared = feedLinksIn(first, url);
-  const candidates = declared.length ? declared.slice(0, 3) : common;
+  const own = atRoot ? declared : declared.filter((d) => inSection(d, url));
+  if (declared.length && !own.length) throw new Error(`page links to ${declared.length} feed(s), none in its section: ${declared.slice(0, 3).join(" ")}; ${SECTION_NOTE}`);
+  const candidates = own.length ? own.slice(0, 3) : common;
   for (const candidate of candidates) {
     try {
       const text = await fetchFeed(candidate);
@@ -102,7 +122,7 @@ export async function fetchFeedDocument(url: string, fetchFeed: FeedFetcher): Pr
       // Try the next candidate.
     }
   }
-  if (declared.length) throw new Error(`page links to ${declared.length} feed(s), none answered: ${declared.slice(0, 3).join(" ")}`);
+  if (own.length) throw new Error(`page links to ${own.length} feed(s), none answered: ${own.slice(0, 3).join(" ")}`);
   throw new Error(atRoot ? "not a feed, and the page links to none" : `not a feed, and the page links to none; ${SECTION_NOTE}`);
 }
 
