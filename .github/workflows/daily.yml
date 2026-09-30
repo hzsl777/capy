@@ -45,6 +45,10 @@ jobs:
       GDELT_PER_REGION: ${{ vars.GDELT_PER_REGION }}
       GDELT_PER_REACHED_REGION: ${{ vars.GDELT_PER_REACHED_REGION }}
       GDELT_MAX: ${{ vars.GDELT_MAX }}
+      # Stores the finished map file in R2 for the site (decision 73): R2_API_TOKEN when the site deploys through
+      # Cloudflare's Git integration, otherwise the deploy token.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.R2_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       # Email links. SITE_DOMAIN alone is enough; WEB_BASE_URL overrides it (decision 37).
       WEB_BASE_URL: ${{ vars.WEB_BASE_URL || (vars.SITE_DOMAIN && format('https://{0}', vars.SITE_DOMAIN)) || '' }}
       # 2DayAI reader profiles, one YAML document each, separated by ---. They hold emails, so they live in a
@@ -91,6 +95,23 @@ jobs:
       - name: Export the map
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         run: npm run -s stage -- map export --out map.json
+      # The site's copy: the Worker streams these files from R2 instead of building the map on every request, which
+      # takes longer than the free plan's 10 ms (decision 73). latest.json and the day's own date; a run for an
+      # earlier date also refreshes that date's file.
+      - name: Store the map for the site
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          DATE: ${{ inputs.date }}
+        run: |
+          put() { npx wrangler r2 object put "globalgist-maps/$1" --file "$2" --content-type application/json --remote; }
+          day=$(node -p 'require("./map.json").runDate')
+          put "$day.json" map.json
+          put latest.json map.json
+          if [ -n "$DATE" ] && [ "$DATE" != "$day" ]; then
+            if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then echo "::error::date must be YYYY-MM-DD"; exit 1; fi
+            npm run -s stage -- map export --date "$DATE" --out dated.json
+            put "$DATE.json" dated.json
+          fi
       - uses: actions/upload-artifact@v4
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         with:

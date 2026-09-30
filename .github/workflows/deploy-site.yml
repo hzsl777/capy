@@ -1,5 +1,5 @@
 # Builds the public map and deploys it with the Worker (packages/web), which serves the map's static files
-# and its data (/data/latest.json) straight from the database. The daily run changes the data, not the code,
+# and its data (/data/latest.json) from the files the daily run stores in R2, or the database when none exists. The daily run changes the data, not the code,
 # so this runs only when code changes or by hand. Cloudflare's free plan hosts it; the repository can stay private.
 name: Deploy site
 

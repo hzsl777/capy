@@ -560,3 +560,12 @@ Davis could not tell what Lily Pond, Nightcap, Arcadia and Lasso were meant to b
 4. **Arcadia**: from a grey engraving to a painting after The Course of Empire (public domain): a bay in evening light, olive land in loose strokes, and the paintings' landmarks in the water (the crag with its balanced boulder that stands in all five, a lone column under vines from Desolation, a temple on a rock, a broken arch, golden clouds). The map hangs in a gilt frame under Cole's sky on a museum wall; panels are wall cards.
 5. **Lasso**: after a trick roper. A denim sea with orange double stitching along every coast, tan leather land, a rope laid around the sheet or globe, rope loops spinning over open water, and a reticle that is a rope loop spun flat (it holds still for readers who ask for reduced motion). A hat on the name, rope-framed panels, stitched leather buttons. No person is named or drawn.
 6. **Tarot**: Arcana's menu name. The id `arcana` stays, so saved settings keep working; so do `pond` and `nightcap`.
+
+## 73. The site serves the day's map from R2 (September 30, 2026)
+
+The Worker built `/data/latest.json` from the database on every edge-cache miss. Decision 67 makes a real day about 4.7 MB with some 6,000 places, and building and writing out that much takes far longer than the 10 ms of CPU a request gets on Cloudflare's free plan. Davis chose R2. This changes decision 25's read path, not its data.
+
+1. After it exports the map, the daily run stores the file in the R2 bucket `globalgist-maps` as `latest.json` and `<date>.json`. A run for an earlier date also refreshes that date's file.
+2. The Worker has the bucket bound as `MAPS` and streams a stored file as it is, with the same five-minute cache. A day with no stored file, or a Worker without the binding, still builds from the database, so nothing breaks before the first file is stored.
+3. The bucket is private: no public URL and no domain. Only the Worker reads it.
+4. The daily run writes with `R2_API_TOKEN`, or with the deploy token when the site deploys through GitHub Actions. docs/RUNBOOK.md, "Map files in R2", has the setup.

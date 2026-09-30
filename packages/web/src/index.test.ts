@@ -70,3 +70,31 @@ describe("the Worker's map data", () => {
     expect((await app.request("/data/latest.jsonx", {}, env)).status).toBe(404);
   });
 });
+
+describe("the Worker's stored map files", () => {
+  it("streams the file the daily run stored, without reading the database", async () => {
+    const files: Record<string, string> = { "latest.json": '{"stored":"latest"}', "2026-09-20.json": '{"stored":"dated"}' };
+    const MAPS = {
+      get: async (key: string) =>
+        key in files ? { body: new Response(files[key]).body!, httpEtag: `"${key}"` } : null,
+    };
+    const app = createApp(() => {
+      throw new Error("the database should not be read");
+    });
+    const latest = await app.request("/data/latest.json", {}, { ...env, MAPS });
+    expect(latest.status).toBe(200);
+    expect(latest.headers.get("content-type")).toContain("application/json");
+    expect(latest.headers.get("cache-control")).toContain("max-age=300");
+    expect(await latest.json()).toEqual({ stored: "latest" });
+    const dated = await app.request("/data/2026-09-20.json", {}, { ...env, MAPS });
+    expect(await dated.json()).toEqual({ stored: "dated" });
+  });
+
+  it("falls back to the database for a day with no stored file", async () => {
+    const MAPS = { get: async () => null };
+    const app = createApp(() => db);
+    const res = await app.request(`/data/${date}.json`, {}, { ...env, MAPS });
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as MapFile).runDate).toBe(date);
+  });
+});
