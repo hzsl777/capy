@@ -29,9 +29,16 @@ describe("checkSources", () => {
       return xml;
     });
     expect(reports).toEqual([
-      { source: "sample", fetched: 1, inserted: 0, feedTitle: "Sample press releases" },
+      { source: "sample", fetched: 1, inserted: 0, feedTitle: "Sample press releases", headlines: ["Agency issues guidance on deferred revenue timing", "Old item outside the window", "Item with no link"] },
       { source: "broken", fetched: 0, inserted: 0, error: "503 Service Unavailable" },
     ]);
+  });
+
+  it("lists every feed a page links to, so a section's own feed can be picked", async () => {
+    const page = `<html><head><link rel="alternate" type="application/rss+xml" href="/rss.xml"><link rel="alternate" type="application/rss+xml" href="/english/rss/"></head></html>`;
+    const [r] = await checkSources([{ ...source, url: "https://example.gov/english/" }], toRunDate("2026-09-04"), async (url) => (url.endsWith(".xml") ? xml : page));
+    expect(r?.feedUrl).toBe("https://example.gov/rss.xml");
+    expect(r?.declared).toEqual(["https://example.gov/rss.xml", "https://example.gov/english/rss/"]);
   });
 });
 
@@ -75,6 +82,46 @@ describe("feed discovery (decision 31)", () => {
     expect(got.feedUrl).toBe("https://outlet.example/index.rss");
     expect(fetched[0]).toBe("https://outlet.example/");
     await expect(fetchFeedDocument("https://outlet.example/", async () => { throw new HttpError("403 Forbidden"); })).rejects.toThrow("403 Forbidden");
+  });
+
+  it("never looks for a section's or edition's feed at the site's root (decision 81)", async () => {
+    // The site feed at /rss.xml is another section's news, in another language, and would be pinned at this outlet.
+    for (const url of ["https://outlet.example/english/", "https://outlet.example/cebu", "https://outlet.example/?edition=en"]) {
+      const fetched: string[] = [];
+      await expect(
+        fetchFeedDocument(url, async (u) => {
+          fetched.push(u);
+          return u === "https://outlet.example/rss.xml" ? rss : page("");
+        }),
+      ).rejects.toThrow(/links to none; an address with a path gets no feed from the site's root/);
+      expect(fetched).toEqual([url]);
+    }
+  });
+
+  it("asks a section's address once more after an error, and never tries the root's paths", async () => {
+    const fetched: string[] = [];
+    await expect(
+      fetchFeedDocument("https://outlet.example/feed/", async (url) => {
+        fetched.push(url);
+        if (url === "https://outlet.example/rss") return rss;
+        throw new HttpError("404 Not Found");
+      }),
+    ).rejects.toThrow(/^404 Not Found; an address with a path/);
+    expect(fetched).toEqual(["https://outlet.example/feed/", "https://outlet.example/feed/"]);
+    // A server that refuses only the first request.
+    let calls = 0;
+    const got = await fetchFeedDocument("https://outlet.example/rss", async () => {
+      if (calls++ === 0) throw new HttpError("403 Forbidden");
+      return rss;
+    });
+    expect(got.feedUrl).toBe("https://outlet.example/rss");
+  });
+
+  it("still follows the feed a section's page links to", async () => {
+    const got = await fetchFeedDocument("https://outlet.example/english/", async (url) =>
+      url === "https://outlet.example/english/rss/" ? rss : page(`<link rel="alternate" type="application/rss+xml" href="/english/rss/">`),
+    );
+    expect(got.feedUrl).toBe("https://outlet.example/english/rss/");
   });
 
   it("does not guess paths on a host that is down", async () => {

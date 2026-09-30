@@ -55,7 +55,9 @@ const config = loadConfig();
 
 function printReports(reports: IngestReport[]): void {
   for (const r of reports) {
-    const status = r.error ? `FAIL ${r.error}` : `ok fetched=${r.fetched} inserted=${r.inserted}${r.feedTitle ? ` title="${r.feedTitle}"` : ""}${r.feedUrl ? ` feed found at ${r.feedUrl} (put it in sources.yaml)` : ""}`;
+    const status = r.error
+      ? `FAIL ${r.error}`
+      : `ok fetched=${r.fetched} inserted=${r.inserted}${r.feedTitle ? ` title="${r.feedTitle}"` : ""}${r.headlines ? ` headlines="${r.headlines.join(" | ")}"` : ""}${r.feedUrl ? ` feed found at ${r.feedUrl} (put it in sources.yaml)` : ""}${r.declared ? ` page links to ${r.declared.join(" ")}` : ""}`;
     console.log(`${r.source.padEnd(28)} ${status}`);
   }
   const failed = reports.filter((r) => r.error).length;
