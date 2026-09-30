@@ -17,7 +17,9 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] Zoom decides visibility only by the tiers in `tierOf` (`src/data.ts`, decisions 30 and 46): importance and outlet-city reach. No other signal decides which places show.
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
-- [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red.
+- [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid, Spreadsheet's filled cells, Market Terminal's dot matrix, Sleeper Car's field plots) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red.
+- [ ] Nothing drawn links one place to another except the reader's arcs: no route lines between cities (Sleeper Car's only track is in the foreground, below the map).
+- [ ] Chrome built from a place's name (Spreadsheet's formula bar, `src/ui/extras.ts`) uses `Place.name` only, as text, and adds no judgement.
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.

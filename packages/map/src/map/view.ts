@@ -19,6 +19,10 @@ import { drawNeon, NeonCache } from "./neon.ts";
 import { drawStitch, StitchCache } from "./stitch.ts";
 import { drawGlass, GlassCache } from "./glass.ts";
 import type { SurfaceFrame } from "./surface.ts";
+import { drawSheet, SheetCache } from "./sheet.ts";
+import { drawTerminal, TerminalCache } from "./terminal.ts";
+import { drawClub, ClubCache } from "./club.ts";
+import { drawRail, RailCache } from "./rail.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -199,6 +203,11 @@ export class MapView {
   private neon = new NeonCache();
   private stitch = new StitchCache();
   private glass = new GlassCache();
+  /** Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74). */
+  private sheet = new SheetCache();
+  private terminal = new TerminalCache();
+  private club = new ClubCache();
+  private rail = new RailCache();
   private dots: Dot[] = [];
   private screen: Spot[] = [];
   private tuned: number[] | null = null;
@@ -1135,6 +1144,10 @@ export class MapView {
     };
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
+    else if (t.surface === "sheet") drawSheet(f, this.sheet);
+    else if (t.surface === "terminal") drawTerminal(f, this.terminal);
+    else if (t.surface === "club") drawClub(f, this.club);
+    else if (t.surface === "rail") drawRail(f, this.rail);
     else drawGlass(f, this.glass);
   }
 
