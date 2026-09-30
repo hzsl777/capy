@@ -13,10 +13,17 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] No political boundary data added: search for `admin_`, `boundary`, `countries`, `disputed` in `scripts/` and `public/basemap/`.
 - [ ] The basemap build still strips every property except the river rank (`strip()` in `packages/map/scripts/build-basemap.ts`).
 - [ ] Nothing draws text on the canvas (`fillText`/`strokeText` in `src/map/`).
-- [ ] Dot size depends only on the place's most important story and its report count (`weightOf`, decision 46). Dot colour depends only on "reported in the last hour".
+- [ ] Dot symbol depends only on the place's most important story (`weightOf`: hollow, filled, ringed, decision 57) and dot size only on its report count. The Key matches what the canvas draws. Dot colour depends only on "reported in the last hour".
 - [ ] Zoom decides visibility only by the tiers in `tierOf` (`src/data.ts`, decisions 30 and 46): importance and outlet-city reach. No other signal decides which places show.
 - [ ] A merged dot lists its cities by name and never names a region.
 - [ ] No red or warning colour tied to conflict topics. Topics never change how a dot looks.
+- [ ] Designs that cut the world into shapes (Rose Window's glass pieces, Cross Stitch's cells, Honeycomb's hexagons, Polygon Kingdom's triangles, Night Drive's wire grid) cut them from longitude and latitude or a screen grid, the same over land and sea, and colour them by climate and relief only, never by any political unit. No patch of land is red. Textures and light laid over the map (Radar Sweep's speckle and beam, Film Noir's lamp and blinds, Arcade Cabinet's scanlines, Stadium Jumbotron's LED mesh) are the same over all land or fixed to the screen, never tied to a place.
+- [ ] Designs with their own camera or moving light (Polygon Kingdom, Nightclub, Poolside, Snow Globe): places are drawn through the same camera as the land, a marker's size never changes with distance or animation, only light falls on the map (never a shape that reads as a mark, and no colour close to the fresh colour), and nothing flashes (no 10% swing in brightness within a third of a second, `test/scenes.test.ts`).
+- [ ] Nothing drawn links one place to another except the reader's arcs: no route lines between cities (Sleeper Car's only track is in the foreground, below the map).
+- [ ] Chrome built from a place's name (Spreadsheet's formula bar, `src/ui/extras.ts`) uses `Place.name` only, as text, and adds no judgement.
+- [ ] Designs that move on their own (Aquarium's fish, bubbles and water, Lava Lamp's wax; `src/map/ambient.ts`) never move, resize, cover or tint a marker, keep moving pictures in tested open water (`FISH`, `test/aquarium.test.ts`) or outside the map, never flash, and hold still for reduced motion.
+- [ ] Screens and cameras (decision 75) read as what they are and nothing more: Radar Sweep has no friend-or-foe symbols, target boxes or tracks; Stadium Jumbotron has no scores, flags, or team, league or sponsor names or colours; Arcade Cabinet names no game and draws no game's characters. Motion never moves, resizes or hides a marker and stops for reduced motion.
+- [ ] Things a design puts at sea (Pirate's creatures, the scenery pictures, Pop-up Book's pieces on sticks, Toy Train Set's tracks and trains, Chalkboard's and Sketchbook's doodles) sit only at tested spots clear of land and far from every place (`test/decor.test.ts`, `test/scenery.test.ts`, `test/handmade.test.ts`), carry no text, faces or flags, and never move or cover a marker.
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.
@@ -32,7 +39,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] The scoring prompt still scores outcomes for people, never which side gained, and the word prompt still asks for breadth and forbids verdicts.
 - [ ] The mood score never orders headlines or changes how a pin looks, and every score is shown with its reason.
 - [ ] No new ranking signal (tone, shares, source "authority") orders headlines. Stories are placed only by the checked city lookup (`packages/pipeline/src/places.ts`, decision 44), never at a country or region, and each report still names its outlet's city.
-- [ ] GDELT local stories (`packages/pipeline/src/stages/local.ts`, decision 54) fill only regions no listed outlet reached, newest first, at most `GDELT_PER_REGION` each, placed only from a city-level tag, never read by a model, and labelled "via GDELT". GDELT's tone or theme fields never choose them.
+- [ ] GDELT local stories (`packages/pipeline/src/stages/local.ts`, decisions 54 and 67) add towns the outlets did not reach: none within 25 km of a place with an outlet's story, at most `GDELT_PER_REGION` in a region no outlet reached and `GDELT_PER_REACHED_REGION` in one it did, `GDELT_MAX` a day, chosen only by time and place (`pickLocal`), placed only from a city-level tag checked against the city list and GeoNames' towns, never read by a model, shown only at the closest zoom, and labelled "via GDELT". GDELT's tone or theme fields never choose them.
 - [ ] The site shows only feed summaries (at most 300 characters) and quoted citation passages, never article text.
 - [ ] New outlets in `config/sources.yaml` went through `add-news-source`, and the world list isn't tilting toward one region, language or side.
 

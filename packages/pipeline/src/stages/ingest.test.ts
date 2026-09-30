@@ -29,7 +29,7 @@ describe("checkSources", () => {
       return xml;
     });
     expect(reports).toEqual([
-      { source: "sample", fetched: 1, inserted: 0 },
+      { source: "sample", fetched: 1, inserted: 0, feedTitle: "Sample press releases" },
       { source: "broken", fetched: 0, inserted: 0, error: "503 Service Unavailable" },
     ]);
   });

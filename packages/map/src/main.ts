@@ -24,6 +24,95 @@ import "@fontsource/fredoka/600.css";
 import "@fontsource/nunito/400.css";
 import "@fontsource/nunito/400-italic.css";
 import "@fontsource/nunito/700.css";
+import "@fontsource/press-start-2p/400.css";
+import "@fontsource/pixelify-sans/400.css";
+import "@fontsource/pixelify-sans/700.css";
+import "@fontsource/permanent-marker/400.css";
+import "@fontsource/patrick-hand/400.css";
+import "@fontsource/anton/400.css";
+import "@fontsource/titan-one/400.css";
+import "@fontsource/nunito/800.css";
+import "@fontsource/chewy/400.css";
+import "@fontsource/baloo-2/500.css";
+import "@fontsource/baloo-2/800.css";
+import "@fontsource/cinzel-decorative/700.css";
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/400-italic.css";
+import "@fontsource/lora/600.css";
+import "@fontsource/graduate/400.css";
+import "@fontsource/rye/400.css";
+import "@fontsource/oswald/500.css";
+import "@fontsource/oswald/600.css";
+import "@fontsource/dotgothic16/latin-400.css";
+import "@fontsource/dotgothic16/latin-ext-400.css";
+// Night Drive, Cross Stitch and Rose Window (decision 70).
+import "@fontsource/kanit/400.css";
+import "@fontsource/kanit/600.css";
+import "@fontsource/kanit/400-italic.css";
+import "@fontsource/kanit/900-italic.css";
+import "@fontsource/mr-dafoe/400.css";
+import "@fontsource/dancing-script/700.css";
+import "@fontsource/silkscreen/400.css";
+import "@fontsource/silkscreen/700.css";
+import "@fontsource/grenze-gotisch/700.css";
+import "@fontsource/eb-garamond/400.css";
+import "@fontsource/eb-garamond/400-italic.css";
+import "@fontsource/eb-garamond/600.css";
+// Decision 71: Nightclub, Poolside and Snow Globe.
+import "@fontsource/monoton/400.css";
+import "@fontsource/tilt-neon/400.css";
+import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/600.css";
+import "@fontsource/shrikhand/400.css";
+import "@fontsource/jost/400.css";
+import "@fontsource/jost/500.css";
+import "@fontsource/jost/600.css";
+import "@fontsource/fraunces/400.css";
+import "@fontsource/fraunces/600.css";
+import "@fontsource/fraunces/700.css";
+import "@fontsource/fraunces/600-italic.css";
+// Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74).
+import "@fontsource/source-sans-3/400.css";
+import "@fontsource/source-sans-3/600.css";
+import "@fontsource/source-sans-3/700.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/700.css";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display/700-italic.css";
+import "@fontsource/libre-baskerville/400.css";
+import "@fontsource/libre-baskerville/400-italic.css";
+import "@fontsource/libre-baskerville/700.css";
+import "@fontsource/barlow-condensed/500.css";
+import "@fontsource/barlow-condensed/700.css";
+import "@fontsource/limelight/400.css";
+// Aquarium and Lava Lamp (decision 77).
+import "@fontsource/sniglet/400.css";
+import "@fontsource/sniglet/800.css";
+import "@fontsource/shrikhand/latin-400.css";
+import "@fontsource/shrikhand/latin-ext-400.css";
+import "@fontsource/righteous/400.css";
+// Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron (decision 75).
+import "@fontsource/michroma/400.css";
+import "@fontsource/b612-mono/400.css";
+import "@fontsource/b612-mono/700.css";
+import "@fontsource/limelight/400.css";
+import "@fontsource/poiret-one/400.css";
+import "@fontsource/courier-prime/400.css";
+import "@fontsource/courier-prime/700.css";
+import "@fontsource/bungee/400.css";
+import "@fontsource/share-tech-mono/400.css";
+import "@fontsource/jersey-10/400.css";
+import "@fontsource/big-shoulders-display/600";
+import "@fontsource/big-shoulders-display/800";
+// Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76).
+import "@fontsource/sniglet/800.css";
+import "@fontsource/alfa-slab-one/400.css";
+import "@fontsource/fredericka-the-great/400.css";
+import "@fontsource/cabin-sketch/700.css";
+import "@fontsource/kalam/latin-400.css";
+import "@fontsource/kalam/latin-ext-400.css";
+import "@fontsource/kalam/latin-700.css";
+import "@fontsource/kalam/latin-ext-700.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -47,13 +136,15 @@ import {
   type Filters,
   type TopicFilter,
 } from "./data.ts";
-import { THEMES, type ThemeId, type ViewMode } from "./themes.ts";
+import { markPath } from "./map/marks.ts";
+import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
 import { needsTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
-import { loadPins, prefs, savePins, setPref, type Pin } from "./pins.ts";
+import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
+import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -65,14 +156,17 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 // ---- state ----------------------------------------------------------------
 
 const params = new URLSearchParams(location.search);
-const urlTheme = params.get("theme") as ThemeId | null;
+/** Design ids that were renamed, so old links and saved choices still land on the same design. */
+const RENAMED: Record<string, ThemeId> = { cotton: "candy" };
+const renamed = (id: string | null): ThemeId | null => (id ? (RENAMED[id] ?? (id as ThemeId)) : null);
+const urlTheme = renamed(params.get("theme"));
 const urlView = params.get("view") as ViewMode | null;
 
 const state = {
   file: null as NewsFile | null,
   byPlace: new Map<number, Item[]>(),
   stories: new Map<string, Item[]>(),
-  theme: urlTheme && THEME_IDS.includes(urlTheme) ? urlTheme : prefs<ThemeId>("theme", "morning", THEME_IDS),
+  theme: urlTheme && THEME_IDS.includes(urlTheme) ? urlTheme : prefs<ThemeId>("theme", "morning", THEME_IDS, renamed),
   view: null as ViewMode | null,
   topics: new Set<TopicFilter>(FILTERS),
   slot: SLOTS,
@@ -94,7 +188,16 @@ const state = {
   pins: loadPins(),
   playing: 0,
 };
-state.view = urlView === "2d" || urlView === "3d" ? urlView : null;
+// A link's view wins; otherwise the visitor's last choice, saved in their own browser only.
+const savedView = prefs<ViewMode | "">("view", "", ["2d", "3d", ""]);
+state.view = urlView === "2d" || urlView === "3d" ? urlView : savedView || null;
+state.translate = prefs("translate", "off", ["on", "off"]) === "on";
+{
+  const saved = rawPref("topics")
+    .split(",")
+    .filter((f): f is TopicFilter => (FILTERS as readonly string[]).includes(f));
+  if (saved.length) state.topics = new Set(saved);
+}
 
 const viewOf = () => state.view ?? THEMES[state.theme].defaultView;
 
@@ -128,7 +231,9 @@ const map = new MapView($("map"), THEMES[state.theme], {
     state.showAll = false;
     if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
+    refreshExtras();
   },
+  onMove: moveExtras,
   onLevel(level) {
     state.level = level;
     if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
@@ -165,42 +270,73 @@ function flyToPlace(index: number) {
 
 // ---- masthead ---------------------------------------------------------------
 
+/** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
+const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
+// Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
+LETTER_THEMES.add("rail");
+let boardShown = "";
+/** Sleeper Car's departure board: the place name on tiles, which flip when the name changes. */
+function boardName(el: HTMLElement, text: string): HTMLElement {
+  if (state.theme !== "rail") return el;
+  lettered(el, text);
+  if (text !== boardShown) el.classList.add("flip");
+  boardShown = text;
+  return el;
+}
+
+/** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
+function lettered(el: HTMLElement, text: string) {
+  if (!LETTER_THEMES.has(state.theme)) {
+    el.textContent = text;
+    return el;
+  }
+  if (!el.hasAttribute("aria-label")) el.setAttribute("aria-label", text);
+  el.replaceChildren(
+    ...[...text].map((ch, i) => {
+      // A space would collapse between inline blocks, so it becomes a no-break space.
+      const span = h("span", { class: "lt", "aria-hidden": "true" }, ch === " " ? "\u00a0" : ch);
+      span.style.setProperty("--i", String(i));
+      return span;
+    }),
+  );
+  return el;
+}
+
 function renderMasthead() {
   const t = THEMES[state.theme];
   // One row: the name and tagline on the left, the day's word on the right (renderTelegramStrip).
-  $("mast-title").textContent = t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME;
+  $("mast-title").removeAttribute("aria-label");
+  lettered($("mast-title"), t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME);
   $("mast-tag").textContent = SITE_TAGLINE;
 }
 
 // ---- toolbar ----------------------------------------------------------------
 
-function segmented<T extends string>(el: HTMLElement, options: [T, string][], current: T, onPick: (v: T) => void) {
+/** Phones show each design's first word in the closed dropdown, so the whole toolbar fits one row. */
+const phone = matchMedia("(max-width: 760px)");
+
+/** A native dropdown: easy on touch screens, and the list opens over the page wherever the control sits. */
+function dropdown<T extends string>(el: HTMLSelectElement, options: [T, string][], current: T, onPick: (v: T) => void) {
+  el.replaceChildren(...options.map(([value, label]) => h("option", { value, selected: value === current ? "" : undefined }, label)));
+  el.value = current;
+  el.onchange = () => onPick(el.value as T);
+}
+
+/**
+ * With forty-odd designs the Design menu is sorted into labelled groups (decision 77, `designMenu` in themes.ts).
+ * The options `dropdown` made move into one optgroup each, so every design is listed exactly once.
+ */
+function groupDesigns(el: HTMLSelectElement) {
+  const byId = new Map([...el.options].map((o) => [o.value, o]));
   el.replaceChildren(
-    ...options.map(([value, label]) => {
-      const b = h("button", { type: "button", role: "radio", "aria-checked": String(value === current) }, label);
-      b.addEventListener("click", () => onPick(value));
-      return b;
-    }),
+    ...designMenu(THEME_IDS).map((g) => h("optgroup", { label: g.label }, ...g.ids.flatMap((id) => byId.get(id) ?? []))),
   );
+  el.value = state.theme;
 }
 
 function renderToolbar() {
-  // All the designs sit in one menu, so the toolbar stays short.
-  $("design-current").textContent = THEMES[state.theme].label;
-  $("designs").replaceChildren(
-    ...THEME_IDS.map((id) => {
-      const b = h("button", { type: "button", class: "menu-item", role: "menuitemradio", "aria-checked": String(id === state.theme) }, THEMES[id].label);
-      b.addEventListener("click", () => {
-        closeMenus();
-        state.theme = id;
-        setPref("theme", id);
-        applyTheme();
-      });
-      return b;
-    }),
-  );
-  segmented(
-    $("view-seg"),
+  dropdown(
+    $("view-select") as HTMLSelectElement,
     [
       ["2d", "Map"],
       ["3d", "Globe"],
@@ -208,11 +344,24 @@ function renderToolbar() {
     viewOf(),
     (v) => {
       state.view = v;
+      setPref("view", v);
       map.setMode(v);
       renderToolbar();
       syncUrl();
     },
   );
+  dropdown(
+    $("design-select") as HTMLSelectElement,
+    THEME_IDS.map((id) => [id, phone.matches ? THEMES[id].label.split(" ")[0]! : THEMES[id].label]),
+    state.theme,
+    (id) => {
+      closeMenus();
+      state.theme = id;
+      setPref("theme", id);
+      applyTheme();
+    },
+  );
+  groupDesigns($("design-select") as HTMLSelectElement);
 
   const chips = $("topics");
   chips.replaceChildren(
@@ -266,16 +415,66 @@ function renderPins() {
   );
 }
 
+/**
+ * The map's key, drawn in the current design's colours and dot shape so it matches the map (decision 57): three
+ * symbols by the AI model's importance rating, the inner ring of merged places, and "reported in the last hour".
+ */
+function renderKey() {
+  const t = THEMES[state.theme];
+  const NS = "http://www.w3.org/2000/svg";
+  const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string) => void) => void) => {
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "-13 -13 26 26");
+    svg.setAttribute("width", "22");
+    svg.setAttribute("height", "22");
+    svg.setAttribute("aria-hidden", "true");
+    svg.style.background = t.ocean;
+    svg.style.borderRadius = "4px";
+    draw((r, fill, stroke, width, dash) => {
+      // The same outline the map draws (src/map/marks.ts), so the Key always matches it.
+      const el = document.createElementNS(NS, "path");
+      el.setAttribute("d", markPath(t.dotShape, r));
+      el.setAttribute("fill", fill);
+      el.setAttribute("stroke", stroke);
+      el.setAttribute("stroke-width", String(width));
+      if (dash) el.setAttribute("stroke-dasharray", dash);
+      svg.append(el);
+    });
+    return svg;
+  };
+  const row = (svg: SVGSVGElement, label: string) => h("li", {}, svg as unknown as Node, h("span", {}, label));
+  const mono = t.fresh === t.dot;
+  $("key-body").replaceChildren(
+    h("p", { class: "key-note" }, "The mark shows how an AI model rated the place's top story, from 1 to 5. A bigger mark means more reports."),
+    h(
+      "ul",
+      {},
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3))), "Rated 4 or 5"),
+      row(mark((add) => add(6, t.dot, t.dotStroke, 1.2)), "Rated 2 or 3"),
+      row(mark((add) => add(4.5, t.dotStroke, t.dot, 1.6)), "Rated 1, or a local story from GDELT"),
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together (zoom in to separate)"),
+      row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2")) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
+    ),
+  );
+}
+
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   map.setTheme(THEMES[state.theme]);
+  renderKey();
   map.setMode(viewOf());
   renderMasthead();
+  renderTelegramStrip();
   renderToolbar();
+  renderTicker();
+  if (state.file && !state.reader && !state.telegram && !state.event) renderPanel();
   syncUrl();
+  refreshExtras();
 }
 
 function onFiltersChanged() {
+  // All topics is the default, so it is saved as nothing.
+  setPref("topics", state.topics.size === FILTERS.length ? "" : [...state.topics].join(","));
   refreshDots();
   renderToolbar();
   renderTimeLabel();
@@ -358,8 +557,8 @@ function renderIdle(panel: HTMLElement) {
     h(
       "div",
       { class: "idle" },
-      h("h2", { class: "panel-title" }, "Latest reports"),
-      h("p", { class: "count" }, "The map stops on a place. Drag to pick one yourself."),
+      lettered(h("h2", { class: "panel-title" }), "Latest reports"),
+      h("p", { class: "count" }, "The map stops on a place. Drag the map to choose another."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
     ),
   );
@@ -390,13 +589,13 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
     head = h(
       "div",
       { class: "dateline" },
-      h("h2", { class: "place-name", title: formatCoords(place.lat, place.lon) }, place.name),
+      boardName(h("h2", { class: "place-name", title: formatCoords(place.lat, place.lon) }, place.name), place.name),
       h("span", { class: "coords" }, [onePublisher, count].filter(Boolean).join(" · ")),
       pin,
     );
   } else {
     const names = indices.map((i) => file.places[i].name);
-    head = h("div", { class: "dateline" }, h("h2", { class: "place-name" }, `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
+    head = h("div", { class: "dateline" }, boardName(h("h2", { class: "place-name" }, `${names.length} places`), `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
   }
   const more = hidden
     ? (() => {
@@ -550,7 +749,8 @@ function applyHighlight() {
   map.setHighlight([]);
 }
 
-const BAND_LABEL: Record<number, string> = { [-2]: "Grave", [-1]: "Hard", 0: "Mixed", 1: "Hopeful", 2: "Good" };
+// What each step says about the day's top events, in the scoring rules' own terms (decision 59).
+const BAND_LABEL: Record<number, string> = { [-2]: "Severe harm", [-1]: "Harm", 0: "Mixed", 1: "Relief", 2: "Resolution" };
 
 function signed(n: number): string {
   return n > 0 ? `+${n}` : n < 0 ? `\u2212${-n}` : "0";
@@ -560,9 +760,15 @@ function signed(n: number): string {
 function scale(band: number): HTMLElement {
   return h(
     "div",
-    { class: "scale", role: "img", "aria-label": `The day scored ${BAND_LABEL[band]}, on a scale from Grave to Good` },
+    { class: "scale", role: "img", "aria-label": `The day's step on the scale: ${BAND_LABEL[band]}. The steps run from Severe harm to Resolution.` },
     ...[-2, -1, 0, 1, 2].map((b) => h("span", { class: b === band ? "step on" : "step" }, BAND_LABEL[b]!)),
   );
+}
+
+/** "today's" for the current day's map (it covers the 24 hours to 09:00 UTC), "the day's" for an older one. */
+function fromDays(runDate: string): string {
+  const age = (Date.now() - Date.parse(`${runDate}T09:00:00Z`)) / 86_400_000;
+  return age < 1.5 ? "today's" : "the day's";
 }
 
 function renderTelegramStrip() {
@@ -573,20 +779,24 @@ function renderTelegramStrip() {
     return;
   }
   const t = file.telegram;
-  const date = h("span", { class: "telegram-kicker" }, formatRunDate(file.runDate));
+  // Read like a front page: the dateline, then the day's word under its label, then who chose it.
+  const date = h("p", { class: "telegram-date" }, formatRunDate(file.runDate));
   if (!t) {
-    el.replaceChildren(h("div", { class: "telegram-side" }, h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, "No word yet for this day"))));
+    el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word yet for this day")));
     return;
   }
-  const word = h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. See why.` }, t.word);
+  const word = lettered(h("button", { type: "button", class: "telegram-word", "aria-label": `Today's word: ${t.word}. Open to see how it was chosen.` }), t.word);
   word.addEventListener("click", openTelegram);
   // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
   // space without overflowing a phone.
   word.style.setProperty("--len", String(Math.max(4, t.word.length)));
-  const n = t.scores.length;
+  // The note says what the word does, not how many events it read: the panel behind the link shows every score.
+  const how = h("button", { type: "button", class: "note-link" }, "How it's chosen");
+  how.addEventListener("click", openTelegram);
   el.replaceChildren(
-    word,
-    h("div", { class: "telegram-side" }, h("div", { class: "telegram-meta" }, date, h("span", { class: "telegram-note" }, `Chosen by AI from ${n} ${n === 1 ? "event" : "events"}`)), scale(t.band)),
+    date,
+    h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "Today's word"), word),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI, weighing ${fromDays(file.runDate)} news, good and bad. `, how), scale(t.band)),
   );
 }
 
@@ -651,7 +861,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model scored each event from \u22122 to +2 by what happened to people, quoting the sentence each score rests on. A formula, not the model, set the day: the worst significant event decides a bad day.",
+        "An AI model sorted the day's reports into events and rated each event from 1 to 5 for importance. It scored each event rated 3 or higher from \u22122 (severe harm) to +2 (resolution) by what happened to people, quoting a checked sentence for each score. A fixed formula, not the model, sets the day. If any scored event is below zero, the lowest of those scores sets the day, so good news never cancels out a tragedy. Otherwise the day is the average score, and more important events count for more.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
@@ -738,7 +948,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       section("What changes next", ev.whatChangesNext),
       h("h3", { class: "rule-head" }, "Sources"),
       h("ol", { class: "sources" }, ...sources),
-      h("p", { class: "fine" }, "Written by an AI model, title included. Each sentence links to the passage it quotes, and any sentence without a matching passage was removed."),
+      h("p", { class: "fine" }, "An AI model wrote this, including the title. Each sentence links to the passage it quotes. A program removed any sentence whose passage was not in the source."),
     ),
   );
 }
@@ -800,9 +1010,14 @@ function bindTimebar() {
 
 // ---- ticker -----------------------------------------------------------------
 
+/** Designs that show a crawl of the newest headlines under the map. */
+const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
+// Market Terminal's ticker: the newest headlines only, never prices, arrows or colours for up and down.
+TICKER_THEMES.add("terminal");
+
 function renderTicker() {
   const track = $("ticker-track");
-  if (!state.file || state.theme !== "wire") {
+  if (!state.file || !TICKER_THEMES.has(state.theme)) {
     track.replaceChildren();
     return;
   }
@@ -850,40 +1065,52 @@ function closeMenus() {
   for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) d.open = false;
 }
 
-/**
- * A phone's toolbar keeps the view and topics in the row; design, translate, pins and about move into More
- * instead of scrolling sideways. The elements move, so their listeners come with them.
- */
-function fitToolbar(phone: boolean) {
-  const rest = ["translate", "pins-menu", "about-btn"].map($);
-  if (phone) $("more").append($("design-menu"), ...rest);
-  else {
-    $("view-seg").after($("design-menu"));
-    $("more-menu").before(...rest);
-  }
-  $("more-menu").hidden = !phone;
-  closeMenus();
+/** The key opens beside the map, over the panel on a wide screen and as a sheet at the bottom of a phone. */
+function setKey(open: boolean) {
+  $("key-pop").hidden = !open;
+  $("key-btn").setAttribute("aria-expanded", String(open));
+}
+
+/** On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. */
+function placeAbout() {
+  if (phone.matches) $("masthead").append($("about-btn"));
+  else $("toolbar").append($("about-btn"));
 }
 
 function bindGlobal() {
-  const phone = matchMedia("(max-width: 760px)");
-  fitToolbar(phone.matches);
-  phone.addEventListener("change", (e) => fitToolbar(e.matches));
+  placeAbout();
+  phone.addEventListener("change", () => {
+    placeAbout();
+    renderToolbar();
+  });
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
+  $("key-btn").addEventListener("click", () => {
+    closeMenus();
+    setKey($("key-pop").hidden);
+  });
+  $("key-close").addEventListener("click", () => {
+    setKey(false);
+    $("key-btn").focus();
+  });
   $("about-btn").addEventListener("click", () => {
     closeMenus();
+    setKey(false);
     ($("about") as HTMLDialogElement).showModal();
   });
   $("translate").addEventListener("click", () => {
     state.translate = !state.translate;
+    setPref("translate", state.translate ? "on" : "off");
     renderToolbar();
     renderPanel();
   });
   document.addEventListener("keydown", (e) => {
     const target = e.target as HTMLElement;
     if (target.closest("input, textarea, select, dialog")) return;
-    if (e.key === "Escape" && (state.event || state.telegram || state.reader)) {
+    if (e.key === "Escape" && !$("key-pop").hidden) {
+      setKey(false);
+      $("key-btn").focus();
+    } else if (e.key === "Escape" && (state.event || state.telegram || state.reader)) {
       if (state.event) state.event = null;
       else if (state.telegram) closeTelegram();
       else closeReader();
@@ -900,6 +1127,7 @@ function bindGlobal() {
     for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) {
       if (!path.includes(d)) d.open = false;
     }
+    if (!$("key-pop").hidden && !path.includes($("key-pop")) && !path.includes($("key-btn"))) setKey(false);
   });
 }
 
@@ -909,10 +1137,16 @@ async function start() {
   document.documentElement.dataset.theme = state.theme;
   renderMasthead();
   renderToolbar();
+  renderKey();
   renderTelegramStrip();
   renderPanel();
   bindTimebar();
   bindGlobal();
+  mountExtras({
+    theme: () => state.theme,
+    tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
+    center: () => map.center(),
+  });
 
   loadLow(BASE).then((low) => map.setBasemap(low));
   loadHigh(BASE)
@@ -924,7 +1158,7 @@ async function start() {
   } catch (err) {
     const first = err instanceof Error && err.message === NO_DAY_YET;
     $("panel").replaceChildren(
-      h("p", { class: "pad" }, first ? "The first day's map is being made. It appears after the daily run at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
+      h("p", { class: "pad" }, first ? "The first map isn't ready yet. It appears after the daily update at 09:00 UTC." : "The news couldn't be loaded. Try again in a few minutes."),
     );
     return;
   }
@@ -935,7 +1169,7 @@ async function start() {
     banner.hidden = false;
     banner.textContent =
       state.file.source === "demo"
-        ? (state.file.note ?? "Demo: real headlines gathered outside the daily run.")
+        ? (state.file.note ?? "Demo: real headlines, collected outside the daily update.")
         : "Sample: fictional outlets and places. Not real news.";
   }
   refreshDots();

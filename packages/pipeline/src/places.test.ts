@@ -43,6 +43,22 @@ describe("placing a story where it happened (decision 44)", () => {
     expect(gaz.largestIn("FR")).toBe("Paris");
   });
 
+  it("checks GDELT's towns against GeoNames' towns too, by name near GDELT's point only (decision 67)", () => {
+    const towns = Gazetteer.loadWithTowns();
+    // Rovereto is a GeoNames town, not on the city list: its own name and point.
+    expect(towns.locate({ city: "Rovereto", country: "IT", lat: 45.9, lon: 11.03 }, true)).toEqual({ name: "Rovereto", lat: 45.89, lon: 11.04 });
+    // A shared name goes to the place nearest GDELT's point, never to a larger namesake elsewhere.
+    expect(towns.locate({ city: "Springfield", country: "US", lat: 37.2153, lon: -93.2982 }, true)!.lon).toBeCloseTo(-93.3, 0);
+    expect(towns.locate({ city: "Columbus", country: "US", lat: 32.461, lon: -84.9877 }, true)!.lat).toBeCloseTo(32.47, 1);
+    // Towns never answer the grouping model's names, which come without a precise point.
+    expect(towns.locate({ city: "Rovereto", country: "IT" })).toBeNull();
+    expect(towns.locate({ city: "Springfield", country: "US" })).toEqual(gaz.locate({ city: "Springfield", country: "US" }));
+    // The coverage count's denominators stay the city list's.
+    expect(towns.regions()).toEqual(gaz.regions());
+    expect(towns.countries()).toEqual(gaz.countries());
+    expect(towns.areaAt(45.89, 11.04)).toEqual({ country: "IT", region: "IT/Trentino-Alto Adige" });
+  });
+
   it("measures distance on the globe", () => {
     expect(km(48.85, 2.35, 51.51, -0.13)).toBeCloseTo(343, -1);
   });

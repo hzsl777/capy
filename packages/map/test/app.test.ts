@@ -51,6 +51,9 @@ describe("zoom tiers (decision 30)", () => {
     expect(tierOf(item(2, 1), true)).toBe(2);
     expect(tierOf(item(1, 1), true)).toBe(3);
     expect(tierOf(item(), true)).toBe(4);
+    // GDELT's local stories carry importance 1 but no model rated them: they wait for the closest zoom.
+    expect(tierOf({ ...item(1, 1), via: "gdelt" }, true)).toBe(4);
+    expect(tierOf({ ...item(1, 1), via: "gdelt" }, false)).toBe(0);
   });
   it("weighs a place by its most important story", () => {
     expect(weightOf([item(1, 2), item(1, 4)])).toBe(4);

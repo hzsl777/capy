@@ -195,7 +195,7 @@ export async function runEval(snap: Snapshot, setups: Setup[], deps: { freshDb: 
   return out;
 }
 
-const BAND = ["Grave", "Hard", "Mixed", "Hopeful", "Good"];
+const BAND = ["Severe harm", "Harm", "Mixed", "Relief", "Resolution"];
 const bandName = (b: number | null) => (b === null ? "none" : `${BAND[b + 2]} (${b > 0 ? "+" : ""}${b})`);
 const usd = (n: number) => `$${n < 0.01 ? n.toFixed(4) : n.toFixed(3)}`;
 const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");

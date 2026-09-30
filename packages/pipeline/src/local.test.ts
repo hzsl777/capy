@@ -1,9 +1,10 @@
-// Local stories from GDELT (decision 54) on a real Postgres engine, with GDELT's files built here: no network.
+// Local stories from GDELT (decisions 54 and 67) on a real Postgres engine, with GDELT's files built here: no network.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { zipSync, strToU8 } from "fflate";
 import { toRunDate } from "@2dayai/core";
 import { articles, eventArticles, events, loadMapView, localStories, sources, type Db } from "@2dayai/db";
-import { gdeltFileUrls, parseGkgRow, runLocal } from "./stages/local.js";
+import { gkgRow as row, gkgZip as zip } from "./fixtures/gdelt.js";
+import { forEachLine, gdeltFileUrls, parseGkgRow, pickLocal, runLocal, type LocalCandidate, type RegionCandidates } from "./stages/local.js";
 import { runPrune } from "./stages/prune.js";
 import { createTestDb } from "./test/db.js";
 
@@ -17,27 +18,19 @@ afterAll(async () => {
   await close();
 });
 
-type Town = { type?: string; name: string; lat: number; lon: number; id: string; offset?: number };
-/** One GKG 2.1 row: 27 tab-separated columns, with only the ones the stage reads filled in. */
-function row(o: { url: string; title?: string; when?: string; towns?: Town[]; lang?: string; collection?: string }): string {
-  const c = Array.from({ length: 27 }, () => "");
-  c[0] = `${o.when ?? "20260927030000"}-1`;
-  c[1] = o.when ?? "20260927030000";
-  c[2] = o.collection ?? "1";
-  c[3] = new URL(o.url).hostname;
-  c[4] = o.url;
-  c[10] = (o.towns ?? []).map((t) => [t.type ?? "4", t.name, "XX", "XX00", "", t.lat, t.lon, t.id, t.offset ?? 100].join("#")).join(";");
-  if (o.lang) c[25] = `srclc:${o.lang};eng:GT-ITA 1.0`;
-  if (o.title !== undefined) c[26] = `<PAGE_LINKS></PAGE_LINKS><PAGE_TITLE>${o.title}</PAGE_TITLE>`;
-  return c.join("\t");
-}
-const zip = (rows: string[]) => zipSync({ "x.gkg.csv": strToU8(rows.join("\n")) });
-
 // Towns on the city list: Trento and Bolzano (Trentino-Alto Adige), Nakuru (Kenya), and a point near Nakuru that is
 // not on the list.
 const TRENTO = { name: "Trento, Trentino-Alto Adige, Italy", lat: 46.0667, lon: 11.1167, id: "-126693" };
 const NAKURU = { name: "Nakuru, Nakuru, Kenya", lat: -0.2833, lon: 36.0667, id: "-1300" };
 const NJORO = { name: "Njoro, Nakuru, Kenya", lat: -0.3294, lon: 35.9444, id: "-1301" };
+// Naivasha: a GeoNames town in the same region as Nakuru, 60 km away. Rovereto: a GeoNames town near Trento.
+const NAIVASHA = { name: "Naivasha, Nakuru, Kenya", lat: -0.7167, lon: 36.4333, id: "-1302" };
+const ROVERETO = { name: "Rovereto, Trentino-Alto Adige, Italy", lat: 45.8897, lon: 11.0397, id: "-126700" };
+// Columbus, Georgia shares its name with the larger Columbus, Ohio on the city list.
+const COLUMBUS_GA = { type: "3", name: "Columbus, Georgia, United States", lat: 32.461, lon: -84.9877, id: "GA13" };
+
+/** Per region with no outlet story, per region with one, per day. */
+const limits = (perRegion: number, perReachedRegion = 0, max = 8000) => ({ perRegion, perReachedRegion, max });
 
 describe("reading a GDELT row", () => {
   it("takes the title, the language and the town the article names most", () => {
@@ -52,6 +45,20 @@ describe("reading a GDELT row", () => {
     expect(parseGkgRow(row({ url: "https://a.example/3", title: "A long enough headline about nothing" }), false)).toBeNull();
     expect(parseGkgRow(row({ url: "https://a.example/4", title: "A long enough headline about Italy", towns: [{ ...TRENTO, type: "1" }, { ...TRENTO, type: "5" }] }), false)).toBeNull();
     expect(parseGkgRow(row({ url: "https://a.example/5", title: "A long enough headline about Trento", towns: [TRENTO], collection: "2" }), false)).toBeNull();
+  });
+
+  it("reads a large file a chunk at a time without splitting a line or a letter", () => {
+    // About 12 MB unzipped and, like real GDELT text, not endlessly repetitive, so it compresses the way news does.
+    let seed = 1;
+    const word = () => ["São", "Tomé", "é", "aqui", "Nakuru", "Trento", "река", "市长", "council", "budget"][(seed = (seed * 16807) % 2147483647) % 10];
+    const lines = Array.from({ length: 4000 }, (_, i) => `${i}\t${Array.from({ length: 450 }, word).join(" ")}`);
+    const got: string[] = [];
+    const chunks = forEachLine(zipSync({ "big.csv": strToU8(lines.join("\n")) }), (l) => got.push(l));
+    // Handed the whole zip at once, the unzipper returned the whole file as one chunk, and every string kept from
+    // it kept the whole file in memory: the daily job ran out of memory on real GDELT files.
+    expect(chunks).toBeGreaterThan(20);
+    expect(got).toHaveLength(4000);
+    expect(got.every((l, i) => l === lines[i])).toBe(true);
   });
 
   it("lists every quarter hour of the day's window, in English and translated", () => {
@@ -79,11 +86,12 @@ describe("local stories for regions no outlet reached", () => {
       row({ url: "https://www.kenyans.co.ke/njoro", title: "Njoro farmers open a new market this week", when: "20260927040000", towns: [NJORO] }),
       row({ url: "https://www.kenyans.co.ke/old", title: "An older Nakuru story from the day before", when: "20260925040000", towns: [NAKURU] }),
     ];
-    const report = await runLocal(db, date, 3, files([row({ url: "https://www.ladige.it/a", title: "Il consiglio provinciale approva il bilancio", lang: "ita", towns: [TRENTO] })], english));
+    const report = await runLocal(db, date, limits(3), files([row({ url: "https://www.ladige.it/a", title: "Il consiglio provinciale approva il bilancio", lang: "ita", towns: [TRENTO] })], english));
     expect(report).toMatchObject({ files: 192, filesMissing: 190, filesFailed: 0, regionsFilled: 2, stories: 4 });
     const rows = await db.select().from(localStories);
     const kenya = rows.filter((r) => r.region.startsWith("KE/")).sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
-    // Newest three: 05:00, 04:00 (Njoro, an unlisted town near Nakuru, at its own point) and 03:00.
+    // Each town's newest first, newest town first: Nakuru at 05:00, Njoro (a GeoNames town 15 km away) at 04:00,
+    // then Nakuru's second newest at 03:00.
     expect(kenya.map((r) => r.title)).toEqual(["Nakuru county assembly story number 2", "Njoro farmers open a new market this week", "Nakuru county assembly story number 3"]);
     expect(kenya[1]).toMatchObject({ placeName: "Njoro", domain: "kenyans.co.ke", lang: "en" });
     expect(rows.find((r) => r.region.startsWith("IT/"))).toMatchObject({ placeName: "Trento", lang: "it" });
@@ -92,6 +100,31 @@ describe("local stories for regions no outlet reached", () => {
     const item = map.items.find((i) => i.title.startsWith("Il consiglio"))!;
     expect(item).toMatchObject({ via: "gdelt", publisher: "ladige.it", importance: 1, reach: 1, topics: [] });
     expect(map.places[item.place]!.name).toBe("Trento");
+    // Two towns 15 km apart are two places; the site merges nearby dots by zoom and names both.
+    const njoroItem = map.items.find((i) => i.title.startsWith("Njoro"))!;
+    const nakuruItem = map.items.find((i) => i.title === "Nakuru county assembly story number 2")!;
+    expect(map.places[njoroItem.place]!.name).toBe("Njoro");
+    expect(njoroItem.place).not.toBe(nakuruItem.place);
+  });
+
+  it("gives each town its newest story before any town gets a second, and reads a shared name as the nearest", async () => {
+    const trento = (n: number, hour: string) => row({ url: `https://www.ladige.it/t${n}`, title: `Trento city council story number ${n}`, when: `20260927${hour}0000`, towns: [TRENTO] });
+    const english = [
+      trento(1, "07"), trento(2, "06"), trento(3, "05"), trento(4, "04"),
+      row({ url: "https://www.ladige.it/r1", title: "Rovereto opens its new school this autumn", when: "20260927010000", towns: [ROVERETO] }),
+      row({ url: "https://www.ledger-enquirer.com/a", title: "Columbus city council meets on the river walk", when: "20260927020000", towns: [COLUMBUS_GA] }),
+    ];
+    const report = await runLocal(db, date, limits(3), files([], english));
+    expect(report).toMatchObject({ regionsFilled: 2, stories: 4, towns: 3 });
+    const rows = await db.select().from(localStories);
+    const italy = rows.filter((r) => r.region.startsWith("IT/")).sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+    // Trento's newest, then Rovereto's only story although it is the oldest, then Trento's second.
+    expect(italy.map((r) => r.title)).toEqual(["Trento city council story number 1", "Trento city council story number 2", "Rovereto opens its new school this autumn"]);
+    expect(italy.find((r) => r.placeName === "Rovereto")).toBeDefined();
+    // Columbus, Georgia stays in Georgia; the city list's larger Columbus is in Ohio.
+    const columbus = rows.find((r) => r.placeName === "Columbus")!;
+    expect(columbus.region).toBe("US/Georgia");
+    expect(columbus.lat).toBeCloseTo(32.46, 1);
   });
 
   it("leaves out a region an outlet's story already reached, and replaces its own stories on a re-run", async () => {
@@ -100,10 +133,25 @@ describe("local stories for regions no outlet reached", () => {
     const [e] = await db.insert(events).values({ runDate: date, title: "Water project opens", importance: 2, importanceReason: "x", promptVersion: "t", desk: "world", topic: "other" }).returning();
     await db.insert(eventArticles).values({ eventId: e!.id, articleId: a!.id });
 
-    const report = await runLocal(db, date, 3, files([], [nakuru(9, "06"), row({ url: "https://www.ladige.it/b", title: "Trento, riapre la biblioteca comunale dopo i lavori", towns: [TRENTO] })]));
+    const report = await runLocal(db, date, limits(3), files([], [nakuru(9, "06"), row({ url: "https://www.ladige.it/b", title: "Trento, riapre la biblioteca comunale dopo i lavori", towns: [TRENTO] })]));
     expect(report.regionsFilled).toBe(1);
     const rows = await db.select().from(localStories);
     expect(rows.map((r) => r.title)).toEqual(["Trento, riapre la biblioteca comunale dopo i lavori"]);
+  });
+
+  it("adds a few stories from a reached region's other towns, never in or next to the outlet's town", async () => {
+    const naivasha = (n: number, hour: string) => row({ url: `https://www.kenyans.co.ke/v${n}`, title: `Naivasha lake level story number ${n}`, when: `20260927${hour}0000`, towns: [NAIVASHA] });
+    const english = [
+      nakuru(10, "07"),
+      row({ url: "https://www.kenyans.co.ke/njoro2", title: "Njoro college opens a new library wing", when: "20260927070000", towns: [NJORO] }),
+      naivasha(1, "01"), naivasha(2, "03"), naivasha(3, "02"),
+    ];
+    const report = await runLocal(db, date, limits(3, 2), files([], english));
+    // Nakuru has the outlet's story and Njoro is 15 km from it, so only Naivasha, 60 km away, gets local stories.
+    expect(report).toMatchObject({ regionsFilled: 0, regionsAdded: 1, stories: 2 });
+    const rows = await db.select().from(localStories);
+    expect(rows.map((r) => r.title).sort()).toEqual(["Naivasha lake level story number 2", "Naivasha lake level story number 3"]);
+    expect(rows[0]!.region).toBe("KE/Rift Valley");
   });
 
   it("keeps three days of local stories", async () => {
@@ -115,8 +163,28 @@ describe("local stories for regions no outlet reached", () => {
   });
 
   it("writes nothing when turned off, and fails loudly when GDELT cannot be reached at all", async () => {
-    expect(await runLocal(db, date, 0, async () => zip([]))).toMatchObject({ stories: 0, skipped: expect.any(String) });
+    expect(await runLocal(db, date, limits(0, 3), async () => zip([]))).toMatchObject({ stories: 0, skipped: expect.any(String) });
     expect(await db.select().from(localStories)).toHaveLength(0);
-    await expect(runLocal(db, date, 3, async () => { throw new Error("fetch failed"); })).rejects.toThrow(/none of the 192 GDELT files/);
+    await expect(runLocal(db, date, limits(3), async () => { throw new Error("fetch failed"); })).rejects.toThrow(/none of the 192 GDELT files/);
+  });
+});
+
+describe("choosing the day's local stories (decision 67)", () => {
+  const at = (t: number, town: string): LocalCandidate => ({ url: `https://a.example/${town}/${t}`, domain: "a.example", title: `${town} ${t}`, lang: "en", publishedAt: new Date(t * 1000), at: { name: town, lat: 0, lon: 0 } });
+  const regions = (): Map<string, RegionCandidates> =>
+    new Map([
+      ["AA/Empty", { reached: false, towns: new Map([["a1", [at(10, "a1"), at(5, "a1")]], ["a2", [at(8, "a2")]]]) }],
+      ["BB/Reached", { reached: true, towns: new Map([["b1", [at(9, "b1"), at(7, "b1")]]]) }],
+    ]);
+
+  it("keeps each region's limit, and every region's first story before any region's second", () => {
+    const all = pickLocal(regions(), limits(3, 1));
+    expect(all.picked.map((p) => p.title)).toEqual(["a1 10", "b1 9", "a2 8", "a1 5"]);
+    expect(all.overMax).toBe(0);
+    // Over the day's limit, depth goes first: a region with no outlet story keeps its first before one with.
+    const capped = pickLocal(regions(), limits(3, 1, 3));
+    expect(capped.picked.map((p) => p.title)).toEqual(["a1 10", "b1 9", "a2 8"]);
+    expect(capped.overMax).toBe(1);
+    expect(pickLocal(regions(), limits(3, 0)).picked.map((p) => p.region)).not.toContain("BB/Reached");
   });
 });

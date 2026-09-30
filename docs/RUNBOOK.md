@@ -7,7 +7,8 @@ Going live is secrets and one merge. Everything after that runs by itself (decis
 1. **Database.** Create a free Neon project (one Postgres database, nothing else) and copy its pooled connection string. Add it as the secret `DATABASE_URL`.
 2. **Model key.** Create an OpenAI API key and add it as the secret `LLM_API_KEY`. Add prepaid credit under Settings, then Billing: the API is billed apart from ChatGPT, and a key without credit fails every call. Set a hard monthly spend limit in the OpenAI dashboard as a second guard beside `DAILY_SPEND_CEILING_USD`. docs/OPENAI.md walks through the dashboard: the project, the key, billing, limits, and what to ignore.
 3. **Cloudflare.** On a free Cloudflare account, either connect this repository to a Worker named `globalgist` in the dashboard (Workers Builds) and add `DATABASE_URL` to its secrets, or create an API token from the "Edit Cloudflare Workers" template and add it as `CLOUDFLARE_API_TOKEN`, with the account id as `CLOUDFLARE_ACCOUNT_ID`. "Deploy the site" below compares the two.
-4. **Merge the pull request into `main`.**
+4. **Map files in R2.** Create the bucket `globalgist-maps` and make sure the daily run has a token that can write to it. "Map files in R2" below has the steps. Do this before merging: the deploy fails if the bucket doesn't exist.
+5. **Merge the pull request into `main`.**
 
 If `main` was merged before the secrets existed, the deploy skipped. Run "Deploy site" once from the Actions tab after adding them. Everything below then follows on its own.
 
@@ -79,7 +80,7 @@ npm run stage -- telegram --date 2026-09-04
 The Worker in `packages/web` serves three things:
 
 - the public map, which is the static build of `packages/map`
-- the map's data at `/data/latest.json` and `/data/<date>.json`, read from the database and cached for five minutes
+- the map's data at `/data/latest.json` and `/data/<date>.json`: the files the daily run stores in R2, streamed as they are, or read from the database for a day with no stored file; cached for five minutes
 - the 2DayAI reader pages
 
 The Worker's config is `wrangler.toml` at the repository root. Its build step builds the map and drops the sample data, so a plain `npx wrangler deploy` from the root is a full deploy (decision 38). There are two ways to run it. Pick one: with both, every push deploys twice.
@@ -108,7 +109,20 @@ The site runs on the Cloudflare Worker, so the domain goes on Cloudflare, not Gi
 
 The workers.dev address keeps working too. Email links follow `SITE_DOMAIN`, so `WEB_BASE_URL` can stay unset. With the domain on Cloudflare, it can also be verified in Resend for `MAIL_FROM`, for example `2DayAI <edition@globalgist.com>`: Resend lists the DNS records to add in Cloudflare.
 
-The daily run needs no deploy: the Worker reads the new day from the database.
+The daily run needs no deploy: it stores the new day's file in R2, and the Worker serves it.
+
+### Map files in R2
+
+A day's map is several megabytes. Building it from the database takes longer than the 10 ms of CPU a request gets on Cloudflare's free plan, so the daily run stores the finished file in R2 and the Worker streams it (decision 73). R2's free tier (10 GB stored, a million writes and ten million reads a month) covers this many times over.
+
+1. **Turn on R2.** In the Cloudflare dashboard, open R2 Object Storage. The first time, Cloudflare asks for a payment method to activate R2, even on the free tier; nothing is charged within the free limits.
+2. **Create the bucket.** Create bucket, name it exactly `globalgist-maps` (the name in `wrangler.toml`), location Automatic, storage class Standard. Leave public access off: no public bucket URL and no custom domain on the bucket. The Worker reads it through its binding, and nothing else needs to.
+3. **Give the daily run a token that can write to it.**
+   - With the GitHub Actions deploy: edit the token in `CLOUDFLARE_API_TOKEN` (My Profile, then API Tokens) and check it has Account, then Workers R2 Storage, then Edit. The "Edit Cloudflare Workers" template includes it. Nothing else to add.
+   - With Cloudflare's Git integration: create a token with only Account, then Workers R2 Storage, then Edit, for this account. Add it as the GitHub secret `R2_API_TOKEN`, and add the account id as `CLOUDFLARE_ACCOUNT_ID`. Don't add `CLOUDFLARE_API_TOKEN`, or every push deploys twice.
+4. **Deploy.** The next deploy binds the bucket to the Worker as `MAPS`. The next daily run stores `latest.json` and `<date>.json`. To store today's file straight away, run "Daily run" from the Actions tab with the stage `local`, which takes a few minutes and costs no model calls.
+
+Check it worked: the bucket lists `latest.json` in the dashboard, and the "Store the map for the site" step of the daily run is green. Until the first file is stored, the Worker builds the map from the database as before.
 
 ## The world desk and the telegram
 
@@ -117,7 +131,9 @@ World sources are the `desk: world` entries in `config/sources.yaml`. Each one h
 1. `cluster world` groups their articles into events. It keeps the newest `WORLD_PER_SOURCE` (default 15) articles per source and sends them in batches of at most `WORLD_CLUSTER_BATCH` (default 300), newest first so each batch mixes places. With more than one batch, one merge call names the batch events that report the same story, and code joins them after checking every key. The run report counts `batches`, `merged` and `mergeDropped`. If any batch fails, the stage fails and writes nothing.
 2. `explain` explains events of importance 3 or more, at most `WORLD_EXPLAIN_MAX` (default 25).
 3. `telegram` scores each explained event, computes the day's band, and picks the word from that band's list (decision 26).
-4. `local` fills the regions none of them reached (decision 54). It reads the day's GDELT files (one every 15 minutes, English and translated, about 192 a day) and keeps up to `GDELT_PER_REGION` (default 3; 0 turns it off) of the newest stories about a town in each empty region. No model is involved. Run it alone with `npm run stage -- local --date <date>`. If GDELT is down the day still goes out, and the summary says so.
+4. `local` adds local stories from the towns none of them reached (decisions 54 and 67). It reads the day's GDELT files (one every 15 minutes, English and translated, about 192 a day) and takes the newest stories town by town: up to `GDELT_PER_REGION` (default 6; 0 turns the stage off) in each region with no outlet story, up to `GDELT_PER_REACHED_REGION` (default 3; 0 leaves those regions to the outlets) in each region with one, and `GDELT_MAX` (default 8,000) in all, which keeps the day's map file near 5 MB (1.5 MB as sent). A town within 25 km of a place with an outlet's story gets none. Set any of the three as a repository variable to change it. No model is involved. Run it alone with `npm run stage -- local --date <date>`. If GDELT is down the day still goes out, and the summary says so.
+
+GDELT's towns are checked against the city list and GeoNames' towns of 5,000 people or more (`packages/pipeline/data/towns.json`). Rebuild that file with `npm run towns:build` when you want newer GeoNames data: it reads a pinned copy from PyPI and checks its checksum, so update the URL and checksum in `packages/pipeline/scripts/build-towns.ts` together.
 
 Feeds look after themselves (decision 36):
 

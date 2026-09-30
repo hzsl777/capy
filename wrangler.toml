@@ -17,3 +17,10 @@ command = "npm run map:build && rm -f packages/map/dist/data/sample.json package
 # the reader pages, falls through to the Worker.
 [assets]
 directory = "packages/map/dist"
+
+# The day's finished map files, stored by the daily run (decision 73): latest.json and one per date. The Worker
+# streams them instead of building the map on each request. Create the bucket once before deploying:
+# docs/RUNBOOK.md, "Map files in R2".
+[[r2_buckets]]
+binding = "MAPS"
+bucket_name = "globalgist-maps"

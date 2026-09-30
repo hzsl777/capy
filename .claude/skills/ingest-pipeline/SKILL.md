@@ -22,10 +22,14 @@ config/sources.yaml (desk: world, with place)
   -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems) TELEGRAM_SCORE_RUNS
                                          times and keep the middle (medianScores, decision 36), dayBand in code,
                                          word from MOOD_WORDS[band] (telegram-word.v1, wordProblems). Decision 26.
-  -> local           stages/local.ts     no model. For each region with no story on the map, up to GDELT_PER_REGION
-                                         (3) newest GDELT articles about a town there, placed by Gazetteer.locate
-                                         (nearest). Own table local_stories; a GDELT outage costs only these.
-                                         Decision 54.
+  -> local           stages/local.ts     no model. GDELT articles about towns in every region, placed by
+                                         Gazetteer.loadWithTowns().locate(nearest): the city list plus GeoNames'
+                                         towns (data/towns.json), same name within 30 km of GDELT's point.
+                                         Towns within 25 km of an outlet story's place are skipped. pickLocal:
+                                         each town's newest before any town's second, up to GDELT_PER_REGION (6)
+                                         in a region no outlet reached, GDELT_PER_REACHED_REGION (3) in one it
+                                         did, GDELT_MAX (8000) a day, first stories of every region first.
+                                         Own table local_stories; a GDELT outage costs only these. Decisions 54, 67.
   -> loadMapView     db/src/map.ts       what the Worker serves at /data/latest.json
 ```
 
@@ -38,7 +42,7 @@ npm run check          # includes packages/pipeline/src/world.test.ts and packag
 npm run map:sample     # the fictional world fixture through every real stage, in memory
 ```
 
-The fixture is `packages/pipeline/src/fixtures/world.ts`: invented outlets pinned to real cities, invented places, and scripted model answers (`worldAnswers`). Add a story there to reproduce a case. Keep it fictional.
+The fixture is `packages/pipeline/src/fixtures/world.ts`: invented outlets pinned to real cities, invented places, and scripted model answers (`worldAnswers`). Add a story there to reproduce a case. Keep it fictional. `packages/pipeline/src/fixtures/gdelt.ts` is the day's GDELT file: invented local sites and headlines about real towns, in the GKG layout (`gkgRow`).
 
 ## With a database
 
@@ -55,6 +59,7 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 - **Why this word:** the `telegram_scores` rows hold every score (the middle of the runs) and its reason. The run report's `split` counts events the runs disagreed on. `dayBand` in core turns them into the band. The worst significant (importance 3+) negative score sets a bad day by design.
 - **Rejected answers:** code enforces these rules: every event scored once with a copied sentence, a word from `MOOD_WORDS[band]`, and on a bad day the setting event listed. Fix the prompt (new version file) before touching the rules, and never loosen them without Davis.
 - **Place empty or missing:** the source has no `place`, its feed failed at ingest, or its articles fall outside the 24-hour window ending 09:00 UTC.
+- **A town has no local stories:** the `local` run report has `articles` (placed away from outlet places), `regionsFilled`, `regionsAdded`, `towns` and `overMax` (cut by `GDELT_MAX`). A town within 25 km of a place with an outlet's story gets none by design. A GDELT town is dropped when no listed city or GeoNames town of that name is within 30 km of GDELT's point and no listed city of its country is within 250 km, or when the nearest listed place within 300 km has no country. The town list is `npm run towns:build` (pinned GeoNames copy, never fetched in tests).
 - **Event not explained:** it is below importance 3, or it fell below the cap. Raise `WORLD_EXPLAIN_MAX` only with the spend ceiling in mind.
 - **Cluster world failed:** the error names each failed batch. Nothing is written, and the date keeps the events it had.
 - **One story shows as two events:** the merge call did not group them, or code dropped the group. The `cluster-world` run report has `batches`, `merged` and `mergeDropped`. A group is dropped when a key is unknown, a key is in two groups, or it has fewer than two events.

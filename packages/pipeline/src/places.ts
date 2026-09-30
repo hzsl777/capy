@@ -2,6 +2,10 @@
 // A city on the fixed list (data/places.json, from Natural Earth) gets the list's point. A town that isn't on it
 // gets the model's point only when it sits near a listed city of the same country. Anything else returns null,
 // and the story stays at its outlet's city.
+//
+// GDELT's local stories are also checked against smaller towns (data/towns.json, from GeoNames, decision 67). A
+// town is matched only by its name near GDELT's own point, never by name alone, and towns never change where the
+// grouping model's stories go.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,17 +15,25 @@ export type Where = { city: string; country?: string | null | undefined; lat?: n
 export type Located = { name: string; lat: number; lon: number };
 
 type Row = [name: string, cc: string, lat: number, lon: number, pop: number, alts: string[], region?: string];
-type Entry = { name: string; cc: string; lat: number; lon: number; pop: number; region: string };
+/** data/towns.json, built by scripts/build-towns.ts. Each town's region is an index into `regions`. */
+type TownsFile = { regions: string[]; towns: [name: string, cc: string, lat: number, lon: number, region: number][] };
+type Entry = { name: string; cc: string; lat: number; lon: number; pop: number; region: string; town: boolean };
 
+const DATA = join(dirname(fileURLToPath(import.meta.url)), "..", "data");
 /** How close an unlisted town must be to a listed city of the same country for the model's point to be used. */
 export const NEAR_KM = 250;
-/** How far a listed city may be from a given point and still be taken as that town, when asked for the nearest. */
-const SAME_TOWN_KM = 100;
-/** Grid cell size in degrees for finding cities near a point. */
-const CELL = 2;
-const cellOf = (lat: number, lon: number) => `${Math.floor(lat / CELL)},${Math.floor(lon / CELL)}`;
+/**
+ * How far a listed city or town may be from a given point and still be taken as that place, when asked for the
+ * nearest. Two gazetteers' points for one town are this close; a same-named neighbour usually is not.
+ */
+const SAME_TOWN_KM = 30;
+/** Grid cell size in degrees for finding places near a point. */
+const CELL = 0.5;
+const COLS = 360 / CELL;
+const KM_PER_DEG = (12742 / 2) * (Math.PI / 180);
+const cellKey = (y: number, x: number) => y * COLS + (((x % COLS) + COLS) % COLS);
 
-const norm = (s: string) =>
+export const norm = (s: string): string =>
   s
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
@@ -40,33 +52,40 @@ export class Gazetteer {
   private byName = new Map<string, Entry[]>();
   private byAlt = new Map<string, Entry[]>();
   private byCountry = new Map<string, Entry[]>();
-  private grid = new Map<string, Entry[]>();
+  private grid = new Map<number, Entry[]>();
 
-  constructor(rows: Row[]) {
-    const add = (map: Map<string, Entry[]>, key: string, e: Entry) => {
-      if (!key) return;
-      const list = map.get(key) ?? [];
-      if (!list.includes(e)) list.push(e);
-      map.set(key, list);
-    };
+  constructor(rows: Row[], towns?: TownsFile) {
     for (const [name, cc, lat, lon, pop, alts, region] of rows) {
-      const e = { name, cc, lat, lon, pop, region: region ?? "" };
-      add(this.byName, norm(name), e);
-      for (const a of alts) add(this.byAlt, norm(a), e);
-      add(this.byCountry, cc, e);
-      add(this.grid, cellOf(lat, lon), e);
+      const e: Entry = { name, cc, lat, lon, pop, region: region ?? "", town: false };
+      this.add(e);
+      for (const a of new Set(alts.map(norm))) push(this.byAlt, a, e);
+      push(this.byCountry, cc, e);
     }
+    // Towns join the name and grid lookups only. The country and region lists, the denominators of the coverage
+    // count (decision 46), stay the city list's.
+    for (const [name, cc, lat, lon, region] of towns?.towns ?? []) this.add({ name, cc, lat, lon, pop: 0, region: towns!.regions[region] ?? "", town: true });
   }
 
-  static load(file = join(dirname(fileURLToPath(import.meta.url)), "..", "data", "places.json")): Gazetteer {
+  /** The city list alone: what the grouping stage's places are checked against (decision 44). */
+  static load(file = join(DATA, "places.json")): Gazetteer {
     return new Gazetteer(JSON.parse(readFileSync(file, "utf8")) as Row[]);
   }
 
+  /** The city list and GeoNames' towns of 5,000 people or more: what GDELT's towns are checked against (decision 67). */
+  static loadWithTowns(dir = DATA): Gazetteer {
+    return new Gazetteer(JSON.parse(readFileSync(join(dir, "places.json"), "utf8")) as Row[], JSON.parse(readFileSync(join(dir, "towns.json"), "utf8")) as TownsFile);
+  }
+
+  private add(e: Entry) {
+    push(this.byName, norm(e.name), e);
+    push(this.grid, cellKey(Math.floor(e.lat / CELL), Math.floor(e.lon / CELL)), e);
+  }
+
   /**
-   * With `nearest`, a name several listed cities share is read as the one nearest the given point, and only within
+   * With `nearest`, a name several listed places share is read as the one nearest the given point, and only within
    * SAME_TOWN_KM of it; otherwise the point decides, as for an unlisted town. For GDELT's precise points
-   * (decision 54). Without it, the largest of the same-named cities in the country is taken, as the model's points
-   * are rough.
+   * (decisions 54 and 67). Without it, the largest of the same-named cities in the country is taken, as the model's
+   * points are rough, and towns are never matched.
    */
   locate(where: Where | null | undefined, nearest = false): Located | null {
     const city = where?.city?.trim();
@@ -76,7 +95,7 @@ export class Gazetteer {
     const { lat, lon } = where ?? {};
     const point = typeof lat === "number" && typeof lon === "number" && Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
     // Main names first. An alternate name counts only within the named country: the list's alternates are loose.
-    const named = this.byName.get(key) ?? [];
+    const named = (this.byName.get(key) ?? []).filter((e) => nearest || !e.town);
     const alternates = (this.byAlt.get(key) ?? []).filter((e) => e.cc === cc);
     const listed =
       nearest && point
@@ -84,7 +103,7 @@ export class Gazetteer {
         : (this.pick(named, cc) ?? this.pick(alternates, cc));
     if (listed) return { name: listed.name, lat: listed.lat, lon: listed.lon };
     if (!point || Math.abs(point.lat) > 90 || Math.abs(point.lon) > 180) return null;
-    const near = this.around(point.lat, point.lon, NEAR_KM).some((e) => e.cc === cc && km(point.lat, point.lon, e.lat, e.lon) <= NEAR_KM);
+    const near = this.nearest(point.lat, point.lon, NEAR_KM, (e) => e.cc === cc) !== null;
     const name = city.replace(/\s+/g, " ");
     return near && /^[\p{L}\p{M}0-9' .-]+$/u.test(name) ? { name, lat: Math.round(point.lat * 1000) / 1000, lon: Math.round(point.lon * 1000) / 1000 } : null;
   }
@@ -100,16 +119,11 @@ export class Gazetteer {
   }
 
   /**
-   * The country code and "CC/Region" of the listed city nearest a point, within 300 km, for the daily coverage
-   * count only (decision 46). Never shown on the site.
+   * The country code and "CC/Region" of the listed city (or town, when loaded) nearest a point, within 300 km, for
+   * the daily coverage count and the local stage's regions (decisions 46 and 54). Never shown on the site.
    */
   areaAt(lat: number, lon: number): { country: string; region: string | null } | null {
-    let best: Entry | null = null;
-    let bestKm = 300;
-    for (const e of this.around(lat, lon, bestKm)) {
-      const d = km(lat, lon, e.lat, e.lon);
-      if (d < bestKm) [best, bestKm] = [e, d];
-    }
+    const best = this.nearest(lat, lon, 300);
     if (!best?.cc) return null;
     return { country: best.cc, region: best.region ? `${best.cc}/${best.region}` : null };
   }
@@ -123,23 +137,37 @@ export class Gazetteer {
     return (this.byCountry.get(cc) ?? []).reduce<Entry | null>((a, b) => (!a || b.pop > a.pop ? b : a), null)?.name ?? cc;
   }
 
-  /** Listed cities in the grid cells that can hold a point within `radiusKm`. A superset: callers measure. */
-  private around(lat: number, lon: number, radiusKm: number): Entry[] {
-    const dLat = Math.ceil(radiusKm / (111 * CELL)) + 1;
-    const cos = Math.max(Math.cos((Math.min(89, Math.abs(lat)) * Math.PI) / 180), 0.01);
-    const dLon = Math.min(Math.ceil(180 / CELL), Math.ceil(radiusKm / (111 * CELL * cos)) + 1);
+  /**
+   * The listed place nearest a point within `maxKm` that `ok` accepts. Grid rows are searched outward from the
+   * point's row, and each row outward from the point's column, stopping once no cell further out can hold anything
+   * closer than the best so far.
+   */
+  private nearest(lat: number, lon: number, maxKm: number, ok: (e: Entry) => boolean = () => true): Entry | null {
     const [cy, cx] = [Math.floor(lat / CELL), Math.floor(lon / CELL)];
-    const cols = 360 / CELL;
-    const out: Entry[] = [];
-    const seenCols = new Set<number>();
-    for (let x = cx - dLon; x <= cx + dLon; x++) {
-      const col = ((x % cols) + cols) % cols;
-      if (seenCols.has(col)) continue;
-      seenCols.add(col);
-      const lonCell = col >= cols / 2 ? col - cols : col;
-      for (let y = cy - dLat; y <= cy + dLat; y++) out.push(...(this.grid.get(`${y},${lonCell}`) ?? []));
+    let best: Entry | null = null;
+    let bestKm = maxKm;
+    const scan = (y: number, x: number) => {
+      for (const e of this.grid.get(cellKey(y, x)) ?? []) {
+        if (!ok(e)) continue;
+        const d = km(lat, lon, e.lat, e.lon);
+        if (d <= bestKm && (!best || d < bestKm)) [best, bestKm] = [e, d];
+      }
+    };
+    // A cell dy rows away is at least dy - 1 rows of latitude away.
+    for (let dy = 0; (dy - 1) * CELL * KM_PER_DEG <= bestKm; dy++) {
+      for (const y of dy === 0 ? [cy] : [cy - dy, cy + dy]) {
+        if (y < -90 / CELL || y >= 90 / CELL) continue;
+        // Along a parallel the gap is smallest at the highest latitude either point can have, and 2 / pi allows
+        // for the great circle's shortcut.
+        const high = Math.min(89.9, Math.max(Math.abs(lat), Math.abs(y * CELL), Math.abs((y + 1) * CELL)));
+        const perCol = CELL * KM_PER_DEG * Math.cos((high * Math.PI) / 180) * (2 / Math.PI);
+        for (let dx = 0; dx <= COLS / 2 && (dx - 1) * perCol <= bestKm; dx++) {
+          scan(y, cx - dx);
+          if (dx > 0) scan(y, cx + dx);
+        }
+      }
     }
-    return out;
+    return best;
   }
 
   private closest(list: Entry[], point: { lat: number; lon: number }): Entry | null {
@@ -153,4 +181,11 @@ export class Gazetteer {
     const pool = inCountry.length ? inCountry : list;
     return pool.reduce((a, b) => (b.pop > a.pop ? b : a));
   }
+}
+
+function push<K>(map: Map<K, Entry[]>, key: K, e: Entry) {
+  if (key === "") return;
+  const list = map.get(key);
+  if (list) list.push(e);
+  else map.set(key, [e]);
 }

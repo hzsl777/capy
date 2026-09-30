@@ -1,6 +1,6 @@
 // Reader pages (levels 1 to 3), feedback endpoints, and the public map's data. The map itself is static
-// assets (packages/map/dist) served by this Worker; its data comes from the same database the pipeline
-// writes. Never calls the model.
+// assets (packages/map/dist) served by this Worker. Its data is the finished file the daily run stores in R2
+// (decision 73), read from the database only when no stored file exists. Never calls the model.
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { Hono } from "hono";
@@ -8,7 +8,12 @@ import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedba
 import * as schema from "@2dayai/db";
 import { findEditionEvent, latestMapDate, loadEditionView, loadMapView, recordFeedback, type Db } from "@2dayai/db";
 
-type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string };
+/** The part of an R2 bucket the Worker uses: reading one stored map file. */
+export interface MapStore {
+  get(key: string): Promise<{ body: ReadableStream; httpEtag: string } | null>;
+}
+
+type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string; MAPS?: MapStore };
 
 function neonDb(env: Bindings): Db {
   return drizzle(neon(env.DATABASE_URL), { schema }) as unknown as Db;
@@ -20,6 +25,20 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   function linksOf(env: Bindings, req: Request) {
     return { baseUrl: (env.WEB_BASE_URL ?? new URL(req.url).origin).replace(/\/$/, "") };
   }
+  // The static site's headers (packages/map/public/_headers) don't reach what the Worker builds. Reader and feedback
+  // links carry a reader's secret token in the path, so no response sends a referrer, and the pages, which have no
+  // scripts, may load none. A cached response's headers can't be changed, so each response is copied first.
+  app.use("*", async (c, next) => {
+    await next();
+    const res = new Response(c.res.body, c.res);
+    res.headers.set("X-Content-Type-Options", "nosniff");
+    res.headers.set("Referrer-Policy", "no-referrer");
+    res.headers.set("X-Frame-Options", "DENY");
+    if ((res.headers.get("content-type") ?? "").includes("text/html")) {
+      res.headers.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' https: data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
+    }
+    c.res = res;
+  });
   const KINDS = new Set(["more", "less", "wrong", "promote"]);
   const ID = /^\d{1,9}$/;
 
@@ -48,8 +67,20 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     return res;
   }
 
+  // A stored file is streamed as it is, so a map of several megabytes costs the Worker almost no CPU time. Cloudflare's
+  // free plan allows 10 ms a request, less than building and writing out a whole day's map takes.
+  async function stored(env: Bindings, key: string): Promise<Response | null> {
+    const obj = env.MAPS ? await env.MAPS.get(key) : null;
+    if (!obj) return null;
+    return new Response(obj.body, {
+      headers: { "Content-Type": "application/json; charset=UTF-8", "Cache-Control": MAP_CACHE, ETag: obj.httpEtag },
+    });
+  }
+
   app.get("/data/latest.json", (c) =>
     cachedJson(c.req.raw, async () => {
+      const file = await stored(c.env, "latest.json");
+      if (file) return file;
       const db = dbOf(c.env);
       const date = await latestMapDate(db);
       if (!date) return c.json({ error: "no map data yet" }, 404);
@@ -61,7 +92,7 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     const m = /^(\d{4}-\d{2}-\d{2})\.json$/.exec(c.req.param("file"));
     const date = m ? validDate(m[1]!) : null;
     if (!date) return c.json({ error: "not found" }, 404);
-    return cachedJson(c.req.raw, async () => c.json(await loadMapView(dbOf(c.env), date), 200, { "Cache-Control": MAP_CACHE }));
+    return cachedJson(c.req.raw, async () => (await stored(c.env, `${date}.json`)) ?? c.json(await loadMapView(dbOf(c.env), date), 200, { "Cache-Control": MAP_CACHE }));
   });
 
   app.get("/r/:token/:date", async (c) => {

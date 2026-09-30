@@ -37,10 +37,10 @@ export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, de
   out["explain"] = await recorded(db, date, "explain", () => runExplain(db, config, llm, date));
   out["select"] = await recorded(db, date, "select", () => runSelect(db, config, llm, date));
   out["telegram"] = await recorded(db, date, "telegram", () => runTelegram(db, config, llm, date));
-  // Local stories for the regions no outlet reached (decision 54). After the word, and a GDELT outage costs the day
-  // only these stories: the failure is recorded and shown in the summary.
+  // Local stories from the towns no outlet reached (decisions 54 and 67). After the word, and a GDELT outage costs
+  // the day only these stories: the failure is recorded and shown in the summary.
   try {
-    out["local"] = await recorded(db, date, "local", () => runLocal(db, date, config.gdeltPerRegion, deps.fetchGdelt));
+    out["local"] = await recorded(db, date, "local", () => runLocal(db, date, config.local, deps.fetchGdelt));
   } catch (err) {
     out["local"] = { error: err instanceof Error ? err.message : String(err) };
   }

@@ -125,7 +125,8 @@ export async function articlesFromFeed(source: Source, xml: string, date: RunDat
  * feedUrl is set when the feed was found through the configured page, so sources.yaml can be updated.
  * failedDays is the failure streak including today. paused is set for a source skipped today because it keeps failing.
  */
-export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; error?: string; failedDays?: number; paused?: boolean };
+/** feedTitle is set by `sources check` only: the feed's own name, to confirm a new outlet's address is really its. */
+export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; feedTitle?: string; error?: string; failedDays?: number; paused?: boolean };
 
 /** Feeds fetched at once. Hundreds of outlets one after another could take an hour on a slow day. */
 const INGEST_CONCURRENCY = 8;
@@ -220,7 +221,8 @@ export async function checkSources(sources: Source[], date: RunDate, fetchFeed: 
     try {
       const { xml, feedUrl } = await fetchFeedDocument(source.url, fetchFeed);
       const found = await articlesFromFeed(source, xml, date);
-      reports.set(source.id, { source: source.id, fetched: found.length, inserted: 0, ...(feedUrl !== source.url ? { feedUrl } : {}) });
+      const feedTitle = stripHtml((await parser.parseString(xml)).title).slice(0, 120);
+      reports.set(source.id, { source: source.id, fetched: found.length, inserted: 0, ...(feedUrl !== source.url ? { feedUrl } : {}), ...(feedTitle ? { feedTitle } : {}) });
     } catch (err) {
       reports.set(source.id, { source: source.id, fetched: 0, inserted: 0, error: err instanceof Error ? err.message : String(err) });
     }
