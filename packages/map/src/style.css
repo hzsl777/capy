@@ -911,6 +911,26 @@ summary {
 .map canvas:active {
   cursor: grabbing;
 }
+/* The map takes arrow keys and plus and minus, so a keyboard reader needs to see when it has focus. */
+.map canvas:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+.map-note {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  max-width: min(80%, 360px);
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  font-family: var(--font-ui);
+  text-align: center;
+}
 :root[data-theme="cabinet"] .map {
   margin: 10px;
   border: 1px solid var(--rule);

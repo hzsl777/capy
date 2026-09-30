@@ -324,12 +324,23 @@ function loadTilesInView() {
   ).then((tiles) => {
     if (state.file !== file) return;
     const added = mergeTiles(file, state.placeIds, tiles.filter((t): t is MapTile => t !== null));
-    if (!added) return;
-    refreshDots();
-    renderTicker();
-    syncTranslate();
-    if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
+    const failed = tiles.includes(null);
+    if (!added && !failed) return;
+    if (added) {
+      refreshDots();
+      renderTicker();
+      syncTranslate();
+    }
+    // The idle list too, so a failed load is said even where no place is tuned yet.
+    if (!state.reader && !state.telegram && !state.event) renderPanel();
   });
+}
+
+/** A line under the list while a tile of local stories failed in the last minute; it is asked for again after that. */
+function tileNote(): HTMLElement | null {
+  const now = performance.now();
+  const failed = [...state.tiles.values()].some((v) => typeof v === "number" && now - v < TILE_RETRY_MS);
+  return failed ? h("p", { class: "count" }, "Some local stories couldn't load. The map tries again in a minute.") : null;
 }
 
 /** A place by id, or by the point its id names when it lives in a tile not loaded yet (a pin, or a shared link). */
@@ -654,6 +665,7 @@ function renderIdle(panel: HTMLElement) {
       lettered(h("h2", { class: "panel-title" }), "Latest reports"),
       h("p", { class: "count" }, "The map stops on a place. Drag the map to choose another."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
+      tileNote(),
     ),
   );
 }
@@ -691,6 +703,7 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
     const names = indices.map((i) => file.places[i].name);
     head = h("div", { class: "dateline" }, boardName(h("h2", { class: "place-name" }, `${names.length} places`), `${names.length} places`), h("span", { class: "coords" }, `${names.join(" · ")} · ${count}`));
   }
+  const note = tileNote();
   const more = hidden
     ? (() => {
         const b = h("button", { type: "button", class: "link" }, "show");
@@ -705,6 +718,7 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
     head,
     h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
     ...(more ? [more] : []),
+    ...(note ? [note] : []),
   );
 }
 
@@ -712,6 +726,9 @@ function renderReader(panel: HTMLElement, it: Item) {
   const file = state.file!;
   const place = file.places[it.place];
   const url = safeUrl(it.url);
+  // The frame's sandbox allows scripts and the page's own origin, which is safe only for another site's https page.
+  const frameUrl = it.embed ? safeUrl(it.url, true) : null;
+  const framable = !!frameUrl && new URL(frameUrl).origin !== location.origin;
   const back = h("button", { type: "button", class: "tool back" }, state.framed ? "Back to preview" : `Back to ${place.name}`);
   back.addEventListener("click", () => {
     if (state.framed) state.framed = false;
@@ -719,10 +736,10 @@ function renderReader(panel: HTMLElement, it: Item) {
     renderPanel();
   });
 
-  if (state.framed && url) {
+  if (state.framed && url && framable) {
     const frame = h("iframe", {
       class: "reader-frame",
-      src: url,
+      src: frameUrl,
       title: it.title,
       sandbox: "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms",
       referrerpolicy: "no-referrer",
@@ -750,7 +767,7 @@ function renderReader(panel: HTMLElement, it: Item) {
     open.addEventListener("click", () => openEvent(explained.id, "reader"));
     actions.append(open);
   }
-  if (it.embed && url) {
+  if (framable) {
     const here = h("button", { type: "button", class: explained ? "tool" : "tool primary" }, "Read it here");
     here.addEventListener("click", () => {
       state.framed = true;
@@ -760,7 +777,7 @@ function renderReader(panel: HTMLElement, it: Item) {
   }
   if (url) {
     actions.append(
-      h("a", { class: it.embed || explained ? "tool" : "tool primary", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.publisher}`),
+      h("a", { class: framable || explained ? "tool" : "tool primary", href: url, target: "_blank", rel: "noopener noreferrer" }, `Read at ${it.publisher}`),
     );
   }
 
@@ -788,8 +805,8 @@ function renderReader(panel: HTMLElement, it: Item) {
       fig,
       // A story without a feed summary shows its headline and the link, with no note about what is missing.
       it.excerpt ? translated(h("p", { class: "excerpt", lang: it.lang !== "und" ? it.lang : undefined }, it.excerpt), it.excerpt, it.lang) : null,
-      it.excerpt || it.embed
-        ? h("p", { class: "fine" }, [it.excerpt ? "Preview from the outlet's own feed." : "", it.embed ? `The outlet allows its full page to open inside ${SITE_NAME}.` : ""].filter(Boolean).join(" "))
+      it.excerpt || framable
+        ? h("p", { class: "fine" }, [it.excerpt ? "Preview from the outlet's own feed." : "", framable ? `The outlet allows its full page to open inside ${SITE_NAME}.` : ""].filter(Boolean).join(" "))
         : null,
       actions,
       related.length
@@ -1002,7 +1019,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
                 const a = h("a", { class: "cite", href: `#src-${ev.id}-${i + 1}`, "aria-label": `Source ${i + 1}` }, String(i + 1));
                 a.addEventListener("click", (e) => {
                   e.preventDefault();
-                  document.getElementById(`src-${ev.id}-${i + 1}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  document.getElementById(`src-${ev.id}-${i + 1}`)?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
                 });
                 return a;
               }),
@@ -1156,6 +1173,14 @@ function closeMenus() {
   for (const d of document.querySelectorAll<HTMLDetailsElement>("details.menu[open]")) d.open = false;
 }
 
+/** A short line over the map when it can't draw (the basemap failed); null removes it. */
+function mapNote(text: string | null) {
+  const old = document.getElementById("map-note");
+  if (!text) return old?.remove();
+  const note = old ?? $("map").appendChild(h("p", { id: "map-note", class: "map-note", role: "status" }));
+  note.textContent = text;
+}
+
 /** The key opens beside the map, over the panel on a wide screen and as a sheet at the bottom of a phone. */
 function setKey(open: boolean) {
   $("key-pop").hidden = !open;
@@ -1223,7 +1248,8 @@ function bindGlobal() {
 }
 
 async function start() {
-  document.title = SITE_NAME;
+  // Kept in step with index.html's <title>, which is what link previews and search results read.
+  document.title = `${SITE_NAME}: world news on a map`;
   for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
   document.documentElement.dataset.theme = state.theme;
   renderMasthead();
@@ -1239,15 +1265,32 @@ async function start() {
     center: () => map.center(),
   });
 
-  loadLow(BASE).then((low) => map.setBasemap(low));
+  // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
+  let landDrawn = false;
+  loadLow(BASE)
+    .then((low) => {
+      landDrawn = true;
+      mapNote(null);
+      map.setBasemap(low);
+    })
+    .catch((e) => {
+      console.warn("Basemap failed to load", e);
+      if (!landDrawn) mapNote("The coastlines couldn't load. Reload the page to try again.");
+    });
   loadHigh(BASE)
-    .then(({ map: high, relief }) => map.setBasemap(undefined, high, relief))
+    .then(({ map: high, relief }) => {
+      landDrawn = true;
+      mapNote(null);
+      map.setBasemap(undefined, high, relief);
+    })
     .catch((e) => console.warn("Detailed basemap failed to load", e));
 
   try {
     state.file = await loadNews(BASE);
   } catch (err) {
     const first = err instanceof Error && err.message === NO_DAY_YET;
+    // The strip would otherwise say "Loading the word..." for good.
+    $("telegram").replaceChildren(h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, first ? "No word yet" : "The word couldn't be loaded")));
     $("panel").replaceChildren(
       h("p", { class: "pad" }, first ? "The first map isn't ready yet. It appears after the day's run, which starts just after midnight UTC." : "The news couldn't be loaded. Try again in a few minutes."),
     );

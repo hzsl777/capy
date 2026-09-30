@@ -72,6 +72,8 @@ public/
   basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed)
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
   data/local/sample/     its fictional GDELT local stories in tiles, one file per 10-degree cell (committed)
+  favicon.svg, apple-touch-icon.png, site.webmanifest, robots.txt, _headers
+                         icons, manifest and headers; the canonical tag and og:url come from SITE_DOMAIN at build time (vite.config.ts)
 scripts/
   build-basemap.ts       Natural Earth -> public/basemap/*.json
   screenshots.ts         every design x view, the reader, the telegram and an explanation into docs/map/screenshots
