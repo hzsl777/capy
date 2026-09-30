@@ -1,8 +1,9 @@
 name: Daily run
 on:
   schedule:
-    # 09:00 UTC. The ingest window closes here (packages/core/src/dates.ts). Delivery runs every two hours in deliver.yml.
-    - cron: "0 9 * * *"
+    # Just after midnight UTC, when the day's window closes (decision 81, packages/core/src/dates.ts): the run builds
+    # the day that just ended. Minute 7, not 0, as GitHub delays runs set on the hour most. Delivery is in deliver.yml.
+    - cron: "7 0 * * *"
   # A finished deploy starts the day if its map doesn't exist yet, so going live needs no manual run.
   workflow_run:
     workflows: ["Deploy site"]

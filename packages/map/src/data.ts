@@ -120,6 +120,20 @@ export function formatRunDate(runDate: string): string {
   return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
 }
 
+/**
+ * What the word strip says about the word (decision 81). A word belongs to a finished UTC day and is shown under that
+ * day's date until the next one is chosen. `note` says when the next is on its way (the day that just ended has no
+ * map yet) or when the map's own day had no word and an earlier one is shown. Never for the sample or a demo.
+ */
+export function wordStatus(file: Pick<MapFile, "runDate" | "source" | "telegram">, now: Date = new Date()): { date: string; note: string | null } {
+  const date = file.telegram?.runDate ?? file.runDate;
+  if (file.source !== "live") return { date, note: null };
+  const yesterday = new Date(now.getTime() - 86_400_000).toISOString().slice(0, 10);
+  if (file.runDate < yesterday) return { date, note: `The word for ${formatRunDate(yesterday)} is being chosen.` };
+  if (file.telegram && file.telegram.runDate !== file.runDate) return { date, note: `${formatRunDate(file.runDate)} has no word: none passed the checks.` };
+  return { date, note: null };
+}
+
 const langNames = typeof Intl !== "undefined" && "DisplayNames" in Intl ? new Intl.DisplayNames(undefined, { type: "language" }) : null;
 
 export function languageName(code: string): string {

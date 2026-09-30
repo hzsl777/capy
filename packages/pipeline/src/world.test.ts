@@ -176,6 +176,26 @@ describe("the world desk on a real Postgres engine", () => {
     await expect(runTelegram(db, testConfig(), down, date)).rejects.toThrow(/503/);
   });
 
+  it("carries the last word into a day that has none, with its own date and evidence (decision 81)", async () => {
+    await runDay(db, testConfig(), new FakeLlm(worldAnswers()), date, deps);
+    const word = (await loadMapView(db, date)).telegram!;
+    // The next day is quiet: its articles group into nothing the word could rest on.
+    const next = toRunDate("2026-09-28");
+    const quiet = { ...deps, fetchFeed: async (url: string) => worldFeedFor(url, next) };
+    await runDay(db, testConfig(), new FakeLlm({ ...worldAnswers(), "cluster-world": () => ({ events: [], skipped: [] }) }), next, quiet);
+    const map = await loadMapView(db, next);
+    expect(map.runDate).toBe(next);
+    expect(map.telegram).toMatchObject({ word: word.word, runDate: date });
+    for (const { eventId } of map.telegram!.items) {
+      const ev = map.events[String(eventId)]!;
+      expect(ev.whatHappened.length).toBeGreaterThan(0);
+      expect(ev.places.every((p) => map.places[p] !== undefined)).toBe(true);
+    }
+    // Only for a week: an older word is not carried.
+    expect((await loadMapView(db, toRunDate("2026-10-06"))).telegram).toBeNull();
+    expect((await loadMapView(db, toRunDate("2026-10-04"))).telegram).toMatchObject({ runDate: date });
+  });
+
   it("sets aside a score run that breaks the rules twice and asks another (decision 51)", async () => {
     const good = worldAnswers()["telegram-score"]!;
     // The first run and its retry invent a reason; the next three runs are fine.

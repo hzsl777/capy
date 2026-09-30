@@ -1,6 +1,6 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
-import { placeIdFor, renderEditionText, rollingWindow, todayRunDate, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import { editions, feedback, latestMapDate, loadEditionView, loadMapView, localBase, readers } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
@@ -50,7 +50,8 @@ const { values, positionals } = parseArgs({
 
 // `prompt <name>` takes an argument; every other command is its words.
 const command = positionals[0] === "prompt" ? "prompt" : positionals.join(" ");
-const date = values.date ? toRunDate(values.date) : todayRunDate();
+// Without --date, the last day that has ended: the daily run builds it just after midnight UTC (decision 81).
+const date = values.date ? toRunDate(values.date) : lastFullRunDate();
 const config = loadConfig();
 
 function printReports(reports: IngestReport[]): void {
