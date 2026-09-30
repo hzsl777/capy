@@ -91,6 +91,19 @@ import "@fontsource/sniglet/800.css";
 import "@fontsource/shrikhand/latin-400.css";
 import "@fontsource/shrikhand/latin-ext-400.css";
 import "@fontsource/righteous/400.css";
+// Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron (decision 75).
+import "@fontsource/michroma/400.css";
+import "@fontsource/b612-mono/400.css";
+import "@fontsource/b612-mono/700.css";
+import "@fontsource/limelight/400.css";
+import "@fontsource/poiret-one/400.css";
+import "@fontsource/courier-prime/400.css";
+import "@fontsource/courier-prime/700.css";
+import "@fontsource/bungee/400.css";
+import "@fontsource/share-tech-mono/400.css";
+import "@fontsource/jersey-10/400.css";
+import "@fontsource/big-shoulders-display/600";
+import "@fontsource/big-shoulders-display/800";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem } from "./types.ts";
@@ -249,7 +262,7 @@ function flyToPlace(index: number) {
 // ---- masthead ---------------------------------------------------------------
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
-const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava"]);
+const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium"]);
 // Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
 LETTER_THEMES.add("rail");
 let boardShown = "";

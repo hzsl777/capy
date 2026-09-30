@@ -4,6 +4,7 @@
 import type { GeoStream, GeoProjection } from "d3-geo";
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
+import type { Warp } from "./warp.ts";
 
 /** The tilted camera over the flat map (see `Cam` in view.ts). */
 export interface SurfaceCam {
@@ -41,6 +42,30 @@ export interface SurfaceFrame {
   relief?: Relief;
   isLand: (lon: number, lat: number) => boolean;
   isIce: (lon: number, lat: number) => boolean;
+  /** Decision 75: the time for designs that move (ms), whether the reader asked for no motion, and the picture's warp. */
+  now?: number;
+  still?: boolean;
+  warp?: Warp | null;
+}
+
+/** A marker as the view places it this frame, for designs that light markers up (Radar Sweep's glow). */
+export interface SurfaceSpot {
+  x: number;
+  y: number;
+  r: number;
+  fresh: boolean;
+}
+
+/**
+ * What a design that frames the map hands back to the view (decision 75): where markers can be seen (`inside`, with
+ * `clip` as the same area), anything drawn under the markers once they are placed (`under`), and anything laid over
+ * the whole picture afterwards (`over`), such as scanlines or the glass of a screen.
+ */
+export interface SurfaceResult {
+  inside?: (x: number, y: number) => boolean;
+  clip?: Path2D;
+  under?: (spots: SurfaceSpot[]) => void;
+  over?: () => void;
 }
 
 /** d3 draws into anything canvas-like; a Path2D only lacks beginPath, which a fresh path doesn't need. */
@@ -71,3 +96,45 @@ export function offscreen(w: number, h: number, dpr: number): [HTMLCanvasElement
 }
 
 export const r1 = (v: number) => Math.round(v * 10) / 10;
+
+/** A picture that changes only when the view moves (decision 75), kept for designs that animate over it. */
+export class Picture {
+  key = "";
+  seen = "";
+  canvas?: HTMLCanvasElement;
+  g?: CanvasRenderingContext2D;
+  size = "";
+}
+
+/**
+ * Draws a picture that changes only when the view moves: straight onto the frame while the view is moving, and into
+ * a kept copy once the same view comes round twice, so a sweep or a wave over a still map redraws with one image.
+ */
+export function cachedPicture(p: Picture, f: SurfaceFrame, key: string, draw: (g: CanvasRenderingContext2D) => void) {
+  const { ctx, w, h, dpr } = f;
+  if (p.key === key && p.canvas) {
+    ctx.drawImage(p.canvas, 0, 0, w, h);
+    return;
+  }
+  if (p.seen !== key) {
+    p.seen = key;
+    ctx.save();
+    draw(ctx);
+    ctx.restore();
+    return;
+  }
+  const size = `${w}:${h}:${dpr}`;
+  if (!p.canvas || !p.g || p.size !== size) {
+    [p.canvas, p.g] = offscreen(w, h, dpr);
+    p.size = size;
+  } else {
+    p.g.setTransform(1, 0, 0, 1, 0, 0);
+    p.g.clearRect(0, 0, p.canvas.width, p.canvas.height);
+    p.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  p.g.save();
+  draw(p.g);
+  p.g.restore();
+  p.key = key;
+  ctx.drawImage(p.canvas, 0, 0, w, h);
+}

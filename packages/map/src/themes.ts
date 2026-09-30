@@ -1,9 +1,10 @@
 import type { MarkShape } from "./map/marks.ts";
 import type { SceneryKind } from "./map/scenery.ts";
 import type { RGB } from "./map/terrain.ts";
+import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -79,7 +80,17 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium";
+  /**
+   * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
+   * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
+   * desk under a canted camera. Places go through it too, and tapping inverts it.
+   */
+  warp?: WarpKind;
+  /** Decision 75: the picture moves on its own (a radar sweep, a crowd wave), redrawn at most 20 times a second. */
+  motion?: boolean;
+  /** Decision 75: a pinned place gets a ring instead of a square frame, so nothing reads as a target box. */
+  pinRing?: boolean;
   graticule: string;
   graticuleDash: number[];
   river: string;
@@ -1299,6 +1310,159 @@ export const THEMES: Record<ThemeId, Theme> = {
     tuned: "#1a0d2e",
     arc: "#fff3d6",
     glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Decision 75: four screens and cameras, each drawn in its own file.
+  // Radar Sweep: a round weather-radar scope. Land as phosphor speckle, range rings on the reticle, a slow beam.
+  radar: {
+    id: "radar",
+    label: "Radar Sweep",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "radar",
+    globeScale: 0.37,
+    motion: true,
+    pinRing: true,
+    ocean: "#03140b",
+    land: "#0a2a19",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(120,255,170,0.5)",
+    coast: "#78ffaa",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#03140b",
+    ice: "#0a2a19",
+    relief: "#78ffaa",
+    dot: "#c8ffdc",
+    dotStroke: "#021008",
+    fresh: "#ffc44d",
+    tuned: "#eafff2",
+    arc: "#c8ffdc",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Film Noir: a black-and-white 1940s detective film. The map lies on a desk under a canted camera, in a lamp's
+  // pool of light, with the shadows of blinds across it.
+  noir: {
+    id: "noir",
+    label: "Film Noir",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "noir",
+    warp: "desk",
+    globeScale: 0.4,
+    ocean: "#2b2b29",
+    land: "#9a9892",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(0,0,0,0.3)",
+    coast: "#f2f0e8",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(242,240,232,0.14)",
+    oceanHatch: null,
+    graticule: "rgba(242,240,232,0.1)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#2b2b29",
+    ice: "#c9c7c0",
+    relief: "#1c1c1a",
+    dot: "#f6f4ec",
+    dotStroke: "#111110",
+    fresh: "#f6f4ec",
+    tuned: "#ffffff",
+    arc: "rgba(246,244,236,0.85)",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Arcade Cabinet: the map on a curved picture tube in an arcade cabinet, glowing vector coastlines, scanlines.
+  arcade: {
+    id: "arcade",
+    label: "Arcade Cabinet",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "arcade",
+    warp: "barrel",
+    motion: true,
+    globeScale: 0.4,
+    ocean: "#04030b",
+    land: "#171445",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "diamond",
+    textureInk: "rgba(120,170,255,0.35)",
+    coast: "#c4ecff",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(80,120,255,0.16)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#04030b",
+    ice: "#0d0b26",
+    relief: "#8fd0ff",
+    dot: "#ffe03d",
+    dotStroke: "#1b1000",
+    fresh: "#54f0ff",
+    tuned: "#ffffff",
+    arc: "#ffe03d",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Stadium Jumbotron: the map on a giant screen seen from the stands, LED pixels, floodlights and a crowd.
+  stadium: {
+    id: "stadium",
+    label: "Stadium Jumbotron",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "stadium",
+    warp: "stadium",
+    motion: true,
+    globeScale: 0.4,
+    ocean: "#0a2a66",
+    land: "#2f9a5a",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0.2)",
+    coast: "#d9f6ff",
+    coastWidth: 1.2,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(140,200,255,0.18)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#0a2a66",
+    ice: "#e6f2fa",
+    relief: "#1f6b3d",
+    dot: "#ffd23a",
+    dotStroke: "#241400",
+    fresh: "#ff4fb0",
+    tuned: "#ffffff",
+    arc: "#ffd23a",
+    glow: true,
     atmosphere: null,
     shade: null,
     neatline: false,
