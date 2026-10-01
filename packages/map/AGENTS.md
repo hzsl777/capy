@@ -74,7 +74,7 @@ public/
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
   data/local/sample/     its fictional GDELT local stories in tiles, one file per 10-degree cell (committed)
   og-image.png           the timeless share image; the daily one is drawn by tools/share-image.mjs and served at /og.png (decision 92)
-  favicon.svg           the site's icon, the masthead's blackletter G on ink; tools/icons.mjs draws favicon.ico,
+  favicon.svg            the site's icon, two of Morning Edition's blackletter Gs on a globe; tools/icons.mjs draws favicon.ico,
                          apple-touch-icon.png and icon-192/512.png from it (decision 94)
   site.webmanifest, robots.txt, _headers
                          manifest and headers; the canonical tag, og:url and og:image carry globalgist.io, or SITE_DOMAIN

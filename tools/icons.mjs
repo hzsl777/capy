@@ -1,6 +1,7 @@
-// The site's icons from its one drawing, packages/map/public/favicon.svg: the masthead's blackletter G on ink (decision
-// 94). Writes favicon.ico (16, 32 and 48 pixels, for browsers and search results that ask for it), the home-screen icon
-// with square corners (phones round them themselves) and the two sizes the web manifest lists.
+// The site's icons from its one drawing, packages/map/public/favicon.svg: two of the masthead's blackletter Gs on a globe,
+// in the Morning Edition's ink and paper (decision 94). Writes favicon.ico (16, 32 and 48 pixels, for browsers and search
+// results that ask for it), the home-screen icon on a square of paper (phones round the corners themselves and fill
+// anything transparent with black) and the two sizes the web manifest lists.
 // Usage: node tools/icons.mjs [chromium path]
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -8,7 +9,7 @@ import { chromium } from "playwright-core";
 
 const pub = join(resolve(import.meta.dirname, ".."), "packages/map/public");
 const svg = readFileSync(join(pub, "favicon.svg"), "utf8");
-const square = svg.replace(/ rx="[\d.]+"/, "");
+const square = svg.replace(/(<svg[^>]*>)/, '$1<rect width="32" height="32" fill="#efe9da"/>');
 
 const b = await chromium.launch({ executablePath: process.argv[2] || process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium" });
 const page = await b.newPage();
