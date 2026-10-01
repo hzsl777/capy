@@ -131,6 +131,14 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     });
   }
 
+  // The day's share image (decision 92), drawn by the daily run with its word and stored in R2 beside the map. Until
+  // one is stored, the timeless image built into the site.
+  app.get("/og.png", async (c) => {
+    const obj = c.env.MAPS ? await c.env.MAPS.get("og.png") : null;
+    if (!obj) return c.redirect("/og-image.png", 302);
+    return new Response(obj.body, { headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=3600", ETag: obj.httpEtag } });
+  });
+
   app.get("/data/latest.json", (c) =>
     cachedJson(c, async () => {
       const file = await stored(c.env, "latest.json");
