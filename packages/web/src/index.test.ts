@@ -197,6 +197,20 @@ describe("the Worker's stored map files", () => {
     expect(await tile.json()).toEqual({ stored: "tile" });
   });
 
+  it("serves the day's share image from R2, and the timeless one until there is one (decision 92)", async () => {
+    const app = createApp(() => {
+      throw new Error("the database should not be read");
+    });
+    const MAPS = { get: async (key: string) => (key === "og.png" ? { body: new Response("PNG").body!, httpEtag: '"og"' } : null) };
+    const day = await app.request("/og.png", {}, { ...env, MAPS });
+    expect(day.status).toBe(200);
+    expect(day.headers.get("content-type")).toBe("image/png");
+    expect(await day.text()).toBe("PNG");
+    const none = await app.request("/og.png", {}, { ...env, MAPS: { get: async () => null } });
+    expect(none.status).toBe(302);
+    expect(none.headers.get("location")).toBe("/og-image.png");
+  });
+
   it("answers 304 to a browser that has the file, and HEAD without failing", async () => {
     const MAPS = { get: async () => ({ body: new Response('{"stored":"latest"}').body!, httpEtag: '"v1"' }) };
     const app = createApp(() => db);

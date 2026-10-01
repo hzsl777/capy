@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 
 /**
- * The canonical address and og:url need the site's full address, which only the deploy knows: SITE_DOMAIN (a
+ * The canonical address, og:url and the share image need the site's full address, which only the deploy knows: SITE_DOMAIN (a
  * repository variable, for example globalgist.com). Without it the tags are left out, never guessed.
  */
 function siteAddress(): Plugin {
@@ -14,6 +14,9 @@ function siteAddress(): Plugin {
       return [
         { tag: "link", attrs: { rel: "canonical", href: url }, injectTo: "head" },
         { tag: "meta", attrs: { property: "og:url", content: url }, injectTo: "head" },
+        // The day's share image (decision 92); link previews need its full address.
+        { tag: "meta", attrs: { property: "og:image", content: `${url}og.png` }, injectTo: "head" },
+        { tag: "meta", attrs: { name: "twitter:image", content: `${url}og.png` }, injectTo: "head" },
       ];
     },
   };

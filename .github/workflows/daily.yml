@@ -131,6 +131,14 @@ jobs:
             tiles dated-tiles.json
             put "$DATE.json" dated.json
           fi
+      # The day's share image (decision 92): the word, its date and the day's places, 1200 by 630, for link previews.
+      # A failure here never fails the day; the site then keeps the last image, or the timeless one.
+      - name: Store the share image
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != ''
+        continue-on-error: true
+        run: |
+          node tools/share-image.mjs og.png map.json "$(command -v google-chrome || command -v chromium)"
+          npx wrangler r2 object put globalgist-maps/og.png --file og.png --content-type image/png --remote
       - uses: actions/upload-artifact@v4
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         with:
