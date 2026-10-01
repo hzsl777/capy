@@ -10098,35 +10098,11 @@ button.link {
   isolation: isolate;
   /* A size container, so the headline card above the reticle can measure the map (decision 100). */
   container-type: size;
-  background: radial-gradient(ellipse 80% 70% at 50% 42%, #f6fcff 0%, #d9effa 46%, #a9d5ef 100%);
-}
-:root[data-theme="cube"] .map::before,
-:root[data-theme="cube"] .map::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: calc(100% + 1200px);
-  z-index: -1;
-  pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6'%3E%3Cpath d='M0 150Q150 110 300 150T600 150T900 150T1200 150'/%3E%3Cpath d='M0 170Q150 136 300 170T600 170T900 170T1200 170' opacity='.7'/%3E%3Cpath d='M0 250Q150 290 300 250T600 250T900 250T1200 250' opacity='.8'/%3E%3C/g%3E%3C/svg%3E") 0 60% / 1200px 400px repeat-x;
-  animation: cube-drift 90s linear infinite;
-}
-:root[data-theme="cube"] .map::after {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.4'%3E%3Cpath d='M0 200Q150 250 300 200T600 200'/%3E%3Cpath d='M0 222Q150 262 300 222T600 222' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") 0 70% / 600px 400px repeat-x;
-  animation-duration: 55s;
-}
-@keyframes cube-drift {
-  to {
-    transform: translateX(-1200px);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  :root[data-theme="cube"] .map::before,
-  :root[data-theme="cube"] .map::after {
-    animation: none;
-  }
+  /* Inside the map, the old news channel: its Earth in dark blue space with still stars (decision 104). */
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='320'%20height='320'%3E%3Cg%20fill='%23fff'%3E%3Ccircle%20cx='104'%20cy='48'%20r='0.9'%20fill-opacity='0.39'/%3E%3Ccircle%20cx='171'%20cy='117'%20r='0.4'%20fill-opacity='0.63'/%3E%3Ccircle%20cx='12'%20cy='139'%20r='0.4'%20fill-opacity='0.40'/%3E%3Ccircle%20cx='136'%20cy='265'%20r='0.5'%20fill-opacity='0.47'/%3E%3Ccircle%20cx='201'%20cy='303'%20r='0.8'%20fill-opacity='0.57'/%3E%3Ccircle%20cx='312'%20cy='15'%20r='1.0'%20fill-opacity='0.51'/%3E%3Ccircle%20cx='46'%20cy='38'%20r='0.6'%20fill-opacity='0.80'/%3E%3Ccircle%20cx='58'%20cy='186'%20r='0.8'%20fill-opacity='0.55'/%3E%3Ccircle%20cx='175'%20cy='20'%20r='0.4'%20fill-opacity='0.46'/%3E%3Ccircle%20cx='218'%20cy='137'%20r='0.6'%20fill-opacity='0.67'/%3E%3Ccircle%20cx='145'%20cy='96'%20r='1.0'%20fill-opacity='0.73'/%3E%3Ccircle%20cx='78'%20cy='184'%20r='0.8'%20fill-opacity='0.83'/%3E%3Ccircle%20cx='233'%20cy='92'%20r='1.1'%20fill-opacity='0.41'/%3E%3Ccircle%20cx='134'%20cy='242'%20r='0.5'%20fill-opacity='0.62'/%3E%3Ccircle%20cx='13'%20cy='214'%20r='0.9'%20fill-opacity='0.67'/%3E%3Ccircle%20cx='280'%20cy='100'%20r='0.9'%20fill-opacity='0.68'/%3E%3Ccircle%20cx='186'%20cy='146'%20r='1.0'%20fill-opacity='0.87'/%3E%3Ccircle%20cx='152'%20cy='213'%20r='0.4'%20fill-opacity='0.74'/%3E%3Ccircle%20cx='207'%20cy='318'%20r='1.0'%20fill-opacity='0.51'/%3E%3Ccircle%20cx='123'%20cy='214'%20r='0.4'%20fill-opacity='0.60'/%3E%3Ccircle%20cx='54'%20cy='37'%20r='0.4'%20fill-opacity='0.77'/%3E%3Ccircle%20cx='41'%20cy='79'%20r='0.7'%20fill-opacity='0.83'/%3E%3Ccircle%20cx='26'%20cy='144'%20r='0.8'%20fill-opacity='0.84'/%3E%3Ccircle%20cx='262'%20cy='276'%20r='0.6'%20fill-opacity='0.58'/%3E%3Ccircle%20cx='115'%20cy='283'%20r='1.1'%20fill-opacity='0.43'/%3E%3Ccircle%20cx='56'%20cy='74'%20r='0.6'%20fill-opacity='0.62'/%3E%3Ccircle%20cx='189'%20cy='84'%20r='0.4'%20fill-opacity='0.58'/%3E%3Ccircle%20cx='118'%20cy='181'%20r='1.1'%20fill-opacity='0.73'/%3E%3Ccircle%20cx='165'%20cy='198'%20r='0.9'%20fill-opacity='0.38'/%3E%3Ccircle%20cx='288'%20cy='250'%20r='1.0'%20fill-opacity='0.79'/%3E%3Ccircle%20cx='126'%20cy='128'%20r='0.5'%20fill-opacity='0.70'/%3E%3Ccircle%20cx='20'%20cy='22'%20r='0.5'%20fill-opacity='0.44'/%3E%3Ccircle%20cx='109'%20cy='17'%20r='0.4'%20fill-opacity='0.43'/%3E%3Ccircle%20cx='32'%20cy='116'%20r='0.4'%20fill-opacity='0.83'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 320px 320px,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='520'%20height='520'%3E%3Cg%20fill='%23fff'%3E%3Ccircle%20cx='319'%20cy='77'%20r='0.7'%20fill-opacity='0.54'/%3E%3Ccircle%20cx='189'%20cy='64'%20r='1.4'%20fill-opacity='0.90'/%3E%3Ccircle%20cx='242'%20cy='252'%20r='0.5'%20fill-opacity='0.41'/%3E%3Ccircle%20cx='178'%20cy='138'%20r='1.4'%20fill-opacity='0.44'/%3E%3Ccircle%20cx='12'%20cy='495'%20r='1.0'%20fill-opacity='0.43'/%3E%3Ccircle%20cx='282'%20cy='14'%20r='1.0'%20fill-opacity='0.89'/%3E%3Ccircle%20cx='449'%20cy='362'%20r='0.7'%20fill-opacity='0.55'/%3E%3Ccircle%20cx='87'%20cy='401'%20r='1.0'%20fill-opacity='0.78'/%3E%3Ccircle%20cx='171'%20cy='116'%20r='1.4'%20fill-opacity='0.89'/%3E%3Ccircle%20cx='443'%20cy='419'%20r='1.4'%20fill-opacity='0.76'/%3E%3C/g%3E%3C/svg%3E") 140px 90px / 520px 520px,
+    radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
 }
 /* The panel is a channel tile of its own: a white card with a rim, the stories in rounded slots. */
 :root[data-theme="cube"] .panel {
@@ -10547,6 +10523,7 @@ dialog.x-home::backdrop {
 }
 .x-home.leaving .x-home-bg,
 .x-home.leaving .x-home-scroll,
+.x-home.leaving .x-pv,
 .x-home.leaving .x-home-bar {
   opacity: 0;
   transition: opacity 300ms ease;
@@ -10580,14 +10557,6 @@ button.x-ch:focus-visible {
   box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 8px 18px rgba(30, 110, 170, 0.22);
   transform: scale(1.04);
 }
-/* Unused slots: a faint pattern, like the menu's empty channels. */
-.x-ch-empty {
-  border-color: #d3d8dc;
-  background:
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0 6px, rgba(220, 225, 229, 0.55) 6px 12px),
-    #e9ecee;
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.6), inset 0 2px 6px rgba(120, 135, 150, 0.15);
-}
 .x-ch-map {
   grid-column: span 2;
   grid-row: span 2;
@@ -10606,7 +10575,7 @@ button.x-ch:focus-visible {
   min-height: 120px;
   overflow: hidden;
   border-radius: 13px;
-  background: radial-gradient(ellipse 80% 70% at 50% 42%, #f6fcff 0%, #d9effa 46%, #a9d5ef 100%);
+  background: radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
   box-shadow: inset 0 0 0 1.5px rgba(90, 130, 160, 0.35);
 }
 .x-ch-preview {
@@ -10765,6 +10734,156 @@ button.x-ch:focus-visible {
   width: 34px;
   height: 34px;
 }
+/* The map channel's own screen (decision 104): its picture large, the newest headlines crawling along its foot,
+   and two wide buttons under it, Menu and Start. The grid and the bar step away while it shows. */
+.x-home.previewing .x-home-scroll,
+.x-home.previewing .x-home-bar {
+  display: none;
+}
+.x-pv {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  padding: 40px 48px 34px;
+}
+.x-pv[hidden] {
+  display: none;
+}
+.x-pv-screen {
+  position: relative;
+  flex: 1 1 auto;
+  width: min(100%, 1100px);
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid #c6ccd2;
+  border-radius: 24px;
+  background: radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
+  box-shadow: inset 0 0 0 4px #ffffff, 0 10px 30px rgba(30, 80, 130, 0.22);
+}
+.x-pv-name {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  right: 22px;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 10, 30, 0.7);
+}
+.x-pv-name b {
+  font: 800 30px/1.1 var(--font-mast);
+}
+.x-pv-name span {
+  font: 600 15px/1.2 var(--font-ui);
+}
+.x-pv-crawl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 10px 0 12px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.94), rgba(236, 241, 245, 0.96));
+  box-shadow: 0 -1px 0 rgba(120, 140, 160, 0.35);
+  color: var(--ink);
+  font: 600 16px/1.35 var(--font-ui);
+  white-space: nowrap;
+}
+.x-pv-crawl:empty {
+  display: none;
+}
+.x-pv-crawl.still {
+  padding: 10px 20px 12px;
+  white-space: normal;
+}
+.x-pv-track {
+  display: inline-flex;
+  animation: x-pv-crawl 60s linear infinite;
+}
+.x-pv-row {
+  display: inline-flex;
+}
+.x-pv-item {
+  padding: 0 28px 0 0;
+}
+.x-pv-item b {
+  color: #1476b4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.x-pv-item b::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 4px;
+  margin: 0 10px 3px 0;
+  border-radius: 2px;
+  background: #9fd9f1;
+}
+@keyframes x-pv-crawl {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.x-pv-buttons {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  gap: clamp(24px, 10vw, 160px);
+  width: 100%;
+}
+.x-pv-btn {
+  min-width: min(300px, 40vw);
+  padding: 18px 30px;
+  border: 2px solid #c3cbd2;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e9edf0 52%, #f4f6f8 100%);
+  box-shadow: inset 0 0 0 3px #ffffff, 0 3px 8px rgba(60, 80, 100, 0.18);
+  color: #3f4a55;
+  font: 800 24px/1.1 var(--font-head);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.x-pv-btn:hover,
+.x-pv-btn:focus-visible {
+  outline: none;
+  border-color: #35b7ea;
+  color: #1476b4;
+  box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 3px 8px rgba(60, 80, 100, 0.18);
+  transform: scale(1.05);
+}
+@media (max-width: 760px) {
+  .x-pv {
+    gap: 16px;
+    padding: 16px 14px 22px;
+  }
+  .x-pv-name b {
+    font-size: 22px;
+  }
+  .x-pv-crawl {
+    font-size: 14px;
+  }
+  .x-pv-btn {
+    min-width: 0;
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 20px;
+  }
+  .x-pv-buttons {
+    gap: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .x-pv-track {
+    animation: none;
+  }
+}
 /* The tile that flies between the grid and the map. */
 .x-zoom {
   position: fixed;
@@ -10852,9 +10971,6 @@ button.x-ch:focus-visible {
   .x-ch-word,
   .x-ch-latest {
     grid-column: 1 / -1;
-  }
-  .x-ch-empty {
-    display: none;
   }
   .x-ch-title {
     font-size: 16px;

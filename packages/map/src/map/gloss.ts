@@ -1,10 +1,8 @@
-// Console Menu (id cube): the clean, glossy look of an early-2000s console's home menu. In Map view the map sits in
-// one rounded "channel" tile with a white plastic rim; in Globe view it is a glossy ball. Land stands up like soft
-// white plastic: a drop shadow and a side under a lit top, a highlight along the upper edges and a shade along the
-// lower ones, and mountains as soft rounded bumps. The sea is pale blue glass with light along the coasts, and a
-// sheen lies over the top of the tile or the ball. Outside the tile or the ball the map is an old news channel's
-// screen: soft blue with slow white wavy lines (CSS on .map), and the ball has a white glow to stand off it (decision
-// 99). No maker's names, logos or menus, and no text.
+// Console Menu (id cube): inside the map, an old console news channel's Earth (decision 104). In Globe view the
+// planet hangs in dark blue space with a glow of air round it; in Map view the same Earth fills one rounded channel
+// tile with a white plastic rim. The sea is deep blue with lighter shallows, the land green, darker in the tropics and
+// the northern forests and dun toward the poles, with tan deserts, soft brown mountains and white ice. The stars
+// behind are CSS on .map. No maker's names, logos or menus, and no text.
 
 import { geoGraticule, geoPath } from "d3-geo";
 import { cachedPicture, offscreen, pathContext, Picture, type SurfaceFrame, type SurfaceResult } from "./surface.ts";
@@ -16,6 +14,8 @@ const SPHERE = { type: "Sphere" } as const;
 export class GlossCache {
   frame?: { key: string; canvas: HTMLCanvasElement; tile: Path2D; inset: number };
   bump?: HTMLCanvasElement;
+  sand?: HTMLCanvasElement;
+  bands?: (readonly [object, string])[];
   picture = new Picture();
 }
 
@@ -45,8 +45,29 @@ function tileFrame(w: number, h: number, dpr: number, tile: Path2D): HTMLCanvasE
   return c;
 }
 
+/** Latitude bands laid over the land as tints: south edge, north edge, colour. */
+const BANDS: [number, number, string, number][] = [
+  [-10, 10, "22,92,34", 0.4],
+  [50, 60, "28,66,38", 0.38],
+  [66, 90, "150,140,104", 0.6],
+  [-90, -54, "150,140,104", 0.6],
+];
+
+/** A soft round patch of colour that fades out, stamped many times to paint the deserts. */
+function blob(color: string): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = c.height = 48;
+  const g = c.getContext("2d")!;
+  const r = g.createRadialGradient(24, 24, 0, 24, 24, 24);
+  r.addColorStop(0, color);
+  r.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = r;
+  g.fillRect(0, 0, 48, 48);
+  return c;
+}
+
 /** A soft rounded hill: shade to the lower right, light to the upper left. Drawn once, stamped at every peak. */
-function bumpSprite(shade: string): HTMLCanvasElement {
+function bumpSprite(shade: string, top: string): HTMLCanvasElement {
   const c = document.createElement("canvas");
   c.width = c.height = 48;
   const g = c.getContext("2d")!;
@@ -56,7 +77,7 @@ function bumpSprite(shade: string): HTMLCanvasElement {
   g.fillStyle = dark;
   g.fillRect(0, 0, 48, 48);
   const light = g.createRadialGradient(20, 19, 0, 20, 19, 15);
-  light.addColorStop(0, "rgba(255,255,255,0.95)");
+  light.addColorStop(0, top);
   light.addColorStop(1, "rgba(255,255,255,0)");
   g.fillStyle = light;
   g.fillRect(0, 0, 48, 48);
@@ -83,7 +104,7 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
     inset = cache.frame.inset;
     ctx.drawImage(cache.frame.canvas, 0, 0, w, h);
   }
-  cache.bump ??= bumpSprite(t.relief);
+  cache.bump ??= bumpSprite(t.relief, "rgba(236,226,204,0.55)");
   const bump = cache.bump;
 
   const pk = `${w}:${h}:${dpr}:${mode}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.map === f.low ? "l" : "h"}:${f.relief ? 1 : 0}`;
@@ -95,41 +116,30 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
     };
     const sphere = path(SPHERE);
     if (globe) {
-      // The ball's soft shadow on the page below it.
-      const sy = cy + R * 1.06;
-      const sh = g.createRadialGradient(cx, sy, 0, cx, sy, R * 0.85);
-      sh.addColorStop(0, "rgba(40,80,120,0.26)");
-      sh.addColorStop(1, "rgba(40,80,120,0)");
-      g.save();
-      g.translate(cx, sy);
-      g.scale(1, 0.14);
-      g.translate(-cx, -sy);
-      g.fillStyle = sh;
-      g.fillRect(cx - R, sy - R, R * 2, R * 2);
-      g.restore();
-      // A soft white glow round the ball, so it stands off the news channel's blue behind it (decision 100).
-      const halo = g.createRadialGradient(cx, cy, R * 0.97, cx, cy, R * 1.16);
-      halo.addColorStop(0, "rgba(255,255,255,0.75)");
-      halo.addColorStop(1, "rgba(255,255,255,0)");
+      // The air round the planet, a blue glow against the dark of space (decision 104).
+      const halo = g.createRadialGradient(cx, cy, R * 0.96, cx, cy, R * 1.14);
+      halo.addColorStop(0, "rgba(150,205,255,0.6)");
+      halo.addColorStop(0.35, "rgba(90,160,240,0.22)");
+      halo.addColorStop(1, "rgba(60,120,220,0)");
       g.fillStyle = halo;
       g.beginPath();
-      g.arc(cx, cy, R * 1.16, 0, Math.PI * 2);
+      g.arc(cx, cy, R * 1.14, 0, Math.PI * 2);
       g.fill();
     }
     const area = tile ?? sphere;
     g.save();
     g.clip(area);
 
-    // Pale blue glass: lighter toward the top of the tile, or toward the lit side of the ball.
+    // Deep blue sea, lighter toward the lit side of the planet or the top of the tile.
     let sea: CanvasGradient;
     if (globe) {
-      sea = g.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.05, cx, cy, R * 1.02);
-      sea.addColorStop(0, "#d9f3fc");
-      sea.addColorStop(0.55, t.lake);
-      sea.addColorStop(1, t.ocean);
+      sea = g.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.05, cx, cy, R * 1.02);
+      sea.addColorStop(0, t.lake);
+      sea.addColorStop(0.6, t.ocean);
+      sea.addColorStop(1, "#0d3a78");
     } else {
       sea = g.createLinearGradient(0, inset, 0, h - inset);
-      sea.addColorStop(0, "#d4f1fc");
+      sea.addColorStop(0, t.lake);
       sea.addColorStop(1, t.ocean);
     }
     g.fillStyle = sea;
@@ -137,71 +147,61 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
     g.lineCap = "round";
     g.lineJoin = "round";
     g.strokeStyle = t.graticule;
-    g.lineWidth = 0.8;
+    g.lineWidth = 0.7;
     g.stroke(path(GRID));
 
     const land = path(f.map.land);
     const coast = path(f.map.coast);
-    // Light along the coasts, like shallow water.
+    // Shallow water along the coasts, lighter as it nears the shore.
     g.strokeStyle = t.waterline;
-    g.lineWidth = 7;
+    g.lineWidth = 8;
     g.stroke(coast);
-    g.lineWidth = 3.5;
+    g.lineWidth = 4;
     g.stroke(coast);
 
-    // The land as a slab of soft plastic: a shadow on the water, a darker side, then the lit top.
-    const depth = Math.max(2, Math.min(4.5, 1.6 + f.zoom * 0.35));
-    const at = (dx: number, dy: number, fill: () => void) => {
-      g.translate(dx, dy);
-      fill();
-      g.translate(-dx, -dy);
-    };
-    g.fillStyle = "rgba(30,80,120,0.12)";
-    at(1, depth + 3, () => g.fill(land));
-    g.fillStyle = "rgba(30,80,120,0.12)";
-    at(0.5, depth + 1.5, () => g.fill(land));
-    g.fillStyle = t.textureInk;
-    at(0, depth, () => g.fill(land));
-    const top = globe ? g.createLinearGradient(0, cy - R, 0, cy + R) : g.createLinearGradient(0, inset, 0, h - inset);
-    top.addColorStop(0, "#ffffff");
-    top.addColorStop(1, t.land);
-    g.fillStyle = top;
+    // The land as seen from space: green, darker in the tropics and the northern forests, dun toward the poles,
+    // tan over the deserts and white over the ice. Bands follow latitude only, never any political unit.
+    const lit = globe ? g.createLinearGradient(0, cy - R, 0, cy + R) : g.createLinearGradient(0, inset, 0, h - inset);
+    lit.addColorStop(0, "#74a957");
+    lit.addColorStop(1, t.land);
+    g.fillStyle = lit;
     g.fill(land);
-    if (f.map.ice) {
-      g.fillStyle = t.ice;
-      g.fill(path(f.map.ice));
-    }
-
-    // Round the top's edges: light along the upper ones, shade along the lower ones, inside the land only.
     g.save();
     g.clip(land);
-    g.strokeStyle = "rgba(255,255,255,0.95)";
-    g.lineWidth = 2.4;
-    at(0, 1.4, () => g.stroke(coast));
-    g.strokeStyle = "rgba(70,100,125,0.22)";
-    g.lineWidth = 3;
-    at(0, -1.6, () => g.stroke(coast));
-
-    // Mountains as soft bumps that grow with the map and overlap into rounded ridges.
-    if (f.relief) {
-      const s = Math.max(3.5, Math.min(20, R * 0.035));
-      const peaks = f.relief.peaks;
-      const [ux, uy, uz] = unit(f.lon, f.lat);
-      for (let i = 0; i < peaks.length; i++) {
-        const [lon, lat] = peaks[i]!;
+    // Each band is laid as a few widening layers, so its edges fade over ten degrees instead of meeting along a line.
+    cache.bands ??= BANDS.flatMap(([s0, n0, rgb, a]) =>
+      [0, 1, 2, 3, 4].map(
+        (i) => [geoGraticule().extent([[-180, Math.max(-90, s0 - i * 2.5)], [180, Math.min(90, n0 + i * 2.5)]]).outline(), `rgba(${rgb},${(a / 5).toFixed(3)})`] as const,
+      ),
+    );
+    for (const [band, fill] of cache.bands) {
+      g.fillStyle = fill;
+      g.fill(path(band));
+    }
+    const s = Math.max(3, Math.min(16, R * 0.024));
+    const [ux, uy, uz] = unit(f.lon, f.lat);
+    const stamp = (pts: [number, number][] | undefined, sprite: HTMLCanvasElement, size: number) => {
+      if (!pts) return;
+      for (const [lon, lat] of pts) {
         if (globe) {
           const [px, py, pz] = unit(lon, lat);
           if (px * ux + py * uy + pz * uz < 0.08) continue;
         }
         const p = proj([lon, lat]);
-        if (!p) continue;
-        if (p[0] < -s || p[1] < -s || p[0] > w + s || p[1] > h + s) continue;
-        g.drawImage(bump, p[0] - s, p[1] - s, s * 2, s * 2);
+        if (!p || p[0] < -size || p[1] < -size || p[0] > w + size || p[1] > h + size) continue;
+        g.drawImage(sprite, p[0] - size, p[1] - size, size * 2, size * 2);
       }
-    }
+    };
+    cache.sand ??= blob("rgba(222,192,128,0.7)");
+    stamp(f.relief?.dunes, cache.sand, s * 2);
+    // Mountains as soft bumps, brown with a light top.
+    stamp(f.relief?.peaks, bump, s);
     g.restore();
+    if (f.map.ice) {
+      g.fillStyle = t.ice;
+      g.fill(path(f.map.ice));
+    }
 
-    // Lakes and rivers in the sea's pale blue.
     g.fillStyle = t.lake;
     g.fill(path(f.map.lakes));
     if (f.zoom >= 2) {
@@ -209,15 +209,15 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
       g.lineWidth = 0.9;
       g.stroke(path(f.map.rivers));
     }
-    g.lineWidth = 0.8;
+    g.lineWidth = 0.7;
     g.strokeStyle = t.coast;
     g.stroke(coast);
 
-    // The sheen: glossy light over the top of the tile, or a highlight on the ball with its rim in shade.
+    // The planet's edge falls into shade with a soft highlight on its lit side; the tile gets its glossy sheen.
     if (globe) {
-      const rim = g.createRadialGradient(cx, cy, R * 0.72, cx, cy, R);
-      rim.addColorStop(0, "rgba(20,80,140,0)");
-      rim.addColorStop(1, "rgba(20,80,140,0.3)");
+      const rim = g.createRadialGradient(cx - R * 0.15, cy - R * 0.15, R * 0.6, cx, cy, R);
+      rim.addColorStop(0, "rgba(4,16,40,0)");
+      rim.addColorStop(1, "rgba(4,16,40,0.5)");
       g.fillStyle = rim;
       g.fillRect(cx - R, cy - R, R * 2, R * 2);
       const hx = cx - R * 0.34, hy = cy - R * 0.5;
@@ -226,7 +226,7 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
       g.rotate(-0.45);
       g.scale(1, 0.52);
       const spec = g.createRadialGradient(0, 0, 0, 0, 0, R * 0.5);
-      spec.addColorStop(0, "rgba(255,255,255,0.55)");
+      spec.addColorStop(0, "rgba(255,255,255,0.3)");
       spec.addColorStop(1, "rgba(255,255,255,0)");
       g.fillStyle = spec;
       g.fillRect(-R * 0.5, -R * 0.5, R, R);
@@ -240,20 +240,17 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
       sheen.quadraticCurveTo(w / 2, y1 + (h - inset * 2) * 0.1, 0, y1 - (h - inset * 2) * 0.08);
       sheen.closePath();
       const sg = g.createLinearGradient(0, inset, 0, y1);
-      sg.addColorStop(0, "rgba(255,255,255,0.42)");
-      sg.addColorStop(1, "rgba(255,255,255,0.08)");
+      sg.addColorStop(0, "rgba(255,255,255,0.22)");
+      sg.addColorStop(1, "rgba(255,255,255,0.04)");
       g.fillStyle = sg;
       g.fill(sheen);
     }
     g.restore();
 
-    // A white glass rim round the ball.
+    // A thin bright limb, where the air catches the light.
     if (globe) {
-      g.lineWidth = 3;
-      g.strokeStyle = "rgba(255,255,255,0.9)";
-      g.stroke(sphere);
-      g.lineWidth = 1;
-      g.strokeStyle = "rgba(90,130,165,0.6)";
+      g.lineWidth = 1.5;
+      g.strokeStyle = "rgba(190,225,255,0.85)";
       g.stroke(sphere);
     }
   });

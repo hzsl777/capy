@@ -1,8 +1,10 @@
 // Console Menu's home screen (decision 100): a grid of rounded channel tiles over pale grey lines, after the feel of a
 // late-2000s console's channel menu, with a rounded bottom bar holding a clock and two round buttons. The map is the
 // first and largest tile, a live copy of the map's own canvas; the other tiles open what the map already has (the
-// word, the newest report, Topics, the Key, Pinned places, About). Picking a tile zooms it up to fill the screen and
-// lands in the map. Our own drawing and CSS only: no console maker's names, logos, sounds, characters or art.
+// word, the newest report, Topics, the Key, Pinned places, Replay, Translate, About), and no slot is left empty
+// (decision 104). The map tile opens the channel's own screen first, its picture large with the newest headlines
+// crawling under it and two buttons, Menu and Start; Start zooms into the map. The other tiles zoom straight in. Our
+// own drawing and CSS only: no console maker's names, logos, sounds, characters or art.
 //
 // Only Console Menu shows any of this. It is a modal <dialog>, so focus stays in it, Escape leaves it, and the page
 // behind is inert; the Menu button on the map brings it back. Text goes in as text, never as HTML.
@@ -13,7 +15,7 @@ import { SITE_NAME, SITE_TAGLINE } from "../brand.ts";
 import { h } from "./dom.ts";
 
 /** Where a tile leads: into the map, and then to one of its parts. */
-export type Channel = "map" | "word" | "latest" | "topics" | "key" | "pins";
+export type Channel = "map" | "word" | "latest" | "topics" | "key" | "pins" | "replay" | "translate";
 
 export interface ChannelSource {
   theme(): ThemeId;
@@ -25,6 +27,10 @@ export interface ChannelSource {
   topics(): string;
   /** The reader's pinned places by name. */
   pins(): string[];
+  /** The language headlines are translated into, by its own name, or a line saying they show as published. */
+  language(): string;
+  /** The newest headlines, each with its place's name, for the crawl on the map channel's screen. */
+  headlines(): { place: string; title: string }[];
   /** Into the map, then to the part the tile names. */
   open(channel: Channel): void;
   about(): void;
@@ -36,7 +42,7 @@ const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let src: ChannelSource;
 let home: HTMLDialogElement;
 let grid: HTMLElement;
-let preview: HTMLCanvasElement;
+let tileCanvas: HTMLCanvasElement;
 let wordTile: HTMLElement;
 let latestTile: HTMLElement;
 let topicsLine: HTMLElement;
@@ -44,6 +50,14 @@ let pinsLine: HTMLElement;
 let keyMarks: HTMLElement;
 let clock: HTMLElement;
 let dateLine: HTMLElement;
+let pv: HTMLElement;
+let pvScreen: HTMLElement;
+let pvCanvas: HTMLCanvasElement;
+let pvCrawl: HTMLElement;
+let pvStart: HTMLButtonElement;
+let mapTile: HTMLElement;
+let replayLine: HTMLElement;
+let languageLine: HTMLElement;
 let copyTimer = 0;
 let clockTimer = 0;
 let leaving = false;
@@ -55,7 +69,7 @@ function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
 }
 
 /** A small picture for a tile, drawn in the tile's own blue. */
-function icon(kind: "topics" | "pins" | "about" | "globe" | "grid"): SVGElement {
+function icon(kind: "topics" | "pins" | "about" | "globe" | "grid" | "replay" | "translate"): SVGElement {
   const s = svg("svg", { viewBox: "0 0 40 40", class: `x-ico x-ico-${kind}`, "aria-hidden": "true" });
   const line = { fill: "none", stroke: "currentColor", "stroke-width": 2.6, "stroke-linecap": "round", "stroke-linejoin": "round" };
   if (kind === "topics") {
@@ -78,6 +92,16 @@ function icon(kind: "topics" | "pins" | "about" | "globe" | "grid"): SVGElement 
       svg("circle", { cx: 20, cy: 20, r: 14, ...line }),
       svg("ellipse", { cx: 20, cy: 20, rx: 6, ry: 14, ...line }),
       svg("path", { d: "M6 20H34M8.5 12.5H31.5M8.5 27.5H31.5", ...line, "stroke-width": 2 }),
+    );
+  } else if (kind === "replay") {
+    // A turning arrow round a play triangle.
+    s.append(svg("path", { d: "M33 20A13 13 0 1 1 29 10.6", ...line }), svg("path", { d: "M30.5 4.5V11.5H23.5", ...line }), svg("path", { d: "M16.5 14V26L26.5 20Z", fill: "currentColor" }));
+  } else if (kind === "translate") {
+    // Two speech bubbles, one over the other.
+    s.append(
+      svg("path", { d: "M5 7H23V20H13L8 24.5V20H5Z", ...line }),
+      svg("path", { d: "M27 15H35V28H32V32.5L27 28H17V24", ...line }),
+      svg("path", { d: "M10 13.5H18", ...line }),
     );
   } else if (kind === "grid") {
     for (const [x, y] of [
@@ -109,17 +133,13 @@ function marks(): SVGElement {
 /** A tile reads out its own text; only the map tile, whose picture says nothing to a screen reader, has a label. */
 function tile(channel: Channel | "about", cls: string, label: string | undefined, ...children: (Node | null)[]): HTMLButtonElement {
   const b = h("button", { type: "button", class: `x-ch ${cls}`, "aria-label": label }, ...children);
-  b.addEventListener("click", () => (channel === "about" ? src.about() : enter(channel, b)));
+  b.addEventListener("click", () => (channel === "about" ? src.about() : channel === "map" ? openPreview() : enter(channel, b)));
   return b;
-}
-
-function empty(): HTMLElement {
-  return h("div", { class: "x-ch x-ch-empty", "aria-hidden": "true" });
 }
 
 export function mountChannels(source: ChannelSource): void {
   src = source;
-  preview = h("canvas", { class: "x-ch-preview", "aria-hidden": "true" });
+  tileCanvas = h("canvas", { class: "x-ch-preview", "aria-hidden": "true" });
   wordTile = h("span", { class: "x-ch-body" });
   latestTile = h("span", { class: "x-ch-body" });
   topicsLine = h("span", { class: "x-ch-note" });
@@ -127,12 +147,14 @@ export function mountChannels(source: ChannelSource): void {
   keyMarks = h("span", { class: "x-ch-art" });
   clock = h("span", { class: "x-clock-time" });
   dateLine = h("span", { class: "x-clock-date" });
+  replayLine = h("span", { class: "x-ch-note" }, "The day's reports as they came in");
+  languageLine = h("span", { class: "x-ch-note" });
 
-  const mapTile = tile(
+  mapTile = tile(
     "map",
     "x-ch-map",
     "Open the map",
-    h("span", { class: "x-ch-screen" }, preview),
+    h("span", { class: "x-ch-screen" }, tileCanvas),
     h("span", { class: "x-ch-cap" }, h("b", {}, SITE_NAME), h("span", {}, SITE_TAGLINE)),
   );
   grid = h(
@@ -144,9 +166,9 @@ export function mountChannels(source: ChannelSource): void {
     tile("topics", "x-ch-small", undefined, h("span", { class: "x-ch-art" }, icon("topics")), h("span", { class: "x-ch-title" }, "Topics"), topicsLine),
     tile("key", "x-ch-small", undefined, keyMarks, h("span", { class: "x-ch-title" }, "Key"), h("span", { class: "x-ch-note" }, "What the marks mean")),
     tile("pins", "x-ch-small", undefined, h("span", { class: "x-ch-art" }, icon("pins")), h("span", { class: "x-ch-title" }, "Pinned"), pinsLine),
+    tile("replay", "x-ch-small", undefined, h("span", { class: "x-ch-art" }, icon("replay")), h("span", { class: "x-ch-title" }, "Replay"), replayLine),
+    tile("translate", "x-ch-small", undefined, h("span", { class: "x-ch-art" }, icon("translate")), h("span", { class: "x-ch-title" }, "Translate"), languageLine),
     tile("about", "x-ch-small", undefined, h("span", { class: "x-ch-art" }, icon("about")), h("span", { class: "x-ch-title" }, "About"), h("span", { class: "x-ch-note" }, "How this works")),
-    empty(),
-    empty(),
   );
   grid.addEventListener("keydown", arrows);
 
@@ -155,17 +177,40 @@ export function mountChannels(source: ChannelSource): void {
   const go = h("button", { type: "button", class: "x-round x-round-r", "aria-label": "Open the map", title: "Open the map" }, icon("globe"));
   go.addEventListener("click", () => enter("map", mapTile));
 
+  // The map channel's own screen, before Start.
+  pvCanvas = h("canvas", { class: "x-ch-preview", "aria-hidden": "true" });
+  pvCrawl = h("div", { class: "x-pv-crawl" });
+  pvScreen = h(
+    "div",
+    { class: "x-pv-screen" },
+    pvCanvas,
+    h("p", { class: "x-pv-name" }, h("b", {}, SITE_NAME), h("span", {}, SITE_TAGLINE)),
+    pvCrawl,
+  );
+  const back = h("button", { type: "button", class: "x-pv-btn" }, "Menu");
+  back.addEventListener("click", closePreview);
+  pvStart = h("button", { type: "button", class: "x-pv-btn" }, "Start");
+  pvStart.addEventListener("click", () => enter("map", pvScreen));
+  pv = h("section", { class: "x-pv", "aria-label": `${SITE_NAME}: the map`, hidden: "" }, pvScreen, h("div", { class: "x-pv-buttons" }, back, pvStart));
+  pv.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    (e.key === "ArrowLeft" ? back : pvStart).focus();
+  });
+
   home = h(
     "dialog",
     { class: "x-home", "aria-label": "Home menu" },
     h("div", { class: "x-home-bg" }),
     h("div", { class: "x-home-scroll" }, grid),
+    pv,
     h("div", { class: "x-home-bar" }, about, h("p", { class: "x-clock" }, clock, dateLine), go),
   );
-  // Escape goes into the map, the same way the map tile does.
+  // Escape steps back: from the channel's screen to the grid, and from the grid into the map.
   home.addEventListener("cancel", (e) => {
     e.preventDefault();
-    enter("map", mapTile);
+    if (!pv.hidden) closePreview();
+    else enter("map", mapTile);
   });
   home.addEventListener("close", stopTimers);
   document.body.append(home);
@@ -196,7 +241,48 @@ export function refreshChannels(): void {
   topicsLine.textContent = src.topics();
   const pins = src.pins();
   pinsLine.textContent = pins.length ? pins.join(" · ") : "Pin a place from its list";
+  languageLine.textContent = src.language();
   keyMarks.replaceChildren(marks());
+  fillCrawl();
+}
+
+/** The newest headlines under the channel's picture, twice over so the crawl loops without a gap. */
+function fillCrawl() {
+  const items = src.headlines();
+  const row = () =>
+    h("span", { class: "x-pv-row" }, ...items.map((it) => h("span", { class: "x-pv-item" }, h("b", {}, it.place), " ", it.title)));
+  if (!items.length) pvCrawl.replaceChildren();
+  else if (reduced) pvCrawl.replaceChildren(h("span", { class: "x-pv-item" }, h("b", {}, items[0]!.place), " ", items[0]!.title));
+  else pvCrawl.replaceChildren(h("span", { class: "x-pv-track" }, row(), row()));
+  pvCrawl.classList.toggle("still", reduced);
+}
+
+/**
+ * The map tile grows into the channel's own screen, the grid and the bar fade, and Menu and Start appear under it.
+ * Start is focused, so Enter goes in.
+ */
+function openPreview() {
+  if (leaving || !pv.hidden) return;
+  const from = mapTile.getBoundingClientRect();
+  home.classList.add("previewing");
+  pv.hidden = false;
+  copyPreview();
+  pvStart.focus({ preventScroll: true });
+  if (reduced) return;
+  pv.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: "ease-out" });
+  fly(ghost(), from, pvScreen.getBoundingClientRect(), true);
+}
+
+/** Back to the grid, the screen shrinking into its tile. */
+function closePreview() {
+  if (leaving || pv.hidden) return;
+  const from = pvScreen.getBoundingClientRect();
+  pv.hidden = true;
+  home.classList.remove("previewing");
+  mapTile.focus({ preventScroll: true });
+  copyPreview();
+  if (reduced) return;
+  fly(ghost(), from, mapTile.getBoundingClientRect(), true);
 }
 
 export function channelsOpen(): boolean {
@@ -207,12 +293,12 @@ export function channelsOpen(): boolean {
 export function showChannels(animate: boolean): void {
   if (!src || home.open) return;
   leaving = false;
-  home.classList.remove("leaving");
+  home.classList.remove("leaving", "previewing");
+  pv.hidden = true;
   home.showModal();
   refreshChannels();
   copyPreview();
   startTimers();
-  const mapTile = grid.querySelector<HTMLElement>(".x-ch-map")!;
   mapTile.focus({ preventScroll: true });
   if (!animate || reduced) return;
   for (const el of home.querySelectorAll<HTMLElement>(":scope > .x-home-bg, :scope > .x-home-scroll, :scope > .x-home-bar"))
@@ -278,10 +364,11 @@ function fly(g: HTMLElement, a: DOMRect, b: DOMRect, toGrid: boolean): Promise<v
   );
 }
 
-/** The map tile is the map's own picture, copied a few times a second while the screen shows. */
+/** The map tile, or the channel's screen, is the map's own picture, copied a few times a second while it shows. */
 function copyPreview() {
   const c = document.querySelector<HTMLCanvasElement>("#map canvas");
   if (!c?.width || !c.height) return;
+  const preview = pv.hidden ? tileCanvas : pvCanvas;
   const r = preview.getBoundingClientRect();
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const w = Math.max(1, Math.round(r.width * dpr));

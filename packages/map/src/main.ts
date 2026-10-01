@@ -855,7 +855,22 @@ function openChannel(channel: Channel) {
     if (channel === "topics") ($("topics-menu") as HTMLDetailsElement).open = true;
     else if (channel === "pins" && state.pins.length) ($("pins-menu") as HTMLDetailsElement).open = true;
     else if (channel === "key") setKey(true);
-    const focus = { topics: "#topics-menu > summary", pins: state.pins.length ? "#pins-menu > summary" : "#map canvas", key: "#key-close", map: "#map canvas" }[channel];
+    else if (channel === "replay" && !state.playing) $("play").click();
+    else if (channel === "translate" && !$("translate-pick").hidden) {
+      try {
+        ($("translate") as HTMLSelectElement).showPicker();
+      } catch {
+        // Browsers without showPicker, or without a click to allow it: the focused list opens on Enter or Space.
+      }
+    }
+    const focus = {
+      topics: "#topics-menu > summary",
+      pins: state.pins.length ? "#pins-menu > summary" : "#map canvas",
+      key: "#key-close",
+      map: "#map canvas",
+      replay: "#play",
+      translate: $("translate-pick").hidden ? "#map canvas" : "#translate",
+    }[channel];
     document.querySelector<HTMLElement>(focus)?.focus();
   });
 }
@@ -1525,6 +1540,16 @@ async function start() {
     },
     topics: () => (state.topics.size === FILTERS.length ? "All topics" : `${state.topics.size} of ${FILTERS.length} topics`),
     pins: () => state.pins.map((p) => p.name),
+    language: () => (state.translateTo ? `Into ${nativeName(state.translateTo)}` : "Headlines as published"),
+    headlines: () => {
+      const file = state.file;
+      if (!file) return [];
+      return [...state.byPlace.values()]
+        .map((list) => list[0]!)
+        .sort((a, b) => b.t - a.t)
+        .slice(0, 8)
+        .map((it) => ({ place: file.places[it.place]!.name, title: it.title }));
+    },
     open: openChannel,
     about: () => ($("about") as HTMLDialogElement).showModal(),
   });
