@@ -130,7 +130,7 @@ import "@fontsource/alegreya/700.css";
 import "@fontsource/teko/500.css";
 import "@fontsource/teko/600.css";
 // Undersea Town (Block World uses Pixelify Sans, above).
-import "@fontsource/bubblegum-sans/400.css";
+import "@fontsource/spicy-rice/400.css";
 // Pin Drop, Deli Counter and Marquee.
 import "@fontsource/rubik/500.css";
 import "@fontsource/rubik/700.css";
