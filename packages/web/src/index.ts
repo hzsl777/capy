@@ -295,6 +295,15 @@ const app = createApp();
 export default {
   fetch: app.fetch,
   scheduled(controller: { cron: string }, env: Bindings, ctx: { waitUntil(p: Promise<unknown>): void }) {
-    ctx.waitUntil(startRun(controller.cron, env).then((said) => console.log(said)));
+    // Both outcomes are logged in plain words, so the Worker's Logs in Cloudflare say what GitHub answered.
+    ctx.waitUntil(
+      startRun(controller.cron, env).then(
+        (said) => console.log(`clock ${controller.cron}: ${said}`),
+        (err: unknown) => {
+          console.error(`clock ${controller.cron}: ${err instanceof Error ? err.message : String(err)}`);
+          throw err;
+        },
+      ),
+    );
   },
 };
