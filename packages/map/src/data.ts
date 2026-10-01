@@ -216,7 +216,7 @@ export function mergeTiles(file: MapFile, placeIds: Map<string, number>, tiles: 
 
 /**
  * Where to send a reader who opened the site at another of its addresses (decision 93): the www name or the Worker's
- * own workers.dev address go to the canonical one the build wrote from SITE_DOMAIN. A branch preview, local
+ * own workers.dev address go to the canonical one the build wrote (globalgist.io, or SITE_DOMAIN). A branch preview, local
  * development, or a build without a canonical address stays where it is.
  */
 export function canonicalRedirect(here: URL, canonical: string | null): string | null {

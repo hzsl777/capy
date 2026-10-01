@@ -97,6 +97,8 @@ describe("one address (decision 93)", () => {
   it("leaves the canonical address, branch previews, local development and a build without one alone", () => {
     expect(canonicalRedirect(new URL("https://globalgist.io/?theme=pond"), home)).toBeNull();
     expect(canonicalRedirect(new URL("https://claude-branch-globalgist.someone.workers.dev/"), home)).toBeNull();
+    expect(canonicalRedirect(new URL("https://claude-branch.globalgist.io/"), home)).toBeNull();
+    expect(canonicalRedirect(new URL("https://f29ea4d7.globalgist.io/"), home)).toBeNull();
     expect(canonicalRedirect(new URL("http://localhost:5173/"), home)).toBeNull();
     expect(canonicalRedirect(new URL("https://globalgist.someone.workers.dev/"), null)).toBeNull();
   });

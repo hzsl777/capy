@@ -1282,7 +1282,7 @@ function bindGlobal() {
 
 async function start() {
   // Kept in step with index.html's <title>, which is what link previews and search results read.
-  document.title = `${SITE_NAME}: world news on a map`;
+  document.title = `${SITE_NAME}: ${SITE_TAGLINE}`;
   for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
   document.documentElement.dataset.theme = state.theme;
   // Every design's chrome hangs on this attribute. A host page that wraps the site may set its own (a light or dark

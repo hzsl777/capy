@@ -1,11 +1,14 @@
 import { defineConfig, type Plugin } from "vite";
 
 /**
- * The canonical address, og:url and the share image need the site's full address, which only the deploy knows: SITE_DOMAIN (a
- * repository variable, for example globalgist.com). Without it the tags are left out, never guessed.
+ * The canonical address, og:url and the share image need the site's full address: globalgist.io, or SITE_DOMAIN when a
+ * build sets it (decision 94). Link previews need the image's full address, so the default keeps them working on a build
+ * nobody configured.
  */
+const SITE_DOMAIN = "globalgist.io";
+
 function siteAddress(): Plugin {
-  const domain = (process.env.SITE_DOMAIN ?? "").trim().replace(/^www\./, "");
+  const domain = (process.env.SITE_DOMAIN || SITE_DOMAIN).trim().replace(/^www\./, "");
   return {
     name: "site-address",
     transformIndexHtml() {

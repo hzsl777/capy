@@ -1,5 +1,5 @@
 // The site's share image, 1200 by 630 (decision 92): the preview a link to the site shows. With a day's map file it
-// shows that day's word under its date with the "Chosen by AI" line, as the word always appears (decision 40), and a
+// shows the slogan, then that day's word under its date with the "Chosen by AI" line, as the word always appears (decision 40), and a
 // dot for every place with a story that day; without one, the outlets' cities and the tagline. Land and coasts only:
 // no borders and no names (packages/map/AGENTS.md, rule 1).
 // Usage: node tools/share-image.mjs <out.png> [map.json] [chromium path]
@@ -56,7 +56,7 @@ ${dots.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${d
 </svg>`;
 
 const brand = word
-  ? `<h1 class="small">GlobalGist</h1><div class="rule"></div><p class="date">${esc(dateOf(map.telegram.runDate))}</p><p class="word" style="font-size:${wordSize}px">${esc(word)}</p><p class="line">Chosen by AI, weighing the day's news, good and bad.</p>`
+  ? `<h1 class="small">GlobalGist</h1><p class="tag small">One World. One Word.</p><div class="rule"></div><p class="date">${esc(dateOf(map.telegram.runDate))}</p><p class="word" style="font-size:${wordSize}px">${esc(word)}</p><p class="line">Chosen by AI, weighing the day's news, good and bad.</p>`
   : `<h1>GlobalGist</h1><div class="rule"></div><p class="tag">One World. One Word.</p><p class="line">The day's news on a map, placed where it happened.</p>`;
 
 const html = `<!doctype html><meta charset="utf-8"><style>
@@ -71,6 +71,7 @@ h1{font-family:Mast;font-weight:400;font-size:82px;line-height:1;margin:0 0 18px
 h1.small{font-size:48px;margin-bottom:14px}
 .rule{height:2px;background:#151515;margin:0 0 16px;width:300px}
 .tag{font-family:Old;font-size:30px;margin:0 0 22px}
+.tag.small{font-size:24px;margin:-4px 0 16px}
 .date{font-family:Old;font-size:20px;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 6px;color:#3d3a33}
 .word{font-family:Mast;line-height:1.05;margin:0 0 14px;overflow-wrap:anywhere}
 .line{font-family:Old;font-style:italic;font-size:21px;line-height:1.35;color:#3d3a33;margin:0}
