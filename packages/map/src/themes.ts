@@ -14,6 +14,11 @@ export type ViewMode = "2d" | "3d";
 export interface Theme {
   id: ThemeId;
   label: string;
+  /**
+   * A design being tried out (decision 105): left out of the Design menu and opened only by a link with
+   * `?theme=<id>`, so it can be seen on the live site before it is listed. Shown under Experiments while it is on.
+   */
+  experimental?: boolean;
   defaultView: ViewMode;
   projection2d: () => GeoProjection;
   ocean: string;
@@ -2095,6 +2100,8 @@ export function designMenu(ids: readonly string[]): { label: string; ids: ThemeI
     }
     groups.push({ label: g.label, ids: list });
   }
-  groups.push({ label: "Other", ids: ids.filter((id) => !placed.has(id)) as ThemeId[] });
+  const rest = ids.filter((id) => !placed.has(id)) as ThemeId[];
+  groups.push({ label: "Other", ids: rest.filter((id) => !THEMES[id]?.experimental) });
+  groups.push({ label: "Experiments", ids: rest.filter((id) => THEMES[id]?.experimental) });
   return groups.filter((g) => g.ids.length > 0);
 }

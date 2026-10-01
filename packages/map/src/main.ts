@@ -191,6 +191,8 @@ const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
 const REPLAY_WINDOW = 3 * 3600;
 const THEME_IDS = Object.keys(THEMES) as ThemeId[];
+/** The Design menu's designs: every listed one, and an experimental one only while it is on (decision 105). */
+const menuIds = () => THEME_IDS.filter((id) => !THEMES[id].experimental || id === state.theme);
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -480,7 +482,7 @@ function dropdown<T extends string>(el: HTMLSelectElement, options: [T, string][
 function groupDesigns(el: HTMLSelectElement) {
   const byId = new Map([...el.options].map((o) => [o.value, o]));
   el.replaceChildren(
-    ...designMenu(THEME_IDS).map((g) => h("optgroup", { label: g.label }, ...g.ids.flatMap((id) => byId.get(id) ?? []))),
+    ...designMenu(menuIds()).map((g) => h("optgroup", { label: g.label }, ...g.ids.flatMap((id) => byId.get(id) ?? []))),
   );
   el.value = state.theme;
 }
@@ -504,7 +506,7 @@ function renderToolbar() {
   );
   dropdown(
     $("design-select") as HTMLSelectElement,
-    THEME_IDS.map((id) => [id, phone.matches ? THEMES[id].label.split(" ")[0]! : THEMES[id].label]),
+    menuIds().map((id) => [id, phone.matches ? THEMES[id].label.split(" ")[0]! : THEMES[id].label]),
     state.theme,
     (id) => {
       closeMenus();
