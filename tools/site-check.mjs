@@ -95,7 +95,11 @@ if (chrome) {
     if (scroll > 1) fail(`${name}: page scrolls sideways by ${scroll}px`);
     log(`${name}: title "${await p.title()}"`);
     await p.screenshot({ path: `${out}/${name}.png` });
-    for (const e of errors) fail(`${name}: ${e}`);
+    // Cloudflare can add its own page-speed beacon to a domain it serves. The site's CSP blocks it, so nothing is
+    // collected (About promises no analytics); it is noted, not failed.
+    const beacon = (e) => e.includes("static.cloudflareinsights.com");
+    if (errors.some(beacon)) log(`${name}: Cloudflare's beacon was injected and blocked by the CSP`);
+    for (const e of errors.filter((e) => !beacon(e))) fail(`${name}: ${e}`);
     await ctx.close();
   }
   await browser.close();

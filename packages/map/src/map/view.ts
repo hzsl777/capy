@@ -214,7 +214,7 @@ const hexRgb = (hex: string): [number, number, number] => {
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
 
-type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "tiles" | "shimmer";
+type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "crunch" | "tiles" | "shimmer";
 
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
@@ -1190,6 +1190,69 @@ export class MapView {
             g.stroke();
             g.restore();
           }
+      }
+      p = this.ctx.createPattern(pc, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
+    if (kind === "crunch") {
+      // Gummy Cluster's crust: tiny irregular candy bits packed close in many bright colours (never red), each with a
+      // shadow in the first ink and a glint in the second, over the gummy body that shows between them. Cut once from
+      // a fixed seed into one tile, so the crust is the same over all land; bits near an edge are drawn again one
+      // tile over, so it wraps without a seam.
+      const size = 72;
+      const pc = document.createElement("canvas");
+      pc.width = pc.height = Math.round(size * this.dpr);
+      const g = pc.getContext("2d")!;
+      g.scale(this.dpr, this.dpr);
+      let seed = 41;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const wrap = (d: number) => d - size * Math.round(d / size);
+      const colours = ["#ff4f9e", "#a46bff", "#c9a4ff", "#ff9a2e", "#ffd93b", "#23c9b5", "#7fe3ff", "#9be04a", "#fff3fa", "#ff7ab8"];
+      const bits: { x: number; y: number; r: number; pts: [number, number][]; c: string }[] = [];
+      for (let tries = 0; tries < 9000 && bits.length < 360; tries++) {
+        const r = 1.8 + rnd() * rnd() * 2.8;
+        const x = rnd() * size;
+        const y = rnd() * size;
+        if (!bits.every((q) => Math.hypot(wrap(x - q.x), wrap(y - q.y)) > (r + q.r) * 0.86)) continue;
+        const n = 5 + Math.floor(rnd() * 3);
+        const turn = rnd() * Math.PI * 2;
+        const pts = Array.from({ length: n }, (_, i): [number, number] => {
+          const a = turn + (i / n) * Math.PI * 2 + (rnd() - 0.5) * 0.5;
+          const k = r * (0.72 + rnd() * 0.42);
+          return [Math.cos(a) * k, Math.sin(a) * k];
+        });
+        bits.push({ x, y, r, pts, c: colours[Math.floor(rnd() * colours.length)]! });
+      }
+      const bit = (b: (typeof bits)[number], dx: number, dy: number) => {
+        g.beginPath();
+        b.pts.forEach(([px, py], i) => (i ? g.lineTo(px + dx, py + dy) : g.moveTo(px + dx, py + dy)));
+        g.closePath();
+      };
+      for (const pass of [0, 1, 2]) {
+        for (const b of bits) {
+          for (const ox of [-size, 0, size])
+            for (const oy of [-size, 0, size]) {
+              const x = b.x + ox;
+              const y = b.y + oy;
+              if (x < -b.r - 2 || y < -b.r - 2 || x > size + b.r + 2 || y > size + b.r + 2) continue;
+              if (pass === 0) {
+                bit(b, x + 0.5, y + 0.7);
+                g.fillStyle = ink;
+                g.fill();
+              } else if (pass === 1) {
+                bit(b, x, y);
+                g.fillStyle = b.c;
+                g.fill();
+              } else if (b.r > 1.9) {
+                g.beginPath();
+                g.ellipse(x - b.r * 0.32, y - b.r * 0.36, b.r * 0.34, b.r * 0.2, -0.6, 0, Math.PI * 2);
+                g.fillStyle = ink2;
+                g.fill();
+              }
+            }
+        }
       }
       p = this.ctx.createPattern(pc, "repeat")!;
       p.setTransform(new DOMMatrix().scale(1 / this.dpr));

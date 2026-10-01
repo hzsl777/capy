@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -173,6 +173,38 @@ export function markPath(shape: MarkShape, r: number): string {
       const hh = r * 0.78;
       const n = r * 0.36;
       return `M${f(-w)} ${f(-hh)}H${f(w)}V${f(-n)}A${f(n)} ${f(n)} 0 0 0 ${f(w)} ${f(n)}V${f(hh)}H${f(-w)}V${f(n)}A${f(n)} ${f(n)} 0 0 0 ${f(-w)} ${f(-n)}Z`;
+    }
+    case "teacup": {
+      // A teacup seen from the side (Bedtime Tea): a wide rim, a bowl rounding down to a small foot, and a solid ear
+      // of a handle on the right, so the outline stays one closed shape.
+      const k = r * 1.12;
+      const p = (x: number, y: number) => `${f(x * k)} ${f(y * k)}`;
+      return (
+        `M${p(-1, -0.62)}L${p(0.95, -0.62)}Q${p(0.96, -0.45)} ${p(0.93, -0.38)}` +
+        `C${p(1.52, -0.52)} ${p(1.58, 0.2)} ${p(0.78, 0.2)}Q${p(0.64, 0.54)} ${p(0.42, 0.62)}` +
+        `L${p(0.56, 0.72)}L${p(0.6, 0.84)}L${p(-0.6, 0.84)}L${p(-0.56, 0.72)}L${p(-0.42, 0.62)}` +
+        `C${p(-0.8, 0.5)} ${p(-1, 0.05)} ${p(-1, -0.62)}Z`
+      );
+    }
+    case "nugget": {
+      // A candy cluster (Gummy Cluster): a lumpy round nugget, its rim a ring of uneven bumps, the same every time.
+      const n = 7;
+      const turn = [0, 0.12, -0.08, 0.1, -0.05, 0.08, -0.1];
+      const reach = [0.9, 0.84, 0.92, 0.86, 0.9, 0.82, 0.88];
+      const bump = [0.5, 0.4, 0.46, 0.36, 0.48, 0.42, 0.44];
+      const pts = Array.from({ length: n }, (_, i): [number, number] => {
+        const a = ((i + turn[i]!) / n) * Math.PI * 2 - Math.PI / 2;
+        return [r * reach[i]! * Math.cos(a), r * reach[i]! * Math.sin(a)];
+      });
+      let d = `M${f(pts[0]![0])} ${f(pts[0]![1])}`;
+      for (let i = 0; i < n; i++) {
+        const a = pts[i]!;
+        const b = pts[(i + 1) % n]!;
+        // Each bump is a short arc bulging outward; its radius never falls below half its chord, so the arc exists.
+        const br = Math.max(r * bump[i]!, (Math.hypot(b[0] - a[0], b[1] - a[1]) / 2) * 1.02);
+        d += `A${f(br)} ${f(br)} 0 0 1 ${f(b[0])} ${f(b[1])}`;
+      }
+      return `${d}Z`;
     }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
