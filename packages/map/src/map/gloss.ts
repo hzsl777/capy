@@ -2,8 +2,9 @@
 // one rounded "channel" tile with a white plastic rim; in Globe view it is a glossy ball. Land stands up like soft
 // white plastic: a drop shadow and a side under a lit top, a highlight along the upper edges and a shade along the
 // lower ones, and mountains as soft rounded bumps. The sea is pale blue glass with light along the coasts, and a
-// sheen lies over the top of the tile or the ball. Outside the tile the page's slow wavy lines show through (CSS on
-// .map). No maker's names, logos or menus, and no text.
+// sheen lies over the top of the tile or the ball. Outside the tile or the ball the map is an old news channel's
+// screen: soft blue with slow white wavy lines (CSS on .map), and the ball has a white glow to stand off it (decision
+// 99). No maker's names, logos or menus, and no text.
 
 import { geoGraticule, geoPath } from "d3-geo";
 import { cachedPicture, offscreen, pathContext, Picture, type SurfaceFrame, type SurfaceResult } from "./surface.ts";
@@ -106,6 +107,14 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
       g.fillStyle = sh;
       g.fillRect(cx - R, sy - R, R * 2, R * 2);
       g.restore();
+      // A soft white glow round the ball, so it stands off the news channel's blue behind it (decision 99).
+      const halo = g.createRadialGradient(cx, cy, R * 0.97, cx, cy, R * 1.16);
+      halo.addColorStop(0, "rgba(255,255,255,0.75)");
+      halo.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = halo;
+      g.beginPath();
+      g.arc(cx, cy, R * 1.16, 0, Math.PI * 2);
+      g.fill();
     }
     const area = tile ?? sphere;
     g.save();

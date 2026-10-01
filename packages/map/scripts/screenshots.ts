@@ -32,6 +32,14 @@ try {
         await page.waitForFunction(() => document.querySelector(".place-name"));
         await page.waitForTimeout(1600);
         await page.screenshot({ path: `${OUT}/${label}-${theme}-${view}.jpg`, quality: 82 });
+        // Console Menu's home screen of channels (decision 99), opened from the Menu button and closed with Escape.
+        if (theme === "cube" && view === "3d") {
+          await page.locator(".x-menu").click();
+          await page.waitForTimeout(900);
+          await page.screenshot({ path: `${OUT}/${label}-cube-home.jpg`, quality: 82 });
+          await page.keyboard.press("Escape");
+          await page.waitForTimeout(900);
+        }
         if (view === (theme === "wire" ? "3d" : "2d")) {
           await page.locator(".story").first().click();
           await page.waitForTimeout(1200);

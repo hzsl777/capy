@@ -1440,6 +1440,8 @@ export class MapView {
     const map = (proj.scale() >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
 
     if (t.surface && map) {
+      // Console Menu sets its buttons inside the channel tile in Map view, so the page needs to know which is showing.
+      if (t.surface === "gloss" && this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
       // Night Drive, Cross Stitch and Rose Window draw land and sea their own way (decision 70). Places, arcs and
       // tuning are the same as in every design.
       const drawn = this.drawSurface(proj, cam, view, map, t);

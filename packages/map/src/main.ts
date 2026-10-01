@@ -183,6 +183,7 @@ import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
+import { hideChannels, mountChannels, refreshChannels, showChannels, type Channel } from "./ui/channels.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -274,6 +275,7 @@ function armIdleSpin() {
     const menuOpen = document.querySelector("details.menu[open], dialog[open]");
     if (state.reader || state.telegram || state.event || menuOpen || !state.live) return armIdleSpin();
     map.startSpin();
+    renderCard();
   }, IDLE_SPIN_MS);
 }
 
@@ -291,7 +293,10 @@ const map = new MapView($("map"), THEMES[state.theme], {
     if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
   },
   onInteract: armIdleSpin,
-  onLand: armIdleSpin,
+  onLand() {
+    armIdleSpin();
+    renderCard();
+  },
   onDraw: tilesSoon,
 });
 map.setMode(viewOf());
@@ -504,6 +509,8 @@ function renderToolbar() {
       state.theme = id;
       setPref("theme", id);
       applyTheme();
+      // Choosing Console Menu shows its home screen of channels, with the map as the first tile (decision 99).
+      if (id === "cube") showChannels(false);
     },
   );
   groupDesigns($("design-select") as HTMLSelectElement);
@@ -663,6 +670,7 @@ function applyTheme() {
   if (state.file && !state.reader && !state.telegram && !state.event) renderPanel();
   syncUrl();
   refreshExtras();
+  if (state.theme !== "cube") hideChannels();
 }
 
 function onFiltersChanged() {
@@ -731,6 +739,11 @@ function storyButton(it: Item, now: number, showPlace = false, showPublisher = t
 }
 
 function renderPanel() {
+  renderPanelView();
+  renderCard();
+}
+
+function renderPanelView() {
   renderToken++;
   const panel = $("panel");
   panel.classList.toggle("reading", !!(state.reader || state.telegram || state.event));
@@ -745,6 +758,100 @@ function renderPanel() {
   if (state.reader) return renderReader(panel, state.reader);
   if (state.tuned === null) return renderIdle(panel);
   renderPlaces(panel, state.tuned);
+}
+
+// ---- Console Menu: the news channel's headline card (decision 99) --------------
+
+let card: HTMLElement | null = null;
+let cardFor = "";
+let cardPage = 0;
+
+/**
+ * Over the map, just above the reticle: the tuned place's headlines one at a time in a rounded card, like an old
+ * news channel's headline over its place. It is the panel's own list in the panel's own order (local outlets first,
+ * each group newest first, decision 98), for one place only, never a merged dot, and it names no place: the outlet
+ * and the time, as published. Hidden while the map turns, while anything else is open, and in every other design.
+ */
+function renderCard() {
+  const indices = state.tuned;
+  const file = state.file;
+  const show = state.theme === "cube" && !!file && indices?.length === 1 && !state.reader && !state.telegram && !state.event && !map.isSpinning;
+  const all = show ? [...(state.byPlace.get(indices![0]!) ?? [])].sort((a, b) => b.t - a.t) : [];
+  const items = state.showAll ? all : all.filter((it) => tierOf(it, state.tiered) <= state.level);
+  if (!show || !items.length) {
+    if (card) card.hidden = true;
+    cardFor = "";
+    return;
+  }
+  const groups = byOrigin(items);
+  const pages = groups.flatMap((g) => g.items.map((it) => ({ it, origin: g.origin })));
+  const key = String(indices![0]);
+  const fresh = key !== cardFor || !card || card.hidden;
+  if (key !== cardFor) cardPage = 0;
+  cardFor = key;
+  cardPage = Math.min(cardPage, pages.length - 1);
+  if (!card) {
+    card = h("section", { class: "x-card", "aria-label": "Headline at the place under the cross" });
+    $("map").append(card);
+  }
+  const { it, origin } = pages[cardPage]!;
+  const label = { here: "From an outlet based here", elsewhere: "From an outlet based elsewhere", gdelt: "A local site found through GDELT" } as const;
+  const turn = (by: number) => {
+    cardPage = (cardPage + by + pages.length) % pages.length;
+    renderCard();
+    card?.querySelector<HTMLElement>(by > 0 ? ".x-card-next" : ".x-card-prev")?.focus();
+    card?.querySelector(".x-card-story")?.classList.add(by > 0 ? "turn-next" : "turn-prev");
+  };
+  const prev = h("button", { type: "button", class: "x-card-prev", "aria-label": "Previous headline" }, "\u2039");
+  const next = h("button", { type: "button", class: "x-card-next", "aria-label": "Next headline" }, "\u203a");
+  prev.addEventListener("click", () => turn(-1));
+  next.addEventListener("click", () => turn(1));
+  // The outlet, how long ago, and what the panel would add (GDELT, the language); never a place's name.
+  const parts = [it.publisher, timeAgo(it.t, file!.generatedAt)];
+  if (it.via === "gdelt") parts.push("via GDELT");
+  const lang = languageName(it.lang);
+  if (lang && it.lang !== "en") parts.push(lang);
+  const story = h("button", { type: "button", class: "x-card-story" }, headline(it), h("span", { class: "meta" }, parts.join(" \u00b7 ")));
+  story.addEventListener("click", () => openReader(it));
+  const top = h(
+    "div",
+    { class: "x-card-top" },
+    h("span", { class: "x-card-from" }, groups.length > 1 ? label[origin] : ""),
+    pages.length > 1 ? h("span", { class: "x-card-pager" }, prev, h("span", { class: "x-card-count" }, `${cardPage + 1} of ${pages.length}`), next) : null,
+  );
+  card.replaceChildren(...(groups.length > 1 || pages.length > 1 ? [top] : []), story);
+  card.hidden = false;
+  if (fresh) {
+    // Fades in after a moment, so a place the map only passes over while turning or dragging doesn't pop up.
+    card.classList.remove("in");
+    void card.offsetWidth;
+    card.classList.add("in");
+  }
+}
+
+/** Where a channel on Console Menu's home screen leads, once the map is showing. */
+function openChannel(channel: Channel) {
+  if (channel === "word") return openTelegram();
+  if (channel === "latest") {
+    const it = newest();
+    if (it) openReader(it);
+    return;
+  }
+  // After the click that chose the tile has finished, so the page's own "close menus" doesn't undo it.
+  setTimeout(() => {
+    if (channel === "topics") ($("topics-menu") as HTMLDetailsElement).open = true;
+    else if (channel === "pins" && state.pins.length) ($("pins-menu") as HTMLDetailsElement).open = true;
+    else if (channel === "key") setKey(true);
+    const focus = { topics: "#topics-menu > summary", pins: state.pins.length ? "#pins-menu > summary" : "#map canvas", key: "#key-close", map: "#map canvas" }[channel];
+    document.querySelector<HTMLElement>(focus)?.focus();
+  });
+}
+
+/** The newest report in the window, the first one the idle list shows. */
+function newest(): Item | null {
+  let best: Item | null = null;
+  for (const list of state.byPlace.values()) if (list[0] && (!best || list[0].t > best.t)) best = list[0];
+  return best;
 }
 
 function renderIdle(panel: HTMLElement) {
@@ -1228,6 +1335,8 @@ function bindTimebar() {
 const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
 // Market Terminal's ticker: the newest headlines only, never prices, arrows or colours for up and down.
 TICKER_THEMES.add("terminal");
+// Console Menu's news channel: a crawl of the newest headlines along the bottom (decision 99).
+TICKER_THEMES.add("cube");
 
 function renderTicker() {
   // Tactical's feed of the newest headlines follows the same stories as the ticker (src/ui/extras.ts).
@@ -1272,6 +1381,7 @@ function spin() {
   closeTelegram();
   renderPanel();
   map.startSpin();
+  renderCard();
 }
 
 function closeMenus() {
@@ -1384,6 +1494,24 @@ async function start() {
     builtAt: () => state.file?.generatedAt ?? null,
     kmPerPixel: () => map.kmPerPixel(),
   });
+  mountChannels({
+    theme: () => state.theme,
+    word: () => {
+      const file = state.file;
+      if (!file) return null;
+      const status = wordStatus(file);
+      const date = formatRunDate(status.date);
+      return file.telegram ? { kicker: status.note ? "Latest Word" : "Today's Word", word: file.telegram.word, date } : { none: "No word for this day", date };
+    },
+    latest: () => {
+      const it = newest();
+      return it && state.file ? [h("span", { class: "x-ch-place" }, state.file.places[it.place]!.name), headline(it), metaLine(it, state.file.generatedAt)] : null;
+    },
+    topics: () => (state.topics.size === FILTERS.length ? "All topics" : `${state.topics.size} of ${FILTERS.length} topics`),
+    pins: () => state.pins.map((p) => p.name),
+    open: openChannel,
+    about: () => ($("about") as HTMLDialogElement).showModal(),
+  });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
   let landDrawn = false;
@@ -1442,8 +1570,10 @@ async function start() {
     // A different stretch of the world each visit, a little north of the equator where most places are.
     map.setCenter(Math.random() * 360 - 180, 18);
     map.startSpin();
+    renderCard();
   }
   armIdleSpin();
+  refreshChannels();
 }
 
 start();
