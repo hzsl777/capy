@@ -6,8 +6,11 @@
 import type { Theme } from "../themes.ts";
 import { offscreen, type SurfaceFrame } from "./surface.ts";
 
-/** Milliseconds between frames a design's own motion asks for, by `surface`. About 12 and 5 frames a second. */
-const AMBIENT_MS: Partial<Record<NonNullable<Theme["surface"]>, number>> = { aquarium: 80, lava: 200 };
+/**
+ * Milliseconds between frames a design's own motion asks for, by `surface`. About 12 and 5 frames a second; Green
+ * Core's energy and tube light 8, which also carries its opening.
+ */
+const AMBIENT_MS: Partial<Record<NonNullable<Theme["surface"]>, number>> = { aquarium: 80, lava: 200, core: 125 };
 
 let reduce: MediaQueryList | null = null;
 

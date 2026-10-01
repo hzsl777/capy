@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -85,7 +85,7 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's on-board route display, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2105,6 +2105,47 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#ffb547",
     tuned: "#ffffff",
     arc: "rgba(205,228,255,0.85)",
+    glow: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Green Core (experimental): after the feel of an early-2000s black and green console dashboard, with
+  // no maker's or console's name, logo, shapes, sounds or art. The globe is a glowing orb with energy turning slowly in
+  // its dark green glass, lit green land, a halo and lit tubes curving through the dark room behind it; the map is a
+  // dark green panel in a bezel that is itself a lit tube (src/map/core.ts). Near-white markers that glow, amber for
+  // fresh reports, so neither reads as the green of the picture.
+  core: {
+    id: "core",
+    label: "Green Core",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    surface: "core",
+    globeScale: 0.34,
+    ocean: "#062c16",
+    land: "#3ece62",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(150,255,175,0.3)",
+    coast: "rgba(185,255,200,0.85)",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "rgba(70,255,120,0.12)",
+    oceanHatch: null,
+    graticule: "rgba(90,255,130,0.07)",
+    graticuleDash: [],
+    river: "rgba(10,60,28,0.6)",
+    lake: "#062c16",
+    ice: "#6ec882",
+    relief: "rgba(200,255,210,0.12)",
+    dot: "#f2fff5",
+    dotStroke: "#03200d",
+    fresh: "#ffb21e",
+    tuned: "#ffffff",
+    arc: "rgba(242,255,245,0.85)",
     glow: true,
     atmosphere: null,
     shade: null,
