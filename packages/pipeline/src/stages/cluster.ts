@@ -8,10 +8,12 @@ import {
   WorldClusterMergeSchema,
   WorldClusterResultSchema,
   type RunDate,
+  type Source,
   type WorldClusterMerge,
   type WorldClusterResult,
   type WorldTopic,
 } from "@2dayai/core";
+import { heldGroups, type Held } from "../balance.js";
 import { Gazetteer, type Where } from "../places.js";
 import { loadPrompt, type Prompt } from "../prompts.js";
 import { articles, editions, eventArticles, events, sources, telegrams, type Db } from "@2dayai/db";
@@ -101,6 +103,8 @@ export type WorldClusterReport = ClusterReport & {
   placed: number;
   /** Articles still ungrouped after the second pass, each written as its own event of importance 1 (decision 50). */
   alone: number;
+  /** Balance groups left out today because a side had no story, with the sides that had none (decision 90). */
+  held?: Held[];
 };
 
 type WorldRow = { id: number; source: string; place: string; title: string; lead: string };
@@ -162,7 +166,8 @@ export function worldMergeUserContent(evs: BatchEvent[], outletOf: Map<number, s
   return `Events from today's batches, ${evs.length} in total. Each starts with its key in brackets.\n\n${lines.join("\n\n")}`;
 }
 
-export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: RunDate): Promise<WorldClusterReport> {
+/** `sourceList` carries the balance groups (decision 90); without it nothing is held. */
+export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: RunDate, sourceList: Source[] = []): Promise<WorldClusterReport> {
   const { from, to } = ingestWindow(date);
   // Newest first across every source, so each batch is a slice of the day from many places, not one region.
   const all = await db
@@ -171,8 +176,12 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     .innerJoin(sources, eq(sources.id, articles.sourceId))
     .where(and(eq(sources.desk, "world"), gte(articles.publishedAt, from), lt(articles.publishedAt, to)))
     .orderBy(desc(articles.publishedAt), asc(articles.id));
+  const bySource = new Map<string, number>();
+  for (const r of all) bySource.set(r.sourceId, (bySource.get(r.sourceId) ?? 0) + 1);
+  const { held, heldSources } = heldGroups(sourceList, bySource);
   const perSource = new Map<string, number>();
   const rows: WorldRow[] = all
+    .filter((r) => !heldSources.has(r.sourceId))
     .filter((r) => {
       const n = (perSource.get(r.sourceId) ?? 0) + 1;
       perSource.set(r.sourceId, n);
@@ -182,7 +191,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
 
   if (rows.length === 0) {
     await clearWorldDay(db, date);
-    return { articles: 0, events: 0, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0 };
+    return { articles: 0, events: 0, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0, ...(held.length ? { held } : {}) };
   }
 
   const prompt = loadPrompt("cluster-world", CLUSTER_WORLD_PROMPT_VERSION);
@@ -267,7 +276,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     await db.insert(eventArticles).values(ev.ids.map((articleId) => ({ eventId: row!.id, articleId })));
     byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
   }
-  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped };
+  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped, ...(held.length ? { held } : {}) };
 }
 
 /** The telegram is written from the world events; re-clustering makes any old telegram for the date stale. */

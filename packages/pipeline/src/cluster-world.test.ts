@@ -1,7 +1,7 @@
 // Cluster world in batches, with the merge pass across them, on a real Postgres engine and a scripted model.
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { toRunDate, validMergeGroups } from "@2dayai/core";
+import { toRunDate, validMergeGroups, type Source } from "@2dayai/core";
 import { articles, eventArticles, events, sources, type Db } from "@2dayai/db";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
 import { LlmParseError } from "./llm/types.js";
@@ -83,6 +83,23 @@ async function worldEvents() {
 describe("cluster world in batches", () => {
   beforeEach(async () => {
     await db.delete(events);
+  });
+
+  it("leaves out a balance group when one of its sides has no story that day (decision 90)", async () => {
+    let sent = "";
+    const llm = new FakeLlm({
+      "cluster-world": (req) => { sent += req.user; return clusterAnswer(req); },
+      "cluster-world-merge": () => ({ groups: [] }),
+    });
+    const list: Source[] = [
+      { id: "s2", name: "Harbor Daily", url: "https://s2.example/feed.xml", topic: "world", tier: "general", desk: "world", lang: "en", place: { name: "Lagos", lat: 0, lon: 0 }, balance: { group: "delta", side: "east" } },
+      { id: "s9", name: "Quiet Weekly", url: "https://s9.example/feed.xml", topic: "world", tier: "general", desk: "world", lang: "en", place: { name: "Lagos", lat: 0, lon: 0 }, balance: { group: "delta", side: "west" } },
+    ];
+    const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date, list);
+    expect(report.held).toEqual([{ group: "delta", missing: ["west"] }]);
+    expect(report.articles).toBe(10);
+    expect(sent).not.toContain("Harbor Daily");
+    expect(sent).toContain("Northgate Wire");
   });
 
   it("splits into even batches no larger than the limit", () => {
