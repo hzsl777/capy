@@ -39,7 +39,7 @@
         <summary>Topics <span id="topics-count"></span></summary>
         <div class="menu-body chips" id="topics"></div>
       </details>
-      <button class="tool" id="translate" aria-pressed="false" type="button">Translate</button>
+      <label class="pick" id="translate-pick" hidden><span class="sr">Translate headlines into</span><select id="translate"><option value="">Translate</option></select></label>
       <details class="menu" id="pins-menu" hidden>
         <summary>Pinned <span id="pins-count"></span></summary>
         <div class="menu-body" id="pins"></div>
@@ -110,7 +110,7 @@
         <li>No copied articles. The panel shows the outlet's own feed summary and links to the full story.</li>
       </ul>
       <h3>Translation</h3>
-      <p>Translate uses the translator built into your browser, which runs on your device. Nothing is sent anywhere. Browsers without a built-in translator can't translate.</p>
+      <p>Translate shows headlines and summaries in the language you pick, starting with your browser's languages. When your browser already has a translator for that language, it translates on your device. Otherwise the text of the headline alone is sent to this site's host, Cloudflare, whose model translates it; nothing about you is sent. Translations are made by machine, labelled as such, and can be wrong.</p>
       <h3>Privacy</h3>
       <p>No cookies, no analytics and no accounts. Your design, view, topics, Translate setting and pinned places are saved in this browser's local storage only. A story's picture, and an article you open inside the site, load from the outlet that published it.</p>
       <p class="fine">Map and city data: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener noreferrer">Natural Earth</a> (public domain). Town list: <a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Local stories: <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener noreferrer">The GDELT Project</a>. The Course of Empire design shows Thomas Cole's The Course of Empire: Destruction (1836, New-York Historical Society, public domain) in black and white. Fonts: open source, under the SIL Open Font License 1.1 or the Apache License 2.0. Headlines, summaries and articles belong to their publishers.</p>

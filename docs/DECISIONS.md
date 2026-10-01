@@ -873,3 +873,22 @@ Three more designs were asked for: a geography guessing game, a sandwich shop an
 3. **Marquee** (`marquee`): a marquee between rows of bulbs, the word on a backlit letter board, the map as the screen in red velvet drapes, ticket-stub buttons and markers, a film strip for the time bar. The bulbs are lit and still; chasing lights would flash. The drapes and valance sit in the stage's margin round the map, so they never cover a place, and no label like "now showing" sits by the word.
 4. **Markers.** Three outlines join `src/map/marks.ts`: a map pin, an order ticket with a torn edge and a ticket stub with a notch at each end. The Key draws from the same paths, and hollow, filled and ringed read in each (decision 57). Shape carries no meaning.
 5. **Fonts.** Rubik, Amatic SC, Arvo, Bebas Neue and Josefin Sans, self-hosted through `@fontsource` like every other design.
+
+## 97. Translate works in every browser, into the reader's language (October 1, 2026)
+
+Davis found Translate did nothing on his phone: Arabic and Spanish headlines stayed as they were under "Not translated yet: tap Translate again to download". Translation relied only on the browser's own translator (Chrome's Translator API, decision 93), which most phones and most browsers don't have, and where it exists a language must be downloaded during a tap. The button was an on and off switch, so "tap again" turned translation off. He also asked that readers who don't read English can pick their language.
+
+1. **The Worker translates when the browser can't.** `GET /api/translate?from=&to=&q=` runs Cloudflare Workers AI's M2M100 model (`@cf/meta/m2m100-1.2b`, an `[ai]` binding in wrangler.toml, no key to keep). Only the text is sent, at most 400 characters (a headline, or a summary already cut at 300), between two of the model's hundred languages. Each answer is kept at the edge for 30 days, so a headline is translated once for everyone, not once per reader. On Cloudflare's free plan Workers AI has a daily free allowance and stops for the day when it runs out instead of charging; the site then shows the original with a note. The browser's own translator is still used first when it already has the language pair, which keeps the text on the device and needs no tap.
+2. **The reader picks the language.** Translate is now a list: "Translate" (off), then the reader's own languages as their browser reports them, then all hundred, each named in its own language. The choice is saved in the browser like the other settings; an old "on" means the browser's first language. Translation stays opt-in (rule 4). The site's own labels stay in English for now.
+3. **Labels.** A translated headline or summary says "Machine translated from X". One that could not be translated says so and stays as published.
+
+This replaces "on-device only" in rule 4 of packages/map/AGENTS.md and closes the DeepL idea from the launch list: Workers AI needs no account or key beyond the Cloudflare account the site already runs on.
+
+## 98. A place's own outlets come first (October 1, 2026)
+
+Davis asked for a hierarchy in a place's list: London's news should come first from London's outlets. Until now every list was newest first (decisions 30 and 46). He chose local outlets first and no ranking of outlets by quality.
+
+1. **Three groups, by where the outlet is based.** A place's list now shows the reports of outlets that publish from that place first, then reports by outlets elsewhere that the grouping model placed there (the ones whose byline names another city), then the local stories found through GDELT. Each group stays newest first. `byOrigin` in `packages/map/src/data.ts`.
+2. **Only the outlet's city orders them.** It is a fact about the outlet, not a judgment. No outlet is ranked above another, importance still never orders a list, and the "Latest reports" list stays newest first. Ranking outlets by quality was considered and left out: on a site that covers contested places, choosing which papers are better is hard to defend.
+3. **Headings only when needed.** "From outlets in London", "From outlets elsewhere" and "Local sites found through GDELT" show only when a place has more than one group, so a place with one kind of report reads as before.
+

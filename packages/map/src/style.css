@@ -672,6 +672,11 @@ summary {
   background: var(--panel);
   color: var(--ink);
 }
+/* Every closed dropdown is sized by the page to the text it shows (fitSelects in main.ts), so none is ever cut off. */
+.pick select {
+  max-width: none;
+  text-overflow: clip;
+}
 #about-btn .narrow {
   display: none;
 }
@@ -1097,6 +1102,20 @@ summary {
   margin: 0;
   padding: 0;
 }
+/* A place's groups of reports (decision 98): its own outlets, outlets elsewhere, GDELT's local sites. */
+.stories-group {
+  font: inherit;
+  font-size: 0.74em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  margin: 14px 0 2px;
+}
+.stories + .stories-group {
+  border-top: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+  padding-top: 10px;
+}
 .stories li + li {
   border-top: 1px solid color-mix(in srgb, var(--rule) 35%, transparent);
 }
@@ -1372,10 +1391,6 @@ dialog .close {
   }
   .pick select {
     padding: 7px 19px 7px 8px;
-    /* Size to the chosen design, not the longest name on the list, so the row never wraps. */
-    field-sizing: content;
-    max-width: 7.5em;
-    text-overflow: ellipsis;
   }
   .pick::after {
     right: 7px;

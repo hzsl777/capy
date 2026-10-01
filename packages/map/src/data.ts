@@ -242,3 +242,21 @@ export function canonicalRedirect(here: URL, canonical: string | null): string |
   const other = here.hostname === `www.${home.hostname}` || (here.hostname.startsWith("globalgist.") && here.hostname.endsWith(".workers.dev"));
   return other ? `${home.origin}${here.pathname}${here.search}` : null;
 }
+
+export type OriginGroup = { origin: "here" | "elsewhere" | "gdelt"; items: MapItem[] };
+
+/**
+ * A place's reports in the order a reader looks for them (decision 98): outlets that publish from the place first,
+ * then outlets elsewhere that reported on it, then the local stories found through GDELT. Where an outlet is based is
+ * the only thing that orders them; within a group the order the items came in (newest first) is kept, and no outlet
+ * is ranked above another. Empty groups are left out.
+ */
+export function byOrigin(items: readonly MapItem[]): OriginGroup[] {
+  const groups: OriginGroup[] = [
+    { origin: "here", items: [] },
+    { origin: "elsewhere", items: [] },
+    { origin: "gdelt", items: [] },
+  ];
+  for (const it of items) groups[it.via === "gdelt" ? 2 : it.from ? 1 : 0]!.items.push(it);
+  return groups.filter((g) => g.items.length);
+}

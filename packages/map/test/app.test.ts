@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalRedirect, FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, scaleBar, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
+import { byOrigin, canonicalRedirect, FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, scaleBar, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
 import type { MapFile, MapItem } from "../src/types.ts";
 
 const base: MapItem = { id: "1", t: 100, title: "t", url: "https://x", domain: "x", publisher: "X", lang: "en", topics: [], place: 0 };
@@ -111,5 +111,23 @@ describe("one address (decision 93)", () => {
     expect(canonicalRedirect(new URL("https://f29ea4d7.globalgist.io/"), home)).toBeNull();
     expect(canonicalRedirect(new URL("http://localhost:5173/"), home)).toBeNull();
     expect(canonicalRedirect(new URL("https://globalgist.someone.workers.dev/"), null)).toBeNull();
+  });
+});
+
+describe("a place's reports by where their outlets are (decision 98)", () => {
+  const item = (id: string, t: number, extra: Partial<MapItem> = {}): MapItem => ({ id, t, title: id, url: `https://x.test/${id}`, domain: "x.test", publisher: "X", lang: "en", topics: [], place: 0, ...extra });
+
+  it("puts the place's own outlets first, then outlets elsewhere, then GDELT, keeping newest first in each", () => {
+    const items = [item("abroad-new", 9, { from: "Damascus" }), item("gdelt", 8, { via: "gdelt" }), item("local-new", 7), item("abroad-old", 5, { from: "Doha" }), item("local-old", 3)];
+    expect(byOrigin(items).map((g) => [g.origin, g.items.map((i) => i.id)])).toEqual([
+      ["here", ["local-new", "local-old"]],
+      ["elsewhere", ["abroad-new", "abroad-old"]],
+      ["gdelt", ["gdelt"]],
+    ]);
+  });
+
+  it("leaves out empty groups", () => {
+    expect(byOrigin([item("a", 1, { from: "Kyiv" })]).map((g) => g.origin)).toEqual(["elsewhere"]);
+    expect(byOrigin([])).toEqual([]);
   });
 });

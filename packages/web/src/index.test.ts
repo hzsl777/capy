@@ -247,3 +247,64 @@ describe("the Worker's stored map files", () => {
     expect(((await res.json()) as MapFile).runDate).toBe(date);
   });
 });
+
+describe("the Worker's translation (decision 97)", () => {
+  const fakeAi = (answer: string | Error) => {
+    const calls: { model: string; input: { text: string; source_lang: string; target_lang: string } }[] = [];
+    return {
+      calls,
+      ai: {
+        async run(model: string, input: { text: string; source_lang: string; target_lang: string }) {
+          calls.push({ model, input });
+          if (answer instanceof Error) throw answer;
+          return { translated_text: answer };
+        },
+      },
+    };
+  };
+
+  it("translates a headline with the model and lets it be kept for a month", async () => {
+    const { ai, calls } = fakeAi("British intelligence warns universities");
+    const app = createApp(() => db);
+    const q = new URLSearchParams({ from: "ar", to: "en", q: "جهاز الاستخبارات البريطاني يحذر الجامعات" });
+    const res = await app.request(`/api/translate?${q}`, {}, { ...env, AI: ai });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ text: "British intelligence warns universities", from: "ar", to: "en" });
+    expect(res.headers.get("cache-control")).toContain("max-age=2592000");
+    expect(calls).toEqual([{ model: "@cf/meta/m2m100-1.2b", input: { text: "جهاز الاستخبارات البريطاني يحذر الجامعات", source_lang: "ar", target_lang: "en" } }]);
+  });
+
+  it("refuses anything that isn't a short text between two languages, without calling the model", async () => {
+    const { ai, calls } = fakeAi("x");
+    const app = createApp(() => db);
+    for (const q of [{ from: "ar", to: "en" }, { from: "ar", to: "ar", q: "x" }, { from: "arabic", to: "en", q: "x" }, { from: "ar", to: "en", q: "x".repeat(401) }]) {
+      const res = await app.request(`/api/translate?${new URLSearchParams(q)}`, {}, { ...env, AI: ai });
+      expect(res.status).toBe(400);
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it("asks again with language names when the model doesn't take the codes", async () => {
+    const calls: string[] = [];
+    const ai = {
+      async run(_model: string, input: { text: string; source_lang: string; target_lang: string }) {
+        calls.push(`${input.source_lang}>${input.target_lang}`);
+        if (input.source_lang === "ar") throw new Error("unknown language");
+        return { translated_text: "British intelligence warns universities" };
+      },
+    };
+    const app = createApp(() => db);
+    const res = await app.request(`/api/translate?${new URLSearchParams({ from: "ar", to: "en", q: "جهاز الاستخبارات" })}`, {}, { ...env, AI: ai });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(["ar>en", "arabic>english"]);
+  });
+
+  it("says when the model is missing or fails, and never caches that", async () => {
+    const app = createApp(() => db);
+    const q = new URLSearchParams({ from: "es", to: "en", q: "Hola" });
+    expect((await app.request(`/api/translate?${q}`, {}, env)).status).toBe(503);
+    const failed = await app.request(`/api/translate?${q}`, {}, { ...env, AI: fakeAi(new Error("daily allowance used")).ai });
+    expect(failed.status).toBe(503);
+    expect(failed.headers.get("cache-control")).toBe("no-store");
+  });
+});

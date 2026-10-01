@@ -120,6 +120,10 @@ The workers.dev address keeps working too. Email links follow `SITE_DOMAIN`, so 
 
 The daily run needs no deploy: it stores the new day's file in R2, and the Worker serves it.
 
+### Translation
+
+The map's Translate list (decision 97) uses Cloudflare Workers AI through the `[ai]` binding in `wrangler.toml`. There is nothing to set up: the binding comes with the Cloudflare account, and the Worker translates at `/api/translate`. Each headline is translated once and kept at the edge for 30 days. On the Workers Free plan the model has a daily free allowance and stops for the day when it runs out, without charging; readers then see the original headline with a note. To check it, open the site, pick a language in Translate and look for "Machine translated from" under a headline in another language. The Worker's Logs in Cloudflare show any failed `/api/translate` calls. If the account moves to the paid Workers plan, Workers AI use beyond the free allowance is billed, so look at its usage in the dashboard (AI, then Workers AI) first.
+
 ### The clock
 
 GitHub's own schedule started the daily run hours late or not at all, and skipped refreshes for hours (decision 91). The Worker's cron triggers (`[triggers]` in `wrangler.toml`) fire on time and ask GitHub to start the runs: the daily run at 00:07 UTC, only if its day is missing, and the refresh every three hours at minute 41. GitHub's schedule stays only as the daily run's backup. The Worker needs one secret to do it:

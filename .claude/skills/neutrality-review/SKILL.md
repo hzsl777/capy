@@ -28,8 +28,8 @@ GlobalGist is public and shows news from contested places. Go through each check
 
 ## Panel and copy
 - [ ] Place names use `Place.name` only, with no country appended.
-- [ ] Lists are newest first. No new sort key.
-- [ ] Headlines are shown as published. Any translation is labelled "Translated from X" and is opt-in.
+- [ ] Lists are newest first. A place's list may only be split by where the outlet is based (its own outlets, outlets elsewhere, GDELT), each group newest first (decision 98). No other sort key, and no outlet ranked above another.
+- [ ] Headlines are shown as published. Any translation is opt-in, labelled "Machine translated from X", and sends only the text to translate, never anything about the reader (decision 97).
 - [ ] Generated text appears only in the telegram (word, scores, lines) and event explanations, all built from verified sentences and labelled as written by AI. No other summaries, no labels like "breaking" or "developing", no sentiment.
 - [ ] Nothing decorative around the word changes how it reads (no suffixes, no icons that imply a verdict).
 - [ ] New UI copy is descriptive and plain: no adjectives about events, places or groups, no em dashes.
