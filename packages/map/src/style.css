@@ -11011,3 +11011,1054 @@ button.link {
     padding-inline: 8px;
   }
 }
+
+/* ==========================================================================
+   Pin Drop, Deli Counter and Marquee: a geography guessing game's HUD, a sandwich shop's counter and a picture
+   house. Each borrows a feel only: no game's, shop's, cinema chain's or studio's name, logo, lettering or art.
+   Pin Drop's HUD strip is built in src/ui/extras.ts; everything else here is CSS. Tokens first, then each design.
+   ========================================================================== */
+.x-guess {
+  display: none;
+}
+:root[data-theme="pindrop"] {
+  color-scheme: light;
+  --page: #ecebf6;
+  --panel: #ffffff;
+  --ink: #1c1050;
+  --ink-2: #352a6a;
+  --muted: #5a5388;
+  --rule: #cfcae6;
+  --accent: #4a2ab8;
+  --on-accent: #ffffff;
+  --hover: rgba(74, 42, 184, 0.07);
+  --reticle: #1c1050;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Rubik", "Arial Black", sans-serif;
+  --font-head: "Rubik", Arial, sans-serif;
+  --font-body: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  /* The HUD's deep indigo, and the lime of a game's main button. */
+  --pd-hud: linear-gradient(to bottom, #301f80, #1c1050);
+  --pd-lime: linear-gradient(to bottom, #8be85e, #4fb82c);
+}
+:root[data-theme="deli"] {
+  color-scheme: light;
+  --page: #f4efe4;
+  --panel: #fffdf6;
+  --ink: #2a1a0e;
+  --ink-2: #47301f;
+  --muted: #6c5341;
+  --rule: #b9a588;
+  --accent: #c4321f;
+  --on-accent: #fffaf0;
+  --hover: rgba(196, 50, 31, 0.07);
+  --reticle: #2a1a0e;
+  --grain-opacity: 0.22;
+  --grain-blend: multiply;
+  --font-mast: "Amatic SC", "Comic Sans MS", cursive;
+  --font-head: "Arvo", Rockwell, Georgia, serif;
+  --font-body: "Arvo", Rockwell, Georgia, serif;
+  --font-ui: "Arvo", Rockwell, Georgia, serif;
+  /* An order ticket: cream paper with its top edge perforated where it was torn off the pad. */
+  --deli-ticket: radial-gradient(circle at 5px 0, transparent 2.3px, #fffdf6 2.8px) 0 0 / 10px 100% repeat-x;
+  --deli-ticket-on: radial-gradient(circle at 5px 0, transparent 2.3px, #c4321f 2.8px) 0 0 / 10px 100% repeat-x;
+  /* A butcher-block counter of maple strips. */
+  --deli-block: repeating-linear-gradient(90deg, #ddb07a 0 36px, #c99a62 36px 38px, #e4bb86 38px 78px, #c4935a 78px 80px, #d8a96f 80px 118px, #c7965c 118px 120px);
+  --deli-board: #26302b;
+}
+:root[data-theme="marquee"] {
+  color-scheme: dark;
+  --page: #140a0c;
+  --panel: #1d0e11;
+  --ink: #f6ead2;
+  --ink-2: #e4d4b4;
+  --muted: #c2ab8b;
+  --rule: #6b4a2a;
+  --accent: #ffc83a;
+  --on-accent: #1a0d08;
+  --hover: rgba(255, 200, 58, 0.08);
+  --reticle: #fff4d6;
+  --grain-opacity: 0.1;
+  --grain-blend: screen;
+  --font-mast: "Bebas Neue", Oswald, Impact, sans-serif;
+  --font-head: "Josefin Sans", Futura, "Century Gothic", sans-serif;
+  --font-body: "Josefin Sans", Futura, "Century Gothic", sans-serif;
+  --font-ui: "Josefin Sans", Futura, "Century Gothic", sans-serif;
+  /* Red velvet in deep folds. */
+  --mq-velvet: repeating-linear-gradient(90deg, #4a0610 0, #861222 6px, #b01d2f 10px, #7a0f1d 15px, #4a0610 21px);
+  /* A ticket's notch at each end, cut into cream card. */
+  --mq-stub: radial-gradient(circle at 0 50%, #3a0710 0 5px, transparent 5.5px), radial-gradient(circle at 100% 50%, #3a0710 0 5px, transparent 5.5px);
+  --mq-gold: #d4a64a;
+}
+
+/* ---- Pin Drop: a guessing game's bold HUD in indigo and lime, a road-map palette, map pins ----------------- */
+:root[data-theme="pindrop"] body {
+  background: radial-gradient(ellipse 80% 60% at 15% 0%, #3a2a96, transparent 70%), #170c45;
+}
+:root[data-theme="pindrop"] .masthead {
+  border-bottom: 0;
+  background: var(--pd-hud);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12), 0 3px 0 #0d0630;
+  color: #ffffff;
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="pindrop"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(30px, 3.4vw, 44px);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 3px 0 #0d0630;
+}
+/* A dropped pin before the name: a round head with its point, drawn with a rotated square. */
+:root[data-theme="pindrop"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin: 0 0.32em 0 0.06em;
+  border-radius: 50% 50% 50% 0;
+  background: radial-gradient(circle at 50% 50%, #ffffff 0 22%, #f2384f 26%);
+  transform: rotate(-45deg);
+  vertical-align: 0.12em;
+  box-shadow: -2px 2px 0 #0d0630;
+}
+:root[data-theme="pindrop"] .mast-tag {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  color: #d6d0ff;
+}
+:root[data-theme="pindrop"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow: 0 3px 0 #0d0630;
+  border-bottom: 4px solid #8be85e;
+  padding: 0 6px 4px;
+}
+:root[data-theme="pindrop"] .telegram-word:hover,
+:root[data-theme="pindrop"] .telegram-word:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+}
+:root[data-theme="pindrop"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: #4a2ab8;
+}
+:root[data-theme="pindrop"] .masthead .telegram-kicker,
+:root[data-theme="pindrop"] .masthead .telegram-date,
+:root[data-theme="pindrop"] .masthead .telegram-note,
+:root[data-theme="pindrop"] .masthead .telegram-none,
+:root[data-theme="pindrop"] .masthead .telegram-status {
+  color: #d6d0ff;
+  font-weight: 500;
+}
+:root[data-theme="pindrop"] .masthead .telegram-date {
+  border-color: rgba(214, 208, 255, 0.35);
+}
+:root[data-theme="pindrop"] .masthead .scale {
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+  font-weight: 700;
+}
+:root[data-theme="pindrop"] .masthead .scale .step {
+  color: #d6d0ff;
+}
+:root[data-theme="pindrop"] .masthead .scale .step + .step {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+:root[data-theme="pindrop"] .scale .step.on {
+  background: var(--pd-lime);
+  color: #11300a;
+}
+:root[data-theme="pindrop"] .toolbar,
+:root[data-theme="pindrop"] .timebar {
+  border: 0;
+  background: #24166a;
+  color: #ffffff;
+}
+:root[data-theme="pindrop"] .time-label {
+  font-weight: 700;
+  font-style: italic;
+}
+:root[data-theme="pindrop"] .slider input {
+  accent-color: #8be85e;
+}
+/* Buttons are a game's chunky pills: white with an indigo drop, lime when on. */
+:root[data-theme="pindrop"] .tool,
+:root[data-theme="pindrop"] .pick select,
+:root[data-theme="pindrop"] .menu > summary,
+:root[data-theme="pindrop"] .chip,
+:root[data-theme="pindrop"] .key-btn,
+:root[data-theme="pindrop"] .key-close,
+:root[data-theme="pindrop"] dialog .close {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff, #e4e0f7);
+  color: #1c1050;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 0 #0d0630;
+}
+:root[data-theme="pindrop"] .pick::after {
+  color: #1c1050;
+  opacity: 0.9;
+}
+:root[data-theme="pindrop"] .tool.quiet {
+  background: transparent;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+:root[data-theme="pindrop"] .tool:hover,
+:root[data-theme="pindrop"] .pick select:hover,
+:root[data-theme="pindrop"] .menu > summary:hover,
+:root[data-theme="pindrop"] .chip:hover {
+  background: linear-gradient(to bottom, #ffffff, #f1eefc);
+}
+:root[data-theme="pindrop"] .tool[aria-pressed="true"],
+:root[data-theme="pindrop"] .menu[open] > summary,
+:root[data-theme="pindrop"] .chip[aria-pressed="true"],
+:root[data-theme="pindrop"] .key-btn[aria-expanded="true"] {
+  background: var(--pd-lime);
+  color: #11300a;
+  box-shadow: 0 3px 0 #2c6b16;
+}
+/* The map is the game's guess map: a rounded card in a white rim, floating over the indigo. */
+:root[data-theme="pindrop"] .map {
+  margin: 12px;
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #1c1050, 0 10px 26px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at 50% 45%, #42339e, #1e1252 72%);
+}
+:root[data-theme="pindrop"] .map canvas {
+  border-radius: 16px;
+}
+:root[data-theme="pindrop"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+:root[data-theme="pindrop"] .zoom {
+  border: 0;
+  background: none;
+  gap: 8px;
+}
+:root[data-theme="pindrop"] .zoom button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffffff, #e4e0f7);
+  color: #1c1050;
+  font-weight: 800;
+  box-shadow: 0 3px 0 #0d0630;
+}
+:root[data-theme="pindrop"] .zoom button + button {
+  border-top: 0;
+}
+/* A compass on a white dial, its needle's north half red. */
+:root[data-theme="pindrop"] .compass {
+  display: block;
+  width: 70px;
+  height: 70px;
+  left: 14px;
+  bottom: 14px;
+  color: #1c1050;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 54%, #e4e0f7 62%, rgba(255, 255, 255, 0) 63%);
+  filter: drop-shadow(0 3px 0 rgba(13, 6, 48, 0.85));
+}
+:root[data-theme="pindrop"] .compass path:nth-of-type(3) {
+  fill: #f2384f;
+}
+:root[data-theme="pindrop"] .compass text {
+  font: 800 10px var(--font-ui);
+  fill: #1c1050;
+}
+/* The HUD strip: the reticle's position and a scale bar, in the indigo of a game's score strip. */
+:root[data-theme="pindrop"] .x-guess {
+  display: flex;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--pd-hud);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 4px 0 rgba(13, 6, 48, 0.6);
+  color: #ffffff;
+  font-family: var(--font-ui);
+}
+:root[data-theme="pindrop"] .x-guess-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 14px 7px;
+  min-width: 5.5em;
+}
+:root[data-theme="pindrop"] .x-guess-cell + .x-guess-cell {
+  border-left: 2px solid rgba(255, 255, 255, 0.16);
+}
+:root[data-theme="pindrop"] .x-guess-cap {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9c1ff;
+}
+:root[data-theme="pindrop"] .x-guess-val {
+  font-size: 16px;
+  font-weight: 800;
+  font-style: italic;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+:root[data-theme="pindrop"] .x-guess-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+/* A scale bar: a lime line with end ticks, as long as the distance beside it. */
+:root[data-theme="pindrop"] .x-guess-bar {
+  display: block;
+  height: 8px;
+  margin-bottom: 4px;
+  border: 3px solid #8be85e;
+  border-top: 0;
+  border-radius: 0 0 2px 2px;
+  transition: width 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="pindrop"] .x-guess-bar {
+    transition: none;
+  }
+}
+:root[data-theme="pindrop"] .key-btn {
+  top: 14px;
+  left: 14px;
+}
+:root[data-theme="pindrop"] .panel,
+:root[data-theme="pindrop"] .menu-body,
+:root[data-theme="pindrop"] .key-pop,
+:root[data-theme="pindrop"] dialog {
+  background: var(--panel);
+  color: var(--ink);
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #1c1050, 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="pindrop"] .menu-body,
+:root[data-theme="pindrop"] .key-pop {
+  border-top: 6px solid #4a2ab8;
+}
+:root[data-theme="pindrop"] .panel {
+  margin: 12px 12px 12px 4px;
+}
+:root[data-theme="pindrop"] .key-pop {
+  --key-bg: #9ccfe6;
+}
+:root[data-theme="pindrop"] .panel-title,
+:root[data-theme="pindrop"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: #1c1050;
+}
+:root[data-theme="pindrop"] .dateline {
+  border-bottom: 3px solid #ecebf6;
+}
+:root[data-theme="pindrop"] .dateline .coords,
+:root[data-theme="pindrop"] .count,
+:root[data-theme="pindrop"] .meta {
+  font-style: normal;
+}
+:root[data-theme="pindrop"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: var(--pd-hud);
+  color: #ffffff;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.1em;
+}
+:root[data-theme="pindrop"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+}
+:root[data-theme="pindrop"] .reader-headline {
+  font-weight: 800;
+}
+:root[data-theme="pindrop"] .story:hover {
+  background: #f3f1fc;
+}
+:root[data-theme="pindrop"] .lead img {
+  border-radius: 12px;
+}
+
+/* ---- Deli Counter: a chalkboard menu under a striped awning, white wall tiles, order tickets and order pads ------ */
+:root[data-theme="deli"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32'%3E%3Crect width='64' height='32' fill='%23d6cdbd'/%3E%3Crect x='1' y='1' width='62' height='14' rx='2' fill='%23fbf8f1'/%3E%3Crect x='-31' y='17' width='62' height='14' rx='2' fill='%23f7f3ea'/%3E%3Crect x='33' y='17' width='62' height='14' rx='2' fill='%23f7f3ea'/%3E%3Cpath d='M3 3.5H40M-29 19.5H8M35 19.5H72' stroke='%23fff' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 64px 32px,
+    #f4efe4;
+}
+/* The shop front: a striped awning along the top, then the chalkboard menu on a wooden chalk tray. */
+:root[data-theme="deli"] .masthead {
+  border-bottom: 7px solid #7a4b26;
+  padding-top: 30px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='24'%3E%3Crect width='16' height='15' fill='%23c4321f'/%3E%3Crect x='16' width='16' height='15' fill='%23fbf5e6'/%3E%3Ccircle cx='8' cy='15' r='8' fill='%23c4321f'/%3E%3Ccircle cx='24' cy='15' r='8' fill='%23fbf5e6'/%3E%3Cpath d='M0 4H32' stroke='%23000' stroke-opacity='.12' stroke-width='2'/%3E%3C/svg%3E") 0 0 / 32px 24px repeat-x,
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent) 0 22px / 100% 10px no-repeat,
+    radial-gradient(ellipse 60% 70% at 25% 40%, rgba(255, 255, 255, 0.07), transparent 70%),
+    radial-gradient(ellipse 40% 60% at 85% 80%, rgba(255, 255, 255, 0.05), transparent 70%),
+    var(--deli-board);
+  box-shadow: inset 6px 0 0 #7a4b26, inset -6px 0 0 #7a4b26, 0 3px 0 #4d2d14;
+  color: #f7f3e8;
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="deli"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(42px, 4.6vw, 60px);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: #fbf8ee;
+  /* Chalk: a little dust round every stroke. */
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.7), 0 0 6px rgba(255, 255, 255, 0.18);
+}
+:root[data-theme="deli"] .mast-tag {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: #f1e3a6;
+}
+/* The word is hand-lettered on the board in yellow chalk, underlined by hand. No label beside it. */
+:root[data-theme="deli"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ffe27a;
+  text-shadow: 0 0 1px rgba(255, 240, 180, 0.8), 0 0 8px rgba(255, 226, 122, 0.2);
+  border-bottom: 3px dashed rgba(251, 248, 238, 0.7);
+  padding: 0 6px 2px;
+}
+:root[data-theme="deli"] .telegram-word:hover,
+:root[data-theme="deli"] .telegram-word:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+:root[data-theme="deli"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #b02a18;
+}
+:root[data-theme="deli"] .masthead .telegram-kicker,
+:root[data-theme="deli"] .masthead .telegram-date,
+:root[data-theme="deli"] .masthead .telegram-note,
+:root[data-theme="deli"] .masthead .telegram-none,
+:root[data-theme="deli"] .masthead .telegram-status {
+  color: #ece6d2;
+}
+:root[data-theme="deli"] .masthead .telegram-date {
+  border-color: rgba(236, 230, 210, 0.4);
+}
+:root[data-theme="deli"] .masthead .scale {
+  border: 2px solid rgba(251, 248, 238, 0.6);
+  border-radius: 3px;
+  font-family: var(--font-body);
+}
+:root[data-theme="deli"] .masthead .scale .step {
+  color: #ece6d2;
+}
+:root[data-theme="deli"] .masthead .scale .step + .step {
+  border-color: rgba(251, 248, 238, 0.35);
+}
+:root[data-theme="deli"] .scale .step.on {
+  background: #ffe27a;
+  color: #2a1a0e;
+}
+:root[data-theme="deli"] .toolbar,
+:root[data-theme="deli"] .timebar {
+  border: 0;
+  background: var(--deli-block);
+  color: #2a1a0e;
+}
+:root[data-theme="deli"] .toolbar {
+  box-shadow: inset 0 -3px 0 rgba(90, 50, 20, 0.35);
+}
+:root[data-theme="deli"] .timebar {
+  box-shadow: inset 0 3px 0 rgba(90, 50, 20, 0.35);
+}
+:root[data-theme="deli"] .time-label {
+  font-weight: 700;
+}
+:root[data-theme="deli"] .slider input {
+  accent-color: #c4321f;
+}
+/* Buttons are order tickets: cream slips torn off a pad, with a red slip for the one that's on. */
+:root[data-theme="deli"] .tool,
+:root[data-theme="deli"] .pick select,
+:root[data-theme="deli"] .menu > summary,
+:root[data-theme="deli"] .chip,
+:root[data-theme="deli"] .key-btn,
+:root[data-theme="deli"] .key-close,
+:root[data-theme="deli"] dialog .close {
+  border: 1px solid #b9a588;
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
+  background: var(--deli-ticket);
+  color: #2a1a0e;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(77, 45, 20, 0.45);
+}
+:root[data-theme="deli"] .tool,
+:root[data-theme="deli"] .pick select,
+:root[data-theme="deli"] .menu > summary,
+:root[data-theme="deli"] .key-btn {
+  padding-top: 8px;
+}
+:root[data-theme="deli"] .pick::after {
+  color: #2a1a0e;
+}
+:root[data-theme="deli"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+:root[data-theme="deli"] .tool[aria-pressed="true"],
+:root[data-theme="deli"] .menu[open] > summary,
+:root[data-theme="deli"] .chip[aria-pressed="true"],
+:root[data-theme="deli"] .key-btn[aria-expanded="true"] {
+  background: var(--deli-ticket-on);
+  border-color: #8e2414;
+  color: #fffaf0;
+}
+/* The map comes wrapped in butcher paper and tied with red and white twine at two corners. The checks behind
+   the globe are deli paper. */
+:root[data-theme="deli"] .map {
+  margin: 16px;
+  box-shadow: 0 0 0 9px #b8895a, 0 0 0 10px #8c6136, 0 6px 18px 10px rgba(70, 40, 12, 0.3);
+  background:
+    repeating-linear-gradient(0deg, rgba(196, 50, 31, 0.13) 0 14px, transparent 14px 28px),
+    repeating-linear-gradient(90deg, rgba(196, 50, 31, 0.13) 0 14px, transparent 14px 28px),
+    #fffaf0;
+  overflow: visible;
+}
+:root[data-theme="deli"] .map canvas {
+  clip-path: inset(0);
+}
+:root[data-theme="deli"] .map::before,
+:root[data-theme="deli"] .map::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  width: 74px;
+  height: 5px;
+  pointer-events: none;
+  border-radius: 3px;
+  background: repeating-linear-gradient(60deg, #c4321f 0 4px, #fffaf0 4px 8px);
+  box-shadow: 0 1px 2px rgba(60, 30, 10, 0.4);
+}
+:root[data-theme="deli"] .map::before {
+  left: -24px;
+  top: 12px;
+  transform: rotate(-45deg);
+}
+:root[data-theme="deli"] .map::after {
+  right: -24px;
+  bottom: 12px;
+  transform: rotate(-45deg);
+}
+:root[data-theme="deli"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #fffaf0) drop-shadow(0 0 1px #fffaf0);
+}
+:root[data-theme="deli"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="deli"] .zoom button {
+  border: 1px solid #b9a588;
+  border-top: 0;
+  background: var(--deli-ticket);
+  color: #2a1a0e;
+  font-weight: 700;
+  padding-top: 4px;
+  box-shadow: 0 2px 0 rgba(77, 45, 20, 0.45);
+}
+:root[data-theme="deli"] .zoom button + button {
+  border-top: 0;
+}
+/* Panels are order pads: cream paper, a red margin and faint ruled lines, a red band across the top. */
+:root[data-theme="deli"] .panel,
+:root[data-theme="deli"] .menu-body,
+:root[data-theme="deli"] .key-pop,
+:root[data-theme="deli"] dialog {
+  background:
+    linear-gradient(to right, transparent 6px, rgba(196, 50, 31, 0.3) 6px 7px, transparent 7px),
+    repeating-linear-gradient(to bottom, transparent 0 27px, rgba(70, 110, 150, 0.14) 27px 28px),
+    var(--panel);
+  color: var(--ink);
+  border: 1px solid #d8c9ae;
+  border-top: 6px solid #c4321f;
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 4px 12px rgba(70, 40, 12, 0.3);
+}
+:root[data-theme="deli"] .panel {
+  margin: 16px 16px 16px 6px;
+}
+:root[data-theme="deli"] .key-pop {
+  --key-bg: #c9a271;
+}
+:root[data-theme="deli"] .panel-title,
+:root[data-theme="deli"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: #b02a18;
+}
+:root[data-theme="deli"] .key-head h2,
+:root[data-theme="deli"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: 30px;
+  color: #b02a18;
+}
+:root[data-theme="deli"] .key-head h2 {
+  font-size: 26px;
+}
+:root[data-theme="deli"] .dateline {
+  border-bottom: 2px dashed #b9a588;
+}
+:root[data-theme="deli"] .rule-head {
+  border: 0;
+  background: var(--deli-board);
+  color: #fbf8ee;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border-radius: 2px;
+}
+:root[data-theme="deli"] .headline {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.28;
+}
+:root[data-theme="deli"] .story:hover {
+  background: rgba(255, 226, 122, 0.22);
+}
+
+/* ---- Marquee: a lit marquee, red velvet curtains round the screen, ticket stubs and a film strip ------------ */
+:root[data-theme="marquee"] body {
+  background: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(255, 190, 120, 0.12), transparent 70%), #140a0c;
+}
+/* The marquee: a dark red sign between two rows of bulbs, held in gold rules. The bulbs are lit and still. */
+:root[data-theme="marquee"] .masthead {
+  border-bottom: 0;
+  padding-block: 24px;
+  background:
+    radial-gradient(circle, #fffbe6 0 2px, #ffd25e 3px, rgba(255, 190, 60, 0.45) 4.5px, transparent 7px) 0 1px / 22px 16px repeat-x,
+    radial-gradient(circle, #fffbe6 0 2px, #ffd25e 3px, rgba(255, 190, 60, 0.45) 4.5px, transparent 7px) 0 calc(100% - 1px) / 22px 16px repeat-x,
+    linear-gradient(to bottom, #3e121a, #250910);
+  box-shadow: inset 0 0 0 2px var(--mq-gold), inset 0 0 0 4px #250910, inset 0 0 0 5px #8a6a2a, 0 4px 18px rgba(255, 190, 90, 0.18);
+  color: var(--ink);
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="marquee"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(38px, 4.2vw, 58px);
+  line-height: 0.9;
+  letter-spacing: 0.06em;
+  color: #ffd76a;
+  text-shadow: 0 0 2px #fff1c2, 0 0 14px rgba(255, 190, 80, 0.55), 0 3px 0 #250910;
+}
+:root[data-theme="marquee"] .mast-tag {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f0dcb4;
+}
+/* The word in black letters on a backlit letter board, its two letter rails top and bottom. */
+:root[data-theme="marquee"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #17110f;
+  background: linear-gradient(to bottom, #fffaf0, #f4ead0);
+  border: 0;
+  border-radius: 2px;
+  padding: 0.12em 0.4em 0.02em;
+  margin: 8px 0 4px;
+  box-shadow: inset 0 3px 0 #d6c8a6, inset 0 -3px 0 #d6c8a6, 0 0 0 4px #17090c, 0 0 0 6px var(--mq-gold), 0 0 24px rgba(255, 220, 150, 0.45);
+}
+:root[data-theme="marquee"] .telegram-word:hover,
+:root[data-theme="marquee"] .telegram-word:focus-visible {
+  background: #fffdf6;
+  text-decoration: none;
+}
+:root[data-theme="marquee"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #ffd76a;
+}
+:root[data-theme="marquee"] .masthead .telegram-kicker,
+:root[data-theme="marquee"] .masthead .telegram-date,
+:root[data-theme="marquee"] .masthead .telegram-note,
+:root[data-theme="marquee"] .masthead .telegram-none,
+:root[data-theme="marquee"] .masthead .telegram-status {
+  color: #f0dcb4;
+}
+:root[data-theme="marquee"] .masthead .telegram-date {
+  border-color: rgba(212, 166, 74, 0.5);
+}
+:root[data-theme="marquee"] .scale {
+  border-color: var(--mq-gold);
+}
+:root[data-theme="marquee"] .scale .step + .step {
+  border-color: rgba(212, 166, 74, 0.5);
+}
+:root[data-theme="marquee"] .scale .step.on {
+  background: #ffc83a;
+  color: #1a0d08;
+}
+/* The toolbar is velvet; buttons are ticket stubs with a notch at each end. */
+:root[data-theme="marquee"] .toolbar {
+  border: 0;
+  border-bottom: 2px solid var(--mq-gold);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), var(--mq-velvet);
+  color: var(--ink);
+}
+:root[data-theme="marquee"] .tool,
+:root[data-theme="marquee"] .pick select,
+:root[data-theme="marquee"] .menu > summary,
+:root[data-theme="marquee"] .chip,
+:root[data-theme="marquee"] .key-btn,
+:root[data-theme="marquee"] .key-close,
+:root[data-theme="marquee"] dialog .close {
+  border: 0;
+  border-radius: 2px;
+  background: var(--mq-stub), #f3e3bf;
+  color: #3a0a12;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: inset 0 0 0 2px #f3e3bf, inset 0 0 0 3px rgba(150, 20, 36, 0.55), 0 2px 0 rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="marquee"] .tool,
+:root[data-theme="marquee"] .pick select,
+:root[data-theme="marquee"] .menu > summary {
+  padding-inline: 14px;
+}
+:root[data-theme="marquee"] .pick select {
+  padding-right: 26px;
+}
+:root[data-theme="marquee"] .pick::after {
+  color: #3a0a12;
+  right: 12px;
+}
+:root[data-theme="marquee"] .tool.quiet {
+  background: transparent;
+  color: #f6ead2;
+  box-shadow: inset 0 0 0 1px rgba(212, 166, 74, 0.7);
+}
+:root[data-theme="marquee"] .tool:hover,
+:root[data-theme="marquee"] .pick select:hover,
+:root[data-theme="marquee"] .menu > summary:hover,
+:root[data-theme="marquee"] .chip:hover {
+  background: var(--mq-stub), #fff3d6;
+}
+:root[data-theme="marquee"] .tool[aria-pressed="true"],
+:root[data-theme="marquee"] .menu[open] > summary,
+:root[data-theme="marquee"] .chip[aria-pressed="true"],
+:root[data-theme="marquee"] .key-btn[aria-expanded="true"] {
+  background: var(--mq-stub), #ffc83a;
+  color: #1a0d08;
+  box-shadow: inset 0 0 0 2px #ffc83a, inset 0 0 0 3px rgba(60, 20, 0, 0.5), 0 2px 0 rgba(0, 0, 0, 0.5);
+}
+/* The time bar is a strip of film: sprocket holes along both edges. */
+:root[data-theme="marquee"] .timebar {
+  border: 0;
+  padding-block: 15px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Crect x='4' y='1.5' width='8' height='5' rx='1.3' fill='%23e8dcc0' fill-opacity='.8'/%3E%3C/svg%3E") 0 1px / 16px 8px repeat-x,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Crect x='4' y='1.5' width='8' height='5' rx='1.3' fill='%23e8dcc0' fill-opacity='.8'/%3E%3C/svg%3E") 0 calc(100% - 1px) / 16px 8px repeat-x,
+    #0b0909;
+  color: var(--ink);
+}
+:root[data-theme="marquee"] .time-label {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="marquee"] .slider input {
+  accent-color: #ffc83a;
+}
+/* Curtains: velvet drapes either side of the screen and a scalloped valance over it, all in the stage's margin
+   round the map, so they never cover a place. The panel's column widens when an article opens (--mq-side). */
+:root[data-theme="marquee"] .stage {
+  --mq-drape: 40px;
+  --mq-top: 26px;
+  --mq-side: var(--panel-w);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='26'%3E%3Cpath d='M0 0H40V15Q30 27 20 15Q10 27 0 15Z' fill='%238e1424'/%3E%3Cpath d='M0 0H40V5H0Z' fill='%23000' fill-opacity='.25'/%3E%3Cpath d='M0 15Q10 27 20 15Q30 27 40 15' fill='none' stroke='%23d4a64a' stroke-width='2'/%3E%3C/svg%3E") 0 0 / 40px var(--mq-top) repeat-x,
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)) 0 0 / var(--mq-drape) 100% no-repeat,
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)) right var(--mq-side) top 0 / var(--mq-drape) 100% no-repeat,
+    var(--mq-velvet) 0 0 / var(--mq-drape) 100% no-repeat,
+    var(--mq-velvet) right var(--mq-side) top 0 / var(--mq-drape) 100% no-repeat,
+    #0d0708;
+}
+:root[data-theme="marquee"] .stage:has(.panel.framed) {
+  --mq-side: min(62vw, 920px);
+}
+/* The screen: a little lighter than the dark, lit from the projector. */
+:root[data-theme="marquee"] .map {
+  margin: calc(var(--mq-top) + 4px) calc(var(--mq-drape) + 6px) 10px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px #2c2a2f, 0 0 46px rgba(255, 232, 190, 0.14);
+  background: radial-gradient(ellipse 70% 60% at 50% 42%, rgba(255, 236, 200, 0.14), transparent 70%), #0c0c11;
+}
+:root[data-theme="marquee"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+}
+:root[data-theme="marquee"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="marquee"] .zoom button {
+  width: 42px;
+  height: 30px;
+  border-radius: 2px;
+  background: var(--mq-stub), #f3e3bf;
+  color: #3a0a12;
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="marquee"] .zoom button + button {
+  border-top: 0;
+}
+/* Panels are a programme: deep red card in a gold double rule. */
+:root[data-theme="marquee"] .panel,
+:root[data-theme="marquee"] .menu-body,
+:root[data-theme="marquee"] .key-pop,
+:root[data-theme="marquee"] dialog {
+  background: linear-gradient(to bottom, #241013, var(--panel) 160px);
+  color: var(--ink);
+  border: 0;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--mq-gold), inset 0 0 0 4px var(--panel), inset 0 0 0 5px #8a6a2a, 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="marquee"] .panel {
+  margin: 10px 10px 10px 0;
+}
+:root[data-theme="marquee"] .key-pop {
+  --key-bg: #101118;
+}
+:root[data-theme="marquee"] .panel-title,
+:root[data-theme="marquee"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: 0.05em;
+  color: #ffd76a;
+}
+:root[data-theme="marquee"] .key-head h2,
+:root[data-theme="marquee"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  font-size: 30px;
+  color: #ffd76a;
+}
+:root[data-theme="marquee"] .key-head h2 {
+  font-size: 24px;
+}
+:root[data-theme="marquee"] .dateline {
+  border-bottom: 3px double var(--mq-gold);
+}
+:root[data-theme="marquee"] .rule-head {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0.24em;
+  color: #ffd76a;
+  border-color: rgba(212, 166, 74, 0.6);
+}
+:root[data-theme="marquee"] .headline {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.25;
+}
+:root[data-theme="marquee"] .story:hover {
+  background: rgba(255, 200, 58, 0.07);
+}
+:root[data-theme="marquee"] .lead img {
+  filter: sepia(0.15);
+}
+
+/* ---- Phones: the three keep the toolbar one row, and the word fits ------------------------------------------ */
+@media (max-width: 760px) {
+  :root[data-theme="pindrop"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.74)));
+  }
+  :root[data-theme="pindrop"] .map {
+    margin: 8px;
+    border-radius: 12px;
+  }
+  :root[data-theme="pindrop"] .map canvas {
+    border-radius: 12px;
+  }
+  :root[data-theme="pindrop"] .panel {
+    margin: 6px 8px 8px;
+  }
+  :root[data-theme="pindrop"] .compass {
+    width: 54px;
+    height: 54px;
+    left: 10px;
+    bottom: 10px;
+  }
+  /* A short map, with an article or the word open, keeps the zoom and the HUD only. */
+  :root[data-theme="pindrop"] .stage:has(.panel.reading) .compass,
+  :root[data-theme="pindrop"] .stage:has(.panel.framed) .compass {
+    display: none;
+  }
+  :root[data-theme="pindrop"] .zoom {
+    gap: 6px;
+  }
+  :root[data-theme="pindrop"] .zoom button {
+    width: 32px;
+    height: 32px;
+  }
+  :root[data-theme="pindrop"] .x-guess {
+    top: 10px;
+    right: 10px;
+    border-radius: 10px;
+  }
+  :root[data-theme="pindrop"] .x-guess-cell {
+    padding: 4px 9px 5px;
+    min-width: 0;
+  }
+  :root[data-theme="pindrop"] .x-guess-val {
+    font-size: 13px;
+  }
+  :root[data-theme="pindrop"] .x-guess-cap {
+    font-size: 9px;
+  }
+  :root[data-theme="pindrop"] .key-btn {
+    top: 10px;
+    left: 10px;
+  }
+  :root[data-theme="pindrop"] .tool,
+  :root[data-theme="pindrop"] .pick select,
+  :root[data-theme="pindrop"] .menu > summary {
+    font-size: 12px;
+  }
+  :root[data-theme="deli"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter) - 30px) / (var(--len, 8) * 0.5)));
+  }
+  :root[data-theme="deli"] .masthead {
+    padding-top: 28px;
+  }
+  :root[data-theme="deli"] .map {
+    margin: 12px;
+    box-shadow: 0 0 0 7px #b8895a, 0 0 0 8px #8c6136, 0 4px 12px 7px rgba(70, 40, 12, 0.3);
+  }
+  :root[data-theme="deli"] .map::before,
+  :root[data-theme="deli"] .map::after {
+    width: 54px;
+    height: 4px;
+  }
+  :root[data-theme="deli"] .map::before {
+    left: -18px;
+    top: 9px;
+  }
+  :root[data-theme="deli"] .map::after {
+    right: -18px;
+    bottom: 9px;
+  }
+  :root[data-theme="deli"] .panel {
+    margin: 4px 12px 12px;
+  }
+  :root[data-theme="deli"] .panel-title,
+  :root[data-theme="deli"] .place-name {
+    font-size: 34px;
+  }
+  :root[data-theme="deli"] #about-btn,
+  :root[data-theme="pindrop"] #about-btn,
+  :root[data-theme="marquee"] #about-btn {
+    color: #fbf8ee;
+    background: rgba(0, 0, 0, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(251, 248, 238, 0.6);
+    border: 0;
+  }
+  :root[data-theme="deli"] #about-btn {
+    top: 32px;
+  }
+  :root[data-theme="marquee"] #about-btn {
+    top: 22px;
+  }
+  :root[data-theme="marquee"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 50px) / (var(--len, 8) * 0.52)));
+  }
+  :root[data-theme="marquee"] .masthead {
+    padding-block: 20px;
+  }
+  :root[data-theme="marquee"] .stage {
+    --mq-drape: 16px;
+    --mq-top: 18px;
+    --mq-side: 0px;
+  }
+  :root[data-theme="marquee"] .map {
+    margin: calc(var(--mq-top) + 2px) calc(var(--mq-drape) + 4px) 6px;
+  }
+  :root[data-theme="marquee"] .panel {
+    margin: 4px 6px 6px;
+  }
+  :root[data-theme="marquee"] .tool,
+  :root[data-theme="marquee"] .pick select,
+  :root[data-theme="marquee"] .menu > summary {
+    padding-inline: 9px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  :root[data-theme="marquee"] .pick select {
+    padding-right: 19px;
+    max-width: 8.5em;
+  }
+  :root[data-theme="marquee"] .zoom button {
+    width: 36px;
+    height: 26px;
+  }
+  :root[data-theme="marquee"] .pick::after {
+    right: 8px;
+  }
+}

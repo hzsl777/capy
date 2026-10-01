@@ -864,3 +864,12 @@ Davis asked why Course of Empire drew its own pictures after Thomas Cole's The C
 
 The painting shows a battle and a city burning. It sits behind every day's news alike, as the design's drawings did before, and changes nothing about which places show or how a marker looks.
 
+## 96. Three more designs: Pin Drop, Deli Counter and Marquee (October 1, 2026)
+
+Three more designs were asked for: a geography guessing game, a sandwich shop and a cinema. Each borrows a feel and never a game's, shop's, cinema chain's or studio's name, logo, lettering or art, as in decisions 63 to 77 and 88. Fifty designs in all.
+
+1. **Pin Drop** (`pindrop`): after the guessing games where a player is dropped somewhere, drops a pin on a small map and is scored by distance. The map is a rounded road-map card over deep indigo, with map pin markers, a compass, chunky pill buttons and a HUD strip. The HUD shows only the reticle's latitude and longitude and a scale bar measured through the same camera as the places (`kmPerPixel`, `scaleBar`, tested): no score, no rounds and no distance to any place, so nothing on the page ranks or grades a place or a story.
+2. **Deli Counter** (`deli`): a chalkboard menu under a striped awning for the masthead, order tickets for buttons and markers, order pads for panels, a butcher-block counter, white wall tiles, and the map wrapped in butcher paper and tied with twine. The word is hand-lettered on the board with no label beside it: a "special" or "today's special" tag would read as a verdict on the day.
+3. **Marquee** (`marquee`): a marquee between rows of bulbs, the word on a backlit letter board, the map as the screen in red velvet drapes, ticket-stub buttons and markers, a film strip for the time bar. The bulbs are lit and still; chasing lights would flash. The drapes and valance sit in the stage's margin round the map, so they never cover a place, and no label like "now showing" sits by the word.
+4. **Markers.** Three outlines join `src/map/marks.ts`: a map pin, an order ticket with a torn edge and a ticket stub with a notch at each end. The Key draws from the same paths, and hollow, filled and ringed read in each (decision 57). Shape carries no meaning.
+5. **Fonts.** Rubik, Amatic SC, Arvo, Bebas Neue and Josefin Sans, self-hosted through `@fontsource` like every other design.

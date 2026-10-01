@@ -11,12 +11,15 @@
 // - Old Realm: a carved stone ring with brass rivets and a compass rose around the round minimap in Map view.
 // - Tactical: a HUD around the map: corner brackets, a clock since the day's map was built, and a short feed of the
 //   newest headlines in the corner, newest first, as text.
+// - Pin Drop: a game's HUD strip over the map with the reticle's latitude and longitude and a scale bar. It measures
+//   the map only: no score, no distance to any place, no round.
 // Place names go in as text, never as HTML.
 
 import type { ThemeId } from "../themes.ts";
 import { columnName, sheetGrid } from "../map/sheet.ts";
 import { minimapDisc, minimapMargin } from "../map/minimap.ts";
 import { h } from "./dom.ts";
+import { scaleBar } from "../data.ts";
 
 export interface ExtrasSource {
   theme(): ThemeId;
@@ -27,6 +30,8 @@ export interface ExtrasSource {
   latest?(): { place: string; title: string; open(): void }[];
   /** When the day's map was built, in seconds, or null before it loads. */
   builtAt?(): number | null;
+  /** Pin Drop's scale bar: kilometres per screen pixel at the reticle, or null. */
+  kmPerPixel?(): number | null;
 }
 
 const NS = "http://www.w3.org/2000/svg";
@@ -56,6 +61,9 @@ let ringFor = "";
 let round: HTMLElement;
 let feed: HTMLElement;
 let feedKey = "";
+let guessPos: HTMLElement;
+let guessBar: HTMLElement;
+let guessKm: HTMLElement;
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
@@ -200,6 +208,22 @@ function mixer(): SVGElement {
   return s;
 }
 
+/**
+ * Pin Drop's HUD strip: where the reticle is and a scale bar, set like a guessing game's score strip. Plain
+ * measurements of the map; nothing in it scores a place or a story.
+ */
+function guessHud(): HTMLElement {
+  guessPos = h("span", { class: "x-guess-val" });
+  guessBar = h("span", { class: "x-guess-bar" });
+  guessKm = h("span", { class: "x-guess-val" });
+  return h(
+    "div",
+    { class: "x-guess", "aria-hidden": "true" },
+    h("span", { class: "x-guess-cell" }, h("span", { class: "x-guess-cap" }, "Position"), guessPos),
+    h("span", { class: "x-guess-cell" }, h("span", { class: "x-guess-cap" }, "Scale"), h("span", { class: "x-guess-row" }, guessBar, guessKm)),
+  );
+}
+
 function booth(): HTMLElement {
   return h("div", { class: "x-booth", "aria-hidden": "true" }, turntable("#9dff2e"), h("div", { class: "x-booth-mid" }, waveform(), mixer()), turntable("#ff3fd4"));
 }
@@ -223,6 +247,7 @@ export function mountExtras(source: ExtrasSource) {
   utc = h("span", { class: "x-utc" });
   mapEl.append(h("div", { class: "x-term", "aria-hidden": "true" }, h("span", { class: "x-fkey" }, "F1"), h("span", { class: "x-term-title" }, "MAP"), readout, utc));
   mapEl.append(booth());
+  mapEl.append(guessHud());
   ring = h("div", { class: "x-ring", "aria-hidden": "true" });
   round = h("span", { class: "x-round-time" });
   feed = h("ol", { class: "x-feed-list" });
@@ -427,6 +452,20 @@ export function moveExtras() {
       railPassed = passed;
       railStops.forEach((s, i) => s.classList.toggle("passed", i <= passed));
     }
+    return;
+  }
+  if (theme === "pindrop") {
+    const [lon, lat] = src.center();
+    guessPos.textContent = `${Math.abs(lat).toFixed(1)}\u00b0${lat >= 0 ? "N" : "S"} ${Math.abs(lon).toFixed(1)}\u00b0${lon >= 0 ? "E" : "W"}`;
+    const k = src.kmPerPixel?.();
+    if (!k) {
+      guessBar.style.width = "0";
+      guessKm.textContent = "";
+      return;
+    }
+    const { km, width } = scaleBar(k, mapEl.clientWidth < 520 ? 56 : 84);
+    guessBar.style.width = `${width.toFixed(1)}px`;
+    guessKm.textContent = `${km >= 1 ? km.toLocaleString("en-US") : km} km`;
     return;
   }
   if (theme !== "terminal") return;

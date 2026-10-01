@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -142,6 +142,37 @@ export function markPath(shape: MarkShape, r: number): string {
         d += `Q${f(pts[i]![0])} ${f(pts[i]![1])} ${f(m[0])} ${f(m[1])}`;
       }
       return `${d}Z`;
+    }
+    case "pin": {
+      // A map pin (Pin Drop): a round head over a point, the shape a guessing game drops on its map. The head and
+      // the point share the centre, so the reticle and the Key sit on the pin as on every other mark.
+      const R = r * 0.9;
+      const cy = -r * 0.4;
+      const tip = r * 1.5;
+      // The point leaves the head where the lines from the tip touch it.
+      const d = tip - cy;
+      const a = Math.asin(R / d);
+      const tx = R * Math.cos(a);
+      const ty = cy + R * Math.sin(a);
+      return `M0 ${f(tip)}L${f(-tx)} ${f(ty)}A${f(R)} ${f(R)} 0 1 1 ${f(tx)} ${f(ty)}Z`;
+    }
+    case "ticket": {
+      // An order ticket off a deli's spike (Deli Counter): a slip of paper, taller than wide, its bottom edge torn
+      // into teeth.
+      const w = r * 0.8;
+      const top = -r * 1.08;
+      const valley = r * 0.72;
+      const tooth = r * 1.08;
+      const pts: [number, number][] = [[-w, top + r * 0.18], [-w + r * 0.18, top], [w - r * 0.18, top], [w, top + r * 0.18]];
+      for (let k = 0; k <= 6; k++) pts.push([w - (k * 2 * w) / 6, k % 2 ? valley : tooth]);
+      return polygon(pts);
+    }
+    case "stub": {
+      // A cinema ticket stub (Marquee): wider than tall, with a round notch bitten out of each end.
+      const w = r * 1.2;
+      const hh = r * 0.78;
+      const n = r * 0.36;
+      return `M${f(-w)} ${f(-hh)}H${f(w)}V${f(-n)}A${f(n)} ${f(n)} 0 0 0 ${f(w)} ${f(n)}V${f(hh)}H${f(-w)}V${f(n)}A${f(n)} ${f(n)} 0 0 0 ${f(-w)} ${f(-n)}Z`;
     }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
