@@ -138,7 +138,7 @@ switch (command) {
   }
   case "cluster world": {
     const d = db();
-    console.log(await recorded(d, date, "cluster-world", () => runClusterWorld(d, config, createLlm(config, d), date)));
+    console.log(await recorded(d, date, "cluster-world", () => runClusterWorld(d, config, createLlm(config, d), date, loadSources(values.sources))));
     break;
   }
   case "telegram": {

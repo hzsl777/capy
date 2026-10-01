@@ -43,6 +43,7 @@ GlobalGist is public and shows news from contested places. Go through each check
 - [ ] Tiles (decision 78) change when local stories load, never which show or how they look: the site loads the tiles in view only at the last zoom tier, a loaded story goes through `tierOf` and `weightOf` like any other, and a tile's places are GDELT's checked towns. The tile grid is longitude and latitude, never a political unit, and nothing on the site names a tile.
 - [ ] The site shows only feed summaries (at most 300 characters) and quoted citation passages, never article text.
 - [ ] New outlets in `config/sources.yaml` went through `add-news-source`, and the world list isn't tilting toward one region, language or side.
+- [ ] An outlet on a side of an armed conflict or contested place carries `balance: { group, side }`, and its group has an outlet on every side (decision 90). A group with one side fails to load.
 
 ## Output
 A short table of checks and results, then any fixes you made. If a check needs a judgement call (e.g. a topic name), say what you chose and why, and flag it for the owner.

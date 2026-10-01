@@ -27,6 +27,12 @@ export const SourceSchema = z.object({
   place: SourcePlaceSchema.optional(),
   /** BCP 47 language of the feed, for the map's language label and translation. */
   lang: z.string().min(2).max(8).default("en"),
+  /**
+   * For outlets on the sides of a conflict or a contested place: the pair they belong to and their side. On a day one
+   * side has no story, the whole pair is left out of the map, so it never shows one side's local outlets alone
+   * (decision 90).
+   */
+  balance: z.object({ group: z.string().regex(/^[a-z0-9-]+$/), side: z.string().regex(/^[a-z0-9-]+$/) }).optional(),
 });
 export type Source = z.infer<typeof SourceSchema>;
 
@@ -38,6 +44,10 @@ export const SourcesFileSchema = z.object({
       list.forEach((s, i) => {
         if (s.desk === "world" && !s.place) ctx.addIssue({ code: "custom", path: [i, "place"], message: `world source ${s.id} needs a place` });
       });
+      // A balance group with one side would hold nothing back and only look balanced.
+      const sides = new Map<string, Set<string>>();
+      for (const s of list) if (s.balance) sides.set(s.balance.group, (sides.get(s.balance.group) ?? new Set()).add(s.balance.side));
+      for (const [group, set] of sides) if (set.size < 2) ctx.addIssue({ code: "custom", path: [], message: `balance group ${group} has only one side` });
     }),
 });
 

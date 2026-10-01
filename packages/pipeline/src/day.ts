@@ -40,7 +40,7 @@ export async function runDay(db: Db, config: Config, llm: Llm, date: RunDate, de
   } else {
     out["cluster"] = { skipped: "no reader profiles" };
   }
-  out["clusterWorld"] = await recorded(db, date, "cluster-world", () => runClusterWorld(db, config, llm, date));
+  out["clusterWorld"] = await recorded(db, date, "cluster-world", () => runClusterWorld(db, config, llm, date, loadSources(deps.sourcesPath)));
   // Pages are fetched only for the articles explain will quote, not every article of the day.
   out["enrich"] = await recorded(db, date, "enrich", async () => runEnrich(db, date, deps.fetchPage, 4, { articleIds: await explainArticleIds(db, config, date) }));
   out["explain"] = await recorded(db, date, "explain", () => runExplain(db, config, llm, date));
