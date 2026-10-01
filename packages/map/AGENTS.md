@@ -74,8 +74,11 @@ public/
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
   data/local/sample/     its fictional GDELT local stories in tiles, one file per 10-degree cell (committed)
   og-image.png           the timeless share image; the daily one is drawn by tools/share-image.mjs and served at /og.png (decision 92)
-  favicon.svg, apple-touch-icon.png, site.webmanifest, robots.txt, _headers
-                         icons, manifest and headers; the canonical tag and og:url come from SITE_DOMAIN at build time (vite.config.ts)
+  favicon.svg           the site's icon, the masthead's blackletter G on ink; tools/icons.mjs draws favicon.ico,
+                         apple-touch-icon.png and icon-192/512.png from it (decision 94)
+  site.webmanifest, robots.txt, _headers
+                         manifest and headers; the canonical tag, og:url and og:image carry globalgist.io, or SITE_DOMAIN
+                         when the build sets it (vite.config.ts)
 scripts/
   build-basemap.ts       Natural Earth -> public/basemap/*.json
   screenshots.ts         every design x view, the reader, the telegram and an explanation into docs/map/screenshots
