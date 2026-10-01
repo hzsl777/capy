@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -84,8 +84,10 @@ export interface Theme {
    * Decision 74 adds "sheet" (Spreadsheet's filled cells, src/map/sheet.ts), "terminal" (Market Terminal's
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's on-board route display, src/map/rail.ts).
+   * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
+   * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2147,6 +2149,44 @@ export const THEMES: Record<ThemeId, Theme> = {
     tuned: "#ffffff",
     arc: "rgba(242,255,245,0.85)",
     glow: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // After the feel of an early-2000s cube console's menu: the world on a glossy purple cube that unfolds into its net
+  // (src/map/fold.ts). Experimental: opened only by a link until it is listed (decision 105).
+  fold: {
+    id: "fold",
+    label: "Folding Cube",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "fold",
+    ocean: "#3b2394",
+    land: "#a993f4",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "cube",
+    textureInk: "rgba(255,255,255,0.3)",
+    coast: "#f1ebff",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(150,126,240,0.35)",
+    oceanHatch: null,
+    shallows: "rgba(126,98,226,0.55)",
+    graticule: "rgba(196,178,255,0.16)",
+    graticuleDash: [],
+    river: "rgba(59,35,148,0.55)",
+    lake: "#3b2394",
+    ice: "#e9e2ff",
+    relief: "rgba(255,255,255,0.5)",
+    dot: "#ffffff",
+    dotStroke: "#1f1250",
+    fresh: "#ffa21f",
+    tuned: "#ffffff",
+    arc: "#ffd27a",
+    glow: false,
     atmosphere: null,
     shade: null,
     neatline: false,
