@@ -566,7 +566,9 @@ function renderToolbar() {
  * font with its letter spacing, case and small capitals: Safari sizes a select from the bare text and could drop a
  * last letter. Only a minimum is set, and only when it is close to the browser's width, so a box can grow by a letter and never stretches.
  */
-const measure = h("span", { "aria-hidden": "true", style: "position:absolute;visibility:hidden;white-space:pre;left:0;top:0;width:auto;max-width:none;display:inline-block" });
+// Hidden by the stylesheet (.measure), never by a style attribute: the site's CSP blocks those, which left this text
+// on the page and the dropdowns as wide as it.
+const measure = h("span", { "aria-hidden": "true", class: "measure" });
 function fitSelects() {
   if (!measure.isConnected) document.body.append(measure);
   for (const el of document.querySelectorAll<HTMLSelectElement>(".pick select")) {

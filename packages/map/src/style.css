@@ -492,6 +492,18 @@ summary {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+.measure {
+  /* The text fitSelects measures: out of sight and out of the layout, sized by its text alone. */
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  width: auto;
+  max-width: none;
+  white-space: pre;
+  visibility: hidden;
+  pointer-events: none;
+}
 .sr {
   position: absolute;
   width: 1px;
