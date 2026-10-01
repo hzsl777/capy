@@ -213,3 +213,21 @@ export function mergeTiles(file: MapFile, placeIds: Map<string, number>, tiles: 
   }
   return added;
 }
+
+/**
+ * Where to send a reader who opened the site at another of its addresses (decision 93): the www name or the Worker's
+ * own workers.dev address go to the canonical one the build wrote from SITE_DOMAIN. A branch preview, local
+ * development, or a build without a canonical address stays where it is.
+ */
+export function canonicalRedirect(here: URL, canonical: string | null): string | null {
+  if (!canonical) return null;
+  let home: URL;
+  try {
+    home = new URL(canonical);
+  } catch {
+    return null;
+  }
+  if (here.hostname === home.hostname) return null;
+  const other = here.hostname === `www.${home.hostname}` || (here.hostname.startsWith("globalgist.") && here.hostname.endsWith(".workers.dev"));
+  return other ? `${home.origin}${here.pathname}${here.search}` : null;
+}

@@ -22,6 +22,14 @@ export function translationSupported(): boolean {
   return !!api;
 }
 
+/** Languages the browser said it can't translate into the reader's: asked once a visit. */
+const unavailable = new Set<string>();
+
+/**
+ * The translator for one language. A language whose model must be downloaded first can only be created during a
+ * tap or click, so a failure is not kept: the next tap on Translate asks again (prepareTranslation). Before, the
+ * first failure was kept for the visit and Translate never worked again.
+ */
 function translatorFor(source: string): Promise<TranslatorLike | null> {
   let t = translators.get(source);
   if (!t) {
@@ -30,15 +38,34 @@ function translatorFor(source: string): Promise<TranslatorLike | null> {
       try {
         const opts = { sourceLanguage: source, targetLanguage };
         const status = await api.availability(opts);
-        if (status === "unavailable") return null;
+        if (status === "unavailable") {
+          unavailable.add(source);
+          return null;
+        }
         return await api.create(opts);
       } catch {
         return null;
       }
     })();
     translators.set(source, t);
+    t.then((made) => {
+      if (!made) translators.delete(source);
+    });
   }
   return t;
+}
+
+/**
+ * Called from the Translate button's click, while the tap still counts as the reader's: starts every language the
+ * day needs at once, so models that must be downloaded are allowed to.
+ */
+export function prepareTranslation(langs: Iterable<string>): void {
+  for (const lang of new Set(langs)) if (needsTranslation(lang)) void translatorFor(lang);
+}
+
+/** Whether the browser said it can't translate this language at all. */
+export function cannotTranslate(lang: string): boolean {
+  return unavailable.has(lang);
 }
 
 export function needsTranslation(lang: string): boolean {
@@ -51,6 +78,10 @@ export function translate(text: string, source: string): Promise<string | null> 
   if (!r) {
     r = translatorFor(source).then((t) => (t ? t.translate(text).catch(() => null) : null));
     results.set(key, r);
+    // A failed translation is asked again next time, once the language's model is ready.
+    r.then((out) => {
+      if (out === null) results.delete(key);
+    });
   }
   return r;
 }

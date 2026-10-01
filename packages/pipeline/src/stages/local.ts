@@ -118,24 +118,38 @@ export function parseGkgRow(line: string, translated: boolean): GkgArticle | nul
   if (title.length < TITLE_MIN || title.length > TITLE_MAX) return null;
 
   // V2ENHANCEDLOCATIONS: Type#FullName#CountryCode#ADM1#ADM2#Lat#Long#FeatureID#CharOffset. Types 3 and 4 are
-  // cities (United States and elsewhere).
-  const towns = new Map<string, { name: string; lat: number; lon: number; count: number; first: number }>();
+  // cities (United States and elsewhere); 1 is a country, 2 and 5 a state or province.
+  // The story's country comes first: the one its places name most, counting every mention of the country, its
+  // regions and its cities, the earliest named on a tie. Then that country's most-named city. A Syrian story that
+  // cites "the London-based Syrian Observatory" names Syria and its towns more than London, so it sits in Syria,
+  // not London; one that names no Syrian city is left out rather than placed in another country (decision 93).
+  const countries = new Map<string, { count: number; first: number }>();
+  const towns = new Map<string, { name: string; lat: number; lon: number; cc: string; count: number; first: number }>();
   for (const block of c[10]!.split(";")) {
     const f = block.split("#");
+    const offset = Number(f[8]) || 0;
+    const cc = f[2] ?? "";
+    if (cc && ["1", "2", "3", "4", "5"].includes(f[0]!)) {
+      const k = countries.get(cc);
+      if (k) {
+        k.count += 1;
+        k.first = Math.min(k.first, offset);
+      } else countries.set(cc, { count: 1, first: offset });
+    }
     if (f[0] !== "3" && f[0] !== "4") continue;
     const lat = Number(f[5]);
     const lon = Number(f[6]);
     const name = (f[1] ?? "").split(",")[0]!.trim();
     if (!name || !Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) continue;
     const key = f[7] || `${lat},${lon}`;
-    const offset = Number(f[8]) || 0;
     const t = towns.get(key);
     if (t) {
       t.count += 1;
       t.first = Math.min(t.first, offset);
-    } else towns.set(key, { name, lat, lon, count: 1, first: offset });
+    } else towns.set(key, { name, lat, lon, cc, count: 1, first: offset });
   }
-  const town = [...towns.values()].sort((a, b) => b.count - a.count || a.first - b.first)[0];
+  const country = [...countries].sort(([, a], [, b]) => b.count - a.count || a.first - b.first)[0]?.[0] ?? "";
+  const town = [...towns.values()].filter((t) => t.cc === country).sort((a, b) => b.count - a.count || a.first - b.first)[0];
   if (!town) return null;
   const code = translated ? /srclc:([a-z]{3})/.exec(c[25] ?? "")?.[1] : "eng";
   return { url, domain: c[3] || new URL(url).hostname, title, lang: code ? (LANG[code] ?? null) : null, publishedAt, town: { name: town.name, lat: town.lat, lon: town.lon } };

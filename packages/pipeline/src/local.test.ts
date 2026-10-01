@@ -41,6 +41,17 @@ describe("reading a GDELT row", () => {
     expect(a.publishedAt.toISOString()).toBe("2026-09-27T03:00:00.000Z");
   });
 
+  it("places a story in the country it names most, never at a city it only cites (decision 93)", () => {
+    const DAMASCUS = { name: "Damascus, Dimashq, Syria", lat: 33.5, lon: 36.3, id: "-3", cc: "SY" };
+    const LONDON = { name: "London, London, City of, United Kingdom", lat: 51.5, lon: -0.12, id: "-2", cc: "UK" };
+    const SYRIA = { type: "1", name: "Syria", lat: 35, lon: 38, id: "SY", cc: "SY" };
+    // "The London-based Syrian Observatory" twice, Damascus once, Syria three times: Damascus.
+    const story = parseGkgRow(row({ url: "https://a.example/sy1", title: "A long enough headline about the war in Syria", lang: "ara", towns: [{ ...LONDON, offset: 40 }, { ...DAMASCUS, offset: 90 }, { ...LONDON, offset: 400 }, { ...SYRIA, offset: 10 }, { ...SYRIA, offset: 200 }, { ...SYRIA, offset: 300 }] }), true)!;
+    expect(story.town.name).toBe("Damascus");
+    // Syria named, no Syrian city: left out, not placed in London.
+    expect(parseGkgRow(row({ url: "https://a.example/sy2", title: "A long enough headline about the war in Syria", towns: [{ ...LONDON, offset: 40 }, { ...SYRIA, offset: 10 }, { ...SYRIA, offset: 200 }] }), false)).toBeNull();
+  });
+
   it("skips rows with no title, a short title, no town, only a country or state, or not from the web", () => {
     expect(parseGkgRow(row({ url: "https://a.example/1", towns: [TRENTO] }), false)).toBeNull();
     expect(parseGkgRow(row({ url: "https://a.example/2", title: "Short", towns: [TRENTO] }), false)).toBeNull();
