@@ -36,6 +36,30 @@ export interface TranslateAi {
   run(model: string, input: { text: string; source_lang: string; target_lang: string }): Promise<{ translated_text?: string }>;
 }
 
+/**
+ * One translation. The model's documentation describes ISO codes ("ar") but its own example passes English names
+ * ("arabic"), so the codes go first and the names are tried when the codes fail, come back empty or come back
+ * unchanged.
+ */
+export async function translateWith(ai: TranslateAi, text: string, from: string, to: string): Promise<{ text: string } | { error: string }> {
+  const names = new Intl.DisplayNames(["en"], { type: "language" });
+  const named = (code: string) => (names.of(code) ?? code).toLowerCase();
+  let last = "no translation";
+  for (const [source_lang, target_lang] of [
+    [from, to],
+    [named(from), named(to)],
+  ] as const) {
+    try {
+      const out = (await ai.run(TRANSLATE_MODEL, { text, source_lang, target_lang })).translated_text?.trim();
+      if (out && out !== text) return { text: out };
+      last = out ? "came back untranslated" : "came back empty";
+    } catch (err) {
+      last = err instanceof Error ? err.message.slice(0, 120) : "the model failed";
+    }
+  }
+  return { error: last };
+}
+
 type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string; MAPS?: MapStore; AI?: TranslateAi } & ClockEnv;
 
 /** A headline or a feed summary: summaries are cut at 300 characters, so anything longer is not one of ours. */
@@ -191,14 +215,13 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
     const cache = edgeCache();
     const hit = cache ? await cache.match(key) : undefined;
     if (hit) return hit;
-    let out: string | undefined;
-    try {
-      out = (await ai.run(TRANSLATE_MODEL, { text, source_lang: from, target_lang: to })).translated_text?.trim();
-    } catch {
-      return c.json({ error: "translation is not available right now" }, 503, { "Cache-Control": "no-store" });
+    const out = await translateWith(ai, text, from, to);
+    if ("error" in out) {
+      // Seen in the Worker's Logs in Cloudflare; the page shows the reason under the headline.
+      console.error(`translate ${from}>${to}: ${out.error}`);
+      return c.json({ error: out.error }, 503, { "Cache-Control": "no-store" });
     }
-    if (!out) return c.json({ error: "no translation" }, 502, { "Cache-Control": "no-store" });
-    const res = c.json({ text: out, from, to }, 200, { "Cache-Control": "public, max-age=2592000, s-maxage=2592000" });
+    const res = c.json({ text: out.text, from, to }, 200, { "Cache-Control": "public, max-age=2592000, s-maxage=2592000" });
     if (cache) {
       const put = cache.put(key, res.clone());
       try {

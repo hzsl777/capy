@@ -100,12 +100,16 @@ async function slot<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
+/** The last reason the Worker gave for not translating, shown under a headline it couldn't translate. */
+export let lastFailure = "";
+
 async function onServer(text: string, from: string, to: string): Promise<string | null> {
   const q = new URLSearchParams({ from, to, q: text });
   const res = await slot(() => fetch(`${import.meta.env.BASE_URL}api/translate?${q}`));
-  if (!res.ok) return null;
-  const body = (await res.json()) as { text?: unknown };
-  return typeof body.text === "string" && body.text.trim() ? body.text : null;
+  const body = (await res.json().catch(() => ({}))) as { text?: unknown; error?: unknown };
+  if (res.ok && typeof body.text === "string" && body.text.trim()) return body.text;
+  lastFailure = typeof body.error === "string" ? body.error : `the site answered ${res.status}`;
+  return null;
 }
 
 const results = new Map<string, Promise<Translation | null>>();
@@ -126,7 +130,13 @@ export function translate(text: string, lang: string, target: string): Promise<T
           // Fall through to the Worker.
         }
       }
-      const out = text.length <= 400 ? await onServer(text, from, target).catch(() => null) : null;
+      const out =
+        text.length <= 400
+          ? await onServer(text, from, target).catch((err: unknown) => {
+              lastFailure = err instanceof Error ? err.message : "the site could not be reached";
+              return null;
+            })
+          : null;
       return out ? { text: out, via: "server" as const } : null;
     })();
     results.set(key, r);

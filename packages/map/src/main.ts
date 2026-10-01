@@ -178,7 +178,7 @@ import { markPath, markRing } from "./map/marks.ts";
 import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
-import { browserLanguages, LANGUAGES, needsTranslation, normalizeLanguage, OWN_NAMES, translate } from "./translate.ts";
+import { browserLanguages, LANGUAGES, lastFailure, needsTranslation, normalizeLanguage, OWN_NAMES, translate } from "./translate.ts";
 import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
@@ -701,7 +701,7 @@ function translated<T extends HTMLElement>(el: T, text: string, lang: string): T
       const from = languageName(lang) || lang;
       // Said, never silent: a headline left in its language says so.
       if (!out) {
-        el.after(h("span", { class: "translated" }, `Not translated: translation from ${from} isn't available right now`));
+        el.after(h("span", { class: "translated" }, `Not translated from ${from}${lastFailure ? ` (${lastFailure})` : ""}`));
         return;
       }
       el.textContent = out.text;

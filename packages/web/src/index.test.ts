@@ -284,6 +284,21 @@ describe("the Worker's translation (decision 97)", () => {
     expect(calls).toHaveLength(0);
   });
 
+  it("asks again with language names when the model doesn't take the codes", async () => {
+    const calls: string[] = [];
+    const ai = {
+      async run(_model: string, input: { text: string; source_lang: string; target_lang: string }) {
+        calls.push(`${input.source_lang}>${input.target_lang}`);
+        if (input.source_lang === "ar") throw new Error("unknown language");
+        return { translated_text: "British intelligence warns universities" };
+      },
+    };
+    const app = createApp(() => db);
+    const res = await app.request(`/api/translate?${new URLSearchParams({ from: "ar", to: "en", q: "جهاز الاستخبارات" })}`, {}, { ...env, AI: ai });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(["ar>en", "arabic>english"]);
+  });
+
   it("says when the model is missing or fails, and never caches that", async () => {
     const app = createApp(() => db);
     const q = new URLSearchParams({ from: "es", to: "en", q: "Hola" });
