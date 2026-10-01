@@ -672,6 +672,10 @@ summary {
   background: var(--panel);
   color: var(--ink);
 }
+/* The Translate list holds a hundred languages: sized to the one chosen, not the longest name. */
+#translate {
+  field-sizing: content;
+}
 #about-btn .narrow {
   display: none;
 }

@@ -177,7 +177,7 @@ import { markPath, markRing } from "./map/marks.ts";
 import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
-import { cannotTranslate, needsTranslation, prepareTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
+import { browserLanguages, LANGUAGES, needsTranslation, normalizeLanguage, OWN_NAMES, translate } from "./translate.ts";
 import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
@@ -213,7 +213,8 @@ const state = {
   topics: new Set<TopicFilter>(FILTERS),
   slot: SLOTS,
   live: true,
-  translate: false,
+  /** The language headlines are translated into, or null to show them as published (decision 97). */
+  translateTo: null as string | null,
   tuned: null as number[] | null,
   /** Zoom level from MapView.level(): which stories show (decision 30). */
   level: 0,
@@ -237,7 +238,11 @@ const state = {
 // A link's view wins; otherwise the visitor's last choice, saved in their own browser only.
 const savedView = prefs<ViewMode | "">("view", "", ["2d", "3d", ""]);
 state.view = urlView === "2d" || urlView === "3d" ? urlView : savedView || null;
-state.translate = prefs("translate", "off", ["on", "off"]) === "on";
+{
+  // "on" was the setting before a language could be picked: it meant the browser's language.
+  const saved = rawPref("translate");
+  state.translateTo = saved === "on" ? browserLanguages()[0]! : normalizeLanguage(saved);
+}
 {
   const saved = rawPref("topics")
     .split(",")
@@ -526,18 +531,38 @@ function renderToolbar() {
   );
   $("topics-count").textContent = state.topics.size === FILTERS.length ? "" : `(${state.topics.size})`;
 
-  // Only offered where the browser can translate on the device.
-  const tr = $("translate");
+  // Translate is a list of languages, the reader's own first (decision 97). "Translate" is the off position.
+  const mine = browserLanguages();
+  const others = [...LANGUAGES].filter((c) => !mine.includes(c)).sort((a, b) => (languageName(a) || a).localeCompare(languageName(b) || b));
+  const tr = $("translate") as HTMLSelectElement;
+  const option = (code: string) => h("option", { value: code }, nativeName(code));
+  tr.replaceChildren(
+    h("option", { value: "" }, "Translate"),
+    h("optgroup", { label: "Your languages" }, ...mine.map(option)),
+    h("optgroup", { label: "All languages" }, ...others.map(option)),
+  );
+  tr.value = state.translateTo ?? "";
+  tr.title = state.translateTo ? `Headlines translated into ${languageName(state.translateTo) || state.translateTo}` : "Translate headlines";
   syncTranslate();
-  tr.setAttribute("aria-pressed", String(state.translate));
-  tr.title = `Translate headlines into ${languageName(targetLanguage) || targetLanguage}`;
 
   renderPins();
 }
 
-/** Shown only where the browser can translate and the day has a story in another language. */
+/** A language's name in that language ("Español", "العربية"), so a reader finds their own. */
+function nativeName(code: string): string {
+  if (OWN_NAMES[code]) return OWN_NAMES[code];
+  try {
+    const own = new Intl.DisplayNames([code], { type: "language" }).of(code);
+    if (own && own !== code) return own.charAt(0).toLocaleUpperCase(code) + own.slice(1);
+  } catch {
+    /* fall through */
+  }
+  return languageName(code) || code;
+}
+
+/** Shown once the day has a story whose language is known, so there is something to translate. */
 function syncTranslate() {
-  $("translate").hidden = !translationSupported() || !state.file?.items.some((it) => needsTranslation(it.lang));
+  $("translate-pick").hidden = !state.file?.items.some((it) => normalizeLanguage(it.lang));
 }
 
 function renderPins() {
@@ -641,21 +666,22 @@ function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
   return h("span", { class: "meta" }, parts.join(" · "));
 }
 
-/** With Translate on, swaps an element's text for the on-device translation and labels it. */
+/** With a language picked, swaps an element's text for its translation and labels it (decision 97). */
 function translated<T extends HTMLElement>(el: T, text: string, lang: string): T {
-  if (state.translate && needsTranslation(lang)) {
+  const to = state.translateTo;
+  if (to && needsTranslation(lang, to)) {
     const token = renderToken;
-    translate(text, lang).then((out) => {
+    translate(text, lang, to).then((out) => {
       if (token !== renderToken || !el.isConnected) return;
       const from = languageName(lang) || lang;
-      // Said, never silent: a headline left in its language says why.
+      // Said, never silent: a headline left in its language says so.
       if (!out) {
-        el.after(h("span", { class: "translated" }, cannotTranslate(lang) ? `This browser can't translate ${from}` : `Not translated yet: tap Translate again to download ${from}`));
+        el.after(h("span", { class: "translated" }, `Not translated: translation from ${from} isn't available right now`));
         return;
       }
-      el.textContent = out;
-      el.lang = targetLanguage;
-      el.after(h("span", { class: "translated" }, `Translated from ${from}`));
+      el.textContent = out.text;
+      el.lang = to;
+      el.after(h("span", { class: "translated" }, `Machine translated from ${from}`));
     });
   }
   return el;
@@ -1259,11 +1285,9 @@ function bindGlobal() {
     setKey(false);
     ($("about") as HTMLDialogElement).showModal();
   });
-  $("translate").addEventListener("click", () => {
-    state.translate = !state.translate;
-    // In the click itself, so the browser lets languages that need a download start it.
-    if (state.translate) prepareTranslation(state.file?.items.map((it) => it.lang) ?? []);
-    setPref("translate", state.translate ? "on" : "off");
+  ($("translate") as HTMLSelectElement).addEventListener("change", (e) => {
+    state.translateTo = normalizeLanguage((e.target as HTMLSelectElement).value);
+    setPref("translate", state.translateTo ?? "off");
     renderToolbar();
     renderPanel();
   });

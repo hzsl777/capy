@@ -31,7 +31,17 @@ export interface MapStore {
   get(key: string): Promise<{ body: ReadableStream; httpEtag: string } | null>;
 }
 
-type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string; MAPS?: MapStore } & ClockEnv;
+/** The part of Cloudflare Workers AI the Worker uses: one translation model (decision 97). */
+export interface TranslateAi {
+  run(model: string, input: { text: string; source_lang: string; target_lang: string }): Promise<{ translated_text?: string }>;
+}
+
+type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string; MAPS?: MapStore; AI?: TranslateAi } & ClockEnv;
+
+/** A headline or a feed summary: summaries are cut at 300 characters, so anything longer is not one of ours. */
+const TRANSLATE_MAX = 400;
+export const TRANSLATE_MODEL = "@cf/meta/m2m100-1.2b";
+const LANG = /^[a-z]{2,3}$/;
 
 function neonDb(env: Bindings): Db {
   return drizzle(neon(env.DATABASE_URL), { schema }) as unknown as Db;
@@ -163,6 +173,41 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
       const tile = await loadLocalTile(dbOf(c.env), date, key);
       return tile ? c.json(tile, 200, { "Cache-Control": MAP_CACHE }) : c.json({ error: "not found" }, 404);
     });
+  });
+
+  // Machine translation for the map's Translate button where the browser has no translator of its own (decision 97).
+  // Only text: no reader's data goes with it. A headline is translated once and kept at the edge for 30 days, so a busy
+  // day costs the model one call per headline, not one per reader. On Cloudflare's free plan the model stops for the
+  // day at the free allowance rather than charging, and the site then shows the original with a note.
+  app.get("/api/translate", async (c) => {
+    const from = c.req.query("from") ?? "";
+    const to = c.req.query("to") ?? "";
+    const text = (c.req.query("q") ?? "").trim();
+    if (!LANG.test(from) || !LANG.test(to) || from === to || !text || text.length > TRANSLATE_MAX) return c.json({ error: "bad request" }, 400);
+    const ai = c.env.AI;
+    if (!ai) return c.json({ error: "translation is not set up" }, 503);
+    const url = new URL(c.req.url);
+    const key = new Request(`${url.origin}/api/translate?${new URLSearchParams({ from, to, q: text })}`);
+    const cache = edgeCache();
+    const hit = cache ? await cache.match(key) : undefined;
+    if (hit) return hit;
+    let out: string | undefined;
+    try {
+      out = (await ai.run(TRANSLATE_MODEL, { text, source_lang: from, target_lang: to })).translated_text?.trim();
+    } catch {
+      return c.json({ error: "translation is not available right now" }, 503, { "Cache-Control": "no-store" });
+    }
+    if (!out) return c.json({ error: "no translation" }, 502, { "Cache-Control": "no-store" });
+    const res = c.json({ text: out, from, to }, 200, { "Cache-Control": "public, max-age=2592000, s-maxage=2592000" });
+    if (cache) {
+      const put = cache.put(key, res.clone());
+      try {
+        c.executionCtx.waitUntil(put);
+      } catch {
+        await put;
+      }
+    }
+    return res;
   });
 
   app.get("/data/:file", async (c) => {
