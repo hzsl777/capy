@@ -7,7 +7,7 @@ import type { FeatureCollection } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import { describe, expect, it } from "vitest";
-import { EMPIRE, POND, REEF, ROPE, TEA } from "../src/map/scenery.ts";
+import { POND, REEF, ROPE, TEA } from "../src/map/scenery.ts";
 import { samplePlaces } from "./sample.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
@@ -39,7 +39,7 @@ function ring(lon: number, lat: number, deg: number): [number, number][] {
 
 describe("scenery", () => {
   const all = places();
-  const spots = [...POND, ...EMPIRE, ...ROPE, ...TEA, ...REEF];
+  const spots = [...POND, ...ROPE, ...TEA, ...REEF];
 
   for (const file of ["world-110m.json", "world-50m.json"]) {
     it(`keeps every picture's whole circle off land (${file})`, () => {

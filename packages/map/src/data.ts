@@ -115,6 +115,17 @@ export function formatCoords(lat: number, lon: number): string {
   return `${f(lat, "N", "S")}  ${f(lon, "E", "W")}`;
 }
 
+/**
+ * A scale bar (Pin Drop): the longest round distance, 1, 2 or 5 times a power of ten, that fits in `px` screen
+ * pixels at `kmPerPx`, and its length in pixels.
+ */
+export function scaleBar(kmPerPx: number, px: number): { km: number; width: number } {
+  const most = kmPerPx * px;
+  const p = 10 ** Math.floor(Math.log10(most));
+  const km = [5, 2, 1].map((m) => m * p).find((v) => v <= most) ?? p;
+  return { km, width: km / kmPerPx };
+}
+
 export function formatRunDate(runDate: string): string {
   const d = new Date(`${runDate}T12:00:00Z`);
   return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });

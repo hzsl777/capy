@@ -131,6 +131,19 @@ import "@fontsource/teko/500.css";
 import "@fontsource/teko/600.css";
 // Undersea Town (Block World uses Pixelify Sans, above).
 import "@fontsource/bubblegum-sans/400.css";
+// Pin Drop, Deli Counter and Marquee.
+import "@fontsource/rubik/500.css";
+import "@fontsource/rubik/700.css";
+import "@fontsource/rubik/800-italic.css";
+import "@fontsource/rubik/900-italic.css";
+import "@fontsource/amatic-sc/700.css";
+import "@fontsource/arvo/400.css";
+import "@fontsource/arvo/700.css";
+import "@fontsource/arvo/400-italic.css";
+import "@fontsource/bebas-neue/400.css";
+import "@fontsource/josefin-sans/400.css";
+import "@fontsource/josefin-sans/600.css";
+import "@fontsource/josefin-sans/700.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -473,6 +486,7 @@ function renderToolbar() {
       map.setMode(v);
       renderToolbar();
       syncUrl();
+      moveExtras();
     },
   );
   dropdown(
@@ -1310,6 +1324,7 @@ async function start() {
         .slice(0, 5)
         .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
     builtAt: () => state.file?.generatedAt ?? null,
+    kmPerPixel: () => map.kmPerPixel(),
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
