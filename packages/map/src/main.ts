@@ -609,6 +609,7 @@ function applyTheme() {
   renderMasthead();
   renderTelegramStrip();
   renderToolbar();
+  placeAbout();
   renderTicker();
   if (state.file && !state.reader && !state.telegram && !state.event) renderPanel();
   syncUrl();
@@ -1232,9 +1233,12 @@ function setKey(open: boolean) {
   $("key-btn").setAttribute("aria-expanded", String(open));
 }
 
-/** On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. */
+/**
+ * On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. Dual Screen keeps it
+ * with the other buttons on the handheld's lower half.
+ */
 function placeAbout() {
-  if (phone.matches) $("masthead").append($("about-btn"));
+  if (phone.matches && state.theme !== "dual") $("masthead").append($("about-btn"));
   else $("toolbar").append($("about-btn"));
 }
 
