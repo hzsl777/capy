@@ -16,3 +16,6 @@
 
 /basemap/*
   Cache-Control: public, max-age=604800
+
+/art/*
+  Cache-Control: public, max-age=604800
