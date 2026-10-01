@@ -12,7 +12,7 @@ import {
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
-import { markPath2D, markRing2D } from "./marks.ts";
+import { cubeFaces2D, markPath2D, markRing2D } from "./marks.ts";
 import { drawScenery, drawSceneryUnder, type SceneryFrame } from "./scenery.ts";
 import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 import { drawNeon, NeonCache } from "./neon.ts";
@@ -69,6 +69,9 @@ import { drawTrainset, TrainsetCache } from "./trainset.ts";
 import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
+import { drawTowers, TowersCache } from "./towers.ts";
+import { CoreCache, drawCore } from "./core.ts";
+import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 
 export interface Dot {
@@ -306,6 +309,19 @@ export class MapView {
   private noir = new NoirCache();
   private arcade = new ArcadeCache();
   private gloss = new GlossCache();
+  /** Crystal Towers: its floor, towers, drifting cubes and the world under them. */
+  private towers = new TowersCache();
+  /** Green Core: its orb, tubes and panel. */
+  private core = new CoreCache();
+  /**
+   * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
+   * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
+   * are not drawn.
+   */
+  private foldIntro: { start: number; off: () => void } | null = null;
+  private foldIntroPlayed = false;
+  private foldTurn: { start: number; from: ViewMode } | null = null;
+  private foldRest: Camera | null = null;
   private stadium = new StadiumCache();
   private warp: Warp | null = null;
   private warpFor = "";
@@ -416,6 +432,8 @@ export class MapView {
   }
 
   setMode(mode: ViewMode) {
+    // Folding Cube folds the net into the cube or opens it out, never for reduced motion or in a hidden tab.
+    if (this.isFold() && mode !== this.mode && !this.still() && !document.hidden && this.w > 1) this.foldTurn = { start: performance.now(), from: this.mode };
     this.mode = mode;
     this.label();
     this.fit();
@@ -535,9 +553,10 @@ export class MapView {
 
   /**
    * How close a flight to a place comes. A globe framed by something of its own (a hoop, a stone window, a snow
-   * globe's dome) stays at its full size, so the frame isn't cut off.
+   * globe's dome) stays at its full size, so the frame isn't cut off, and so do Folding Cube's cube and its net.
    */
   private landingZoom(): number {
+    if (this.isFold()) return 1;
     if (this.mode === "3d") return this.theme.globeScale ? 1 : 1.6;
     return 1.4;
   }
@@ -549,10 +568,15 @@ export class MapView {
     const z0 = this.zoom;
     const interp = geoInterpolate(from, to);
     const dlon = wrap(lon - this.lon);
+    // On Folding Cube's net the flight goes straight across the faces, so it never jumps where the net is cut open.
+    const net = this.isFold() && this.mode === "2d" ? [netPoint(this.lon, this.lat), netPoint(lon, lat)] : null;
     this.startAnim(duration, (t) => {
       const k = ease(t);
       this.zoom = z0 + (zoom - z0) * k;
-      if (this.mode === "3d") {
+      if (net) {
+        const [[x0, y0], [x1, y1]] = net as [[number, number], [number, number]];
+        [this.lon, this.lat] = t >= 1 ? [lon, lat] : netInvert(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k);
+      } else if (this.mode === "3d") {
         const [x, y] = interp(k);
         this.lon = x;
         this.lat = y;
@@ -698,7 +722,10 @@ export class MapView {
   private fit() {
     if (!this.w || !this.h) return;
     this.zoom = Math.max(this.zoom, this.minZoom());
-    if (this.mode === "3d") {
+    if (this.isFold()) {
+      // Pixels per cube face half-width: the whole net in Map view, a cube about the globe's size in Globe view.
+      this.baseScale = foldBase(this.mode, this.w, this.h);
+    } else if (this.mode === "3d") {
       this.baseScale = Math.min(this.w, this.h) * (this.theme.globeScale ?? 0.46);
     } else {
       // Cover the frame rather than fit inside it: the world fills the height (or the width, in a tall frame),
@@ -717,7 +744,10 @@ export class MapView {
   }
 
   private clampLat() {
-    if (this.mode === "3d") {
+    if (this.isFold() && this.mode === "2d") {
+      // The net has the poles in the middle of its top and bottom faces, so the centre may go all the way.
+      this.lat = clamp(this.lat, -90, 90);
+    } else if (this.mode === "3d") {
       this.lat = clamp(this.lat, -80, 80);
     } else {
       const k = this.baseScale * this.zoom;
@@ -739,7 +769,8 @@ export class MapView {
   }
 
   private visible(lon: number, lat: number): boolean {
-    if (this.mode === "2d") return true;
+    // On the cube, which faces show decides (placeAt), not the distance from the centre.
+    if (this.mode === "2d" || this.isFold()) return true;
     return this.cosFromCenter(lon, lat) > Math.sin(0.03);
   }
 
@@ -766,6 +797,12 @@ export class MapView {
     // Under a warp a drag moves the flat picture under the centre by as much as it moves on screen (decision 75).
     if (this.warp) [dx, dy] = this.warp.unpan(dx, dy);
     const k = this.baseScale * this.zoom * this.sceneMag();
+    if (this.isFold() && this.mode === "2d") {
+      // Folding Cube's net moves under the finger and the centre stays on it, so the reticle always has a place.
+      const [x, y] = netPoint(this.lon, this.lat);
+      [this.lon, this.lat] = netInvert(x - dx / k, y + dy / k);
+      return;
+    }
     this.lon = wrap(this.lon - (dx / k) * DEG);
     // Under a tilted camera the ground is foreshortened, so a drag moves further north or south.
     this.lat = this.lat + (dy / k / (this.cam ? this.cam.cos : 1)) * DEG;
@@ -1395,6 +1432,7 @@ export class MapView {
    */
   private placeAt(proj: GeoProjection, lon: number, lat: number): { x: number; y: number; s: number } | null {
     if (this.theme.scene) return this.scenePlace(proj, lon, lat);
+    if (this.isFold()) return foldPlace(this.foldCamera(), lon, lat);
     const p = proj([lon, lat]);
     if (!p) return null;
     const m = this.terrainNow;
@@ -1469,8 +1507,91 @@ export class MapView {
     ctx.restore();
   }
 
+  private isFold(): boolean {
+    return this.theme.surface === "fold";
+  }
+
+  private foldHide = false;
+  private foldRestKey: [ViewMode, number, number, number] = ["2d", NaN, NaN, NaN];
+
+  /**
+   * Folding Cube's camera at rest for the current view, the one places are placed and tuned through. It is asked once
+   * per place, tens of thousands of times a frame with local stories loaded, so the check is a few numbers, not a string.
+   */
+  private foldCamera(): Camera {
+    const k = foldBase(this.mode, this.w, this.h) * this.zoom;
+    const c = this.foldRest;
+    const key = this.foldRestKey;
+    if (!c || key[0] !== this.mode || key[1] !== this.lon || key[2] !== this.lat || key[3] !== k || c.w !== this.w || c.h !== this.h) {
+      this.foldRest = new Camera(restingPose(this.mode, this.lon, this.lat, k), this.w, this.h);
+      this.foldRestKey = [this.mode, this.lon, this.lat, k];
+    }
+    return this.foldRest!;
+  }
+
+  /**
+   * Folding Cube (src/map/fold.ts): the world on a cube, or on its net laid flat. The opening plays once per page load
+   * and the fold between views at each switch, never for reduced motion or in a hidden tab, and a click or a key ends
+   * the opening at once. Each runs on animation frames, which the browser holds while the tab is hidden.
+   */
+  private renderFold() {
+    const { ctx, w, h, theme: t } = this;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    this.lastDraw = performance.now();
+    this.warp = null;
+    this.cam = null;
+    this.terrainNow = null;
+    const now = performance.now();
+    if (!this.foldIntroPlayed) {
+      this.foldIntroPlayed = true;
+      if (!this.still() && !document.hidden) {
+        const skip = () => {
+          if (!this.foldIntro) return;
+          this.foldIntro.off();
+          this.foldIntro = null;
+          this.request();
+        };
+        const off = () => {
+          window.removeEventListener("pointerdown", skip, true);
+          window.removeEventListener("keydown", skip, true);
+        };
+        window.addEventListener("pointerdown", skip, true);
+        window.addEventListener("keydown", skip, true);
+        this.foldIntro = { start: now, off };
+      }
+    }
+    const rest = this.foldCamera();
+    let pose = rest.pose;
+    if (this.foldTurn) {
+      const from = this.foldTurn.from;
+      const t = (now - this.foldTurn.start) / TURN_MS;
+      if (t >= 1 || this.still() || from === this.mode) this.foldTurn = null;
+      else pose = turnPose(restingPose(from, this.lon, this.lat, foldBase(from, w, h) * this.zoom), pose, t);
+    }
+    if (this.foldIntro) {
+      const ms = now - this.foldIntro.start;
+      if (ms >= INTRO_MS || this.still()) {
+        this.foldIntro.off();
+        this.foldIntro = null;
+      } else pose = introPose(pose, ms, w, h);
+    }
+    const moving = !!(this.foldIntro || this.foldTurn);
+    const shown = moving ? new Camera(pose, w, h) : rest;
+    // The finer basemap once a face is large on screen (a face's half-width spans about 45 degrees).
+    const map = (shown.pose.k * 1.3 >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
+    drawFold({ ctx, w, h, theme: t, map, zoom: this.zoom, cam: shown, globe: !moving && this.mode === "3d" });
+    const proj = this.projection();
+    if (!moving) this.drawArcs(geoPath(proj, ctx), proj);
+    this.foldHide = moving;
+    this.drawDots(proj);
+    this.foldHide = false;
+    if (moving) this.request();
+  }
+
   private render() {
     if (this.theme.scene) return this.renderScene();
+    if (this.isFold()) return this.renderFold();
     const { ctx, w, h, theme: t } = this;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -1509,7 +1630,7 @@ export class MapView {
       // tuning are the same as in every design.
       const drawn = this.drawSurface(proj, cam, view, map, t);
       const framed = typeof drawn === "object" ? drawn : undefined;
-      const again = typeof drawn === "number" ? drawn : 0;
+      const again = typeof drawn === "number" ? drawn : (framed?.next ?? 0);
       drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
       if (framed?.clip) {
         ctx.save();
@@ -1711,6 +1832,8 @@ export class MapView {
     if (t.surface === "chalk") return drawChalk(f, this.handmade.chalk);
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
+    if (t.surface === "towers") return drawTowers(f, this.towers);
+    if (t.surface === "core") return drawCore(f, this.core);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
@@ -2182,7 +2305,12 @@ export class MapView {
     ctx.lineWidth = 1.2;
     ctx.setLineDash([4, 3]);
     ctx.beginPath();
-    for (const to of this.arcs.to) path({ type: "LineString", coordinates: [this.arcs.from, to] });
+    if (this.isFold()) {
+      // Across the cube's faces shown, broken where a face turns away or the net is cut open.
+      const p = new Path2D();
+      for (const to of this.arcs.to) foldArc(this.foldCamera(), geoInterpolate(this.arcs.from, to), p);
+      ctx.stroke(p);
+    } else for (const to of this.arcs.to) path({ type: "LineString", coordinates: [this.arcs.from, to] });
     ctx.stroke();
     ctx.setLineDash([]);
     for (const [lon, lat] of this.arcs.to) {
@@ -2202,7 +2330,8 @@ export class MapView {
    * never draws two points further apart than their angle times its radius.
    */
   private *candidates(proj: GeoProjection): Iterable<Dot> {
-    if (this.mode !== "3d") {
+    // A cube's face can show places further round than a globe's rim, so Folding Cube asks of every place.
+    if (this.mode !== "3d" || this.isFold()) {
       yield* this.dots;
       return;
     }
@@ -2304,6 +2433,8 @@ export class MapView {
       }
     }
     this.screen = spots;
+    // While Folding Cube opens or folds, its places are tuned where they will rest but not drawn on moving faces.
+    if (this.foldHide) return;
     ctx.save();
     if (framed?.clip) ctx.clip(framed.clip);
     framed?.under?.(spots);
@@ -2381,6 +2512,23 @@ export class MapView {
         ctx.save();
         ctx.shadowBlur = 0;
         shadeShape(x, y, r, [[0, "rgba(255,255,255,0.65)"], [0.45, "rgba(255,255,255,0)"], [1, "rgba(0,0,0,0.25)"]]);
+        ctx.restore();
+      }
+      if (t.dotShape === "cube" && !hollow) {
+        // A little glossy cube (Folding Cube): a lit top, a shaded right face and its edges inside the outline.
+        const c = cubeFaces2D(r);
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.translate(x, y);
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.fill(c.top);
+        ctx.fillStyle = "rgba(20,8,60,0.3)";
+        ctx.fill(c.right);
+        ctx.lineWidth = Math.max(0.7, r * 0.12);
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = t.dotStroke;
+        ctx.globalAlpha = 0.55;
+        ctx.stroke(c.edges);
         ctx.restore();
       }
       if (t.dotShape === "diamond" && !hollow) {

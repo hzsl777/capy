@@ -61,6 +61,8 @@ import "@fontsource/eb-garamond/600.css";
 // Decision 71: Nightclub, Poolside and Snow Globe.
 import "@fontsource/monoton/400.css";
 import "@fontsource/tilt-neon/400.css";
+import "@fontsource/outfit/200.css";
+import "@fontsource/outfit/300.css";
 import "@fontsource/outfit/400.css";
 import "@fontsource/outfit/500.css";
 import "@fontsource/outfit/600.css";

@@ -14222,3 +14222,936 @@ button.x-ch:focus-visible {
     top: 62px;
   }
 }
+
+/* ==========================================================================
+   Crystal Towers (towers, experimental): after the feel of an early-2000s black console's system menu, and none of
+   its names, logos, button shapes, menu text or art (src/map/towers.ts). A blue-black void with soft haze and one
+   distant light, thin pale lettering, dark translucent panels with thin pale-blue edges, buttons as small glass tiles,
+   and a soft blue orb of light by the name.
+   ========================================================================== */
+:root[data-theme="towers"] {
+  color-scheme: dark;
+  --page: #03050c;
+  --panel: #0a1226;
+  --ink: #e6efff;
+  --ink-2: #c4d4f0;
+  --muted: #9cb0d4;
+  --rule: #34507e;
+  --accent: #a8ccff;
+  --on-accent: #06102a;
+  --hover: rgba(160, 200, 255, 0.1);
+  --reticle: #eef5ff;
+  --grain-opacity: 0.05;
+  --grain-blend: screen;
+  --glass: linear-gradient(to bottom, rgba(150, 190, 255, 0.16), rgba(60, 100, 190, 0.1));
+  --glass-on: linear-gradient(to bottom, #dcebff, #9cc4fa);
+  --edge: rgba(165, 205, 255, 0.5);
+  --font-mast: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-head: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Outfit", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="towers"] body {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(40, 70, 140, 0.35), transparent 70%),
+    linear-gradient(to bottom, #050a1a, var(--page) 60%);
+}
+/* The void behind the world: haze, darker toward the edges, and one distant light low on the right. */
+:root[data-theme="towers"] .map {
+  background:
+    radial-gradient(circle at 84% 44%, rgba(235, 245, 255, 0.85) 0, rgba(170, 205, 255, 0.35) 0.5%, rgba(110, 160, 255, 0.12) 4%, transparent 16%),
+    radial-gradient(ellipse 60% 40% at 50% 46%, rgba(50, 85, 160, 0.3), transparent 75%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, #0a1430, #02040b 80%);
+}
+:root[data-theme="towers"] .masthead {
+  border-bottom: 0;
+  background: linear-gradient(to right, transparent, rgba(165, 205, 255, 0.45), transparent) left bottom / 100% 1px no-repeat;
+}
+:root[data-theme="towers"] .mast-title {
+  font-weight: 200;
+  font-size: clamp(20px, 2.4vw, 36px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #e9f2ff;
+  text-shadow: 0 0 16px rgba(120, 175, 255, 0.5);
+  white-space: nowrap;
+}
+/* A soft blue orb of light before the name. */
+:root[data-theme="towers"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 0.62em;
+  height: 0.62em;
+  margin-right: 0.42em;
+  vertical-align: 0.02em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #ffffff, #b8d8ff 22%, #4f8ff0 58%, #1c4fb8);
+  box-shadow: 0 0 14px 4px rgba(100, 160, 255, 0.55), 0 0 36px 10px rgba(80, 140, 255, 0.22);
+}
+:root[data-theme="towers"] .mast-tag {
+  font-weight: 300;
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:root[data-theme="towers"] .telegram-kicker,
+:root[data-theme="towers"] .telegram-date {
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+:root[data-theme="towers"] .telegram-note,
+:root[data-theme="towers"] .telegram-none {
+  font-style: normal;
+  font-weight: 300;
+  color: var(--ink-2);
+}
+:root[data-theme="towers"] .telegram-word,
+:root[data-theme="towers"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  color: #f1f7ff;
+  text-shadow: 0 0 18px rgba(120, 175, 255, 0.6);
+}
+:root[data-theme="towers"] .telegram-word {
+  border-bottom: 1px solid rgba(165, 205, 255, 0.55);
+}
+:root[data-theme="towers"] .telegram-word:hover,
+:root[data-theme="towers"] .telegram-word:focus-visible {
+  background: rgba(160, 200, 255, 0.08);
+}
+/* Buttons are small glass tiles with a thin pale edge; the one that's on is lit. */
+:root[data-theme="towers"] .tool,
+:root[data-theme="towers"] .pick select,
+:root[data-theme="towers"] .menu > summary,
+:root[data-theme="towers"] .chip,
+:root[data-theme="towers"] .key-btn,
+:root[data-theme="towers"] .key-close,
+:root[data-theme="towers"] dialog .close {
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  background: var(--glass);
+  color: var(--ink);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 10px rgba(80, 140, 255, 0.14);
+}
+:root[data-theme="towers"] .tool:hover,
+:root[data-theme="towers"] .pick select:hover,
+:root[data-theme="towers"] .menu > summary:hover,
+:root[data-theme="towers"] .chip:hover,
+:root[data-theme="towers"] .key-btn:hover {
+  border-color: rgba(200, 225, 255, 0.85);
+  background: linear-gradient(to bottom, rgba(170, 205, 255, 0.24), rgba(80, 125, 220, 0.16));
+}
+:root[data-theme="towers"] .tool[aria-pressed="true"],
+:root[data-theme="towers"] .menu[open] > summary,
+:root[data-theme="towers"] .chip[aria-pressed="true"],
+:root[data-theme="towers"] .key-btn[aria-expanded="true"],
+:root[data-theme="towers"] .scale .step.on {
+  border-color: #e6f1ff;
+  background: var(--glass-on);
+  color: var(--on-accent);
+  box-shadow: 0 0 12px rgba(130, 180, 255, 0.55);
+}
+:root[data-theme="towers"] .toolbar {
+  border-bottom: 0;
+  background: linear-gradient(to right, transparent, rgba(165, 205, 255, 0.3), transparent) left bottom / 100% 1px no-repeat;
+}
+:root[data-theme="towers"] .banner {
+  background: rgba(10, 18, 38, 0.8);
+  border-bottom-color: rgba(165, 205, 255, 0.2);
+  color: var(--ink-2);
+}
+:root[data-theme="towers"] .scale {
+  border-color: var(--edge);
+  border-radius: 3px;
+  overflow: hidden;
+}
+:root[data-theme="towers"] .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="towers"] .scale .step + .step {
+  border-left-color: rgba(165, 205, 255, 0.3);
+}
+:root[data-theme="towers"] .zoom {
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  background: rgba(10, 18, 38, 0.72);
+  box-shadow: 0 0 12px rgba(80, 140, 255, 0.18);
+}
+:root[data-theme="towers"] .zoom button {
+  color: var(--ink);
+}
+:root[data-theme="towers"] .zoom button + button {
+  border-top-color: rgba(165, 205, 255, 0.35);
+}
+:root[data-theme="towers"] .key-btn {
+  background: rgba(10, 18, 38, 0.72);
+}
+:root[data-theme="towers"] .timebar {
+  border-top: 0;
+  background: linear-gradient(to right, transparent, rgba(165, 205, 255, 0.3), transparent) left top / 100% 1px no-repeat;
+  color: var(--ink-2);
+  letter-spacing: 0.06em;
+}
+:root[data-theme="towers"] .slider input {
+  accent-color: #a8ccff;
+}
+/* Panels are dark translucent glass with a thin pale-blue edge, the void showing faintly through. */
+:root[data-theme="towers"] .panel,
+:root[data-theme="towers"] .menu-body,
+:root[data-theme="towers"] .key-pop,
+:root[data-theme="towers"] .map-note,
+:root[data-theme="towers"] dialog {
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: linear-gradient(to bottom, rgba(18, 32, 66, 0.86), rgba(8, 14, 32, 0.9));
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 26px rgba(60, 120, 255, 0.16);
+}
+:root[data-theme="towers"] .panel {
+  margin: 12px 12px 12px 0;
+}
+:root[data-theme="towers"] dialog::backdrop {
+  background: rgba(2, 4, 12, 0.6);
+}
+:root[data-theme="towers"] .panel-title,
+:root[data-theme="towers"] .place-name,
+:root[data-theme="towers"] .key-head h2,
+:root[data-theme="towers"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  color: #eef5ff;
+  text-shadow: 0 0 12px rgba(120, 175, 255, 0.45);
+}
+:root[data-theme="towers"] .dateline {
+  border-bottom: 1px solid rgba(165, 205, 255, 0.4);
+}
+:root[data-theme="towers"] .dateline .coords,
+:root[data-theme="towers"] .count,
+:root[data-theme="towers"] .meta {
+  font-style: normal;
+}
+:root[data-theme="towers"] .rule-head,
+:root[data-theme="towers"] dialog h3 {
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--ink-2);
+}
+:root[data-theme="towers"] .rule-head {
+  border-top: 0;
+  border-bottom-color: rgba(165, 205, 255, 0.35);
+  text-align: left;
+}
+:root[data-theme="towers"] .headline {
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="towers"] .reader-headline {
+  font-weight: 300;
+}
+:root[data-theme="towers"] .cite,
+:root[data-theme="towers"] .source-num {
+  border-color: var(--edge);
+  border-radius: 2px;
+  color: var(--accent);
+}
+:root[data-theme="towers"] .excerpt-quote {
+  font-style: normal;
+  border-left: 1px solid var(--accent);
+}
+/* Between a phone and a wide screen the name shares its row with a long word: tighter, so it keeps to its column. */
+@media (min-width: 761px) and (max-width: 980px) {
+  :root[data-theme="towers"] .mast-title {
+    font-size: 19px;
+    letter-spacing: 0.12em;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="towers"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.8)));
+  }
+  :root[data-theme="towers"] .mast-title {
+    letter-spacing: 0.16em;
+  }
+  :root[data-theme="towers"] .panel {
+    margin: 8px;
+  }
+}
+
+/* ==========================================================================
+   Green Core (experimental): after the feel of an early-2000s black and green console dashboard, with no maker's
+   or console's name, logo, shapes, sounds, menus or art. A dark green room with lit tubes curving through it,
+   glowing green capsule buttons, dark green glass panes, a rounded wide sans. The orb, the panel and their tubes
+   are drawn on the canvas (src/map/core.ts).
+   ========================================================================== */
+:root[data-theme="core"] {
+  color-scheme: dark;
+  --page: #020a05;
+  --panel: #061a0d;
+  --ink: #e2ffe8;
+  --ink-2: #bdf3cb;
+  --muted: #8fcfa1;
+  --rule: #2a7a44;
+  --accent: #7dff6a;
+  --on-accent: #03200b;
+  --hover: rgba(125, 255, 106, 0.1);
+  --reticle: #f2fff5;
+  --grain-opacity: 0.05;
+  --grain-blend: screen;
+  --font-mast: "Unbounded", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-head: "Unbounded", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+  /* A lit capsule: a gloss across the top of bright green, deeper green at the foot. */
+  --gc-capsule: radial-gradient(ellipse 78% 52% at 50% 14%, rgba(240, 255, 230, 0.7), rgba(240, 255, 230, 0) 72%),
+    linear-gradient(to bottom, #9dff70, #45dc3a 55%, #22a52a);
+  --gc-glow: 0 0 10px rgba(110, 255, 90, 0.45), 0 0 2px rgba(190, 255, 170, 0.9);
+  /* Two lit tubes curving across a band, for the masthead: a wide soft glow, a bright wall, the darker inside and a
+     lit filament. Stretched to the band's size. */
+  --gc-tubes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 160' preserveAspectRatio='none'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%2346ff78' stroke-opacity='.08' stroke-width='40'/%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%2378ff9c' stroke-opacity='.34' stroke-width='15'/%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%23052812' stroke-opacity='.85' stroke-width='11'/%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%23a8ffbe' stroke-opacity='.5' stroke-width='2.5'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%2346ff78' stroke-opacity='.06' stroke-width='28'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%2378ff9c' stroke-opacity='.26' stroke-width='9'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%23052812' stroke-opacity='.85' stroke-width='6'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%23a8ffbe' stroke-opacity='.4' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* The dark green room. */
+:root[data-theme="core"] body {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, #0b2e16, transparent 75%),
+    linear-gradient(to bottom, #03110a, #010603);
+}
+:root[data-theme="core"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 14px;
+  background:
+    linear-gradient(to bottom, transparent calc(100% - 4px), rgba(125, 255, 106, 0.85) calc(100% - 3px), transparent),
+    var(--gc-tubes) 0 0 / 100% 100% no-repeat,
+    linear-gradient(to bottom, #04150a, #020b05);
+  box-shadow: 0 2px 14px rgba(70, 255, 110, 0.22);
+}
+:root[data-theme="core"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(24px, 2.7vw, 36px);
+  letter-spacing: 0;
+  color: #a4ff8e;
+  text-shadow: 0 0 6px rgba(90, 255, 110, 0.75), 0 0 20px rgba(60, 255, 100, 0.4);
+}
+:root[data-theme="core"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #bdf3cb;
+}
+:root[data-theme="core"] .masthead .telegram-kicker,
+:root[data-theme="core"] .masthead .telegram-date,
+:root[data-theme="core"] .masthead .telegram-note,
+:root[data-theme="core"] .masthead .telegram-none,
+:root[data-theme="core"] .masthead .telegram-status {
+  color: #c8f7d3;
+}
+:root[data-theme="core"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #c4ffae;
+  border-bottom: 0;
+  text-shadow: 0 0 8px rgba(110, 255, 100, 0.85), 0 0 24px rgba(60, 255, 100, 0.5);
+}
+:root[data-theme="core"] .telegram-word:hover,
+:root[data-theme="core"] .telegram-word:focus-visible {
+  background: rgba(125, 255, 106, 0.08);
+  border-radius: 999px;
+}
+:root[data-theme="core"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #b4ff9c;
+  text-shadow: 0 0 8px rgba(110, 255, 100, 0.6);
+}
+/* The scale is a capsule of dim segments; the day's step is lit white, not green, so it never reads as good. */
+:root[data-theme="core"] .scale {
+  border: 1px solid rgba(125, 255, 106, 0.6);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(4, 30, 14, 0.7);
+  box-shadow: 0 0 8px rgba(70, 255, 110, 0.25);
+}
+:root[data-theme="core"] .scale .step {
+  color: #b4e8c0;
+}
+:root[data-theme="core"] .scale .step + .step {
+  border-left-color: rgba(125, 255, 106, 0.35);
+}
+:root[data-theme="core"] .scale .step.on {
+  background: #f2fff5;
+  color: #03200b;
+}
+:root[data-theme="core"] .score-chip {
+  border-radius: 999px;
+  border-color: rgba(125, 255, 106, 0.5);
+}
+:root[data-theme="core"] .toolbar {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, rgba(4, 22, 10, 0.9), rgba(2, 12, 6, 0.6));
+}
+/* Bright green capsule buttons with glowing edges and dark green lettering. */
+:root[data-theme="core"] .tool,
+:root[data-theme="core"] .pick select,
+:root[data-theme="core"] .menu > summary,
+:root[data-theme="core"] .chip,
+:root[data-theme="core"] .key-btn,
+:root[data-theme="core"] .key-close,
+:root[data-theme="core"] dialog .close {
+  border: 1px solid #d4ffbe;
+  border-radius: 999px;
+  background: var(--gc-capsule);
+  color: #03200b;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  box-shadow: var(--gc-glow), inset 0 -2px 3px rgba(0, 70, 12, 0.35);
+}
+:root[data-theme="core"] .tool,
+:root[data-theme="core"] .menu > summary {
+  padding-inline: 14px;
+}
+:root[data-theme="core"] .pick select {
+  padding-left: 14px;
+  padding-right: 26px;
+}
+:root[data-theme="core"] .pick::after {
+  right: 11px;
+  color: #03200b;
+}
+:root[data-theme="core"] .tool:hover,
+:root[data-theme="core"] .pick select:hover,
+:root[data-theme="core"] .menu > summary:hover,
+:root[data-theme="core"] .chip:hover,
+:root[data-theme="core"] .key-btn:hover {
+  box-shadow: 0 0 16px rgba(130, 255, 100, 0.75), 0 0 2px #e6ffd8, inset 0 -2px 3px rgba(0, 70, 12, 0.35);
+}
+/* A capsule that is on goes dark with a lit rim and bright lettering, like a chosen item on the dashboard. */
+:root[data-theme="core"] .tool[aria-pressed="true"],
+:root[data-theme="core"] .menu[open] > summary,
+:root[data-theme="core"] .chip[aria-pressed="true"],
+:root[data-theme="core"] .key-btn[aria-expanded="true"] {
+  border-color: #7dff6a;
+  background: radial-gradient(ellipse 78% 52% at 50% 14%, rgba(125, 255, 106, 0.22), rgba(125, 255, 106, 0) 72%), #062a12;
+  color: #b4ff9c;
+  box-shadow: 0 0 12px rgba(110, 255, 90, 0.6), inset 0 0 8px rgba(110, 255, 90, 0.3);
+}
+:root[data-theme="core"] .chip-all {
+  border-style: dashed;
+}
+:root[data-theme="core"] .zoom {
+  border: 0;
+  background: none;
+  gap: 8px;
+}
+:root[data-theme="core"] .zoom button {
+  border: 1px solid #d4ffbe;
+  border-radius: 999px;
+  background: var(--gc-capsule);
+  color: #03200b;
+  font-weight: 800;
+  box-shadow: var(--gc-glow), inset 0 -2px 3px rgba(0, 70, 12, 0.35);
+}
+:root[data-theme="core"] .zoom button + button {
+  border-top: 1px solid #d4ffbe;
+}
+/* The room behind the orb (the canvas draws the tubes and the orb's light over it). */
+:root[data-theme="core"] .map {
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, #0a2814, #03110a 60%, #010603);
+}
+:root[data-theme="core"] .crosshair {
+  filter: drop-shadow(0 0 1px #02160a) drop-shadow(0 0 3px rgba(110, 255, 120, 0.8));
+}
+/* The panel, the Key, the menus, the notes and the About dialog are panes of dark green glass with a lit edge. */
+:root[data-theme="core"] .panel,
+:root[data-theme="core"] .menu-body,
+:root[data-theme="core"] .key-pop,
+:root[data-theme="core"] .map-note,
+:root[data-theme="core"] dialog {
+  border: 1px solid rgba(140, 255, 160, 0.6);
+  border-radius: 22px;
+  background:
+    linear-gradient(170deg, rgba(150, 255, 175, 0.1), rgba(150, 255, 175, 0) 30%),
+    linear-gradient(to bottom, rgba(10, 46, 22, 0.94), rgba(4, 22, 11, 0.96));
+  box-shadow: 0 0 0 3px rgba(40, 140, 70, 0.22), 0 0 22px rgba(60, 255, 110, 0.22), inset 0 0 26px rgba(60, 255, 110, 0.07);
+  color: var(--ink);
+}
+:root[data-theme="core"] .panel {
+  margin: 12px 12px 12px 0;
+}
+:root[data-theme="core"] .panel.framed {
+  background: linear-gradient(to bottom, rgba(10, 46, 22, 0.97), rgba(4, 22, 11, 0.98));
+}
+:root[data-theme="core"] .panel-title,
+:root[data-theme="core"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #b4ff9c;
+  text-shadow: 0 0 10px rgba(110, 255, 100, 0.45);
+}
+:root[data-theme="core"] .key-head h2,
+:root[data-theme="core"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: #b4ff9c;
+  text-shadow: 0 0 8px rgba(110, 255, 100, 0.4);
+}
+:root[data-theme="core"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background: linear-gradient(to right, rgba(125, 255, 106, 0), #7dff6a 20%, #7dff6a 80%, rgba(125, 255, 106, 0)) left bottom / 100% 2px no-repeat;
+}
+:root[data-theme="core"] .rule-head {
+  border: 1px solid rgba(125, 255, 106, 0.55);
+  border-radius: 999px;
+  padding-inline: 10px;
+  background: rgba(20, 90, 40, 0.55);
+  color: #d6ffdf;
+}
+:root[data-theme="core"] .headline {
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+:root[data-theme="core"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.2;
+}
+:root[data-theme="core"] .story:hover {
+  background: rgba(125, 255, 106, 0.07);
+}
+:root[data-theme="core"] .lead img {
+  border-radius: 14px;
+}
+:root[data-theme="core"] .cite,
+:root[data-theme="core"] .source-num {
+  border-radius: 999px;
+}
+:root[data-theme="core"] .excerpt-quote {
+  border-left-color: #7dff6a;
+}
+:root[data-theme="core"] .timebar {
+  border-top: 0;
+  font-weight: 800;
+  background:
+    linear-gradient(to bottom, rgba(125, 255, 106, 0.8), transparent 2px),
+    linear-gradient(to bottom, #04150a, #020b05);
+  box-shadow: 0 -2px 14px rgba(70, 255, 110, 0.18);
+}
+:root[data-theme="core"] .slider input {
+  accent-color: #45dc3a;
+}
+:root[data-theme="core"] .banner {
+  border-bottom: 0;
+  background: rgba(4, 24, 12, 0.85);
+  color: #c8f7d3;
+}
+
+/* The Key and zoom sit inside Map view's lit bezel (src/map/core.ts), so they never cover the tube. */
+:root[data-theme="core"] .key-btn {
+  left: 30px;
+  top: 30px;
+}
+:root[data-theme="core"] .zoom {
+  right: 30px;
+  bottom: 30px;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="core"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter) - 8px) / (var(--len, 8) * 1)));
+  }
+  :root[data-theme="core"] .panel {
+    margin: 4px 8px 8px;
+  }
+  :root[data-theme="core"] .tool,
+  :root[data-theme="core"] .menu > summary {
+    padding-inline: 10px;
+  }
+  :root[data-theme="core"] .pick select {
+    padding-left: 10px;
+    padding-right: 20px;
+  }
+  :root[data-theme="core"] .pick::after {
+    right: 8px;
+  }
+  :root[data-theme="core"] .zoom button {
+    width: 32px;
+    height: 32px;
+  }
+  :root[data-theme="core"] .key-btn {
+    left: 22px;
+    top: 22px;
+  }
+  :root[data-theme="core"] .zoom {
+    right: 22px;
+    bottom: 22px;
+  }
+}
+
+/* ---- Folding Cube (id fold, experimental): after the feel of an early-2000s cube console's menu. A soft grey-violet
+   page, deep indigo and purple, glossy rounded-square keys, chunky rounded lettering, and the world on a glossy
+   purple cube on a dark stage (src/map/fold.ts). No maker's or console's name, logo or art. ------------------------ */
+:root[data-theme="fold"] {
+  color-scheme: light;
+  --page: #e8e5f1;
+  --panel: #f9f8fd;
+  --ink: #22194d;
+  --ink-2: #3b3170;
+  --muted: #5b5385;
+  --rule: #c9c0e8;
+  --accent: #5a3fc0;
+  --on-accent: #ffffff;
+  --hover: rgba(90, 63, 192, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-head: "Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-body: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+  --fc-indigo: #22145c;
+  --fc-lavender: #cdbcff;
+  /* A glossy purple key: a light band across the top half, a darker foot, a lavender rim. */
+  --fc-key: linear-gradient(to bottom, #8d72ec 0%, #6d50d6 48%, #5a3fc0 52%, #664ad0 100%);
+  --fc-key-on: linear-gradient(to bottom, #f4efff 0%, #e2d8ff 48%, #d3c5ff 52%, #e0d6ff 100%);
+  /* A small cube seen from a corner, three faces in purples with lavender edges: our own drawing, no letter on it. */
+  --fc-cube: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Cg stroke='%23cdbcff' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M20 2L37 11.5L20 21L3 11.5Z' fill='%238d72ec'/%3E%3Cpath d='M3 11.5L20 21V42L3 32.5Z' fill='%235a3fc0'/%3E%3Cpath d='M37 11.5L20 21V42L37 32.5Z' fill='%233b2394'/%3E%3C/g%3E%3Cpath d='M9 11.2L20 5.2L27 9' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E");
+}
+:root[data-theme="fold"] body {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, #f6f4fb 0%, rgba(246, 244, 251, 0) 70%),
+    linear-gradient(to bottom, #ece9f4, #dedaeb);
+}
+:root[data-theme="fold"] .masthead {
+  border-bottom: 0;
+  position: relative;
+  z-index: 21;
+}
+:root[data-theme="fold"] .brand {
+  position: relative;
+  padding-left: 48px;
+}
+:root[data-theme="fold"] .brand::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 38px;
+  height: 42px;
+  margin-top: -21px;
+  background: var(--fc-cube) center / contain no-repeat;
+  filter: drop-shadow(0 3px 2px rgba(34, 20, 92, 0.3));
+}
+:root[data-theme="fold"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--fc-indigo);
+}
+:root[data-theme="fold"] .mast-tag {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+:root[data-theme="fold"] .telegram-kicker,
+:root[data-theme="fold"] .telegram-date {
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+:root[data-theme="fold"] .telegram-note {
+  font-style: normal;
+}
+/* The word in chunky rounded capitals, stepped back in lavender and indigo like the side of a block. */
+:root[data-theme="fold"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #6a4cd8;
+  border-bottom: 0;
+  border-radius: 14px;
+  padding: 4px 10px 0;
+  text-shadow: 1px 1px 0 #b9a6ff, 2px 2px 0 #9b84f0, 3px 3px 0 #4a2fae, 4px 4px 0 #2f1b80, 5px 6px 6px rgba(34, 20, 92, 0.25);
+}
+:root[data-theme="fold"] .telegram-word:hover,
+:root[data-theme="fold"] .telegram-word:focus-visible {
+  outline: none;
+  background: rgba(90, 63, 192, 0.08);
+  box-shadow: 0 0 0 3px rgba(90, 63, 192, 0.35);
+}
+:root[data-theme="fold"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #5a3fc0;
+  text-shadow: 1px 1px 0 #cdbcff, 2px 2px 0 #9b84f0;
+}
+:root[data-theme="fold"] .scale {
+  border: 2px solid var(--fc-indigo);
+  border-radius: 8px;
+  overflow: hidden;
+}
+:root[data-theme="fold"] .scale .step + .step {
+  border-color: var(--rule);
+}
+:root[data-theme="fold"] .scale .step.on {
+  background: var(--fc-key);
+  color: #ffffff;
+}
+:root[data-theme="fold"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px;
+}
+/* Rounded square keys: glossy purple plastic with a lavender rim, standing on a darker foot, pressed in when on. */
+:root[data-theme="fold"] .tool,
+:root[data-theme="fold"] .pick select,
+:root[data-theme="fold"] .menu > summary,
+:root[data-theme="fold"] .chip,
+:root[data-theme="fold"] .zoom button,
+:root[data-theme="fold"] .key-btn,
+:root[data-theme="fold"] .key-close,
+:root[data-theme="fold"] dialog .close {
+  border: 2px solid var(--fc-indigo);
+  border-radius: 10px;
+  background: var(--fc-key);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45), inset 0 0 0 1px rgba(205, 188, 255, 0.5), 0 3px 0 var(--fc-indigo);
+}
+:root[data-theme="fold"] .tool,
+:root[data-theme="fold"] .menu > summary,
+:root[data-theme="fold"] .key-btn {
+  padding-inline: 13px;
+}
+:root[data-theme="fold"] .pick select {
+  padding-left: 13px;
+  padding-right: 26px;
+}
+:root[data-theme="fold"] .pick::after {
+  right: 11px;
+  opacity: 1;
+  color: #ffffff;
+}
+:root[data-theme="fold"] .pick option {
+  font-weight: 500;
+}
+:root[data-theme="fold"] .tool:hover,
+:root[data-theme="fold"] .pick select:hover,
+:root[data-theme="fold"] .menu > summary:hover,
+:root[data-theme="fold"] .chip:hover,
+:root[data-theme="fold"] .zoom button:hover,
+:root[data-theme="fold"] .key-btn:hover,
+:root[data-theme="fold"] .key-close:hover {
+  background: linear-gradient(to bottom, #9b84f0 0%, #7a5de0 48%, #6a4cd8 52%, #7559dc 100%);
+}
+:root[data-theme="fold"] .tool[aria-pressed="true"],
+:root[data-theme="fold"] .menu[open] > summary,
+:root[data-theme="fold"] .chip[aria-pressed="true"],
+:root[data-theme="fold"] .key-btn[aria-expanded="true"] {
+  background: var(--fc-key-on);
+  color: var(--fc-indigo);
+  transform: translateY(2px);
+  box-shadow: inset 0 1.5px 0 #ffffff, 0 1px 0 var(--fc-indigo);
+}
+:root[data-theme="fold"] .chip-all {
+  border-style: dashed;
+}
+/* The stage: dark indigo under a soft violet light, in a rounded well with a lavender rim. */
+:root[data-theme="fold"] .map {
+  margin: 10px 12px 12px;
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 44%, rgba(122, 94, 230, 0.4) 0%, rgba(122, 94, 230, 0) 70%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, #2c1d6e 0%, #1a1146 60%, #110a31 100%);
+  box-shadow: inset 0 0 0 2px var(--fc-lavender), inset 0 0 0 4px var(--fc-indigo), 0 4px 14px rgba(34, 20, 92, 0.25);
+}
+:root[data-theme="fold"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px var(--fc-indigo)) drop-shadow(0 0 1px var(--fc-indigo));
+}
+:root[data-theme="fold"] .key-btn {
+  left: 14px;
+  top: 14px;
+  font-size: 13px;
+}
+:root[data-theme="fold"] .zoom {
+  right: 14px;
+  bottom: 14px;
+  border: 0;
+  background: none;
+  gap: 9px;
+}
+:root[data-theme="fold"] .zoom button {
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  line-height: 1;
+}
+:root[data-theme="fold"] .zoom button + button {
+  border-top: 2px solid var(--fc-indigo);
+}
+/* The panel is a menu card: a lavender rim on indigo, rounded corners, stories in rounded slots. */
+:root[data-theme="fold"] .panel {
+  margin: 10px 12px 12px 0;
+  border: 3px solid var(--fc-indigo);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 3px #e4dcff, 0 4px 14px rgba(34, 20, 92, 0.18);
+}
+:root[data-theme="fold"] .panel.framed {
+  overflow: hidden;
+}
+:root[data-theme="fold"] .menu-body,
+:root[data-theme="fold"] .key-pop,
+:root[data-theme="fold"] dialog {
+  border: 3px solid var(--fc-indigo);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 3px #e4dcff, 0 6px 18px rgba(34, 20, 92, 0.25);
+}
+:root[data-theme="fold"] .menu-item {
+  border-bottom: 2px solid #ebe5fb;
+}
+:root[data-theme="fold"] .panel-title,
+:root[data-theme="fold"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.05;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--fc-indigo);
+}
+:root[data-theme="fold"] .key-head h2,
+:root[data-theme="fold"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 800;
+  color: var(--fc-indigo);
+}
+:root[data-theme="fold"] .meta,
+:root[data-theme="fold"] .count,
+:root[data-theme="fold"] .dateline .coords {
+  font-style: normal;
+}
+:root[data-theme="fold"] .dateline {
+  border-bottom: 3px solid #e4dcff;
+}
+:root[data-theme="fold"] .rule-head {
+  border: 0;
+  border-radius: 8px;
+  padding-inline: 10px;
+  background: #ece6ff;
+  color: var(--ink-2);
+}
+:root[data-theme="fold"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="fold"] .story {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border: 2px solid #dcd2fb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 0 #dcd2fb;
+}
+:root[data-theme="fold"] .story:hover,
+:root[data-theme="fold"] .story:focus-visible {
+  outline: none;
+  border-color: #8d72ec;
+  box-shadow: 0 0 0 3px rgba(141, 114, 236, 0.3), 0 2px 0 #b9a6ff;
+}
+:root[data-theme="fold"] .headline {
+  font-weight: 800;
+}
+:root[data-theme="fold"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 800;
+  line-height: 1.15;
+}
+:root[data-theme="fold"] .score-chip {
+  border-radius: 6px;
+}
+:root[data-theme="fold"] .lead img {
+  border-radius: 12px;
+}
+:root[data-theme="fold"] .timebar {
+  border-top: 0;
+  font-weight: 800;
+}
+:root[data-theme="fold"] .slider input {
+  accent-color: #5a3fc0;
+}
+:root[data-theme="fold"] .time-label {
+  color: var(--ink-2);
+}
+:root[data-theme="fold"] .banner {
+  border-bottom: 0;
+  background: transparent;
+}
+@media (max-width: 760px) {
+  :root[data-theme="fold"] .brand {
+    padding-left: 38px;
+  }
+  :root[data-theme="fold"] .brand::before {
+    width: 30px;
+    height: 33px;
+    margin-top: -16px;
+  }
+  :root[data-theme="fold"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 30px) / (var(--len, 8) * 0.75)));
+  }
+  :root[data-theme="fold"] .map {
+    margin: 6px 8px 8px;
+    border-radius: 16px;
+  }
+  :root[data-theme="fold"] .panel {
+    margin: 4px 8px 8px;
+  }
+  :root[data-theme="fold"] .tool,
+  :root[data-theme="fold"] .menu > summary,
+  :root[data-theme="fold"] .key-btn {
+    padding-inline: 9px;
+  }
+  :root[data-theme="fold"] .pick select {
+    padding-left: 9px;
+    padding-right: 20px;
+  }
+  :root[data-theme="fold"] .pick::after {
+    right: 8px;
+  }
+  :root[data-theme="fold"] .zoom button {
+    width: 32px;
+    height: 32px;
+  }
+}
+/* The narrowest phones: the keys draw in a little so the toolbar stays one row. */
+@media (max-width: 380px) {
+  :root[data-theme="fold"] .toolbar {
+    gap: 4px;
+  }
+  :root[data-theme="fold"] .tool,
+  :root[data-theme="fold"] .menu > summary {
+    padding-inline: 7px;
+  }
+  :root[data-theme="fold"] .pick select {
+    padding-left: 7px;
+    padding-right: 18px;
+  }
+  :root[data-theme="fold"] .pick::after {
+    right: 7px;
+  }
+}

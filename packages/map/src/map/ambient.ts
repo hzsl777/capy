@@ -6,8 +6,11 @@
 import type { Theme } from "../themes.ts";
 import { offscreen, type SurfaceFrame } from "./surface.ts";
 
-/** Milliseconds between frames a design's own motion asks for, by `surface`. About 12 and 5 frames a second. */
-const AMBIENT_MS: Partial<Record<NonNullable<Theme["surface"]>, number>> = { aquarium: 80, lava: 200 };
+/**
+ * Milliseconds between frames a design's own motion asks for, by `surface`. About 12 and 5 frames a second; Green
+ * Core's energy and tube light 8, which also carries its opening.
+ */
+const AMBIENT_MS: Partial<Record<NonNullable<Theme["surface"]>, number>> = { aquarium: 80, lava: 200, core: 125 };
 
 let reduce: MediaQueryList | null = null;
 
@@ -56,7 +59,8 @@ export class StillLayer {
   private g?: CanvasRenderingContext2D;
   private ready = false;
 
-  draw(f: SurfaceFrame, paint: (g: CanvasRenderingContext2D) => void) {
+  /** `box` (x0, y0, x1, y1), when given, bounds what `paint` draws, so a kept copy is drawn only that far. */
+  draw(f: SurfaceFrame, paint: (g: CanvasRenderingContext2D) => void, box?: readonly [number, number, number, number]) {
     const { ctx, w, h, dpr } = f;
     const key = viewKey(f);
     if (key !== this.key || f.map !== this.map) {
@@ -74,6 +78,7 @@ export class StillLayer {
       paint(g);
       this.ready = true;
     }
-    ctx.drawImage(this.canvas, 0, 0, w, h);
+    if (box) drawPart(f, this.canvas, ...box);
+    else ctx.drawImage(this.canvas, 0, 0, w, h);
   }
 }

@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -28,6 +28,23 @@ function star(points: number, outer: number, inner: number, turn = -Math.PI / 2)
 const X_END = 1.3;
 const X_BAR = 0.6;
 const X_REACH = Math.hypot(X_END, X_END - X_BAR);
+
+/** How far a cube mark's corners reach, as a share of r, so it covers about as much as a circle of radius r. */
+const CUBE_REACH = 1.1;
+
+/**
+ * A cube mark's lit top and shaded right face, and its three inner edges, as SVG path data centred on 0,0. Drawn over
+ * a filled mark only, so hollow, filled and ringed read as in every shape.
+ */
+export function cubeFaces(r: number): { top: string; right: string; edges: string } {
+  const R = r * CUBE_REACH;
+  const c = R * Math.cos(Math.PI / 6);
+  return {
+    top: polygon([[0, -R], [c, -R / 2], [0, 0], [-c, -R / 2]]),
+    right: polygon([[0, 0], [c, -R / 2], [c, R / 2], [0, R]]),
+    edges: `M0 0L0 ${f(R)}M0 0L${f(c)} ${f(-R / 2)}M0 0L${f(-c)} ${f(-R / 2)}`,
+  };
+}
 
 /** The outline of a marker of radius r, as SVG path data. */
 export function markPath(shape: MarkShape, r: number): string {
@@ -206,6 +223,13 @@ export function markPath(shape: MarkShape, r: number): string {
       }
       return `${d}Z`;
     }
+    case "cube": {
+      // A small cube seen from a corner (Folding Cube): its outline is a hexagon with a point up. The map draws the
+      // three faces' light and shade and the edges inside it (cubeFaces); the outline alone is the mark.
+      const R = r * CUBE_REACH;
+      const c = R * Math.cos(Math.PI / 6);
+      return polygon([[0, -R], [c, -R / 2], [c, R / 2], [0, R], [-c, R / 2], [-c, -R / 2]]);
+    }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
       // (markRing), since an X drawn larger would sit too close to read as a ring.
@@ -238,6 +262,21 @@ export function markPath2D(shape: MarkShape, r: number): Path2D {
     p = new Path2D(markPath(shape, q));
     if (cache.size > 4000) cache.clear();
     cache.set(key, p);
+  }
+  return p;
+}
+
+const faceCache = new Map<number, { top: Path2D; right: Path2D; edges: Path2D }>();
+
+/** cubeFaces as Path2Ds centred on 0,0, cached by size (to a quarter pixel). */
+export function cubeFaces2D(r: number): { top: Path2D; right: Path2D; edges: Path2D } {
+  const q = Math.round(r * 4) / 4;
+  let p = faceCache.get(q);
+  if (!p) {
+    const d = cubeFaces(q);
+    p = { top: new Path2D(d.top), right: new Path2D(d.right), edges: new Path2D(d.edges) };
+    if (faceCache.size > 400) faceCache.clear();
+    faceCache.set(q, p);
   }
   return p;
 }

@@ -72,6 +72,11 @@ export interface SurfaceResult {
   clip?: Path2D;
   under?: (spots: SurfaceSpot[]) => void;
   over?: () => void;
+  /**
+   * Milliseconds until the design wants its next frame, for a design that frames the map and moves too (Crystal
+   * Towers). The view asks for it as for a returned number: never in a hidden tab or for reduced motion.
+   */
+  next?: number;
 }
 
 /** d3 draws into anything canvas-like; a Path2D only lacks beginPath, which a fresh path doesn't need. */
