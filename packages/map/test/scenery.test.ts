@@ -7,7 +7,7 @@ import type { FeatureCollection } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import { describe, expect, it } from "vitest";
-import { POND, REEF, ROPE, TEA } from "../src/map/scenery.ts";
+import { PICTURES, POND, REEF, ROPE, TEA } from "../src/map/scenery.ts";
 import { samplePlaces } from "./sample.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
@@ -50,6 +50,10 @@ describe("scenery", () => {
       // The detailed coastline takes a few seconds, more when every package's tests run at once.
     }, 60_000);
   }
+
+  it("has a picture for every spot", () => {
+    for (const s of spots) expect(PICTURES[s.kind], s.kind).toBeTruthy();
+  });
 
   it("keeps every picture at least 3 degrees clear of every place", () => {
     for (const s of spots) {

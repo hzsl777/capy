@@ -59,23 +59,48 @@ export const ROPE: readonly Spot[] = [
 ];
 
 /**
- * Undersea Town: little houses on sandy mounds in open sea and flower-shaped clouds drifting in the water above,
- * all drawn for this site. Bubbles rise outside the map, in style.css.
+ * Undersea Town: jellyfish drifting, little reef gardens of coral, kelp and sea grass on patches of sand, and
+ * flower-shaped clouds in the water, all drawn for this site. Bubbles rise outside the map, in style.css.
  */
 export const REEF: readonly Spot[] = [
-  { kind: "shellhouse", lon: -142, lat: 10, r: 14 },
-  { kind: "domehouse", lon: -22, lat: -30, r: 14 },
-  { kind: "coralhouse", lon: 70, lat: -10, r: 10 },
-  { kind: "coralhouse", lon: 154, lat: 30, r: 9, flip: true },
-  { kind: "domehouse", lon: -158, lat: 46, r: 7, flip: true },
+  { kind: "jellypink", lon: -142, lat: 10, r: 14 },
+  { kind: "garden", lon: -22, lat: -30, r: 14 },
+  { kind: "jellylilac", lon: 70, lat: -10, r: 10 },
+  { kind: "bloomyellow", lon: 154, lat: 30, r: 9 },
+  { kind: "jellypink", lon: -158, lat: 46, r: 7, flip: true },
   { kind: "bloomblue", lon: -38, lat: 26, r: 11 },
-  { kind: "bloompink", lon: -126, lat: -26, r: 14 },
+  { kind: "garden", lon: -126, lat: -26, r: 14, flip: true },
   { kind: "bloomgreen", lon: 130, lat: -42, r: 7 },
-  { kind: "bloomlilac", lon: -94, lat: -6, r: 9 },
+  { kind: "jellylilac", lon: -94, lat: -6, r: 9 },
   { kind: "bloomblue", lon: 6, lat: -58, r: 9, flip: true },
-  { kind: "bloompink", lon: -166, lat: -34, r: 9, flip: true },
-  { kind: "bloomgreen", lon: 46, lat: -34, r: 7 },
-  { kind: "bloomlilac", lon: -94, lat: -58, r: 9, flip: true },
+  { kind: "bloompink", lon: -166, lat: -34, r: 9 },
+  { kind: "bloomlilac", lon: 46, lat: -34, r: 7 },
+  { kind: "bloompink", lon: -94, lat: -58, r: 9, flip: true },
+  { kind: "bloomyellow", lon: 90, lat: -10, r: 9 },
+  { kind: "jellypink", lon: 62, lat: 10, r: 7, flip: true },
+  { kind: "bloomlilac", lon: -171, lat: -60, r: 12 },
+  { kind: "jellypink", lon: 93, lat: -51, r: 12, flip: true },
+  { kind: "bloomyellow", lon: -93, lat: -33, r: 12 },
+  { kind: "bloomgreen", lon: -171, lat: 3, r: 12 },
+  { kind: "jellypink", lon: -114, lat: 6, r: 12, flip: true },
+  { kind: "garden", lon: -177, lat: 30, r: 12 },
+  { kind: "bloompink", lon: 48, lat: -54, r: 11 },
+  { kind: "jellylilac", lon: -36, lat: -57, r: 10, flip: true },
+  { kind: "bloomgreen", lon: -21, lat: -3, r: 10 },
+  { kind: "garden", lon: 102, lat: -27, r: 9 },
+  { kind: "jellylilac", lon: -33, lat: 51, r: 9, flip: true },
+  { kind: "bloomblue", lon: 144, lat: -57, r: 8 },
+  { kind: "bloompink", lon: 66, lat: -30, r: 8 },
+  { kind: "bloomlilac", lon: -135, lat: 36, r: 8, flip: true },
+  { kind: "jellypink", lon: 6, lat: -39, r: 7 },
+  { kind: "bloomblue", lon: 174, lat: 51, r: 6 },
+  { kind: "bloomyellow", lon: 3, lat: -21, r: 6, flip: true },
+  { kind: "bloompink", lon: -3, lat: -6, r: 6 },
+  { kind: "jellylilac", lon: 168, lat: -3, r: 6 },
+  { kind: "bloomlilac", lon: -39, lat: 6, r: 6, flip: true },
+  { kind: "bloompink", lon: 165, lat: 15, r: 6 },
+  { kind: "bloomgreen", lon: 135, lat: 18, r: 6 },
+  { kind: "bloomyellow", lon: -153, lat: 30, r: 6, flip: true },
 ];
 
 const HIDE = (80 * Math.PI) / 180;
@@ -226,24 +251,32 @@ const BEAR_HEAD = `
   <circle cx="-54" cy="0" r="7.5" fill="#fbf5e6" stroke="#8d8068" stroke-width="1.6"/>
   <path d="M-59 2.5q5 4 10-.5" stroke="#c7cfe8" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
 
-// Undersea Town. A flower-shaped cloud: rounded petals around a middle in three layers, darkest outside.
-const BLOOM = (x: number, y: number, r: number, petals: number, rot: number, [edge, mid, core]: readonly [string, string, string]) => {
-  const layer = (rr: number, fill: string, dx: number, dy: number) => {
-    const d = rr * 0.56;
-    const pr = rr * 0.46;
-    const circles = Array.from({ length: petals }, (_, i) => {
-      const a = ((rot + (i * 360) / petals) * Math.PI) / 180;
-      return `<circle cx="${(dx + Math.cos(a) * d).toFixed(1)}" cy="${(dy + Math.sin(a) * d).toFixed(1)}" r="${pr.toFixed(1)}"/>`;
-    }).join("");
-    return `<g fill="${fill}">${circles}<circle cx="${dx}" cy="${dy}" r="${(rr * 0.6).toFixed(1)}"/></g>`;
+// Undersea Town. A flower-shaped cloud: one outline of round petals, a paler flower inside it and a soft middle,
+// cut as a single path so no part of it reads as a round dot.
+const FLOWER_PATH = (r: number, petals: number, rot: number) => {
+  const step = (2 * Math.PI) / petals;
+  const valley = r * 0.62;
+  const chord = 2 * valley * Math.sin(step / 2);
+  const pr = (chord * 0.62).toFixed(1);
+  const pt = (i: number) => {
+    const a = (rot * Math.PI) / 180 + i * step;
+    return `${(Math.cos(a) * valley).toFixed(1)} ${(Math.sin(a) * valley).toFixed(1)}`;
   };
-  return `<g transform="translate(${x} ${y})" opacity=".82">${layer(r + 3, edge, 0, 0)}${layer(r, mid, 0, 0)}${layer(r * 0.52, core, -r * 0.12, -r * 0.14)}</g>`;
+  let d = `M${pt(0)}`;
+  for (let i = 1; i <= petals; i++) d += `A${pr} ${pr} 0 1 1 ${pt(i)}`;
+  return `${d}Z`;
 };
+const BLOOM = (x: number, y: number, r: number, petals: number, rot: number, [edge, mid, core]: readonly [string, string, string]) =>
+  `<g transform="translate(${x} ${y})" stroke-linejoin="round">
+    <path d="${FLOWER_PATH(r, petals, rot)}" fill="${mid}" stroke="${edge}" stroke-width="${Math.max(2, r * 0.09).toFixed(1)}"/>
+    <path d="${FLOWER_PATH(r * 0.56, petals, rot + 180 / petals)}" transform="translate(${(-r * 0.06).toFixed(1)} ${(-r * 0.08).toFixed(1)})" fill="${core}"/>
+  </g>`;
 const BLOOMS: Record<string, readonly [string, string, string]> = {
-  blue: ["#62b4f0", "#a3d9ff", "#e2f4ff"],
-  pink: ["#f27fb0", "#ffb9d6", "#ffe9f2"],
-  green: ["#6fcf7e", "#aeebb4", "#e6fbe7"],
-  lilac: ["#a784e6", "#d3bdfb", "#f3eaff"],
+  blue: ["#2f8fd8", "#8fd0ff", "#e4f5ff"],
+  pink: ["#e0518f", "#ffadd0", "#fff0f6"],
+  green: ["#2fa85a", "#94e6a2", "#eafbe9"],
+  lilac: ["#8a5fd6", "#cdb3fb", "#f5efff"],
+  yellow: ["#e0a412", "#ffe27a", "#fffbe2"],
 };
 
 /** A thin trail of bubbles rising from a point: rings with a glint, larger as they rise. */
@@ -253,99 +286,105 @@ const BUBBLES = (x: number, y: number) =>
   </g>
   <path d="M${x - 4.4} ${y - 24}a3 3 0 0 1 2.4-2.6M${x + 2.4} ${y - 40}a4 4 0 0 1 3-3" stroke="#ffffff" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
 
-/** The sandy mound a house stands on, with a tuft of coral and a frond of weed. */
-const MOUND = `<path d="M-84 58C-66 38-34 34 0 34S66 38 84 58Z" fill="#f1d596" stroke="#b58646" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M-50 50q4-2 8 0M30 48q5-2 9 0M-12 54q4-2 7 0" stroke="#c89c5c" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M-66 48v-14m0 6l-7-8m7 3l6-9m-6 0v-6" stroke="#b4552c" stroke-width="5"/>
-    <path d="M-66 48v-14m0 6l-7-8m7 3l6-9m-6 0v-6" stroke="#ff9a66" stroke-width="3"/>
-    <path d="M62 48c-6-8 6-14 0-22s6-12 2-20" stroke="#1e7a3c" stroke-width="5"/>
-    <path d="M62 48c-6-8 6-14 0-22s6-12 2-20" stroke="#4cc36a" stroke-width="3"/>
+/**
+ * A jellyfish drifting: a round bell with a frilled hem, a paler inside and a shine, two ruffled arms and four long
+ * wavy tentacles trailing below. 64 wide and about 110 tall at scale 1, the bell's top at y = -36. No face.
+ */
+const JELLY = (x: number, y: number, s: number, rot: number, [body, light, edge]: readonly [string, string, string]) => {
+  const hem = "q-2.5 6-5 0".repeat(12);
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" stroke-linecap="round" stroke-linejoin="round">
+    <g fill="none">
+      <path d="M-20 6c-7 10 5 18-2 28s5 18-2 28s5 14 0 22M20 6c7 10-5 18 2 28s-5 18 2 28s-5 14 0 22M-9 7c-5 12 6 20 0 32s6 20 0 32M9 7c5 12-6 20 0 32s-6 20 0 32" stroke="${edge}" stroke-width="4.6"/>
+      <path d="M-20 6c-7 10 5 18-2 28s5 18-2 28s5 14 0 22M20 6c7 10-5 18 2 28s-5 18 2 28s-5 14 0 22M-9 7c-5 12 6 20 0 32s6 20 0 32M9 7c5 12-6 20 0 32s-6 20 0 32" stroke="${light}" stroke-width="2.2"/>
+      <path d="M-3 6c-6 6 4 10-2 17s4 10-1 17M3 6c6 6-4 10 2 17s-4 10 1 17" stroke="${edge}" stroke-width="9"/>
+      <path d="M-3 6c-6 6 4 10-2 17s4 10-1 17M3 6c6 6-4 10 2 17s-4 10 1 17" stroke="${body}" stroke-width="5.6"/>
+    </g>
+    <path d="M-30 6C-32-20-18-36 0-36S32-20 30 6${hem}Z" fill="${body}" stroke="${edge}" stroke-width="3"/>
+    <path d="M-22 2C-22-14-12-24 0-24S22-14 22 2C14-2-14-2-22 2Z" fill="${light}" opacity=".75"/>
+    <path d="M-20-16C-16-26-8-31 2-31" stroke="#ffffff" stroke-width="4" fill="none" opacity=".8"/>
+  </g>`;
+};
+const JELLIES: Record<string, readonly [string, string, string]> = {
+  pink: ["#ff9ccb", "#ffe0ef", "#c2306e"],
+  lilac: ["#c9a2f5", "#f1e6ff", "#6f3cb0"],
+};
+
+/** A starfish lying on the sand: five soft arms with a pale line down each, no face. */
+const STARFISH = (x: number, y: number, s: number, rot: number) => {
+  const arm = (i: number) => {
+    const a = ((i * 72 - 90) * Math.PI) / 180;
+    const b = ((i * 72 - 54) * Math.PI) / 180;
+    return `${i === 0 ? "M" : "L"}${(Math.cos(a) * 22).toFixed(1)} ${(Math.sin(a) * 22).toFixed(1)}Q${(Math.cos(a) * 12 + Math.cos(b) * 2).toFixed(1)} ${(Math.sin(a) * 12 + Math.sin(b) * 2).toFixed(1)} ${(Math.cos(b) * 8).toFixed(1)} ${(Math.sin(b) * 8).toFixed(1)}`;
+  };
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" stroke-linejoin="round" stroke-linecap="round">
+    <path d="${[0, 1, 2, 3, 4].map(arm).join("")}Z" fill="#ff9a3c" stroke="#a8461a" stroke-width="3"/>
+    <path d="${[0, 1, 2, 3, 4].map((i) => {
+      const a = ((i * 72 - 90) * Math.PI) / 180;
+      return `M0 0L${(Math.cos(a) * 15).toFixed(1)} ${(Math.sin(a) * 15).toFixed(1)}`;
+    }).join("")}" stroke="#ffd29a" stroke-width="2.6" fill="none"/>
+  </g>`;
+};
+
+/** A scallop shell: a fan of ribs from a little hinge. */
+const SCALLOP = (x: number, y: number, s: number, rot: number) =>
+  `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-4 10h8l3 4h-14Z" fill="#f7b6a0" stroke="#a24c3c" stroke-width="2.2"/>
+    <path d="M0 10L-18-2C-20-12-12-20 0-20S20-12 18-2Z" fill="#ffd3c2" stroke="#a24c3c" stroke-width="2.6"/>
+    <path d="M0 10L-12-15M0 10L-5-19M0 10L5-19M0 10L12-15M0 10L17-5M0 10L-17-5" stroke="#e48a72" stroke-width="2" fill="none"/>
   </g>`;
 
-/**
- * A big conch shell lying on its side on the sand: its coiled spire points up and away, a row of blunt knobs runs
- * along the shoulder, and in the flared opening sit a round wooden door and a porthole. A clay chimney and a frond
- * of weed on top.
- */
-const SHELL_HOUSE = `${MOUND}
-  <defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fcc4a8"/><stop offset="1" stop-color="#e8876c"/></linearGradient></defs>
-  <g fill="url(#sg)" stroke="#95493a" stroke-width="2.6" stroke-linejoin="round">
-    <path d="M-66-40L-50-36C-46-30-50-26-56-26Z"/>
-    <path d="M-58-27C-58-36-44-38-38-32C-32-26-38-16-48-18C-54-19-58-22-58-27Z"/>
-    <path d="M-48-17C-50-30-32-34-22-26C-12-18-18-2-32-2C-42-2-47-9-48-17Z"/>
-    <path d="M-21-15L-21-26L-13-21ZM-6-25L-3-35L3-28ZM24-31L31-40L34-28ZM42-23L52-27L49-15Z"/>
-    <path d="M-24 44C-36 30-36 6-24-10C-12-26 14-36 36-28C54-20 64 2 60 24C58 36 52 44 44 44Z"/>
-  </g>
-  <g fill="none" stroke="#fde9d2" stroke-linecap="round" opacity=".85">
-    <path d="M-54-24C-50-30-44-31-40-28M-44-12C-40-22-30-26-24-22" stroke-width="3"/>
-    <path d="M-28 30C-30 6-14-18 16-26" stroke-width="5"/>
-    <path d="M-12 40C-16 20-6 0 12-8" stroke-width="4"/>
-  </g>
-  <path d="M-30 2C-28-6-22-14-14-18" stroke="#fff4e6" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
-  <ellipse cx="32" cy="14" rx="22" ry="30" transform="rotate(-8 32 14)" fill="#fff1dc" stroke="#95493a" stroke-width="2.6"/>
-  <ellipse cx="32" cy="16" rx="15" ry="24" transform="rotate(-8 32 16)" fill="#ffc9ad" stroke="#d98468" stroke-width="2"/>
-  <circle cx="33" cy="-2" r="6.5" fill="#bfe9f5" stroke="#8a5a26" stroke-width="3"/>
-  <path d="M30-4a4 4 0 0 1 3.5-2.5" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <circle cx="31" cy="28" r="11" fill="#b0703a" stroke="#5a3a14" stroke-width="2.6"/>
-  <path d="M27 18V38M31 17.5V38.5M35 18V38" stroke="#7a4a20" stroke-width="1.5"/>
-  <path d="M37.5 29h1" stroke="#ffe28a" stroke-width="3" stroke-linecap="round"/>
-  <path d="M8-30V-39h10V-31" fill="#c9774e" stroke="#6e3a22" stroke-width="2.6" stroke-linejoin="round"/>
-  <path d="M6-40h14" stroke="#6e3a22" stroke-width="5" stroke-linecap="round"/>
-  <path d="M6-40h14" stroke="#e0936a" stroke-width="2.4" stroke-linecap="round"/>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M-10-26c-5-6 3-10-2-17s3-9 0-15" stroke="#1e7a3c" stroke-width="5"/>
-    <path d="M-10-26c-5-6 3-10-2-17s3-9 0-15" stroke="#4cc36a" stroke-width="3"/>
-  </g>
-  ${BUBBLES(13, -45)}`;
+/** Branching coral: thick rounded branches in two tones. */
+const CORAL = (x: number, y: number, s: number, [fill, edge, light]: readonly [string, string, string]) => {
+  const d = "M0 0V-22M0-10C-8-14-12-20-12-30M-12-22C-18-24-20-28-20-34M0-18C6-24 12-26 12-36M12-28C18-30 20-34 20-40M0-22C-2-30 2-34 2-42";
+  return `<g transform="translate(${x} ${y}) scale(${s})" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="${d}" stroke="${edge}" stroke-width="10"/>
+    <path d="${d}" stroke="${fill}" stroke-width="6.4"/>
+    <path d="M-12-26V-30M12-32V-36M2-36V-40" stroke="${light}" stroke-width="2.4"/>
+  </g>`;
+};
 
-/** A dome of rock with a rounded door and a crooked pipe on top. */
-const DOME_HOUSE = `${MOUND}
-  <defs><linearGradient id="d" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#c2b2a6"/><stop offset=".6" stop-color="#9c8b80"/><stop offset="1" stop-color="#7a6a60"/></linearGradient></defs>
-  <path d="M-46 44C-48 8-28-20 0-20S48 8 46 44Z" fill="url(#d)" stroke="#54463f" stroke-width="3" stroke-linejoin="round"/>
-  <g fill="#8a796f"><path d="M-30 4l8-4 6 4-2 7-9 1Z"/><path d="M14-8l9 1 3 7-6 4-7-4Z"/><path d="M22 22l8-2 4 6-5 5-7-3Z"/><path d="M-36 28l6-3 5 5-4 5-6-2Z"/></g>
-  <path d="M-30-2C-24-12-14-16-6-16" stroke="#e0d3c8" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".7"/>
-  <path d="M-12 44V32C-12 22 12 22 12 32V44Z" fill="#6a5a52" stroke="#3e322c" stroke-width="2.6" stroke-linejoin="round"/>
-  <path d="M6 36h-2" stroke="#e8c35a" stroke-width="3" stroke-linecap="round"/>
-  <path d="M10-18V-34h8" stroke="#54463f" stroke-width="6" fill="none" stroke-linejoin="round"/>
-  <path d="M10-18V-34h8" stroke="#a3938a" stroke-width="3" fill="none" stroke-linejoin="round"/>
-  ${BUBBLES(22, -40)}`;
-
-/** A small sea anemone: a short column with a crown of waving tentacles. */
-const ANEMONE = (x: number, y: number, s: number, [body, tips]: readonly [string, string]) =>
+/** A fan coral: a lacy fan on a short stalk. */
+const FAN = (x: number, y: number, s: number) =>
   `<g transform="translate(${x} ${y}) scale(${s})" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M-7-9c-2 6-1 10 0 9h14c1 1 2-3 0-9Z" fill="${body}" stroke="#3d2a5c" stroke-width="2"/>
-    <path d="M-7-9q-7-3-8-10M-4-10q-3-6-1-12M0-10q0-7 2-12M4-10q3-6 7-9M7-9q6-1 8-7" fill="none" stroke="#3d2a5c" stroke-width="4.2"/>
-    <path d="M-7-9q-7-3-8-10M-4-10q-3-6-1-12M0-10q0-7 2-12M4-10q3-6 7-9M7-9q6-1 8-7" fill="none" stroke="${tips}" stroke-width="2.4"/>
+    <path d="M0 0V-8C-22-10-30-28-24-42C-14-52 14-52 24-42C30-28 22-10 0-8" fill="#c38af0" stroke="#5e2d94" stroke-width="3"/>
+    <path d="M0-8L-16-40M0-8L-6-46M0-8L6-46M0-8L16-40M0-8L-22-28M0-8L22-28M-20-36Q0-26 20-36M-14-22Q0-16 14-22" stroke="#e9d4ff" stroke-width="1.8" fill="none"/>
+  </g>`;
+
+/** A frond of kelp swaying up from the sand, with its leaves. */
+const KELP = (x: number, y: number, s: number, flip = false) => {
+  const stem = "M0 0C-8-16 8-30 0-46S8-74 0-90";
+  const leaves = "M-1-18C-12-20-18-28-16-36C-8-32-2-26-1-18ZM3-40C14-42 20-50 18-58C10-54 4-48 3-40ZM-1-64C-12-66-16-74-14-82C-6-78-2-72-1-64Z";
+  return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})" stroke-linecap="round" stroke-linejoin="round">
+    <path d="${stem}" fill="none" stroke="#145c2c" stroke-width="7"/>
+    <path d="${stem}" fill="none" stroke="#3fb85a" stroke-width="4"/>
+    <path d="${leaves}" fill="#5ccf6e" stroke="#145c2c" stroke-width="2.4"/>
+  </g>`;
+};
+
+/** A tuft of sea grass. */
+const GRASS = (x: number, y: number, s: number) =>
+  `<g transform="translate(${x} ${y}) scale(${s})" fill="none" stroke-linecap="round">
+    <path d="M0 0C-2-10-8-16-10-26M3 0C4-12 0-20 4-32M6 0C9-8 14-12 16-20" stroke="#1e7a3c" stroke-width="5"/>
+    <path d="M0 0C-2-10-8-16-10-26M3 0C4-12 0-20 4-32M6 0C9-8 14-12 16-20" stroke="#7ad86a" stroke-width="2.6"/>
   </g>`;
 
 /**
- * A tower grown from branching coral, orange fading to warm yellow at the top, with its branches reaching up and
- * out, round windows climbing it in a zigzag, an arched door at its foot and sea anemones round the base.
+ * A little reef on a patch of sand: branching coral, a fan, kelp and sea grass, with a starfish and a scallop shell
+ * lying in front. A garden, not a dwelling: nothing in it has a door or a window.
  */
-const CORAL_BRANCHES = "M-12-34C-18-46-30-50-34-66M-28-54C-36-56-42-58-48-50M0-38C-2-54 4-64 2-80M12-34C20-46 30-48 34-64M28-50C36-48 42-42 46-34M20-4C30-6 34-14 36-26M-20 14C-30 12-36 4-38-6M2-62C8-64 12-68 14-74";
-const CORAL_HOUSE = `${MOUND}
-  <defs><linearGradient id="cg" x1="0" x2="0" y1="1" y2="0"><stop offset="0" stop-color="#ef7a2c"/><stop offset=".7" stop-color="#f9a23a"/><stop offset="1" stop-color="#ffc94a"/></linearGradient></defs>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="${CORAL_BRANCHES}" stroke="#9c4418" stroke-width="15"/>
-    <path d="M-24 46C-26 20-22-10-18-30C-14-44 14-44 18-30C22-10 26 20 24 46Z" fill="#9c4418" stroke="#9c4418" stroke-width="5.5"/>
-    <path d="${CORAL_BRANCHES}" stroke="#f9a23a" stroke-width="10"/>
-    <path d="M-24 46C-26 20-22-10-18-30C-14-44 14-44 18-30C22-10 26 20 24 46Z" fill="url(#cg)"/>
-    <path d="M-12-34C-18-46-30-50-34-66M0-38C-2-54 4-64 2-80M12-34C20-46 30-48 34-64" stroke="#ffd96a" stroke-width="3.5" transform="translate(-2 0)"/>
-    <path d="M-16-28C-19-10-21 12-20 36" stroke="#ffc94a" stroke-width="3.5" opacity=".8"/>
-  </g>
-  <path d="M-14 34v-7M15 26v-7M-3-30v-5M16-14v-6M-17 8v-6M-2 4v-5" stroke="#d0661f" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <g stroke="#7a3312" stroke-width="2.6" fill="#bfe9f5">
-    <circle cx="7" cy="-26" r="6"/><circle cx="-9" cy="-6" r="6.5"/><circle cx="10" cy="12" r="5.5"/>
-  </g>
-  <path d="M7-32V-20M1-26H13M-9-12.5V.5M-15.5-6H-2.5" stroke="#7a3312" stroke-width="1.4"/>
-  <path d="M-11 46V32A10 10 0 0 1 9 32V46Z" fill="#b0703a" stroke="#5a3a14" stroke-width="2.6" stroke-linejoin="round"/>
-  <path d="M-4 23V46M2 23V46" stroke="#7a4a20" stroke-width="1.5"/>
-  <path d="M4 37h1" stroke="#ffe28a" stroke-width="3" stroke-linecap="round"/>
-  ${ANEMONE(-34, 46, 0.9, ["#a784e6", "#d3bdfb"])}
-  ${ANEMONE(32, 47, 0.8, ["#2f9e8c", "#8fe3cf"])}
-  ${ANEMONE(-46, 50, 0.6, ["#2f9e8c", "#8fe3cf"])}
-  ${BUBBLES(58, -42)}`;
+const GARDEN = `<path d="M-90 56C-70 30-36 24 0 24S70 30 90 56Z" fill="#f4d998" stroke="#b58646" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M-56 46q4-2 8 0M34 44q5-2 9 0M-14 50q4-2 7 0M60 50q3-2 6 0" stroke="#c89c5c" stroke-width="2" fill="none" stroke-linecap="round"/>
+  ${KELP(-58, 40, 0.95)}
+  ${KELP(64, 40, 0.8, true)}
+  ${FAN(-22, 32, 1.05)}
+  ${CORAL(22, 32, 1.25, ["#ff7a59", "#a8321c", "#ffc3a8"])}
+  ${CORAL(-40, 38, 0.8, ["#ffd23f", "#a8741a", "#fff1a8"])}
+  ${GRASS(44, 40, 1)}
+  ${GRASS(-74, 48, 0.8)}
+  ${STARFISH(-4, 46, 0.62, 12)}
+  ${SCALLOP(42, 50, 0.6, -14)}
+  ${BUBBLES(26, -24)}`;
+
 const svg = (vb: string, body: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="400" height="${Math.round((400 * Number(vb.split(" ")[3])) / Number(vb.split(" ")[2]))}">${body}</svg>`;
 
@@ -417,14 +456,27 @@ export const PICTURES: Record<string, string> = {
     </g>`,
   ),
 
-  // Undersea Town: houses 200 by 160 standing on a mound at y = 58, and clusters of flower clouds 200 by 140.
-  shellhouse: svg("-100 -90 200 160", SHELL_HOUSE),
-  domehouse: svg("-100 -90 200 160", DOME_HOUSE),
-  coralhouse: svg("-100 -90 200 160", CORAL_HOUSE),
+  // Undersea Town: jellyfish 200 by 160, a reef garden on its sand 200 by 140, and flower clouds 200 by 140 (two
+  // flowers of different colours, neither small enough to read as a dot).
   ...Object.fromEntries(
-    Object.entries(BLOOMS).map(([name, c]) => [
-      `bloom${name}`,
-      svg("-100 -70 200 140", `${BLOOM(-26, -8, 40, 6, 10, c)}${BLOOM(42, 26, 24, 5, -20, c)}${BLOOM(52, -40, 14, 5, 30, c)}`),
+    Object.entries(JELLIES).map(([name, c]) => [
+      `jelly${name}`,
+      svg("-100 -80 200 160", `${JELLY(-40, -12, 1.15, -8, c)}${JELLY(34, -34, 0.8, 10, c)}${JELLY(52, 30, 0.6, -4, c)}`),
+    ]),
+  ),
+  garden: svg("-100 -70 200 140", GARDEN),
+  ...Object.fromEntries(
+    (
+      [
+        ["blue", "pink"],
+        ["pink", "yellow"],
+        ["green", "lilac"],
+        ["lilac", "green"],
+        ["yellow", "blue"],
+      ] as const
+    ).map(([big, small]) => [
+      `bloom${big}`,
+      svg("-100 -70 200 140", `${BLOOM(-24, -4, 50, 6, 10, BLOOMS[big]!)}${BLOOM(50, 30, 30, 5, -20, BLOOMS[small]!)}`),
     ]),
   ),
 };
@@ -495,7 +547,7 @@ export function drawScenery(f: SceneryFrame) {
   const t = f.theme;
   if (t.scenery === "pond") drawSpots(f, POND, 0.95);
   else if (t.scenery === "arcana") wheel(f);
-  else if (t.scenery === "reef") drawSpots(f, REEF, 0.95, 16);
+  else if (t.scenery === "reef") drawSpots(f, REEF, 0.95, 24);
   else if (t.scenery === "rope") {
     seam(f);
     drawSpots(f, ROPE, 0.95);
