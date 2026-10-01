@@ -9,7 +9,7 @@ permissions:
 jobs:
   preflight:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
@@ -40,3 +40,10 @@ jobs:
           out=$(npm run -s stage -- sources check 2>&1 || true)
           echo "$out"
           printf '## Feeds\n%s\n\n```\n%s\n```\n' "$(echo "$out" | tail -n 1)" "$(echo "$out" | grep -E '^[a-z0-9-]+ +(FAIL|ok .*feed found at)')" >> "$GITHUB_STEP_SUMMARY"
+      # For fixing feeds that fail (decision 89): on a branch, commit a probe.tsv of `id<TAB>url` lines and run Preflight
+      # from that branch. Each outlet's usual feed paths and linked feeds are tried from GitHub's servers and its best
+      # feed is printed on one line. Never commit probe.tsv to main.
+      - name: Probe
+        if: always() && hashFiles('probe.tsv') != ''
+        timeout-minutes: 30
+        run: npx tsx packages/pipeline/scripts/probe-feeds.ts probe.tsv

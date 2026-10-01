@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { toRunDate, type Source } from "@2dayai/core";
-import { articlesFromFeed, checkSources, COMMON_FEED_PATHS, feedLinksIn, fetchFeedDocument, HttpError, inSection } from "./ingest.js";
+import { articlesFromFeed, checkSources, COMMON_FEED_PATHS, feedDate, feedLinksIn, fetchFeedDocument, HttpError, inSection } from "./ingest.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const xml = readFileSync(join(here, "..", "fixtures", "sample-feed.xml"), "utf8");
@@ -19,6 +19,32 @@ describe("articlesFromFeed", () => {
     expect(a?.title).toBe("Agency issues guidance on deferred revenue timing");
     expect(a?.body).toContain("tax years beginning after December 31, 2026");
     expect(a?.body).not.toContain("<p>");
+  });
+});
+
+describe("feedDate (decision 89)", () => {
+  it("reads the usual forms as before", () => {
+    expect(feedDate("Wed, 30 Sep 2026 10:00:00 +0000")?.toISOString()).toBe("2026-09-30T10:00:00.000Z");
+    expect(feedDate("2026-09-30T10:00:00Z")?.toISOString()).toBe("2026-09-30T10:00:00.000Z");
+  });
+  it("reads month and weekday names in the feed's own language", () => {
+    expect(feedDate("gio, 01 ott 2026 03:35:03 +0200")?.toISOString()).toBe("2026-10-01T01:35:03.000Z");
+    expect(feedDate("mié, 30 sept 2026 22:15:00 -0500")?.toISOString()).toBe("2026-10-01T03:15:00.000Z");
+    expect(feedDate("qua, 30 set 2026 12:00:00 -0300")?.toISOString()).toBe("2026-09-30T15:00:00.000Z");
+    expect(feedDate("mer., 30 sept. 2026 08:00:00 +0200")?.toISOString()).toBe("2026-09-30T06:00:00.000Z");
+    expect(feedDate("Mi, 30 Dez 2026 08:00:00 +0100")?.toISOString()).toBe("2026-12-30T07:00:00.000Z");
+    expect(feedDate("30 août 2026 08:00:00 GMT")?.toISOString()).toBe("2026-08-30T08:00:00.000Z");
+  });
+  it("keeps an item whose feed writes its date in Italian", async () => {
+    const it = `<?xml version="1.0"?><rss version="2.0"><channel><title>T</title><item><title>Notizia</title><link>https://example.it/a</link><pubDate>mer, 30 set 2026 10:00:00 +0200</pubDate></item></channel></rss>`;
+    const out = await articlesFromFeed(source, it, toRunDate("2026-09-30"));
+    expect(out.map((a) => a.publishedAt.toISOString())).toEqual(["2026-09-30T08:00:00.000Z"]);
+  });
+  it("leaves what it can't read undated", () => {
+    expect(feedDate(undefined)).toBeUndefined();
+    expect(feedDate("")).toBeUndefined();
+    expect(feedDate("gestern")).toBeUndefined();
+    expect(feedDate("30 foo 2026 08:00:00 GMT")).toBeUndefined();
   });
 });
 
