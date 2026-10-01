@@ -99,7 +99,7 @@ async function probe(id: string, given: string[]): Promise<void> {
   const recent = (x: string) => (x >= "2026-09-28" ? 1 : 0);
   found.sort((a, b) => b.d30 - a.d30 || recent(b.newest) - recent(a.newest) || b.dated - a.dated || b.n - a.n);
   const line = (tag: string, f: (typeof found)[number]) =>
-    say(`${tag} ${id} ${f.url} d30=${f.d30} dated=${f.dated}/${f.n} new=${f.newest}${f.dated ? "" : ` raw="${f.raw}"`} t="${f.title}" h="${f.h}"`);
+    say(`${tag} ${id} ${f.url} d30=${f.d30} dated=${f.dated}/${f.n} new=${f.newest} raw="${f.raw}" t="${f.title}" h="${f.h}"`);
   if (found[0]) line("B", found[0]);
   if (found[1]) line("A", found[1]);
   if (!found.length) say(`N ${id} codes=${[...codes].map(([k, v]) => `${k}:${v}`).join(",")}${challenge ? " challenge" : ""}${pageLinks.length ? ` links=${pageLinks.slice(0, 3).join(" ")}` : ""}`);
