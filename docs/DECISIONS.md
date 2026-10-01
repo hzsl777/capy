@@ -935,6 +935,8 @@ Davis found Bedtime Tea (decision 69) calm but missing its tea: a sleepy globe w
 
 No tea brand's name, bear, box art, label wording or lettering appears anywhere, and the label adds no words of its own.
 
+After Davis saw it: the globe now sits in a visible pool of tea, a band of amber from the sphere out to the cup's wall with a shine toward the light and three slow rings, so the cup holds tea and not only the globe. The cup and saucer grew to make room and the globe is drawn a little smaller (`globeScale` 0.28). Gummy Cluster's coasts got thinner and lighter (a plum line 0.8 wide over a paler pink rim), because the dark outline and the wide pink band filled small seas like the Mediterranean.
+
 ## 103. Gummy Cluster, a design after candy-coated gummies (October 1, 2026)
 
 A fifty-first design, after sweets where a soft gummy centre is coated in a crust of tiny, crunchy, brightly coloured candy bits. It is named for what it shows and borrows no candy brand's name, mascot, logo, packaging art or lettering. Id `crunch`, in the Design menu's Games and toys group beside Candy Shop. Its label's first word, the one a phone shows, differs from Candy Shop's.

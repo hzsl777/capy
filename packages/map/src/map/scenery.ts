@@ -657,8 +657,10 @@ function teacup(f: SceneryFrame): number {
   const [cx, cy] = proj.translate();
   // Zoomed in so far that the cup's rim would not show anywhere in the frame.
   if (Math.hypot(Math.max(cx, w - cx), Math.max(cy, h - cy)) < R * 1.02) return 0;
-  const rim = R * 1.12;
-  const saucer = R * 1.42;
+  // The tea fills the cup round the globe, from the sphere out to the cup's wall, then the wall rises to the rim.
+  const pool = R * 1.15;
+  const rim = R * 1.27;
+  const saucer = R * 1.6;
   const line = Math.max(1.2, R * 0.009);
   const TAU = Math.PI * 2;
   ctx.save();
@@ -696,7 +698,7 @@ function teacup(f: SceneryFrame): number {
   ctx.strokeStyle = "#d6b16a";
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(cx, cy, R * 1.2, 0, TAU);
+  ctx.arc(cx, cy, rim * 1.07, 0, TAU);
   ctx.lineWidth = R * 0.016;
   ctx.strokeStyle = "rgba(150,128,88,0.28)";
   ctx.stroke();
@@ -838,10 +840,39 @@ function teacup(f: SceneryFrame): number {
 
   // The cup: its inner wall from the tea up to the rim, shaded toward the tea and away from the light at the upper
   // left, a periwinkle band painted inside, and the rim with a gold line.
+  // The tea round the globe: warm amber, deeper toward the wall where the cup's shade falls, a pale shine on the side
+  // toward the light, and a few slow rings where the globe sits in it.
+  ctx.beginPath();
+  ctx.arc(cx, cy, pool, 0, TAU);
+  ctx.arc(cx, cy, R, 0, TAU, true);
+  const brew = ctx.createRadialGradient(cx, cy, R, cx, cy, pool);
+  brew.addColorStop(0, "#d99a48");
+  brew.addColorStop(0.55, "#c07f34");
+  brew.addColorStop(1, "#8f5520");
+  ctx.fillStyle = brew;
+  ctx.fill();
+  const shine = ctx.createLinearGradient(cx - pool, cy - pool, cx + pool, cy + pool);
+  shine.addColorStop(0, "rgba(255,236,190,0.42)");
+  shine.addColorStop(0.45, "rgba(255,236,190,0)");
+  shine.addColorStop(1, "rgba(40,20,8,0.25)");
+  ctx.fillStyle = shine;
+  ctx.fill();
+  ctx.lineWidth = Math.max(1, R * 0.006);
+  for (const [k, a] of [
+    [1.035, 0.5],
+    [1.075, 0.32],
+    [1.115, 0.18],
+  ] as const) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * k, 0, TAU);
+    ctx.strokeStyle = `rgba(255,232,186,${a})`;
+    ctx.stroke();
+  }
+
   ctx.beginPath();
   ctx.arc(cx, cy, rim, 0, TAU);
-  ctx.arc(cx, cy, R, 0, TAU, true);
-  const wall = ctx.createRadialGradient(cx, cy, R, cx, cy, rim);
+  ctx.arc(cx, cy, pool, 0, TAU, true);
+  const wall = ctx.createRadialGradient(cx, cy, pool, cx, cy, rim);
   wall.addColorStop(0, "#c9b994");
   wall.addColorStop(0.35, "#efe6d0");
   wall.addColorStop(1, "#fffaf0");
@@ -854,7 +885,7 @@ function teacup(f: SceneryFrame): number {
   ctx.fillStyle = lit;
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(cx, cy, R * 1.075, 0, TAU);
+  ctx.arc(cx, cy, pool + (rim - pool) * 0.55, 0, TAU);
   ctx.lineWidth = R * 0.014;
   ctx.strokeStyle = "rgba(142,159,216,0.8)";
   ctx.stroke();
@@ -883,7 +914,7 @@ function steam(f: SceneryFrame, on: boolean) {
   const R = f.proj.scale();
   const [cx, cy] = f.proj.translate();
   // From the rim up into the room above the cup, never down over the tea.
-  const top = cy - R * 1.12;
+  const top = cy - R * 1.27;
   const tall = Math.min(R * 0.75, top - 4);
   on &&= tall > 28;
   const at = on ? `${Math.round(cx)},${Math.round(top)},${Math.round(tall)}` : "";
