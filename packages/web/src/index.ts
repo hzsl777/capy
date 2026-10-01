@@ -8,6 +8,7 @@ import { Hono, type Context } from "hono";
 import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedbackPage, renderNotFound, renderUnavailable, tileBounds, toRunDate } from "@2dayai/core";
 import * as schema from "@2dayai/db";
 import { findEditionEvent, latestMapDate, loadEditionView, loadLocalTile, loadMapView, recordFeedback, type Db } from "@2dayai/db";
+import { startRun, type ClockEnv } from "./clock.js";
 
 /** No run date before this one has data: the project began in September 2026. */
 const FIRST_DATE = "2026-09-01";
@@ -30,7 +31,7 @@ export interface MapStore {
   get(key: string): Promise<{ body: ReadableStream; httpEtag: string } | null>;
 }
 
-type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string; MAPS?: MapStore };
+type Bindings = { DATABASE_URL: string; WEB_BASE_URL?: string; MAPS?: MapStore } & ClockEnv;
 
 function neonDb(env: Bindings): Db {
   return drizzle(neon(env.DATABASE_URL), { schema }) as unknown as Db;
@@ -212,4 +213,12 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
   return app;
 }
 
-export default createApp();
+const app = createApp();
+
+/** Requests, and the cron triggers in wrangler.toml, which start the GitHub runs on time (decision 91). */
+export default {
+  fetch: app.fetch,
+  scheduled(controller: { cron: string }, env: Bindings, ctx: { waitUntil(p: Promise<unknown>): void }) {
+    ctx.waitUntil(startRun(controller.cron, env).then((said) => console.log(said)));
+  },
+};

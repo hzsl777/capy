@@ -2,9 +2,9 @@ name: Refresh local stories
 # Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours and right
 # after each daily run (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
 # called. About two minutes a run, 240 runs a month: see README.md, "Hosting", for the Actions budget.
+# The Worker's cron trigger starts it every three hours at minute 41 (decision 91); GitHub's own schedule skipped
+# runs for hours, and is no longer used here, so a run is never started twice.
 on:
-  schedule:
-    - cron: "41 */3 * * *"
   workflow_run:
     workflows: ["Daily run"]
     types: [completed]
@@ -44,9 +44,9 @@ jobs:
       # The outlets' stories, collected during the day as well as by the daily run (decision 90). Many feeds hold only
       # their newest 10 to 30 items, so a daily run GitHub starts hours late misses the end of the day before. Twice a
       # day this stores the day's stories so far; the daily run adds the rest and builds the day from all of them. Only
-      # on schedule, about four minutes each: see README.md, "Hosting".
+      # in a run the clock started, not one after a daily run, about four minutes each: see README.md, "Hosting".
       - name: Collect the outlets' stories
-        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && github.event_name == 'schedule'
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && github.event_name == 'workflow_dispatch'
         run: |
           case "$(date -u +%H)" in
             12|13|21|22) npm run -s stage -- ingest --date "$(date -u +%F)" | tail -n 1 ;;

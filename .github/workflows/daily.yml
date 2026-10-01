@@ -1,8 +1,10 @@
 name: Daily run
 on:
+  # Just after midnight UTC, when the day's window closes (decision 81, packages/core/src/dates.ts): the run builds
+  # the day that just ended. The Worker's cron trigger starts it at 00:07 on time (decision 91); GitHub's own schedule,
+  # which has started it hours late or not at all, stays as a backup. Both build only a day whose map is missing, so the
+  # second to start does nothing. Delivery is in deliver.yml.
   schedule:
-    # Just after midnight UTC, when the day's window closes (decision 81, packages/core/src/dates.ts): the run builds
-    # the day that just ended. Minute 7, not 0, as GitHub delays runs set on the hour most. Delivery is in deliver.yml.
     - cron: "7 0 * * *"
   # A finished deploy starts the day if its map doesn't exist yet, so going live needs no manual run.
   workflow_run:
@@ -19,6 +21,9 @@ on:
         required: false
       stage:
         description: Run only this stage for the date instead of the whole day, for example "local" or "telegram".
+        required: false
+      if_missing:
+        description: Only build the day if its map doesn't exist yet ("true"). The Worker's clock sets it.
         required: false
 permissions:
   contents: read
@@ -83,7 +88,7 @@ jobs:
         env:
           DATE: ${{ inputs.date }}
           STAGE: ${{ inputs.stage }}
-          IF_MISSING: ${{ github.event_name == 'workflow_run' && '--if-missing' || '' }}
+          IF_MISSING: ${{ (github.event_name == 'workflow_run' || github.event_name == 'schedule' || inputs.if_missing == 'true') && '--if-missing' || '' }}
         run: |
           # One stage alone, named in words only, so the input can't smuggle in anything else.
           if [ -n "$STAGE" ]; then
