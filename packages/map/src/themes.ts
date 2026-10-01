@@ -130,6 +130,12 @@ export interface Theme {
    */
   scenery?: SceneryKind;
   /**
+   * A picture shown through the land and nowhere else (decision 95): the land is a window onto it, with the sea,
+   * lakes, ice, rivers and coasts drawn over it as usual. Fixed to the screen in Map view and to the sphere's disc in
+   * Globe view, so it stays sharp at every zoom. A path under public/, loaded once; until it loads the land is `land`.
+   */
+  landImage?: string;
+  /**
    * A design with its own camera and moving light (decision 71, src/map/scenes.ts), drawn as a still picture kept
    * off screen plus a few animated extras:
    * "club" a mirror ball globe and a light-up dance floor under a tilted camera;
@@ -722,42 +728,42 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: true,
     decor: null,
   },
-  // After Thomas Cole's The Course of Empire: Destruction (1836, public domain), engraved in black and white: a dark
-  // bay in engraved lines, hatched land, and the painting's headless colossus, broken bridge, burning colonnade, lone
-  // crag and burning galleys in open water under a sky of smoke (decision 69). Greys only, so fresh reports get the
-  // dotted ring.
+  // Thomas Cole's The Course of Empire: Destruction (1836, public domain) in black and white, seen through the land
+  // (decision 95): the continents are windows onto the painting, on a pale sea ruled in fine engraved lines with
+  // engraved ripples along the coasts. Greys only, so fresh reports get the dotted ring.
   arcadia: {
     id: "arcadia",
     label: "Course of Empire",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     globeScale: 0.4,
-    ocean: "#5c5c5c",
-    land: "#c6c6c6",
-    landTexture: "hatch",
+    ocean: "#e6e6e6",
+    land: "#7a7a7a",
+    landTexture: "none",
+    landImage: "art/course-of-empire.jpg",
     pixel: 1,
     dotShape: "circle",
     textureInk: "rgba(17,17,17,0.5)",
     coast: "#111111",
-    coastWidth: 1.2,
-    waterlines: 2,
-    waterline: "rgba(236,236,236,0.3)",
-    oceanHatch: "rgba(236,236,236,0.1)",
+    coastWidth: 1.4,
+    waterlines: 3,
+    waterline: "rgba(17,17,17,0.4)",
+    oceanHatch: "rgba(17,17,17,0.13)",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "rgba(17,17,17,0.55)",
-    lake: "#5c5c5c",
-    ice: "#ececec",
-    relief: "rgba(17,17,17,0.85)",
-    dot: "#111111",
-    dotStroke: "#f2f2f2",
+    river: "rgba(236,236,236,0.45)",
+    lake: "#e6e6e6",
+    ice: "#f4f4f4",
+    relief: "rgba(17,17,17,0.5)",
+    dot: "#ffffff",
+    dotStroke: "#111111",
     fresh: "#111111",
     tuned: "#111111",
-    arc: "#f2f2f2",
+    arc: "#111111",
     glow: false,
-    atmosphere: "rgba(222,222,222,0.4)",
-    shade: "rgba(0,0,0,0.55)",
-    neatline: false,
+    atmosphere: "rgba(40,40,40,0.25)",
+    shade: "rgba(0,0,0,0.45)",
+    neatline: true,
     decor: null,
     scenery: "empire",
   },

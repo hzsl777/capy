@@ -4,8 +4,9 @@ import { STARS } from "./decor.ts";
 
 /**
  * Scenery that tells four designs apart at a glance (decision 69): lily pads, frogs and dragonflies on the Frog
- * Pond, a moon with a sleeping bear on Bedtime Tea, the colossus, bridge, colonnade and crag of Thomas Cole's The
- * Course of Empire: Destruction on Course of Empire (id arcadia), and trick-rope loops, a rope frame and a denim sea
+ * Pond, a moon with a sleeping bear on Bedtime Tea, the light through smoke of Thomas Cole's The Course of Empire:
+ * Destruction on Course of Empire (id arcadia, whose land shows the painting itself, decision 95), and trick-rope
+ * loops, a rope frame and a denim sea
  * on Lasso, and Tarot's gold wheel, sun and moon round the globe. Every piece sits at a fixed
  * spot in open ocean far from land and from every outlet's city (test/scenery.test.ts), or outside the map
  * itself, and none carries text. They are drawn from small SVG pictures, made once and cached.
@@ -38,26 +39,6 @@ export const POND: readonly Spot[] = [
   { kind: "frog", lon: -126, lat: -26, r: 14, flip: true },
   { kind: "dragonfly", lon: 62, lat: 10, r: 7 },
   { kind: "pads", lon: 6, lat: -58, r: 9 },
-];
-
-/**
- * The Course of Empire: Destruction's landmarks standing in open water like its harbour: the headless colossus, the
- * broken bridge, the burning colonnade, the lone crag with its boulder, burning galleys and drifting smoke.
- */
-export const EMPIRE: readonly Spot[] = [
-  { kind: "colossus", lon: 70, lat: -10, r: 10 },
-  { kind: "colossus", lon: -130, lat: -30, r: 14, flip: true },
-  { kind: "bridge", lon: -38, lat: 26, r: 11 },
-  { kind: "colonnade", lon: -14, lat: -54, r: 14, flip: true },
-  { kind: "colonnade", lon: 162, lat: 42, r: 8 },
-  { kind: "crag", lon: 138, lat: -54, r: 9 },
-  { kind: "crag", lon: -130, lat: 26, r: 9, flip: true },
-  { kind: "galley", lon: -178, lat: -1, r: 8 },
-  { kind: "galley", lon: 90, lat: -10, r: 9, flip: true },
-  { kind: "galley", lon: 46, lat: -34, r: 7 },
-  { kind: "galley", lon: -94, lat: -6, r: 9 },
-  { kind: "smoke", lon: -142, lat: 10, r: 14 },
-  { kind: "smoke", lon: -22, lat: -30, r: 14, flip: true },
 ];
 
 /** On the flat map the moon with the sleeping bear hangs in the night over the open Pacific, Atlantic and Indian Ocean. */
@@ -365,16 +346,6 @@ const CORAL_HOUSE = `${MOUND}
   ${ANEMONE(32, 47, 0.8, ["#2f9e8c", "#8fe3cf"])}
   ${ANEMONE(-46, 50, 0.6, ["#2f9e8c", "#8fe3cf"])}
   ${BUBBLES(58, -42)}`;
-/**
- * Course of Empire's engraving: diagonal hatching and cross-hatching in black for the shadow sides, and broken
- * horizontal strokes for the water under each piece. Greys only.
- */
-const ENGRAVE = `<defs>
-  <pattern id="h" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><path d="M0 0V3" stroke="#161616" stroke-width=".85"/></pattern>
-  <pattern id="x" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><path d="M0 0V3M0 0H3" stroke="#161616" stroke-width=".75"/></pattern>
-</defs>`;
-const WAKE = `<path d="M-56 55H56M-40 60H40M-24 65H24" stroke="#ececec" stroke-width="1.1" stroke-dasharray="7 3" opacity=".6"/>`;
-
 const svg = (vb: string, body: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="400" height="${Math.round((400 * Number(vb.split(" ")[3])) / Number(vb.split(" ")[2]))}">${body}</svg>`;
 
@@ -413,104 +384,6 @@ export const PICTURES: Record<string, string> = {
     <g transform="translate(-44 0) rotate(-12)">${BEAR_HEAD}</g>
     <g transform="translate(-16 16) rotate(-10)"><ellipse rx="10" ry="7.5" fill="#a2714a" stroke="#4a2e1a" stroke-width="2.2"/><path d="M-4-6v4M1-7v4M6-5v4" stroke="#4a2e1a" stroke-width="1.6" stroke-linecap="round"/></g>
     <path d="M34-58l0 10m-5-5l10 0M86-46l0 8m-4-4l8 0M-92-54l0 8m-4-4l8 0M60-78l0 6m-3-3l6 0" stroke="#fff6c8" stroke-width="2.2" stroke-linecap="round"/>`,
-  ),
-
-  // Course of Empire: pictures 160 by 160 after Cole's Destruction, standing on a waterline at y = 50, engraved in
-  // greys and lit from the right. Fire is left white, as an engraver leaves it.
-  colossus: svg(
-    "-80 -80 160 160",
-    `${ENGRAVE}
-    <path d="M-46 50l4-7h8l3 7ZM33 50l3-6 7 1 2 5Z" fill="#9a9a9a" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
-    <path d="M-30 50H30V45H26V21H30V15H-30V21H-26V45H-30Z" fill="#cdcdcd" stroke="#161616" stroke-width="1.3" stroke-linejoin="round"/>
-    <path d="M-26 21H-8V45H-26ZM-30 45H-8V50H-30ZM-30 15H-8V21H-30Z" fill="url(#h)"/>
-    <path d="M-26 29H26M-26 37H26M-6 21V29M10 29V37M-14 37V45M16 37V45" stroke="#161616" stroke-width=".7" opacity=".7"/>
-    <g stroke="#161616" stroke-width="1.2" stroke-linejoin="round">
-      <path d="M3-17L10 0L14 15H21L17-1L11-19Z" fill="#bdbdbd"/>
-      <path d="M-4-19L-15 5L-18 15H-9L-7 6L1-12Z" fill="#dcdcdc"/>
-      <path d="M-10-27H11L15-12H-13Z" fill="#cfcfcf"/>
-      <path d="M-12-52C-13-44-11-34-10-27H11C12-34 14-44 13-52C7-55-6-55-12-52Z" fill="#e0e0e0"/>
-      <path d="M12-51C18-49 21-41 23-33L20-30L21-34L18-31C16-38 14-43 11-45Z" fill="#d6d6d6"/>
-      <path d="M-4-54L-3-59L-1-56.5L1-60L2.5-56.5L4-54Z" fill="#bdbdbd"/>
-    </g>
-    <path d="M3-17L10 0L14 15H21L17-1L11-19Z" fill="url(#h)"/>
-    <path d="M-15 5L-18 15H-9L-7 6Z" fill="url(#h)"/>
-    <path d="M-8-25V-12M-3-26V-12M2-26V-12M7-25V-12" stroke="#161616" stroke-width=".6"/>
-    <path d="M-12-52C-13-44-11-34-10-27H-2V-54C-6-54-10-53-12-52Z" fill="url(#h)"/>
-    <path d="M1-50V-31M-7-41C-3-39 4-39 8-41" stroke="#161616" stroke-width=".6" fill="none"/>
-    <ellipse cx="-17" cy="-36" rx="10" ry="15" fill="#d2d2d2" stroke="#161616" stroke-width="1.3"/>
-    <path d="M-17-51A10 15 0 0 0-17-21A5 15 0 0 1-17-51Z" fill="url(#x)"/>
-    <ellipse cx="-17" cy="-36" rx="6.5" ry="10.5" fill="none" stroke="#161616" stroke-width=".7"/>
-    ${WAKE}`,
-  ),
-  crag: svg(
-    "-80 -80 160 160",
-    `${ENGRAVE}
-    <path d="M-62-6C-56-16-42-16-36-10C-28-18-14-14-14-6C-4-10 6-2 0 4H-58C-66 2-68-2-62-6Z" fill="#2e2e2e" opacity=".5"/>
-    <path d="M-40 52L-32 24L-25-2L-17-26L-9-40L1-44L9-34L14-10L21 14L30 34L42 52Z" fill="#a4a4a4" stroke="#161616" stroke-width="1.3" stroke-linejoin="round"/>
-    <path d="M-40 52L-32 24L-25-2L-17-26L-9-40L1-44L-1-12L-5 18L-8 52Z" fill="url(#x)"/>
-    <path d="M1-44L9-34L14-10L21 14L30 34L42 52H24L14 22L6-10Z" fill="#d8d8d8" opacity=".75"/>
-    <path d="M-16-8l8 3M-4-26l7 5M6 6l10 3M-26 30l12 2M16 30l8 6" stroke="#161616" stroke-width="1"/>
-    <path d="M-9-44C-11-52-5-60 2-59C9-58 12-51 9-45C5-42-4-41-9-44Z" fill="#c4c4c4" stroke="#161616" stroke-width="1.3"/>
-    <path d="M-9-44C-11-52-5-60 2-59C-1-54-2-48 0-42C-4-42-7-43-9-44Z" fill="url(#h)"/>
-    <path d="M14-30C22-40 38-38 42-28C52-32 60-24 56-14H18C10-16 8-24 14-30Z" fill="#2a2a2a" opacity=".6"/>
-    <path d="M22-34C28-36 34-34 38-30" stroke="#9a9a9a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-    ${WAKE}`,
-  ),
-  colonnade: svg(
-    "-80 -80 160 160",
-    `${ENGRAVE}<g transform="translate(0 4) scale(.92)">
-    <path d="M-50-44C-58-56-44-70-32-64C-28-76-8-78-2-68C6-76 24-72 24-60C34-62 42-52 36-44C28-38 14-42 8-40C0-34-14-38-20-42C-30-36-44-36-50-44Z" fill="#262626" opacity=".85"/>
-    <path d="M-32-64C-26-66-20-64-16-60M-2-68C4-70 10-68 14-64M24-60C28-60 32-58 34-54" stroke="#8c8c8c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-    <path d="M-44-14C-48-28-38-34-40-46C-32-38-26-42-28-54C-18-42-14-34-18-24C-12-30-8-34-10-44C0-32 2-22-4-14Z" fill="#f4f4f4" stroke="#8a8a8a" stroke-width=".8"/>
-    <path d="M14 36C8 22 18 14 16 0C24 10 26 2 26-10C34 4 40 12 36 22C42 18 44 12 44 6C50 18 50 28 44 36Z" fill="#f0f0f0" stroke="#8a8a8a" stroke-width=".8"/>
-    <path d="M-56 50V43H52V50ZM-52 43V38H48V43Z" fill="#b8b8b8" stroke="#161616" stroke-width="1.1"/>
-    <path d="M-56 43H-20V50H-56Z" fill="url(#h)"/>
-    <g fill="#d8d8d8" stroke="#161616" stroke-width="1.1" stroke-linejoin="round">
-      <path d="M-47 38V-8H-39V38Z"/><path d="M-29 38V-8H-21V38Z"/><path d="M-11 38V-8H-3V38Z"/><path d="M7 38V-8H15V38Z"/>
-      <path d="M25 38V6L28 3L30 7L33 4V38Z"/><path d="M41 38V26L44 22L47 27V38Z"/>
-    </g>
-    <path d="M-47 38V-8H-44V38ZM-29 38V-8H-26V38ZM-11 38V-8H-8V38ZM7 38V-8H10V38ZM25 38V6L27 4V38ZM41 38V26L43 24V38Z" fill="url(#h)"/>
-    <path d="M-51-8H18L20-12L17-16H-51Z" fill="#cfcfcf" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
-    <path d="M-51-16L-24-30L-2-19L-4-16Z" fill="#c6c6c6" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
-    <path d="M-51-12H18" stroke="#161616" stroke-width=".6"/>
-    <path d="M54 50l2-5h9l1 5Z" fill="#a0a0a0" stroke="#161616" stroke-width="1"/>
-    </g>${WAKE}`,
-  ),
-  bridge: svg(
-    "-80 -80 160 160",
-    `${ENGRAVE}<g transform="scale(.88)">
-    <path d="M-8 2C-16-8-6-16-12-28C-2-22 2-32 0-44C10-34 16-38 14-52C24-40 22-28 16-22C22-20 24-10 14-2Z" fill="#262626" opacity=".72"/>
-    <g fill="#cdcdcd" stroke="#161616" stroke-width="1.2" stroke-linejoin="round">
-      <path d="M-72 50V4H-16L-12 10L-17 16L-13 24L-14 50H-22V32A8 12 0 0 0-38 32V50H-46V32A9 12 0 0 0-64 32V50Z"/>
-      <path d="M14 50V30L10 22L15 16L11 8L16 4H72V50H64V32A9 12 0 0 0 46 32V50H38V32A8 12 0 0 0 22 32V50Z"/>
-    </g>
-    <path d="M-72 13H-15L-13 24L-14 50H-22V32A8 12 0 0 0-38 32V50H-46V32A9 12 0 0 0-64 32V50H-72ZM12 13H72V50H64V32A9 12 0 0 0 46 32V50H38V32A8 12 0 0 0 22 32V50H14V30L10 22Z" fill="url(#h)" opacity=".85"/>
-    <path d="M-72 4V-2H-18L-16 4ZM16 4L19-2H72V4Z" fill="#dcdcdc" stroke="#161616" stroke-width="1"/>
-    <path d="M-72 13H-15M13 13H72M-60 4V13M-44 4V13M-28 4V13M28 4V13M44 4V13M60 4V13" stroke="#161616" stroke-width=".6" opacity=".8"/>
-    <path d="M-8 50l3-8h8l3 8ZM3 47l6-5 5 5-3 3Z" fill="#a4a4a4" stroke="#161616" stroke-width="1"/>
-    <path d="M-62 45H-48M-36 45H-24M24 45H36M48 45H62" stroke="#ececec" stroke-width=".8" opacity=".55"/>
-    </g>${WAKE}`,
-  ),
-  galley: svg(
-    "-80 -80 160 160",
-    `${ENGRAVE}
-    <path d="M30-4C24-16 36-24 32-38C42-30 48-42 46-56C56-44 58-32 50-22C56-18 54-6 44-4Z" fill="#262626" opacity=".78"/>
-    <path d="M0 26V-42" stroke="#161616" stroke-width="2"/>
-    <path d="M-26-36H26" stroke="#161616" stroke-width="1.6"/>
-    <path d="M0-42L-54 18M0-42L50 20" stroke="#161616" stroke-width=".6"/>
-    <path d="M-24-35C-26-14-22 2-20 10L-6 6L-2 14L8 8L20 10C23-6 25-20 24-35Z" fill="#dedede" stroke="#161616" stroke-width="1.1" stroke-linejoin="round"/>
-    <path d="M-24-35C-26-14-22 2-20 10L-10 7C-12-6-12-22-10-35Z" fill="url(#h)"/>
-    <path d="M-64 16L-50 22H46L58 14L54 26C40 36-40 38-54 28Z" fill="#3c3c3c" stroke="#161616" stroke-width="1.2" stroke-linejoin="round"/>
-    <path d="M-50 25H48" stroke="#bdbdbd" stroke-width="1"/>
-    <path d="M-38 31l-7 16M-26 33l-6 16M-14 34l-5 16M-2 34l-4 16M10 34l-3 16M22 33l-2 16" stroke="#161616" stroke-width="1.2" stroke-linecap="round"/>
-    <path d="M30 22C26 12 34 6 32-4C40 4 42-2 42-12C48-2 52 8 46 20Z" fill="#f4f4f4" stroke="#8a8a8a" stroke-width=".8"/>
-    ${WAKE}`,
-  ),
-  smoke: svg(
-    "-80 -40 160 80",
-    `<path d="M-70 24C-78 10-64-4-50 0C-50-18-28-26-16-14C-10-30 16-32 24-18C38-26 60-18 58-2C72 0 76 18 64 24Z" fill="#262626" opacity=".78"/>
-    <path d="M-50 0C-44-8-34-10-26-6M-16-14C-10-20 0-22 8-18M24-18C32-20 42-18 48-12M58-2C62-2 66 2 66 6" stroke="#a0a0a0" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <path d="M-44 18C-40 8-28 6-22 12C-16 4-2 4 2 12C8 6 22 8 24 16" stroke="#5a5a5a" stroke-width="1.4" fill="none"/>`,
   ),
 
   // Tarot: a sun with straight and wavy rays and a crescent moon, gold line work as on the cards. No faces. 120 by 120.
@@ -621,10 +494,7 @@ export function drawSceneryUnder(f: SceneryFrame) {
 export function drawScenery(f: SceneryFrame) {
   const t = f.theme;
   if (t.scenery === "pond") drawSpots(f, POND, 0.95);
-  else if (t.scenery === "empire") {
-    drawSpots(f, EMPIRE, 0.95);
-    beside(f);
-  } else if (t.scenery === "arcana") wheel(f);
+  else if (t.scenery === "arcana") wheel(f);
   else if (t.scenery === "reef") drawSpots(f, REEF, 0.95, 16);
   else if (t.scenery === "rope") {
     seam(f);
@@ -852,21 +722,6 @@ function moon(f: SceneryFrame) {
     }
   }
   drawSpots(f, TEA, 1.1);
-}
-
-/**
- * Course of Empire's globe stands in Destruction's harbour: the headless colossus in the foreground and the lone
- * crag in the distance, both outside the sphere. A picture is left out when
- * any part of it would reach the globe, so it never covers land or a place.
- */
-function beside(f: SceneryFrame) {
-  if (f.mode !== "3d") return;
-  const R = f.proj.scale();
-  const cy = f.proj.translate()[1];
-  // The colossus stands at the lower left, where the map's own buttons leave room, and faces into the harbour.
-  const big = Math.min(320, Math.max(140, R * 0.85));
-  aside(f, "colossus", big, 2, -2, true, 4);
-  aside(f, "crag", big * 0.7, -18, Math.max(4, cy - big * 0.62), true, 4);
 }
 
 /**

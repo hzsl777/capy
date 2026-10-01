@@ -1683,6 +1683,21 @@ export class MapView {
     return p;
   }
 
+  private pictures = new Map<string, HTMLImageElement>();
+
+  /** A design's land picture (`landImage`), loaded once; null until it has loaded, and a redraw when it has. */
+  private landPicture(src: string): HTMLImageElement | null {
+    let im = this.pictures.get(src);
+    if (!im) {
+      im = new Image();
+      im.decoding = "async";
+      im.onload = () => this.request();
+      im.src = `${import.meta.env.BASE_URL}${src}`;
+      this.pictures.set(src, im);
+    }
+    return im.complete && im.naturalWidth > 0 ? im : null;
+  }
+
   private drawMap(path: ReturnType<typeof geoPath>, proj: GeoProjection, map: Basemap, t: Theme) {
     const { ctx } = this;
     // The coastline is projected once per frame and reused for every fill and stroke below. Projecting it again
@@ -1718,6 +1733,22 @@ export class MapView {
 
     ctx.fillStyle = t.land;
     ctx.fill(land);
+    const picture = t.landImage ? this.landPicture(t.landImage) : null;
+    if (picture) {
+      // Cover the frame (Map) or the sphere's disc (Globe), cropping the picture's longer side, never stretching it.
+      const globe = this.mode === "3d";
+      const R = proj.scale();
+      const [cx, cy] = proj.translate();
+      const bw = globe ? 2 * R : this.w;
+      const bh = globe ? 2 * R : this.h;
+      const k = Math.max(bw / picture.naturalWidth, bh / picture.naturalHeight);
+      const pw = picture.naturalWidth * k;
+      const ph = picture.naturalHeight * k;
+      ctx.save();
+      ctx.clip(land);
+      ctx.drawImage(picture, (globe ? cx : this.w / 2) - pw / 2, (globe ? cy : this.h / 2) - ph / 2, pw, ph);
+      ctx.restore();
+    }
     if (t.landTexture !== "none") {
       ctx.fillStyle = this.pattern(t.landTexture, t.textureInk, t.textureInk2);
       ctx.fill(land);
@@ -1734,7 +1765,8 @@ export class MapView {
       ctx.globalAlpha = 1;
     }
 
-    if (this.relief) this.drawRelief(proj, t);
+    // A picture in the land carries its own light and shade, so the relief would only scratch over it.
+    if (this.relief && !t.landImage) this.drawRelief(proj, t);
 
     ctx.beginPath();
     path(map.lakes);
