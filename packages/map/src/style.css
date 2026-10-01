@@ -10210,145 +10210,231 @@ button.link {
   }
 }
 
-/* ---- Dual Screen: a two-screen handheld, the word and stories above, the map on the touch screen ----------- */
-/* The page is the handheld's shell. The stage steps aside so the map, the panel and the masthead are laid out as
-   two screens: side by side on a wide screen, one above the other on a phone, with the toolbar as the hinge. */
-:root[data-theme="dual"] body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--panel-w);
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
-  grid-template-areas:
-    "tool tool"
-    "banner banner"
-    "map mast"
-    "map panel"
-    "time time";
-  column-gap: 30px;
-  padding: 0 18px;
-  -webkit-font-smoothing: none;
+/* ---- Dual Screen: a two-screen clamshell handheld, open on a desk ------------------------------------------ */
+/* The page is the handheld: a silver-white clamshell whose two halves meet at a hinge. The top screen holds the word
+   and the tuned place's stories; the touch screen below holds the map, between a direction pad and four round
+   buttons. Both screens are 4:3 and stacked, on every screen size. The stage, the masthead, the toolbar and the time
+   bar step aside (display: contents), so every part sits on one grid that is the shell. --dual-h is a screen's height,
+   as large as the window allows; the top screen takes what is left once the fixed rows are placed, which is the same.
+   The parts that are drawing only (bezel, grilles, hinge, light) and the pad come from src/ui/extras.ts. */
+.x-dual {
+  display: none;
+}
+:root[data-theme="dual"] {
+  display: flex;
+  /* The desk. */
   background:
-    linear-gradient(to right, transparent calc(100% - 18px - var(--panel-w) - 30px), #aab2bc calc(100% - 18px - var(--panel-w) - 30px), #eef1f4 calc(100% - 18px - var(--panel-w) - 18px), #9aa3ae calc(100% - 18px - var(--panel-w)), transparent calc(100% - 18px - var(--panel-w))) 0 64px / 100% calc(100% - 128px) no-repeat,
-    linear-gradient(to bottom, #f1f3f6, #d5dae0);
+    radial-gradient(ellipse 70% 60% at 50% 42%, #4a5463 0%, #2d343e 68%, #22272f 100%) fixed,
+    #22272f;
 }
-:root[data-theme="dual"] body:has(.panel.framed) {
-  grid-template-columns: minmax(0, 1fr) min(62vw, 920px);
-  background: linear-gradient(to bottom, #f1f3f6, #d5dae0);
+:root[data-theme="dual"] body {
+  --dual-b: 9px;
+  --dual-side: 172px;
+  --dual-px: 22px;
+  --dual-m: 10px;
+  /* Every row that isn't a screen or its bezel: the top edge, the hinge and its gaps, the time row, the bottom edge. */
+  --dual-fix: 108px;
+  --dual-h: max(
+    150px,
+    min(
+      calc((100dvh - 2 * var(--dual-m) - var(--dual-fix) - 4 * var(--dual-b)) / 2),
+      calc((100vw - 2 * var(--dual-m) - 2 * var(--dual-px) - 2 * var(--dual-side) - 2 * var(--dual-b)) * 0.75)
+    )
+  );
+  --dual-w: calc(var(--dual-h) * 4 / 3);
+  --dual-ink: #47505c;
+  flex: none;
+  display: grid;
+  width: calc(var(--dual-w) + 2 * var(--dual-b) + 2 * var(--dual-side) + 2 * var(--dual-px));
+  height: calc(2 * var(--dual-h) + 4 * var(--dual-b) + var(--dual-fix));
+  margin: auto;
+  grid-template-columns: var(--dual-px) var(--dual-side) calc(var(--dual-w) + 2 * var(--dual-b)) var(--dual-side) var(--dual-px);
+  grid-template-rows:
+    14px var(--dual-b) auto auto minmax(0, 1fr) var(--dual-b)
+    8px 24px 8px
+    calc(var(--dual-h) + 2 * var(--dual-b)) 6px 34px 14px;
+  position: relative;
+  z-index: 0;
+  background: none;
+  overflow: visible;
+  -webkit-font-smoothing: none;
 }
-:root[data-theme="dual"] .stage {
-  display: contents;
-}
-:root[data-theme="dual"] .toolbar {
-  grid-area: tool;
-  border-bottom: 0;
-  padding: 10px 4px;
-}
-:root[data-theme="dual"] .banner {
-  grid-area: banner;
-  margin: 0 0 8px;
-  border: 0;
-  border-radius: 4px;
-}
-:root[data-theme="dual"] .map {
-  grid-area: map;
-  margin: 12px 12px 14px;
-  border-radius: 2px;
-  box-shadow: 0 0 0 12px var(--bezel), 0 0 0 13px #4a505b, 0 3px 0 13px #b9c0c9;
-}
-/* The touch screen's panel: a faint grid of LCD cells over the pixels. */
-:root[data-theme="dual"] .map::after {
+/* The two halves of the shell, each a slab of matte silver-white plastic, overlapping under the hinge. */
+:root[data-theme="dual"] body::before,
+:root[data-theme="dual"] body::after {
   content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+  position: relative;
+  inset: auto;
+  z-index: -1;
+  grid-column: 1 / -1;
+  opacity: 1;
+  mix-blend-mode: normal;
   pointer-events: none;
   background:
-    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 2px),
-    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 2px);
+    radial-gradient(ellipse 60% 80% at 18% 0%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(172deg, #f6f7f9 0%, #e5e9ed 48%, #d2d8de 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 0 rgba(70, 80, 95, 0.16),
+    inset 2px 0 0 rgba(255, 255, 255, 0.6),
+    inset -2px 0 0 rgba(70, 80, 95, 0.1),
+    0 2px 3px rgba(0, 0, 0, 0.35),
+    0 18px 38px rgba(0, 0, 0, 0.45);
 }
-/* The other screen: the masthead above the panel inside one black bezel. */
-:root[data-theme="dual"] .masthead {
-  grid-area: mast;
-  margin-top: 0;
-  grid-template-columns: 1fr;
-  justify-items: center;
-  text-align: center;
-  gap: 6px;
-  padding: 12px 12px 8px;
-  border: 12px solid var(--bezel);
-  border-bottom: 0;
-  border-radius: 8px 8px 0 0;
+:root[data-theme="dual"] body::before {
+  grid-row: 1 / 9;
+  border-radius: 26px 26px 12px 12px;
+}
+:root[data-theme="dual"] body::after {
+  grid-row: 8 / -1;
+  border-radius: 12px 12px 26px 26px;
   background:
-    linear-gradient(to bottom, #d9e6f7 0, #f7f9fc 42px),
-    var(--panel);
+    radial-gradient(ellipse 60% 70% at 82% 100%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(176deg, #eceff2 0%, #e1e5ea 40%, #ccd3da 100%);
 }
-:root[data-theme="dual"] .brand {
-  align-items: center;
-}
-:root[data-theme="dual"] .telegram {
-  grid-column: 1;
-  grid-template-columns: 1fr;
-  grid-template-rows: none;
-  justify-items: center;
-  width: 100%;
-  row-gap: 4px;
-}
-:root[data-theme="dual"] .telegram-date {
-  grid-column: 1;
-  grid-row: auto;
-  justify-self: stretch;
-  text-align: center;
-  padding: 4px 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-}
+:root[data-theme="dual"] .stage,
+:root[data-theme="dual"] .masthead,
+:root[data-theme="dual"] .toolbar,
+:root[data-theme="dual"] .timebar,
 :root[data-theme="dual"] .telegram-center {
-  grid-column: 1;
-  grid-row: auto;
-  margin-top: 2px;
+  display: contents;
 }
-:root[data-theme="dual"] .telegram-side,
-:root[data-theme="dual"] .telegram > .telegram-kicker:only-child {
-  grid-column: 1;
-  grid-row: auto;
+:root[data-theme="dual"] .x-dual {
+  display: block;
+}
+
+/* -- the top half: the name printed on the shell, two speaker grilles, the top screen in its bezel -- */
+:root[data-theme="dual"] .brand {
+  grid-column: 2;
+  grid-row: 2 / 7;
+  align-self: start;
   justify-self: center;
   align-items: center;
   text-align: center;
-}
-:root[data-theme="dual"] .panel {
-  grid-area: panel;
-  border: 12px solid var(--bezel);
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
-  margin-bottom: 14px;
-  background:
-    linear-gradient(rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
-    linear-gradient(to right, rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
-    var(--panel);
-}
-:root[data-theme="dual"] .panel.framed {
-  border-top: 12px solid var(--bezel);
-  border-radius: 8px;
-}
-:root[data-theme="dual"] body:has(.panel.framed) .masthead {
-  display: none;
-}
-:root[data-theme="dual"] body:has(.panel.framed) .panel {
-  grid-row: 3 / 5;
-}
-:root[data-theme="dual"] .timebar {
-  grid-area: time;
-  border-top: 0;
-  padding: 6px 4px 10px;
+  margin-top: 4px;
 }
 :root[data-theme="dual"] .mast-title {
-  font-family: var(--font-mast);
-  font-size: 26px;
-  letter-spacing: 0.02em;
-  color: var(--ink);
+  font: 400 22px/1 var(--font-mast);
+  letter-spacing: 0.04em;
+  color: var(--dual-ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 :root[data-theme="dual"] .mast-tag {
-  font-style: normal;
-  font-size: 12px;
+  margin: 4px 0 0;
+  font: 400 11px/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  color: #5d6672;
+}
+/* Speaker grilles: rows of round holes. */
+:root[data-theme="dual"] .x-dual-spk {
+  grid-row: 2 / 7;
+  align-self: center;
+  justify-self: center;
+  width: 54px;
+  height: 72px;
+  margin-top: 30px;
+  background: radial-gradient(circle, #59626e 0 2.2px, rgba(89, 98, 110, 0.35) 2.7px, transparent 3.2px) 0 0 / 9px 9px;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.85));
+}
+:root[data-theme="dual"] .x-dual-spk.x-l {
+  grid-column: 2;
+}
+:root[data-theme="dual"] .x-dual-spk.x-r {
+  grid-column: 4;
+}
+/* The top screen's black bezel, laid over it with a faint grid of LCD cells and the backlight's glow. */
+:root[data-theme="dual"] .x-dual-top {
+  grid-column: 3;
+  grid-row: 2 / 7;
+  position: relative;
+  z-index: 3;
+  pointer-events: none;
+  border: var(--dual-b) solid var(--bezel);
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(to bottom, rgba(20, 40, 90, 0.035) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(to right, rgba(20, 40, 90, 0.03) 0 1px, transparent 1px 2px);
+  box-shadow:
+    0 0 0 1px #4d5460,
+    0 1px 0 2px rgba(255, 255, 255, 0.7),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    inset 0 0 18px rgba(130, 170, 255, 0.22);
+}
+:root[data-theme="dual"] .banner {
+  grid-column: 3;
+  grid-row: 3;
+  margin: 0 var(--dual-b);
+  padding: 3px 8px;
+  border: 0;
+  font-size: 10px;
+  color: #1c3a74;
+  background: #d7e5fb;
+}
+/* The word: a status line with the date and the label, then the word, then who chose it. */
+:root[data-theme="dual"] .telegram {
+  grid-column: 3;
+  grid-row: 4;
+  width: auto;
+  margin: 0 var(--dual-b);
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: none;
+  grid-template-areas:
+    "date kicker"
+    "word word"
+    "side side";
+  align-items: center;
+  row-gap: 2px;
+  padding: 0 0 6px;
+  background:
+    linear-gradient(to bottom, #2f6ad0 0, #2a5fbd 20px, #cfe0fa 20px, #f3f7ff 44px),
+    var(--panel);
+  border-bottom: 2px solid #b9cdee;
+}
+:root[data-theme="dual"] .telegram-date {
+  grid-area: date;
+  justify-self: start;
+  align-self: center;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  font: 400 10px/20px var(--font-ui);
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+:root[data-theme="dual"] .telegram-kicker {
+  grid-area: kicker;
+  padding: 0 8px;
+  font: 400 10px/20px var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #dbe8ff;
+  white-space: nowrap;
+}
+:root[data-theme="dual"] .telegram > .telegram-kicker:only-child {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+:root[data-theme="dual"] .telegram-side {
+  grid-area: side;
+  justify-self: stretch;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+  padding: 0 10px;
+}
+:root[data-theme="dual"] .telegram-side .telegram-note,
+:root[data-theme="dual"] .telegram-status {
+  font: 400 11px/1.35 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="dual"] .telegram .scale {
+  display: none;
 }
 :root[data-theme="dual"] .telegram-word,
 :root[data-theme="dual"] .telegram-big {
@@ -10360,8 +10446,12 @@ button.link {
   border-bottom: 0;
 }
 :root[data-theme="dual"] .telegram-word {
-  font-size: min(58px, calc((var(--panel-w) - 50px) / (var(--len, 8) * 0.78)));
-  padding: 2px 8px;
+  grid-area: word;
+  justify-self: center;
+  margin-top: 2px;
+  font-size: min(64px, calc(var(--dual-h) * 0.15), calc((var(--dual-w) - 40px) / (var(--len, 8) * 0.78)));
+  line-height: 1.1;
+  padding: 0 8px;
   border: 2px solid transparent;
   border-radius: 6px;
 }
@@ -10371,13 +10461,45 @@ button.link {
   border-color: var(--accent);
   background: rgba(36, 99, 201, 0.08);
 }
+/* The stories, scrolling inside the top screen. */
+:root[data-theme="dual"] .panel {
+  grid-column: 3;
+  grid-row: 5;
+  margin: 0 var(--dual-b);
+  border: 0;
+  padding: 8px 10px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #8fa6c9 transparent;
+  background:
+    linear-gradient(rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(to right, rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
+    var(--panel);
+}
+/* An article opened inside the site takes the whole top screen. */
+:root[data-theme="dual"] body:has(.panel.framed) .telegram {
+  display: none;
+}
+:root[data-theme="dual"] body:has(.panel.framed) .panel {
+  grid-row: 3 / 6;
+  padding: 0;
+}
+:root[data-theme="dual"] body:has(.panel.framed) .banner {
+  display: none;
+}
+/* The word's own view and an event's explanation show the word and its date themselves, so the strip makes room. */
+:root[data-theme="dual"] body:has(.panel .telegram-view, .panel .event-view) .telegram {
+  display: none;
+}
+:root[data-theme="dual"] body:has(.panel .telegram-view, .panel .event-view) .panel {
+  grid-row: 4 / 6;
+}
 :root[data-theme="dual"] .telegram-kicker,
-:root[data-theme="dual"] .telegram-date {
+:root[data-theme="dual"] .rule-head {
   font-family: var(--font-ui);
-  color: var(--accent);
 }
 :root[data-theme="dual"] .telegram-note,
 :root[data-theme="dual"] .meta,
+:root[data-theme="dual"] .byline,
 :root[data-theme="dual"] .count,
 :root[data-theme="dual"] .dateline .coords {
   font-style: normal;
@@ -10386,11 +10508,13 @@ button.link {
 :root[data-theme="dual"] .panel-title {
   font-family: var(--font-mast);
   font-weight: 400;
+  font-size: 22px;
   letter-spacing: 0.02em;
 }
 :root[data-theme="dual"] .headline {
   font-weight: 400;
-  font-size: 16px;
+  font-size: 15px;
+  overflow-wrap: anywhere;
 }
 :root[data-theme="dual"] .dateline {
   border-bottom: 2px solid var(--accent);
@@ -10401,71 +10525,12 @@ button.link {
   color: #ffffff;
   background: linear-gradient(to bottom, #5a8fe0, #2463c9);
 }
-/* Stylus-sized buttons: pale plastic with a blue edge when touched, filled blue when on. */
-:root[data-theme="dual"] .tool,
-:root[data-theme="dual"] .pick select,
-:root[data-theme="dual"] .menu > summary,
-:root[data-theme="dual"] .chip,
-:root[data-theme="dual"] .zoom button,
-:root[data-theme="dual"] .key-btn,
-:root[data-theme="dual"] .key-close {
-  min-height: 34px;
-  background: linear-gradient(to bottom, #ffffff, #e3e9f1);
-  border: 1px solid #7d8a9c;
-  border-radius: 6px;
-  box-shadow: inset 0 -2px 0 #c3cdd9, 0 1px 0 rgba(0, 0, 0, 0.12);
-  color: var(--ink);
-  font-family: var(--font-ui);
-}
-:root[data-theme="dual"] .tool:hover,
-:root[data-theme="dual"] .pick select:hover,
-:root[data-theme="dual"] .menu > summary:hover,
-:root[data-theme="dual"] .chip:hover,
-:root[data-theme="dual"] .zoom button:hover,
-:root[data-theme="dual"] .key-btn:hover,
-:root[data-theme="dual"] .key-close:hover {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent), inset 0 -2px 0 #c3cdd9;
-}
-:root[data-theme="dual"] .tool[aria-pressed="true"],
-:root[data-theme="dual"] .menu[open] > summary,
-:root[data-theme="dual"] .key-btn[aria-expanded="true"],
-:root[data-theme="dual"] .chip[aria-pressed="true"] {
-  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
-  border-color: #173f86;
-  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.2);
-  color: #ffffff;
-}
-:root[data-theme="dual"] .tool.quiet {
-  border-color: #7d8a9c;
-}
-:root[data-theme="dual"] .zoom {
-  border: 0;
-  background: none;
-  gap: 4px;
-  right: 10px;
-  bottom: 10px;
-}
-:root[data-theme="dual"] .zoom button {
-  width: 36px;
-  height: 36px;
-}
-:root[data-theme="dual"] .key-btn {
-  left: 10px;
-  top: 10px;
-}
-:root[data-theme="dual"] .menu-body,
-:root[data-theme="dual"] .key-pop {
-  border: 3px solid var(--bezel);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
-}
 :root[data-theme="dual"] .stories li + li {
   border-top: 0;
 }
 :root[data-theme="dual"] .story {
   margin: 6px 0;
-  padding: 8px 10px;
+  padding: 7px 9px;
   border: 1px solid #9fb0c4;
   border-radius: 6px;
   background: linear-gradient(to bottom, #ffffff, #edf2f8);
@@ -10482,79 +10547,746 @@ button.link {
   border-radius: 4px;
   overflow: hidden;
 }
+:root[data-theme="dual"] .reader-headline {
+  font: 400 21px/1.2 var(--font-head);
+  overflow-wrap: anywhere;
+}
+/* On-screen buttons in the top screen (Pin, Back, Read): stylus-sized, pale, blue when on. */
+:root[data-theme="dual"] .panel .tool {
+  min-height: 30px;
+  padding: 6px 12px;
+  border: 1px solid #7d8a9c;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #ffffff, #e3e9f1);
+  box-shadow: inset 0 -2px 0 #c3cdd9, 0 1px 0 rgba(0, 0, 0, 0.12);
+  font: 400 12px/1.2 var(--font-ui);
+  color: var(--ink);
+}
+:root[data-theme="dual"] .panel .tool:hover {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), inset 0 -2px 0 #c3cdd9;
+}
+:root[data-theme="dual"] .panel .tool[aria-pressed="true"],
+:root[data-theme="dual"] .panel .tool.primary {
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+  border-color: #173f86;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+
+/* -- the hinge: a band across the shell with a silver cylinder at each end and the power light in the middle -- */
+:root[data-theme="dual"] .x-dual-hinge {
+  grid-column: 1 / -1;
+  grid-row: 8;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 6px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, #6f7884 0%, #9aa3ae 22%, #b6bdc6 40%, #8c95a1 72%, #5f6873 100%);
+  box-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="dual"] .x-dual-hinge::before,
+:root[data-theme="dual"] .x-dual-hinge::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: calc(var(--dual-px) + var(--dual-side) - 18px);
+  border-radius: 17px;
+  background: linear-gradient(to bottom, #c9d0d8 0%, #f8fafc 26%, #e3e7ec 46%, #b3bbc5 78%, #8e98a4 100%);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(80, 90, 104, 0.35);
+}
+:root[data-theme="dual"] .x-dual-hinge::before {
+  left: 4px;
+}
+:root[data-theme="dual"] .x-dual-hinge::after {
+  right: 4px;
+}
+:root[data-theme="dual"] .x-dual-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #d9ffd0 0, #4fd84a 45%, #1f8a24 100%);
+  box-shadow: 0 0 6px 1px rgba(90, 230, 90, 0.7), 0 0 0 1px rgba(0, 40, 0, 0.5);
+}
+:root[data-theme="dual"] .x-dual-led-label {
+  font: 400 10px/1 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #eef1f5;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* -- the lower half: the touch screen with the map -- */
+:root[data-theme="dual"] .map {
+  grid-column: 3;
+  grid-row: 10;
+  margin: var(--dual-b);
+  border-radius: 1px;
+  box-shadow:
+    0 0 0 var(--dual-b) var(--bezel),
+    0 0 0 calc(var(--dual-b) + 1px) #4d5460,
+    0 1px 0 calc(var(--dual-b) + 2px) rgba(255, 255, 255, 0.7);
+}
+/* The touch screen's panel: a faint grid of LCD cells over the pixels, and the backlight at its edges. */
+:root[data-theme="dual"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 2px);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55), inset 0 0 16px rgba(150, 190, 255, 0.28);
+}
+:root[data-theme="dual"] .zoom {
+  border: 0;
+  background: none;
+  gap: 4px;
+  right: 8px;
+  bottom: 8px;
+}
+:root[data-theme="dual"] .zoom button,
+:root[data-theme="dual"] .key-btn,
+:root[data-theme="dual"] .key-close {
+  min-height: 30px;
+  background: linear-gradient(to bottom, #ffffff, #e3e9f1);
+  border: 1px solid #7d8a9c;
+  border-radius: 6px;
+  box-shadow: inset 0 -2px 0 #c3cdd9, 0 1px 0 rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="dual"] .zoom button {
+  width: 32px;
+  height: 32px;
+}
+:root[data-theme="dual"] .zoom button + button {
+  border-top: 1px solid #7d8a9c;
+}
+:root[data-theme="dual"] .key-btn {
+  left: 8px;
+  top: 8px;
+}
+:root[data-theme="dual"] .zoom button:hover,
+:root[data-theme="dual"] .key-btn:hover,
+:root[data-theme="dual"] .key-close:hover {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), inset 0 -2px 0 #c3cdd9;
+}
+:root[data-theme="dual"] .key-btn[aria-expanded="true"] {
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+  border-color: #173f86;
+  color: #ffffff;
+}
+:root[data-theme="dual"] .key-pop,
+:root[data-theme="dual"] .menu-body,
+:root[data-theme="dual"] dialog {
+  border: 3px solid var(--bezel);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+/* The key opens on the top screen, so the map stays free to touch. */
+:root[data-theme="dual"] .key-pop {
+  position: absolute;
+  top: calc(14px + var(--dual-b) + 6px);
+  left: calc(var(--dual-px) + var(--dual-side) + var(--dual-b) + 6px);
+  right: auto;
+  bottom: auto;
+  width: calc(var(--dual-w) - 12px);
+  max-height: calc(var(--dual-h) - 12px);
+  overflow: auto;
+  padding-bottom: 12px;
+}
+
+/* -- the direction pad beside the touch screen: four arms that move the map like the arrow keys -- */
+:root[data-theme="dual"] .x-dual-pad {
+  --arm: 34px;
+  grid-column: 2;
+  grid-row: 10;
+  align-self: start;
+  justify-self: center;
+  margin-top: 22px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, var(--arm));
+  grid-template-rows: repeat(3, var(--arm));
+  grid-template-areas:
+    ". up ."
+    "left hub right"
+    ". down .";
+  padding: 6px;
+  border-radius: 50%;
+  /* The round dip in the shell the pad sits in. */
+  background: radial-gradient(circle, rgba(60, 70, 84, 0.16) 0 62%, rgba(255, 255, 255, 0.5) 66%, transparent 70%);
+}
+:root[data-theme="dual"] .x-dual-arm,
+:root[data-theme="dual"] .x-dual-hub {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #9aa3ae;
+  background: linear-gradient(to bottom, #4b525c, #30353d);
+}
+:root[data-theme="dual"] .x-dual-arm {
+  cursor: pointer;
+  box-shadow: 0 2px 0 #1b1f25, 0 3px 4px rgba(0, 0, 0, 0.3);
+  touch-action: manipulation;
+}
+:root[data-theme="dual"] .x-dual-arm svg {
+  width: 12px;
+  height: 12px;
+}
+:root[data-theme="dual"] .x-dual-arm.x-up {
+  grid-area: up;
+  border-radius: 6px 6px 0 0;
+}
+:root[data-theme="dual"] .x-dual-arm.x-down {
+  grid-area: down;
+  border-radius: 0 0 6px 6px;
+}
+:root[data-theme="dual"] .x-dual-arm.x-down svg {
+  transform: rotate(180deg);
+}
+:root[data-theme="dual"] .x-dual-arm.x-left {
+  grid-area: left;
+  border-radius: 6px 0 0 6px;
+}
+:root[data-theme="dual"] .x-dual-arm.x-left svg {
+  transform: rotate(-90deg);
+}
+:root[data-theme="dual"] .x-dual-arm.x-right {
+  grid-area: right;
+  border-radius: 0 6px 6px 0;
+}
+:root[data-theme="dual"] .x-dual-arm.x-right svg {
+  transform: rotate(90deg);
+}
+:root[data-theme="dual"] .x-dual-hub {
+  grid-area: hub;
+  box-shadow: 0 2px 0 #1b1f25;
+  background: radial-gradient(circle, #3a4048 0 30%, #41474f 34%, #383d45 100%);
+}
+:root[data-theme="dual"] .x-dual-arm:hover {
+  color: #e3e8ee;
+}
+:root[data-theme="dual"] .x-dual-arm:active {
+  color: #ffffff;
+  background: linear-gradient(to bottom, #3c424b, #2a2e35);
+  box-shadow: 0 1px 0 #1b1f25;
+  transform: translateY(1px);
+}
+:root[data-theme="dual"] .x-dual-arm:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+/* -- Map or Globe under the pad and the design under the round buttons: small pills, each named under it -- */
+:root[data-theme="dual"] .pick {
+  grid-column: 2;
+  grid-row: 10 / 13;
+  align-self: end;
+  justify-self: center;
+  margin-bottom: 26px;
+}
+:root[data-theme="dual"] .pick:has(#design-select) {
+  grid-column: 4;
+}
+:root[data-theme="dual"] .pick select,
+:root[data-theme="dual"] #pins-menu > summary {
+  min-height: 26px;
+  max-width: calc(var(--dual-side) - 8px);
+  padding: 5px 24px 5px 14px;
+  border: 0;
+  border-radius: 13px;
+  font: 400 11px/16px var(--font-ui);
+  letter-spacing: 0.04em;
+  color: #f2f5f8;
+  background: linear-gradient(to bottom, #5d6570, #3d434c);
+  box-shadow: 0 2px 0 #23272e, 0 3px 4px rgba(0, 0, 0, 0.25);
+  field-sizing: content;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-theme="dual"] #pins-menu > summary {
+  padding-right: 14px;
+}
+:root[data-theme="dual"] .pick::after {
+  color: #f2f5f8;
+  right: 10px;
+  opacity: 0.85;
+}
+:root[data-theme="dual"] .pick select:hover,
+:root[data-theme="dual"] #pins-menu > summary:hover {
+  background: linear-gradient(to bottom, #6b7480, #474e58);
+}
+:root[data-theme="dual"] .pick select:active,
+:root[data-theme="dual"] #pins-menu[open] > summary {
+  background: linear-gradient(to bottom, #2f6ad0, #234f9e);
+  box-shadow: 0 1px 0 #23272e;
+}
+:root[data-theme="dual"] .pick .sr {
+  /* The pill's name, printed on the shell under it. */
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  width: auto;
+  height: auto;
+  clip: auto;
+  overflow: visible;
+  font: 400 10px/1 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #5d6672;
+  pointer-events: none;
+}
+:root[data-theme="dual"] #pins-menu {
+  grid-column: 2;
+  grid-row: 10 / 13;
+  align-self: end;
+  justify-self: center;
+  margin-bottom: 78px;
+}
+
+/* -- four round buttons beside the touch screen, set in a diamond, each with its name printed under it -- */
+:root[data-theme="dual"] #topics-menu,
+:root[data-theme="dual"] #translate-pick,
+:root[data-theme="dual"] #about-btn,
+:root[data-theme="dual"] #play {
+  grid-column: 4;
+  grid-row: 10;
+  align-self: start;
+  justify-self: center;
+  position: relative;
+}
+:root[data-theme="dual"] #topics-menu {
+  margin-top: 18px;
+}
+:root[data-theme="dual"] #translate-pick {
+  margin: 58px 108px 0 0;
+}
+:root[data-theme="dual"] #about-btn {
+  margin: 58px 0 0 108px;
+}
+:root[data-theme="dual"] #play {
+  margin-top: 98px;
+}
+:root[data-theme="dual"] #translate-pick,
+:root[data-theme="dual"] #about-btn,
+:root[data-theme="dual"] #play,
+:root[data-theme="dual"] #topics-menu > summary {
+  display: block;
+  width: 54px;
+  min-height: 0;
+  padding: 39px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font: 400 10px/1.1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--dual-ink);
+  cursor: pointer;
+}
+:root[data-theme="dual"] #translate-pick::before,
+:root[data-theme="dual"] #about-btn::before,
+:root[data-theme="dual"] #play::before,
+:root[data-theme="dual"] #topics-menu > summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  margin-left: -17px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #ffffff 0, #eef1f5 30%, #cbd2da 78%, #b3bcc6 100%);
+  box-shadow:
+    0 0 0 1.5px #8a94a0,
+    0 3px 0 1.5px #77818d,
+    0 5px 6px rgba(0, 0, 0, 0.25);
+}
+:root[data-theme="dual"] #topics-menu > summary::after {
+  content: none;
+}
+:root[data-theme="dual"] #about-btn .wide {
+  display: inline;
+}
+:root[data-theme="dual"] #about-btn .narrow {
+  display: none;
+}
+:root[data-theme="dual"] #translate-pick:hover::before,
+:root[data-theme="dual"] #about-btn:hover::before,
+:root[data-theme="dual"] #play:hover::before,
+:root[data-theme="dual"] #topics-menu > summary:hover::before {
+  box-shadow:
+    0 0 0 1.5px var(--accent),
+    0 3px 0 1.5px #77818d,
+    0 5px 6px rgba(0, 0, 0, 0.25);
+}
+:root[data-theme="dual"] #translate-pick:active::before,
+:root[data-theme="dual"] #about-btn:active::before,
+:root[data-theme="dual"] #play:active::before,
+:root[data-theme="dual"] #topics-menu > summary:active::before {
+  transform: translateY(2px);
+  box-shadow:
+    0 0 0 1.5px #8a94a0,
+    0 1px 0 1.5px #77818d;
+}
+/* On: lit blue and pressed in. */
+:root[data-theme="dual"] #translate-pick[data-on]::before,
+:root[data-theme="dual"] #topics-menu[open] > summary::before {
+  transform: translateY(2px);
+  background: radial-gradient(circle at 38% 30%, #bcd4ff 0, #5a8fe0 35%, #2463c9 80%, #1b4c9c 100%);
+  box-shadow:
+    0 0 0 1.5px #173f86,
+    0 1px 0 1.5px #173f86;
+}
+:root[data-theme="dual"] #translate-pick[data-on],
+:root[data-theme="dual"] #topics-menu[open] > summary {
+  color: var(--accent);
+}
+:root[data-theme="dual"] #translate-pick:focus-visible,
+:root[data-theme="dual"] #about-btn:focus-visible,
+:root[data-theme="dual"] #play:focus-visible,
+:root[data-theme="dual"] #topics-menu > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* Translate is a list of languages (decision 97): the round button holds it, its caption is the chosen language, and
+   the whole button opens the list. Sized by fitSelects to its caption, never narrower than the button. */
+:root[data-theme="dual"] #translate-pick {
+  width: auto;
+  min-width: 54px;
+  padding: 0;
+}
+:root[data-theme="dual"] #translate-pick::after {
+  content: none;
+}
+/* Its caption is the chosen language itself, so its longer screen-reader name stays hidden. */
+:root[data-theme="dual"] #translate-pick .sr {
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+:root[data-theme="dual"] #translate-pick::before {
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="dual"] #translate-pick select {
+  display: block;
+  min-width: 54px;
+  padding: 39px 2px 0;
+  border: 0;
+  background: none;
+  font: 400 10px/1.1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  text-align-last: center;
+  color: inherit;
+}
+:root[data-theme="dual"] #translate-pick select,
+:root[data-theme="dual"] #translate-pick select:hover,
+:root[data-theme="dual"] #translate-pick select:active,
+:root[data-theme="dual"] #translate-pick select:focus {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  outline-offset: 2px;
+}
+/* The menus open upward over the touch screen, so nothing runs off the shell. */
+:root[data-theme="dual"] .menu {
+  position: relative;
+}
+:root[data-theme="dual"] .menu-body {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: auto;
+  right: -54px;
+  width: min(330px, calc(100vw - 24px));
+  min-width: 0;
+  max-width: none;
+  max-height: min(60vh, 420px);
+  overflow: auto;
+}
+:root[data-theme="dual"] .chip {
+  min-height: 30px;
+  border: 1px solid #7d8a9c;
+  border-radius: 15px;
+  background: linear-gradient(to bottom, #ffffff, #e3e9f1);
+  font: 400 11px/1.2 var(--font-ui);
+  color: var(--ink);
+}
+:root[data-theme="dual"] .chip[aria-pressed="true"] {
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+  border-color: #173f86;
+  color: #ffffff;
+}
+
+/* -- the time row under the touch screen: Live when replaying, the slider and the time -- */
+:root[data-theme="dual"] .slider {
+  grid-column: 3;
+  grid-row: 12;
+  align-self: center;
+  margin: 0 176px 0 6px;
+}
+:root[data-theme="dual"] body:has(#live:not([hidden])) .slider {
+  margin-left: 62px;
+}
+:root[data-theme="dual"] .slider input {
+  accent-color: #2f6ad0;
+}
+:root[data-theme="dual"] .time-label {
+  grid-column: 3;
+  grid-row: 12;
+  align-self: center;
+  justify-self: end;
+  width: 170px;
+  min-width: 0;
+  margin-right: 2px;
+  font: 400 11px/1.2 var(--font-ui);
+  letter-spacing: 0.04em;
+  text-align: right;
+  color: var(--dual-ink);
+}
+:root[data-theme="dual"] #live {
+  grid-column: 3;
+  grid-row: 12;
+  align-self: center;
+  justify-self: start;
+  min-height: 24px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 12px;
+  font: 400 11px/16px var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: linear-gradient(to bottom, #5d6570, #3d434c);
+  box-shadow: 0 2px 0 #23272e;
+}
+:root[data-theme="dual"] #live[hidden] {
+  display: none;
+}
+:root[data-theme="dual"] .ticker {
+  display: none;
+}
+
+/* A phone holds the handheld upright and open: the name and grilles, the top screen, the hinge, the touch screen,
+   then the pad, the round buttons and the pills under it. The page scrolls if a short phone needs it. */
 @media (max-width: 760px) {
-  /* A phone holds the handheld upright: the screen with the word and the stories on top, the hinge with the
-     toolbar, then the touch screen with the map. */
   :root[data-theme="dual"] body {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(0, 0.85fr) auto minmax(0, 1.15fr) auto;
-    grid-template-areas:
-      "banner"
-      "mast"
-      "panel"
-      "tool"
-      "map"
-      "time";
-    column-gap: 0;
-    padding: 6px 8px 0;
-    background: linear-gradient(to bottom, #f1f3f6, #d5dae0);
+    --dual-b: 7px;
+    --dual-px: 12px;
+    --dual-m: 5px;
+    --dual-w: calc(100vw - 2 * var(--dual-m) - 2 * var(--dual-px) - 2 * var(--dual-b));
+    --dual-h: calc(var(--dual-w) * 0.75);
+    /* Every row but the top screen's, as listed below, so the top screen is at least as tall as the touch screen. */
+    --dual-fix: 290px;
+    width: calc(100vw - 2 * var(--dual-m));
+    height: max(calc(100dvh - 2 * var(--dual-m)), calc(var(--dual-fix) + 2 * var(--dual-h) + 4 * var(--dual-b)));
+    margin: var(--dual-m) auto;
+    grid-template-columns: var(--dual-px) minmax(0, 1fr) var(--dual-px);
+    grid-template-rows:
+      28px var(--dual-b) auto auto minmax(0, 1fr) var(--dual-b)
+      8px 22px 8px
+      calc(var(--dual-h) + 2 * var(--dual-b)) 6px 32px 6px 118px 4px 46px 12px;
   }
-  :root[data-theme="dual"] body:has(.panel.reading) {
-    grid-template-rows: auto auto minmax(0, 1.4fr) auto minmax(0, 0.6fr) auto;
+  :root[data-theme="dual"] body::before {
+    border-radius: 20px 20px 10px 10px;
   }
-  :root[data-theme="dual"] body:has(.panel.framed) {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(0, 1fr) auto 0 auto;
+  :root[data-theme="dual"] body::after {
+    border-radius: 10px 10px 20px 20px;
   }
-  :root[data-theme="dual"] body:has(.panel.framed) .panel {
-    grid-row: 3;
-  }
-  :root[data-theme="dual"] body:has(.panel.framed) .map {
-    visibility: hidden;
-    margin: 0;
-  }
-  :root[data-theme="dual"] .masthead {
-    border-width: 8px;
-    border-bottom: 0;
-    padding: 8px 8px 4px;
-  }
-  :root[data-theme="dual"] .panel {
-    border: 8px solid var(--bezel);
-    border-top: 0;
-    margin: 0;
-    padding-top: 8px;
-  }
-  :root[data-theme="dual"] .panel.framed {
-    border-top: 8px solid var(--bezel);
-  }
-  /* The hinge between the two screens. */
-  :root[data-theme="dual"] .toolbar {
-    margin: 6px -8px 0;
-    padding: 7px 8px;
-    background: linear-gradient(to bottom, #aab2bc, #eef1f4 45%, #c3cad2 60%, #9aa3ae);
-  }
-  :root[data-theme="dual"] .map {
-    margin: 14px 8px 10px;
-    box-shadow: 0 0 0 8px var(--bezel), 0 0 0 9px #4a505b;
-  }
-  :root[data-theme="dual"] .timebar {
-    padding: 4px 0 8px;
-  }
-  :root[data-theme="dual"] .telegram-word {
-    font-size: min(52px, calc((100vw - 60px) / (var(--len, 8) * 0.72)));
+  :root[data-theme="dual"] .brand {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+    margin: 2px 0 0;
   }
   :root[data-theme="dual"] .mast-title {
-    font-size: 20px;
+    font-size: 15px;
   }
-  :root[data-theme="dual"] .tool,
-  :root[data-theme="dual"] .pick select,
-  :root[data-theme="dual"] .menu > summary {
-    min-height: 32px;
+  :root[data-theme="dual"] .mast-tag {
+    margin: 0;
+    font-size: 10px;
+  }
+  :root[data-theme="dual"] .x-dual-spk {
+    grid-column: 2;
+    grid-row: 1;
+    width: 36px;
+    height: 18px;
+    margin: 2px 4px 0;
+    background-size: 6px 6px;
+    background-image: radial-gradient(circle, #59626e 0 1.5px, rgba(89, 98, 110, 0.35) 1.9px, transparent 2.3px);
+  }
+  :root[data-theme="dual"] .x-dual-spk.x-l {
+    justify-self: start;
+  }
+  :root[data-theme="dual"] .x-dual-spk.x-r {
+    grid-column: 2;
+    justify-self: end;
+  }
+  :root[data-theme="dual"] .x-dual-top,
+  :root[data-theme="dual"] .banner,
+  :root[data-theme="dual"] .telegram,
+  :root[data-theme="dual"] .panel,
+  :root[data-theme="dual"] .map {
+    grid-column: 2;
+  }
+  :root[data-theme="dual"] .x-dual-top {
+    border-radius: 8px;
+  }
+  :root[data-theme="dual"] .key-pop {
+    top: calc(28px + var(--dual-b) + 6px);
+    left: calc(var(--dual-px) + var(--dual-b) + 6px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  }
+  :root[data-theme="dual"] .panel {
+    border-top: 0;
+    padding: 6px 8px 12px;
+  }
+  /* On a phone a story or the word's view takes the whole top screen; Back brings the strip back. */
+  :root[data-theme="dual"] body:has(.panel.reading) .telegram {
+    display: none;
+  }
+  :root[data-theme="dual"] body:has(.panel.reading) .panel {
+    grid-row: 4 / 6;
+  }
+  :root[data-theme="dual"] .telegram-word {
+    font-size: min(44px, calc((var(--dual-w) - 30px) / (var(--len, 8) * 0.78)));
+  }
+  :root[data-theme="dual"] .place-name,
+  :root[data-theme="dual"] .panel-title {
+    font-size: 19px;
+  }
+  :root[data-theme="dual"] .headline {
+    font-size: 14px;
+  }
+  :root[data-theme="dual"] .reader-headline {
+    font-size: 18px;
+  }
+  :root[data-theme="dual"] .x-dual-hinge::before,
+  :root[data-theme="dual"] .x-dual-hinge::after {
+    top: -4px;
+    bottom: -4px;
+    width: 30%;
+  }
+  /* Under the touch screen: the time row, then the pad and the buttons, then the pills. */
+  :root[data-theme="dual"] .slider,
+  :root[data-theme="dual"] .time-label,
+  :root[data-theme="dual"] #live {
+    grid-column: 2;
+  }
+  :root[data-theme="dual"] .slider {
+    margin-right: 136px;
+  }
+  :root[data-theme="dual"] .time-label {
+    width: 130px;
+  }
+  :root[data-theme="dual"] .x-dual-pad {
+    --arm: 32px;
+    grid-column: 2;
+    grid-row: 14;
+    align-self: center;
+    justify-self: start;
+    margin: 0 0 0 4px;
+    padding: 5px;
+  }
+  :root[data-theme="dual"] #topics-menu,
+  :root[data-theme="dual"] #translate-pick,
+  :root[data-theme="dual"] #about-btn,
+  :root[data-theme="dual"] #play {
+    grid-column: 2;
+    grid-row: 14;
+    justify-self: end;
+  }
+  :root[data-theme="dual"] #topics-menu {
+    margin: 0 54px 0 0;
+  }
+  :root[data-theme="dual"] #translate-pick {
+    margin: 37px 108px 0 0;
   }
   :root[data-theme="dual"] #about-btn {
-    top: 4px;
-    right: 4px;
-    min-height: 28px;
+    position: relative;
+    top: auto;
+    right: auto;
+    min-width: 0;
+    margin: 37px 0 0 0;
+  }
+  :root[data-theme="dual"] #play {
+    margin: 74px 54px 0 0;
+  }
+  :root[data-theme="dual"] #about-btn,
+  :root[data-theme="dual"] #play,
+  :root[data-theme="dual"] #topics-menu > summary {
+    padding-top: 36px;
+  }
+  :root[data-theme="dual"] #translate-pick select {
+    padding-top: 36px;
+  }
+  :root[data-theme="dual"] #translate-pick::before,
+  :root[data-theme="dual"] #about-btn::before,
+  :root[data-theme="dual"] #play::before,
+  :root[data-theme="dual"] #topics-menu > summary::before {
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+  }
+  :root[data-theme="dual"] .menu-body {
+    right: -54px;
+    left: auto;
+  }
+  :root[data-theme="dual"] .pick,
+  :root[data-theme="dual"] #pins-menu {
+    grid-column: 2;
+    grid-row: 16;
+    align-self: start;
+    margin: 2px 0 0;
+  }
+  /* Each pill under the cluster above it: the view under the pad, the design under the round buttons. */
+  :root[data-theme="dual"] .pick:has(#view-select) {
+    justify-self: start;
+    margin: 2px 0 0 22px;
+  }
+  :root[data-theme="dual"] .pick:has(#design-select) {
+    grid-column: 2;
+    justify-self: end;
+    margin: 2px 44px 0 0;
+  }
+  :root[data-theme="dual"] #pins-menu {
+    justify-self: center;
+    margin: 2px 0 0 -20px;
+  }
+  :root[data-theme="dual"] .pick select,
+  :root[data-theme="dual"] #pins-menu > summary {
+    max-width: 9.5em;
   }
 }
 /* A stylus for a pointer over the touch screen: its tip is the point that is touched. */

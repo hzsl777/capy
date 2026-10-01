@@ -543,6 +543,8 @@ function renderToolbar() {
     h("optgroup", { label: "All languages" }, ...others.map(option)),
   );
   tr.value = state.translateTo ?? "";
+  // A design can light the control while translation is on (Dual Screen's round button).
+  $("translate-pick").toggleAttribute("data-on", !!state.translateTo);
   tr.title = state.translateTo ? `Headlines translated into ${languageName(state.translateTo) || state.translateTo}` : "Translate headlines";
   syncTranslate();
 
@@ -659,6 +661,7 @@ function applyTheme() {
   renderMasthead();
   renderTelegramStrip();
   renderToolbar();
+  placeAbout();
   renderTicker();
   if (state.file && !state.reader && !state.telegram && !state.event) renderPanel();
   syncUrl();
@@ -1292,9 +1295,12 @@ function setKey(open: boolean) {
   $("key-btn").setAttribute("aria-expanded", String(open));
 }
 
-/** On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. */
+/**
+ * On a phone About is a "?" in the masthead's corner, so the toolbar row holds the four controls. Dual Screen keeps it
+ * with the other buttons on the handheld's lower half.
+ */
 function placeAbout() {
-  if (phone.matches) $("masthead").append($("about-btn"));
+  if (phone.matches && state.theme !== "dual") $("masthead").append($("about-btn"));
   else $("toolbar").append($("about-btn"));
 }
 
