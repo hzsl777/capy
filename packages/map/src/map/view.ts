@@ -69,6 +69,7 @@ import { drawTrainset, TrainsetCache } from "./trainset.ts";
 import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
+import { drawTowers, TowersCache } from "./towers.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 
 export interface Dot {
@@ -306,6 +307,8 @@ export class MapView {
   private noir = new NoirCache();
   private arcade = new ArcadeCache();
   private gloss = new GlossCache();
+  /** Crystal Towers: its floor, towers, drifting cubes and the world under them. */
+  private towers = new TowersCache();
   private stadium = new StadiumCache();
   private warp: Warp | null = null;
   private warpFor = "";
@@ -1509,7 +1512,7 @@ export class MapView {
       // tuning are the same as in every design.
       const drawn = this.drawSurface(proj, cam, view, map, t);
       const framed = typeof drawn === "object" ? drawn : undefined;
-      const again = typeof drawn === "number" ? drawn : 0;
+      const again = typeof drawn === "number" ? drawn : (framed?.next ?? 0);
       drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
       if (framed?.clip) {
         ctx.save();
@@ -1711,6 +1714,7 @@ export class MapView {
     if (t.surface === "chalk") return drawChalk(f, this.handmade.chalk);
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
+    if (t.surface === "towers") return drawTowers(f, this.towers);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);

@@ -56,7 +56,8 @@ export class StillLayer {
   private g?: CanvasRenderingContext2D;
   private ready = false;
 
-  draw(f: SurfaceFrame, paint: (g: CanvasRenderingContext2D) => void) {
+  /** `box` (x0, y0, x1, y1), when given, bounds what `paint` draws, so a kept copy is drawn only that far. */
+  draw(f: SurfaceFrame, paint: (g: CanvasRenderingContext2D) => void, box?: readonly [number, number, number, number]) {
     const { ctx, w, h, dpr } = f;
     const key = viewKey(f);
     if (key !== this.key || f.map !== this.map) {
@@ -74,6 +75,7 @@ export class StillLayer {
       paint(g);
       this.ready = true;
     }
-    ctx.drawImage(this.canvas, 0, 0, w, h);
+    if (box) drawPart(f, this.canvas, ...box);
+    else ctx.drawImage(this.canvas, 0, 0, w, h);
   }
 }

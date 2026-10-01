@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -85,7 +85,7 @@ export interface Theme {
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
    * "rail" (Sleeper Car's on-board route display, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2069,6 +2069,45 @@ export const THEMES: Record<ThemeId, Theme> = {
     glow: false,
     atmosphere: "rgba(255,140,205,0.4)",
     shade: "rgba(40,10,80,0.42)",
+    neatline: false,
+    decor: null,
+  },
+  // Crystal Towers, experimental: after the feel of an early-2000s black console's system menu (src/map/towers.ts). The
+  // world floats in a dark blue void over a reflective floor where towers of clear cubes stand and rise slowly, all
+  // decoration and never data. Pale blue land on dark glass, white diamonds, warm amber for fresh reports.
+  towers: {
+    id: "towers",
+    label: "Crystal Towers",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    surface: "towers",
+    globeScale: 0.34,
+    ocean: "#0b1a3a",
+    land: "#4f78b8",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "diamond",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#dcecff",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(130,185,255,0.26)",
+    oceanHatch: null,
+    graticule: "rgba(140,190,255,0.1)",
+    graticuleDash: [],
+    river: "rgba(160,205,255,0.4)",
+    lake: "#0b1a3a",
+    ice: "#dcecff",
+    relief: "rgba(0,0,0,0)",
+    dot: "#f2f8ff",
+    dotStroke: "#06102a",
+    fresh: "#ffb547",
+    tuned: "#ffffff",
+    arc: "rgba(205,228,255,0.85)",
+    glow: true,
+    atmosphere: null,
+    shade: null,
     neatline: false,
     decor: null,
   },
