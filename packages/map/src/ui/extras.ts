@@ -2,13 +2,20 @@
 // every other design:
 // - Spreadsheet: a formula bar over the map whose line is built from the tuned place's name, the column letters
 //   and row numbers around the map, lined up with the cells the canvas draws (src/map/sheet.ts).
-// - Market Terminal: a header strip over the map with the reticle's latitude and longitude and a UTC clock.
+// - Market Terminal: a command line across the top of the page built from the tuned place's name, and a header strip
+//   over the map with the reticle's latitude and longitude and a UTC clock.
 // - Country Club: a small embroidered crest by the name: crossed oars inside a laurel, no animal and no letters.
-// - Sleeper Car: a station clock by the name.
+// - Sleeper Car: a route bar over the map with the time, a line diagram and the next stop.
+// - Rave: the DJ booth along the bottom of the map: two turntables and, between them, the waveforms of the two
+//   tracks over a mixer. Our own plain drawings, no brand's deck; no text.
+// - Old Realm: a carved stone ring with brass rivets and a compass rose around the round minimap in Map view.
+// - Tactical: a HUD around the map: corner brackets, a clock since the day's map was built, and a short feed of the
+//   newest headlines in the corner, newest first, as text.
 // Place names go in as text, never as HTML.
 
 import type { ThemeId } from "../themes.ts";
 import { columnName, sheetGrid } from "../map/sheet.ts";
+import { minimapDisc, minimapMargin } from "../map/minimap.ts";
 import { h } from "./dom.ts";
 
 export interface ExtrasSource {
@@ -16,6 +23,10 @@ export interface ExtrasSource {
   /** The names of the places under the reticle, or null. */
   tuned(): string[] | null;
   center(): [number, number];
+  /** Tactical's feed: the newest headlines, newest first, each with its place and how to open it. */
+  latest?(): { place: string; title: string; open(): void }[];
+  /** When the day's map was built, in seconds, or null before it loads. */
+  builtAt?(): number | null;
 }
 
 const NS = "http://www.w3.org/2000/svg";
@@ -32,9 +43,19 @@ let cols: HTMLElement;
 let rows: HTMLElement;
 let readout: HTMLElement;
 let utc: HTMLElement;
-let hands: { hour: SVGElement; minute: SVGElement; second: SVGElement } | null = null;
+let railStops: HTMLElement[] = [];
+let railLine: HTMLElement;
+let railClock: HTMLElement;
+let railNext: HTMLElement;
+let railPassed = -1;
+let command: HTMLElement;
 let timer = 0;
 let cell = "";
+let ring: HTMLElement;
+let ringFor = "";
+let round: HTMLElement;
+let feed: HTMLElement;
+let feedKey = "";
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
@@ -73,35 +94,114 @@ function crest(): SVGElement {
   return s;
 }
 
-/** A plain station clock: a cream face in a brass rim, bars for the hours, black hands and a brass second hand. */
-function stationClock(): SVGElement {
-  const s = svg("svg", { viewBox: "-50 -50 100 100", class: "x-clock", "aria-hidden": "true" });
-  s.append(svg("circle", { r: 47, fill: "#f7f2e6", stroke: "#b08a3e", "stroke-width": 5 }));
-  s.append(svg("circle", { r: 43, fill: "none", stroke: "#2a2a2a", "stroke-width": 0.8 }));
-  for (let i = 0; i < 60; i++) {
-    const a = (i / 60) * Math.PI * 2;
-    const big = i % 5 === 0;
-    const r0 = big ? 32 : 38;
-    s.append(
-      svg("line", {
-        x1: (Math.sin(a) * r0).toFixed(2),
-        y1: (-Math.cos(a) * r0).toFixed(2),
-        x2: (Math.sin(a) * 41).toFixed(2),
-        y2: (-Math.cos(a) * 41).toFixed(2),
-        stroke: "#1e1e1e",
-        "stroke-width": big ? 3.6 : 1,
-      }),
-    );
-  }
-  // Tapered hands, like an old depot clock's.
-  const hour = svg("path", { d: "M-3.4 8L-2.2 -20L0 -24L2.2 -20L3.4 8Z", fill: "#1e1e1e" });
-  const minute = svg("path", { d: "M-2.6 10L-1.6 -34L0 -38L1.6 -34L2.6 10Z", fill: "#1e1e1e" });
-  // A plain thin second hand in brass, with no disc at its tip, so the face is no known railway's clock.
-  const second = svg("g", {});
-  second.append(svg("line", { x1: 0, y1: 10, x2: 0, y2: -40, stroke: "#9a7430", "stroke-width": 1.2 }));
-  s.append(hour, minute, second, svg("circle", { r: 2.2, fill: "#1e1e1e" }));
-  hands = { hour, minute, second };
+/** Stops on the route diagram, evenly spaced; the train's mark sits between them by the reticle's longitude. */
+const STOPS = 9;
+
+/**
+ * Sleeper Car's route bar over the map, like a modern train's on-board display: the time, a line diagram of the
+ * route with the stops already passed greyed, and the next stop, which is the tuned place's name. The train's mark
+ * follows the reticle's longitude from west to east; the stops have no names, so it links no place to another.
+ */
+function routeBar(): HTMLElement {
+  railStops = Array.from({ length: STOPS }, () => h("span", { class: "x-stop" }));
+  railLine = h("span", { class: "x-line" }, ...railStops, h("span", { class: "x-train" }));
+  railClock = h("span", { class: "x-rclock" });
+  railNext = h("span", { class: "x-next-name" });
+  return h(
+    "div",
+    { class: "x-route", "aria-hidden": "true" },
+    railClock,
+    railLine,
+    h("span", { class: "x-next" }, h("span", { class: "x-next-label" }, "Next stop"), railNext),
+  );
+}
+
+/** A turntable seen from above: the plinth, the platter with a record whose label turns, and the tone arm. */
+function turntable(label: string): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 100 100", class: "x-deck", "aria-hidden": "true" });
+  s.append(
+    svg("rect", { x: 2, y: 2, width: 96, height: 96, rx: 7, fill: "#16111f", stroke: "#2e2542", "stroke-width": 1.5 }),
+    svg("circle", { cx: 44, cy: 50, r: 41, fill: "#0b0911", stroke: "#3a3150", "stroke-width": 1.5 }),
+  );
+  const record = svg("g", { class: "x-record" });
+  record.append(svg("circle", { cx: 44, cy: 50, r: 37, fill: "#050308" }));
+  for (const r of [33, 29, 25, 21, 17]) record.append(svg("circle", { cx: 44, cy: 50, r, fill: "none", stroke: "rgba(255,255,255,0.07)", "stroke-width": 0.8 }));
+  // A sheen across the grooves and a stripe on the label, so the record is seen to turn.
+  record.append(
+    svg("path", { d: "M44 50L44 13A37 37 0 0 1 70 24Z", fill: "rgba(255,255,255,0.06)" }),
+    svg("circle", { cx: 44, cy: 50, r: 11, fill: label }),
+    svg("rect", { x: 42.5, y: 39.5, width: 3, height: 8, fill: "#0b0911" }),
+  );
+  s.append(
+    record,
+    svg("circle", { cx: 44, cy: 50, r: 1.6, fill: "#d8d2e6" }),
+    svg("circle", { cx: 87, cy: 15, r: 6, fill: "#2a2238", stroke: "#4a4060", "stroke-width": 1 }),
+    svg("path", { d: "M87 15L85 58L72 70", fill: "none", stroke: "#b9b3c8", "stroke-width": 2.4, "stroke-linecap": "round", "stroke-linejoin": "round" }),
+    svg("rect", { x: 66, y: 67, width: 9, height: 6, rx: 1, fill: "#d8d2e6", transform: "rotate(-40 70.5 70)" }),
+    svg("rect", { x: 8, y: 84, width: 13, height: 8, rx: 2, fill: "none", stroke: label, "stroke-width": 1.4 }),
+  );
   return s;
+}
+
+/**
+ * The two tracks' waveforms scrolling past the playhead, as on a DJ's screen: bars of a fixed made-up track, drawn
+ * twice over so the loop has no seam.
+ */
+function waveform(): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 600 40", preserveAspectRatio: "none", class: "x-wave", "aria-hidden": "true" });
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const lanes = [
+    { y: 10, color: "#9dff2e", d: "" },
+    { y: 30, color: "#3ff0ff", d: "" },
+  ];
+  lanes.forEach((lane, k) => {
+    const amps = Array.from({ length: 150 }, (_, i) => {
+      // A kick every eighth bar and a slow swell over the phrase.
+      const kick = (i + k * 3) % 8 === 0 ? 0.35 : 0;
+      return Math.min(1, 0.2 + 0.45 * Math.abs(Math.sin((i + k * 20) * 0.09)) * (0.5 + rnd() * 0.5) + kick);
+    });
+    for (let copy = 0; copy < 2; copy++)
+      amps.forEach((a, i) => {
+        const x = copy * 600 + i * 4 + 2;
+        lane.d += `M${x} ${(lane.y - a * 8.5).toFixed(1)}V${(lane.y + a * 8.5).toFixed(1)}`;
+      });
+  });
+  const run = svg("g", { class: "x-wave-run" });
+  for (const lane of lanes) run.append(svg("path", { d: lane.d, stroke: lane.color, "stroke-width": 2.2, fill: "none" }));
+  s.append(run, svg("line", { x1: 300, y1: 0, x2: 300, y2: 40, stroke: "#ffffff", "stroke-width": 1.4 }));
+  return s;
+}
+
+/** The mixer between the decks: a knob column and a meter per channel, and the crossfader. */
+function mixer(): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 200 30", class: "x-mixer", "aria-hidden": "true" });
+  s.append(svg("rect", { x: 1, y: 1, width: 198, height: 28, rx: 4, fill: "#16111f", stroke: "#2e2542", "stroke-width": 1 }));
+  for (const [x0, dir] of [
+    [14, 1],
+    [186, -1],
+  ] as const) {
+    for (let k = 0; k < 3; k++) {
+      const x = x0 + dir * k * 15;
+      s.append(
+        svg("circle", { cx: x, cy: 15, r: 5, fill: "#241c34", stroke: "#4a4060", "stroke-width": 1 }),
+        svg("line", { x1: x, y1: 15, x2: x + dir * 2.5, y2: 11, stroke: "#d8d2e6", "stroke-width": 1.2 }),
+      );
+    }
+    // A level meter, lit to a fixed height: green, then violet at the top.
+    for (let k = 0; k < 6; k++)
+      s.append(svg("rect", { x: x0 + dir * 50 - 2, y: 24 - k * 3.4, width: 4, height: 2.4, fill: k < 4 ? "#9dff2e" : k < 5 ? "#8a4dff" : "#2e2542" }));
+  }
+  s.append(
+    svg("rect", { x: 72, y: 14, width: 56, height: 2.4, rx: 1.2, fill: "#05030a" }),
+    svg("rect", { x: 96, y: 8, width: 8, height: 14, rx: 1.5, fill: "#d8d2e6" }),
+    svg("line", { x1: 100, y1: 9.5, x2: 100, y2: 20.5, stroke: "#ff3fd4", "stroke-width": 1.2 }),
+  );
+  return s;
+}
+
+function booth(): HTMLElement {
+  return h("div", { class: "x-booth", "aria-hidden": "true" }, turntable("#9dff2e"), h("div", { class: "x-booth-mid" }, waveform(), mixer()), turntable("#ff3fd4"));
 }
 
 export function mountExtras(source: ExtrasSource) {
@@ -122,9 +222,28 @@ export function mountExtras(source: ExtrasSource) {
   readout = h("span", { class: "x-readout" });
   utc = h("span", { class: "x-utc" });
   mapEl.append(h("div", { class: "x-term", "aria-hidden": "true" }, h("span", { class: "x-fkey" }, "F1"), h("span", { class: "x-term-title" }, "MAP"), readout, utc));
+  mapEl.append(booth());
+  ring = h("div", { class: "x-ring", "aria-hidden": "true" });
+  round = h("span", { class: "x-round-time" });
+  feed = h("ol", { class: "x-feed-list" });
+  mapEl.append(
+    ring,
+    h("div", { class: "x-hud", "aria-hidden": "true" }, h("div", { class: "x-round" }, round, h("span", { class: "x-round-note" }, "since the map was built"))),
+    h("section", { class: "x-feed", "aria-label": "Newest headlines" }, feed),
+  );
+  command = h("span", { class: "x-cmd-text" });
+  document.getElementById("masthead")?.before(
+    h("div", { class: "x-cmd", "aria-hidden": "true" }, command, h("span", { class: "x-caret" }), h("span", { class: "x-go" }, "GO")),
+  );
   const brand = document.querySelector(".brand");
-  brand?.prepend(crest(), stationClock());
-  new ResizeObserver(() => layoutSheet()).observe(mapEl);
+  brand?.prepend(crest());
+  mapEl.append(routeBar());
+  new ResizeObserver(() => {
+    layoutSheet();
+    layoutRing();
+    // A short map (a phone with the reader open) keeps only the newest line of Tactical's feed.
+    feed.classList.toggle("short", mapEl.clientHeight < 220);
+  }).observe(mapEl);
   document.addEventListener("visibilitychange", () => refreshExtras());
   refreshExtras();
 }
@@ -162,6 +281,98 @@ function layoutSheet() {
   nameBox.textContent = cell;
 }
 
+/**
+ * Old Realm's ring: carved grey stone with a brass lip, brass rivets, and a small compass rose set into it at the
+ * upper right. Built again only when the map's size changes; the canvas clips the map to the same circle.
+ */
+function layoutRing() {
+  if (!src || src.theme() !== "realm") return;
+  const w = mapEl.clientWidth, hh = mapEl.clientHeight;
+  const key = `${w}x${hh}`;
+  if (!w || !hh || key === ringFor) return;
+  ringFor = key;
+  const { cx, cy, r } = minimapDisc(w, hh);
+  const m = minimapMargin(w, hh);
+  const band = m * 0.95;
+  const s = svg("svg", { viewBox: `0 0 ${w} ${hh}`, width: w, height: hh });
+  const defs = svg("defs", {});
+  const stone = svg("radialGradient", { id: "x-stone", cx, cy, r: r + band, gradientUnits: "userSpaceOnUse" });
+  stone.append(
+    svg("stop", { offset: (r / (r + band)).toFixed(3), "stop-color": "#4c4a45" }),
+    svg("stop", { offset: ((r + band * 0.45) / (r + band)).toFixed(3), "stop-color": "#8d8a80" }),
+    svg("stop", { offset: "1", "stop-color": "#3e3c38" }),
+  );
+  const boss = svg("radialGradient", { id: "x-boss", cx: "40%", cy: "35%", r: "70%" });
+  boss.append(svg("stop", { offset: "0", "stop-color": "#9a968b" }), svg("stop", { offset: "1", "stop-color": "#45423d" }));
+  const brass = svg("radialGradient", { id: "x-brass", cx: "35%", cy: "30%", r: "75%" });
+  brass.append(svg("stop", { offset: "0", "stop-color": "#fff0b8" }), svg("stop", { offset: "0.45", "stop-color": "#c99a3c" }), svg("stop", { offset: "1", "stop-color": "#5e3f12" }));
+  defs.append(stone, boss, brass);
+  s.append(defs);
+  // A soft shadow inside the window, then the stone band, its chisel marks, and the brass lip.
+  s.append(svg("circle", { cx, cy, r: r + 3, fill: "none", stroke: "rgba(0,0,0,0.45)", "stroke-width": 8 }));
+  s.append(svg("circle", { cx, cy, r: r + band / 2, fill: "none", stroke: "url(#x-stone)", "stroke-width": band }));
+  s.append(svg("circle", { cx, cy, r: r + band - 1, fill: "none", stroke: "#23211e", "stroke-width": 2 }));
+  s.append(svg("circle", { cx, cy, r: r + band * 0.5, fill: "none", stroke: "rgba(30,28,24,0.35)", "stroke-width": 1, "stroke-dasharray": "3 9 1 6" }));
+  s.append(svg("circle", { cx, cy, r: r + 1.5, fill: "none", stroke: "#d8b060", "stroke-width": 3 }));
+  s.append(svg("circle", { cx, cy, r: r + 3.5, fill: "none", stroke: "#5e3f12", "stroke-width": 1 }));
+  // Rivets around the band, leaving room for the compass rose.
+  const n = w < 520 ? 12 : 16;
+  const rose = -Math.PI / 4;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2 + Math.PI / n;
+    if (Math.abs(Math.atan2(Math.sin(a - rose), Math.cos(a - rose))) < 0.35) continue;
+    const rr = r + band * 0.55;
+    s.append(svg("circle", { cx: (cx + Math.cos(a) * rr).toFixed(1), cy: (cy + Math.sin(a) * rr).toFixed(1), r: Math.max(2.2, band * 0.16).toFixed(1), fill: "url(#x-brass)", stroke: "#2c1d08", "stroke-width": 0.8 }));
+  }
+  // The compass rose on a stone boss: four long points and four short ones, north in red, no letters.
+  const k = Math.max(17, m * 0.95);
+  const bx = cx + Math.cos(rose) * (r + band * 0.5);
+  const by = cy + Math.sin(rose) * (r + band * 0.5);
+  const g = svg("g", { transform: `translate(${bx.toFixed(1)} ${by.toFixed(1)})` });
+  g.append(
+    svg("circle", { r: k, fill: "url(#x-boss)", stroke: "#23211e", "stroke-width": 2 }),
+    svg("circle", { r: k - 3, fill: "#3b2a18", stroke: "#d8b060", "stroke-width": 2 }),
+  );
+  const pt = (len: number, wid: number, turn: number, fill: string) =>
+    svg("path", { d: `M0 ${(-len).toFixed(1)}L${wid.toFixed(1)} 0L0 ${wid.toFixed(1)}L${(-wid).toFixed(1)} 0Z`, fill, stroke: "#2c1d08", "stroke-width": 0.6, transform: `rotate(${turn})` });
+  for (const turn of [45, 135, 225, 315]) g.append(pt(k * 0.55, k * 0.16, turn, "#9c7a3a"));
+  for (const turn of [90, 180, 270]) g.append(pt(k * 0.8, k * 0.2, turn, "#e9d9a6"));
+  g.append(pt(k * 0.8, k * 0.2, 0, "#c8402c"), svg("circle", { r: (k * 0.12).toFixed(1), fill: "url(#x-brass)" }));
+  s.append(g);
+  ring.replaceChildren(s);
+}
+
+/** Tactical's feed: rebuilt only when its headlines change, so a button keeps focus while the map turns. */
+function layoutFeed() {
+  const list = src?.theme() === "tactical" ? (src.latest?.() ?? []) : [];
+  const key = list.map((it) => `${it.place}|${it.title}`).join("\n");
+  if (key === feedKey) return;
+  feedKey = key;
+  feed.replaceChildren(
+    ...list.map((it) => {
+      const b = h("button", { type: "button", class: "x-feed-item", title: it.title }, h("b", {}, it.place), h("span", { class: "x-feed-sep", "aria-hidden": "true" }), h("span", { class: "x-feed-title" }, it.title));
+      b.addEventListener("click", () => it.open());
+      return h("li", {}, b);
+    }),
+  );
+}
+
+/** Tactical's clock: hours, minutes and seconds since the day's map was built; past 99 hours it counts days. */
+function tickRound(now: Date) {
+  const built = src?.builtAt?.();
+  if (!built) {
+    round.textContent = "--:--";
+    return;
+  }
+  const total = Math.max(0, Math.floor(now.getTime() / 1000 - built));
+  const hrs = Math.floor(total / 3600);
+  const two = (v: number) => String(v).padStart(2, "0");
+  const mins = two(Math.floor(total / 60) % 60);
+  if (hrs > 99) round.textContent = `${Math.floor(hrs / 24)}d ${two(hrs % 24)}:${mins}`;
+  // With reduced motion the seconds don't run; the clock steps once a minute.
+  else round.textContent = reduced ? `${two(hrs)}:${mins}` : `${two(hrs)}:${mins}:${two(total % 60)}`;
+}
+
 const quote = (s: string) => `"${s.replace(/"/g, "'")}"`;
 
 /** Everything that follows the design or the tuned place. Cheap: called on every tune and theme change. */
@@ -173,31 +384,52 @@ export function refreshExtras() {
     const names = src.tuned();
     formula.textContent = names?.length ? `=REPORTS(${names.slice(0, 3).map(quote).join(", ")}${names.length > 3 ? ", ..." : ""})` : "=LATEST()";
   }
+  if (theme === "rail") {
+    const names = src.tuned();
+    railNext.textContent = names?.length ? `${names[0]}${names.length > 1 ? ` +${names.length - 1}` : ""}` : "";
+  }
+  if (theme === "realm") layoutRing();
+  layoutFeed();
+  if (theme === "terminal") {
+    // The command line reads as if the tuned place's reports had been asked for: its name and NEWS, or LATEST.
+    const names = src.tuned();
+    command.textContent = names?.length ? `${names[0]!.toUpperCase()}${names.length > 1 ? ` +${names.length - 1}` : ""} NEWS` : "LATEST NEWS";
+  }
   moveExtras();
   clearInterval(timer);
   timer = 0;
-  if ((theme === "rail" || theme === "terminal") && document.visibilityState === "visible") {
+  // The clocks show hours and minutes only, so a check every fifteen seconds keeps them right; Tactical's counts seconds.
+  if ((theme === "rail" || theme === "terminal" || theme === "tactical") && document.visibilityState === "visible") {
     tick();
-    // The station clock's second hand steps once a second; with reduced motion only the minute changes.
-    timer = window.setInterval(tick, theme === "rail" && !reduced ? 1000 : 15000);
+    timer = window.setInterval(tick, theme === "tactical" && !reduced ? 1000 : 15000);
   }
 }
 
+const two = (n: number) => String(n).padStart(2, "0");
+
 function tick() {
   const now = new Date();
-  utc.textContent = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
-  if (!hands) return;
-  const m = now.getMinutes() + now.getSeconds() / 60;
-  const hr = (now.getHours() % 12) + m / 60;
-  hands.hour.setAttribute("transform", `rotate(${(hr * 30).toFixed(1)})`);
-  hands.minute.setAttribute("transform", `rotate(${(Math.floor(m) * 6).toFixed(1)})`);
-  hands.second.setAttribute("transform", `rotate(${now.getSeconds() * 6})`);
-  hands.second.style.display = reduced ? "none" : "";
+  if (src?.theme() === "tactical") return tickRound(now);
+  utc.textContent = `${two(now.getUTCHours())}:${two(now.getUTCMinutes())} UTC`;
+  railClock.textContent = `${two(now.getHours())}:${two(now.getMinutes())}`;
 }
 
-/** The terminal's readout of the reticle's position, on every move of the map. */
+/** On every move of the map: the terminal's readout of the reticle's position, and the train's mark on the route. */
 export function moveExtras() {
-  if (!src || src.theme() !== "terminal") return;
+  if (!src) return;
+  const theme = src.theme();
+  if (theme === "rail") {
+    // West to east along the line: the stops left of the mark are passed. Only a change of stop touches the stops.
+    const at = ((((src.center()[0] + 180) % 360) + 360) % 360) / 360;
+    railLine.style.setProperty("--at", `${(at * 100).toFixed(2)}%`);
+    const passed = Math.floor(at * (STOPS - 1));
+    if (passed !== railPassed) {
+      railPassed = passed;
+      railStops.forEach((s, i) => s.classList.toggle("passed", i <= passed));
+    }
+    return;
+  }
+  if (theme !== "terminal") return;
   const [lon, lat] = src.center();
   const fmt = (v: number, w: number) => Math.abs(v).toFixed(2).padStart(w, "0");
   readout.textContent = `LAT ${fmt(lat, 5)}${lat >= 0 ? "N" : "S"}  LON ${fmt(lon, 6)}${lon >= 0 ? "E" : "W"}`;

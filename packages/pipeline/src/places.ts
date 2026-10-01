@@ -48,6 +48,34 @@ export function km(aLat: number, aLon: number, bLat: number, bLon: number): numb
   return 12742 * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+/**
+ * Natural Earth spells some first-level regions two ways in one country: right ("Béchar", "Goiás") and garbled, with
+ * each accented letter replaced by a wrong ASCII one ("BZchar") or the name cut off at one ("Goi"). Left alone, one
+ * region counts twice and its garbled half is listed as having no story. This maps each garbled spelling to the right
+ * one: an all-ASCII name of three letters or more that matches exactly one accented name of the same country wherever
+ * that name's letter is ASCII, and either has its length or stops just before one of its accented letters.
+ */
+export function regionSpellings(pairs: Iterable<[cc: string, region: string]>): Map<string, string> {
+  const byCountry = new Map<string, Set<string>>();
+  for (const [cc, region] of pairs) if (region) byCountry.set(cc, (byCountry.get(cc) ?? new Set()).add(region));
+  const ascii = (s: string) => /^[\x00-\x7f]*$/.test(s);
+  const out = new Map<string, string>();
+  for (const [cc, names] of byCountry) {
+    const accented = [...names].filter((n) => !ascii(n));
+    for (const bad of names) {
+      if (!ascii(bad)) continue;
+      if (bad.length < 3) continue;
+      const fits = (g: string) =>
+        g.length >= bad.length &&
+        [...bad].every((c, i) => c === g[i] || !ascii(g[i]!)) &&
+        (g.length === bad.length || !ascii(g[bad.length]!));
+      const matches = accented.filter(fits);
+      if (matches.length === 1) out.set(`${cc}/${bad}`, matches[0]!);
+    }
+  }
+  return out;
+}
+
 export class Gazetteer {
   private byName = new Map<string, Entry[]>();
   private byAlt = new Map<string, Entry[]>();
@@ -60,8 +88,10 @@ export class Gazetteer {
   readonly townCount: number;
 
   constructor(rows: Row[], towns: Town[] = []) {
+    const spelled = regionSpellings(rows.map((r) => [r[1], r[6] ?? ""]));
+    const fix = (cc: string, region: string) => spelled.get(`${cc}/${region}`) ?? region;
     for (const [name, cc, lat, lon, pop, alts, region] of rows) {
-      const e: Entry = { name, cc, lat, lon, pop, region: region ?? "", town: false };
+      const e: Entry = { name, cc, lat, lon, pop, region: fix(cc, region ?? ""), town: false };
       this.add(e);
       for (const a of new Set(alts.map(norm))) push(this.byAlt, a, e);
       push(this.byCountry, cc, e);
@@ -70,7 +100,7 @@ export class Gazetteer {
     // but they do add 22 countries and territories the city list lacks. `areaAt` can answer with those, so they join
     // the country list too, or the coverage count would count stories in them against a total without them.
     for (const [name, cc, lat, lon, region] of towns) {
-      this.add({ name, cc, lat, lon, pop: 0, region, town: true });
+      this.add({ name, cc, lat, lon, pop: 0, region: fix(cc, region), town: true });
       if (cc && !this.byCountry.has(cc) && !this.townOnly.has(cc)) this.townOnly.set(cc, name);
     }
     this.townCount = towns.length;

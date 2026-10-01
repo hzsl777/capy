@@ -62,7 +62,9 @@ import "@fontsource/eb-garamond/600.css";
 import "@fontsource/monoton/400.css";
 import "@fontsource/tilt-neon/400.css";
 import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/500.css";
 import "@fontsource/outfit/600.css";
+import "@fontsource/outfit/700.css";
 import "@fontsource/shrikhand/400.css";
 import "@fontsource/jost/400.css";
 import "@fontsource/jost/500.css";
@@ -82,8 +84,6 @@ import "@fontsource/playfair-display/700-italic.css";
 import "@fontsource/libre-baskerville/400.css";
 import "@fontsource/libre-baskerville/400-italic.css";
 import "@fontsource/libre-baskerville/700.css";
-import "@fontsource/barlow-condensed/500.css";
-import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/limelight/400.css";
 // Aquarium and Lava Lamp (decision 77).
 import "@fontsource/sniglet/400.css";
@@ -113,6 +113,24 @@ import "@fontsource/kalam/latin-400.css";
 import "@fontsource/kalam/latin-ext-400.css";
 import "@fontsource/kalam/latin-700.css";
 import "@fontsource/kalam/latin-ext-700.css";
+// Rave.
+import "@fontsource/unbounded/700.css";
+import "@fontsource/unbounded/900.css";
+// Console Menu and Dual Screen.
+import "@fontsource/m-plus-rounded-1c/latin-500.css";
+import "@fontsource/m-plus-rounded-1c/latin-800.css";
+import "@fontsource/m-plus-rounded-1c/latin-ext-500.css";
+import "@fontsource/m-plus-rounded-1c/latin-ext-800.css";
+import "@fontsource/tiny5/latin-400.css";
+import "@fontsource/tiny5/latin-ext-400.css";
+// Old Realm and Tactical.
+import "@fontsource/medievalsharp/400.css";
+import "@fontsource/alegreya/400.css";
+import "@fontsource/alegreya/700.css";
+import "@fontsource/teko/500.css";
+import "@fontsource/teko/600.css";
+// Undersea Town (Block World uses Pixelify Sans, above).
+import "@fontsource/bubblegum-sans/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -141,7 +159,7 @@ import {
   type Filters,
   type TopicFilter,
 } from "./data.ts";
-import { markPath } from "./map/marks.ts";
+import { markPath, markRing } from "./map/marks.ts";
 import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
@@ -374,13 +392,12 @@ function flyToPlace(index: number) {
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
 const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
-// Sleeper Car sets its word and titles on split-flap tiles, one letter a tile (decision 74).
-LETTER_THEMES.add("rail");
+// Undersea Town's cartoon lettering tips and bobs each letter its own way.
+LETTER_THEMES.add("reef");
 let boardShown = "";
-/** Sleeper Car's departure board: the place name on tiles, which flip when the name changes. */
+/** Sleeper Car's on-board display: the place name slides in when it changes, like the next stop. */
 function boardName(el: HTMLElement, text: string): HTMLElement {
   if (state.theme !== "rail") return el;
-  lettered(el, text);
   if (text !== boardShown) el.classList.add("flip");
   boardShown = text;
   return el;
@@ -408,7 +425,7 @@ function renderMasthead() {
   const t = THEMES[state.theme];
   // One row: the name and tagline on the left, the day's word on the right (renderTelegramStrip).
   $("mast-title").removeAttribute("aria-label");
-  lettered($("mast-title"), t.id === "wire" || t.id === "ops" ? SITE_NAME.toUpperCase() : SITE_NAME);
+  lettered($("mast-title"), t.id === "wire" || t.id === "ops" || t.id === "tactical" ? SITE_NAME.toUpperCase() : SITE_NAME);
   $("mast-tag").textContent = SITE_TAGLINE;
 }
 
@@ -527,7 +544,7 @@ function renderPins() {
 function renderKey() {
   const t = THEMES[state.theme];
   const NS = "http://www.w3.org/2000/svg";
-  const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string) => void) => void) => {
+  const mark = (draw: (add: (r: number, fill: string, stroke: string, width: number, dash?: string, of?: number) => void) => void) => {
     const svg = document.createElementNS(NS, "svg");
     svg.setAttribute("viewBox", "-13 -13 26 26");
     svg.setAttribute("width", "22");
@@ -535,10 +552,11 @@ function renderKey() {
     svg.setAttribute("aria-hidden", "true");
     svg.style.background = t.ocean;
     svg.style.borderRadius = "4px";
-    draw((r, fill, stroke, width, dash) => {
-      // The same outline the map draws (src/map/marks.ts), so the Key always matches it.
+    draw((r, fill, stroke, width, dash, of) => {
+      // The same outline the map draws (src/map/marks.ts), so the Key always matches it; with `of`, the ring of a
+      // mark of that radius.
       const el = document.createElementNS(NS, "path");
-      el.setAttribute("d", markPath(t.dotShape, r));
+      el.setAttribute("d", of === undefined ? markPath(t.dotShape, r) : markRing(t.dotShape, of, r - of));
       el.setAttribute("fill", fill);
       el.setAttribute("stroke", stroke);
       el.setAttribute("stroke-width", String(width));
@@ -554,11 +572,11 @@ function renderKey() {
     h(
       "ul",
       {},
-      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3))), "Rated 4 or 5"),
+      row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 1.3, undefined, 6))), "Rated 4 or 5"),
       row(mark((add) => add(6, t.dot, t.dotStroke, 1.2)), "Rated 2 or 3"),
       row(mark((add) => add(4.5, t.dotStroke, t.dot, 1.6)), "Rated 1, or a local story from GDELT"),
       row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together (zoom in to separate)"),
-      row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2")) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
+      row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2", 5)) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
     ),
   );
 }
@@ -903,7 +921,9 @@ function renderTelegramStrip() {
   how.addEventListener("click", openTelegram);
   el.replaceChildren(
     date,
-    h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, "The day's word"), word),
+    // "Today's Word" while the word on show is the newest one; while the next is being chosen, or when a day had none,
+    // the strip shows an older word and says so, so the label doesn't claim it is today's.
+    h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, status.note ? "Latest Word" : "Today's Word"), word),
     h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "Chosen by AI, weighing the day's news, good and bad. ", how), statusLine, scale(t.band)),
   );
 }
@@ -1124,6 +1144,8 @@ const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
 TICKER_THEMES.add("terminal");
 
 function renderTicker() {
+  // Tactical's feed of the newest headlines follows the same stories as the ticker (src/ui/extras.ts).
+  if (state.theme === "tactical") refreshExtras();
   const track = $("ticker-track");
   if (!state.file || !TICKER_THEMES.has(state.theme)) {
     track.replaceChildren();
@@ -1252,6 +1274,13 @@ async function start() {
   document.title = `${SITE_NAME}: world news on a map`;
   for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
   document.documentElement.dataset.theme = state.theme;
+  // Every design's chrome hangs on this attribute. A host page that wraps the site may set its own (a light or dark
+  // mode), which would strip the chrome, so it is put back; a few times at most, so two pages can never trade it forever.
+  let restores = 0;
+  new MutationObserver(() => {
+    const root = document.documentElement;
+    if (root.dataset.theme !== state.theme && restores++ < 20) root.dataset.theme = state.theme;
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   renderMasthead();
   renderToolbar();
   renderKey();
@@ -1263,6 +1292,13 @@ async function start() {
     theme: () => state.theme,
     tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
     center: () => map.center(),
+    latest: () =>
+      [...state.byPlace.values()]
+        .flat()
+        .sort((a, b) => b.t - a.t)
+        .slice(0, 5)
+        .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
+    builtAt: () => state.file?.generatedAt ?? null,
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.

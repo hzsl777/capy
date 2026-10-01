@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -23,7 +23,7 @@ export interface Theme {
    * tiled game stage, pixel grass, loose paint strokes, or plain fill. Blocks, grass and paint use `textureInk2`
    * as their second colour.
    */
-  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "none";
+  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "none";
   /**
    * Screen pixels per canvas pixel. 1 draws at full resolution; 3 draws a third as many pixels and scales them up
    * unsmoothed, so lines, coasts and dots come out as chunky pixels (Stage Select and Overworld).
@@ -78,9 +78,9 @@ export interface Theme {
    * sea, land, coast, grid and markers.
    * Decision 74 adds "sheet" (Spreadsheet's filled cells, src/map/sheet.ts), "terminal" (Market Terminal's
    * dot-matrix plot, src/map/terminal.ts), "club" (Country Club's embroidery and desk globe, src/map/club.ts) and
-   * "rail" (Sleeper Car's view from a train window, src/map/rail.ts).
+   * "rail" (Sleeper Car's on-board route display, src/map/rail.ts).
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -116,8 +116,8 @@ export interface Theme {
   /** Map only: a double rule around the sheet, like a printed chart. */
   neatline: boolean;
   /**
-   * Decoration drawn under the dots (src/map/decor.ts): "sea" fills open ocean with engraved sea monsters, ships,
-   * whirlpools, compass roses and wave marks,
+   * Decoration drawn under the dots (src/map/decor.ts): "sea" puts a few large engraved sea monsters and ships in
+   * the big oceans, with wave marks over open water,
    * "space" adds a thin bright rim to the globe and faint stars in the flat map's ocean, "candy" puts small
    * outlined sweets in open ocean. Never text, never on land, never near a
    * place.
@@ -125,8 +125,8 @@ export interface Theme {
   decor: "sea" | "space" | "candy" | null;
   /**
    * Pictures that say what a design is (src/map/scenery.ts, decision 69): lily pads and frogs, a moon with a
-   * sleeping bear, The Course of Empire's landmarks, or trick-rope loops with a denim sea. Open ocean or outside
-   * the map only, never text.
+   * sleeping bear, The Course of Empire's landmarks, trick-rope loops with a denim sea, or Tarot's wheel, sun and
+   * moon round the globe. Open ocean or outside the map only, never text.
    */
   scenery?: SceneryKind;
   /**
@@ -134,9 +134,16 @@ export interface Theme {
    * off screen plus a few animated extras:
    * "club" a mirror ball globe and a light-up dance floor under a tilted camera;
    * "pool" the map on a swimming pool's floor under rippling light, and the globe afloat at night;
-   * "snow" the globe in a snow globe, and the map through curved glass that bulges at the centre.
+   * "snow" the globe in a snow globe, and the map through curved glass that bulges at the centre;
+   * "rave" the map on an LED wall between the lighting rig and the DJ booth, and the globe a round screen over the
+   * stage, with lasers sweeping round them.
    */
-  scene?: "club" | "pool" | "snow";
+  scene?: "club" | "pool" | "snow" | "rave";
+  /**
+   * Map view only: the world seen through a round window at the frame's centre, like a game's minimap (Old Realm).
+   * Places outside it are neither drawn nor tuned; the page draws the ring around it (src/map/minimap.ts).
+   */
+  minimap?: boolean;
 }
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -314,7 +321,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     land: "#eddab0",
     landTexture: "none",
     pixel: 1,
-    dotShape: "star4",
+    dotShape: "x",
     textureInk: "rgba(59,38,20,0.4)",
     coast: "#3b2614",
     coastWidth: 1.1,
@@ -605,8 +612,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // A frog pond seen from above: murky green water, lily pads with lotus flowers, frogs and dragonflies in open
-  // water, lotus pink for fresh reports (decision 69).
+  // A frog pond seen from above: murky green water, land as a mat of lily pads, pads with lotus flowers, frogs and
+  // dragonflies in open water, lotus pink for fresh reports (decision 69).
   pond: {
     id: "pond",
     label: "Frog Pond",
@@ -614,11 +621,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoNaturalEarth1,
     ocean: "#2f6b5f",
     land: "#76b347",
-    landTexture: "mottle",
+    landTexture: "lilypads",
     pixel: 1,
     dotShape: "pad",
-    textureInk: "rgba(170,220,110,0.7)",
-    textureInk2: "rgba(40,110,40,0.55)",
+    textureInk: "rgba(190,232,130,0.6)",
+    textureInk2: "rgba(40,110,40,0.4)",
     coast: "#24501d",
     coastWidth: 1.4,
     waterlines: 3,
@@ -678,14 +685,17 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // A tarot card: midnight indigo, gold linework and stars, the sheet framed like a card.
+  // A tarot card: deep violet, gold linework and stars, the sheet framed like a card, and on the globe a gold wheel
+  // with a sun and a crescent moon beside it (src/map/scenery.ts).
   arcana: {
     id: "arcana",
     label: "Tarot",
     defaultView: "3d",
     projection2d: geoEqualEarth,
-    ocean: "#161338",
-    land: "#2b2560",
+    scenery: "arcana",
+    globeScale: 0.4,
+    ocean: "#1a1142",
+    land: "#33235f",
     landTexture: "matrix",
     pixel: 1,
     dotShape: "star5",
@@ -698,11 +708,11 @@ export const THEMES: Record<ThemeId, Theme> = {
     graticule: "rgba(227,189,98,0.12)",
     graticuleDash: [1, 4],
     river: "rgba(227,189,98,0.3)",
-    lake: "#161338",
-    ice: "#3a3378",
+    lake: "#1a1142",
+    ice: "#46327a",
     relief: "rgba(227,189,98,0.45)",
     dot: "#f5e6c0",
-    dotStroke: "#161338",
+    dotStroke: "#1a1142",
     fresh: "#ff9d5c",
     tuned: "#f5e6c0",
     arc: "#e3bd62",
@@ -712,51 +722,53 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: true,
     decor: null,
   },
-  // After Thomas Cole's The Course of Empire (public domain): a painted bay in evening light, olive land in loose
-  // strokes, and the paintings' crag, lone column, temple and broken arch standing in the water (decision 69).
+  // After Thomas Cole's The Course of Empire: Destruction (1836, public domain), engraved in black and white: a dark
+  // bay in engraved lines, hatched land, and the painting's headless colossus, broken bridge, burning colonnade, lone
+  // crag and burning galleys in open water under a sky of smoke (decision 69). Greys only, so fresh reports get the
+  // dotted ring.
   arcadia: {
     id: "arcadia",
-    label: "Arcadia",
+    label: "Course of Empire",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
-    ocean: "#4d6b73",
-    land: "#7f7a44",
-    landTexture: "brush",
+    globeScale: 0.4,
+    ocean: "#5c5c5c",
+    land: "#c6c6c6",
+    landTexture: "hatch",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "rgba(200,178,96,0.5)",
-    coast: "#2b2314",
+    textureInk: "rgba(17,17,17,0.5)",
+    coast: "#111111",
     coastWidth: 1.2,
     waterlines: 2,
-    waterline: "rgba(255,226,160,0.35)",
-    oceanHatch: null,
+    waterline: "rgba(236,236,236,0.3)",
+    oceanHatch: "rgba(236,236,236,0.1)",
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "rgba(255,226,160,0.5)",
-    lake: "#4d6b73",
-    ice: "#eadfc4",
-    relief: "rgba(34,27,14,0.85)",
-    dot: "#f6ecd2",
-    dotStroke: "#2a2014",
-    fresh: "#d2452a",
-    tuned: "#f6ecd2",
-    arc: "#d2452a",
+    river: "rgba(17,17,17,0.55)",
+    lake: "#5c5c5c",
+    ice: "#ececec",
+    relief: "rgba(17,17,17,0.85)",
+    dot: "#111111",
+    dotStroke: "#f2f2f2",
+    fresh: "#111111",
+    tuned: "#111111",
+    arc: "#f2f2f2",
     glow: false,
-    atmosphere: "rgba(255,206,130,0.5)",
-    shade: "rgba(20,14,4,0.5)",
+    atmosphere: "rgba(222,222,222,0.4)",
+    shade: "rgba(0,0,0,0.55)",
     neatline: false,
     decor: null,
     scenery: "empire",
-    textureInk2: "rgba(40,44,18,0.45)",
   },
-  // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a nightcap asleep
-  // in the moon beside the globe (decision 69).
+  // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a red nightcap
+  // asleep in the moon beside the globe (decision 69). Fresh reports take the cap's red.
   nightcap: {
     id: "nightcap",
     label: "Bedtime Tea",
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
-    ocean: "#3b4a7e",
+    ocean: "#4a5a9c",
     land: "#a8c39a",
     landTexture: "mottle",
     pixel: 1,
@@ -771,16 +783,16 @@ export const THEMES: Record<ThemeId, Theme> = {
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
     river: "rgba(230,236,255,0.5)",
-    lake: "#3b4a7e",
+    lake: "#4a5a9c",
     ice: "#f4f2ea",
     relief: "rgba(52,70,110,0.45)",
     dot: "#fff8e6",
     dotStroke: "#34466e",
-    fresh: "#ffb35c",
+    fresh: "#e0493c",
     tuned: "#fff8e6",
-    arc: "#ffb35c",
+    arc: "#e0493c",
     glow: false,
-    atmosphere: "rgba(255,240,190,0.35)",
+    atmosphere: "rgba(255,226,170,0.42)",
     shade: "rgba(30,30,80,0.45)",
     neatline: false,
     decor: null,
@@ -1087,6 +1099,43 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // A warehouse rave seen from the DJ booth: the map on the LED wall behind the decks, the globe a round screen
+  // hung over the stage, lasers and beams sweeping slowly round them in UV and acid colours (src/map/scenes.ts).
+  rave: {
+    id: "rave",
+    label: "Rave",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    ocean: "#0b0322",
+    land: "#2c0d68",
+    landTexture: "none",
+    pixel: 1,
+    globeScale: 0.34,
+    scene: "rave",
+    dotShape: "diamond",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#c6ff3a",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(255,63,212,0.16)",
+    graticuleDash: [],
+    river: "rgba(63,240,255,0.35)",
+    lake: "#0b0322",
+    ice: "#d8d0ff",
+    relief: "rgba(198,255,58,0.3)",
+    dot: "#f4ff4a",
+    dotStroke: "#12002a",
+    fresh: "#ff3fd4",
+    tuned: "#ffffff",
+    arc: "#3ff0ff",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(10,0,30,0.45)",
+    neatline: false,
+    decor: null,
+  },
   // Decision 74: four designs that borrow the feel of familiar things and name none of them.
   // Spreadsheet: the world as filled cells in a grid, shaded like conditional formatting by relief; the globe is a
   // chart object on the sheet (src/map/sheet.ts).
@@ -1097,7 +1146,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoEquirectangular,
     surface: "sheet",
     globeScale: 0.34,
-    ocean: "#ffffff",
+    ocean: "#dbe8f7",
     land: "#a3d18b",
     landTexture: "none",
     pixel: 1,
@@ -1200,45 +1249,39 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Sleeper Car: the world from a long-distance train's window at dusk. Map view is the tilted camera over
-  // farmland, sea and mountains to a horizon with hills, with telegraph poles and the next track passing in the
-  // foreground; the globe hangs in the dusk sky (src/map/rail.ts). Markers are town lights.
+  // Sleeper Car: a modern long-distance train's on-board route display. A navy screen with slate land, a silver
+  // coast and the Equator, tropics and polar circles as red, blue and silver route lines across the sea; the globe
+  // in a fine dial on the same screen (src/map/rail.ts). Markers are station dots.
   rail: {
     id: "rail",
     label: "Sleeper Car",
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "rail",
-    globeScale: 0.3,
-    tilt: 64,
-    tiltEye: 0.56,
-    tiltFar: 0.32,
-    tiltMinZoom: 1.6,
-    sky: ["#1b2550", "#6b5a8e", "#f2a86b"],
-    fog: "#e6b48f",
-    ocean: "#2a4a6e",
-    land: "#8e9a5c",
+    globeScale: 0.34,
+    ocean: "#0c1c36",
+    land: "#1f3659",
     landTexture: "none",
     pixel: 1,
     dotShape: "circle",
     textureInk: "rgba(0,0,0,0)",
-    coast: "#3b3424",
-    coastWidth: 1,
+    coast: "#a9bbd2",
+    coastWidth: 0.9,
     waterlines: 0,
-    waterline: "rgba(255,236,200,0.5)",
+    waterline: "rgba(0,0,0,0)",
     oceanHatch: null,
-    graticule: "rgba(0,0,0,0)",
+    graticule: "rgba(150,180,225,0.08)",
     graticuleDash: [],
     river: "rgba(0,0,0,0)",
-    lake: "#2a4a6e",
-    ice: "#eef0f2",
-    relief: "#6a5d62",
-    dot: "#ffd98a",
-    dotStroke: "#3a2a14",
-    fresh: "#8fe6ff",
-    tuned: "#fff4d6",
-    arc: "#ffe2a3",
-    glow: true,
+    lake: "#0c1c36",
+    ice: "#3a5379",
+    relief: "rgba(175,198,228,0.4)",
+    dot: "#f4f8fd",
+    dotStroke: "#0a1830",
+    fresh: "#ff5566",
+    tuned: "#ffffff",
+    arc: "#8cb8ff",
+    glow: false,
     atmosphere: null,
     shade: null,
     neatline: false,
@@ -1630,6 +1673,237 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Console Menu (id cube): the clean, glossy menus of early-2000s home consoles. White plastic and pale blue light,
+  // the map in one rounded channel tile or a glossy ball over slow wavy lines, land as soft raised plastic
+  // (src/map/gloss.ts). No console maker's names, logos, menus or characters.
+  cube: {
+    id: "cube",
+    label: "Console Menu",
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "gloss",
+    globeScale: 0.42,
+    ocean: "#6cc4ec",
+    land: "#e4ece6",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "#a9bfcc",
+    coast: "rgba(90,130,160,0.55)",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.3)",
+    oceanHatch: null,
+    graticule: "rgba(255,255,255,0.45)",
+    graticuleDash: [],
+    river: "rgba(80,170,225,0.7)",
+    lake: "#a6def5",
+    ice: "#fbfdff",
+    relief: "rgba(70,105,135,0.24)",
+    dot: "#1a74c4",
+    dotStroke: "#ffffff",
+    fresh: "#f07a1a",
+    tuned: "#0f4f8c",
+    arc: "rgba(26,116,196,0.85)",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Undersea Town: after the feel of a bright cartoon town on the sea floor, with none of its characters or names.
+  // Turquoise water lit from above, sandy seabed land with a pale lagoon along the coasts, flower-shaped clouds
+  // drifting in the water, and a few little houses in open sea (a fruit, a rock dome, a carved stone head), all
+  // drawn for this site (src/map/scenery.ts). Bubbles rise outside the map (style.css).
+  reef: {
+    id: "reef",
+    label: "Undersea Town",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#1fb2c6",
+    land: "#f1d596",
+    landTexture: "mottle",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(255,241,204,0.75)",
+    textureInk2: "rgba(200,152,84,0.5)",
+    coast: "#8a5a26",
+    coastWidth: 1.8,
+    waterlines: 0,
+    waterline: "rgba(220,252,255,0.4)",
+    oceanHatch: null,
+    shallows: "#6ddbd6",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(31,178,198,0.8)",
+    lake: "#1fb2c6",
+    ice: "#fff6e2",
+    relief: "rgba(150,100,48,0.55)",
+    dot: "#48237a",
+    dotStroke: "#ffffff",
+    fresh: "#ff4f86",
+    tuned: "#ff4f86",
+    arc: "#ff4f86",
+    glow: false,
+    atmosphere: "rgba(170,245,255,0.55)",
+    shade: "rgba(0,60,90,0.35)",
+    neatline: false,
+    decor: null,
+    scenery: "reef",
+  },
+  // Block World: after the feel of a blocky sandbox game, with none of its characters, names or art. The world as
+  // square blocks with one pixel texture per kind: grass, sand, stone, snow, and translucent water, with dirt showing
+  // on the front faces (src/map/blocks.ts); a sky with square clouds around it; a hotbar toolbar and grey
+  // inventory panels.
+  blocks: {
+    id: "blocks",
+    label: "Block World",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "blocks",
+    ocean: "#2f5fcf",
+    land: "#63a83a",
+    landTexture: "none",
+    pixel: 2,
+    dotShape: "square",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#3b2a16",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.1)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#2f5fcf",
+    ice: "#f2f6fa",
+    relief: "#6c6c6c",
+    dot: "#ffffff",
+    dotStroke: "#1b1b1b",
+    fresh: "#ff3b30",
+    tuned: "#ffe14a",
+    arc: "#ffe14a",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Dual Screen (id dual): a two-screen handheld from the mid-2000s. The word and the stories on one screen, the map
+  // on the touch screen, drawn at a low resolution in crisp pixels. No maker's names, logos, menus or characters.
+  dual: {
+    id: "dual",
+    label: "Dual Screen",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#2f86e0",
+    land: "#98d65a",
+    landTexture: "dither",
+    pixel: 2,
+    dotShape: "square",
+    textureInk: "#6cbc3e",
+    coast: "#173f26",
+    coastWidth: 1,
+    waterlines: 2,
+    waterline: "rgba(255,255,255,0.3)",
+    oceanHatch: null,
+    shallows: "#4ea2ec",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "#4ea2ec",
+    lake: "#4ea2ec",
+    ice: "#f4f8ff",
+    relief: "#5a7a2a",
+    dot: "#ffffff",
+    dotStroke: "#16203a",
+    fresh: "#ff4f3a",
+    tuned: "#ffd23a",
+    arc: "#ffd23a",
+    glow: false,
+    atmosphere: "rgba(160,205,255,0.5)",
+    shade: "rgba(0,20,70,0.4)",
+    neatline: false,
+    decor: null,
+  },
+  // Old Realm: an early-2000s fantasy online game's world map, after the look only. A muddy painted land of greens
+  // and browns on blue water, seen in Map view through a round minimap window in carved stone with a compass rose;
+  // small shields for markers. No game's name, icons or artwork.
+  realm: {
+    id: "realm",
+    // A no-break space keeps both words on a phone, where the menu shows a label's first word only.
+    label: "Old\u00a0Realm",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    minimap: true,
+    ocean: "#35647d",
+    land: "#6f7f45",
+    landTexture: "mottle",
+    pixel: 1,
+    dotShape: "shield",
+    textureInk: "rgba(122,92,48,0.55)",
+    textureInk2: "rgba(150,168,84,0.5)",
+    coast: "#3a2c16",
+    coastWidth: 1.3,
+    waterlines: 1,
+    waterline: "rgba(196,222,214,0.2)",
+    oceanHatch: null,
+    oceanPattern: "mottle",
+    shallows: "#4d7f8e",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(120,176,196,0.8)",
+    lake: "#35647d",
+    ice: "#e6e2cf",
+    relief: "rgba(58,40,18,0.62)",
+    dot: "#f4d24c",
+    dotStroke: "#2a1a08",
+    fresh: "#62e3f0",
+    tuned: "#fff4c2",
+    arc: "#f4d24c",
+    glow: false,
+    atmosphere: "rgba(240,210,140,0.35)",
+    shade: "rgba(30,20,8,0.5)",
+    neatline: false,
+    decor: null,
+  },
+  // Tactical: an overhead radar in a competitive team game's HUD, after the look only. Desaturated greys and olive
+  // on a faint grid, a clock since the map was built and a feed of the newest headlines around it (src/ui/extras.ts).
+  // Nothing martial, no game's name or logo, and a pinned place gets a ring, never a square frame.
+  tactical: {
+    id: "tactical",
+    label: "Tactical",
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    pinRing: true,
+    ocean: "#262927",
+    land: "#5a5f4c",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "diamond",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#c5c8b8",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(205,210,195,0.08)",
+    oceanHatch: null,
+    oceanPattern: "tiles",
+    graticule: "rgba(205,210,195,0.13)",
+    graticuleDash: [],
+    river: "rgba(160,170,160,0.35)",
+    lake: "#262927",
+    ice: "#7d8078",
+    relief: "rgba(34,36,30,0.55)",
+    dot: "#eeeee6",
+    dotStroke: "#141614",
+    fresh: "#ff9d1e",
+    tuned: "#ffd23f",
+    arc: "#ffd23f",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(0,0,0,0.5)",
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -1638,8 +1912,8 @@ export const THEMES: Record<ThemeId, Theme> = {
  */
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
-  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive"] },
-  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
 ];

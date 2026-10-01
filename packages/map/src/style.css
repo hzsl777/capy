@@ -11,6 +11,9 @@
 }
 
 /* ---- Morning Edition: newsprint, black ink ------------------------------ */
+/* Also every page's defaults, for the first paint before the script names a design: a host that serves the body
+   inside its own <html> leaves out our data-theme or sets one of its own (light, dark). Every design sets all of these. */
+:root,
 :root[data-theme="morning"] {
   color-scheme: light;
   --page: #f3efe4;
@@ -326,14 +329,25 @@
 }
 :root[data-theme="arcana"] {
   color-scheme: dark;
-  --page: #0e0b26;
-  --panel: #161338;
+  --page: #120a2c;
+  --panel: #1c1042;
   --ink: #f5e6c0;
   --ink-2: #e8d6a8;
-  --muted: #b8a987;
-  --rule: #6d5a2c;
+  --muted: #bcaa88;
+  --rule: #7a5f2a;
   --accent: #e3bd62;
-  --on-accent: #161338;
+  --on-accent: #1c1042;
+  --gold: #e3bd62;
+  --suits:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M7 5H21C21 12 17 15 14 15C11 15 7 12 7 5ZM14 15V21M9 23H19M10 8H18' fill='none' stroke='%23e3bd62' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") left 9px top 9px / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M6 22L21 7M17 5L23 11M10 16L7 13M14 12L12 8M18 10L21 9' fill='none' stroke='%23e3bd62' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") right 9px top 9px / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%23e3bd62' stroke-width='1.5'/%3E%3Cpath d='M14 8Q14 14 20 14Q14 14 14 20Q14 14 8 14Q14 14 14 8Z' fill='none' stroke='%23e3bd62' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E") left 9px bottom 9px / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M14 3L16 11L24 8L18 14L24 20L16 17L14 25L12 17L4 20L10 14L4 8L12 11Z' fill='none' stroke='%23e3bd62' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") right 9px bottom 9px / 22px 22px no-repeat;
+  --starfield:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(245, 230, 192, 0.85), transparent) 0 0 / 150px 150px,
+    radial-gradient(1px 1px at 70% 65%, rgba(245, 230, 192, 0.65), transparent) 0 0 / 210px 210px,
+    radial-gradient(1px 1px at 40% 80%, rgba(227, 189, 98, 0.7), transparent) 0 0 / 97px 97px,
+    radial-gradient(2px 2px at 85% 15%, rgba(255, 244, 214, 0.8), transparent) 0 0 / 260px 260px;
   --hover: rgba(227,189,98,0.12);
   --reticle: #f5e6c0;
   --grain-opacity: 0.18;
@@ -345,17 +359,17 @@
 }
 :root[data-theme="arcadia"] {
   color-scheme: light;
-  --page: #ebe0c8;
-  --panel: #f8f1e0;
-  --ink: #2a1c0a;
-  --ink-2: #3e2c14;
-  --muted: #6a5234;
-  --rule: #9b7a3a;
-  --accent: #8a2e1a;
-  --on-accent: #f8f1e0;
-  --hover: rgba(138, 100, 32, 0.08);
-  --reticle: #2a1c0a;
-  --grain-opacity: 0.4;
+  --page: #e2e2e2;
+  --panel: #f2f2f2;
+  --ink: #121212;
+  --ink-2: #2a2a2a;
+  --muted: #525252;
+  --rule: #3a3a3a;
+  --accent: #1c1c1c;
+  --on-accent: #f2f2f2;
+  --hover: rgba(0, 0, 0, 0.07);
+  --reticle: #111111;
+  --grain-opacity: 0.35;
   --grain-blend: multiply;
   --font-mast: "IM Fell English SC", Georgia, serif;
   --font-head: "IM Fell English SC", Georgia, serif;
@@ -364,15 +378,15 @@
 }
 :root[data-theme="nightcap"] {
   color-scheme: light;
-  --page: #e8ebf5;
-  --panel: #f8f6ee;
+  --page: #e6e9f2;
+  --panel: #fbf6e8;
   --ink: #23304f;
   --ink-2: #34466e;
   --muted: #5b6788;
-  --rule: #b8c2dc;
-  --accent: #3f5a96;
+  --rule: #bccbae;
+  --accent: #b23a30;
   --on-accent: #ffffff;
-  --hover: rgba(63,90,150,0.08);
+  --hover: rgba(178,58,48,0.08);
   --reticle: var(--ink);
   --grain-opacity: 0.25;
   --grain-blend: multiply;
@@ -582,6 +596,7 @@ summary {
   opacity: 0.45;
   cursor: not-allowed;
 }
+:root:not([data-theme]) .toolbar,
 :root[data-theme="morning"] .toolbar,
 :root[data-theme="cabinet"] .toolbar {
   font-variant: small-caps;
@@ -2058,6 +2073,7 @@ button.link {
 /* ---- Phones: the toolbar stays one row in every design --------------------- */
 @media (max-width: 760px) {
   :root[data-theme="wire"] .toolbar,
+  :root:not([data-theme]) .toolbar,
   :root[data-theme="morning"] .toolbar,
   :root[data-theme="cabinet"] .toolbar,
   :root[data-theme="pirate"] .toolbar {
@@ -2764,7 +2780,7 @@ button.link {
   height: 0.98em;
   margin-right: 0.18em;
   vertical-align: -0.12em;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cellipse cx='20' cy='22' rx='17' ry='11' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='11' cy='10' r='7' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='29' cy='10' r='7' fill='%236cc040' stroke='%231f4a17' stroke-width='1.6'/%3E%3Ccircle cx='11' cy='10' r='4.5' fill='%23fffbe0'/%3E%3Ccircle cx='29' cy='10' r='4.5' fill='%23fffbe0'/%3E%3Cellipse cx='11.6' cy='10.6' rx='2' ry='2.7' fill='%23111'/%3E%3Cellipse cx='28.4' cy='10.6' rx='2' ry='2.7' fill='%23111'/%3E%3Cpath d='M9 23Q20 31 31 23' stroke='%231f4a17' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='7.5' cy='24' rx='2.6' ry='1.6' fill='%23ff9cc4' opacity='.7'/%3E%3Cellipse cx='32.5' cy='24' rx='2.6' ry='1.6' fill='%23ff9cc4' opacity='.7'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cpath d='M2 22C2 14 10 11 20 11C30 11 38 14 38 22C38 28 30 32 20 32C10 32 2 28 2 22z' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Cpath d='M3 21.5Q20 30 37 21.5' stroke='%23173a10' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M17.5 17.5l1.4 1M22.5 17.5l-1.4 1' stroke='%23173a10' stroke-width='1.3' stroke-linecap='round'/%3E%3Ccircle cx='10.5' cy='10.5' r='7' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Ccircle cx='29.5' cy='10.5' r='7' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Ccircle cx='10.5' cy='11' r='4.6' fill='%23e7bb3c' stroke='%236b4a10' stroke-width='.8'/%3E%3Ccircle cx='29.5' cy='11' r='4.6' fill='%23e7bb3c' stroke='%236b4a10' stroke-width='.8'/%3E%3Cellipse cx='10.5' cy='11' rx='3.3' ry='1.5' fill='%23111'/%3E%3Cellipse cx='29.5' cy='11' rx='3.3' ry='1.5' fill='%23111'/%3E%3Cpath d='M4.5 9.5Q10.5 2.5 16.5 9.5M23.5 9.5Q29.5 2.5 35.5 9.5' stroke='%233f8a25' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="pond"] .telegram-word,
 :root[data-theme="pond"] .telegram-big {
@@ -2867,13 +2883,24 @@ button.link {
   color: #1a1004;
 }
 
-/* ---- Tarot (id arcana): a card in gold on midnight ----------------------------------------------------- */
+/* ---- Tarot (id arcana): cards in gold on deep violet -------------------------------------------------------- */
 :root[data-theme="arcana"] body {
   background:
-    radial-gradient(1.5px 1.5px at 20% 30%, rgba(245, 230, 192, 0.8), transparent) 0 0 / 150px 150px,
-    radial-gradient(1px 1px at 70% 65%, rgba(245, 230, 192, 0.6), transparent) 0 0 / 210px 210px,
-    radial-gradient(ellipse at 50% 0%, rgba(90, 70, 170, 0.35), transparent 60%),
+    var(--starfield),
+    radial-gradient(ellipse at 50% 0%, rgba(120, 70, 190, 0.35), transparent 60%),
     var(--page);
+}
+/* The map is the face of a card too: a rounded gold double frame round a starry violet sky. */
+:root[data-theme="arcana"] .map {
+  margin: 8px;
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 5px var(--page), inset 0 0 0 6px rgba(227, 189, 98, 0.65), 0 0 18px rgba(227, 189, 98, 0.18);
+  background:
+    var(--starfield),
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(140, 90, 210, 0.3), transparent 70%),
+    linear-gradient(to bottom, #1a0e3c, #0e0724);
 }
 :root[data-theme="arcana"] .masthead {
   border-bottom: 0;
@@ -2893,30 +2920,86 @@ button.link {
   text-shadow: 0 0 14px rgba(227, 189, 98, 0.45);
   border-bottom: 0;
 }
-/* A card: a gold double frame with a small ornament at each corner. */
+/*
+ * Cards: the panel, the Key, the menus, the notes and the About dialog are card faces, a rounded gold double frame
+ * with a suit in each corner (a cup, a wand, a coin and a star) over a soft violet glow.
+ */
 :root[data-theme="arcana"] .panel,
 :root[data-theme="arcana"] .menu-body,
-:root[data-theme="arcana"] .key-pop {
-  border: 1px solid #e3bd62;
-  border-radius: 12px;
-  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(227, 189, 98, 0.7);
+:root[data-theme="arcana"] .key-pop,
+:root[data-theme="arcana"] .map-note,
+:root[data-theme="arcana"] dialog {
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(227, 189, 98, 0.75), 0 6px 22px rgba(4, 0, 18, 0.6), 0 0 14px rgba(227, 189, 98, 0.15);
   background:
-    radial-gradient(circle at 12px 12px, #e3bd62 1.6px, transparent 2px),
-    radial-gradient(circle at calc(100% - 12px) 12px, #e3bd62 1.6px, transparent 2px),
-    radial-gradient(circle at 12px calc(100% - 12px), #e3bd62 1.6px, transparent 2px),
-    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #e3bd62 1.6px, transparent 2px),
+    var(--suits),
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(140, 90, 210, 0.28), transparent 70%),
     var(--panel);
 }
 :root[data-theme="arcana"] .panel {
   margin: 8px;
+  padding-top: 10px;
+  padding-bottom: 36px;
+  /* The suits ride with the text, so the lower two close the card's end instead of sitting over a story. */
+  background-attachment: local;
 }
-:root[data-theme="arcana"] .panel h2 {
+:root[data-theme="arcana"] .menu-body {
+  padding: 36px 16px 36px;
+}
+:root[data-theme="arcana"] .key-pop {
+  padding: 10px 16px 34px;
+}
+:root[data-theme="arcana"] .map-note {
+  padding: 16px 38px;
+}
+/* A card's number heads it between two gold rules: the panel is The World (XXI) and the Key The Star (XVII). */
+:root[data-theme="arcana"] .panel:not(.framed)::before,
+:root[data-theme="arcana"] .key-pop::before {
+  content: "XXI" / "";
+  display: block;
+  margin: 2px 26px 10px;
+  text-align: center;
+  font: 700 13px/1.2 var(--font-mast);
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  background:
+    linear-gradient(var(--gold), var(--gold)) left center / calc(50% - 34px) 1px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) right center / calc(50% - 34px) 1px no-repeat;
+}
+:root[data-theme="arcana"] .key-pop::before {
+  content: "XVII" / "";
+  margin-bottom: 4px;
+}
+:root[data-theme="arcana"] .panel h2,
+:root[data-theme="arcana"] .key-head h2,
+:root[data-theme="arcana"] dialog h2 {
   font-family: var(--font-mast);
-  color: #e3bd62;
+  color: var(--gold);
+}
+:root[data-theme="arcana"] .panel-title,
+:root[data-theme="arcana"] .place-name {
+  font-family: var(--font-mast);
+  color: var(--gold);
+  text-transform: none;
+  text-shadow: 0 0 10px rgba(227, 189, 98, 0.35);
+}
+:root[data-theme="arcana"] .dateline {
+  border-bottom: 3px double var(--gold);
 }
 :root[data-theme="arcana"] .headline,
 :root[data-theme="arcana"] .reader-headline {
   font-weight: 600;
+}
+/* The citation marks are tiny cards. */
+:root[data-theme="arcana"] .cite {
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #2a1a5a, #1c1042);
+  color: var(--gold);
+}
+:root[data-theme="arcana"] .excerpt-quote {
+  border-left-color: var(--gold);
 }
 :root[data-theme="arcana"] .tool,
 :root[data-theme="arcana"] .pick select,
@@ -2925,54 +3008,93 @@ button.link {
 :root[data-theme="arcana"] .zoom button,
 :root[data-theme="arcana"] .key-btn,
 :root[data-theme="arcana"] .key-close {
-  border: 1px solid #e3bd62;
+  border: 1px solid var(--gold);
   border-radius: 6px;
-  background: #161338;
+  background: linear-gradient(to bottom, #2a1a5a, #1c1042);
   color: #f5e6c0;
+  box-shadow: inset 0 0 0 2px #1c1042, inset 0 0 0 3px rgba(227, 189, 98, 0.35);
+}
+:root[data-theme="arcana"] .chip {
+  border-radius: 999px;
+}
+:root[data-theme="arcana"] .zoom {
+  border: 0;
+  background: none;
+  gap: 4px;
+}
+:root[data-theme="arcana"] .menu[open] > summary,
+:root[data-theme="arcana"] .key-btn[aria-expanded="true"],
+:root[data-theme="arcana"] .tool[aria-pressed="true"],
+:root[data-theme="arcana"] .chip[aria-pressed="true"],
+:root[data-theme="arcana"] .scale .step.on {
+  background: linear-gradient(to bottom, #f3d58a, #d9a94a);
+  color: #1c1042;
+}
+:root[data-theme="arcana"] .slider input {
+  accent-color: var(--gold);
 }
 
-/* ---- Arcadia: a painting after The Course of Empire, hung in a gilt frame ------------------ */
+/* ---- Course of Empire (id arcadia): Cole's Destruction as a black-and-white engraving --------------------- */
 :root[data-theme="arcadia"] body {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255, 240, 200, 0.7), transparent 70%),
-    repeating-linear-gradient(90deg, rgba(120, 90, 50, 0.035) 0 2px, transparent 2px 9px),
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(0, 0, 0, 0.14), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.035) 0 1px, transparent 1px 3px),
     var(--page);
 }
-/* The sky around the sheet and the globe is Cole's evening: gold low in the sky, cooler above, soft clouds. */
+/*
+ * The sky round the sheet and the globe is Destruction's storm, engraved: dark smoke rolling in from the top left,
+ * pale light breaking through at the upper right, and the burning city's broken columns, pediments and smoke plumes
+ * in silhouette along the foot. Greys only. The frame is black with a pewter line.
+ */
 :root[data-theme="arcadia"] .map {
-  border: 18px solid #b8903e;
-  border-image: linear-gradient(135deg, #7a561a, #f3d98a 18%, #a8802e 32%, #6e4a14 48%, #e8c878 64%, #8a6420 82%, #f0d58a) 1;
-  box-shadow: inset 0 0 0 5px #efe3c6, inset 0 0 0 6px #9b7a3a, inset 0 0 26px 10px rgba(40, 25, 5, 0.45), 0 10px 24px rgba(40, 25, 5, 0.35);
+  border: 14px solid #161616;
+  box-shadow: inset 0 0 0 4px #bdbdbd, inset 0 0 0 5px #161616, inset 0 0 40px 14px rgba(0, 0, 0, 0.55), 0 10px 24px rgba(0, 0, 0, 0.35);
   background:
-    radial-gradient(ellipse 22% 9% at 18% 16%, rgba(255, 246, 222, 0.85), transparent 70%),
-    radial-gradient(ellipse 18% 7% at 70% 10%, rgba(255, 240, 210, 0.75), transparent 70%),
-    radial-gradient(ellipse 30% 12% at 88% 30%, rgba(255, 226, 170, 0.6), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 78% 72%, rgba(255, 196, 110, 0.55), transparent 70%),
-    linear-gradient(to bottom, #7f98a6 0%, #b9c2b8 30%, #edd6a0 62%, #f0b870 88%, #c98a4e 100%);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='140'%3E%3Cpath fill='%23141414' d='M0 140V128H900V140ZM30 128V120H210V128ZM40 120V74H50V120ZM68 120V74H78V120ZM96 120V74H106V120ZM124 120V74H134V120ZM152 120V74H162V120ZM180 120V74H190V120ZM37 74V69H53V74ZM65 74V69H81V74ZM93 74V69H109V74ZM121 74V69H137V74ZM149 74V69H165V74ZM177 74V69H193V74ZM34 69V58H164L170 64L176 60L180 69ZM34 58L104 30L140 44L136 50L144 58ZM246 128V86H256V128ZM243 86V81H259V86ZM272 128V104L276 98L279 104L282 97V128ZM292 128V121H336V128ZM400 128V74L410 70L418 76L426 66L440 72H470L476 64L484 70H520L526 62L534 72H580L590 66L598 74H656V128H640V104A16 16 0 0 0 608 104V128H592V104A16 16 0 0 0 560 104V128H544V104A16 16 0 0 0 512 104V128H496V104A16 16 0 0 0 464 104V128H448V104A16 16 0 0 0 416 104V128ZM690 128V92H820V128ZM698 92C698 64 722 48 748 46L754 58L762 48L770 60L778 50C800 56 812 70 812 92ZM858 128V78H868V128ZM855 78V73H871V78ZM858 73L860 60H864L866 73ZM857 60V48H867V60Z'/%3E%3C/svg%3E") left bottom / 900px 140px repeat-x,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='360'%3E%3Cdefs%3E%3ClinearGradient id='g' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='.5' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23000'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1200' height='360' fill='url(%23g)'/%3E%3C/mask%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0035 .008' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .06 0 0 0 0 .06 0 0 0 1.9 -.6'/%3E%3C/filter%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .012' numOctaves='4' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .86 0 0 0 0 .86 0 0 0 0 .86 0 0 0 1.6 -.82'/%3E%3C/filter%3E%3C/defs%3E%3Cg mask='url(%23m)'%3E%3Crect width='1200' height='360' filter='url(%23l)' opacity='.55'/%3E%3Crect width='1200' height='360' filter='url(%23d)'/%3E%3C/g%3E%3C/svg%3E") left top / 1200px 360px repeat-x,
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.13) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse 18% 9% at 22% 97%, rgba(255, 255, 255, 0.5), transparent 70%),
+    radial-gradient(ellipse 16% 8% at 60% 97%, rgba(255, 255, 255, 0.4), transparent 70%),
+    radial-gradient(ellipse 7% 42% at 20% 72%, rgba(0, 0, 0, 0.5), transparent 70%),
+    radial-gradient(ellipse 9% 46% at 62% 70%, rgba(0, 0, 0, 0.45), transparent 70%),
+    radial-gradient(ellipse 26% 18% at 80% 24%, rgba(255, 255, 255, 0.75), transparent 70%),
+    radial-gradient(ellipse 44% 32% at 72% 32%, rgba(230, 230, 230, 0.45), transparent 70%),
+    radial-gradient(ellipse 30% 60% at 6% 60%, rgba(0, 0, 0, 0.5), transparent 70%),
+    linear-gradient(to bottom, #2a2a2a 0%, #4a4a4a 34%, #7c7c7c 58%, #5a5a5a 80%, #2c2c2c 100%);
 }
 :root[data-theme="arcadia"] .masthead {
-  border-bottom: 3px double #6e4a14;
+  border-bottom: 3px double #161616;
 }
 :root[data-theme="arcadia"] .mast-title {
-  letter-spacing: 0.06em;
-  color: #5a3c10;
+  letter-spacing: 0.08em;
+  color: #121212;
 }
 :root[data-theme="arcadia"] .telegram-word,
 :root[data-theme="arcadia"] .telegram-big {
   font-family: var(--font-mast);
-  letter-spacing: 0.08em;
-  color: #2a1c0a;
+  letter-spacing: 0.1em;
+  color: #121212;
   border-bottom: 0;
 }
-/* Panels are the gallery's wall cards: cream stock mounted with a thin gilt edge. */
+:root[data-theme="arcadia"] .panel-title,
+:root[data-theme="arcadia"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+/* Panels are engraved plates: white stock inside a double black rule. */
 :root[data-theme="arcadia"] .panel,
 :root[data-theme="arcadia"] .menu-body,
-:root[data-theme="arcadia"] .key-pop {
-  border: 1px solid #b8903e;
-  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px rgba(184, 144, 62, 0.6), 0 3px 10px rgba(40, 25, 5, 0.25);
+:root[data-theme="arcadia"] .key-pop,
+:root[data-theme="arcadia"] dialog {
+  border: 1px solid #161616;
+  box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px #161616, 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 :root[data-theme="arcadia"] .panel {
   margin: 8px;
+}
+:root[data-theme="arcadia"] .dateline {
+  border-bottom: 3px double #161616;
 }
 :root[data-theme="arcadia"] .tool,
 :root[data-theme="arcadia"] .pick select,
@@ -2981,17 +3103,24 @@ button.link {
 :root[data-theme="arcadia"] .zoom button,
 :root[data-theme="arcadia"] .key-btn,
 :root[data-theme="arcadia"] .key-close {
-  border: 1px solid #7a561a;
-  border-radius: 2px;
-  background: linear-gradient(to bottom, #f6e2a8, #d9b460 55%, #c49a44);
-  color: #2a1c0a;
-  box-shadow: inset 0 1px 0 rgba(255, 250, 230, 0.7);
+  border: 1px solid #161616;
+  border-radius: 0;
+  background: linear-gradient(to bottom, #fafafa, #dadada 60%, #c8c8c8);
+  color: #121212;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 :root[data-theme="arcadia"] .menu[open] > summary,
 :root[data-theme="arcadia"] .key-btn[aria-expanded="true"],
-:root[data-theme="arcadia"] .tool[aria-pressed="true"] {
-  background: #2a1c0a;
-  color: #f6e2a8;
+:root[data-theme="arcadia"] .tool[aria-pressed="true"],
+:root[data-theme="arcadia"] .chip[aria-pressed="true"] {
+  background: #161616;
+  color: #f2f2f2;
+}
+:root[data-theme="arcadia"] .lead img {
+  filter: grayscale(1) contrast(1.05);
+}
+:root[data-theme="arcadia"] .slider input {
+  accent-color: #161616;
 }
 :root[data-theme="arcadia"] .compass {
   display: none;
@@ -3001,8 +3130,12 @@ button.link {
 :root[data-theme="nightcap"] body {
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg opacity='.35'%3E%3Cg transform='translate(30 30)'%3E%3Cg fill='%23fff' stroke='%23c9cbb0' stroke-width='.6'%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-7' rx='2.6' ry='6' transform='rotate(315)'/%3E%3C/g%3E%3Ccircle r='3.5' fill='%23f2c84a'/%3E%3C/g%3E%3Cpath d='M86 96c6-8 14-6 18-14M92 92c-2-6 2-10 6-12' stroke='%238fae80' stroke-width='1.4' fill='none'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 120px 120px,
-    radial-gradient(ellipse 55% 45% at 50% -10%, rgba(111, 134, 187, 0.3), transparent 70%),
-    linear-gradient(to bottom, #e3ead6, #eef0e2);
+    radial-gradient(ellipse 60% 40% at 50% -8%, rgba(111, 128, 200, 0.42), transparent 70%),
+    radial-gradient(ellipse 45% 30% at 8% 18%, rgba(142, 159, 216, 0.3), transparent 70%),
+    radial-gradient(ellipse 50% 32% at 92% 30%, rgba(169, 186, 236, 0.3), transparent 70%),
+    radial-gradient(ellipse 70% 26% at 20% 104%, rgba(127, 158, 116, 0.42), transparent 70%),
+    radial-gradient(ellipse 60% 22% at 85% 104%, rgba(169, 195, 154, 0.45), transparent 70%),
+    linear-gradient(to bottom, #dfe4f4, #ecedf0 55%, #e6ecdc);
 }
 /* The map is the box's arched picture window, with the moon and the sleeping bear drawn on the canvas. */
 :root[data-theme="nightcap"] .map {
@@ -3029,8 +3162,11 @@ button.link {
 }
 :root[data-theme="nightcap"] .masthead {
   border-bottom: 0;
-  background: repeating-linear-gradient(90deg, #a8c39a 0 14px, #f2c84a 14px 18px, #a8c39a 18px 32px, #7d95d0 32px 36px) bottom / 100% 5px no-repeat, transparent;
-  padding-bottom: 14px;
+  background:
+    repeating-linear-gradient(90deg, #fdf8ea 0 3px, transparent 3px 6px) 0 calc(100% - 4px) / 100% 1px no-repeat,
+    linear-gradient(90deg, #a9c39a 0 16px, #8e9fd8 16px 32px, #e2c47a 32px 48px, #c0433a 48px 64px, #7f9e74 64px 80px, #6f7fc0 80px 96px) 0 100% / 96px 9px repeat-x,
+    transparent;
+  padding-bottom: 16px;
 }
 :root[data-theme="nightcap"] .mast-title {
   font-style: italic;
@@ -3044,7 +3180,7 @@ button.link {
   height: 1.1em;
   margin-right: 0.18em;
   vertical-align: -0.14em;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cg fill='none' stroke='%238a9ac4' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M14 12c-3-3 3-5 0-9'/%3E%3Cpath d='M21 12c-3-3 3-5 0-9'/%3E%3Cpath d='M28 12c-3-3 3-5 0-9'/%3E%3C/g%3E%3Cellipse cx='21' cy='36' rx='17' ry='3.5' fill='%23dfe6f5' stroke='%2334466e' stroke-width='1.6'/%3E%3Cpath d='M7 15h28c0 11-6 19-14 19S7 26 7 15z' fill='%23fdf8e8' stroke='%2334466e' stroke-width='1.8'/%3E%3Cpath d='M34 18c6-1 7 7 0 8' fill='none' stroke='%2334466e' stroke-width='1.8'/%3E%3Cpath d='M10 20c3 1 6 1 8 0' stroke='%23a8c39a' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M30 15l3 9' stroke='%23b8945a' stroke-width='1'/%3E%3Crect x='30' y='23' width='6' height='7' rx='1' fill='%23a8c39a' stroke='%234a5e3e' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Ccircle cx='11' cy='15' r='5' fill='%23a2714a' stroke='%234a2e1a' stroke-width='1.5'/%3E%3Ccircle cx='34' cy='15' r='5' fill='%23a2714a' stroke='%234a2e1a' stroke-width='1.5'/%3E%3Cellipse cx='22.5' cy='25' rx='14' ry='12.5' fill='%23a2714a' stroke='%234a2e1a' stroke-width='1.6'/%3E%3Cellipse cx='22.5' cy='30' rx='7' ry='5' fill='%23ecd4ae' stroke='%234a2e1a' stroke-width='1.1'/%3E%3Cpath d='M19.8 27.6q2.7-2 5.4 0q-1.2 2.6-2.7 2.6t-2.7-2.6z' fill='%233a2414'/%3E%3Cpath d='M13.5 24q2.5 2.6 5 0M26.5 24q2.5 2.6 5 0' stroke='%233a2414' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M21 5C11 1 4 8 3 21C6 15 10 11 16 10z' fill='%23b8352c' stroke='%236e1c15' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M10 17C9 7 20 1 30 4C36 6 37 11 36 17z' fill='%23c9413a' stroke='%236e1c15' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M8.5 17.5C10 12 35 12 37 17.5C35 21 10 21 8.5 17.5z' fill='%23a52d25' stroke='%236e1c15' stroke-width='1.1'/%3E%3Ccircle cx='3.6' cy='22' r='3.4' fill='%23fbf5e6' stroke='%238d8068' stroke-width='1.1'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 :root[data-theme="nightcap"] .telegram-word,
 :root[data-theme="nightcap"] .telegram-big {
@@ -3065,6 +3201,14 @@ button.link {
 }
 :root[data-theme="nightcap"] .panel {
   margin: 8px;
+  padding-top: 24px;
+  /* A strip of the quilt along the top, and the warm glow of a bedside lamp in the corner. */
+  background:
+    repeating-linear-gradient(90deg, #fdf8ea 0 3px, transparent 3px 6px) 0 9px / 100% 1px no-repeat local,
+    linear-gradient(90deg, #a9c39a 0 16px, #8e9fd8 16px 32px, #e2c47a 32px 48px, #c0433a 48px 64px, #7f9e74 64px 80px, #6f7fc0 80px 96px) 0 4px / 96px 10px repeat-x local,
+    radial-gradient(ellipse 80% 45% at 100% 0%, rgba(255, 200, 110, 0.38), transparent 70%),
+    radial-gradient(ellipse 60% 30% at 0% 100%, rgba(142, 159, 216, 0.14), transparent 70%),
+    var(--panel);
 }
 :root[data-theme="nightcap"] .tool,
 :root[data-theme="nightcap"] .pick select,
@@ -3081,8 +3225,9 @@ button.link {
 :root[data-theme="nightcap"] .menu[open] > summary,
 :root[data-theme="nightcap"] .key-btn[aria-expanded="true"],
 :root[data-theme="nightcap"] .tool[aria-pressed="true"] {
-  background: #34466e;
-  color: #fbf7e8;
+  background: #b23a30;
+  border-color: #7e231c;
+  color: #fdf8ea;
 }
 
 /* ---- Campus: maroon and cream, varsity type, pennants ------------------------------------- */
@@ -4606,6 +4751,280 @@ button.link {
   }
 }
 
+/* ---- Rave: UV black, acid and magenta; the LED wall, the rig and the DJ booth ------------------------------
+   The lasers and the wall are on the canvas (src/map/scenes.ts); the booth is chrome (src/ui/extras.ts). Nothing
+   here flashes: the records turn and the waveforms scroll steadily, and both hold still for reduced motion. */
+.x-booth {
+  display: none;
+}
+:root[data-theme="rave"] {
+  color-scheme: dark;
+  --page: #06010f;
+  --panel: #0f0720;
+  --ink: #f3efff;
+  --ink-2: #ddd4ff;
+  --muted: #b3a6d9;
+  --rule: rgba(157, 255, 46, 0.4);
+  --accent: #c6ff3a;
+  --on-accent: #0b0214;
+  --hover: rgba(198, 255, 58, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --acid: #c6ff3a;
+  --uv: #8a4dff;
+  --magenta: #ff3fd4;
+  --font-mast: "Unbounded", "Arial Black", sans-serif;
+  --font-head: "Unbounded", "Arial Black", sans-serif;
+  --font-body: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="rave"] body {
+  background:
+    radial-gradient(ellipse 50% 40% at 10% 100%, rgba(138, 77, 255, 0.22), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(255, 63, 212, 0.14), transparent 70%),
+    #06010f;
+}
+/* The masthead over a level meter: bars from acid through UV to magenta, lit to a fixed height. */
+:root[data-theme="rave"] .masthead {
+  position: relative;
+  border-bottom: 0;
+  padding-bottom: 16px;
+  background: linear-gradient(to bottom, #0b0418, #06010f);
+}
+:root[data-theme="rave"] .masthead::after {
+  content: "";
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 4px;
+  height: 6px;
+  background: linear-gradient(90deg, var(--acid), var(--uv) 55%, var(--magenta));
+  -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 9px);
+  mask-image: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 9px);
+  opacity: 0.85;
+}
+:root[data-theme="rave"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--acid);
+  text-shadow: 0 0 10px rgba(198, 255, 58, 0.45), 3px 3px 0 var(--uv);
+}
+:root[data-theme="rave"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--magenta);
+}
+/* The word as a projection on the wall: white, split into cyan and magenta at its edges. */
+:root[data-theme="rave"] .telegram-word,
+:root[data-theme="rave"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  border-bottom: 0;
+  text-shadow: -2px 0 0 #3ff0ff, 2px 0 0 var(--magenta), 0 0 22px rgba(138, 77, 255, 0.85);
+}
+:root[data-theme="rave"] .telegram-word {
+  font-size: min(84px, calc(38vw / var(--len, 8) / 1.3));
+}
+:root[data-theme="rave"] .telegram-word:hover {
+  background: rgba(198, 255, 58, 0.08);
+}
+:root[data-theme="rave"] .telegram-kicker,
+:root[data-theme="rave"] .telegram-date {
+  color: var(--acid);
+  letter-spacing: 0.2em;
+}
+:root[data-theme="rave"] .telegram-note {
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="rave"] .toolbar,
+:root[data-theme="rave"] .timebar {
+  background: #0b0616;
+  border-color: #2e2542;
+}
+/* Buttons as the pads on a DJ controller: dark rubber, lit round the edge when pressed. */
+:root[data-theme="rave"] .tool,
+:root[data-theme="rave"] .pick select,
+:root[data-theme="rave"] .menu > summary,
+:root[data-theme="rave"] .chip,
+:root[data-theme="rave"] .key-btn {
+  border: 1px solid #3a3150;
+  border-radius: 5px;
+  background: linear-gradient(to bottom, #221a33, #151020);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="rave"] .pick option {
+  background: #0f0720;
+  color: var(--ink);
+}
+:root[data-theme="rave"] .tool:hover,
+:root[data-theme="rave"] .pick select:hover,
+:root[data-theme="rave"] .menu > summary:hover,
+:root[data-theme="rave"] .chip:hover,
+:root[data-theme="rave"] .key-btn:hover {
+  border-color: var(--acid);
+}
+:root[data-theme="rave"] .menu[open] > summary,
+:root[data-theme="rave"] .tool[aria-pressed="true"],
+:root[data-theme="rave"] .chip[aria-pressed="true"],
+:root[data-theme="rave"] .key-btn[aria-expanded="true"] {
+  background: var(--acid);
+  border-color: var(--acid);
+  color: var(--on-accent);
+  box-shadow: 0 0 12px rgba(198, 255, 58, 0.55);
+}
+:root[data-theme="rave"] .zoom {
+  bottom: calc(var(--rave-band, 64px) + 10px);
+  border: 1px solid #3a3150;
+  border-radius: 5px;
+  background: #151020;
+  overflow: hidden;
+}
+:root[data-theme="rave"] .zoom button {
+  color: var(--acid);
+}
+:root[data-theme="rave"] .zoom button + button {
+  border-top-color: #3a3150;
+}
+/* Panels as the screen on a deck: dark glass in a hardware bezel. */
+:root[data-theme="rave"] .panel,
+:root[data-theme="rave"] .menu-body,
+:root[data-theme="rave"] .key-pop,
+:root[data-theme="rave"] dialog {
+  background: linear-gradient(to bottom, #120a24, #0b0616);
+  border: 1px solid #2e2542;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px #16111f, 0 0 0 4px #3a3150, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="rave"] .panel {
+  margin: 10px;
+}
+:root[data-theme="rave"] .panel-title,
+:root[data-theme="rave"] .place-name,
+:root[data-theme="rave"] .panel h2,
+:root[data-theme="rave"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--acid);
+}
+:root[data-theme="rave"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #ffffff;
+}
+:root[data-theme="rave"] .kicker {
+  color: var(--magenta);
+}
+:root[data-theme="rave"] .story:hover {
+  background: linear-gradient(90deg, rgba(138, 77, 255, 0.2), transparent);
+}
+:root[data-theme="rave"] .scale .step.on {
+  background: var(--acid);
+  color: var(--on-accent);
+}
+:root[data-theme="rave"] .map {
+  background: #04010a;
+}
+/* The DJ booth along the bottom of the map, as tall as the rig the canvas draws above the wall. */
+:root[data-theme="rave"] .x-booth {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--rave-band, 64px);
+  padding: 5px 8px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #1c1629, #0c0913);
+  border-top: 2px solid var(--uv);
+  box-shadow: 0 -8px 22px rgba(138, 77, 255, 0.35);
+}
+:root[data-theme="rave"] .x-deck {
+  flex: none;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1;
+}
+:root[data-theme="rave"] .x-booth-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+:root[data-theme="rave"] .x-wave {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background: #05030a;
+  border-radius: 3px;
+}
+:root[data-theme="rave"] .x-mixer {
+  flex: none;
+  width: 100%;
+  height: 38%;
+}
+:root[data-theme="rave"] .x-record {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rave-spin 1.8s linear infinite;
+}
+:root[data-theme="rave"] .x-wave-run {
+  animation: rave-wave 30s linear infinite;
+}
+@keyframes rave-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rave-wave {
+  to {
+    transform: translateX(-600px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="rave"] .x-record,
+  :root[data-theme="rave"] .x-wave-run {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="rave"] .telegram-word {
+    font-size: min(44px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 1.08)));
+  }
+  :root[data-theme="rave"] .tool,
+  :root[data-theme="rave"] .pick select,
+  :root[data-theme="rave"] .menu > summary {
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  :root[data-theme="rave"] .pick select {
+    padding-right: 19px;
+  }
+  :root[data-theme="rave"] .panel {
+    margin: 8px;
+  }
+}
+
 /* ==========================================================================
    Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74): four designs that borrow the feel of
    familiar things and name none of them (src/map/sheet.ts, terminal.ts, club.ts, rail.ts; chrome in
@@ -4617,8 +5036,9 @@ button.link {
 .x-cols,
 .x-rows,
 .x-term,
+.x-cmd,
 .x-crest,
-.x-clock {
+.x-route {
   display: none;
 }
 :root[data-theme="sheet"] {
@@ -4655,6 +5075,9 @@ button.link {
   --grain-opacity: 0;
   --grain-blend: normal;
   --fkey: #ffd400;
+  --up: #3ddc53;
+  --down: #ff4136;
+  --hi: #1f4fb8;
   --font-mast: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
   --font-head: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
   --font-body: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
@@ -4692,23 +5115,26 @@ button.link {
 }
 :root[data-theme="rail"] {
   color-scheme: dark;
-  --page: #2a1d14;
-  --panel: #15130f;
-  --ink: #f3ead6;
-  --ink-2: #e2d3b0;
-  --muted: #c4b08a;
-  --rule: #b08a3e;
-  --accent: #e8b04a;
-  --on-accent: #1a140e;
-  --hover: rgba(232, 176, 74, 0.1);
-  --reticle: #fff4d6;
-  --grain-opacity: 0.35;
-  --grain-blend: overlay;
-  --ticket: #efe2bf;
-  --font-mast: "Limelight", "Didot", Georgia, serif;
-  --font-head: "Barlow Condensed", "Arial Narrow", sans-serif;
-  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
-  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --page: #081222;
+  --panel: #0d1a30;
+  --ink: #eef3f9;
+  --ink-2: #cdd7e4;
+  --muted: #a3b4ca;
+  --rule: #2c4266;
+  --accent: #2563d9;
+  --on-accent: #ffffff;
+  --hover: rgba(111, 168, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --signal: #8cb8ff;
+  --stripe-red: #d8283a;
+  --stripe-blue: #2f6fe0;
+  --steel: linear-gradient(to bottom, #f1f4f7 0%, #d3dae2 46%, #bcc6d1 54%, #cbd3dc 100%);
+  --font-mast: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-head: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Outfit", "Helvetica Neue", Arial, sans-serif;
 }
 
 /* ---- Spreadsheet: a sheet of cells, a formula bar, sheet tabs, a selected cell for the reticle ---------- */
@@ -5368,6 +5794,190 @@ button.link {
 :root[data-theme="terminal"] .slider input {
   accent-color: var(--accent);
 }
+/* The command line across the top: the request in yellow on black, a block cursor and a green GO key. */
+:root[data-theme="terminal"] .x-cmd {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  gap: 2px;
+  background: #000000;
+  border-bottom: 1px solid #2a2a2a;
+  font: 700 13px/1 var(--font-ui);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+:root[data-theme="terminal"] .x-cmd-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fkey);
+}
+:root[data-theme="terminal"] .x-caret {
+  flex: none;
+  width: 8px;
+  height: 14px;
+  margin-left: 3px;
+  background: var(--fkey);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="terminal"] .x-caret {
+    animation: term-caret 1.1s steps(2, jump-none) infinite;
+  }
+}
+@keyframes term-caret {
+  to {
+    opacity: 0;
+  }
+}
+:root[data-theme="terminal"] .x-go {
+  flex: none;
+  margin-left: 10px;
+  padding: 3px 7px 2px;
+  border-radius: 2px;
+  background: #1f9d3a;
+  color: #ffffff;
+  font-size: 11px;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+/*
+ * The toolbar is a row of function keys: yellow keys with their F number, a green key for About, and keys that are
+ * on turn to the blue of a selected field.
+ */
+/* F1 and F2 head the map and the reports, so the toolbar's keys count on from F3. */
+:root[data-theme="terminal"] .toolbar {
+  counter-reset: fkey 2;
+}
+:root[data-theme="terminal"] .toolbar > .pick,
+:root[data-theme="terminal"] .toolbar > .menu,
+:root[data-theme="terminal"] .toolbar > .tool {
+  counter-increment: fkey;
+}
+:root[data-theme="terminal"] .toolbar .pick,
+:root[data-theme="terminal"] .toolbar .menu > summary,
+:root[data-theme="terminal"] .toolbar .tool,
+:root[data-theme="terminal"] .key-btn,
+:root[data-theme="terminal"] .timebar .tool {
+  align-items: center;
+  border: 1px solid #b89600;
+  border-radius: 3px;
+  background: var(--fkey);
+  color: #000000;
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+:root[data-theme="terminal"] .toolbar .pick select {
+  border: 0;
+  background: transparent;
+  color: #000000;
+  font-weight: 700;
+  padding-left: 4px;
+}
+:root[data-theme="terminal"] .toolbar .pick {
+  padding-left: 7px;
+}
+:root[data-theme="terminal"] .toolbar .pick::after {
+  color: #000000;
+  opacity: 1;
+}
+:root[data-theme="terminal"] .toolbar .pick::before,
+:root[data-theme="terminal"] .toolbar .menu > summary::before,
+:root[data-theme="terminal"] .toolbar > .tool::before {
+  content: "F" counter(fkey);
+  margin-right: 6px;
+  font-size: 10px;
+  font-weight: 400;
+}
+:root[data-theme="terminal"] .toolbar .tool.quiet,
+:root[data-theme="terminal"] .timebar .tool {
+  border-color: #146b28;
+  background: #1f9d3a;
+  color: #ffffff;
+}
+:root[data-theme="terminal"] .toolbar .tool[aria-pressed="true"],
+:root[data-theme="terminal"] .toolbar .menu[open] > summary,
+:root[data-theme="terminal"] .key-btn[aria-expanded="true"],
+:root[data-theme="terminal"] .chip[aria-pressed="true"] {
+  border-color: #6f9bff;
+  background: var(--hi);
+  color: #ffffff;
+}
+/* Zoom in and out take the screen's up and down colours; closing the Key is the red cancel key. */
+:root[data-theme="terminal"] .zoom {
+  border-color: #333333;
+}
+:root[data-theme="terminal"] .zoom button:first-child {
+  color: var(--up);
+}
+:root[data-theme="terminal"] .zoom button:last-child {
+  color: var(--down);
+}
+:root[data-theme="terminal"] .zoom button + button {
+  border-top-color: #333333;
+}
+:root[data-theme="terminal"] .key-close {
+  border-radius: 2px;
+  background: #c8201a;
+  color: #ffffff;
+}
+/* Dense rows: smaller type, tight spacing, a blue bar with white text under the row the pointer is on. */
+:root[data-theme="terminal"] .panel {
+  font-size: 13px;
+}
+:root[data-theme="terminal"] .story {
+  gap: 1px;
+  padding: 5px 6px;
+}
+:root[data-theme="terminal"] .story:hover,
+:root[data-theme="terminal"] .story:focus-visible,
+:root[data-theme="terminal"] .menu-item:hover {
+  background: var(--hi);
+  color: #ffffff;
+}
+:root[data-theme="terminal"] .story:hover *,
+:root[data-theme="terminal"] .story:focus-visible * {
+  color: #ffffff;
+}
+:root[data-theme="terminal"] .panel .headline {
+  font-size: 13.5px;
+  line-height: 1.3;
+}
+:root[data-theme="terminal"] .panel .meta,
+:root[data-theme="terminal"] .panel .related,
+:root[data-theme="terminal"] .panel .kicker {
+  font-size: 11.5px;
+}
+:root[data-theme="terminal"] .kicker {
+  color: var(--fkey);
+}
+:root[data-theme="terminal"] .rule-head {
+  color: #ffffff;
+  background: var(--hi);
+}
+:root[data-theme="terminal"] .explain-text,
+:root[data-theme="terminal"] .event-score {
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+:root[data-theme="terminal"] .cite,
+:root[data-theme="terminal"] .source-num {
+  border-color: #6f9bff;
+  color: #8fb3ff;
+}
+/* Scores stay in the terminal's amber: below zero in reverse video, as every design marks them, never red or green,
+   so a day's events never read like a market's moves. */
+:root[data-theme="terminal"] .score-chip {
+  background: transparent;
+  border-color: currentColor;
+  color: var(--accent);
+}
+:root[data-theme="terminal"] .score-chip.s0,
+:root[data-theme="terminal"] .score-chip.s1 {
+  background: var(--accent);
+  color: #000000;
+}
 
 /* ---- Country Club: navy, cream and hunter green, a tartan band, a crest, pennants, a desk globe ---------- */
 :root[data-theme="prep"] body {
@@ -5573,288 +6183,365 @@ button.link {
   accent-color: var(--hunter);
 }
 
-/* ---- Sleeper Car: a train window, a departure board, ticket stubs, a station clock -------------------- */
+/* ---- Sleeper Car: a modern train's on-board displays. A stainless body with a red and blue stripe, the map as a
+   route display in a steel bezel with a route bar (the time, the line, the next stop), the panel a passenger
+   information screen, the time bar a length of line with a station dot. No railway's name, livery or logo. ---- */
 :root[data-theme="rail"] body {
-  background:
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 64px),
-    linear-gradient(to bottom, #3b2819, #2a1d14);
+  background: var(--page);
 }
 :root[data-theme="rail"] .masthead {
-  background: linear-gradient(to bottom, #3e2a1a, #2c1e14);
-  border-bottom: 3px solid var(--rule);
-  box-shadow: 0 2px 0 #1a120b;
-}
-:root[data-theme="rail"] .brand {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 12px;
-  align-items: center;
-}
-:root[data-theme="rail"] .x-clock {
-  display: block;
-  grid-row: 1 / 3;
-  width: 48px;
-  height: 48px;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+  --ink: #0b1a33;
+  --ink-2: #22375a;
+  --muted: #34496a;
+  --rule: #7c8ba1;
+  --hover: rgba(11, 26, 51, 0.08);
+  color: var(--ink);
+  border-bottom: 0;
+  padding-bottom: 22px;
+  background:
+    linear-gradient(var(--stripe-red), var(--stripe-red)) left bottom 10px / 100% 4px no-repeat,
+    linear-gradient(var(--stripe-blue), var(--stripe-blue)) left bottom 4px / 100% 4px no-repeat,
+    linear-gradient(#050c18, #050c18) left bottom / 100% 2px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0 1px, rgba(0, 0, 0, 0.02) 1px 3px),
+    var(--steel);
 }
 :root[data-theme="rail"] .mast-title {
-  color: #f3ead6;
-  letter-spacing: 0.04em;
-  text-shadow: 0 2px 0 #1a120b;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 :root[data-theme="rail"] .mast-tag {
+  font-weight: 500;
   color: var(--ink-2);
 }
-/* The word and the panel's titles on split-flap tiles, one letter a tile. */
+/* The word on a destination sign set into the steel: white type on a dark screen. */
 :root[data-theme="rail"] .telegram-word,
 :root[data-theme="rail"] .telegram-big {
   font-family: var(--font-head);
-  font-weight: 700;
-  letter-spacing: 0;
-  color: #f5efe0;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+:root[data-theme="rail"] .telegram-big {
+  color: var(--ink);
 }
 :root[data-theme="rail"] .telegram-word {
   border: 0;
-  padding: 0;
-  font-size: min(64px, calc(38vw / var(--len, 8) / 1.2));
+  border-radius: 8px;
+  padding: 0.06em 0.34em 0.1em;
+  font-size: min(64px, calc(38vw / var(--len, 8) / 1.25));
+  background: linear-gradient(#0a1730, #10244a);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 3px 8px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 -1px 0 rgba(0, 0, 0, 0.25);
+  text-shadow: 0 0 12px rgba(140, 184, 255, 0.5);
 }
 :root[data-theme="rail"] .telegram-word:hover,
 :root[data-theme="rail"] .telegram-word:focus-visible {
   text-decoration: none;
-  filter: brightness(1.2);
-}
-:root[data-theme="rail"] .telegram-word .lt,
-:root[data-theme="rail"] .panel-title .lt,
-:root[data-theme="rail"] .place-name .lt {
-  display: inline-block;
-  min-width: 0.62em;
-  margin: 0 0.035em;
-  padding: 0.06em 0.07em 0.02em;
-  text-align: center;
-  line-height: 1.05;
-  border-radius: 0.07em;
-  color: #f5efe0;
-  background: linear-gradient(to bottom, #2b2925 0 48%, #0b0a08 48% 52%, #211f1b 52% 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(#0e1f3e, #15305e);
 }
 :root[data-theme="rail"] .telegram-kicker,
 :root[data-theme="rail"] .telegram-date {
-  color: var(--accent);
+  font-weight: 600;
   letter-spacing: 0.14em;
 }
-:root[data-theme="rail"] .telegram-note,
-:root[data-theme="rail"] .meta,
-:root[data-theme="rail"] .count,
-:root[data-theme="rail"] .dateline .coords,
-:root[data-theme="rail"] .byline {
-  font-style: normal;
-}
 :root[data-theme="rail"] .scale {
-  border-color: var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.35);
 }
 :root[data-theme="rail"] .scale .step.on {
   background: var(--accent);
   color: var(--on-accent);
 }
-/* Buttons are ticket stubs: cream card with notched ends and a perforated edge. The one that is on is punched. */
+:root[data-theme="rail"] .toolbar {
+  background: #0b1629;
+  border-bottom: 1px solid #1c2c48;
+}
+/* Buttons are the car's touch panels: rounded, dark, lit blue when on. */
 :root[data-theme="rail"] .tool,
 :root[data-theme="rail"] .pick select,
 :root[data-theme="rail"] .menu > summary,
 :root[data-theme="rail"] .chip,
 :root[data-theme="rail"] .key-btn {
-  border: 0;
-  border-radius: 2px;
-  color: #2a1d14;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  background:
-    linear-gradient(to bottom, #8a6a3a 50%, transparent 50%) left 9px top 0 / 1px 4px repeat-y,
-    var(--ticket);
-  padding-left: 16px;
-  -webkit-mask:
-    radial-gradient(circle at 0 50%, transparent 4px, #000 4.5px) left / 51% 100% no-repeat,
-    radial-gradient(circle at 100% 50%, transparent 4px, #000 4.5px) right / 51% 100% no-repeat;
-  mask:
-    radial-gradient(circle at 0 50%, transparent 4px, #000 4.5px) left / 51% 100% no-repeat,
-    radial-gradient(circle at 100% 50%, transparent 4px, #000 4.5px) right / 51% 100% no-repeat;
+  border: 1px solid #304669;
+  border-radius: 7px;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: linear-gradient(#17284a, #0f1d36);
 }
 :root[data-theme="rail"] .pick::after {
-  color: #2a1d14;
+  color: var(--ink);
 }
 :root[data-theme="rail"] .tool:hover,
 :root[data-theme="rail"] .pick select:hover,
 :root[data-theme="rail"] .menu > summary:hover,
 :root[data-theme="rail"] .chip:hover,
 :root[data-theme="rail"] .key-btn:hover {
-  filter: brightness(1.06);
+  border-color: #5173a6;
+  background: linear-gradient(#1d3259, #132542);
 }
 :root[data-theme="rail"] .tool.quiet {
   background: transparent;
-  color: var(--ink);
-  -webkit-mask: none;
-  mask: none;
+  border-color: transparent;
 }
 :root[data-theme="rail"] .tool[aria-pressed="true"],
 :root[data-theme="rail"] .menu[open] > summary,
 :root[data-theme="rail"] .chip[aria-pressed="true"],
 :root[data-theme="rail"] .key-btn[aria-expanded="true"],
 :root[data-theme="rail"] .tool.primary {
-  color: #1a140e;
-  background:
-    radial-gradient(circle at calc(100% - 11px) 50%, #2a1d14 0 3px, transparent 3.5px),
-    linear-gradient(to bottom, #8a6a3a 50%, transparent 50%) left 9px top 0 / 1px 4px repeat-y,
-    var(--accent);
-  padding-right: 22px;
+  border-color: #5a8df0;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 :root[data-theme="rail"] .key-close {
-  border: 1px solid var(--rule);
+  border: 1px solid #304669;
+  border-radius: 6px;
   background: var(--panel);
   color: var(--ink);
 }
-:root[data-theme="rail"] .zoom {
-  border: 2px solid var(--rule);
-  border-radius: 6px;
-  background: linear-gradient(#3b2819, #22170f);
-  right: 30px;
-  bottom: 30px;
-}
-:root[data-theme="rail"] .zoom button {
-  color: #f3ead6;
-}
-:root[data-theme="rail"] .zoom button + button {
-  border-top-color: var(--rule);
-}
-:root[data-theme="rail"] .toolbar {
-  background: #22170f;
-  border-bottom: 1px solid #120c07;
-}
-/* The window: a rounded opening in the car's wall with a brass rim, curtains at the sides and a blind at the
-   top. The map shows through it; places near its edge come into view as the map is dragged. */
+/* The route display in a brushed steel bezel. */
 :root[data-theme="rail"] .map {
-  background: #3a2618;
+  margin: 10px 4px 10px 10px;
+  background: #060e1c;
 }
 :root[data-theme="rail"] .map::after {
   content: "";
   position: absolute;
-  inset: 14px;
+  inset: 0;
   z-index: 1;
   pointer-events: none;
-  border-radius: 36px / 32px;
+  border-radius: 14px;
   box-shadow:
-    0 0 0 40px #4a3121,
-    inset 0 0 0 3px #c9a45c,
-    inset 0 0 0 6px #22160e,
-    inset 0 12px 26px rgba(0, 0, 0, 0.45);
-  background:
-    repeating-linear-gradient(90deg, #2c4a3a 0 5px, #1f3a2c 5px 9px, #35574a 9px 12px) left / 3.2% 100% no-repeat,
-    repeating-linear-gradient(90deg, #2c4a3a 0 5px, #1f3a2c 5px 9px, #35574a 9px 12px) right / 3.2% 100% no-repeat;
+    0 0 0 24px var(--page),
+    inset 0 0 0 5px #c2cbd6,
+    inset 0 0 0 6px #6f7e93,
+    inset 0 0 36px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(118deg, rgba(255, 255, 255, 0.035) 0 34%, transparent 34%);
 }
-:root[data-theme="rail"] .map::before {
+/* The route bar: the time, the line with the train's place on it, and the next stop. */
+:root[data-theme="rail"] .x-route {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  height: 48px;
+  z-index: 2;
+  padding: 0 16px 0 10px;
+  border-radius: 9px 9px 0 0;
+  background:
+    linear-gradient(var(--stripe-blue), var(--stripe-blue)) left bottom / 100% 2px no-repeat,
+    rgba(7, 14, 28, 0.94);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  white-space: nowrap;
+}
+:root[data-theme="rail"] .x-rclock {
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: #13233f;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="rail"] .x-line {
+  --at: 50%;
+  position: relative;
+  flex: 1;
+  min-width: 60px;
+  height: 16px;
+  margin: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* The part already travelled is grey, the part ahead is the line's blue. */
+:root[data-theme="rail"] .x-line::before {
   content: "";
   position: absolute;
-  left: 14px;
-  right: 14px;
-  top: 14px;
-  height: 7%;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4a5a74 0 var(--at), var(--stripe-blue) var(--at) 100%);
+}
+:root[data-theme="rail"] .x-stop {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border: 2.5px solid var(--stripe-blue);
+  border-radius: 50%;
+  background: #ffffff;
+}
+:root[data-theme="rail"] .x-stop.passed {
+  border-color: #4a5a74;
+  background: #16243d;
+}
+/* The train: a red capsule with a pointed nose facing east. */
+:root[data-theme="rail"] .x-train {
+  position: absolute;
+  left: var(--at);
+  top: 50%;
   z-index: 1;
-  pointer-events: none;
-  border-radius: 36px 36px 0 0 / 32px 32px 0 0;
-  background:
-    radial-gradient(circle at 50% calc(100% - 5px), transparent 0 3px, #c9a45c 3.2px 5px, transparent 5.2px),
-    linear-gradient(to bottom, transparent calc(100% - 3px), #9c7b43 calc(100% - 3px)),
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 4px),
-    #e6d8b8;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+  width: 24px;
+  height: 12px;
+  margin: -6px 0 0 -12px;
+  border-radius: 6px 9px 9px 6px / 6px;
+  background: linear-gradient(#ef4050, #c21e2f);
+  box-shadow:
+    0 0 0 2px rgba(7, 14, 28, 0.94),
+    0 0 10px rgba(224, 49, 63, 0.55);
+}
+:root[data-theme="rail"] .x-train::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  width: 7px;
+  height: 3px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.85);
+}
+:root[data-theme="rail"] .x-next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  max-width: 38%;
+  line-height: 1.15;
+}
+:root[data-theme="rail"] .x-next-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--signal);
+}
+:root[data-theme="rail"] .x-next-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 17px;
+  font-weight: 600;
 }
 :root[data-theme="rail"] .key-btn {
-  top: calc(7% + 26px);
-  left: 30px;
+  top: 66px;
+  left: 16px;
 }
-/* The panel is a departure board: black flaps in a dark housing with a brass rim. */
+:root[data-theme="rail"] .zoom {
+  right: 18px;
+  bottom: 18px;
+  border: 1px solid #304669;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(15, 29, 54, 0.92);
+}
+:root[data-theme="rail"] .zoom button {
+  color: var(--ink);
+}
+:root[data-theme="rail"] .zoom button + button {
+  border-top-color: #304669;
+}
+/* The panel is a passenger information screen in the same steel, with the line's stripe along its top. */
 :root[data-theme="rail"] .panel {
-  margin: 10px 10px 10px 4px;
-  border: 6px solid #2b2621;
-  border-radius: 6px;
-  box-shadow: 0 0 0 2px var(--rule), 0 6px 18px rgba(0, 0, 0, 0.5);
+  margin: 10px 10px 10px 6px;
+  border: 0;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 5px #c2cbd6,
+    0 0 0 6px #6f7e93,
+    0 8px 20px rgba(0, 0, 0, 0.45);
   background:
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px),
-    var(--panel);
+    linear-gradient(var(--stripe-red), var(--stripe-red)) left top / 100% 3px no-repeat,
+    linear-gradient(var(--stripe-blue), var(--stripe-blue)) left top 3px / 100% 3px no-repeat,
+    linear-gradient(to bottom, #102042, var(--panel) 180px);
 }
 :root[data-theme="rail"] .panel-title,
 :root[data-theme="rail"] .place-name {
   font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 28px;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  line-height: 1.25;
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  line-height: 1.2;
 }
 :root[data-theme="rail"] .dateline {
-  border-bottom: 2px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 :root[data-theme="rail"] .dateline .coords {
-  color: var(--accent);
+  color: var(--signal);
   font-family: var(--font-ui);
   font-size: 15px;
-  letter-spacing: 0.04em;
+  font-style: normal;
+}
+:root[data-theme="rail"] .telegram-note,
+:root[data-theme="rail"] .meta,
+:root[data-theme="rail"] .count,
+:root[data-theme="rail"] .byline {
+  font-style: normal;
 }
 :root[data-theme="rail"] .stories li + li {
-  border-top: 1px solid #2e2a24;
+  border-top: 1px solid #1f3050;
 }
 :root[data-theme="rail"] .headline {
   font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 500;
+  font-size: 17px;
   line-height: 1.3;
 }
 :root[data-theme="rail"] .meta {
   font-family: var(--font-ui);
   font-size: 14px;
-  letter-spacing: 0.03em;
 }
 :root[data-theme="rail"] .rule-head {
-  color: var(--accent);
+  color: var(--signal);
   border-color: var(--rule);
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
 }
 :root[data-theme="rail"] .related,
 :root[data-theme="rail"] .kicker {
-  color: var(--accent);
+  color: var(--signal);
 }
 :root[data-theme="rail"] .menu-body,
 :root[data-theme="rail"] .key-pop,
 :root[data-theme="rail"] dialog {
-  border: 2px solid var(--rule);
-  border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  border: 1px solid #304669;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
 }
-/* The flaps turn over when a new place comes up, one after another. */
-:root[data-theme="rail"] .place-name.flip .lt {
-  animation: flap 0.42s cubic-bezier(0.3, 0.7, 0.4, 1) both;
-  animation-delay: calc(var(--i, 0) * 30ms);
-  transform-origin: 50% 50%;
+/* A new place slides up into the screen, as the next stop does. */
+:root[data-theme="rail"] .place-name.flip {
+  animation: rail-next 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
-@keyframes flap {
-  0% {
-    transform: perspective(200px) rotateX(-88deg);
+@keyframes rail-next {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
   }
-  65% {
-    transform: perspective(200px) rotateX(14deg);
-  }
-  100% {
+  to {
+    opacity: 1;
     transform: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root[data-theme="rail"] .place-name.flip .lt {
+  :root[data-theme="rail"] .place-name.flip {
     animation: none;
   }
 }
-/* The time bar: the slider is a length of track. */
+/* The time bar: the slider is a length of line with a station dot. */
 :root[data-theme="rail"] .timebar {
-  background: #22170f;
-  border-top: 2px solid var(--rule);
+  background: #0b1629;
+  border-top: 1px solid #1c2c48;
 }
 :root[data-theme="rail"] .slider input {
   appearance: none;
@@ -5863,34 +6550,32 @@ button.link {
   height: 22px;
 }
 :root[data-theme="rail"] .slider input::-webkit-slider-runnable-track {
-  height: 14px;
-  background:
-    linear-gradient(#cfc6b2, #cfc6b2) 0 2px / 100% 2px no-repeat,
-    linear-gradient(#cfc6b2, #cfc6b2) 0 10px / 100% 2px no-repeat,
-    repeating-linear-gradient(90deg, #6a4a2c 0 5px, transparent 5px 12px);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--stripe-blue);
 }
 :root[data-theme="rail"] .slider input::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  margin-top: -2px;
+  margin-top: -7px;
+  border: 4px solid #0b1629;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #fff4d6, #e8b04a 55%, #8a6420);
-  box-shadow: 0 0 8px rgba(255, 217, 138, 0.8);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px var(--stripe-red);
 }
 :root[data-theme="rail"] .slider input::-moz-range-track {
-  height: 14px;
-  background:
-    linear-gradient(#cfc6b2, #cfc6b2) 0 2px / 100% 2px no-repeat,
-    linear-gradient(#cfc6b2, #cfc6b2) 0 10px / 100% 2px no-repeat,
-    repeating-linear-gradient(90deg, #6a4a2c 0 5px, transparent 5px 12px);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--stripe-blue);
 }
 :root[data-theme="rail"] .slider input::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border: 0;
+  width: 10px;
+  height: 10px;
+  border: 4px solid #0b1629;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #fff4d6, #e8b04a 55%, #8a6420);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px var(--stripe-red);
 }
 
 /* ---- Phones: the four designs keep the toolbar one row, and the word fits ------------------------------ */
@@ -5907,6 +6592,11 @@ button.link {
   :root[data-theme="terminal"] .toolbar {
     letter-spacing: 0;
     font-size: 12px;
+  }
+  :root[data-theme="terminal"] .toolbar .pick::before,
+  :root[data-theme="terminal"] .toolbar .menu > summary::before,
+  :root[data-theme="terminal"] .toolbar > .tool::before {
+    content: none;
   }
   :root[data-theme="terminal"] .telegram-word {
     font-size: min(56px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.68)));
@@ -5925,33 +6615,64 @@ button.link {
     width: 32px;
     height: 38px;
   }
-  :root[data-theme="rail"] .x-clock {
-    width: 40px;
-    height: 40px;
+  :root[data-theme="rail"] .masthead {
+    padding-bottom: 20px;
+  }
+  :root[data-theme="rail"] .map {
+    margin: 6px 6px 0;
   }
   :root[data-theme="rail"] .telegram-word {
-    font-size: min(52px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.86)));
+    font-size: min(48px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.8)));
   }
   :root[data-theme="rail"] .map::after {
-    inset: 8px;
-    border-radius: 24px / 22px;
+    border-radius: 10px;
+    box-shadow:
+      0 0 0 24px var(--page),
+      inset 0 0 0 4px #c2cbd6,
+      inset 0 0 0 5px #6f7e93,
+      inset 0 0 24px rgba(0, 0, 0, 0.45);
   }
-  :root[data-theme="rail"] .map::before {
-    left: 8px;
-    right: 8px;
-    top: 8px;
-    border-radius: 24px 24px 0 0 / 22px 22px 0 0;
+  :root[data-theme="rail"] .x-route {
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 42px;
+    gap: 8px;
+    padding: 0 10px 0 7px;
+    border-radius: 6px 6px 0 0;
+  }
+  :root[data-theme="rail"] .x-rclock {
+    padding: 2px 6px;
+    font-size: 16px;
+  }
+  :root[data-theme="rail"] .x-line {
+    margin: 0 2px;
+  }
+  :root[data-theme="rail"] .x-stop {
+    width: 9px;
+    height: 9px;
+    border-width: 2px;
+  }
+  :root[data-theme="rail"] .x-next {
+    max-width: 44%;
+  }
+  :root[data-theme="rail"] .x-next-label {
+    font-size: 9px;
+  }
+  :root[data-theme="rail"] .x-next-name {
+    font-size: 14px;
   }
   :root[data-theme="rail"] .key-btn {
-    left: 20px;
+    top: 56px;
+    left: 12px;
   }
   :root[data-theme="rail"] .zoom {
-    right: 20px;
-    bottom: 20px;
+    right: 12px;
+    bottom: 12px;
   }
   :root[data-theme="rail"] .place-name,
   :root[data-theme="rail"] .panel-title {
-    font-size: 22px;
+    font-size: 24px;
   }
 }
 
@@ -6330,17 +7051,6 @@ button.link {
     var(--wood) 0 0 / 400px 120px,
     linear-gradient(to bottom, #5a3014, #3e1f0a);
 }
-/* Panels are cream cards in a rounded wooden frame. */
-:root[data-theme="lava"] .panel,
-:root[data-theme="lava"] .menu-body,
-:root[data-theme="lava"] .key-pop,
-:root[data-theme="lava"] dialog {
-  background: var(--panel);
-  color: var(--ink);
-  border: 3px solid #4e2a10;
-  border-radius: 22px;
-  box-shadow: 0 0 0 5px #b8763a, 0 0 0 8px #4e2a10, 0 6px 16px 8px rgba(40, 14, 2, 0.4);
-}
 :root[data-theme="lava"] .panel {
   margin: 16px;
 }
@@ -6366,6 +7076,180 @@ button.link {
   border-radius: 999px;
   background: linear-gradient(to right, #c2410c, #b8266e, #6b2fa0);
   color: #fff6e0;
+}
+/*
+ * The panel, the Key, the menus, the notes and the About dialog are lamps: dark liquid in glass with a rounded
+ * shoulder, a glossy streak down one side, warm wax pooled at the bottom and soft blobs rising at the edges, in a
+ * brass rim. The tokens are turned over inside them so text stays light on the liquid, and the wax is faint enough
+ * that text over it keeps 4.5:1.
+ */
+:root[data-theme="lava"] .panel,
+:root[data-theme="lava"] .menu-body,
+:root[data-theme="lava"] .key-pop,
+:root[data-theme="lava"] .map-note,
+:root[data-theme="lava"] dialog {
+  --panel: #2a0f3a;
+  --ink: #fff3d9;
+  --ink-2: #ffe6b8;
+  --muted: #eac39a;
+  --rule: #b8763a;
+  --accent: #ffb23e;
+  --on-accent: #2a0f3a;
+  --hover: rgba(255, 178, 62, 0.14);
+  --key-bg: radial-gradient(circle at 40% 35%, #fff0c2, #ffc46a 70%);
+  color: var(--ink);
+  border: 3px solid #3e1f06;
+  border-radius: 44% 44% 24px 24px / 64px 64px 24px 24px;
+  background:
+    radial-gradient(ellipse 32% 8% at 50% 100%, rgba(255, 150, 50, 0.5), transparent 72%),
+    radial-gradient(ellipse 16% 11% at 6% 72%, rgba(255, 128, 48, 0.42), transparent 72%),
+    radial-gradient(ellipse 13% 9% at 95% 40%, rgba(232, 49, 138, 0.42), transparent 72%),
+    radial-gradient(ellipse 10% 7% at 90% 86%, rgba(255, 178, 62, 0.42), transparent 72%),
+    radial-gradient(ellipse 12% 8% at 4% 22%, rgba(186, 80, 220, 0.42), transparent 72%),
+    linear-gradient(90deg, transparent 5%, rgba(255, 255, 255, 0.13) 7%, rgba(255, 255, 255, 0.02) 11%, transparent 13%),
+    linear-gradient(to bottom, #3e1450, #2a0f3a 45%, #4a1646);
+  background-size: 100% 100%, 130% 130%, 130% 130%, 130% 130%, 130% 130%, 100% 100%, 100% 100%;
+  background-position: 0 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0;
+  box-shadow:
+    inset 0 -16px 26px -14px rgba(255, 140, 40, 0.8),
+    0 0 0 3px #c98a3a,
+    0 0 0 6px #5a3010,
+    0 0 26px 6px rgba(255, 120, 40, 0.35),
+    0 8px 18px 6px rgba(40, 14, 2, 0.45);
+}
+:root[data-theme="lava"] .panel {
+  padding-top: 34px;
+}
+:root[data-theme="lava"] .menu-body {
+  padding: 30px 28px 22px;
+  top: calc(100% + 18px);
+}
+:root[data-theme="lava"] .key-pop {
+  padding: 24px 28px 20px;
+}
+:root[data-theme="lava"] .map-note {
+  padding: 26px 26px 18px;
+}
+/*
+ * The Key and the menus are small lamps of their own: the glass tapers to a narrow shoulder (a clipped layer
+ * behind the text, so the text itself is never clipped), under a brass cap and over a flared brass base, with the
+ * brass rim and the warm glow drawn round the whole shape.
+ */
+:root[data-theme="lava"] .menu-body,
+:root[data-theme="lava"] .key-pop {
+  isolation: isolate;
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(2px 0 0 #c98a3a) drop-shadow(-2px 0 0 #c98a3a) drop-shadow(0 2px 0 #c98a3a) drop-shadow(0 -2px 0 #c98a3a)
+    drop-shadow(0 0 1px #3e1f06) drop-shadow(0 0 12px rgba(255, 120, 40, 0.45)) drop-shadow(0 6px 8px rgba(40, 14, 2, 0.45));
+}
+:root[data-theme="lava"] .menu-body::before,
+:root[data-theme="lava"] .key-pop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 32% 8% at 50% 100%, rgba(255, 150, 50, 0.5), transparent 72%),
+    radial-gradient(ellipse 16% 11% at 6% 72%, rgba(255, 128, 48, 0.42), transparent 72%),
+    radial-gradient(ellipse 13% 9% at 95% 40%, rgba(232, 49, 138, 0.42), transparent 72%),
+    radial-gradient(ellipse 10% 7% at 90% 86%, rgba(255, 178, 62, 0.42), transparent 72%),
+    radial-gradient(ellipse 12% 8% at 4% 22%, rgba(186, 80, 220, 0.42), transparent 72%),
+    linear-gradient(90deg, transparent 7%, rgba(255, 255, 255, 0.15) 9%, rgba(255, 255, 255, 0.02) 13%, transparent 15%),
+    linear-gradient(to bottom, #3e1450, #2a0f3a 45%, #4a1646);
+  background-size: 100% 100%, 130% 130%, 130% 130%, 130% 130%, 130% 130%, 100% 100%, 100% 100%;
+  background-position: 0 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0;
+  box-shadow: inset 0 -16px 26px -14px rgba(255, 140, 40, 0.8);
+  clip-path: polygon(
+    40px 0, calc(100% - 40px) 0, calc(100% - 28px) 3px, calc(100% - 23px) 10px, calc(100% - 21px) 22px,
+    calc(100% - 1px) calc(100% - 44px), 100% calc(100% - 28px), calc(100% - 3px) calc(100% - 10px), calc(100% - 14px) 100%,
+    14px 100%, 3px calc(100% - 10px), 0 calc(100% - 28px), 1px calc(100% - 44px),
+    21px 22px, 23px 10px, 28px 3px
+  );
+}
+/* The cap and the base: one brass layer cut to two shapes. */
+:root[data-theme="lava"] .menu-body::after,
+:root[data-theme="lava"] .key-pop::after {
+  content: "";
+  position: absolute;
+  inset: -14px 0 -18px;
+  pointer-events: none;
+  background: linear-gradient(90deg, #5a3010, #c98a3a 18%, #fff0c2 32%, #e0a850 45%, #8a5220 75%, #3e1f06);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M16 0H84L100 10H0Z'/%3E%3C/svg%3E") center top / calc(100% - 84px) 13px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100L90 10H10Z'/%3E%3C/svg%3E") center bottom / 70% 16px no-repeat;
+}
+:root[data-theme="lava"] .key-head h2,
+:root[data-theme="lava"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #b8266e;
+}
+:root[data-theme="lava"] .panel-title,
+:root[data-theme="lava"] .place-name {
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #b8266e, 4px 4px 0 #6b2fa0;
+}
+:root[data-theme="lava"] .key-body svg {
+  border-radius: 50%;
+}
+/* Topics are blobs of wax: pressed ones lit and full, the others a clear bubble in the liquid. */
+:root[data-theme="lava"] .chip {
+  border: 2px solid rgba(255, 196, 106, 0.75);
+  border-radius: 58% 42% 55% 45% / 52% 48% 52% 48%;
+  background: rgba(255, 196, 106, 0.08);
+  color: #fff3d9;
+  box-shadow: none;
+}
+:root[data-theme="lava"] .chip:nth-child(2n) {
+  border-radius: 44% 56% 46% 54% / 56% 44% 56% 44%;
+}
+:root[data-theme="lava"] .chip[aria-pressed="true"] {
+  border-color: #fff0c2;
+  background: radial-gradient(circle at 35% 30%, #fff0c2, #ffb35c 45%, #ff8a3d);
+  color: #2a0f3a;
+  box-shadow: 0 0 10px rgba(255, 150, 50, 0.55);
+}
+/* Citation marks and the tuned-story links glow like small drops of wax. */
+:root[data-theme="lava"] .cite {
+  border: 0;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, #fff0c2, #ffb35c 55%, #ff8a3d);
+  color: #2a0f3a;
+  box-shadow: 0 0 6px rgba(255, 140, 50, 0.6);
+}
+:root[data-theme="lava"] .source-num {
+  border: 0;
+  border-radius: 50% 50% 46% 54% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 35% 30%, #ffd08a, #e8318a);
+  color: #2a0f3a;
+}
+:root[data-theme="lava"] .excerpt-quote {
+  border-left-color: #e8318a;
+}
+/* The Key button carries a small lamp. */
+:root[data-theme="lava"] .key-btn::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  margin: 0 6px -2px 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M2.6 0H5.4L6 2H2Z' fill='%236e2a0a'/%3E%3Cpath d='M2 2H6L7.6 9H0.4Z' fill='%232a0f3a'/%3E%3Cellipse cx='4' cy='7.6' rx='2.4' ry='1.4' fill='%23ff8a3d'/%3E%3Cellipse cx='3.4' cy='4.6' rx='1' ry='1.2' fill='%23e8318a'/%3E%3Cpath d='M0.4 9H7.6L6.4 14H1.6Z' fill='%236e2a0a'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* The wax drifts slowly in the small lamps; with reduced motion it holds still. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="lava"] .menu-body::before,
+  :root[data-theme="lava"] .key-pop::before {
+    animation: lava-wax 18s ease-in-out infinite alternate;
+  }
+}
+@keyframes lava-wax {
+  to {
+    background-position: 0 0, 0 100%, 100% 100%, 100% 0, 0 0, 0 0, 0 0;
+  }
 }
 
 @media (max-width: 760px) {
@@ -7507,6 +8391,610 @@ button.link {
 }
 
 /* ==========================================================================
+   Old Realm and Tactical: two games' looks, borrowed and named after none of them. Old Realm is an early-2000s
+   fantasy online game's stone and wood interface around a round minimap; Tactical is a team game's overhead radar
+   with a HUD. Chrome around the map is in src/ui/extras.ts. Tokens first, then each design's chrome.
+   ========================================================================== */
+.x-ring,
+.x-hud,
+.x-feed {
+  display: none;
+}
+:root[data-theme="realm"] {
+  color-scheme: dark;
+  --page: #2e2a26;
+  --panel: #2a1c10;
+  --ink: #f3e5b8;
+  --ink-2: #e8d7a2;
+  --muted: #c7b68a;
+  --rule: #6e5634;
+  --accent: #f2c94c;
+  --on-accent: #2a1a08;
+  --hover: rgba(242, 201, 76, 0.1);
+  --reticle: #fff1c0;
+  --grain-opacity: 0.18;
+  --grain-blend: overlay;
+  --font-mast: "MedievalSharp", "Palatino Linotype", serif;
+  --font-head: "MedievalSharp", "Palatino Linotype", serif;
+  --font-body: "Alegreya", Georgia, serif;
+  --font-ui: "Alegreya", Georgia, serif;
+  /* Carved stone blocks in two courses with offset joints, drawn here, no pictures borrowed. */
+  --realm-stone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='64'%3E%3Crect width='96' height='64' fill='%234a4640'/%3E%3Crect x='1' y='1' width='46' height='30' fill='%23524d46'/%3E%3Crect x='49' y='1' width='46' height='30' fill='%2346423c'/%3E%3Crect x='-23' y='33' width='46' height='30' fill='%234e4a43'/%3E%3Crect x='25' y='33' width='46' height='30' fill='%2355504a'/%3E%3Crect x='73' y='33' width='46' height='30' fill='%234e4a43'/%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.28'%3E%3Cpath d='M0 32.5H96M0 .5H96M48.5 0V32M24.5 32V64M72.5 32V64'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.08'%3E%3Cpath d='M1 1.5H47M49 1.5H95M25 33.5H71M73 33.5H96M0 33.5H23'/%3E%3C/g%3E%3C/svg%3E");
+  /* Dark planks with a grain line and a seam. */
+  --realm-wood: repeating-linear-gradient(90deg, #4c3019 0 140px, #2e1d0e 140px 142px, #563720 142px 300px, #2e1d0e 300px 302px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 5px);
+  /* Four brass rivets, one in each corner. */
+  --realm-rivets:
+    radial-gradient(circle at 9px 9px, #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at 9px calc(100% - 9px), #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px);
+}
+:root[data-theme="tactical"] {
+  color-scheme: dark;
+  --page: #1c1e1d;
+  --panel: #1f2220;
+  --ink: #ecece4;
+  --ink-2: #cfd1c7;
+  --muted: #a5a99e;
+  --rule: #414540;
+  --accent: #ff9d1e;
+  --on-accent: #1a1004;
+  --hover: rgba(255, 157, 30, 0.1);
+  --reticle: #f4f4ec;
+  --grain-opacity: 0.06;
+  --grain-blend: overlay;
+  --font-mast: "Teko", "Oswald", sans-serif;
+  --font-head: "Teko", "Oswald", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+
+/* ---- Old Realm: carved stone, dark wood and brass rivets; a quest log for the panel -------------------- */
+:root[data-theme="realm"] body {
+  background: radial-gradient(ellipse 90% 70% at 50% 30%, rgba(80, 74, 66, 0.55), transparent 75%), var(--realm-stone) 0 0 / 96px 64px, #3a3631;
+}
+/* The masthead is a slab of carved stone on a wooden beam, held by brass rivets. */
+:root[data-theme="realm"] .masthead {
+  border-bottom: 0;
+  background:
+    var(--realm-rivets),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.18)),
+    var(--realm-stone) 0 0 / 96px 64px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 6px 0 #3a2413, 0 7px 0 #1c1108, 0 9px 8px rgba(0, 0, 0, 0.45);
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="realm"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(30px, 3.6vw, 46px);
+  letter-spacing: 0.02em;
+  color: #f6d772;
+  /* Gilded letters cut into the stone. */
+  text-shadow: 0 -1px 0 #fff3bf, 0 2px 0 #5a3a10, 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+:root[data-theme="realm"] .mast-tag {
+  font-style: italic;
+  font-size: 14px;
+  color: #f3e7c6;
+  text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.8);
+}
+/* The word is a gilded plaque on a dark board. */
+:root[data-theme="realm"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #ffd65c;
+  text-shadow: 0 2px 0 #3a2208, 0 0 10px rgba(255, 200, 80, 0.35);
+  background: linear-gradient(to bottom, rgba(40, 25, 12, 0.92), rgba(26, 16, 8, 0.92));
+  border: 2px solid #b08a3e;
+  border-radius: 4px;
+  padding: 4px 16px 2px;
+  box-shadow: inset 0 0 0 1px #3a2608, 0 0 0 2px #2a1a0b, 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="realm"] .telegram-word:hover,
+:root[data-theme="realm"] .telegram-word:focus-visible {
+  background: linear-gradient(to bottom, rgba(64, 40, 18, 0.95), rgba(36, 22, 10, 0.95));
+  text-decoration: none;
+}
+:root[data-theme="realm"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffd65c;
+}
+:root[data-theme="realm"] .telegram-kicker,
+:root[data-theme="realm"] .telegram-date {
+  color: #f3e7c6;
+  text-shadow: 0 1px 2px #000;
+}
+:root[data-theme="realm"] .telegram-side .telegram-note,
+:root[data-theme="realm"] .telegram-status {
+  color: #bff3f8;
+  text-shadow: 0 1px 2px #000;
+}
+:root[data-theme="realm"] .toolbar,
+:root[data-theme="realm"] .timebar {
+  border: 0;
+  background: var(--realm-wood);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+  color: #fff4cf;
+}
+:root[data-theme="realm"] .timebar {
+  border-top: 2px solid #1c1108;
+}
+:root[data-theme="realm"] .toolbar {
+  border-bottom: 2px solid #1c1108;
+}
+/* Buttons are small carved stones; pressed, they turn to brass. */
+:root[data-theme="realm"] .tool,
+:root[data-theme="realm"] .pick select,
+:root[data-theme="realm"] .menu > summary,
+:root[data-theme="realm"] .chip,
+:root[data-theme="realm"] .key-btn,
+:root[data-theme="realm"] .key-close {
+  border: 1px solid #1f1c19;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #8a857b, #5c5850);
+  color: #fff6d8;
+  font-weight: 700;
+  text-shadow: 0 1px 1px #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="realm"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+:root[data-theme="realm"] .tool[aria-pressed="true"],
+:root[data-theme="realm"] .menu[open] > summary,
+:root[data-theme="realm"] .chip[aria-pressed="true"],
+:root[data-theme="realm"] .key-btn[aria-expanded="true"] {
+  background: linear-gradient(to bottom, #f5d878, #b88a30);
+  color: #2a1a08;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+/* Behind the minimap and the globe: the same stone wall, lit in the middle. */
+:root[data-theme="realm"] .map {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 230, 170, 0.1), transparent 60%), var(--realm-stone) 0 0 / 96px 64px, #3a3631;
+}
+:root[data-theme="realm"] .map[data-view="2d"] .x-ring {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+:root[data-theme="realm"] .x-ring svg {
+  display: block;
+}
+/* Two round stone buttons for the zoom. */
+:root[data-theme="realm"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="realm"] .zoom button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #b08a3e;
+  color: #fff6d8;
+  font-weight: 700;
+  text-shadow: 0 1px 1px #000;
+  background: radial-gradient(circle at 40% 35%, #8f8a80, #4d4943 75%);
+  box-shadow: 0 0 0 1px #1f1c19, 0 2px 4px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="realm"] .zoom button + button {
+  border-top: 2px solid #b08a3e;
+}
+:root[data-theme="realm"] .crosshair {
+  filter: drop-shadow(0 0 1px #2a1a08) drop-shadow(0 0 1px #2a1a08) drop-shadow(0 1px 1px #000);
+}
+/* The panel is a quest log: dark translucent brown in a wooden frame with a brass line and rivets, yellow and cyan
+   text. */
+:root[data-theme="realm"] .panel,
+:root[data-theme="realm"] .menu-body,
+:root[data-theme="realm"] .key-pop,
+:root[data-theme="realm"] dialog {
+  background: var(--realm-rivets), linear-gradient(rgba(42, 28, 16, 0.9), rgba(30, 19, 10, 0.93));
+  border: 3px solid #5a3b1e;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #1c1108, inset 0 0 0 1px #c9a049, inset 0 0 26px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: var(--ink);
+}
+:root[data-theme="realm"] .panel {
+  margin: 0 8px 8px 0;
+}
+:root[data-theme="realm"] .key-pop {
+  --key-bg: #35647d;
+}
+:root[data-theme="realm"] .panel-title,
+:root[data-theme="realm"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #ffd65c;
+  text-shadow: 0 1px 0 #000, 0 0 8px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="realm"] .dateline {
+  border-bottom: 2px solid #6e5634;
+}
+:root[data-theme="realm"] .dateline .coords,
+:root[data-theme="realm"] .meta {
+  font-style: normal;
+  color: #86e4ee;
+}
+:root[data-theme="realm"] .rule-head {
+  color: #86e4ee;
+  border-color: #6e5634;
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="realm"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #ffdf73;
+  text-shadow: 0 1px 1px #000;
+}
+:root[data-theme="realm"] .story:hover {
+  background: rgba(134, 228, 238, 0.08);
+}
+
+/* ---- Tactical: an overhead radar in a HUD: greys and olive, orange accents, condensed capitals ---------------- */
+:root[data-theme="tactical"] body {
+  background: linear-gradient(to bottom, #202321, #161817);
+}
+:root[data-theme="tactical"] .masthead {
+  border-bottom: 2px solid #ff9d1e;
+  background: linear-gradient(to bottom, #242725, #1b1d1c);
+  box-shadow: 0 2px 0 #0c0d0c;
+}
+:root[data-theme="tactical"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  font-size: clamp(34px, 3.8vw, 50px);
+  line-height: 0.85;
+  letter-spacing: 0.06em;
+  color: #f4f4ec;
+  padding-top: 4px;
+}
+:root[data-theme="tactical"] .mast-title::before {
+  /* A slanted orange bar before the name, a HUD's accent. */
+  content: "";
+  display: inline-block;
+  width: 0.24em;
+  height: 0.62em;
+  margin-right: 0.28em;
+  background: #ff9d1e;
+  transform: skewX(-18deg);
+  vertical-align: 0.02em;
+}
+:root[data-theme="tactical"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b9bcb2;
+}
+:root[data-theme="tactical"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffb445;
+  background: linear-gradient(to right, rgba(255, 157, 30, 0.14), rgba(255, 157, 30, 0.02));
+  border: 0;
+  border-left: 4px solid #ff9d1e;
+  padding: 4px 14px 0;
+  line-height: 0.95;
+}
+:root[data-theme="tactical"] .telegram-word:hover,
+:root[data-theme="tactical"] .telegram-word:focus-visible {
+  background: linear-gradient(to right, rgba(255, 157, 30, 0.26), rgba(255, 157, 30, 0.06));
+  text-decoration: none;
+}
+:root[data-theme="tactical"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #ffb445;
+}
+:root[data-theme="tactical"] .telegram-kicker,
+:root[data-theme="tactical"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: #cfd1c7;
+}
+:root[data-theme="tactical"] .toolbar,
+:root[data-theme="tactical"] .timebar {
+  border-color: #0c0d0c;
+  background: #1d201e;
+}
+:root[data-theme="tactical"] .tool,
+:root[data-theme="tactical"] .pick select,
+:root[data-theme="tactical"] .menu > summary,
+:root[data-theme="tactical"] .chip,
+:root[data-theme="tactical"] .key-btn,
+:root[data-theme="tactical"] .key-close {
+  border: 1px solid #4a4f48;
+  border-radius: 0;
+  background: rgba(40, 44, 41, 0.92);
+  color: #ecece4;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="tactical"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+}
+:root[data-theme="tactical"] .tool[aria-pressed="true"],
+:root[data-theme="tactical"] .menu[open] > summary,
+:root[data-theme="tactical"] .chip[aria-pressed="true"],
+:root[data-theme="tactical"] .key-btn[aria-expanded="true"] {
+  background: #ff9d1e;
+  border-color: #ff9d1e;
+  color: #1a1004;
+}
+:root[data-theme="tactical"] .scale .step.on {
+  background: #ff9d1e;
+  color: #1a1004;
+}
+/* Behind the globe: dark glass with a faint grid, like the rest of the radar. */
+:root[data-theme="tactical"] .map {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45)),
+    repeating-linear-gradient(0deg, rgba(205, 210, 195, 0.05) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(205, 210, 195, 0.05) 0 1px, transparent 1px 40px),
+    #181a19;
+}
+:root[data-theme="tactical"] .zoom {
+  border: 1px solid #4a4f48;
+  background: rgba(24, 26, 25, 0.9);
+}
+:root[data-theme="tactical"] .zoom button {
+  color: #ecece4;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+:root[data-theme="tactical"] .zoom button + button {
+  border-top-color: #4a4f48;
+}
+/* A HUD's centre mark: four thin arms around a gap, outlined dark so it reads on land and sea. */
+:root[data-theme="tactical"] .crosshair {
+  --arm: 8px;
+  --weight: 2px;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+}
+/* Corner brackets around the map, and the clock at the top: time since the day's map was built. */
+:root[data-theme="tactical"] .x-hud {
+  display: block;
+  position: absolute;
+  inset: 8px;
+  z-index: 2;
+  pointer-events: none;
+  --c: rgba(236, 236, 228, 0.55);
+  background:
+    linear-gradient(var(--c), var(--c)) left top / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left top / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 2px 22px no-repeat;
+}
+:root[data-theme="tactical"] .x-round {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 26px 5px;
+  background: rgba(18, 20, 19, 0.86);
+  border-bottom: 2px solid #ff9d1e;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 14px 100%);
+}
+:root[data-theme="tactical"] .x-round-time {
+  font: 600 32px/0.9 var(--font-mast);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4ec;
+  min-width: 4.6em;
+  text-align: center;
+  padding-top: 3px;
+}
+:root[data-theme="tactical"] .x-round-note {
+  font: 600 10px/1.2 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffb445;
+}
+/* The feed: the newest headlines in the corner, newest on top, text only. */
+:root[data-theme="tactical"] .x-feed {
+  display: block;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: min(430px, calc(50% - 110px));
+}
+:root[data-theme="tactical"] .x-feed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+:root[data-theme="tactical"] .x-feed-list li {
+  max-width: 100%;
+}
+:root[data-theme="tactical"] .x-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 3px 9px 2px;
+  border: 0;
+  border-right: 3px solid #ff9d1e;
+  background: rgba(16, 18, 17, 0.8);
+  color: #ecece4;
+  font: 500 14px/1.25 var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+:root[data-theme="tactical"] .x-feed-item:hover {
+  background: rgba(40, 36, 28, 0.92);
+}
+:root[data-theme="tactical"] .x-feed-item b {
+  flex: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffb445;
+}
+:root[data-theme="tactical"] .x-feed-sep {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 5px solid #8e9388;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+:root[data-theme="tactical"] .x-feed-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-theme="tactical"] .key-btn {
+  top: 18px;
+  left: 18px;
+}
+:root[data-theme="tactical"] .panel,
+:root[data-theme="tactical"] .menu-body,
+:root[data-theme="tactical"] .key-pop,
+:root[data-theme="tactical"] dialog {
+  background: #1f2220;
+  border: 1px solid #3a3e39;
+  box-shadow: none;
+}
+:root[data-theme="tactical"] .panel {
+  border-top: 0;
+  border-left: 1px solid #0c0d0c;
+}
+:root[data-theme="tactical"] .key-pop {
+  --key-bg: #262927;
+}
+:root[data-theme="tactical"] .panel-title,
+:root[data-theme="tactical"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: #f4f4ec;
+  padding-top: 4px;
+}
+:root[data-theme="tactical"] .dateline {
+  border-bottom: 2px solid #ff9d1e;
+}
+:root[data-theme="tactical"] .rule-head {
+  font-family: var(--font-ui);
+  color: #ffb445;
+  border-color: #3a3e39;
+  text-align: left;
+}
+:root[data-theme="tactical"] .headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+}
+:root[data-theme="tactical"] .meta,
+:root[data-theme="tactical"] .dateline .coords,
+:root[data-theme="tactical"] .count {
+  font-family: var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="tactical"] .story:hover {
+  background: rgba(255, 157, 30, 0.07);
+}
+
+/* ---- Phones: both keep the toolbar one row, and the word fits ------------------------------------------- */
+@media (max-width: 760px) {
+  :root[data-theme="realm"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.78)));
+    padding: 3px 12px 1px;
+  }
+  :root[data-theme="realm"] .masthead {
+    margin-bottom: 6px;
+  }
+  :root[data-theme="realm"] .panel {
+    margin: 0 6px 6px;
+  }
+  :root[data-theme="tactical"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.62)));
+  }
+  :root[data-theme="tactical"] .panel {
+    border-left: 0;
+    border-top: 2px solid #0c0d0c;
+  }
+  :root[data-theme="tactical"] .x-round {
+    padding: 3px 18px 4px;
+  }
+  :root[data-theme="tactical"] .x-round-time {
+    font-size: 24px;
+  }
+  :root[data-theme="tactical"] .x-round-note {
+    font-size: 9px;
+  }
+  /* On a phone the feed moves to the lower left, three lines, clear of the clock and the zoom. */
+  :root[data-theme="tactical"] .x-feed {
+    top: auto;
+    right: auto;
+    left: 12px;
+    bottom: 12px;
+    width: calc(100% - 76px);
+  }
+  :root[data-theme="tactical"] .x-feed-list {
+    align-items: flex-start;
+  }
+  :root[data-theme="tactical"] .x-feed-list li:nth-child(n + 4) {
+    display: none;
+  }
+  :root[data-theme="tactical"] .x-feed-list.short li:nth-child(n + 2) {
+    display: none;
+  }
+  :root[data-theme="tactical"] .x-feed-item {
+    font-size: 12px;
+    border-right: 0;
+    border-left: 3px solid #ff9d1e;
+  }
+}
+@media (max-width: 420px) {
+  :root[data-theme="realm"] .tool,
+  :root[data-theme="realm"] .pick select,
+  :root[data-theme="realm"] .menu > summary {
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
    Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76): handmade, tabletop and paper worlds
    (src/map/popup.ts, trainset.ts, chalk.ts, sketch.ts). Tokens first, then each design's chrome.
    ========================================================================== */
@@ -8405,5 +9893,1121 @@ button.link {
   :root[data-theme="radar"] .menu > summary {
     letter-spacing: 0.02em;
     font-size: 11px;
+  }
+}
+
+/* ==========================================================================
+   Console Menu (id cube) and Dual Screen (id dual): two console eras. Console Menu is the clean, glossy home menu
+   of early-2000s consoles (src/map/gloss.ts); Dual Screen is a two-screen handheld, the word and the stories on one
+   screen and the map on the touch screen. No console maker's names, logos, menus or characters.
+   ========================================================================== */
+:root[data-theme="cube"] {
+  color-scheme: light;
+  --page: #eef1f4;
+  --panel: #f9fbfc;
+  --ink: #37414b;
+  --ink-2: #4b5764;
+  --muted: #63707d;
+  --rule: #c5cdd5;
+  --accent: #1476b4;
+  --on-accent: #ffffff;
+  --hover: rgba(52, 187, 232, 0.12);
+  --reticle: #1476b4;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --glow: #34bbe8;
+  --font-mast: "M PLUS Rounded 1c", "Arial Rounded MT Bold", "Nunito", sans-serif;
+  --font-head: "M PLUS Rounded 1c", "Arial Rounded MT Bold", "Nunito", sans-serif;
+  --font-body: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="dual"] {
+  color-scheme: light;
+  --page: #dfe3e8;
+  --panel: #f7f9fc;
+  --ink: #18212c;
+  --ink-2: #2a3544;
+  --muted: #4f5b6b;
+  --rule: #8c9aab;
+  --accent: #2463c9;
+  --on-accent: #ffffff;
+  --hover: rgba(36, 99, 201, 0.1);
+  --reticle: #16203a;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --bezel: #23272f;
+  --font-mast: "Tiny5", "Press Start 2P", "Courier New", monospace;
+  --font-head: "DotGothic16", "Pixelify Sans", "Courier New", monospace;
+  --font-body: "DotGothic16", "Pixelify Sans", "Courier New", monospace;
+  --font-ui: "Tiny5", "Pixelify Sans", "Courier New", monospace;
+}
+
+/* ---- Console Menu: white plastic, pale blue light, glossy bubble buttons, slow wavy lines ------------------ */
+:root[data-theme="cube"] body {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+    linear-gradient(to bottom, #f5f7f9, #e3e8ec);
+}
+:root[data-theme="cube"] .masthead {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, #ffffff, #f2f5f8);
+  box-shadow: 0 1px 0 #d6dde3, 0 4px 12px rgba(40, 80, 120, 0.08);
+  position: relative;
+  z-index: 21;
+}
+:root[data-theme="cube"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #5b6875;
+}
+:root[data-theme="cube"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .telegram-word,
+:root[data-theme="cube"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #1a82c2;
+  text-shadow: 0 1px 0 #ffffff, 0 2px 6px rgba(52, 187, 232, 0.3);
+  border-bottom: 0;
+}
+:root[data-theme="cube"] .telegram-word {
+  border-radius: 14px;
+  padding: 2px 10px 4px;
+}
+:root[data-theme="cube"] .telegram-word:hover,
+:root[data-theme="cube"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  background: rgba(52, 187, 232, 0.08);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.35);
+}
+:root[data-theme="cube"] .telegram-kicker,
+:root[data-theme="cube"] .telegram-date {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .telegram-note,
+:root[data-theme="cube"] .meta,
+:root[data-theme="cube"] .count,
+:root[data-theme="cube"] .dateline .coords {
+  font-style: normal;
+}
+:root[data-theme="cube"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px;
+}
+/* Bubble buttons: white plastic with a glossy top half, a light-blue glow when pointed at, blue when on. */
+:root[data-theme="cube"] .tool,
+:root[data-theme="cube"] .pick select,
+:root[data-theme="cube"] .menu > summary,
+:root[data-theme="cube"] .chip,
+:root[data-theme="cube"] .zoom button,
+:root[data-theme="cube"] .key-btn,
+:root[data-theme="cube"] .key-close {
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e7ecf0 52%, #f1f4f7 100%);
+  border: 1.5px solid #c3ccd4;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 4px rgba(40, 80, 120, 0.14);
+  color: var(--ink);
+  font-weight: 500;
+}
+:root[data-theme="cube"] .tool,
+:root[data-theme="cube"] .menu > summary,
+:root[data-theme="cube"] .key-btn {
+  padding-inline: 14px;
+}
+:root[data-theme="cube"] .pick select {
+  padding-left: 14px;
+}
+:root[data-theme="cube"] .tool.quiet {
+  border-color: #c3ccd4;
+}
+:root[data-theme="cube"] .tool:hover,
+:root[data-theme="cube"] .pick select:hover,
+:root[data-theme="cube"] .menu > summary:hover,
+:root[data-theme="cube"] .chip:hover,
+:root[data-theme="cube"] .zoom button:hover,
+:root[data-theme="cube"] .key-btn:hover,
+:root[data-theme="cube"] .key-close:hover {
+  border-color: var(--glow);
+  box-shadow: inset 0 1px 0 #ffffff, 0 0 0 3px rgba(52, 187, 232, 0.28), 0 2px 4px rgba(40, 80, 120, 0.14);
+}
+:root[data-theme="cube"] .tool[aria-pressed="true"],
+:root[data-theme="cube"] .menu[open] > summary,
+:root[data-theme="cube"] .key-btn[aria-expanded="true"],
+:root[data-theme="cube"] .chip[aria-pressed="true"] {
+  background: linear-gradient(to bottom, #6fd3f6 0%, #3db4e6 48%, #1f98d2 52%, #37aee3 100%);
+  border-color: #1682bb;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 60, 110, 0.45);
+}
+:root[data-theme="cube"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="cube"] .zoom button {
+  width: 38px;
+  height: 38px;
+  color: #1476b4;
+  font-weight: 800;
+}
+:root[data-theme="cube"] .zoom button + button {
+  border-top: 1.5px solid #c3ccd4;
+}
+:root[data-theme="cube"] .zoom,
+:root[data-theme="cube"] .key-btn {
+  margin: 10px;
+}
+/* Outside the channel tile or the ball: two layers of thin wavy lines drifting slowly sideways. */
+:root[data-theme="cube"] .map {
+  isolation: isolate;
+  background: linear-gradient(to bottom, #fbfcfd, #e8edf1);
+}
+:root[data-theme="cube"] .map::before,
+:root[data-theme="cube"] .map::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(100% + 1200px);
+  z-index: -1;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'%3E%3Cg fill='none' stroke='%23b9c7d3' stroke-width='1.6'%3E%3Cpath d='M0 150Q150 110 300 150T600 150T900 150T1200 150'/%3E%3Cpath d='M0 170Q150 136 300 170T600 170T900 170T1200 170' opacity='.7'/%3E%3Cpath d='M0 250Q150 290 300 250T600 250T900 250T1200 250' opacity='.8'/%3E%3C/g%3E%3C/svg%3E") 0 60% / 1200px 400px repeat-x;
+  animation: cube-drift 90s linear infinite;
+}
+:root[data-theme="cube"] .map::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cg fill='none' stroke='%239fd9f1' stroke-width='1.4'%3E%3Cpath d='M0 200Q150 250 300 200T600 200'/%3E%3Cpath d='M0 222Q150 262 300 222T600 222' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") 0 70% / 600px 400px repeat-x;
+  animation-duration: 55s;
+}
+@keyframes cube-drift {
+  to {
+    transform: translateX(-1200px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="cube"] .map::before,
+  :root[data-theme="cube"] .map::after {
+    animation: none;
+  }
+}
+/* The panel is a channel tile of its own: a white card with a rim, the stories in rounded slots. */
+:root[data-theme="cube"] .panel {
+  margin: 12px 14px 12px 4px;
+  border: 1.5px solid #cdd5dc;
+  border-radius: 22px;
+  background: linear-gradient(to bottom, #ffffff, #f3f6f8);
+  box-shadow: inset 0 0 0 4px #ffffff, 0 4px 14px rgba(40, 80, 120, 0.12);
+}
+:root[data-theme="cube"] .panel.framed {
+  overflow: hidden;
+}
+:root[data-theme="cube"] .menu-body,
+:root[data-theme="cube"] .key-pop {
+  border: 1.5px solid #cdd5dc;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(40, 80, 120, 0.18);
+}
+:root[data-theme="cube"] .place-name,
+:root[data-theme="cube"] .panel-title {
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #3f4a55;
+}
+:root[data-theme="cube"] .dateline {
+  border-bottom: 2px solid #d7dee4;
+}
+:root[data-theme="cube"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #f4f7f9, #e4eaef);
+  color: var(--muted);
+}
+:root[data-theme="cube"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="cube"] .story {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border: 1.5px solid #d3dae1;
+  border-radius: 16px;
+  background: linear-gradient(to bottom, #ffffff, #f4f7f9);
+  box-shadow: 0 2px 5px rgba(40, 80, 120, 0.08);
+}
+:root[data-theme="cube"] .story:hover,
+:root[data-theme="cube"] .story:focus-visible {
+  outline: none;
+  background: linear-gradient(to bottom, #ffffff, #eef8fd);
+  border-color: var(--glow);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.3), 0 2px 6px rgba(40, 80, 120, 0.1);
+}
+:root[data-theme="cube"] .headline {
+  font-weight: 800;
+}
+:root[data-theme="cube"] .scale {
+  border-radius: 999px;
+  overflow: hidden;
+}
+/* The bottom bar: grey plastic with a rounded top, bubble buttons at its ends. */
+:root[data-theme="cube"] .timebar {
+  border-top: 0;
+  margin: 0 10px;
+  padding: 9px 18px;
+  border-radius: 26px 26px 0 0;
+  background: linear-gradient(to bottom, #ffffff, #e2e8ed);
+  box-shadow: inset 0 1.5px 0 #ffffff, 0 -1px 0 #cdd5dc, 0 -4px 12px rgba(40, 80, 120, 0.08);
+}
+:root[data-theme="cube"] .slider input {
+  accent-color: var(--glow);
+}
+:root[data-theme="cube"] .time-label {
+  color: var(--muted);
+  font-weight: 800;
+}
+@media (max-width: 760px) {
+  :root[data-theme="cube"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 20px) / (var(--len, 8) * 0.84)));
+  }
+  :root[data-theme="cube"] .panel {
+    margin: 6px 8px 8px;
+  }
+  :root[data-theme="cube"] .tool,
+  :root[data-theme="cube"] .menu > summary {
+    padding-inline: 10px;
+  }
+  :root[data-theme="cube"] .pick select {
+    padding-left: 10px;
+  }
+  :root[data-theme="cube"] .zoom,
+  :root[data-theme="cube"] .key-btn {
+    margin: 4px;
+  }
+  :root[data-theme="cube"] .timebar {
+    margin: 0;
+  }
+}
+
+/* ---- Dual Screen: a two-screen handheld, the word and stories above, the map on the touch screen ----------- */
+/* The page is the handheld's shell. The stage steps aside so the map, the panel and the masthead are laid out as
+   two screens: side by side on a wide screen, one above the other on a phone, with the toolbar as the hinge. */
+:root[data-theme="dual"] body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--panel-w);
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "tool tool"
+    "banner banner"
+    "map mast"
+    "map panel"
+    "time time";
+  column-gap: 30px;
+  padding: 0 18px;
+  -webkit-font-smoothing: none;
+  background:
+    linear-gradient(to right, transparent calc(100% - 18px - var(--panel-w) - 30px), #aab2bc calc(100% - 18px - var(--panel-w) - 30px), #eef1f4 calc(100% - 18px - var(--panel-w) - 18px), #9aa3ae calc(100% - 18px - var(--panel-w)), transparent calc(100% - 18px - var(--panel-w))) 0 64px / 100% calc(100% - 128px) no-repeat,
+    linear-gradient(to bottom, #f1f3f6, #d5dae0);
+}
+:root[data-theme="dual"] body:has(.panel.framed) {
+  grid-template-columns: minmax(0, 1fr) min(62vw, 920px);
+  background: linear-gradient(to bottom, #f1f3f6, #d5dae0);
+}
+:root[data-theme="dual"] .stage {
+  display: contents;
+}
+:root[data-theme="dual"] .toolbar {
+  grid-area: tool;
+  border-bottom: 0;
+  padding: 10px 4px;
+}
+:root[data-theme="dual"] .banner {
+  grid-area: banner;
+  margin: 0 0 8px;
+  border: 0;
+  border-radius: 4px;
+}
+:root[data-theme="dual"] .map {
+  grid-area: map;
+  margin: 12px 12px 14px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 12px var(--bezel), 0 0 0 13px #4a505b, 0 3px 0 13px #b9c0c9;
+}
+/* The touch screen's panel: a faint grid of LCD cells over the pixels. */
+:root[data-theme="dual"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 2px);
+}
+/* The other screen: the masthead above the panel inside one black bezel. */
+:root[data-theme="dual"] .masthead {
+  grid-area: mast;
+  margin-top: 0;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px 12px 8px;
+  border: 12px solid var(--bezel);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background:
+    linear-gradient(to bottom, #d9e6f7 0, #f7f9fc 42px),
+    var(--panel);
+}
+:root[data-theme="dual"] .brand {
+  align-items: center;
+}
+:root[data-theme="dual"] .telegram {
+  grid-column: 1;
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+  justify-items: center;
+  width: 100%;
+  row-gap: 4px;
+}
+:root[data-theme="dual"] .telegram-date {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: stretch;
+  text-align: center;
+  padding: 4px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="dual"] .telegram-center {
+  grid-column: 1;
+  grid-row: auto;
+  margin-top: 2px;
+}
+:root[data-theme="dual"] .telegram-side,
+:root[data-theme="dual"] .telegram > .telegram-kicker:only-child {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: center;
+  align-items: center;
+  text-align: center;
+}
+:root[data-theme="dual"] .panel {
+  grid-area: panel;
+  border: 12px solid var(--bezel);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 14px;
+  background:
+    linear-gradient(rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(to right, rgba(36, 99, 201, 0.06) 1px, transparent 1px) 0 0 / 12px 12px,
+    var(--panel);
+}
+:root[data-theme="dual"] .panel.framed {
+  border-top: 12px solid var(--bezel);
+  border-radius: 8px;
+}
+:root[data-theme="dual"] body:has(.panel.framed) .masthead {
+  display: none;
+}
+:root[data-theme="dual"] body:has(.panel.framed) .panel {
+  grid-row: 3 / 5;
+}
+:root[data-theme="dual"] .timebar {
+  grid-area: time;
+  border-top: 0;
+  padding: 6px 4px 10px;
+}
+:root[data-theme="dual"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+:root[data-theme="dual"] .mast-tag {
+  font-style: normal;
+  font-size: 12px;
+}
+:root[data-theme="dual"] .telegram-word,
+:root[data-theme="dual"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-shadow: 2px 2px 0 #a9c6f2;
+  border-bottom: 0;
+}
+:root[data-theme="dual"] .telegram-word {
+  font-size: min(58px, calc((var(--panel-w) - 50px) / (var(--len, 8) * 0.78)));
+  padding: 2px 8px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+:root[data-theme="dual"] .telegram-word:hover,
+:root[data-theme="dual"] .telegram-word:focus-visible {
+  text-decoration: none;
+  border-color: var(--accent);
+  background: rgba(36, 99, 201, 0.08);
+}
+:root[data-theme="dual"] .telegram-kicker,
+:root[data-theme="dual"] .telegram-date {
+  font-family: var(--font-ui);
+  color: var(--accent);
+}
+:root[data-theme="dual"] .telegram-note,
+:root[data-theme="dual"] .meta,
+:root[data-theme="dual"] .count,
+:root[data-theme="dual"] .dateline .coords {
+  font-style: normal;
+}
+:root[data-theme="dual"] .place-name,
+:root[data-theme="dual"] .panel-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="dual"] .headline {
+  font-weight: 400;
+  font-size: 16px;
+}
+:root[data-theme="dual"] .dateline {
+  border-bottom: 2px solid var(--accent);
+}
+:root[data-theme="dual"] .rule-head {
+  border: 0;
+  border-radius: 4px;
+  color: #ffffff;
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+}
+/* Stylus-sized buttons: pale plastic with a blue edge when touched, filled blue when on. */
+:root[data-theme="dual"] .tool,
+:root[data-theme="dual"] .pick select,
+:root[data-theme="dual"] .menu > summary,
+:root[data-theme="dual"] .chip,
+:root[data-theme="dual"] .zoom button,
+:root[data-theme="dual"] .key-btn,
+:root[data-theme="dual"] .key-close {
+  min-height: 34px;
+  background: linear-gradient(to bottom, #ffffff, #e3e9f1);
+  border: 1px solid #7d8a9c;
+  border-radius: 6px;
+  box-shadow: inset 0 -2px 0 #c3cdd9, 0 1px 0 rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="dual"] .tool:hover,
+:root[data-theme="dual"] .pick select:hover,
+:root[data-theme="dual"] .menu > summary:hover,
+:root[data-theme="dual"] .chip:hover,
+:root[data-theme="dual"] .zoom button:hover,
+:root[data-theme="dual"] .key-btn:hover,
+:root[data-theme="dual"] .key-close:hover {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), inset 0 -2px 0 #c3cdd9;
+}
+:root[data-theme="dual"] .tool[aria-pressed="true"],
+:root[data-theme="dual"] .menu[open] > summary,
+:root[data-theme="dual"] .key-btn[aria-expanded="true"],
+:root[data-theme="dual"] .chip[aria-pressed="true"] {
+  background: linear-gradient(to bottom, #5a8fe0, #2463c9);
+  border-color: #173f86;
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+:root[data-theme="dual"] .tool.quiet {
+  border-color: #7d8a9c;
+}
+:root[data-theme="dual"] .zoom {
+  border: 0;
+  background: none;
+  gap: 4px;
+  right: 10px;
+  bottom: 10px;
+}
+:root[data-theme="dual"] .zoom button {
+  width: 36px;
+  height: 36px;
+}
+:root[data-theme="dual"] .key-btn {
+  left: 10px;
+  top: 10px;
+}
+:root[data-theme="dual"] .menu-body,
+:root[data-theme="dual"] .key-pop {
+  border: 3px solid var(--bezel);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+}
+:root[data-theme="dual"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="dual"] .story {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border: 1px solid #9fb0c4;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #ffffff, #edf2f8);
+  box-shadow: inset 0 -2px 0 #d3dce7;
+}
+:root[data-theme="dual"] .story:hover,
+:root[data-theme="dual"] .story:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  background: linear-gradient(to bottom, #f4f8ff, #dde9fb);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+:root[data-theme="dual"] .scale {
+  border-radius: 4px;
+  overflow: hidden;
+}
+@media (max-width: 760px) {
+  /* A phone holds the handheld upright: the screen with the word and the stories on top, the hinge with the
+     toolbar, then the touch screen with the map. */
+  :root[data-theme="dual"] body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 0.85fr) auto minmax(0, 1.15fr) auto;
+    grid-template-areas:
+      "banner"
+      "mast"
+      "panel"
+      "tool"
+      "map"
+      "time";
+    column-gap: 0;
+    padding: 6px 8px 0;
+    background: linear-gradient(to bottom, #f1f3f6, #d5dae0);
+  }
+  :root[data-theme="dual"] body:has(.panel.reading) {
+    grid-template-rows: auto auto minmax(0, 1.4fr) auto minmax(0, 0.6fr) auto;
+  }
+  :root[data-theme="dual"] body:has(.panel.framed) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto 0 auto;
+  }
+  :root[data-theme="dual"] body:has(.panel.framed) .panel {
+    grid-row: 3;
+  }
+  :root[data-theme="dual"] body:has(.panel.framed) .map {
+    visibility: hidden;
+    margin: 0;
+  }
+  :root[data-theme="dual"] .masthead {
+    border-width: 8px;
+    border-bottom: 0;
+    padding: 8px 8px 4px;
+  }
+  :root[data-theme="dual"] .panel {
+    border: 8px solid var(--bezel);
+    border-top: 0;
+    margin: 0;
+    padding-top: 8px;
+  }
+  :root[data-theme="dual"] .panel.framed {
+    border-top: 8px solid var(--bezel);
+  }
+  /* The hinge between the two screens. */
+  :root[data-theme="dual"] .toolbar {
+    margin: 6px -8px 0;
+    padding: 7px 8px;
+    background: linear-gradient(to bottom, #aab2bc, #eef1f4 45%, #c3cad2 60%, #9aa3ae);
+  }
+  :root[data-theme="dual"] .map {
+    margin: 14px 8px 10px;
+    box-shadow: 0 0 0 8px var(--bezel), 0 0 0 9px #4a505b;
+  }
+  :root[data-theme="dual"] .timebar {
+    padding: 4px 0 8px;
+  }
+  :root[data-theme="dual"] .telegram-word {
+    font-size: min(52px, calc((100vw - 60px) / (var(--len, 8) * 0.72)));
+  }
+  :root[data-theme="dual"] .mast-title {
+    font-size: 20px;
+  }
+  :root[data-theme="dual"] .tool,
+  :root[data-theme="dual"] .pick select,
+  :root[data-theme="dual"] .menu > summary {
+    min-height: 32px;
+  }
+  :root[data-theme="dual"] #about-btn {
+    top: 4px;
+    right: 4px;
+    min-height: 28px;
+  }
+}
+/* A stylus for a pointer over the touch screen: its tip is the point that is touched. */
+:root[data-theme="dual"] .map canvas {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M1 1h3l18 18v4h-4L1 4z' fill='%2316203a'/%3E%3Cpath d='M4 4l16 16v1h-1L3 5z' fill='%23c9d3df'/%3E%3C/svg%3E") 1 1, grab;
+}
+
+/* ==========================================================================
+   Undersea Town and Block World: two looks after the feel of a cartoon town under the sea and a blocky sandbox
+   game, with none of their characters, names, logos or art (src/map/scenery.ts, src/map/blocks.ts).
+   ========================================================================== */
+
+/* ---- Undersea Town: turquoise water, flower clouds, bubbles, sandy floor, bubbly rounded panels ------------- */
+:root[data-theme="reef"] {
+  color-scheme: light;
+  --page: #bdeef0;
+  --panel: #f4fdfd;
+  --ink: #10374f;
+  --ink-2: #1d4a63;
+  --muted: #3d6479;
+  --rule: #1b9fb3;
+  --accent: #c42d5e;
+  --on-accent: #ffffff;
+  --hover: rgba(196, 45, 94, 0.08);
+  --reticle: #10374f;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Bubblegum Sans", "Chewy", "Comic Sans MS", sans-serif;
+  --font-head: "Bubblegum Sans", "Nunito", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+/* The sky seen through the water: light from above and flower-shaped clouds drifting in it. */
+:root[data-theme="reef"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='360'%3E%3Cg opacity='.6'%3E%3Cg transform='translate(60 70)'%3E%3Cg fill='%2362b4f0'%3E%3Ccircle cx='20.4' cy='3.6' r='17'/%3E%3Ccircle cx='7.1' cy='19.5' r='17'/%3E%3Ccircle cx='-13.3' cy='15.9' r='17'/%3E%3Ccircle cx='-20.4' cy='-3.6' r='17'/%3E%3Ccircle cx='-7.1' cy='-19.5' r='17'/%3E%3Ccircle cx='13.3' cy='-15.9' r='17'/%3E%3Ccircle cx='0' cy='0' r='22.2'/%3E%3C/g%3E%3Cg fill='%23a3d9ff'%3E%3Ccircle cx='18.8' cy='3.3' r='15.6'/%3E%3Ccircle cx='6.5' cy='17.9' r='15.6'/%3E%3Ccircle cx='-12.2' cy='14.6' r='15.6'/%3E%3Ccircle cx='-18.8' cy='-3.3' r='15.6'/%3E%3Ccircle cx='-6.5' cy='-17.9' r='15.6'/%3E%3Ccircle cx='12.2' cy='-14.6' r='15.6'/%3E%3Ccircle cx='0' cy='0' r='20.4'/%3E%3C/g%3E%3Cg fill='%23e2f4ff'%3E%3Ccircle cx='5.7' cy='-3' r='8.1'/%3E%3Ccircle cx='-0.7' cy='4.5' r='8.1'/%3E%3Ccircle cx='-10.4' cy='2.8' r='8.1'/%3E%3Ccircle cx='-13.8' cy='-6.5' r='8.1'/%3E%3Ccircle cx='-7.5' cy='-14.1' r='8.1'/%3E%3Ccircle cx='2.3' cy='-12.3' r='8.1'/%3E%3Ccircle cx='-4.1' cy='-4.8' r='10.6'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(300 50)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='7' r='11.5'/%3E%3Ccircle cx='-2.9' cy='13.7' r='11.5'/%3E%3Ccircle cx='-13.9' cy='1.5' r='11.5'/%3E%3Ccircle cx='-5.7' cy='-12.8' r='11.5'/%3E%3Ccircle cx='10.4' cy='-9.4' r='11.5'/%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.7' cy='6.2' r='10.1'/%3E%3Ccircle cx='-2.6' cy='12.1' r='10.1'/%3E%3Ccircle cx='-12.3' cy='1.3' r='10.1'/%3E%3Ccircle cx='-5' cy='-11.3' r='10.1'/%3E%3Ccircle cx='9.2' cy='-8.2' r='10.1'/%3E%3Ccircle cx='0' cy='0' r='13.2'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='2.9' cy='0.1' r='5.3'/%3E%3Ccircle cx='-4' cy='3.2' r='5.3'/%3E%3Ccircle cx='-9' cy='-2.4' r='5.3'/%3E%3Ccircle cx='-5.2' cy='-8.9' r='5.3'/%3E%3Ccircle cx='2.1' cy='-7.4' r='5.3'/%3E%3Ccircle cx='-2.6' cy='-3.1' r='6.9'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(210 200)'%3E%3Cg fill='%23a784e6'%3E%3Ccircle cx='23.7' cy='-4.2' r='19.8'/%3E%3Ccircle cx='15.5' cy='18.4' r='19.8'/%3E%3Ccircle cx='-8.2' cy='22.6' r='19.8'/%3E%3Ccircle cx='-23.7' cy='4.2' r='19.8'/%3E%3Ccircle cx='-15.5' cy='-18.4' r='19.8'/%3E%3Ccircle cx='8.2' cy='-22.6' r='19.8'/%3E%3Ccircle cx='0' cy='0' r='25.8'/%3E%3C/g%3E%3Cg fill='%23d3bdfb'%3E%3Ccircle cx='22.1' cy='-3.9' r='18.4'/%3E%3Ccircle cx='14.4' cy='17.2' r='18.4'/%3E%3Ccircle cx='-7.7' cy='21' r='18.4'/%3E%3Ccircle cx='-22.1' cy='3.9' r='18.4'/%3E%3Ccircle cx='-14.4' cy='-17.2' r='18.4'/%3E%3Ccircle cx='7.7' cy='-21' r='18.4'/%3E%3Ccircle cx='0' cy='0' r='24'/%3E%3C/g%3E%3Cg fill='%23f3eaff'%3E%3Ccircle cx='6.7' cy='-7.6' r='9.6'/%3E%3Ccircle cx='2.7' cy='3.3' r='9.6'/%3E%3Ccircle cx='-8.8' cy='5.3' r='9.6'/%3E%3Ccircle cx='-16.3' cy='-3.6' r='9.6'/%3E%3Ccircle cx='-12.3' cy='-14.5' r='9.6'/%3E%3Ccircle cx='-0.8' cy='-16.5' r='9.6'/%3E%3Ccircle cx='-4.8' cy='-5.6' r='12.5'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(380 280)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='16.2' cy='0' r='13.3'/%3E%3Ccircle cx='5' cy='15.4' r='13.3'/%3E%3Ccircle cx='-13.1' cy='9.5' r='13.3'/%3E%3Ccircle cx='-13.1' cy='-9.5' r='13.3'/%3E%3Ccircle cx='5' cy='-15.4' r='13.3'/%3E%3Ccircle cx='0' cy='0' r='17.4'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='14.6' cy='0' r='12'/%3E%3Ccircle cx='4.5' cy='13.8' r='12'/%3E%3Ccircle cx='-11.8' cy='8.6' r='12'/%3E%3Ccircle cx='-11.8' cy='-8.6' r='12'/%3E%3Ccircle cx='4.5' cy='-13.8' r='12'/%3E%3Ccircle cx='0' cy='0' r='15.6'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='4.5' cy='-3.6' r='6.2'/%3E%3Ccircle cx='-0.8' cy='3.6' r='6.2'/%3E%3Ccircle cx='-9.2' cy='0.8' r='6.2'/%3E%3Ccircle cx='-9.2' cy='-8.1' r='6.2'/%3E%3Ccircle cx='-0.8' cy='-10.8' r='6.2'/%3E%3Ccircle cx='-3.1' cy='-3.6' r='8.1'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(70 300)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='4.4' r='10.6'/%3E%3Ccircle cx='-0.4' cy='12.9' r='10.6'/%3E%3Ccircle cx='-12.4' cy='3.6' r='10.6'/%3E%3Ccircle cx='-7.2' cy='-10.7' r='10.6'/%3E%3Ccircle cx='7.9' cy='-10.1' r='10.6'/%3E%3Ccircle cx='0' cy='0' r='13.8'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.5' cy='3.8' r='9.2'/%3E%3Ccircle cx='-0.4' cy='11.2' r='9.2'/%3E%3Ccircle cx='-10.8' cy='3.1' r='9.2'/%3E%3Ccircle cx='-6.3' cy='-9.3' r='9.2'/%3E%3Ccircle cx='6.9' cy='-8.8' r='9.2'/%3E%3Ccircle cx='0' cy='0' r='12'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='3.1' cy='-0.8' r='4.8'/%3E%3Ccircle cx='-2.6' cy='3' r='4.8'/%3E%3Ccircle cx='-8' cy='-1.2' r='4.8'/%3E%3Ccircle cx='-5.7' cy='-7.6' r='4.8'/%3E%3Ccircle cx='1.2' cy='-7.4' r='4.8'/%3E%3Ccircle cx='-2.4' cy='-2.8' r='6.2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(150 130)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='8.4' cy='0' r='6.9'/%3E%3Ccircle cx='2.6' cy='8' r='6.9'/%3E%3Ccircle cx='-6.8' cy='4.9' r='6.9'/%3E%3Ccircle cx='-6.8' cy='-4.9' r='6.9'/%3E%3Ccircle cx='2.6' cy='-8' r='6.9'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='6.7' cy='0' r='5.5'/%3E%3Ccircle cx='2.1' cy='6.4' r='5.5'/%3E%3Ccircle cx='-5.4' cy='3.9' r='5.5'/%3E%3Ccircle cx='-5.4' cy='-3.9' r='5.5'/%3E%3Ccircle cx='2.1' cy='-6.4' r='5.5'/%3E%3Ccircle cx='0' cy='0' r='7.2'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='2.1' cy='-1.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='1.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='0.4' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-3.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='-5' r='2.9'/%3E%3Ccircle cx='-1.4' cy='-1.7' r='3.7'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0 / 420px 360px,
+    linear-gradient(to bottom, #a8ecf0, #7fdce6 55%, #62cfdc);
+  background-attachment: fixed;
+}
+/* The masthead ends in a sandy wave. */
+:root[data-theme="reef"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='14'%3E%3Cpath d='M0 7C10 1 20 1 40 7S70 13 80 7V14H0Z' fill='%23f1d596'/%3E%3Cpath d='M0 7C10 1 20 1 40 7S70 13 80 7' fill='none' stroke='%23b58646' stroke-width='2'/%3E%3C/svg%3E") repeat-x left bottom / 80px 14px,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cg opacity='.45'%3E%3Cg transform='translate(40 30)'%3E%3Cg fill='%2362b4f0'%3E%3Ccircle cx='13.8' cy='2.4' r='11.5'/%3E%3Ccircle cx='4.8' cy='13.2' r='11.5'/%3E%3Ccircle cx='-9' cy='10.7' r='11.5'/%3E%3Ccircle cx='-13.8' cy='-2.4' r='11.5'/%3E%3Ccircle cx='-4.8' cy='-13.2' r='11.5'/%3E%3Ccircle cx='9' cy='-10.7' r='11.5'/%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3C/g%3E%3Cg fill='%23a3d9ff'%3E%3Ccircle cx='12.1' cy='2.1' r='10.1'/%3E%3Ccircle cx='4.2' cy='11.6' r='10.1'/%3E%3Ccircle cx='-7.9' cy='9.4' r='10.1'/%3E%3Ccircle cx='-12.1' cy='-2.1' r='10.1'/%3E%3Ccircle cx='-4.2' cy='-11.6' r='10.1'/%3E%3Ccircle cx='7.9' cy='-9.4' r='10.1'/%3E%3Ccircle cx='0' cy='0' r='13.2'/%3E%3C/g%3E%3Cg fill='%23e2f4ff'%3E%3Ccircle cx='3.7' cy='-2' r='5.3'/%3E%3Ccircle cx='-0.4' cy='2.9' r='5.3'/%3E%3Ccircle cx='-6.8' cy='1.8' r='5.3'/%3E%3Ccircle cx='-8.9' cy='-4.2' r='5.3'/%3E%3Ccircle cx='-4.8' cy='-9.1' r='5.3'/%3E%3Ccircle cx='1.5' cy='-8' r='5.3'/%3E%3Ccircle cx='-2.6' cy='-3.1' r='6.9'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(170 86)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='10.2' cy='5.9' r='9.7'/%3E%3Ccircle cx='-2.4' cy='11.5' r='9.7'/%3E%3Ccircle cx='-11.7' cy='1.2' r='9.7'/%3E%3Ccircle cx='-4.8' cy='-10.7' r='9.7'/%3E%3Ccircle cx='8.7' cy='-7.9' r='9.7'/%3E%3Ccircle cx='0' cy='0' r='12.6'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='8.7' cy='5' r='8.3'/%3E%3Ccircle cx='-2.1' cy='9.9' r='8.3'/%3E%3Ccircle cx='-10' cy='1.1' r='8.3'/%3E%3Ccircle cx='-4.1' cy='-9.2' r='8.3'/%3E%3Ccircle cx='7.5' cy='-6.7' r='8.3'/%3E%3Ccircle cx='0' cy='0' r='10.8'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='2.4' cy='0.1' r='4.3'/%3E%3Ccircle cx='-3.2' cy='2.6' r='4.3'/%3E%3Ccircle cx='-7.4' cy='-2' r='4.3'/%3E%3Ccircle cx='-4.3' cy='-7.3' r='4.3'/%3E%3Ccircle cx='1.7' cy='-6' r='4.3'/%3E%3Ccircle cx='-2.2' cy='-2.5' r='5.6'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(262 26)'%3E%3Cg fill='%23a784e6'%3E%3Ccircle cx='9.4' cy='-1.7' r='7.8'/%3E%3Ccircle cx='4.5' cy='8.4' r='7.8'/%3E%3Ccircle cx='-6.6' cy='6.8' r='7.8'/%3E%3Ccircle cx='-8.6' cy='-4.2' r='7.8'/%3E%3Ccircle cx='1.3' cy='-9.4' r='7.8'/%3E%3Ccircle cx='0' cy='0' r='10.2'/%3E%3C/g%3E%3Cg fill='%23d3bdfb'%3E%3Ccircle cx='7.7' cy='-1.4' r='6.4'/%3E%3Ccircle cx='3.7' cy='6.9' r='6.4'/%3E%3Ccircle cx='-5.4' cy='5.6' r='6.4'/%3E%3Ccircle cx='-7' cy='-3.4' r='6.4'/%3E%3Ccircle cx='1.1' cy='-7.8' r='6.4'/%3E%3Ccircle cx='0' cy='0' r='8.4'/%3E%3C/g%3E%3Cg fill='%23f3eaff'%3E%3Ccircle cx='2.3' cy='-2.7' r='3.3'/%3E%3Ccircle cx='0.2' cy='1.6' r='3.3'/%3E%3Ccircle cx='-4.5' cy='1' r='3.3'/%3E%3Ccircle cx='-5.3' cy='-3.7' r='3.3'/%3E%3Ccircle cx='-1.1' cy='-6' r='3.3'/%3E%3Ccircle cx='-1.7' cy='-2' r='4.4'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(112 104)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='7.3' cy='0' r='6'/%3E%3Ccircle cx='2.2' cy='6.9' r='6'/%3E%3Ccircle cx='-5.9' cy='4.3' r='6'/%3E%3Ccircle cx='-5.9' cy='-4.3' r='6'/%3E%3Ccircle cx='2.2' cy='-6.9' r='6'/%3E%3Ccircle cx='0' cy='0' r='7.8'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='5.6' cy='0' r='4.6'/%3E%3Ccircle cx='1.7' cy='5.3' r='4.6'/%3E%3Ccircle cx='-4.5' cy='3.3' r='4.6'/%3E%3Ccircle cx='-4.5' cy='-3.3' r='4.6'/%3E%3Ccircle cx='1.7' cy='-5.3' r='4.6'/%3E%3Ccircle cx='0' cy='0' r='6'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='1.7' cy='-1.4' r='2.4'/%3E%3Ccircle cx='-0.3' cy='1.4' r='2.4'/%3E%3Ccircle cx='-3.6' cy='0.3' r='2.4'/%3E%3Ccircle cx='-3.6' cy='-3.1' r='2.4'/%3E%3Ccircle cx='-0.3' cy='-4.2' r='2.4'/%3E%3Ccircle cx='-1.2' cy='-1.4' r='3.1'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0 / 300px 120px,
+    linear-gradient(to bottom, #d9f8f8, #b3ecef);
+}
+:root[data-theme="reef"] .toolbar {
+  border-bottom: 0;
+  background: #f1d596;
+  box-shadow: inset 0 -3px 0 #d9b872;
+}
+:root[data-theme="reef"] .timebar {
+  border-top: 0;
+  background:
+    radial-gradient(ellipse 5px 3px at 20% 40%, #d9b872 90%, transparent) 0 0 / 38px 100%,
+    radial-gradient(ellipse 4px 3px at 70% 70%, #fff1cc 90%, transparent) 0 0 / 30px 100%,
+    #f1d596;
+  color: var(--ink);
+}
+/* The map is a rounded porthole onto the water, with bubbles rising behind the world. */
+:root[data-theme="reef"] .map {
+  margin: 10px;
+  border: 3px solid #10374f;
+  border-radius: 28px;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.5);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='360'%3E%3Cg opacity='.6'%3E%3Cg transform='translate(60 70)'%3E%3Cg fill='%2362b4f0'%3E%3Ccircle cx='20.4' cy='3.6' r='17'/%3E%3Ccircle cx='7.1' cy='19.5' r='17'/%3E%3Ccircle cx='-13.3' cy='15.9' r='17'/%3E%3Ccircle cx='-20.4' cy='-3.6' r='17'/%3E%3Ccircle cx='-7.1' cy='-19.5' r='17'/%3E%3Ccircle cx='13.3' cy='-15.9' r='17'/%3E%3Ccircle cx='0' cy='0' r='22.2'/%3E%3C/g%3E%3Cg fill='%23a3d9ff'%3E%3Ccircle cx='18.8' cy='3.3' r='15.6'/%3E%3Ccircle cx='6.5' cy='17.9' r='15.6'/%3E%3Ccircle cx='-12.2' cy='14.6' r='15.6'/%3E%3Ccircle cx='-18.8' cy='-3.3' r='15.6'/%3E%3Ccircle cx='-6.5' cy='-17.9' r='15.6'/%3E%3Ccircle cx='12.2' cy='-14.6' r='15.6'/%3E%3Ccircle cx='0' cy='0' r='20.4'/%3E%3C/g%3E%3Cg fill='%23e2f4ff'%3E%3Ccircle cx='5.7' cy='-3' r='8.1'/%3E%3Ccircle cx='-0.7' cy='4.5' r='8.1'/%3E%3Ccircle cx='-10.4' cy='2.8' r='8.1'/%3E%3Ccircle cx='-13.8' cy='-6.5' r='8.1'/%3E%3Ccircle cx='-7.5' cy='-14.1' r='8.1'/%3E%3Ccircle cx='2.3' cy='-12.3' r='8.1'/%3E%3Ccircle cx='-4.1' cy='-4.8' r='10.6'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(300 50)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='7' r='11.5'/%3E%3Ccircle cx='-2.9' cy='13.7' r='11.5'/%3E%3Ccircle cx='-13.9' cy='1.5' r='11.5'/%3E%3Ccircle cx='-5.7' cy='-12.8' r='11.5'/%3E%3Ccircle cx='10.4' cy='-9.4' r='11.5'/%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.7' cy='6.2' r='10.1'/%3E%3Ccircle cx='-2.6' cy='12.1' r='10.1'/%3E%3Ccircle cx='-12.3' cy='1.3' r='10.1'/%3E%3Ccircle cx='-5' cy='-11.3' r='10.1'/%3E%3Ccircle cx='9.2' cy='-8.2' r='10.1'/%3E%3Ccircle cx='0' cy='0' r='13.2'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='2.9' cy='0.1' r='5.3'/%3E%3Ccircle cx='-4' cy='3.2' r='5.3'/%3E%3Ccircle cx='-9' cy='-2.4' r='5.3'/%3E%3Ccircle cx='-5.2' cy='-8.9' r='5.3'/%3E%3Ccircle cx='2.1' cy='-7.4' r='5.3'/%3E%3Ccircle cx='-2.6' cy='-3.1' r='6.9'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(210 200)'%3E%3Cg fill='%23a784e6'%3E%3Ccircle cx='23.7' cy='-4.2' r='19.8'/%3E%3Ccircle cx='15.5' cy='18.4' r='19.8'/%3E%3Ccircle cx='-8.2' cy='22.6' r='19.8'/%3E%3Ccircle cx='-23.7' cy='4.2' r='19.8'/%3E%3Ccircle cx='-15.5' cy='-18.4' r='19.8'/%3E%3Ccircle cx='8.2' cy='-22.6' r='19.8'/%3E%3Ccircle cx='0' cy='0' r='25.8'/%3E%3C/g%3E%3Cg fill='%23d3bdfb'%3E%3Ccircle cx='22.1' cy='-3.9' r='18.4'/%3E%3Ccircle cx='14.4' cy='17.2' r='18.4'/%3E%3Ccircle cx='-7.7' cy='21' r='18.4'/%3E%3Ccircle cx='-22.1' cy='3.9' r='18.4'/%3E%3Ccircle cx='-14.4' cy='-17.2' r='18.4'/%3E%3Ccircle cx='7.7' cy='-21' r='18.4'/%3E%3Ccircle cx='0' cy='0' r='24'/%3E%3C/g%3E%3Cg fill='%23f3eaff'%3E%3Ccircle cx='6.7' cy='-7.6' r='9.6'/%3E%3Ccircle cx='2.7' cy='3.3' r='9.6'/%3E%3Ccircle cx='-8.8' cy='5.3' r='9.6'/%3E%3Ccircle cx='-16.3' cy='-3.6' r='9.6'/%3E%3Ccircle cx='-12.3' cy='-14.5' r='9.6'/%3E%3Ccircle cx='-0.8' cy='-16.5' r='9.6'/%3E%3Ccircle cx='-4.8' cy='-5.6' r='12.5'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(380 280)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='16.2' cy='0' r='13.3'/%3E%3Ccircle cx='5' cy='15.4' r='13.3'/%3E%3Ccircle cx='-13.1' cy='9.5' r='13.3'/%3E%3Ccircle cx='-13.1' cy='-9.5' r='13.3'/%3E%3Ccircle cx='5' cy='-15.4' r='13.3'/%3E%3Ccircle cx='0' cy='0' r='17.4'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='14.6' cy='0' r='12'/%3E%3Ccircle cx='4.5' cy='13.8' r='12'/%3E%3Ccircle cx='-11.8' cy='8.6' r='12'/%3E%3Ccircle cx='-11.8' cy='-8.6' r='12'/%3E%3Ccircle cx='4.5' cy='-13.8' r='12'/%3E%3Ccircle cx='0' cy='0' r='15.6'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='4.5' cy='-3.6' r='6.2'/%3E%3Ccircle cx='-0.8' cy='3.6' r='6.2'/%3E%3Ccircle cx='-9.2' cy='0.8' r='6.2'/%3E%3Ccircle cx='-9.2' cy='-8.1' r='6.2'/%3E%3Ccircle cx='-0.8' cy='-10.8' r='6.2'/%3E%3Ccircle cx='-3.1' cy='-3.6' r='8.1'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(70 300)'%3E%3Cg fill='%23f27fb0'%3E%3Ccircle cx='12.1' cy='4.4' r='10.6'/%3E%3Ccircle cx='-0.4' cy='12.9' r='10.6'/%3E%3Ccircle cx='-12.4' cy='3.6' r='10.6'/%3E%3Ccircle cx='-7.2' cy='-10.7' r='10.6'/%3E%3Ccircle cx='7.9' cy='-10.1' r='10.6'/%3E%3Ccircle cx='0' cy='0' r='13.8'/%3E%3C/g%3E%3Cg fill='%23ffb9d6'%3E%3Ccircle cx='10.5' cy='3.8' r='9.2'/%3E%3Ccircle cx='-0.4' cy='11.2' r='9.2'/%3E%3Ccircle cx='-10.8' cy='3.1' r='9.2'/%3E%3Ccircle cx='-6.3' cy='-9.3' r='9.2'/%3E%3Ccircle cx='6.9' cy='-8.8' r='9.2'/%3E%3Ccircle cx='0' cy='0' r='12'/%3E%3C/g%3E%3Cg fill='%23ffe9f2'%3E%3Ccircle cx='3.1' cy='-0.8' r='4.8'/%3E%3Ccircle cx='-2.6' cy='3' r='4.8'/%3E%3Ccircle cx='-8' cy='-1.2' r='4.8'/%3E%3Ccircle cx='-5.7' cy='-7.6' r='4.8'/%3E%3Ccircle cx='1.2' cy='-7.4' r='4.8'/%3E%3Ccircle cx='-2.4' cy='-2.8' r='6.2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(150 130)'%3E%3Cg fill='%236fcf7e'%3E%3Ccircle cx='8.4' cy='0' r='6.9'/%3E%3Ccircle cx='2.6' cy='8' r='6.9'/%3E%3Ccircle cx='-6.8' cy='4.9' r='6.9'/%3E%3Ccircle cx='-6.8' cy='-4.9' r='6.9'/%3E%3Ccircle cx='2.6' cy='-8' r='6.9'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3C/g%3E%3Cg fill='%23aeebb4'%3E%3Ccircle cx='6.7' cy='0' r='5.5'/%3E%3Ccircle cx='2.1' cy='6.4' r='5.5'/%3E%3Ccircle cx='-5.4' cy='3.9' r='5.5'/%3E%3Ccircle cx='-5.4' cy='-3.9' r='5.5'/%3E%3Ccircle cx='2.1' cy='-6.4' r='5.5'/%3E%3Ccircle cx='0' cy='0' r='7.2'/%3E%3C/g%3E%3Cg fill='%23e6fbe7'%3E%3Ccircle cx='2.1' cy='-1.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='1.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='0.4' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-3.7' r='2.9'/%3E%3Ccircle cx='-0.4' cy='-5' r='2.9'/%3E%3Ccircle cx='-1.4' cy='-1.7' r='3.7'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 40px 30px / 420px 360px,
+    linear-gradient(to bottom, #9be6ee, #4cc6d6 60%, #2fb4c8);
+}
+:root[data-theme="reef"] .map::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(100% + 400px);
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='400'%3E%3Cg fill='rgba(255,255,255,.18)' stroke='rgba(240,253,255,.85)' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='30' cy='380' r='5'/%3E%3Cpath d='M27.3 379.5a3 3 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='38' cy='340' r='3.5'/%3E%3Cpath d='M36.1 339.6a2.1 2.1 0 0 1 1.8-1.8' stroke='%23fff'/%3E%3Ccircle cx='28' cy='300' r='7'/%3E%3Cpath d='M24.1 299.3a4.2 4.2 0 0 1 3.5-3.5' stroke='%23fff'/%3E%3Ccircle cx='36' cy='250' r='4'/%3E%3Cpath d='M33.8 249.6a2.4 2.4 0 0 1 2-2' stroke='%23fff'/%3E%3Ccircle cx='150' cy='200' r='6'/%3E%3Cpath d='M146.7 199.4a3.6 3.6 0 0 1 3-3' stroke='%23fff'/%3E%3Ccircle cx='158' cy='160' r='3.5'/%3E%3Cpath d='M156.1 159.7a2.1 2.1 0 0 1 1.8-1.8' stroke='%23fff'/%3E%3Ccircle cx='146' cy='128' r='8'/%3E%3Cpath d='M141.6 127.2a4.8 4.8 0 0 1 4-4' stroke='%23fff'/%3E%3Ccircle cx='152' cy='80' r='4'/%3E%3Cpath d='M149.8 79.6a2.4 2.4 0 0 1 2-2' stroke='%23fff'/%3E%3Ccircle cx='90' cy='60' r='5'/%3E%3Cpath d='M87.3 59.5a3 3 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='98' cy='24' r='3'/%3E%3Cpath d='M96.3 23.7a1.8 1.8 0 0 1 1.5-1.5' stroke='%23fff'/%3E%3Ccircle cx='200' cy='330' r='4.5'/%3E%3Cpath d='M197.5 329.6a2.7 2.7 0 0 1 2.3-2.3' stroke='%23fff'/%3E%3Ccircle cx='194' cy='290' r='7'/%3E%3Cpath d='M190.2 289.3a4.2 4.2 0 0 1 3.5-3.5' stroke='%23fff'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 220px 400px;
+  animation: reef-rise 48s linear infinite;
+}
+@keyframes reef-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-400px);
+  }
+}
+/* Cartoon lettering: sunny yellow with a thick dark outline, each letter tipped its own way. */
+:root[data-theme="reef"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(32px, 3.8vw, 48px);
+  letter-spacing: 0.02em;
+  color: #ffe14d;
+  -webkit-text-stroke: 5px #10374f;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #10374f;
+}
+:root[data-theme="reef"] .lt {
+  display: inline-block;
+  rotate: -5deg;
+  animation: reef-bob 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.41s);
+}
+:root[data-theme="reef"] .lt:nth-child(2n) {
+  rotate: 4deg;
+  translate: 0 -3px;
+}
+:root[data-theme="reef"] .lt:nth-child(3n) {
+  rotate: -2deg;
+  translate: 0 2px;
+}
+:root[data-theme="reef"] .lt:nth-child(5n) {
+  rotate: 7deg;
+}
+@keyframes reef-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="reef"] .lt,
+  :root[data-theme="reef"] .map::before {
+    animation: none;
+  }
+}
+:root[data-theme="reef"] .mast-tag {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 700;
+}
+:root[data-theme="reef"] .telegram-word,
+:root[data-theme="reef"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ff5d93;
+  -webkit-text-stroke: 5px #10374f;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #10374f;
+}
+:root[data-theme="reef"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="reef"] .telegram-word:hover,
+:root[data-theme="reef"] .telegram-word:focus-visible {
+  background: none;
+  color: #ffe14d;
+  text-decoration: none;
+}
+:root[data-theme="reef"] .telegram-kicker,
+:root[data-theme="reef"] .telegram-date {
+  color: var(--ink);
+  font-weight: 700;
+}
+/* Buttons are bubbly yellow pills with a dark cartoon outline. */
+:root[data-theme="reef"] .tool,
+:root[data-theme="reef"] .pick select,
+:root[data-theme="reef"] .menu > summary,
+:root[data-theme="reef"] .chip,
+:root[data-theme="reef"] .key-btn,
+:root[data-theme="reef"] .key-close {
+  border: 2.5px solid #10374f;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at 35% 25%, #fff8c8, #ffe45c 60%, #f7c928);
+  color: #10374f;
+  font-weight: 700;
+  box-shadow: 0 2px 0 #10374f;
+}
+:root[data-theme="reef"] .pick::after {
+  color: #10374f;
+}
+:root[data-theme="reef"] .tool.quiet {
+  border-color: #10374f;
+}
+:root[data-theme="reef"] .tool[aria-pressed="true"],
+:root[data-theme="reef"] .menu[open] > summary,
+:root[data-theme="reef"] .chip[aria-pressed="true"],
+:root[data-theme="reef"] .key-btn[aria-expanded="true"],
+:root[data-theme="reef"] .scale .step.on {
+  background: radial-gradient(ellipse at 35% 25%, #ff8fb4, #d6386c 60%, #b8245a);
+  color: #ffffff;
+  border-color: #10374f;
+}
+:root[data-theme="reef"] .zoom {
+  border: 2.5px solid #10374f;
+  border-radius: 999px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 35% 25%, #fff8c8, #ffe45c 60%, #f7c928);
+  box-shadow: 0 2px 0 #10374f;
+}
+:root[data-theme="reef"] .zoom button {
+  color: #10374f;
+}
+:root[data-theme="reef"] .zoom button + button {
+  border-top: 2.5px solid #10374f;
+}
+/* The day's scale is a row of bubbles in one pill. */
+:root[data-theme="reef"] .scale {
+  border: 2px solid #10374f;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f4fdfd;
+}
+/* Panels are big soft bubbles: round corners, a dark outline and a glossy rim. */
+:root[data-theme="reef"] .panel,
+:root[data-theme="reef"] .menu-body,
+:root[data-theme="reef"] .key-pop,
+:root[data-theme="reef"] dialog {
+  background: radial-gradient(ellipse 120% 40% at 30% 0%, #ffffff, var(--panel) 60%), var(--panel);
+  border: 3px solid #10374f;
+  border-radius: 26px;
+  box-shadow: inset 0 0 0 4px #c9f3f5, 0 4px 0 rgba(16, 55, 79, 0.3);
+  color: var(--ink);
+}
+:root[data-theme="reef"] .panel {
+  margin: 10px;
+}
+:root[data-theme="reef"] .panel-title,
+:root[data-theme="reef"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 30px;
+  color: var(--accent);
+}
+:root[data-theme="reef"] .dateline {
+  border-bottom: 3px dotted var(--rule);
+}
+:root[data-theme="reef"] .rule-head {
+  border: 2px solid #10374f;
+  border-radius: 999px;
+  background: #ffe45c;
+  color: #10374f;
+}
+:root[data-theme="reef"] .headline {
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+:root[data-theme="reef"] .lead img {
+  filter: none;
+  border-radius: 18px;
+}
+
+/* ---- Block World: a dirt backdrop, a grass-block edge, a hotbar of slots, grey inventory panels ------------ */
+:root[data-theme="blocks"] {
+  color-scheme: dark;
+  --page: #3b2615;
+  --panel: #c6c6c6;
+  --ink: #ffffff;
+  --ink-2: #e6e6e6;
+  --muted: #d0d0d0;
+  --rule: #8b8b8b;
+  --accent: #2f6e1c;
+  --on-accent: #ffffff;
+  --hover: rgba(255, 255, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Courier New", monospace;
+  --font-head: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "Pixelify Sans", "Courier New", monospace;
+  --font-ui: "Pixelify Sans", "Courier New", monospace;
+}
+:root[data-theme="blocks"] body {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%235a3b1f'/%3E%3Crect x='8' y='0' width='4' height='4' fill='%236b4726'/%3E%3Crect x='16' y='0' width='4' height='4' fill='%236b4726'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%233f2814'/%3E%3Crect x='12' y='4' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='4' width='4' height='4' fill='%236b4726'/%3E%3Crect x='12' y='8' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='16' y='8' width='4' height='4' fill='%236b4726'/%3E%3Crect x='0' y='12' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='4' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='8' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='12' y='12' width='4' height='4' fill='%233f2814'/%3E%3Crect x='16' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='12' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='16' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='12' y='16' width='4' height='4' fill='%233f2814'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%236b4726'/%3E%3Crect x='20' y='16' width='4' height='4' fill='%236b4726'/%3E%3Crect x='24' y='16' width='4' height='4' fill='%233f2814'/%3E%3Crect x='4' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='20' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='12' y='20' width='4' height='4' fill='%236b4726'/%3E%3Crect x='16' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='24' y='20' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='4' y='24' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='24' width='4' height='4' fill='%233f2814'/%3E%3Crect x='12' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='20' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='24' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='28' y='28' width='4' height='4' fill='%233f2814'/%3E%3C/svg%3E") 0 0 / 64px 64px;
+  -webkit-font-smoothing: none;
+}
+/* The masthead stands on a row of grass blocks seen from the side. */
+:root[data-theme="blocks"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 34px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%2386562a'/%3E%3Crect x='0' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='0' width='4' height='4' fill='%239a6636'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='24' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='28' y='0' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='4' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='4' width='4' height='4' fill='%236f4522'/%3E%3Crect x='24' y='4' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='8' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='8' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='12' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='12' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='12' width='4' height='4' fill='%236f4522'/%3E%3Crect x='0' y='16' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='16' width='4' height='4' fill='%236f4522'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%236f4522'/%3E%3Crect x='0' y='20' width='4' height='4' fill='%236f4522'/%3E%3Crect x='16' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='24' y='20' width='4' height='4' fill='%236f4522'/%3E%3Crect x='28' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='24' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='24' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='28' width='4' height='4' fill='%239a6636'/%3E%3Crect x='12' y='28' width='4' height='4' fill='%239a6636'/%3E%3Crect width='32' height='8' fill='%235b9c33'/%3E%3Crect x='8' y='8' width='4' height='4' fill='%235b9c33'/%3E%3Crect x='20' y='8' width='4' height='4' fill='%235b9c33'/%3E%3Crect x='12' y='0' width='4' height='4' fill='%2374ba47'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%2374ba47'/%3E%3C/svg%3E") left bottom / 24px 24px repeat-x;
+}
+:root[data-theme="blocks"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 40px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #dcdcdc;
+  text-shadow: 0 3px 0 #7a7a7a, 0 6px 0 #4a4a4a, 0 8px 6px rgba(0, 0, 0, 0.5);
+}
+/* The tagline in the bright yellow games use for a pop-up line. */
+:root[data-theme="blocks"] .mast-tag {
+  color: #ffff55;
+  font-style: normal;
+  text-shadow: 2px 2px 0 #3f3f15;
+}
+:root[data-theme="blocks"] .telegram-word,
+:root[data-theme="blocks"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 3px 3px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="blocks"] .telegram-word:hover,
+:root[data-theme="blocks"] .telegram-word:focus-visible {
+  background: none;
+  color: #ffff55;
+  text-shadow: 3px 3px 0 #3f3f15;
+  text-decoration: none;
+}
+:root[data-theme="blocks"] .telegram-kicker,
+:root[data-theme="blocks"] .telegram-date,
+:root[data-theme="blocks"] .telegram-note,
+:root[data-theme="blocks"] .time-label {
+  color: #e6e6e6;
+  font-style: normal;
+  text-shadow: 2px 2px 0 #2a2a2a;
+}
+/* The sample's note reads dark on the grey of the panels. */
+:root[data-theme="blocks"] .banner {
+  background: #c6c6c6;
+  color: #3f3f3f;
+  border-bottom: 2px solid #555555;
+}
+/* The toolbar and the time bar are hotbars: a dark strip of square slots. */
+:root[data-theme="blocks"] .toolbar,
+:root[data-theme="blocks"] .timebar {
+  background: rgba(0, 0, 0, 0.55);
+  border: 0;
+  border-top: 2px solid #1b1b1b;
+  border-bottom: 2px solid #1b1b1b;
+}
+:root[data-theme="blocks"] .tool,
+:root[data-theme="blocks"] .pick select,
+:root[data-theme="blocks"] .menu > summary,
+:root[data-theme="blocks"] .chip,
+:root[data-theme="blocks"] .key-btn,
+:root[data-theme="blocks"] .key-close {
+  border: 3px solid #8b8b8b;
+  border-radius: 0;
+  background: rgba(24, 24, 24, 0.82);
+  box-shadow: inset 2px 2px 0 #2a2a2a, inset -2px -2px 0 #5a5a5a;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .pick::after {
+  color: #ffffff;
+  opacity: 1;
+}
+:root[data-theme="blocks"] .tool.quiet {
+  border-color: #8b8b8b;
+}
+:root[data-theme="blocks"] .tool:hover,
+:root[data-theme="blocks"] .pick select:hover,
+:root[data-theme="blocks"] .menu > summary:hover,
+:root[data-theme="blocks"] .chip:hover {
+  background: rgba(70, 70, 70, 0.9);
+}
+/* The chosen slot gets the white frame. */
+:root[data-theme="blocks"] .tool[aria-pressed="true"],
+:root[data-theme="blocks"] .menu[open] > summary,
+:root[data-theme="blocks"] .chip[aria-pressed="true"],
+:root[data-theme="blocks"] .key-btn[aria-expanded="true"] {
+  border-color: #ffffff;
+  background: rgba(24, 24, 24, 0.82);
+  box-shadow: inset 0 0 0 2px #000000, inset 2px 2px 0 2px #2a2a2a;
+  color: #ffff55;
+  text-shadow: 2px 2px 0 #3f3f15;
+}
+:root[data-theme="blocks"] .zoom {
+  border: 3px solid #8b8b8b;
+  border-radius: 0;
+  background: rgba(24, 24, 24, 0.82);
+}
+:root[data-theme="blocks"] .zoom button {
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .zoom button + button {
+  border-top: 3px solid #8b8b8b;
+}
+:root[data-theme="blocks"] .map {
+  margin: 6px;
+  border: 3px solid #000000;
+}
+/* Panels are the grey inventory window: a light top-left edge, a dark bottom-right edge, a black outline. */
+:root[data-theme="blocks"] .panel,
+:root[data-theme="blocks"] .menu-body,
+:root[data-theme="blocks"] .key-pop,
+:root[data-theme="blocks"] dialog {
+  --ink: #3f3f3f;
+  --ink-2: #373737;
+  --muted: #4a4a4a;
+  --rule: #8b8b8b;
+  --accent: #1f5212;
+  --on-accent: #ffffff;
+  --hover: rgba(255, 255, 255, 0.35);
+  background: #c6c6c6;
+  color: #3f3f3f;
+  border: 3px solid #000000;
+  border-radius: 4px;
+  box-shadow: inset 4px 4px 0 #ffffff, inset -4px -4px 0 #555555;
+}
+:root[data-theme="blocks"] .panel {
+  margin: 6px;
+}
+:root[data-theme="blocks"] .panel-title,
+:root[data-theme="blocks"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 24px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #3f3f3f;
+}
+:root[data-theme="blocks"] .dateline {
+  border-bottom: 2px solid #8b8b8b;
+}
+/* Section heads are inventory slots: sunken grey. */
+:root[data-theme="blocks"] .rule-head {
+  border: 0;
+  background: #8b8b8b;
+  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .headline {
+  font-weight: 700;
+}
+:root[data-theme="blocks"] .scale {
+  border: 3px solid #000000;
+  border-radius: 0;
+}
+:root[data-theme="blocks"] .scale .step.on {
+  background: #2f6e1c;
+  color: #ffffff;
+}
+:root[data-theme="blocks"] .lead img {
+  image-rendering: pixelated;
+  border: 3px solid #000000;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="reef"] .map {
+    margin: 6px;
+    border-radius: 22px;
+  }
+  :root[data-theme="reef"] .panel,
+  :root[data-theme="blocks"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="reef"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.68)));
+  }
+  :root[data-theme="blocks"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.74)));
+  }
+  :root[data-theme="reef"] .tool,
+  :root[data-theme="reef"] .menu > summary,
+  :root[data-theme="blocks"] .tool,
+  :root[data-theme="blocks"] .menu > summary {
+    padding-inline: 8px;
   }
 }

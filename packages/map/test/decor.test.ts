@@ -84,9 +84,15 @@ describe("the Pirate sea", () => {
     for (const l of lands) expect(geoContains(l, [36.82, -1.29])).toBe(true);
   });
 
-  it("has a crowded sea: many drawings of many kinds", () => {
-    expect(CREATURES.length).toBeGreaterThanOrEqual(15);
-    expect(new Set(CREATURES.map((c) => c.kind)).size).toBeGreaterThanOrEqual(10);
+  it("has a few large drawings: two or three sea monsters and a ship or two", () => {
+    const ships = CREATURES.filter((c) => c.kind === "ship");
+    const monsters = CREATURES.filter((c) => c.kind !== "ship");
+    expect(ships.length).toBeGreaterThanOrEqual(1);
+    expect(ships.length).toBeLessThanOrEqual(2);
+    expect(monsters.length).toBeGreaterThanOrEqual(2);
+    expect(monsters.length).toBeLessThanOrEqual(3);
+    // Large: each fills at least 12 degrees of open sea.
+    for (const c of CREATURES) expect(c.r, `${c.kind} at ${c.lat},${c.lon}`).toBeGreaterThanOrEqual(12);
   });
 
   it("keeps every drawing in open sea: no coast within its radius", () => {

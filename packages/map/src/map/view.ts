@@ -11,7 +11,7 @@ import {
 import type { Theme, ViewMode } from "../themes.ts";
 import type { Basemap, Relief } from "./basemap.ts";
 import { drawDecor } from "./decor.ts";
-import { markPath2D } from "./marks.ts";
+import { markPath2D, markRing2D } from "./marks.ts";
 import { drawScenery, drawSceneryUnder, type SceneryFrame } from "./scenery.ts";
 import { buildTerrain, heightAt, type Terrain } from "./terrain.ts";
 import { drawNeon, NeonCache } from "./neon.ts";
@@ -19,6 +19,7 @@ import { drawStitch, StitchCache } from "./stitch.ts";
 import { drawGlass, GlassCache } from "./glass.ts";
 import { AquariumCache, drawAquarium } from "./aquarium.ts";
 import { drawLava, LavaCache } from "./lava.ts";
+import { minimapFrame } from "./minimap.ts";
 import { ambientDelay } from "./ambient.ts";
 import {
   ballGlints,
@@ -38,6 +39,11 @@ import {
   lensOf,
   lensPoint,
   mix,
+  drawRaveHaze,
+  drawRaveLasers,
+  drawRaveRoom,
+  ledTile,
+  raveBand,
   Snow,
   snowFloor,
   warped,
@@ -47,6 +53,7 @@ import {
   type Warp as SceneWarp,
 } from "./scenes.ts";
 import { drawSheet, SheetCache } from "./sheet.ts";
+import { BlocksCache, drawBlocks } from "./blocks.ts";
 import { drawTerminal, TerminalCache } from "./terminal.ts";
 import { drawClub, ClubCache } from "./club.ts";
 import { drawRail, RailCache } from "./rail.ts";
@@ -60,6 +67,8 @@ import { drawPopup, PopupCache } from "./popup.ts";
 import { drawTrainset, TrainsetCache } from "./trainset.ts";
 import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
+import { drawGloss, GlossCache } from "./gloss.ts";
+import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -152,6 +161,39 @@ function raster(fc: Basemap["land"] | undefined): (lon: number, lat: number) => 
   };
 }
 
+/**
+ * Which half-degree cells hold any land or touch it, read back from a small plate carrée drawing of the land with
+ * its coast thickened: a generous test of whether a box of longitude and latitude may hold land, for Nightclub's
+ * tiles and facets, whose exact shape the coast then cuts. `near` says whether a point is on or beside land.
+ */
+function landReach(fc: Basemap["land"]): { box: (w: number, s: number, e: number, n: number) => boolean; near: (lon: number, lat: number) => boolean } {
+  const W = 720;
+  const H = 360;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const g = canvas.getContext("2d", { willReadFrequently: true })!;
+  const proj = geoEquirectangular().scale(W / (2 * Math.PI)).translate([W / 2, H / 2]).precision(0.2);
+  g.beginPath();
+  geoPath(proj, g)(fc);
+  g.fillStyle = g.strokeStyle = "#fff";
+  g.lineWidth = 2;
+  g.fill();
+  g.stroke();
+  const px = g.getImageData(0, 0, W, H).data;
+  const cells = new Uint8Array(W * H);
+  for (let i = 0; i < cells.length; i++) cells[i] = px[i * 4 + 3]! > 0 ? 1 : 0;
+  const row = (lat: number) => Math.min(H - 1, Math.max(0, Math.floor(((90 - lat) / 180) * H)));
+  const col = (lon: number) => ((Math.floor(((lon + 180) / 360) * W) % W) + W) % W;
+  const box = (w: number, s: number, e: number, n: number) => {
+    const x0 = Math.floor(((w + 180) / 360) * W), x1 = Math.floor(((e + 180) / 360) * W - 1e-9);
+    for (let y = row(n); y <= row(s); y++)
+      for (let x = x0; x <= Math.max(x0, x1); x++) if (cells[y * W + (((x % W) + W) % W)]) return true;
+    return false;
+  };
+  return { box, near: (lon, lat) => cells[row(lat) * W + col(lon)] === 1 };
+}
+
 const unitOf = (lon: number, lat: number): [number, number, number] => {
   const l = lon / DEG, p = lat / DEG;
   return [Math.cos(p) * Math.cos(l), Math.cos(p) * Math.sin(l), Math.sin(p)];
@@ -171,7 +213,7 @@ const hexRgb = (hex: string): [number, number, number] => {
 const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const GRATICULE = geoGraticule().step([15, 15])();
 
-type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "tiles" | "shimmer";
+type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "tiles" | "shimmer";
 
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
@@ -249,6 +291,8 @@ export class MapView {
   private glass = new GlassCache();
   /** Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74). */
   private sheet = new SheetCache();
+  /** Block World: its textures, the grid read back from the basemap, and the sky. */
+  private blocks = new BlocksCache();
   private terminal = new TerminalCache();
   private club = new ClubCache();
   private rail = new RailCache();
@@ -260,6 +304,7 @@ export class MapView {
   private radar = new RadarCache();
   private noir = new NoirCache();
   private arcade = new ArcadeCache();
+  private gloss = new GlossCache();
   private stadium = new StadiumCache();
   private warp: Warp | null = null;
   private warpFor = "";
@@ -295,7 +340,15 @@ export class MapView {
   private pointers = new Map<number, { x: number; y: number }>();
   private down: { x: number; y: number; t: number } | null = null;
   private velocity = { x: 0, y: 0, t: 0 };
-  private pinch: { dist: number; zoom: number } | null = null;
+  /**
+   * Two fingers down: where they started (gap and midpoint height), the zoom and tilt then, and whether they are
+   * pinching or tilting, which is decided once they have moved a little.
+   */
+  private pinch: { dist: number; zoom: number; mid: number; by: number; mode: "tilt" | "pinch" | null } | null = null;
+  /** A tilt drag with the right mouse button, or Shift or Ctrl held: where it started and the reader's tilt then. */
+  private tiltDrag: { y: number; by: number } | null = null;
+  /** The reader's change to the camera's tilt in Map view, in degrees (src/map/tilt.ts). Reset with the design. */
+  private tiltOffset = 0;
   private patterns = new Map<string, CanvasPattern>();
   /** The land as projected for the current frame, for scenery that follows the coast. */
   private landPath: Path2D | null = null;
@@ -308,7 +361,7 @@ export class MapView {
     this.theme = theme;
     this.canvas = document.createElement("canvas");
     this.canvas.setAttribute("role", "img");
-    this.canvas.setAttribute("aria-label", "Map of reported places. Drag or use the arrow keys to turn. Scroll or press plus and minus to zoom.");
+    this.label();
     this.canvas.tabIndex = 0;
     container.prepend(this.canvas);
     this.ctx = this.canvas.getContext("2d")!;
@@ -352,6 +405,8 @@ export class MapView {
   setTheme(theme: Theme) {
     const resample = theme.pixel !== this.theme.pixel;
     this.theme = theme;
+    this.tiltOffset = 0;
+    this.label();
     this.patterns.clear();
     if (resample) this.resize();
     this.fit();
@@ -361,6 +416,7 @@ export class MapView {
 
   setMode(mode: ViewMode) {
     this.mode = mode;
+    this.label();
     this.fit();
     this.request();
   }
@@ -650,7 +706,9 @@ export class MapView {
       this.lat = clamp(this.lat, -80, 80);
     } else {
       const k = this.baseScale * this.zoom;
-      const halfDeg = (this.h / 2 / k) * DEG * (this.theme.tilt ? 0.5 : 1);
+      // A tilted camera shows the far side smaller, so the centre may go nearer the pole; a reader's tilt eases in.
+      const far = this.tiltOffset ? 1 - 0.5 * Math.min(1, this.tiltAngle() / 45) : this.theme.tilt ? 0.5 : 1;
+      const halfDeg = (this.h / 2 / k) * DEG * far;
       const max = Math.max(0, 84 - halfDeg);
       this.lat = clamp(this.lat, -max, max);
     }
@@ -701,16 +759,28 @@ export class MapView {
 
   private bindInput() {
     const c = this.canvas;
+    // The right button tilts the map where it can, so there the browser's menu stays off the canvas; elsewhere the
+    // right button does nothing to the map and the menu is the browser's as usual.
+    c.addEventListener("contextmenu", (e) => {
+      if (this.canTilt()) e.preventDefault();
+    });
     c.addEventListener("pointerdown", (e) => {
+      if (e.button === 2 && !this.canTilt()) return;
       this.touched();
       c.setPointerCapture(e.pointerId);
       this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       this.stopAnim();
-      if (this.pointers.size === 1) {
+      const tiltButton = e.button === 2 || (e.button === 0 && (e.shiftKey || e.ctrlKey));
+      if (this.pointers.size === 1 && tiltButton && this.canTilt()) {
+        this.tiltDrag = { y: e.clientY, by: this.tiltOffset };
+        this.down = null;
+      } else if (this.pointers.size === 1) {
         this.down = { x: e.clientX, y: e.clientY, t: performance.now() };
         this.velocity = { x: 0, y: 0, t: performance.now() };
       } else if (this.pointers.size === 2) {
-        this.pinch = { dist: this.pointerDist(), zoom: this.zoom };
+        this.tiltDrag = null;
+        const [a, b] = [...this.pointers.values()];
+        this.pinch = { dist: this.pointerDist(), zoom: this.zoom, mid: (a!.y + b!.y) / 2, by: this.tiltOffset, mode: this.canTilt() ? null : "pinch" };
         this.down = null;
       }
     });
@@ -719,9 +789,18 @@ export class MapView {
       if (!prev) return;
       const cur = { x: e.clientX, y: e.clientY };
       this.pointers.set(e.pointerId, cur);
-      if (this.pointers.size === 2 && this.pinch) {
-        this.zoom = clamp((this.pinch.zoom * this.pointerDist()) / this.pinch.dist, this.minZoom(), MAX_ZOOM);
-        this.clampLat();
+      if (this.tiltDrag) {
+        this.setTilt(this.tiltDrag.by, (this.tiltDrag.y - cur.y) * TILT_PER_PX);
+      } else if (this.pointers.size === 2 && this.pinch) {
+        // Both fingers up or down together tilt the map; spreading or closing them zooms.
+        const [a, b] = [...this.pointers.values()];
+        const rise = this.pinch.mid - (a!.y + b!.y) / 2;
+        this.pinch.mode ??= twoFingerGesture(rise, this.pointerDist() - this.pinch.dist, true);
+        if (this.pinch.mode === "tilt") this.setTilt(this.pinch.by, rise * TILT_PER_PX);
+        else if (this.pinch.mode === "pinch") {
+          this.zoom = clamp((this.pinch.zoom * this.pointerDist()) / this.pinch.dist, this.minZoom(), MAX_ZOOM);
+          this.clampLat();
+        }
       } else if (this.pointers.size === 1) {
         const dx = cur.x - prev.x;
         const dy = cur.y - prev.y;
@@ -742,6 +821,11 @@ export class MapView {
       this.pointers.delete(e.pointerId);
       if (this.pointers.size === 1) this.pinch = null;
       if (this.pointers.size > 0) return;
+      if (this.tiltDrag) {
+        this.tiltDrag = null;
+        this.moved();
+        return;
+      }
       const d = this.down;
       this.down = null;
       if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5 && performance.now() - d.t < 500) {
@@ -784,9 +868,11 @@ export class MapView {
         "+": () => this.zoomBy(1.5),
         "=": () => this.zoomBy(1.5),
         "-": () => this.zoomBy(1 / 1.5),
+        PageUp: () => this.tiltStep(TILT_KEY_STEP),
+        PageDown: () => this.tiltStep(-TILT_KEY_STEP),
       };
       const fn = keys[e.key];
-      if (fn) {
+      if (fn && (!e.key.startsWith("Page") || this.canTilt())) {
         e.preventDefault();
         fn();
       }
@@ -794,6 +880,33 @@ export class MapView {
   }
 
   private wheelTimer = 0;
+
+  /** Whether the reader may tilt the camera: Map view, in a design whose picture can take it (src/map/tilt.ts). */
+  private canTilt(): boolean {
+    return this.mode === "2d" && tiltRange(this.theme) !== null;
+  }
+
+  /** The reader's tilt `delta` degrees from `from`, kept in the design's range. */
+  private setTilt(from: number, delta: number) {
+    this.tiltOffset = stepTilt(this.baseTilt(), from, delta, tiltRange(this.theme));
+    this.clampLat();
+  }
+
+  /** Page Up and Page Down: tilt a step, eased like the zoom buttons. */
+  private tiltStep(delta: number) {
+    const from = this.tiltOffset;
+    const to = stepTilt(this.baseTilt(), from, delta, tiltRange(this.theme));
+    this.startAnim(250, (t) => {
+      this.tiltOffset = from + (to - from) * ease(t);
+      this.clampLat();
+    });
+  }
+
+  /** The canvas's description for screen readers, which names tilting only where it works. */
+  private label() {
+    const tilt = this.canTilt() ? " Drag with the right mouse button or two fingers, or press Page Up and Page Down, to tilt." : "";
+    this.canvas.setAttribute("aria-label", `Map of reported places. Drag or use the arrow keys to turn. Scroll or press plus and minus to zoom.${tilt}`);
+  }
 
   private touched() {
     this.stopSpin();
@@ -988,6 +1101,86 @@ export class MapView {
       this.patterns.set(key, p);
       return p;
     }
+    if (kind === "lilypads") {
+      // Frog Pond's land: a mat of lily pads over dark water. Each is a round leaf with its slit to the stalk at the
+      // centre and veins from there; pads keep a gap between them, and the few that overlap lie wholly on top with
+      // their own outline. No flowers here: at this size they would read as markers (the lotuses stay in open water,
+      // in the scenery). Pads near the tile's edge are drawn again one tile over, so the pattern wraps without a seam.
+      const size = 220;
+      const pc = document.createElement("canvas");
+      pc.width = pc.height = Math.round(size * this.dpr);
+      const g = pc.getContext("2d")!;
+      g.scale(this.dpr, this.dpr);
+      g.fillStyle = ink2;
+      g.fillRect(0, 0, size, size);
+      let seed = 23;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const wrap = (d: number) => d - size * Math.round(d / size);
+      const pads: { x: number; y: number; r: number; rot: number; tone: number; over: boolean }[] = [];
+      for (let tries = 0; tries < 4000 && pads.length < 40; tries++) {
+        const r = 9 + rnd() * rnd() * 12;
+        const x = rnd() * size;
+        const y = rnd() * size;
+        const over = pads.length > 16 && rnd() < 0.12;
+        const ok = pads.every((q) => {
+          const d = Math.hypot(wrap(x - q.x), wrap(y - q.y));
+          // A pad laid over another sits well inside the gap, off its neighbour's middle, so it reads as a layer.
+          return over ? d > Math.max(r, q.r) * 0.75 : d > r + q.r + 3;
+        });
+        if (ok) pads.push({ x, y, r, rot: rnd() * 360, tone: Math.floor(rnd() * 4), over });
+      }
+      pads.sort((a, b) => Number(a.over) - Number(b.over));
+      const tones = ["#7cbb4b", "#6db244", "#8ac657", "#93b150"];
+      const leaf = (r: number) => {
+        const a = (14 * Math.PI) / 180;
+        g.beginPath();
+        g.moveTo(0, r * 0.05);
+        g.lineTo(Math.sin(a) * r, -Math.cos(a) * r);
+        g.arc(0, 0, r, -Math.PI / 2 + a, -Math.PI / 2 - a + Math.PI * 2);
+        g.closePath();
+      };
+      for (const q of pads) {
+        for (const ox of [-size, 0, size])
+          for (const oy of [-size, 0, size]) {
+            const x = q.x + ox;
+            const y = q.y + oy;
+            if (x < -q.r - 2 || y < -q.r - 2 || x > size + q.r + 2 || y > size + q.r + 2) continue;
+            g.save();
+            g.translate(x, y);
+            g.save();
+            g.translate(q.r * 0.12, q.r * 0.14);
+            g.rotate((q.rot * Math.PI) / 180);
+            leaf(q.r);
+            g.fillStyle = "rgba(10,40,20,0.22)";
+            g.fill();
+            g.restore();
+            g.rotate((q.rot * Math.PI) / 180);
+            leaf(q.r);
+            g.fillStyle = tones[q.tone]!;
+            g.fill();
+            g.strokeStyle = ink;
+            g.lineWidth = 0.8;
+            g.lineCap = "round";
+            g.beginPath();
+            for (let d = 40; d < 340; d += 40) {
+              const t = (d * Math.PI) / 180;
+              g.moveTo(0, 0);
+              g.lineTo(Math.sin(t) * q.r * 0.82, -Math.cos(t) * q.r * 0.82);
+            }
+            g.stroke();
+            leaf(q.r);
+            g.strokeStyle = "rgba(30,72,24,0.6)";
+            g.lineWidth = 1;
+            g.lineJoin = "round";
+            g.stroke();
+            g.restore();
+          }
+      }
+      p = this.ctx.createPattern(pc, "repeat")!;
+      p.setTransform(new DOMMatrix().scale(1 / this.dpr));
+      this.patterns.set(key, p);
+      return p;
+    }
     if (kind === "mottle") {
       // A blurry low-resolution texture: soft blobs of a lighter and a darker shade, drawn on a three-by-three sheet
       // and blurred there so the middle tile wraps without a seam.
@@ -1077,8 +1270,13 @@ export class MapView {
     return p;
   }
 
-  /** The camera's tilt now: fixed, or with `tiltOut` flatter when zoomed out (Pop-up Book, decision 76). */
+  /** The camera's tilt now: the design's, with the reader's change on top. */
   private tiltAngle(): number {
+    return readerTilt(this.baseTilt(), this.tiltOffset, tiltRange(this.theme));
+  }
+
+  /** The design's own tilt: fixed, or with `tiltOut` flatter when zoomed out (Pop-up Book, decision 76). */
+  private baseTilt(): number {
     const t = this.theme;
     if (!t.tiltOut) return t.tilt ?? 0;
     const [flat, by] = t.tiltOut;
@@ -1209,7 +1407,8 @@ export class MapView {
     const proj = this.projection();
     const R = proj.scale();
     // The tilted camera applies to the flat map; the globe is already a solid seen in perspective.
-    const cam = this.mode === "2d" && t.tilt ? this.makeCam(this.tiltAngle()) : null;
+    const angle = this.mode === "2d" ? this.tiltAngle() : 0;
+    const cam = this.mode === "2d" && (t.tilt || angle > 0) ? this.makeCam(angle) : null;
     this.cam = cam;
     this.terrainNow = null;
     this.liftPx = R * LIFT;
@@ -1248,6 +1447,13 @@ export class MapView {
       return;
     }
 
+    // Old Realm's round minimap: Map view is drawn inside a circle, and the page's ring goes around it.
+    const porthole = t.minimap && this.mode === "2d" ? minimapFrame(w, h) : null;
+    if (t.minimap && this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
+    if (porthole) {
+      ctx.save();
+      ctx.clip(porthole.clip!);
+    }
     if (t.sky) this.drawSky(t.sky);
     if (this.mode === "3d" && t.atmosphere) {
       const g = ctx.createRadialGradient(w / 2, h / 2, R * 0.98, w / 2, h / 2, R * 1.18);
@@ -1355,7 +1561,7 @@ export class MapView {
     ctx.strokeStyle = t.coast;
     ctx.lineWidth = this.mode === "3d" ? 1 : 1.2;
     ctx.stroke();
-    if (this.mode === "2d" && t.neatline) {
+    if (this.mode === "2d" && t.neatline && !cam) {
       // A printed chart's double frame around the whole sheet.
       const [[x0, y0], [x1, y1]] = path.bounds(SPHERE);
       ctx.strokeStyle = t.coast;
@@ -1368,7 +1574,8 @@ export class MapView {
     drawDecor(ctx, proj, t, this.mode, [this.lon, this.lat]);
     if (t.scenery) drawScenery({ ...scene, land: map && !t.lowPoly ? this.landPath : null });
     this.drawArcs(path, proj);
-    this.drawDots(proj);
+    this.drawDots(proj, porthole ?? undefined);
+    if (porthole) ctx.restore();
   }
 
   /**
@@ -1423,9 +1630,11 @@ export class MapView {
     if (t.surface === "trainset") return drawTrainset(f, this.handmade.trainset);
     if (t.surface === "chalk") return drawChalk(f, this.handmade.chalk);
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
+    if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
+    else if (t.surface === "blocks") drawBlocks(f, this.blocks);
     else if (t.surface === "terminal") drawTerminal(f, this.terminal);
     else if (t.surface === "club") drawClub(f, this.club);
     else if (t.surface === "rail") drawRail(f, this.rail);
@@ -2018,6 +2227,13 @@ export class MapView {
         oy = y;
       }
     };
+    /** The outer ring `gap` outside a marker (a circle round Pirate's X, marks.ts). */
+    const ringShape = (x: number, y: number, r: number, gap: number) => {
+      if (t.dotShape === "square") return shape(x, y, r + gap);
+      cur = markRing2D(t.dotShape, r, gap);
+      ox = x;
+      oy = y;
+    };
     const fillShape = () => {
       ctx.translate(ox, oy);
       ctx.fill(cur);
@@ -2118,9 +2334,9 @@ export class MapView {
       ctx.lineWidth = hollow ? 1.6 : 1.2;
       ctx.strokeStyle = hollow ? ink : t.dotStroke;
       strokeShape();
-      const ring = s.weight >= 4 ? r + 2.6 : r;
+      const ringGap = s.weight >= 4 ? 2.6 : 0;
       if (s.weight >= 4) {
-        shape(x, y, ring);
+        ringShape(x, y, r, ringGap);
         ctx.lineWidth = 1.3;
         ctx.strokeStyle = ink;
         strokeShape();
@@ -2136,7 +2352,7 @@ export class MapView {
         // Monochrome designs mark fresh reports with a dashed ring, so it never reads as the importance ring.
         ctx.save();
         ctx.setLineDash([2, 2]);
-        shape(x, y, ring + 2.6);
+        ringShape(x, y, r, ringGap + 2.6);
         ctx.lineWidth = 0.9;
         ctx.strokeStyle = t.dot;
         strokeShape();
@@ -2195,7 +2411,6 @@ export class MapView {
     ball?: Ball;
     floor?: Floor;
   } | null = null;
-  private sceneLand?: { base: Basemap; isLand: (lon: number, lat: number) => boolean };
   /** The camera after the projection (tilt, lens, ripple or bob) for this frame, shared by land, arcs and dots. */
   private sceneWarp: SceneWarp | null = null;
   private sceneTimer = 0;
@@ -2215,6 +2430,11 @@ export class MapView {
   private scenePlace(proj: GeoProjection, lon: number, lat: number): { x: number; y: number; s: number } | null {
     const p = proj([lon, lat]);
     if (!p) return null;
+    if (this.theme.scene === "rave") {
+      // Rave: behind the DJ booth, or up in the rig above the LED wall, a place is out of sight.
+      const band = raveBand(this.h);
+      return p[1] > this.h - band || (this.mode === "2d" && p[1] < band) ? null : { x: p[0], y: p[1], s: 1 };
+    }
     const f = this.sceneWarp;
     if (!f) return { x: p[0], y: p[1], s: 1 };
     const q = f(p[0], p[1]);
@@ -2257,11 +2477,18 @@ export class MapView {
     }
   }
 
-  private landTest(): (lon: number, lat: number) => boolean {
-    const base = this.low ?? this.high;
-    if (!base) return () => false;
-    if (!this.sceneLand || this.sceneLand.base !== base) this.sceneLand = { base, isLand: raster(base.land) };
-    return this.sceneLand.isLand;
+  private sceneLand?: { base: Basemap; test: ReturnType<typeof landReach> };
+
+  /**
+   * Nightclub's land: the finer basemap whenever it has loaded, so every strait it has shows between the lit tiles
+   * and mirrors; what may hold land; and the places it misses, whose tile or facet is lit whole.
+   */
+  private clubLand(anchors: [number, number][]) {
+    const map = this.high ?? this.low;
+    if (!map) return { map, box: () => false, stranded: anchors };
+    if (this.sceneLand?.base !== map) this.sceneLand = { base: map, test: landReach(map.land) };
+    const { box, near } = this.sceneLand.test;
+    return { map, box, stranded: anchors.filter(([lon, lat]) => !near(lon, lat)) };
   }
 
   /** Ask for the next frame of moving light, twelve a second, and none while the tab is hidden. */
@@ -2283,6 +2510,9 @@ export class MapView {
     const now = still ? 9 : performance.now() / 1000;
     // The page frames some scenes by view (the pool's edge in Map view), so it needs to know which is showing.
     if (this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
+    // Rave: the DJ booth (chrome in src/ui/extras.ts) is as tall as the rig the canvas draws above the wall.
+    const band = kind === "rave" ? raveBand(h) : 0;
+    if (band && this.container.style.getPropertyValue("--rave-band") !== `${band}px`) this.container.style.setProperty("--rave-band", `${band}px`);
     if (!this.sceneWatching) {
       this.sceneWatching = true;
       document.addEventListener("visibilitychange", () => {
@@ -2292,7 +2522,7 @@ export class MapView {
     const proj = this.projection();
     const R = proj.scale();
     const [cx, cy] = proj.translate();
-    const cam = kind === "club" && !globe && t.tilt ? this.makeCam(t.tilt) : null;
+    const cam = kind === "club" && !globe && t.tilt ? this.makeCam(this.tiltAngle()) : null;
     this.cam = cam;
     this.terrainNow = null;
     const lens = kind === "snow" && !globe ? lensOf(w, h) : null;
@@ -2309,17 +2539,19 @@ export class MapView {
     const ripple = (y: number) => Math.sin(y / 38 + now * 1.4) * 1.4;
     this.sceneWarp = kind === "pool" ? (globe ? (x, y) => [x, y + bob, 1] : still ? null : (x, y) => [x + ripple(y), y, 1]) : fixed;
 
-    const map = (R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
-    const backKey = [kind, this.mode, w, h, this.dpr].join("|");
+    // Nightclub cuts its land to the finer coast at every zoom, so narrow seas and straits stay open (clubLand).
+    const map = kind === "club" ? (this.high ?? this.low) : ((R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high);
+    const backKey = [kind, this.mode, w, h, this.dpr, cam?.sin.toFixed(5)].join("|");
     let c = this.sceneCache;
     if (!c || c.backKey !== backKey) {
       c = this.sceneCache = { key: "", backKey, front: this.sceneCanvas(c?.front), back: this.sceneCanvas(c?.back) };
       this.paintInto(c.back, (g) => {
         if (kind === "club") drawClubRoom(g, w, h, cam ? this.horizonY(cam) : null);
         if (kind === "pool" && globe) drawPoolNight(g, w, h, h / 2 - this.baseScale);
+        if (kind === "rave") drawRaveRoom(g, w, h, band, globe);
       });
     }
-    const key = [this.lon.toFixed(5), this.lat.toFixed(5), this.zoom.toFixed(5), this.anchors.size].join("|");
+    const key = [this.lon.toFixed(5), this.lat.toFixed(5), this.zoom.toFixed(5), this.anchors.size, cam?.sin.toFixed(5)].join("|");
     if (c.key !== key || c.map !== map || c.relief !== this.relief) {
       const cache = c;
       cache.key = key;
@@ -2331,9 +2563,17 @@ export class MapView {
     const ctx = this.ctx;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    if (kind === "club" || (kind === "pool" && globe)) ctx.drawImage(c.back, 0, 0, w, h);
+    if (kind === "club" || kind === "rave" || (kind === "pool" && globe)) ctx.drawImage(c.back, 0, 0, w, h);
     if (kind === "club" && globe) this.softLight(ctx, (g) => drawSpotlights(g, w, h, now));
+    if (kind === "rave") {
+      // The light show, round the globe or in the rig above the wall; the still picture then covers the screen.
+      const disc = globe ? { cx, cy, R } : null;
+      this.softLight(ctx, (g) => drawRaveHaze(g, w, h, band, disc, now));
+      drawRaveLasers(ctx, w, h, band, disc, now);
+    }
     if (kind === "club" && cam) drawLasers(ctx, w, this.horizonY(cam), now);
+    // The floor's lit tiles lie under the still picture, which is cut open along the coast.
+    if (kind === "club" && !globe && c.floor) this.drawFloorLight(ctx, c.floor, now);
     if (kind === "pool" && globe) drawPoolRipples(ctx, w, h, cx, cy + R * 0.45, R, now);
 
     if (kind === "pool" && !globe && !still) {
@@ -2349,13 +2589,20 @@ export class MapView {
 
     let moving = 1;
     if (kind === "club" && globe && c.ball) this.drawBallLight(ctx, c.ball, cx, cy, R, now);
-    if (kind === "club" && !globe && c.floor) this.drawFloorLight(ctx, c.floor, now);
     if (kind === "pool" && !globe) this.drawCaustics(ctx, now);
     if (kind === "pool" && globe) this.drawWaterline(ctx, cx, cy, R, bob);
     if (kind === "snow") moving = this.drawSnow(ctx, globe, cx, cy, R, now, still);
 
     const view = this.sceneWarp ? warped(proj, this.sceneWarp) : proj;
-    this.drawArcs(geoPath(view, ctx), proj);
+    if (band) {
+      // Arcs stay on the screen, never in the rig or behind the booth.
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, globe ? 0 : band, w, globe ? h - band : h - 2 * band);
+      ctx.clip();
+      this.drawArcs(geoPath(view, ctx), proj);
+      ctx.restore();
+    } else this.drawArcs(geoPath(view, ctx), proj);
     this.drawDots(proj);
     if (!still && moving > 0) this.scheduleScene();
   }
@@ -2423,6 +2670,7 @@ export class MapView {
       g.fillStyle = "#0a0710";
       g.fill();
       const step = BALL_STEPS.find((s) => (s * R) / DEG >= 15) ?? BALL_STEPS[BALL_STEPS.length - 1]!;
+      const land = this.clubLand(anchors);
       const ball = buildBall({
         proj,
         lon: this.lon,
@@ -2430,14 +2678,26 @@ export class MapView {
         w,
         h,
         step,
-        isLand: this.landTest(),
-        anchors,
-        land: [hexRGB("#2c0b40"), hexRGB("#ff9be9")],
-        sea: [hexRGB("#101626"), hexRGB("#dfe9ff")],
+        isLand: land.box,
+        anchors: land.stranded,
+        land: BALL_LAND,
+        sea: BALL_SEA,
       });
       for (const [col, list] of ball.fills) {
         g.fillStyle = col;
         g.fill(new Path2D(list.join("")));
+      }
+      // The land's mirrors, cut to the coast: a facet across a strait is part pink, part silver.
+      if (land.map) {
+        g.save();
+        g.beginPath();
+        geoPath(proj, g)(land.map.land);
+        g.clip();
+        for (const [col, list] of ball.land) {
+          g.fillStyle = col;
+          g.fill(new Path2D(list.join("")));
+        }
+        g.restore();
       }
       g.strokeStyle = "rgba(255,255,255,0.3)";
       g.lineWidth = 0.8;
@@ -2457,6 +2717,7 @@ export class MapView {
     if (kind === "club") {
       const cam = this.cam!;
       const step = FLOOR_STEPS.find(([z]) => this.zoom < z)![1];
+      const land = this.clubLand(anchors);
       const floor = buildFloor({
         proj,
         tp: (x, y) => this.tp(x, y, 0, cam),
@@ -2466,8 +2727,8 @@ export class MapView {
         h,
         step,
         cutoff: SCENE_CUTOFF,
-        isLand: this.landTest(),
-        anchors,
+        isLand: land.box,
+        anchors: land.stranded,
         sea: [hexRGB("#140d26"), hexRGB("#1e1438")],
         fog: hexRGB(t.fog ?? "#1a0b2e"),
       });
@@ -2487,6 +2748,22 @@ export class MapView {
       glow.addColorStop(1, "rgba(190,80,255,0)");
       g.fillStyle = glow;
       g.fillRect(0, hy, w, h - hy);
+      // Cut the floor open over the land, inside the tiles that hold it, so the lit tiles underneath show in the
+      // coast's own shape and every strait stays dark floor between them.
+      g.save();
+      g.globalCompositeOperation = "destination-out";
+      g.fillStyle = "#000";
+      g.fill(floor.whole);
+      if (land.map) {
+        g.beginPath();
+        g.rect(0, hy, w, h - hy);
+        g.clip();
+        g.clip(floor.reach);
+        g.beginPath();
+        geoPath({ stream: (out: GeoStream) => proj.stream(this.tiltStream(out, cam)) } as GeoProjection, g)(land.map.land);
+        g.fill();
+      }
+      g.restore();
       c.floor = floor;
       return;
     }
@@ -2523,6 +2800,11 @@ export class MapView {
       water.addColorStop(1, "rgba(12,36,96,0.55)");
       g.fillStyle = water;
       g.fillRect(0, 0, w, h);
+      return;
+    }
+
+    if (kind === "rave") {
+      this.paintRave(g, proj, map, t, globe);
       return;
     }
 
@@ -2625,6 +2907,72 @@ export class MapView {
     g.strokeStyle = "rgba(60,90,125,0.55)";
     g.lineWidth = 1.2;
     g.stroke();
+  }
+
+  private ledPattern?: CanvasPattern;
+
+  /**
+   * Rave's screens, which hold still for the view: the map on the LED wall between the rig and the booth, or the
+   * globe as a round LED screen hung from the rig on two cables, both with the dark gaps between their pixels.
+   */
+  private paintRave(g: CanvasRenderingContext2D, proj: GeoProjection, map: Basemap | undefined, t: Theme, globe: boolean) {
+    const { w, h } = this;
+    const band = raveBand(h);
+    const led = (this.ledPattern ??= g.createPattern(ledTile(), "repeat")!);
+    if (globe) {
+      const R = proj.scale();
+      const [cx, cy] = proj.translate();
+      const rig = band * 0.38;
+      if (cy - R > rig) {
+        g.strokeStyle = "#3a3150";
+        g.lineWidth = 1.5;
+        g.beginPath();
+        for (const s of [-0.45, 0.45]) {
+          g.moveTo(cx + s * R, rig);
+          g.lineTo(cx + s * R, cy - Math.sqrt(1 - s * s) * R);
+        }
+        g.stroke();
+      }
+      this.paintWorld(g, proj, map, t);
+      g.save();
+      g.beginPath();
+      g.arc(cx, cy, R, 0, Math.PI * 2);
+      g.clip();
+      g.fillStyle = led;
+      g.fillRect(0, 0, w, h);
+      g.restore();
+      // The screen's rim, lit UV.
+      g.beginPath();
+      g.arc(cx, cy, R + 1.5, 0, Math.PI * 2);
+      g.strokeStyle = "rgba(138,77,255,0.85)";
+      g.lineWidth = 2.5;
+      g.stroke();
+      return;
+    }
+    const top = band, tall = h - 2 * band;
+    g.save();
+    g.beginPath();
+    g.rect(0, top, w, tall);
+    g.clip();
+    g.fillStyle = t.ocean;
+    g.fillRect(0, top, w, tall);
+    const path = geoPath(proj, g);
+    g.beginPath();
+    path(GRATICULE);
+    g.strokeStyle = t.graticule;
+    g.lineWidth = 0.6;
+    g.stroke();
+    if (map) this.drawMap(path, proj, map, t);
+    g.fillStyle = led;
+    g.fillRect(0, top, w, tall);
+    g.restore();
+    // The wall's edge: a dark frame, lit UV along its outside.
+    g.strokeStyle = "#000000";
+    g.lineWidth = 3;
+    g.strokeRect(-3, top - 1.5, w + 6, tall + 3);
+    g.strokeStyle = "rgba(138,77,255,0.8)";
+    g.lineWidth = 1;
+    g.strokeRect(-3, top - 3.5, w + 6, tall + 7);
   }
 
   /** The globe inside a glass dome on a wooden base, seen slightly from below. */
@@ -3001,6 +3349,9 @@ const SCENE_CUTOFF = 0.6;
 const SNOW_DOME = 1.26;
 /** Mirror ball facet sizes in degrees; the smallest that is still at least 15 pixels across is used. */
 const BALL_STEPS = [0.25, 0.5, 1, 1.5, 2, 3, 4, 6];
+/** The mirror ball's land and sea mirrors, from unlit to lit. */
+const BALL_LAND: [RGB, RGB] = [hexRGB("#3a0850"), hexRGB("#ff7ae6")];
+const BALL_SEA: [RGB, RGB] = [hexRGB("#0b1430"), hexRGB("#b4dcff")];
 /** Dance floor tile sizes in degrees by zoom: large tiles at the whole world, smaller as you zoom in. */
 const FLOOR_STEPS: [number, number][] = [
   [3, 3],
