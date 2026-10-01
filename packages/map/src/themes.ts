@@ -14,6 +14,11 @@ export type ViewMode = "2d" | "3d";
 export interface Theme {
   id: ThemeId;
   label: string;
+  /**
+   * A design being tried out (decision 105): left out of the Design menu and opened only by a link with
+   * `?theme=<id>`, so it can be seen on the live site before it is listed. Shown under Experiments while it is on.
+   */
+  experimental?: boolean;
   defaultView: ViewMode;
   projection2d: () => GeoProjection;
   ocean: string;
@@ -1683,9 +1688,9 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Console Menu (id cube): the clean, glossy menus of early-2000s home consoles. White plastic and pale blue light,
-  // the map in one rounded channel tile or a glossy ball over slow wavy lines, land as soft raised plastic
-  // (src/map/gloss.ts). No console maker's names, logos, menus or characters.
+  // Console Menu (id cube): the clean, glossy menus of late-2000s home consoles in the chrome, and inside the map an
+  // old news channel's Earth in dark blue space (src/map/gloss.ts, decision 104). No console maker's names, logos,
+  // menus or characters.
   cube: {
     id: "cube",
     label: "Console Menu",
@@ -1693,28 +1698,28 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoEquirectangular,
     surface: "gloss",
     globeScale: 0.42,
-    ocean: "#6cc4ec",
-    land: "#e4ece6",
+    ocean: "#1c5fae",
+    land: "#4d8a3c",
     landTexture: "none",
     pixel: 1,
     dotShape: "bevel",
-    textureInk: "#a9bfcc",
-    coast: "rgba(90,130,160,0.55)",
+    textureInk: "#3c6e30",
+    coast: "rgba(18,52,30,0.4)",
     coastWidth: 0.8,
     waterlines: 0,
-    waterline: "rgba(255,255,255,0.3)",
+    waterline: "rgba(96,176,236,0.42)",
     oceanHatch: null,
-    graticule: "rgba(255,255,255,0.45)",
+    graticule: "rgba(255,255,255,0.1)",
     graticuleDash: [],
-    river: "rgba(80,170,225,0.7)",
-    lake: "#a6def5",
-    ice: "#fbfdff",
-    relief: "rgba(70,105,135,0.24)",
-    dot: "#1a74c4",
+    river: "rgba(64,140,214,0.75)",
+    lake: "#3f8ad6",
+    ice: "#f2f7fb",
+    relief: "rgba(96,74,44,0.55)",
+    dot: "#3fa9f5",
     dotStroke: "#ffffff",
-    fresh: "#f07a1a",
-    tuned: "#0f4f8c",
-    arc: "rgba(26,116,196,0.85)",
+    fresh: "#ffa62b",
+    tuned: "#ffd64a",
+    arc: "rgba(255,255,255,0.85)",
     glow: false,
     atmosphere: null,
     shade: null,
@@ -2095,6 +2100,8 @@ export function designMenu(ids: readonly string[]): { label: string; ids: ThemeI
     }
     groups.push({ label: g.label, ids: list });
   }
-  groups.push({ label: "Other", ids: ids.filter((id) => !placed.has(id)) as ThemeId[] });
+  const rest = ids.filter((id) => !placed.has(id)) as ThemeId[];
+  groups.push({ label: "Other", ids: rest.filter((id) => !THEMES[id]?.experimental) });
+  groups.push({ label: "Experiments", ids: rest.filter((id) => THEMES[id]?.experimental) });
   return groups.filter((g) => g.ids.length > 0);
 }
