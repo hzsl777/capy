@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
+import { FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, scaleBar, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
 import type { MapFile, MapItem } from "../src/types.ts";
 
 const base: MapItem = { id: "1", t: 100, title: "t", url: "https://x", domain: "x", publisher: "X", lang: "en", topics: [], place: 0 };
@@ -33,6 +33,16 @@ describe("filters", () => {
 describe("formatting", () => {
   it("formats coordinates and ages", () => {
     expect(formatCoords(-1.2833, 36.8167)).toBe("1°17′ S  36°49′ E");
+    // Pin Drop's scale bar: a round distance no longer than the room it has.
+    expect(scaleBar(30, 84)).toEqual({ km: 2000, width: 2000 / 30 });
+    expect(scaleBar(1.1, 84).km).toBe(50);
+    expect(scaleBar(0.009, 56).km).toBe(0.5);
+    for (const k of [0.003, 0.7, 12, 95, 400]) {
+      const { km, width } = scaleBar(k, 84);
+      expect(width).toBeLessThanOrEqual(84 + 1e-9);
+      expect(width).toBeGreaterThan(84 / 5 - 1e-9);
+      expect(String(km)).toMatch(/^(0\.0*)?[125]0*$/);
+    }
     expect(timeAgo(0, 30)).toBe("just now");
     expect(timeAgo(0, 600)).toBe("10 min ago");
     expect(timeAgo(0, 7200)).toBe("2 h ago");

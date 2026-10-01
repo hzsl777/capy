@@ -1,4 +1,5 @@
 import {
+  geoDistance,
   geoEquirectangular,
   geoGraticule,
   geoInterpolate,
@@ -612,6 +613,20 @@ export class MapView {
 
   center(): [number, number] {
     return [this.lon, this.lat];
+  }
+
+  /**
+   * About how many kilometres one screen pixel spans east to west at the reticle, measured through the same camera
+   * as the places (Pin Drop's scale bar). Null when the centre is off the picture.
+   */
+  kmPerPixel(): number | null {
+    const proj = this.projection();
+    const a = this.placeAt(proj, this.lon, this.lat);
+    const b = this.placeAt(proj, this.lon + 0.5, this.lat);
+    if (!a || !b) return null;
+    const px = Math.hypot(b.x - a.x, b.y - a.y);
+    if (!(px > 0.01)) return null;
+    return (geoDistance([this.lon, this.lat], [this.lon + 0.5, this.lat]) * 6371) / px;
   }
 
   /** Jump without animating, e.g. to a random longitude before the first spin. */

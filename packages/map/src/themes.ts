@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -1904,6 +1904,118 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Pin Drop: after the feel of geography guessing games, where a player is dropped somewhere, drops a pin on a
+  // small map and is scored by distance; none of any game's names, logos, pins or art. A clean road-map palette with
+  // pale land and soft blue water, indigo map pins, a bold HUD over the map with the reticle's position and a scale
+  // bar (src/ui/extras.ts), and a compass. Nothing is scored: the HUD measures the map, never a place or a story.
+  pindrop: {
+    id: "pindrop",
+    // A no-break space keeps both words on a phone, where the menu shows a label's first word only.
+    label: "Pin\u00a0Drop",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#9ccfe6",
+    land: "#eef0e2",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "pin",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#86b8cf",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.3)",
+    oceanHatch: null,
+    shallows: "#b6deee",
+    graticule: "rgba(255,255,255,0.35)",
+    graticuleDash: [],
+    river: "rgba(120,180,210,0.9)",
+    lake: "#9ccfe6",
+    ice: "#fbfcfd",
+    relief: "rgba(104,138,92,0.32)",
+    dot: "#4a2ab8",
+    dotStroke: "#ffffff",
+    fresh: "#f2384f",
+    tuned: "#1c1050",
+    arc: "#f28a00",
+    glow: false,
+    atmosphere: "rgba(190,230,255,0.55)",
+    shade: "rgba(20,30,80,0.3)",
+    neatline: false,
+    decor: null,
+  },
+  // Deli Counter: a sandwich shop's counter, after no shop in particular. Cream deli paper for land on brown butcher
+  // paper for the sea, inked like a stamp; tomato-red order tickets for markers, pickle green for fresh reports. The
+  // chrome is a chalkboard menu board, a striped awning, white wall tiles and order pads (style.css).
+  deli: {
+    id: "deli",
+    label: "Deli Counter",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#c9a271",
+    land: "#fbf5e6",
+    landTexture: "halftone",
+    pixel: 1,
+    dotShape: "ticket",
+    textureInk: "rgba(110,65,32,0.17)",
+    coast: "#6e4120",
+    coastWidth: 1.2,
+    waterlines: 2,
+    waterline: "rgba(96,58,26,0.22)",
+    oceanHatch: "rgba(96,58,26,0.07)",
+    graticule: "rgba(96,58,26,0.14)",
+    graticuleDash: [3, 4],
+    river: "rgba(110,65,32,0.4)",
+    lake: "#c9a271",
+    ice: "#fffdf6",
+    relief: "rgba(110,65,32,0.5)",
+    dot: "#c4321f",
+    dotStroke: "#fffaf0",
+    fresh: "#2f7d32",
+    tuned: "#2a1a0e",
+    arc: "#2a1a0e",
+    glow: false,
+    atmosphere: null,
+    shade: "rgba(80,45,15,0.3)",
+    neatline: false,
+    decor: null,
+  },
+  // Marquee: a picture house, after no cinema chain or studio. The map is the silver screen in a dark auditorium,
+  // framed by red velvet curtains (style.css): silver land on a black sea, like a black-and-white picture, with
+  // butter-yellow ticket stubs for markers and a warm projector glow round the globe. Bulb-lit marquee lettering, a
+  // letter board for the word and a film strip for the time bar.
+  marquee: {
+    id: "marquee",
+    label: "Marquee",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#101118",
+    land: "#8d8a84",
+    landTexture: "dither",
+    pixel: 1,
+    dotShape: "stub",
+    textureInk: "#9a978f",
+    coast: "#ece6d8",
+    coastWidth: 1,
+    waterlines: 1,
+    waterline: "rgba(236,230,216,0.1)",
+    oceanHatch: null,
+    graticule: "rgba(236,230,216,0.07)",
+    graticuleDash: [],
+    river: "rgba(16,17,24,0.6)",
+    lake: "#101118",
+    ice: "#c9c5bc",
+    relief: "rgba(24,22,20,0.5)",
+    dot: "#ffc83a",
+    dotStroke: "#1a0d08",
+    fresh: "#ff5c7a",
+    tuned: "#fff4d6",
+    arc: "#ffc83a",
+    glow: false,
+    atmosphere: "rgba(255,214,150,0.28)",
+    shade: "rgba(0,0,0,0.55)",
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -1913,9 +2025,9 @@ export const THEMES: Record<ThemeId, Theme> = {
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
-  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
-  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana"] },
+  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee"] },
 ];
 
 /** The Design menu's groups for the designs that exist, each design exactly once, in the order listed. */
