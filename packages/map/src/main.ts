@@ -151,6 +151,7 @@ import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
 type Item = MapItem;
 type NewsFile = MapFile;
 import {
+  byOrigin,
   canonicalRedirect,
   FILTERS,
   TOPIC_LABEL,
@@ -740,7 +741,7 @@ function renderIdle(panel: HTMLElement) {
   );
 }
 
-/** One place, or nearby places merged at this zoom: their reports together, newest first. */
+/** One place, or nearby places merged at this zoom: their own outlets' reports first, then the rest, each newest first. */
 function renderPlaces(panel: HTMLElement, indices: number[]) {
   const file = state.file!;
   const all = indices.flatMap((i) => state.byPlace.get(i) ?? []).sort((a, b) => b.t - a.t);
@@ -784,9 +785,18 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
         return h("p", { class: "count" }, `${hidden} more when zoomed in: `, b);
       })()
     : null;
+  // Local outlets first (decision 98). Headings only when there is more than one group, so a place with one kind of
+  // report reads as before.
+  const groups = byOrigin(items);
+  const here = indices.length > 1 ? "From outlets in these places" : `From outlets in ${place.name}`;
+  const label = { here, elsewhere: "From outlets elsewhere", gdelt: "Local sites found through GDELT" } as const;
+  const lists = groups.flatMap((g) => [
+    ...(groups.length > 1 ? [h("h3", { class: "stories-group" }, label[g.origin])] : []),
+    h("ol", { class: "stories" }, ...g.items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
+  ]);
   panel.replaceChildren(
     head,
-    h("ol", { class: "stories" }, ...items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
+    ...lists,
     ...(more ? [more] : []),
     ...(note ? [note] : []),
   );

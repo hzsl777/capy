@@ -884,3 +884,11 @@ Davis found Translate did nothing on his phone: Arabic and Spanish headlines sta
 
 This replaces "on-device only" in rule 4 of packages/map/AGENTS.md and closes the DeepL idea from the launch list: Workers AI needs no account or key beyond the Cloudflare account the site already runs on.
 
+## 98. A place's own outlets come first (October 1, 2026)
+
+Davis asked for a hierarchy in a place's list: London's news should come first from London's outlets. Until now every list was newest first (decisions 30 and 46). He chose local outlets first and no ranking of outlets by quality.
+
+1. **Three groups, by where the outlet is based.** A place's list now shows the reports of outlets that publish from that place first, then reports by outlets elsewhere that the grouping model placed there (the ones whose byline names another city), then the local stories found through GDELT. Each group stays newest first. `byOrigin` in `packages/map/src/data.ts`.
+2. **Only the outlet's city orders them.** It is a fact about the outlet, not a judgment. No outlet is ranked above another, importance still never orders a list, and the "Latest reports" list stays newest first. Ranking outlets by quality was considered and left out: on a site that covers contested places, choosing which papers are better is hard to defend.
+3. **Headings only when needed.** "From outlets in London", "From outlets elsewhere" and "Local sites found through GDELT" show only when a place has more than one group, so a place with one kind of report reads as before.
+
