@@ -144,6 +144,8 @@ import "@fontsource/bebas-neue/400.css";
 import "@fontsource/josefin-sans/400.css";
 import "@fontsource/josefin-sans/600.css";
 import "@fontsource/josefin-sans/700.css";
+// Gummy Cluster (Nunito, above, for reading).
+import "@fontsource/lilita-one/400.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";

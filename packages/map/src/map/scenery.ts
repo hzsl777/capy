@@ -4,7 +4,7 @@ import { STARS } from "./decor.ts";
 
 /**
  * Scenery that tells four designs apart at a glance (decision 69): lily pads, frogs and dragonflies on the Frog
- * Pond, a moon with a sleeping bear on Bedtime Tea, the light through smoke of Thomas Cole's The Course of Empire:
+ * Pond, a moon with a sleeping bear and cups of tea on Bedtime Tea (decision 102), the light through smoke of Thomas Cole's The Course of Empire:
  * Destruction on Course of Empire (id arcadia, whose land shows the painting itself, decision 95), and trick-rope
  * loops, a rope frame and a denim sea
  * on Lasso, and Tarot's gold wheel, sun and moon round the globe. Every piece sits at a fixed
@@ -41,11 +41,18 @@ export const POND: readonly Spot[] = [
   { kind: "pads", lon: 6, lat: -58, r: 9 },
 ];
 
-/** On the flat map the moon with the sleeping bear hangs in the night over the open Pacific, Atlantic and Indian Ocean. */
+/**
+ * On the flat map the moon with the sleeping bear hangs in the night over the open Pacific, Atlantic and Indian Ocean,
+ * and teacups steam and tea bags steep in the open sea between them.
+ */
 export const TEA: readonly Spot[] = [
   { kind: "bear", lon: -142, lat: 10, r: 14 },
   { kind: "bear", lon: -22, lat: -30, r: 14, flip: true },
   { kind: "bear", lon: 90, lat: -10, r: 9 },
+  { kind: "teacup", lon: -38, lat: 26, r: 11 },
+  { kind: "teacup", lon: 154, lat: 30, r: 9, flip: true },
+  { kind: "teabag", lon: -126, lat: -26, r: 14 },
+  { kind: "teabag", lon: 46, lat: -34, r: 7, flip: true },
 ];
 
 /** Trick-rope loops over the sea. */
@@ -251,6 +258,15 @@ const BEAR_HEAD = `
   <circle cx="-54" cy="0" r="7.5" fill="#fbf5e6" stroke="#8d8068" stroke-width="1.6"/>
   <path d="M-59 2.5q5 4 10-.5" stroke="#c7cfe8" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
 
+/** Bedtime Tea's teacup seen from the side: a wide rim rounding down to a small foot. */
+const TEACUP_BODY = "M-47-14L47-14C47 18 30 38 0 38C-30 38-47 18-47-14Z";
+
+/** A chamomile flower: white petals round a yellow middle, stroked so it reads as a flower at any size. */
+const CHAMOMILE = (x: number, y: number, s: number) =>
+  `<g transform="translate(${x} ${y}) scale(${s})"><g fill="#fffdf6" stroke="#b9b49a" stroke-width=".9">${[0, 40, 80, 120, 160, 200, 240, 280, 320]
+    .map((d) => `<ellipse cx="0" cy="-7" rx="2.6" ry="5.2" transform="rotate(${d})"/>`)
+    .join("")}</g><circle r="3.6" fill="#f2c84a" stroke="#c99a26" stroke-width="1"/></g>`;
+
 // Undersea Town. A flower-shaped cloud: one outline of round petals, a paler flower inside it and a soft middle,
 // cut as a single path so no part of it reads as a round dot.
 const FLOWER_PATH = (r: number, petals: number, rot: number) => {
@@ -425,6 +441,64 @@ export const PICTURES: Record<string, string> = {
     <path d="M34-58l0 10m-5-5l10 0M86-46l0 8m-4-4l8 0M-92-54l0 8m-4-4l8 0M60-78l0 6m-3-3l6 0" stroke="#fff6c8" stroke-width="2.2" stroke-linecap="round"/>`,
   ),
 
+  // Bedtime Tea: a teacup of our own on its saucer at sea, steam curling up, a chamomile flower painted on the cup.
+  // 200 by 140.
+  teacup: svg(
+    "-100 -70 200 140",
+    `<defs><linearGradient id="cg" x1="0" x2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".55" stop-color="#f6eedb"/><stop offset="1" stop-color="#dcd0b4"/></linearGradient>
+    <linearGradient id="tea" x1="0" x2="1"><stop offset="0" stop-color="#b8742c"/><stop offset=".5" stop-color="#d9963e"/><stop offset="1" stop-color="#e9b45c"/></linearGradient>
+    <clipPath id="cb"><path d="${TEACUP_BODY}"/></clipPath></defs>
+    <ellipse cx="0" cy="46" rx="86" ry="18" fill="none" stroke="#c8d2ff" stroke-width="1.6" opacity=".35"/>
+    <ellipse cx="4" cy="50" rx="72" ry="14" fill="rgba(10,15,50,.35)"/>
+    <ellipse cx="0" cy="44" rx="72" ry="14" fill="#f7f1e1" stroke="#4d5a82" stroke-width="2.2"/>
+    <ellipse cx="0" cy="44" rx="63" ry="11" fill="none" stroke="#8e9fd8" stroke-width="2.4"/>
+    <ellipse cx="0" cy="42" rx="40" ry="7.5" fill="#e6dcc0"/>
+    <path d="M42-6C70-12 74 24 34 28" fill="none" stroke="#4d5a82" stroke-width="10" stroke-linecap="round"/>
+    <path d="M42-6C70-12 74 24 34 28" fill="none" stroke="#f6eedb" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="${TEACUP_BODY}" fill="url(#cg)"/>
+    <g clip-path="url(#cb)"><rect x="-60" y="-1" width="120" height="8" fill="#8e9fd8"/><rect x="-60" y="9" width="120" height="2.4" fill="#c0433a"/></g>
+    ${CHAMOMILE(-16, 24, 0.9)}
+    <path d="${TEACUP_BODY}" fill="none" stroke="#4d5a82" stroke-width="2.4" stroke-linejoin="round"/>
+    <ellipse cx="0" cy="-14" rx="47" ry="9" fill="#fffaf0" stroke="#4d5a82" stroke-width="2.2"/>
+    <ellipse cx="0" cy="-13.2" rx="40" ry="6" fill="url(#tea)"/>
+    <path d="M-26-15q10-3 22-2" stroke="#ffe2a8" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".8"/>
+    <g fill="none" stroke="#fffaf0" stroke-linecap="round" opacity=".75">
+      <path d="M-16-26C-28-38-6-46-18-60" stroke-width="3.6"/>
+      <path d="M2-28C-10-42 14-50 2-66" stroke-width="4"/>
+      <path d="M20-25C10-36 30-42 22-56" stroke-width="3.2"/>
+    </g>`,
+  ),
+
+  // Bedtime Tea: a tea bag steeping in the sea, the tea clouding out round it in amber swirls, its string running
+  // up to a blank paper tag with a little crescent on it. No lettering. 200 by 140.
+  teabag: svg(
+    "-100 -70 200 140",
+    `<defs><radialGradient id="tg"><stop offset="0" stop-color="#d9963e" stop-opacity=".7"/><stop offset=".55" stop-color="#c98436" stop-opacity=".32"/><stop offset="1" stop-color="#c98436" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="-4" cy="18" rx="80" ry="40" fill="url(#tg)"/>
+    <ellipse cx="-50" cy="34" rx="40" ry="20" fill="url(#tg)"/>
+    <ellipse cx="46" cy="22" rx="36" ry="20" fill="url(#tg)"/>
+    <g fill="none" stroke="#efc27a" stroke-linecap="round" opacity=".7" stroke-width="2.2">
+      <path d="M-58 22c-10 10 6 22 18 12s-2-20-10-10"/>
+      <path d="M30 34c14 6 30-4 22-14s-20 2-12 8"/>
+      <path d="M-30 46c10 6 26 4 34-4"/>
+    </g>
+    <ellipse cx="-6" cy="22" rx="40" ry="12" fill="none" stroke="#dfe6ff" stroke-width="1.6" opacity=".4"/>
+    <path d="M-4-36C10-58 34-60 52-50" fill="none" stroke="#efe6cf" stroke-width="1.8"/>
+    <g transform="rotate(14 60 -46)">
+      <rect x="46" y="-58" width="28" height="22" rx="2.5" fill="#fbf6e8" stroke="#b8945a" stroke-width="1.8"/>
+      <path d="M64-52A7 7 0 1 0 64-40A5.5 5.5 0 1 1 64-52Z" fill="none" stroke="#6f7fc0" stroke-width="1.6" stroke-linejoin="round"/>
+    </g>
+    <g transform="rotate(-12)">
+      <path d="M-24-22L-4-36L16-22Z" fill="#efe2c4" stroke="#8a7350" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M-24-22H16V28H-24Z" fill="#f3e8cf" stroke="#8a7350" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M-24-17H16M-24 23H16" stroke="#c9b48c" stroke-width="2.4" stroke-dasharray="1.6 1.6"/>
+      <path d="M-16-8l4 2M-2-10l3 3M8-4l-3 3M-12 4l4-1M2 6l3 2M-6 14l3-2M10 12l-3 3M-18 16l3 1" stroke="#8a6a3a" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>
+      <path d="M-24 6q10-4 20 0t20 0V28H-24Z" fill="#c98436" opacity=".38"/>
+      <path d="M-28 6q12-5 24 0t24 0" fill="none" stroke="#dfe6ff" stroke-width="1.6" opacity=".6"/>
+      <rect x="-6.5" y="-33" width="5" height="3" rx=".6" fill="#b9bfcc"/>
+    </g>`,
+  ),
+
   // Tarot: a sun with straight and wavy rays and a crescent moon, gold line work as on the cards. No faces. 120 by 120.
   sun: svg(
     "-60 -60 120 120",
@@ -539,6 +613,17 @@ export function drawSceneryUnder(f: SceneryFrame) {
     g.addColorStop(1, "rgba(34,42,92,0.3)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
+    if (mode === "3d") {
+      // The globe is the tea in the cup: warm amber where the tea meets the cup's wall, under the land.
+      const R = f.proj.scale();
+      const [cx, cy] = f.proj.translate();
+      const tea = ctx.createRadialGradient(cx, cy, R * 0.72, cx, cy, R);
+      tea.addColorStop(0, "rgba(214,150,62,0)");
+      tea.addColorStop(0.75, "rgba(214,150,62,0.3)");
+      tea.addColorStop(1, "rgba(196,128,46,0.72)");
+      ctx.fillStyle = tea;
+      ctx.fillRect(0, 0, w, h);
+    }
   } else if (t.scenery === "reef") sunlit(f);
 }
 
@@ -554,8 +639,264 @@ export function drawScenery(f: SceneryFrame) {
     ropeFrame(f);
   } else if (t.scenery === "tea") {
     stars(f);
-    moon(f);
+    const saucer = f.mode === "3d" ? teacup(f) : 0;
+    steam(f, saucer > 0);
+    moon(f, saucer);
   }
+}
+
+/**
+ * Bedtime Tea's globe as the tea in a big cup seen from above: the saucer with a periwinkle band, the cup's inner
+ * wall and rim round the sphere, the handle on the right, and a spoon, a honey dipper with its drip and two chamomile
+ * flowers on the saucer. Everything lies outside the sphere, so nothing covers a place. Returns the saucer's radius,
+ * or 0 when the globe is zoomed in past the frame and there is no room for any of it.
+ */
+function teacup(f: SceneryFrame): number {
+  const { ctx, proj, w, h } = f;
+  const R = proj.scale();
+  const [cx, cy] = proj.translate();
+  // Zoomed in so far that the cup's rim would not show anywhere in the frame.
+  if (Math.hypot(Math.max(cx, w - cx), Math.max(cy, h - cy)) < R * 1.02) return 0;
+  const rim = R * 1.12;
+  const saucer = R * 1.42;
+  const line = Math.max(1.2, R * 0.009);
+  const TAU = Math.PI * 2;
+  ctx.save();
+  // Never paint over the globe: the frame with the sphere cut out.
+  ctx.beginPath();
+  ctx.rect(0, 0, w, h);
+  ctx.arc(cx, cy, R + 0.5, 0, TAU);
+  ctx.clip("evenodd");
+
+  // The saucer's soft shadow, then the saucer: cream china with a gold edge, a periwinkle band and the well.
+  const sh = ctx.createRadialGradient(cx + R * 0.05, cy + R * 0.08, saucer * 0.9, cx + R * 0.05, cy + R * 0.08, saucer * 1.08);
+  sh.addColorStop(0, "rgba(10,14,48,0.4)");
+  sh.addColorStop(1, "rgba(10,14,48,0)");
+  ctx.fillStyle = sh;
+  ctx.fillRect(0, 0, w, h);
+  const china = ctx.createRadialGradient(cx - R * 0.4, cy - R * 0.5, R * 0.2, cx, cy, saucer);
+  china.addColorStop(0, "#fffcf3");
+  china.addColorStop(0.75, "#f6eedb");
+  china.addColorStop(1, "#e4d7b8");
+  ctx.beginPath();
+  ctx.arc(cx, cy, saucer, 0, TAU);
+  ctx.fillStyle = china;
+  ctx.fill();
+  ctx.lineWidth = line * 1.6;
+  ctx.strokeStyle = "#b8945a";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, saucer * 0.95, 0, TAU);
+  ctx.lineWidth = R * 0.03;
+  ctx.strokeStyle = "#8e9fd8";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, saucer * 0.95 - R * 0.026, 0, TAU);
+  ctx.lineWidth = line * 0.7;
+  ctx.strokeStyle = "#d6b16a";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 1.2, 0, TAU);
+  ctx.lineWidth = R * 0.016;
+  ctx.strokeStyle = "rgba(150,128,88,0.28)";
+  ctx.stroke();
+
+  // Things laid on the saucer, round the cup: a spoon at the lower left, a honey dipper at the lower right with honey
+  // pooled under it, chamomile at the left. Each is drawn along the saucer's band, at an angle round the centre.
+  const band = (rim + saucer * 0.95) / 2;
+  const lay = (angle: number, draw: () => void) => {
+    ctx.save();
+    ctx.translate(cx + Math.cos(angle) * band, cy + Math.sin(angle) * band);
+    ctx.rotate(angle + Math.PI / 2);
+    ctx.scale(R / 100, R / 100);
+    draw();
+    ctx.restore();
+  };
+  lay(2.25, () => {
+    // A teaspoon, its bowl to one side and its handle tapering away.
+    ctx.beginPath();
+    ctx.moveTo(-6, -1.6);
+    ctx.quadraticCurveTo(14, -2.6, 30, -1.2);
+    ctx.lineTo(30, 1.2);
+    ctx.quadraticCurveTo(14, 2.6, -6, 1.6);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(10,14,48,0.18)";
+    ctx.save();
+    ctx.translate(1.5, 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(-15, 0, 10, 6.4, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#e3e7f1";
+    ctx.strokeStyle = "#6f7891";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-6, -1.6);
+    ctx.quadraticCurveTo(14, -2.6, 30, -1.2);
+    ctx.lineTo(30, 1.2);
+    ctx.quadraticCurveTo(14, 2.6, -6, 1.6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(-15, 0, 10, 6.4, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(-16.5, -1.5, 5, 2.4, -0.2, 0, TAU);
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.fill();
+  });
+  lay(0.95, () => {
+    // Honey pooled on the saucer, then the dipper: a ridged wooden head on a turned handle, a drip hanging from it.
+    ctx.beginPath();
+    ctx.ellipse(-12, 4, 13, 6.5, 0.1, 0, TAU);
+    ctx.fillStyle = "rgba(226,160,48,0.75)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(-15, 2.6, 5, 1.8, 0.1, 0, TAU);
+    ctx.fillStyle = "rgba(255,236,170,0.8)";
+    ctx.fill();
+    ctx.fillStyle = "#c9945a";
+    ctx.strokeStyle = "#6e4a26";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(-2, -1.8, 34, 3.6, 1.8);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(-12, 0, 9, 6, 0, 0, TAU);
+    ctx.fillStyle = "#d7a465";
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    for (const x of [-17, -13.5, -10, -6.5]) {
+      ctx.moveTo(x, -5.2);
+      ctx.lineTo(x, 5.2);
+    }
+    ctx.strokeStyle = "#8a5e30";
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-14, 5);
+    ctx.quadraticCurveTo(-13, 9, -12, 10.5);
+    ctx.quadraticCurveTo(-10.5, 8, -10, 5);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(226,160,48,0.95)";
+    ctx.fill();
+  });
+  for (const [angle, s] of [
+    [2.95, 1],
+    [3.32, 0.8],
+  ] as const) {
+    lay(angle, () => {
+      ctx.scale(s, s);
+      ctx.fillStyle = "#fffdf6";
+      ctx.strokeStyle = "#a9a48a";
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 9; i++) {
+        ctx.save();
+        ctx.rotate((i / 9) * TAU);
+        ctx.beginPath();
+        ctx.ellipse(0, -7, 2.6, 5.2, 0, 0, TAU);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, 3.6, 0, TAU);
+      ctx.fillStyle = "#f2c84a";
+      ctx.fill();
+      ctx.strokeStyle = "#c99a26";
+      ctx.stroke();
+    });
+  }
+
+  // The handle, a loop of china on the right, and the cup's shadow on the saucer.
+  const ha = 0.12;
+  const hx = cx + Math.cos(ha) * (rim + R * 0.13);
+  const hy = cy + Math.sin(ha) * (rim + R * 0.13);
+  for (const [dx, dy, width, colour] of [
+    [R * 0.03, R * 0.05, R * 0.075, "rgba(10,14,48,0.22)"],
+    [0, 0, R * 0.075, "#4d5a82"],
+    [0, 0, R * 0.05, "#f6eedb"],
+  ] as const) {
+    ctx.beginPath();
+    ctx.ellipse(hx + dx, hy + dy, R * 0.17, R * 0.1, ha, 0, TAU);
+    ctx.lineWidth = width;
+    ctx.strokeStyle = colour;
+    ctx.stroke();
+  }
+  const cs = ctx.createRadialGradient(cx + R * 0.03, cy + R * 0.05, rim * 0.97, cx + R * 0.03, cy + R * 0.05, rim * 1.12);
+  cs.addColorStop(0, "rgba(30,26,60,0.32)");
+  cs.addColorStop(1, "rgba(30,26,60,0)");
+  ctx.fillStyle = cs;
+  ctx.beginPath();
+  ctx.arc(cx + R * 0.03, cy + R * 0.05, rim * 1.12, 0, TAU);
+  ctx.arc(cx, cy, rim * 0.99, 0, TAU, true);
+  ctx.fill();
+
+  // The cup: its inner wall from the tea up to the rim, shaded toward the tea and away from the light at the upper
+  // left, a periwinkle band painted inside, and the rim with a gold line.
+  ctx.beginPath();
+  ctx.arc(cx, cy, rim, 0, TAU);
+  ctx.arc(cx, cy, R, 0, TAU, true);
+  const wall = ctx.createRadialGradient(cx, cy, R, cx, cy, rim);
+  wall.addColorStop(0, "#c9b994");
+  wall.addColorStop(0.35, "#efe6d0");
+  wall.addColorStop(1, "#fffaf0");
+  ctx.fillStyle = wall;
+  ctx.fill();
+  const lit = ctx.createLinearGradient(cx - rim, cy - rim, cx + rim, cy + rim);
+  lit.addColorStop(0, "rgba(40,36,80,0.22)");
+  lit.addColorStop(0.5, "rgba(40,36,80,0)");
+  lit.addColorStop(1, "rgba(255,255,255,0.18)");
+  ctx.fillStyle = lit;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 1.075, 0, TAU);
+  ctx.lineWidth = R * 0.014;
+  ctx.strokeStyle = "rgba(142,159,216,0.8)";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, rim - line, 0, TAU);
+  ctx.lineWidth = line;
+  ctx.strokeStyle = "#d6b16a";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, rim, 0, TAU);
+  ctx.lineWidth = line * 1.4;
+  ctx.strokeStyle = "#4d5a82";
+  ctx.stroke();
+  ctx.restore();
+  return saucer;
+}
+
+let steamAt = "";
+/**
+ * The steam rising from the cup is the page's (style.css), so it can drift up slowly without redrawing the map, and
+ * hold still for reduced motion. This tells it where the cup's rim is, or that there is no cup to steam.
+ */
+function steam(f: SceneryFrame, on: boolean) {
+  const box = f.ctx.canvas.parentElement;
+  if (!box) return;
+  const R = f.proj.scale();
+  const [cx, cy] = f.proj.translate();
+  // From the rim up into the room above the cup, never down over the tea.
+  const top = cy - R * 1.12;
+  const tall = Math.min(R * 0.75, top - 4);
+  on &&= tall > 28;
+  const at = on ? `${Math.round(cx)},${Math.round(top)},${Math.round(tall)}` : "";
+  if (at === steamAt && box.hasAttribute("data-steam") === on) return;
+  steamAt = at;
+  if (!on) {
+    box.removeAttribute("data-steam");
+    return;
+  }
+  box.setAttribute("data-steam", "");
+  box.style.setProperty("--steam-x", `${Math.round(cx)}px`);
+  box.style.setProperty("--steam-y", `${Math.round(top)}px`);
+  box.style.setProperty("--steam-h", `${Math.round(tall)}px`);
 }
 
 /** `min`: pictures narrower than this many pixels either side are left out, so none shrinks to the size of a marker. */
@@ -748,7 +1089,7 @@ function stars(f: SceneryFrame) {
  * The moon with the sleeping bear: on the globe it hangs outside the sphere at the upper right, and on the flat map
  * (or a globe zoomed in too far for it) it sits in the night over open ocean (TEA).
  */
-function moon(f: SceneryFrame) {
+function moon(f: SceneryFrame, saucer = 0) {
   const { ctx, proj, mode, w, h } = f;
   if (mode === "2d") {
     drawSpots(f, TEA, 1.1);
@@ -758,17 +1099,20 @@ function moon(f: SceneryFrame) {
   if (!im) return;
   const R = proj.scale();
   const [cx, cy] = proj.translate();
+  // Clear of the globe, or of the saucer round it when the cup shows.
+  const clear = Math.max(R, saucer);
   // Upper right beside the globe, below the window's arch; when the globe fills that corner, the lower left. The moon
   // shrinks to the room there; when neither corner has enough, the bears sleep on the globe's own sea instead, at the
   // flat map's open-water spots, so zoomed in the bear is still there.
   const spots = [
     (s: number) => [Math.min(cx + R * 0.92, w - s * 0.5), Math.max(cy - R * 0.78, s * 0.36 + h * 0.08)],
+    (s: number) => [w - s * 0.5 - 12, s * 0.375 + h * 0.17],
     (s: number) => [s * 0.5 + 10, h - s * 0.36 - 6],
   ];
   for (const at of spots) {
-    for (let s = Math.min(230, Math.max(110, R * 0.55)); s >= 120; s -= 8) {
+    for (let s = Math.min(230, Math.max(130, R * 0.62)); s >= 120; s -= 8) {
       const [x, y] = at(s) as [number, number];
-      if (Math.hypot(x - cx, y - cy) < R + s * 0.3) continue;
+      if (Math.hypot(x - cx, y - cy) < clear + s * 0.3) continue;
       ctx.drawImage(im, x - s / 2, y - (s * 0.75) / 2, s, s * 0.75);
       return;
     }

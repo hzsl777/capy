@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -23,7 +23,7 @@ export interface Theme {
    * tiled game stage, pixel grass, loose paint strokes, or plain fill. Blocks, grass and paint use `textureInk2`
    * as their second colour.
    */
-  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "none";
+  landTexture: "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "grass" | "brush" | "mottle" | "honeycomb" | "lilypads" | "crunch" | "none";
   /**
    * Screen pixels per canvas pixel. 1 draws at full resolution; 3 draws a third as many pixels and scales them up
    * unsmoothed, so lines, coasts and dots come out as chunky pixels (Stage Select and Overworld).
@@ -768,17 +768,21 @@ export const THEMES: Record<ThemeId, Theme> = {
     scenery: "empire",
   },
   // A bedtime tea box: a watercolour night in periwinkle and sage, stars over the sea, and a bear in a red nightcap
-  // asleep in the moon beside the globe (decision 69). Fresh reports take the cap's red.
+  // asleep in the moon beside the globe (decision 69). The tea is in it too: the globe is the tea in a big cup on a
+  // saucer, steam rising, amber where the tea meets the cup; teacups and steeping tea bags on the map's open sea;
+  // teacup markers. Fresh reports take the cap's red.
   nightcap: {
     id: "nightcap",
     label: "Bedtime Tea",
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
+    // Small enough that the cup's rim, the saucer and the steam fit round the globe.
+    globeScale: 0.31,
     ocean: "#4a5a9c",
     land: "#a8c39a",
     landTexture: "mottle",
     pixel: 1,
-    dotShape: "flower",
+    dotShape: "teacup",
     textureInk: "rgba(235,240,210,0.55)",
     textureInk2: "rgba(90,130,100,0.35)",
     coast: "#34466e",
@@ -2022,6 +2026,47 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Gummy Cluster: after sweets where a soft gummy centre is coated in a crust of tiny crunchy candy bits, after no
+  // brand in particular. The land is the crust: bits in many bright colours, cut once from a fixed seed and tiled the
+  // same over all land (`crunch`), over a pink gummy body that shows as a glossy rim along every coast. The sea is a
+  // clear blue gummy with a gloss. No land is red; cherry red belongs to fresh reports. Rounded nugget markers in dark
+  // plum with a white edge read on the busy crust and on the sea.
+  crunch: {
+    id: "crunch",
+    label: "Gummy Cluster",
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    ocean: "#86d4dd",
+    land: "#ff8cc0",
+    landTexture: "crunch",
+    pixel: 1,
+    dotShape: "nugget",
+    textureInk: "rgba(58,16,72,0.45)",
+    textureInk2: "rgba(255,255,255,0.8)",
+    coast: "#24093f",
+    coastWidth: 1.3,
+    waterlines: 0,
+    waterline: "rgba(255,255,255,0.55)",
+    oceanHatch: null,
+    oceanPattern: "shimmer",
+    shallows: "rgba(255,105,180,0.72)",
+    graticule: "rgba(30,90,120,0.12)",
+    graticuleDash: [],
+    river: "rgba(40,120,150,0.75)",
+    lake: "#86d4dd",
+    ice: "#fff4fb",
+    relief: "rgba(255,255,255,0.62)",
+    dot: "#2a0b46",
+    dotStroke: "#ffffff",
+    fresh: "#e8173a",
+    tuned: "#ffffff",
+    arc: "#ffe14d",
+    glow: false,
+    atmosphere: "rgba(255,140,205,0.4)",
+    shade: "rgba(40,10,80,0.42)",
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -2031,7 +2076,7 @@ export const THEMES: Record<ThemeId, Theme> = {
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
-  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
+  { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "crunch", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee"] },
 ];
