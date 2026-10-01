@@ -133,6 +133,39 @@ export function stripHtml(field: unknown): string {
 }
 
 /** Pure: turns one feed document into articles inside the run date's window. No network, no database. */
+/** Month abbreviations feeds write in their own language, from Italian, Spanish, Portuguese, French, German and Dutch. */
+const MONTHS: Record<string, string> = {
+  gen: "Jan", ene: "Jan", janv: "Jan", jan: "Jan", januar: "Jan", janeiro: "Jan",
+  feb: "Feb", fev: "Feb", febr: "Feb", fevr: "Feb",
+  mar: "Mar", mars: "Mar", mrz: "Mar", maer: "Mar", mrt: "Mar", marz: "Mar",
+  apr: "Apr", abr: "Apr", avr: "Apr",
+  mag: "May", may: "May", mai: "May", mei: "May",
+  giu: "Jun", jun: "Jun", juin: "Jun",
+  lug: "Jul", jul: "Jul", juil: "Jul",
+  ago: "Aug", aug: "Aug", aout: "Aug",
+  set: "Sep", sep: "Sep", sept: "Sep",
+  ott: "Oct", oct: "Oct", out: "Oct", okt: "Oct",
+  nov: "Nov",
+  dic: "Dec", dez: "Dec", dec: "Dec",
+};
+
+/**
+ * A feed item's date. Some feeds write the RFC 822 form in their own language ("gio, 01 ott 2026 03:35:03 +0200"),
+ * which Date can't read, so every item would be dropped as undated (decision 89). The weekday is left out and the
+ * month put in English; anything else that doesn't parse stays undated.
+ */
+export function feedDate(raw: string | undefined): Date | undefined {
+  if (!raw) return undefined;
+  const direct = new Date(raw.trim());
+  if (!Number.isNaN(direct.getTime())) return direct;
+  const m = /^(?:[^\d,]+,\s*)?(\d{1,2})[\s.-]+([^\d\s.,-]+)\.?[\s.-]+(\d{4})(.*)$/u.exec(raw.trim());
+  if (!m) return undefined;
+  const month = MONTHS[m[2]!.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\.$/, "")];
+  if (!month) return undefined;
+  const d = new Date(`${m[1]} ${month} ${m[3]}${m[4]}`);
+  return Number.isNaN(d.getTime()) ? undefined : d;
+}
+
 export async function articlesFromFeed(source: Source, xml: string, date: RunDate): Promise<Article[]> {
   const feed = await parser.parseString(xml);
   const { from, to } = ingestWindow(date);
@@ -141,7 +174,7 @@ export async function articlesFromFeed(source: Source, xml: string, date: RunDat
     const link = item.link?.trim();
     const title = stripHtml(item.title);
     if (!link || !title) continue;
-    const published = item.isoDate ? new Date(item.isoDate) : item.pubDate ? new Date(item.pubDate) : undefined;
+    const published = item.isoDate ? new Date(item.isoDate) : feedDate(item.pubDate);
     if (!published || Number.isNaN(published.getTime())) continue;
     if (published < from || published >= to) continue;
     const parsed = ArticleSchema.safeParse({

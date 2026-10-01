@@ -24,7 +24,7 @@ What happens on its own:
 - "Site check" runs once a day, after the refresh that follows the daily run. It loads the live site from outside, checks the headers, the day's file and a tile, asks for paths that must 404, and opens the page in a real browser at desktop and phone width. Screenshots are kept on the run's page for a week. It reads the repository variable `SITE_URL`, then `SITE_DOMAIN`, then the workers.dev address. Run it from the Actions tab after any change.
 - GitHub emails you when a scheduled run fails. A failed day leaves the previous map up. The email goes to whoever last changed the workflow's schedule, and only with failed-workflow notifications on (GitHub, Settings, Notifications, Actions).
 
-"Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page.
+"Preflight" (in the Actions tab) is optional: it checks the key, the model ids and every feed, and reports on its summary page. To fix feeds that fail, commit a `probe.tsv` of `id<TAB>url` lines to a branch and run Preflight from that branch: it prints each outlet's best feed found from GitHub's servers, one line each, at the end of the log (decision 89). Remove the file before merging.
 
 Each "Daily run" writes a short summary on its page in the Actions tab: the word, how many feeds were read, failed or paused, the stories and explanations, the local stories and their towns, the coverage line, the model spend, and a table of the feeds that need a person. A failed run says which stage failed and lists the stages that finished.
 
