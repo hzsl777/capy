@@ -1717,10 +1717,10 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Undersea Town: after the feel of a bright cartoon town on the sea floor, with none of its characters or names.
-  // Turquoise water lit from above, sandy seabed land with a pale lagoon along the coasts, flower-shaped clouds
-  // drifting in the water, and a few little houses in open sea (a fruit, a rock dome, a carved stone head), all
-  // drawn for this site (src/map/scenery.ts). Bubbles rise outside the map (style.css).
+  // Undersea Town: after the feel of a bright cartoon sea floor, with no characters, dwellings or names. Turquoise
+  // water lit from above, sandy seabed land with a pale lagoon along the coasts, and in tested open sea flower-shaped
+  // clouds, jellyfish and little reef gardens, all drawn for this site (src/map/scenery.ts). Bubbles, the seabed and
+  // the wooden sign are chrome (style.css).
   reef: {
     id: "reef",
     label: "Undersea Town",
