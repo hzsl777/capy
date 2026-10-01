@@ -560,22 +560,26 @@ function renderToolbar() {
 }
 
 /**
- * Each closed dropdown is sized to its chosen text, measured in the design's own font with its letter spacing, case
- * and small capitals. Browsers size a select from the bare text (Safari ignores letter spacing and capitals) or from
- * its longest option, so a word could lose its last letter or a short one sit in a wide box.
+ * A closed dropdown keeps the browser's own width, but never narrower than its chosen text measured in the design's
+ * font with its letter spacing, case and small capitals: Safari sizes a select from the bare text and could drop a
+ * last letter. Only a minimum is set, and only when it is close to the browser's width, so a box can grow by a letter and never stretches.
  */
-const measure = h("span", { "aria-hidden": "true", style: "position:absolute;visibility:hidden;white-space:pre;left:-9999px;top:0" });
+const measure = h("span", { "aria-hidden": "true", style: "position:absolute;visibility:hidden;white-space:pre;left:0;top:0;width:auto;max-width:none;display:inline-block" });
 function fitSelects() {
   if (!measure.isConnected) document.body.append(measure);
   for (const el of document.querySelectorAll<HTMLSelectElement>(".pick select")) {
+    el.style.width = "";
+    el.style.minWidth = "";
+    const native = el.getBoundingClientRect().width;
+    if (!native) continue;
     const text = el.selectedOptions[0]?.textContent ?? "";
-    if (!el.offsetParent && el.closest("[hidden]")) continue;
     const cs = getComputedStyle(el);
     for (const prop of ["fontFamily", "fontSize", "fontWeight", "fontStyle", "fontStretch", "fontVariant", "fontFeatureSettings", "letterSpacing", "wordSpacing", "textTransform"] as const) measure.style[prop] = cs[prop];
     measure.textContent = text;
     const box = ["paddingLeft", "paddingRight", "borderLeftWidth", "borderRightWidth"] as const;
-    const extra = box.reduce((sum, prop) => sum + (parseFloat(cs[prop]) || 0), 0);
-    el.style.width = `${Math.ceil(measure.getBoundingClientRect().width + extra + 2)}px`;
+    const need = measure.getBoundingClientRect().width + box.reduce((sum, prop) => sum + (parseFloat(cs[prop]) || 0), 0) + 2;
+    // A letter or two of room, never a stretch: anything more means the measurement, not the box, is wrong.
+    if (need > native && need < native * 1.5) el.style.minWidth = `${Math.ceil(need)}px`;
   }
 }
 // Web fonts arrive after the first paint, and the right width depends on them.

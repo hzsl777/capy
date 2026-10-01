@@ -672,10 +672,9 @@ summary {
   background: var(--panel);
   color: var(--ink);
 }
-/* Every closed dropdown is sized by the page to the text it shows (fitSelects in main.ts), so none is ever cut off. */
-.pick select {
-  max-width: none;
-  text-overflow: clip;
+/* The Translate list holds a hundred languages: sized to the one chosen, not the longest name. */
+#translate {
+  field-sizing: content;
 }
 #about-btn .narrow {
   display: none;
@@ -1391,6 +1390,8 @@ dialog .close {
   }
   .pick select {
     padding: 7px 19px 7px 8px;
+    /* Size to the chosen design, not the longest name on the list. Never a maximum width: a word is never cut. */
+    field-sizing: content;
   }
   .pick::after {
     right: 7px;
