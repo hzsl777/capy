@@ -29,6 +29,11 @@ bucket_name = "globalgist-maps"
 [ai]
 binding = "AI"
 
+# The Worker's logs, kept by Cloudflare (Workers & Pages, globalgist, Logs), so the clock's attempts and any failure
+# are on record. The free plan keeps up to 200,000 events a day.
+[observability]
+enabled = true
+
 # The site's clock (decision 91): Cloudflare starts the GitHub runs on time. 00:07 UTC the daily run (only if its day
 # is missing), every three hours at minute 41 the refresh. Needs the secret GITHUB_DISPATCH_TOKEN (docs/RUNBOOK.md).
 [triggers]
