@@ -13,6 +13,9 @@
 //   newest headlines in the corner, newest first, as text.
 // - Pin Drop: a game's HUD strip over the map with the reticle's latitude and longitude and a scale bar. It measures
 //   the map only: no score, no distance to any place, no round.
+// - Dual Screen: the clamshell's parts that aren't screens or buttons: the top screen's bezel, two speaker grilles,
+//   the hinge with its power light, and a direction pad beside the touch screen whose four arms move the map as the
+//   arrow keys do. No maker's name, logo or button lettering.
 // Place names go in as text, never as HTML.
 
 import type { ThemeId } from "../themes.ts";
@@ -224,6 +227,60 @@ function guessHud(): HTMLElement {
   );
 }
 
+/** Arrow keys the map's canvas already takes; the pad sends the same keys, so it moves the map exactly as they do. */
+const PAD: [string, string, string][] = [
+  ["up", "ArrowUp", "Pan up"],
+  ["left", "ArrowLeft", "Pan left"],
+  ["right", "ArrowRight", "Pan right"],
+  ["down", "ArrowDown", "Pan down"],
+];
+
+/**
+ * Dual Screen's direction pad: four real buttons in a cross. A tap moves the map one arrow-key step; holding an arm
+ * keeps moving it, at most twelve steps a second. Keyboard readers press Enter or Space on an arm, or use the arrow
+ * keys on the map itself.
+ */
+function dpad(): HTMLElement {
+  const pad = h("div", { class: "x-dual x-dual-pad", role: "group", "aria-label": "Move the map" });
+  const send = (key: string) => mapEl.querySelector("canvas")?.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  for (const [side, key, label] of PAD) {
+    const b = h("button", { type: "button", class: `x-dual-arm x-${side}`, "aria-label": label, title: label });
+    // A small triangle pressed into the arm, pointing its way.
+    const s = svg("svg", { viewBox: "0 0 10 10", "aria-hidden": "true" });
+    s.append(svg("path", { d: "M5 2L8.5 7.5H1.5Z", fill: "currentColor" }));
+    b.append(s);
+    let hold = 0;
+    const stop = () => {
+      clearInterval(hold);
+      hold = 0;
+    };
+    b.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      send(key);
+      stop();
+      hold = window.setInterval(() => send(key), 85);
+    });
+    for (const ev of ["pointerup", "pointerleave", "pointercancel", "blur"]) b.addEventListener(ev, stop);
+    // A pointer already moved the map on pointerdown; Enter and Space arrive as a click with no pointer (detail 0).
+    b.addEventListener("click", (e) => {
+      if (e.detail === 0) send(key);
+    });
+    pad.append(b);
+  }
+  pad.append(h("span", { class: "x-dual-hub", "aria-hidden": "true" }));
+  return pad;
+}
+
+/** The clamshell's still parts: the top screen's bezel, the speaker grilles, the hinge and its power light. */
+function shell(): HTMLElement[] {
+  return [
+    h("div", { class: "x-dual x-dual-top", "aria-hidden": "true" }),
+    h("div", { class: "x-dual x-dual-spk x-l", "aria-hidden": "true" }),
+    h("div", { class: "x-dual x-dual-spk x-r", "aria-hidden": "true" }),
+    h("div", { class: "x-dual x-dual-hinge", "aria-hidden": "true" }, h("span", { class: "x-dual-led" }), h("span", { class: "x-dual-led-label" }, "Power")),
+  ];
+}
+
 function booth(): HTMLElement {
   return h("div", { class: "x-booth", "aria-hidden": "true" }, turntable("#9dff2e"), h("div", { class: "x-booth-mid" }, waveform(), mixer()), turntable("#ff3fd4"));
 }
@@ -263,6 +320,9 @@ export function mountExtras(source: ExtrasSource) {
   const brand = document.querySelector(".brand");
   brand?.prepend(crest());
   mapEl.append(routeBar());
+  // Dual Screen: the pad sits just after the map, so it comes next in the tab order; the rest is drawing.
+  mapEl.after(dpad());
+  document.body.append(...shell());
   new ResizeObserver(() => {
     layoutSheet();
     layoutRing();

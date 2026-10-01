@@ -15,6 +15,7 @@ Paths in this skill are relative to `packages/map/`. Run npm scripts from the re
    - `&view=2d|3d`
    - Without `place`, the map turns until a place lands under the reticle (not with reduced motion).
    - `&place=<place id>` flies to that place, e.g. `ll:-1.29,36.82` (Nairobi in the sample). Place ids are `ll:<lat>,<lon>` of the publisher's city.
+   - Console Menu (`cube`) opens in the map; its home screen of channel tiles opens from the Menu button (`.x-menu`) or by picking the design from the Design menu, and Escape returns to the map.
 
 ## Screenshots
 
