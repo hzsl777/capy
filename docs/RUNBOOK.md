@@ -118,6 +118,16 @@ The workers.dev address keeps working too. Email links follow `SITE_DOMAIN`, so 
 
 The daily run needs no deploy: it stores the new day's file in R2, and the Worker serves it.
 
+### The clock
+
+GitHub's own schedule started the daily run hours late or not at all, and skipped refreshes for hours (decision 91). The Worker's cron triggers (`[triggers]` in `wrangler.toml`) fire on time and ask GitHub to start the runs: the daily run at 00:07 UTC, only if its day is missing, and the refresh every three hours at minute 41. GitHub's schedule stays only as the daily run's backup. The Worker needs one secret to do it:
+
+1. **Make the token.** On GitHub, your picture, then Settings, Developer settings, Personal access tokens, **Fine-grained tokens**, Generate new token. Name it `globalgist-clock`, expiration one year (put a reminder in your calendar to renew it), Repository access **Only select repositories**: `capy`. Under Repository permissions set **Actions** to **Read and write**; leave everything else at No access (Metadata: Read-only is added by itself). Generate, and copy the token.
+2. **Give it to the Worker.** In the Cloudflare dashboard: Workers & Pages, `globalgist`, Settings, **Variables and Secrets**, Add. Type **Secret**, name `GITHUB_DISPATCH_TOKEN`, value the token. Deploy. Secrets set there survive every later deploy.
+3. **Check it.** In the same Worker, Settings, Trigger Events lists the two cron lines. After the next minute 41, the Actions tab shows a "Refresh local stories" run started by `workflow_dispatch`. A failed start shows in the Worker's Logs with the reason ("GITHUB_DISPATCH_TOKEN is not set", or "GitHub answered 401" for a token that is wrong or expired).
+
+Until the secret is set, the refresh runs only after each daily run, and the daily run waits for GitHub's schedule.
+
 ### Map files in R2
 
 A day's map is several megabytes. Building it from the database takes longer than the 10 ms of CPU a request gets on Cloudflare's free plan, so the daily run stores the finished file in R2 and the Worker streams it (decision 73). Since decision 78 the day's file holds the outlets' stories, the events and the word, tens of kilobytes, and the day's GDELT local stories go in tiles beside it: one file per 10-degree cell of longitude and latitude that has any, about 250 files and 10 to 15 MB (3 to 4 MB compressed) on a day of 40,000 to 50,000 local stories, stored as `local/<date>/<tile>.json`. The site asks for the tiles in view only when someone zooms in all the way. R2's free tier (10 GB stored, a million writes and ten million reads a month) covers this many times over.

@@ -24,3 +24,8 @@ directory = "packages/map/dist"
 [[r2_buckets]]
 binding = "MAPS"
 bucket_name = "globalgist-maps"
+
+# The site's clock (decision 91): Cloudflare starts the GitHub runs on time. 00:07 UTC the daily run (only if its day
+# is missing), every three hours at minute 41 the refresh. Needs the secret GITHUB_DISPATCH_TOKEN (docs/RUNBOOK.md).
+[triggers]
+crons = ["7 0 * * *", "41 */3 * * *"]
