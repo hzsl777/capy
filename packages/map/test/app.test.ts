@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
+import { canonicalRedirect, FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
 import type { MapFile, MapItem } from "../src/types.ts";
 
 const base: MapItem = { id: "1", t: 100, title: "t", url: "https://x", domain: "x", publisher: "X", lang: "en", topics: [], place: 0 };
@@ -85,5 +85,19 @@ describe("the word's date and status line (decision 81)", () => {
 
   it("says nothing of the kind for the sample or a demo", () => {
     expect(wordStatus({ source: "sample", runDate: "2026-09-20", telegram: word("2026-09-20") }, noon).note).toBeNull();
+  });
+});
+
+describe("one address (decision 93)", () => {
+  const home = "https://globalgist.io/";
+  it("sends the www name and the workers.dev address to the canonical one, keeping a shared link's query", () => {
+    expect(canonicalRedirect(new URL("https://www.globalgist.io/"), home)).toBe("https://globalgist.io/");
+    expect(canonicalRedirect(new URL("https://globalgist.someone.workers.dev/?place=ll:1,2"), home)).toBe("https://globalgist.io/?place=ll:1,2");
+  });
+  it("leaves the canonical address, branch previews, local development and a build without one alone", () => {
+    expect(canonicalRedirect(new URL("https://globalgist.io/?theme=pond"), home)).toBeNull();
+    expect(canonicalRedirect(new URL("https://claude-branch-globalgist.someone.workers.dev/"), home)).toBeNull();
+    expect(canonicalRedirect(new URL("http://localhost:5173/"), home)).toBeNull();
+    expect(canonicalRedirect(new URL("https://globalgist.someone.workers.dev/"), null)).toBeNull();
   });
 });

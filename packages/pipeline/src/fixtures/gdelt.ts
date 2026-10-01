@@ -4,7 +4,7 @@
 import { strToU8, zipSync } from "fflate";
 import { ingestWindow, toRunDate } from "@2dayai/core";
 
-export type GkgTown = { type?: string; name: string; lat: number; lon: number; id: string; offset?: number };
+export type GkgTown = { type?: string; name: string; lat: number; lon: number; id: string; offset?: number; cc?: string };
 
 /** One GKG 2.1 row: 27 tab-separated columns, with only the ones the local stage reads filled in. */
 export function gkgRow(o: { url: string; title?: string; when?: string; towns?: GkgTown[]; lang?: string | undefined; collection?: string }): string {
@@ -14,7 +14,7 @@ export function gkgRow(o: { url: string; title?: string; when?: string; towns?: 
   c[2] = o.collection ?? "1";
   c[3] = new URL(o.url).hostname;
   c[4] = o.url;
-  c[10] = (o.towns ?? []).map((t) => [t.type ?? "4", t.name, "XX", "XX00", "", t.lat, t.lon, t.id, t.offset ?? 100].join("#")).join(";");
+  c[10] = (o.towns ?? []).map((t) => [t.type ?? "4", t.name, t.cc ?? "XX", "XX00", "", t.lat, t.lon, t.id, t.offset ?? 100].join("#")).join(";");
   if (o.lang) c[25] = `srclc:${o.lang};eng:GT-ITA 1.0`;
   if (o.title !== undefined) c[26] = `<PAGE_LINKS></PAGE_LINKS><PAGE_TITLE>${o.title}</PAGE_TITLE>`;
   return c.join("\t");

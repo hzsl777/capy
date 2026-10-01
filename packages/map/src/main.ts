@@ -138,6 +138,7 @@ import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
 type Item = MapItem;
 type NewsFile = MapFile;
 import {
+  canonicalRedirect,
   FILTERS,
   TOPIC_LABEL,
   formatCoords,
@@ -163,7 +164,7 @@ import { markPath, markRing } from "./map/marks.ts";
 import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
-import { needsTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
+import { cannotTranslate, needsTranslation, prepareTranslation, targetLanguage, translate, translationSupported } from "./translate.ts";
 import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
@@ -178,6 +179,11 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 
 // ---- state ----------------------------------------------------------------
 
+// One address (decision 93): the www name and the workers.dev address send the reader to the canonical one.
+{
+  const to = canonicalRedirect(new URL(location.href), document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? null);
+  if (to) location.replace(to);
+}
 const params = new URLSearchParams(location.search);
 /** Design ids that were renamed, so old links and saved choices still land on the same design. */
 const RENAMED: Record<string, ThemeId> = { cotton: "candy" };
@@ -626,10 +632,16 @@ function translated<T extends HTMLElement>(el: T, text: string, lang: string): T
   if (state.translate && needsTranslation(lang)) {
     const token = renderToken;
     translate(text, lang).then((out) => {
-      if (!out || token !== renderToken || !el.isConnected) return;
+      if (token !== renderToken || !el.isConnected) return;
+      const from = languageName(lang) || lang;
+      // Said, never silent: a headline left in its language says why.
+      if (!out) {
+        el.after(h("span", { class: "translated" }, cannotTranslate(lang) ? `This browser can't translate ${from}` : `Not translated yet: tap Translate again to download ${from}`));
+        return;
+      }
       el.textContent = out;
       el.lang = targetLanguage;
-      el.after(h("span", { class: "translated" }, `Translated from ${languageName(lang) || lang}`));
+      el.after(h("span", { class: "translated" }, `Translated from ${from}`));
     });
   }
   return el;
@@ -1175,12 +1187,9 @@ function renderTicker() {
 // ---- misc -------------------------------------------------------------------
 
 function syncUrl() {
-  const p = new URLSearchParams();
-  p.set("theme", state.theme);
-  if (state.view) p.set("view", state.view);
-  const place = state.tuned ? state.file?.places[state.tuned[0]] : null;
-  if (place) p.set("place", place.id);
-  history.replaceState(null, "", `${location.pathname}?${p}`);
+  // The address stays the site's own, globalgist.io and nothing after it (decision 93). A link with ?theme, ?view or
+  // ?place still opens there (read once above); the design and view are kept in the browser (pins.ts).
+  if (location.search) history.replaceState(null, "", location.pathname);
 }
 
 /** S: turn the map until it lands somewhere new. */
@@ -1238,6 +1247,8 @@ function bindGlobal() {
   });
   $("translate").addEventListener("click", () => {
     state.translate = !state.translate;
+    // In the click itself, so the browser lets languages that need a download start it.
+    if (state.translate) prepareTranslation(state.file?.items.map((it) => it.lang) ?? []);
     setPref("translate", state.translate ? "on" : "off");
     renderToolbar();
     renderPanel();
