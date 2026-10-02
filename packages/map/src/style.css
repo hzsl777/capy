@@ -10567,11 +10567,12 @@ dialog.x-home::backdrop {
   overflow-y: auto;
   padding: 34px 48px 30px;
 }
+/* Twelve channels of one size, four by three (decision 114). The grid is as wide as three rows of 16:10 tiles can be
+   and still fit above the bar; a tile whose text needs more room grows, and its row with it. */
 .x-home-grid {
-  flex: 1;
   width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
+  max-width: min(1240px, calc((100dvh - 112px - 64px - 44px) * 16 / 10 * 4 / 3 + 66px));
+  margin: auto;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-auto-rows: 1fr;
@@ -10588,7 +10589,7 @@ dialog.x-home::backdrop {
 .x-ch {
   position: relative;
   min-width: 0;
-  min-height: 150px;
+  aspect-ratio: 16 / 10;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10613,22 +10614,24 @@ button.x-ch:focus-visible {
   box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 8px 18px rgba(30, 110, 170, 0.22);
   transform: scale(1.04);
 }
+/* The map channel: the map's live picture fills the tile, its name in a corner. */
 .x-ch-map {
-  grid-column: span 2;
-  grid-row: span 2;
   justify-content: stretch;
-  gap: 8px;
-  padding: 10px;
+  padding: 6px;
 }
-.x-ch-map:hover,
-.x-ch-map:focus-visible {
-  transform: scale(1.02);
+.x-ch-map .x-ch-cap {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  font: 800 15px/1 var(--font-mast);
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 10, 30, 0.8);
 }
 .x-ch-screen {
   position: relative;
   flex: 1;
   width: 100%;
-  min-height: 120px;
+  min-height: 0;
   overflow: hidden;
   border-radius: 13px;
   background: radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
@@ -10673,7 +10676,7 @@ button.x-ch:focus-visible {
 }
 .x-ch-word-text {
   max-width: 100%;
-  font: 800 min(52px, calc(88cqi / (var(--len, 8) * 0.74))) / 1.05 var(--font-mast);
+  font: 800 min(44px, calc(88cqi / (var(--len, 8) * 0.74))) / 1.05 var(--font-mast);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #1a82c2;
@@ -10718,10 +10721,6 @@ button.x-ch:focus-visible {
 .x-ico {
   width: 40px;
   height: 40px;
-}
-.x-ch-marks {
-  width: 96px;
-  height: 32px;
 }
 /* The bottom bar: light grey plastic rising to a gentle hump in the middle, where the clock sits. */
 .x-home-bar {
@@ -10940,6 +10939,272 @@ button.x-ch:focus-visible {
     animation: none;
   }
 }
+/* Every channel's own screen (decision 114): arrows at its sides step to the channel before or after. */
+.x-pv-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(100%, 1240px);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.x-pv-stage .x-pv-screen {
+  flex: 1 1 auto;
+  width: auto;
+  height: 100%;
+  container-type: inline-size;
+}
+.x-pv-screen:not([data-channel="map"]) {
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 60%, #e9eef2 100%);
+}
+.x-pv-map,
+.x-pv-body {
+  position: absolute;
+  inset: 0;
+}
+.x-pv-map[hidden],
+.x-pv-body[hidden] {
+  display: none;
+}
+.x-pv-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 56px;
+  color: var(--ink);
+  text-align: center;
+}
+.x-pv-body .x-ch-art .x-ico {
+  width: 76px;
+  height: 76px;
+}
+.x-pv-kicker {
+  margin: 0;
+  font: 800 14px/1.2 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.x-pv-word {
+  max-width: 100%;
+  font: 800 min(140px, calc(80cqi / (var(--len, 8) * 0.72))) / 1 var(--font-mast);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #1a82c2;
+  text-shadow: 0 2px 0 #ffffff, 0 4px 14px rgba(52, 187, 232, 0.3);
+}
+.x-pv-body .x-ch-date {
+  font-size: 18px;
+}
+.x-pv-body .x-ch-note,
+.x-pv-note {
+  margin: 0;
+  max-width: 40em;
+  font: 500 15px/1.4 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-title {
+  margin: 0;
+  font: 800 36px/1.1 var(--font-head);
+  color: #3f4a55;
+}
+.x-pv-text {
+  margin: 0;
+  max-width: 34em;
+  font: 600 21px/1.4 var(--font-ui);
+  color: var(--ink-2);
+}
+.x-pv-scale {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.x-pv-scale span {
+  padding: 5px 12px;
+  border: 1.5px solid #c6ccd2;
+  border-radius: 999px;
+  font: 700 13px/1.2 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-scale span.on {
+  border-color: #1a82c2;
+  background: #1a82c2;
+  color: #ffffff;
+}
+.x-pv-list,
+.x-pv-rows,
+.x-pv-chips,
+.x-pv-key {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: min(100%, 44em);
+  text-align: left;
+}
+.x-pv-list {
+  counter-reset: line;
+}
+.x-pv-list li {
+  position: relative;
+  padding: 10px 0 10px 40px;
+  border-bottom: 1px solid #dde3e8;
+  font: 600 18px/1.4 var(--font-ui);
+}
+.x-pv-list li::before {
+  counter-increment: line;
+  content: counter(line);
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1a82c2;
+  color: #ffffff;
+  font: 800 14px/26px var(--font-ui);
+  text-align: center;
+}
+.x-pv-rows li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 10px 4px;
+  border-bottom: 1px solid #dde3e8;
+}
+.x-pv-rows b {
+  flex: 1 1 auto;
+  font: 800 22px/1.2 var(--font-head);
+  color: #2f3a45;
+}
+.x-pv-date,
+.x-pv-step {
+  font: 600 15px/1.2 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-date {
+  min-width: 4.5em;
+}
+.x-pv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.x-pv-chips li {
+  padding: 8px 18px;
+  border: 2px solid #c6ccd2;
+  border-radius: 999px;
+  font: 700 17px/1.2 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-chips li.on {
+  border-color: #1a82c2;
+  color: #1476b4;
+  background: rgba(53, 183, 234, 0.12);
+}
+.x-pv-key li {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 4px;
+  font: 600 19px/1.3 var(--font-ui);
+}
+.x-pv-key .x-ch-mark {
+  flex: none;
+}
+.x-pv-latest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 40em);
+}
+.x-pv-latest .x-ch-place {
+  font: 800 15px/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1476b4;
+}
+.x-pv-latest .headline {
+  font: 800 32px/1.2 var(--font-head);
+  color: #2f3a45;
+}
+.x-pv-latest .meta {
+  font-size: 16px;
+  color: var(--muted);
+}
+.x-ch-marks {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.x-pv-arrow {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid #c3cbd2;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e9edf0 52%, #f4f6f8 100%);
+  box-shadow: inset 0 0 0 3px #ffffff, 0 3px 8px rgba(60, 80, 100, 0.18);
+  color: #1a8fd0;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.x-pv-arrow:hover,
+.x-pv-arrow:focus-visible {
+  outline: none;
+  border-color: #35b7ea;
+  box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 3px 8px rgba(60, 80, 100, 0.18);
+  transform: scale(1.08);
+}
+.x-pv-arrow .x-ico {
+  width: 30px;
+  height: 30px;
+}
+@media (max-width: 760px) {
+  .x-pv-stage {
+    gap: 6px;
+  }
+  .x-pv-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  .x-pv-arrow .x-ico {
+    width: 20px;
+    height: 20px;
+  }
+  .x-pv-body {
+    padding: 24px 16px;
+    gap: 10px;
+  }
+  .x-pv-body .x-ch-art .x-ico {
+    width: 52px;
+    height: 52px;
+  }
+  .x-pv-title {
+    font-size: 26px;
+  }
+  .x-pv-text {
+    font-size: 17px;
+  }
+  .x-pv-list li,
+  .x-pv-key li {
+    font-size: 16px;
+  }
+  .x-pv-rows b {
+    font-size: 18px;
+  }
+  .x-pv-latest .headline {
+    font-size: 22px;
+  }
+}
 /* The tile that flies between the grid and the map. */
 .x-zoom {
   position: fixed;
@@ -11017,18 +11282,14 @@ button.x-ch:focus-visible {
     align-self: flex-start;
   }
   .x-ch {
-    min-height: 96px;
     padding: 10px 12px;
     border-radius: 16px;
   }
-  .x-ch-map {
-    grid-column: 1 / -1;
-    min-height: 210px;
-    padding: 8px;
+  .x-home-grid {
+    max-width: none;
   }
-  .x-ch-word,
-  .x-ch-latest {
-    grid-column: 1 / -1;
+  .x-ch {
+    aspect-ratio: 16 / 11;
   }
   .x-ch-title {
     font-size: 16px;
@@ -11037,8 +11298,8 @@ button.x-ch:focus-visible {
     width: 30px;
     height: 30px;
   }
-  .x-ch-marks {
-    width: 78px;
+  .x-ch-marks .x-ch-mark {
+    width: 26px;
     height: 26px;
   }
   .x-home-bar {

@@ -917,7 +917,14 @@ function renderCard() {
 
 /** Where a channel on Console Menu's home screen leads, once the map is showing. */
 function openChannel(channel: Channel) {
-  if (channel === "word") return openTelegram();
+  if (channel === "word" || channel === "events") return openTelegram();
+  if (channel === "earlier") {
+    openTelegram();
+    // The word's view ends with the earlier words; start the reader there.
+    document.querySelector<HTMLElement>(".earlier-head")?.scrollIntoView({ block: "start" });
+    return;
+  }
+  if (channel === "about") return ($("about") as HTMLDialogElement).showModal();
   if (channel === "latest") {
     const it = newest();
     if (it) openReader(it);
@@ -929,6 +936,13 @@ function openChannel(channel: Channel) {
     else if (channel === "pins" && state.pins.length) ($("pins-menu") as HTMLDetailsElement).open = true;
     else if (channel === "key") setKey(true);
     else if (channel === "replay" && !state.playing) $("play").click();
+    else if (channel === "designs") {
+      try {
+        ($("design-select") as HTMLSelectElement).showPicker();
+      } catch {
+        // Without showPicker, or without a click to allow it: the focused list opens on Enter or Space.
+      }
+    }
     else if (channel === "translate" && !$("translate-pick").hidden) {
       try {
         ($("translate") as HTMLSelectElement).showPicker();
@@ -942,6 +956,7 @@ function openChannel(channel: Channel) {
       key: "#key-close",
       map: "#map canvas",
       replay: "#play",
+      designs: "#design-select",
       translate: $("translate-pick").hidden ? "#map canvas" : "#translate",
     }[channel];
     document.querySelector<HTMLElement>(focus)?.focus();
@@ -1311,7 +1326,7 @@ function earlierWords(file: NewsFile): HTMLElement[] {
   const recent = file.recent ?? [];
   if (recent.length === 0) return [];
   return [
-    h("h3", { class: "rule-head" }, "Earlier"),
+    h("h3", { class: "rule-head earlier-head" }, "Earlier"),
     h(
       "ol",
       { class: "stories earlier" },
@@ -1639,12 +1654,23 @@ async function start() {
       const date = formatRunDate(status.date);
       return file.telegram ? { kicker: status.note ? "Latest Word" : "Today's Word", word: file.telegram.word, date } : { none: "No word for this day", date };
     },
+    scale: () => {
+      const band = state.file?.telegram?.band;
+      return band === undefined ? null : { steps: [-2, -1, 0, 1, 2].map((b) => BAND_LABEL[b]!), on: band + 2 };
+    },
+    events: () => state.file?.telegram?.items.map((i) => i.line) ?? [],
+    recent: () => (state.file?.recent ?? []).map((r) => ({ date: formatShortDate(r.date), word: r.word, step: BAND_LABEL[r.band] ?? "" })),
+    topicList: () => FILTERS.map((f) => ({ label: TOPIC_LABEL[f], on: state.topics.has(f) })),
+    design: () => THEMES[state.theme].label,
     latest: () => {
       const it = newest();
       return it && state.file ? [h("span", { class: "x-ch-place" }, state.file.places[it.place]!.name), headline(it), metaLine(it, state.file.generatedAt)] : null;
     },
     topics: () => (state.topics.size === FILTERS.length ? "All topics" : `${state.topics.size} of ${FILTERS.length} topics`),
-    pins: () => ({ names: state.pins.map((p) => p.name), news: [...pinNews().values()].reduce((a, b) => a + b, 0) }),
+    pins: () => {
+      const news = pinNews();
+      return { names: state.pins.map((p) => p.name), news: [...news.values()].reduce((a, b) => a + b, 0), each: state.pins.map((p) => ({ name: p.name, news: news.get(p.id) ?? 0 })) };
+    },
     language: () => (state.translateTo ? `Into ${nativeName(state.translateTo)}` : "Headlines as published"),
     headlines: () => {
       const file = state.file;
