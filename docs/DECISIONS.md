@@ -1001,3 +1001,14 @@ The site showed one word a day and no way to see the words before it. The word's
 2. **Plain text.** The site opens only the newest day. The Worker serves `/data/<date>.json`, but the site has no way to open a past day, so a past word opens nothing. Opening past days would be its own decision.
 3. **Sample.** The fictional day's sample gets eight earlier words as telegram rows only (`worldPastWords` in the world fixture), with one day without a word, so the dev site shows the list.
 4. The word rules, the lists and the scale do not change, and no model calls are added.
+
+## 113. New since your last look at pinned places (October 2, 2026)
+
+Pins only flew to a place. Now they say what came in since the reader last looked.
+
+1. **The last look is kept in the browser,** beside the pin in localStorage (`seen` in `src/pins.ts`). Nothing leaves the browser and there are no accounts. It is set when the place's panel has stayed open for a moment (1.5 seconds), so dragging past a pinned place does not count as a look.
+2. **The clock is the map's, not the wall's:** a look records the end of the reports on show (`generatedAt`, or the replay's moment), and a report is new when it was published after that. A report that reaches the map late, in the next run or refresh, still counts as new. The time never goes back.
+3. **A new pin starts its clock at pin time,** so nothing there is new at first. Pins saved before this start theirs with the next file.
+4. **The Pinned menu** shows "3 new" beside a place, and nothing when there is none. It counts the place's reports in the day's window with the topics on, as the panel lists them. A town's GDELT local stories count only once their tile is loaded for the map; no tile is loaded just to count.
+5. **The panel of a pinned place** marks those reports "New", a word in the design's ink in a thin box. The order does not change (newest first, decision 98), and the mark never uses the "fresh" colour, which means the last hour only. The marks stay while the place is open.
+6. **Console Menu's Pinned tile** puts the total first in its note: "3 new · Nairobi · Lagos".

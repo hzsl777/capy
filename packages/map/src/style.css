@@ -1198,6 +1198,27 @@ summary {
   text-decoration: underline;
   text-decoration-style: dotted;
 }
+/* New since the reader's last look at a pinned place: a word in the ink, boxed. Never the "fresh" colour (the last hour). */
+.new-mark {
+  display: inline-block;
+  padding: 0 4px;
+  border: 1px solid currentColor;
+  font-family: var(--font-ui);
+  font-size: 0.82em;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+/* "3 new" beside a pinned place's name in the Pinned menu. */
+.pin-new {
+  margin-left: 0.6em;
+  font-size: 0.85em;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
 
 /* ---- reader ------------------------------------------------------------- */
 .reader .back {
@@ -10992,6 +11013,8 @@ button.x-ch:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: auto;
     gap: 12px;
+    /* As tall as its tiles, not the screen: a grid held to the screen's height kept rows at the tiles' minimum, which cut off a note on its third line. */
+    align-self: flex-start;
   }
   .x-ch {
     min-height: 96px;
@@ -12134,6 +12157,12 @@ button.x-ch:focus-visible {
   :root[data-theme="dual"] .menu-body {
     right: -54px;
     left: auto;
+  }
+  /* The Pinned pill sits in the middle, so its list opens centred over it rather than off the left of the screen. */
+  :root[data-theme="dual"] #pins-menu .menu-body {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
   :root[data-theme="dual"] .pick,
   :root[data-theme="dual"] #pins-menu {
