@@ -55,6 +55,8 @@ export const TIERS = 5;
 export function tierOf(item: MapItem, tiered: boolean): number {
   if (!tiered) return 0;
   if (item.via === "gdelt") return TIERS - 1;
+  // A report on another country, shown at its outlet's city, never brings that city in sooner (decision 107).
+  if (item.abroad) return 3;
   const reach = item.reach ?? 1;
   const importance = item.importance ?? 1;
   if (item.importance === undefined && item.reach === undefined) return 4;
@@ -64,9 +66,9 @@ export function tierOf(item: MapItem, tiered: boolean): number {
   return 3;
 }
 
-/** A place's weight for dot size: its most important story, 1 to 5 (decision 46). */
+/** A place's weight for dot size: its most important story, 1 to 5 (decision 46). Reports on another country count as 1. */
 export function weightOf(items: MapItem[]): number {
-  return Math.max(1, ...items.map((it) => it.importance ?? 1));
+  return Math.max(1, ...items.map((it) => (it.abroad ? 1 : (it.importance ?? 1))));
 }
 
 export function hasTiers(file: MapFile): boolean {
@@ -243,11 +245,12 @@ export function canonicalRedirect(here: URL, canonical: string | null): string |
   return other ? `${home.origin}${here.pathname}${here.search}` : null;
 }
 
-export type OriginGroup = { origin: "here" | "elsewhere" | "gdelt"; items: MapItem[] };
+export type OriginGroup = { origin: "here" | "elsewhere" | "abroad" | "gdelt"; items: MapItem[] };
 
 /**
  * A place's reports in the order a reader looks for them (decision 98): outlets that publish from the place first,
- * then outlets elsewhere that reported on it, then the local stories found through GDELT. Where an outlet is based is
+ * then outlets elsewhere that reported on it, then the place's outlets' reports on another country that name no city
+ * to place them (decision 107), then the local stories found through GDELT. Where an outlet is based is
  * the only thing that orders them; within a group the order the items came in (newest first) is kept, and no outlet
  * is ranked above another. Empty groups are left out.
  */
@@ -255,8 +258,9 @@ export function byOrigin(items: readonly MapItem[]): OriginGroup[] {
   const groups: OriginGroup[] = [
     { origin: "here", items: [] },
     { origin: "elsewhere", items: [] },
+    { origin: "abroad", items: [] },
     { origin: "gdelt", items: [] },
   ];
-  for (const it of items) groups[it.via === "gdelt" ? 2 : it.from ? 1 : 0]!.items.push(it);
+  for (const it of items) groups[it.via === "gdelt" ? 3 : it.abroad ? 2 : it.from ? 1 : 0]!.items.push(it);
   return groups.filter((g) => g.items.length);
 }

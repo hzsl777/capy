@@ -29,6 +29,12 @@ export type MapItem = {
   place: number;
   /** The publisher's city, set when the story is placed where it happened and that is somewhere else. */
   from?: string;
+  /**
+   * Set when the story happened in another country than its outlet's and names no city to place it, so it shows at
+   * the outlet's city (decision 107). The site lists it apart from that city's news, and it never sets the city's
+   * mark or zoom level. Which country is never sent.
+   */
+  abroad?: true;
   /** Set when the article's event was reported from two or more places. */
   story?: string;
   /**

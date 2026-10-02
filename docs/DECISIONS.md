@@ -968,3 +968,21 @@ Davis asked for designs after the menus of three early-2000s home consoles, to t
 3. **Crystal Towers** (`towers`, `?theme=towers`), after a black console's system menu. The world floats in a blue-black void over a reflective floor, with towers of clear glass cubes standing beside it that rise slowly, and small cubes drifting behind it. The towers' spots and heights are fixed decoration and carry no data, and they never come near the globe, the map or the zoom buttons (tested).
 
 All three hold still for reduced motion, run no frames in a hidden tab, and stay under the no-flash limit (each has its own test). Listing any of them later is a new decision.
+
+## 107. A story about another country no longer reads as its outlet's city's news (October 2, 2026)
+
+Davis saw "U.S. judge approves settlement allowing Paramount to acquire Warner Bros." listed at Doha, because Al Jazeera publishes from there. The ruling named no city, so under decision 44 it stayed at its outlet's city, where it read as news of Doha. He chose to keep the rule that nothing is placed at a country, and to place more stories and label the rest.
+
+1. **More stories get a city.** The grouping prompt (`cluster-world.v4`) may take the city from an institution the articles name whose seat is one city, when the event happened there: a named court ("a federal court in Manhattan" gives New York), a parliament, a ministry, a stock exchange, or a company's headquarters when the event is that company's own announcement. It still never guesses, and code still checks the city against the list (decision 44).
+2. **Every event gives its country**, even with no city (`country`, a two-letter code, null when it spans countries or is unclear). It is never shown and never sent to the site.
+3. **A report left at its outlet's city about another country is marked.** `cluster world` compares the event's country with the country of the outlet's city on the city list and sets `abroad` on that article's link (`event_articles.abroad`, migration 0006). The map file carries `abroad: true` on the item and nothing about which country.
+4. **On the site** such reports are listed at the outlet's city under their own heading, "From outlets in Doha, on events elsewhere", after that city's own news and other outlets' reports on it, before GDELT's (`byOrigin`, decision 98). They never set the city's mark (`weightOf` counts them as 1) or bring it in at a wider zoom (`tierOf` puts them at the last outlet tier), and Console Menu's card over the place leaves them out. The About dialog says so.
+
+The refresh workflow now runs `db:migrate` before it reads the database, as the daily run does, so a refresh between a deploy and the next daily run never queries a column that isn't there yet.
+
+## 108. One story, one line in the word's events (October 2, 2026)
+
+Davis saw the same flydubai story several times among the day's scored events, each with its own +1. A busy day is grouped in batches of 300 articles, and the one merge call that joins batch events reporting the same story sees hundreds of events at once and was told to keep them apart when unsure, so same-day developments of one story (a suspension, then a partial resumption) stayed separate.
+
+1. **The merge prompt (`cluster-world-merge.v2`)** counts same-day developments of one story, by the same main actor on the same matter, as one story, and keeps different matters apart (two airlines' separate news, or one airline's new route and its results).
+2. **A second merge pass** looks only at the events of importance 3 or more, the ones explained and scored for the word, after the first. It runs on every day with two or more such events, even a one-batch day, with the telegram's model (`cluster-world-merge-top`, a judgment stage like the telegram's own calls). Code checks its groups like the first pass's. If it fails, the events stand as they are and the day goes on. The run report counts its groups as `mergedTop`.

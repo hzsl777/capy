@@ -82,12 +82,18 @@ export async function runCluster(db: Db, config: Config, llm: Llm, date: RunDate
  *
  * A day with hundreds of outlets is too large for one call, so the articles go out in batches of at most
  * WORLD_CLUSTER_BATCH, each through the cluster-world prompt with the same checks. When there is more than one batch, a
- * merge pass (cluster-world-merge.v1) names the batch events that report the same story, and code joins them.
+ * merge pass (cluster-world-merge) names the batch events that report the same story, and code joins them. A second,
+ * short merge pass then looks only at the events of importance 3 or more, the ones explained and scored for the word,
+ * so one story never fills two lines there (decision 108).
  */
 
 // v2 (decision 33): the same rules with short reasons, since every reason is billed as output across hundreds of events.
-export const CLUSTER_WORLD_PROMPT_VERSION = 3;
-export const CLUSTER_WORLD_MERGE_PROMPT_VERSION = 1;
+// v4 (decision 107): a city may come from an institution the articles name, and every event gives its country.
+export const CLUSTER_WORLD_PROMPT_VERSION = 4;
+// v2 (decision 108): same-day developments of one story, by the same main actor on the same matter, are one story.
+export const CLUSTER_WORLD_MERGE_PROMPT_VERSION = 2;
+/** The events the word is made from (explain and telegram take importance 3 and up), merged once more on their own. */
+const TOP_IMPORTANCE = 3;
 /** Headlines carry most of the grouping signal; a short lead settles the rest. */
 const WORLD_CHARS_FOR_CLUSTERING = 200;
 
@@ -99,6 +105,10 @@ export type WorldClusterReport = ClusterReport & {
   merged: number;
   /** Merge groups the checks refused: an unknown key, a key in two groups, or fewer than two events. */
   mergeDropped: number;
+  /** Groups the second merge pass joined among the events of importance 3 or more (decision 108). */
+  mergedTop?: number;
+  /** Articles shown at their outlet's city whose story happened in another country, with no city to place it (decision 107). */
+  abroad?: number;
   /** Events placed where they happened (decision 44); the rest show at their outlets' cities. */
   placed: number;
   /** Articles still ungrouped after the second pass, each written as its own event of importance 1 (decision 50). */
@@ -107,10 +117,10 @@ export type WorldClusterReport = ClusterReport & {
   held?: Held[];
 };
 
-type WorldRow = { id: number; source: string; place: string; title: string; lead: string };
+type WorldRow = { id: number; source: string; place: string; title: string; lead: string; lat: number | null; lon: number | null };
 
 /** One event from one batch after its article ids were checked. `key` names it in the merge pass. */
-type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string; where: Where | null };
+type BatchEvent = { key: string; title: string; importance: number; importanceReason: string; topic: WorldTopic; ids: number[]; promptVersion: string; where: Where | null; country: string | null };
 
 let gazetteer: Gazetteer | undefined;
 
@@ -171,7 +181,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   const { from, to } = ingestWindow(date);
   // Newest first across every source, so each batch is a slice of the day from many places, not one region.
   const all = await db
-    .select({ id: articles.id, sourceId: sources.id, source: sources.name, place: sources.placeName, title: articles.title, lead: articles.lead })
+    .select({ id: articles.id, sourceId: sources.id, source: sources.name, place: sources.placeName, lat: sources.lat, lon: sources.lon, title: articles.title, lead: articles.lead })
     .from(articles)
     .innerJoin(sources, eq(sources.id, articles.sourceId))
     .where(and(eq(sources.desk, "world"), gte(articles.publishedAt, from), lt(articles.publishedAt, to)))
@@ -187,7 +197,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
       perSource.set(r.sourceId, n);
       return n <= config.worldPerSource;
     })
-    .map((r) => ({ id: r.id, source: r.source, place: r.place ?? "unknown", title: r.title, lead: r.lead }));
+    .map((r) => ({ id: r.id, source: r.source, place: r.place ?? "unknown", title: r.title, lead: r.lead, lat: r.lat, lon: r.lon }));
 
   if (rows.length === 0) {
     await clearWorldDay(db, date);
@@ -218,7 +228,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
         if (ids.length === 0) continue;
         ids.forEach((id) => assigned.add(id));
         n += 1;
-        batchEvents.push({ key: `${prefix}${i + 1}-e${n}`, title: ev.title.slice(0, 120), importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null });
+        batchEvents.push({ key: `${prefix}${i + 1}-e${n}`, title: ev.title.slice(0, 120), importance: ev.importance, importanceReason: ev.importanceReason, topic: ev.topic, ids, promptVersion: prompt.label, where: ev.where ?? null, country: countryCode(ev.country ?? ev.where?.country) });
       }
       for (const x of result.skipped) if (known.has(x.articleId) && !assigned.has(x.articleId)) skippedIds.add(x.articleId);
     });
@@ -241,7 +251,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   const unassigned = firstLeft.length;
   // Whatever is still left is news the model would not group: one story each at the lowest importance, so every
   // article on the map has a rank and a topic, and nothing is shown ungrouped.
-  const singles: BatchEvent[] = left().map((r) => ({ key: `s-${r.id}`, title: r.title.slice(0, 120), importance: 1, importanceReason: "not grouped by the model", topic: "other", ids: [r.id], promptVersion: prompt.label, where: null }));
+  const singles: BatchEvent[] = left().map((r) => ({ key: `s-${r.id}`, title: r.title.slice(0, 120), importance: 1, importanceReason: "not grouped by the model", topic: "other", ids: [r.id], promptVersion: prompt.label, where: null, country: null }));
   const skipped = skippedIds.size;
   const batches = [...answered, ...second];
 
@@ -258,25 +268,64 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     mergeDropped = checked.dropped;
   }
 
+  // The word is made from the events of importance 3 or more. In a long list the merge pass can miss two of them that
+  // are one story, so those few are asked about once more on their own. A failure here costs only this check.
+  let mergedTop = 0;
+  const top = final.filter((e) => e.importance >= TOP_IMPORTANCE);
+  if (top.length > 1) {
+    const mergePrompt = loadPrompt("cluster-world-merge", CLUSTER_WORLD_MERGE_PROMPT_VERSION);
+    const outletOf = new Map(rows.map((r) => [r.id, `${r.source} (${r.place})`]));
+    try {
+      const answer = await llm.parse({ stage: "cluster-world-merge-top", prompt: mergePrompt, schema: WorldClusterMergeSchema, user: worldMergeUserContent(top, outletOf), effort: config.effort.cluster }, date);
+      const checked = validMergeGroups(answer, new Set(top.map((e) => e.key)));
+      final = applyMerge(final, checked.groups, `${prompt.label}+${mergePrompt.label}`);
+      mergedTop = checked.groups.length;
+    } catch (err) {
+      console.error(`cluster-world: the second merge pass failed, events stand as they are. ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
   final = [...final, ...singles];
 
   // Every model call succeeded, so the date's world events are replaced only now.
   await clearWorldDay(db, date);
   const byTopic: Record<string, number> = {};
   gazetteer ??= Gazetteer.load();
+  const rowOf = new Map(rows.map((r) => [r.id, r]));
   let placed = 0;
+  let abroad = 0;
   for (const ev of final) {
     // Where it happened, if the model named a city that checks out; otherwise the map shows it at its outlets.
     const at = gazetteer.locate(ev.where);
     if (at) placed += 1;
+    // With no city, an article stays at its outlet's city. When the story happened in another country than the
+    // outlet's, it is marked, so the site lists it apart and it never ranks that city (decision 107).
+    const isAbroad = (id: number): boolean => {
+      if (at || !ev.country) return false;
+      const r = rowOf.get(id);
+      const home = r && r.lat !== null && r.lon !== null ? gazetteer!.countryAt(r.lat, r.lon) : null;
+      return home !== null && home !== ev.country;
+    };
     const [row] = await db
       .insert(events)
       .values({ runDate: date, title: ev.title, importance: ev.importance, importanceReason: ev.importanceReason, promptVersion: ev.promptVersion, desk: "world", topic: ev.topic, placeName: at?.name ?? null, lat: at?.lat ?? null, lon: at?.lon ?? null })
       .returning({ id: events.id });
-    await db.insert(eventArticles).values(ev.ids.map((articleId) => ({ eventId: row!.id, articleId })));
+    await db.insert(eventArticles).values(
+      ev.ids.map((articleId) => {
+        const away = isAbroad(articleId);
+        if (away) abroad += 1;
+        return { eventId: row!.id, articleId, abroad: away };
+      }),
+    );
     byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
   }
-  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped, ...(held.length ? { held } : {}) };
+  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped, mergedTop, abroad, ...(held.length ? { held } : {}) };
+}
+
+/** A two-letter country code in capitals, or null. */
+function countryCode(cc: string | null | undefined): string | null {
+  const c = (cc ?? "").trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(c) ? c : null;
 }
 
 /** The telegram is written from the world events; re-clustering makes any old telegram for the date stale. */
@@ -316,6 +365,7 @@ function applyMerge(evs: BatchEvent[], groups: WorldClusterMerge["groups"], prom
       ids: members.flatMap((m) => m.ids),
       promptVersion,
       where: lead.where ?? members.find((m) => m.where)?.where ?? null,
+      country: lead.country ?? members.find((m) => m.country)?.country ?? null,
     });
   }
   return out;

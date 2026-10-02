@@ -798,7 +798,8 @@ function renderCard() {
     cardFor = "";
     return;
   }
-  const groups = byOrigin(items);
+  // Reports on another country are the outlets' and not the place's, so the card over the place leaves them out.
+  const groups = byOrigin(items).filter((g) => g.origin !== "abroad");
   const pages = groups.flatMap((g) => g.items.map((it) => ({ it, origin: g.origin })));
   const key = String(indices![0]);
   const fresh = key !== cardFor || !card || card.hidden;
@@ -810,7 +811,7 @@ function renderCard() {
     $("map").append(card);
   }
   const { it, origin } = pages[cardPage]!;
-  const label = { here: "From an outlet based here", elsewhere: "From an outlet based elsewhere", gdelt: "A local site found through GDELT" } as const;
+  const label = { here: "From an outlet based here", elsewhere: "From an outlet based elsewhere", abroad: "From an outlet based here, on events elsewhere", gdelt: "A local site found through GDELT" } as const;
   const turn = (by: number) => {
     cardPage = (cardPage + by + pages.length) % pages.length;
     renderCard();
@@ -947,12 +948,13 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
       })()
     : null;
   // Local outlets first (decision 98). Headings only when there is more than one group, so a place with one kind of
-  // report reads as before.
+  // report reads as before; reports on another country always say so, so they never read as the place's news (decision 107).
   const groups = byOrigin(items);
   const here = indices.length > 1 ? "From outlets in these places" : `From outlets in ${place.name}`;
-  const label = { here, elsewhere: "From outlets elsewhere", gdelt: "Local sites found through GDELT" } as const;
+  const abroad = indices.length > 1 ? "From outlets in these places, on events elsewhere" : `From outlets in ${place.name}, on events elsewhere`;
+  const label = { here, elsewhere: "From outlets elsewhere", abroad, gdelt: "Local sites found through GDELT" } as const;
   const lists = groups.flatMap((g) => [
-    ...(groups.length > 1 ? [h("h3", { class: "stories-group" }, label[g.origin])] : []),
+    ...(groups.length > 1 || g.origin === "abroad" ? [h("h3", { class: "stories-group" }, label[g.origin])] : []),
     h("ol", { class: "stories" }, ...g.items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
   ]);
   panel.replaceChildren(

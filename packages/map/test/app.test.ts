@@ -126,6 +126,23 @@ describe("a place's reports by where their outlets are (decision 98)", () => {
     ]);
   });
 
+  it("lists an outlet's reports on another country after the place's own news, before GDELT's (decision 107)", () => {
+    const items = [item("away", 5, { abroad: true }), item("gdelt", 4, { via: "gdelt" }), item("home", 3), item("other", 2, { from: "Lima" })];
+    expect(byOrigin(items).map((g) => [g.origin, g.items.map((i) => i.id)])).toEqual([
+      ["here", ["home"]],
+      ["elsewhere", ["other"]],
+      ["abroad", ["away"]],
+      ["gdelt", ["gdelt"]],
+    ]);
+  });
+
+  it("never lets a report on another country raise its outlet's city (decision 107)", () => {
+    const away: MapItem = { ...base, importance: 5, reach: 6, abroad: true };
+    expect(weightOf([away])).toBe(1);
+    expect(weightOf([away, { ...base, importance: 3 }])).toBe(3);
+    expect(tierOf(away, true)).toBe(3);
+  });
+
   it("leaves out empty groups", () => {
     expect(byOrigin([item("a", 1, { from: "Kyiv" })]).map((g) => g.origin)).toEqual(["elsewhere"]);
     expect(byOrigin([])).toEqual([]);
