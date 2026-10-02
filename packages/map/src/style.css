@@ -2328,7 +2328,8 @@ button.link {
 /* The pause-menu subscreen: a warm amber panel in a thick bevelled gold frame, light falling from the top. */
 :root[data-theme="bit64"] .panel,
 :root[data-theme="bit64"] .menu-body,
-:root[data-theme="bit64"] .key-pop {
+:root[data-theme="bit64"] .key-pop,
+:root[data-theme="bit64"] dialog {
   --ink: #fff8e6;
   --ink-2: #fbecc8;
   --muted: #f0d6a2;
@@ -2507,7 +2508,8 @@ button.link {
     animation: none;
   }
 }
-:root[data-theme="bit64"] .key-pop {
+:root[data-theme="bit64"] .key-pop,
+:root[data-theme="bit64"] dialog {
   background:
     radial-gradient(ellipse 90% 40% at 50% 0%, rgba(255, 206, 120, 0.3), transparent 70%),
     linear-gradient(to bottom, rgb(128, 74, 26), rgb(62, 32, 10));
@@ -2519,7 +2521,8 @@ button.link {
 :root[data-theme="bit64"] .chip,
 :root[data-theme="bit64"] .zoom button,
 :root[data-theme="bit64"] .key-btn,
-:root[data-theme="bit64"] .key-close {
+:root[data-theme="bit64"] .key-close,
+:root[data-theme="bit64"] dialog .close {
   background: linear-gradient(to bottom, #fff6d0, #f6d77a);
   border: 3px solid #4a1d05;
   border-radius: 16px 10px 18px 9px / 11px 17px 10px 15px;
@@ -2977,6 +2980,12 @@ button.link {
 }
 :root[data-theme="arcana"] .key-pop {
   padding: 10px 16px 34px;
+}
+/* As in the panel, the suits ride with the text and the card leaves room for them above the title and below the end. */
+:root[data-theme="arcana"] dialog {
+  padding-top: 36px;
+  padding-bottom: 36px;
+  background-attachment: local;
 }
 :root[data-theme="arcana"] .map-note {
   padding: 16px 38px;
@@ -7209,6 +7218,10 @@ button.link {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M16 0H84L100 10H0Z'/%3E%3C/svg%3E") center top / calc(100% - 84px) 13px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100L90 10H10Z'/%3E%3C/svg%3E") center bottom / 70% 16px no-repeat;
 }
+/* The About text starts below the lamp's domed top, so the curve never cuts the title or the close button. */
+:root[data-theme="lava"] dialog {
+  padding-top: 44px;
+}
 :root[data-theme="lava"] .key-head h2,
 :root[data-theme="lava"] dialog h2 {
   font-family: var(--font-mast);
@@ -8634,6 +8647,10 @@ button.link {
 }
 :root[data-theme="realm"] .panel {
   margin: 0 8px 8px 0;
+}
+/* The About dialog is the same log made solid, so the word and the panel behind it don't read through its text. */
+:root[data-theme="realm"] dialog {
+  background: var(--realm-rivets), linear-gradient(#2a1c10, #1e130a);
 }
 :root[data-theme="realm"] .key-pop {
   --key-bg: #35647d;
@@ -14689,6 +14706,12 @@ button.x-ch:focus-visible {
 }
 :root[data-theme="core"] .panel.framed {
   background: linear-gradient(to bottom, rgba(10, 46, 22, 0.97), rgba(4, 22, 11, 0.98));
+}
+/* The About dialog's pane is solid too, so the word and the panel behind it don't show through its text. */
+:root[data-theme="core"] dialog {
+  background:
+    linear-gradient(170deg, rgba(150, 255, 175, 0.1), rgba(150, 255, 175, 0) 30%),
+    linear-gradient(to bottom, #0a2e16, #04160b);
 }
 :root[data-theme="core"] .panel-title,
 :root[data-theme="core"] .place-name {
