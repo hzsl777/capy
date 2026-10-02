@@ -13,10 +13,13 @@ The daily run (`npm run stage -- day`, `.github/workflows/daily.yml`) is one pip
 config/sources.yaml (desk: world, with place)
   -> ingest, enrich                      shared with 2DayAI
   -> cluster world   stages/cluster.ts   WORLD_PER_SOURCE (15) newest articles per source, newest first across sources,
-                                         in batches of at most WORLD_CLUSTER_BATCH (300): cluster-world.v1 per batch
+                                         in batches of at most WORLD_CLUSTER_BATCH (300): cluster-world.v4 per batch
                                          (parseMany, ids batch-1, batch-2, ...), a topic per event.
-                                         More than one batch: one merge call (cluster-world-merge.v1) names batch
+                                         More than one batch: one merge call (cluster-world-merge.v2) names batch
                                          events that are the same story; code checks the keys and joins them.
+                                         Then a second merge call (cluster-world-merge-top) over the events of
+                                         importance 3 or more only (decision 108). Events with no city that happened
+                                         in another country than the outlet's are marked abroad (decision 107).
   -> explain         stages/explain.ts   world events of importance 3 or more, at most WORLD_EXPLAIN_MAX (25).
                                          every sentence's quoted passage checked against the article text
   -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems) TELEGRAM_SCORE_RUNS
@@ -70,7 +73,8 @@ npm run stage -- map export --date 2026-09-27 --out /tmp/map.json
 - **Coverage:** `npm run stage -- coverage --date <date>` prints towns with a story out of every listed town, countries and regions with one, and every country and territory with none. The daily summary has the same line.
 - **Event not explained:** it is below importance 3, or it fell below the cap. Raise `WORLD_EXPLAIN_MAX` only with the spend ceiling in mind.
 - **Cluster world failed:** the error names each failed batch. Nothing is written, and the date keeps the events it had.
-- **One story shows as two events:** the merge call did not group them, or code dropped the group. The `cluster-world` run report has `batches`, `merged` and `mergeDropped`. A group is dropped when a key is unknown, a key is in two groups, or it has fewer than two events.
+- **One story shows as two events:** the merge call did not group them, or code dropped the group. The `cluster-world` run report has `batches`, `merged`, `mergeDropped` and `mergedTop` (the second pass over events of importance 3 or more, decision 108). A group is dropped when a key is unknown, a key is in two groups, or it has fewer than two events.
+- **A story shows at its outlet's city though it happened elsewhere:** the model named no city that checks out. If it named another country than the outlet's, the article is marked `abroad` and listed under "on events elsewhere" (decision 107); the run report counts them as `abroad`. `event_articles.abroad` holds the mark.
 - **A feed keeps failing or is paused:** the daily run's summary page lists it with its streak. `sources.fail_streak` and `last_ok_at` hold the state; after 7 failed days it is only tried on Sundays (decision 36).
 - **Stale word after a re-run:** `cluster world` deletes the date's telegram. Run `telegram` again.
 

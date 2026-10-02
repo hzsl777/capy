@@ -119,6 +119,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
   const eventIds = worldEvents.map((e) => e.id);
   const links = eventIds.length ? await db.select().from(t.eventArticles).where(inArray(t.eventArticles.eventId, eventIds)) : [];
   const eventOfArticle = new Map(links.map((l) => [l.articleId, l.eventId]));
+  const abroad = new Set(links.filter((l) => l.abroad).map((l) => l.articleId));
   const explanations = eventIds.length ? await db.select().from(t.eventExplanations).where(and(inArray(t.eventExplanations.eventId, eventIds), eq(t.eventExplanations.usable, true))) : [];
   const explained = new Map(explanations.map((x) => [x.eventId, x.sentences as Stored]));
 
@@ -158,6 +159,8 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
       place,
     };
     if (place !== home) item.from = places[home]!.name;
+    // A story from another country with no city to place it, shown at its outlet's city (decision 107).
+    else if (abroad.has(article.id)) item.abroad = true;
     if (eventId !== undefined) {
       const reach = eventPlaces.get(eventId)?.size ?? 1;
       item.reach = reach;

@@ -97,6 +97,11 @@ export const eventArticles = pgTable(
   {
     eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
     articleId: integer("article_id").notNull().references(() => articles.id),
+    /**
+     * World desk: the event happened in another country than this article's outlet, and names no city to place it,
+     * so the article shows at its outlet's city listed apart and never ranks it (decision 107).
+     */
+    abroad: boolean("abroad").notNull().default(false),
   },
   // By article too: deleting an old article checks this table for it, once per article, in the daily prune.
   (t) => [uniqueIndex("event_articles_idx").on(t.eventId, t.articleId), index("event_articles_article_idx").on(t.articleId)],

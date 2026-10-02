@@ -23,8 +23,8 @@ The prompts are the same text every day and come first in the request, so OpenAI
 
 | File | Stage | Product | Model | Calls a day |
 |---|---|---|---|---|
-| `cluster-world.v3.md` | cluster world | map | nano | one per 300 articles, up to 12 |
-| `cluster-world-merge.v1.md` | cluster world | map | nano | one, when there was more than one batch |
+| `cluster-world.v4.md` | cluster world | map | nano | one per 300 articles, up to 12 |
+| `cluster-world-merge.v2.md` | cluster world | map | nano, then mini | one when there was more than one batch, and one over the events of importance 3 or more (decision 108) |
 | `explain.v1.md` | explain | both | nano | one per event explained, up to 25 for the map |
 | `telegram-score.v1.md` | telegram | map | mini | 3 (`TELEGRAM_SCORE_RUNS`) |
 | `telegram-word.v1.md` | telegram | map | mini | one |

@@ -41,6 +41,9 @@ jobs:
           cache: npm
       - if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
         run: npm ci
+      # A refresh can run before the next daily run, so it brings the tables up to date the same way first.
+      - if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+        run: npm run db:migrate
       # The outlets' stories, collected during the day as well as by the daily run (decision 90). Many feeds hold only
       # their newest 10 to 30 items, so a daily run GitHub starts hours late misses the end of the day before. Twice a
       # day this stores the day's stories so far; the daily run adds the rest and builds the day from all of them. Only

@@ -43,6 +43,13 @@
       "when": 1790781517276,
       "tag": "0005_map_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790898735862,
+      "tag": "0006_event_articles_abroad",
+      "breakpoints": true
     }
   ]
 }

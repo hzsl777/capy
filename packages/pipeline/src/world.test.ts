@@ -35,7 +35,7 @@ describe("the world desk on a real Postgres engine", () => {
     const out = await runDay(db, testConfig(), llm, date, deps);
 
     expect(out["cluster"]).toEqual({ skipped: "no reader profiles" });
-    expect(out["clusterWorld"]).toMatchObject({ articles: 15, events: 10, placed: 1, unknownIds: 0, unassigned: 0, byTopic: { conflict: 3, environment: 1, other: 1 } });
+    expect(out["clusterWorld"]).toMatchObject({ articles: 16, events: 11, placed: 1, abroad: 1, unknownIds: 0, unassigned: 0, byTopic: { conflict: 3, environment: 1, other: 1 } });
     // Importance 3 or more: three conflict stories, the floods, the port, the clinics and the rescue.
     expect(out["explain"]).toEqual({ events: 7, usable: 7, unusable: 0, failed: 0, sentencesDropped: 0 });
     expect(out["select"]).toMatchObject({ readers: 0 });
@@ -57,7 +57,9 @@ describe("the world desk on a real Postgres engine", () => {
     const rescue = map.items.find((i) => i.event !== undefined && map.events[String(i.event)]!.title.startsWith("Eleven miners"))!;
     expect(map.places[rescue.place]!.name).toBe("Santiago");
     expect(rescue.from).toBeUndefined();
-    expect(map.items).toHaveLength(15);
+    expect(map.items).toHaveLength(16);
+    // The Doha outlet's report on a court ruling in another country stays at Doha, marked (decision 107).
+    expect(map.items.filter((i) => i.abroad).map((i) => map.places[i.place]!.name)).toEqual(["Doha"]);
     expect(map.places.map((p) => p.name)).toContain("Nairobi");
     expect(map.items[0]!.t).toBeGreaterThanOrEqual(map.items[1]!.t);
 
@@ -114,7 +116,7 @@ describe("the world desk on a real Postgres engine", () => {
     expect(report).toMatchObject({ stories: 28, towns: 27, overMax: 0, townsNearOutlet: 2 });
     expect(local.every((i) => i.importance === 1 && i.topics.length === 0 && i.event === undefined)).toBe(true);
     // The outlets' stories and places are unchanged.
-    expect(map.items.filter((i) => i.via !== "gdelt")).toHaveLength(15);
+    expect(map.items.filter((i) => i.via !== "gdelt")).toHaveLength(16);
 
     // Decision 78: the site's file keeps the outlets' stories and lists the tiles; each tile has its own places.
     const { main, tiles } = splitLocal(map, localBase(date));
@@ -157,7 +159,7 @@ describe("the world desk on a real Postgres engine", () => {
     // The model grouped nothing, so every article stands alone at the lowest importance (decision 50): ranked on
     // the map, never explained, no word.
     const alone = await db.select().from(events).where(eq(events.desk, "world"));
-    expect(alone).toHaveLength(15);
+    expect(alone).toHaveLength(16);
     expect(alone.every((e) => e.importance === 1)).toBe(true);
 
     await runDay(db, testConfig(), new FakeLlm(worldAnswers()), date, deps);

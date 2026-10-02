@@ -35,6 +35,8 @@ type Story = {
   articles: { outlet: string; hour: number; headline: string; body: string }[];
   /** What the scripted model says about where it happened (decision 44). */
   where?: { city: string; country: string; lat?: number; lon?: number };
+  /** The country the scripted model says it happened in, given even with no city (decision 107). */
+  country?: string;
   /** Explanation sentences. `cite` is [article index in this story, verbatim excerpt from its body]. */
   sentences: { part: Part; text: string; cite: [number, string] }[];
 };
@@ -183,6 +185,16 @@ export const WORLD_STORIES: Story[] = [
     sentences: [],
   },
   {
+    key: "ruling",
+    topic: "economy",
+    importance: 2,
+    title: "A court approves the Tamsin and Orla shipping merger",
+    // Another country than its Doha outlet's, and no city named: it stays at Doha, listed apart (decision 107).
+    country: "CL",
+    articles: [{ outlet: "gulf-courier", hour: 15, headline: "Judge approves Tamsin and Orla shipping merger", body: "A judge approved the merger of the Tamsin and Orla shipping lines after the two companies settled with regulators." }],
+    sentences: [],
+  },
+  {
     key: "marathon",
     topic: "sport",
     importance: 1,
@@ -248,10 +260,13 @@ export function worldAnswers(opts: { badWordFirst?: string } = {}): Record<strin
           importanceReason: "scripted fixture answer",
           topic: s.topic,
           ...(s.where ? { where: s.where } : {}),
+          ...(s.country ? { country: s.country } : {}),
         })),
         skipped: [],
       };
     },
+    // Every fictional story is its own story, so the second merge pass joins nothing (decision 108).
+    "cluster-world-merge-top": () => ({ groups: [] }),
     explain: ({ user }) => {
       const title = /^Event: (.+)$/m.exec(user)?.[1] ?? "";
       const story = WORLD_STORIES.find((s) => s.title === title);

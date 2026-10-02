@@ -32,6 +32,16 @@ export const WorldClusterEventSchema = z.object({
     .object({ city: z.string().max(80), country: z.string().max(3).nullish(), lat: z.number().nullish(), lon: z.number().nullish() })
     .nullish()
     .catch(null),
+  /**
+   * The ISO 3166-1 alpha-2 code of the one country the event happened in, even with no city (cluster-world.v4).
+   * Never shown: it only marks a story about another country than its outlet's, so the site does not read it as news
+   * of the outlet's city (decision 107). Null when it spans countries or the model is unsure; malformed counts as null.
+   */
+  country: z
+    .string()
+    .regex(/^[A-Za-z]{2}$/)
+    .nullish()
+    .catch(null),
 });
 
 export const WorldClusterResultSchema = z.object({

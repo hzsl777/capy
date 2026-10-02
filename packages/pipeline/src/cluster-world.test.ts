@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { toRunDate, validMergeGroups, type Source } from "@2dayai/core";
-import { articles, eventArticles, events, sources, type Db } from "@2dayai/db";
+import { articles, eventArticles, events, loadMapView, sources, type Db } from "@2dayai/db";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
 import { LlmParseError } from "./llm/types.js";
 import { runClusterWorld, splitBatches } from "./stages/cluster.js";
@@ -112,6 +112,7 @@ describe("cluster world in batches", () => {
     const llm = new FakeLlm({
       "cluster-world": clusterAnswer,
       "cluster-world-merge": ({ user }) => ({ groups: [{ eventKeys: keysFor(user, "flood"), title: "Floodwater closes the river road in Varda" }] }),
+      "cluster-world-merge-top": () => ({ groups: [] }),
     });
     const report = await runClusterWorld(db, testConfig({ worldClusterBatch: 5 }), llm, date);
 
@@ -121,7 +122,7 @@ describe("cluster world in batches", () => {
     expect(keysFor(merge.user, "flood")).toEqual(["b1-e1", "b2-e1", "b3-e1"]);
 
     // Twelve batch events; the three flood events become one. The Lima outlet's two stories are environment.
-    expect(report).toEqual({ articles: 12, events: 10, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: { environment: 2, other: 8 }, batches: 3, merged: 1, mergeDropped: 0 });
+    expect(report).toEqual({ articles: 12, events: 10, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: { environment: 2, other: 8 }, batches: 3, merged: 1, mergeDropped: 0, mergedTop: 0, abroad: 0 });
     const evs = await worldEvents();
     const all = evs.flatMap((e) => e.articleIds);
     expect(all).toHaveLength(12);
@@ -131,7 +132,7 @@ describe("cluster world in batches", () => {
     const flood = evs.filter((e) => e.title === TITLES["flood"]);
     expect(flood).toHaveLength(1);
     // The union of the articles, the highest importance, and the topic of the most important member.
-    expect(flood[0]).toMatchObject({ articleIds: floodIds, importance: 4, topic: "environment", promptVersion: "cluster-world.v3+cluster-world-merge.v1" });
+    expect(flood[0]).toMatchObject({ articleIds: floodIds, importance: 4, topic: "environment", promptVersion: "cluster-world.v4+cluster-world-merge.v2" });
     // Not merged, so the port story stays two events.
     expect(evs.filter((e) => e.title === TITLES["port"])).toHaveLength(2);
   });
@@ -243,6 +244,73 @@ describe("cluster world in batches", () => {
     expect(report.events).toBe(12);
     const linked = (await worldEvents()).flatMap((e) => e.articleIds);
     expect(linked).toHaveLength(ARTICLES.length);
+  });
+
+  it("asks once more about the events the word is made from, and joins the ones that are one story (decision 108)", async () => {
+    const llm = new FakeLlm({
+      "cluster-world": clusterAnswer,
+      "cluster-world-merge-top": ({ user }) => {
+        const key = (story: string) => [...user.matchAll(/^\[([^\]]+)\] (.+)$/gm)].find((m) => m[2] === titleOf(story))![1]!;
+        return { groups: [{ eventKeys: [key("a"), key("b")], title: "Story a and b are one story" }] };
+      },
+    });
+    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2 }), llm, date);
+    // One batch, so no first merge; every event here is importance 3 or 4, so all of them go to the second pass.
+    expect(report).toMatchObject({ batches: 1, merged: 0, mergedTop: 1 });
+    const top = llm.calls.find((c) => c.stage === "cluster-world-merge-top")!;
+    expect(top.user).toContain(TITLES["flood"]);
+    const evs = await worldEvents();
+    const joined = evs.filter((e) => e.title === "Story a and b are one story");
+    expect(joined).toHaveLength(1);
+    expect(joined[0]!.articleIds).toHaveLength(2);
+    expect(evs.some((e) => e.title === titleOf("a") || e.title === titleOf("b"))).toBe(false);
+  });
+
+  it("keeps the events as they are when the second merge pass fails", async () => {
+    const llm = new FakeLlm({ "cluster-world": clusterAnswer, "cluster-world-merge-top": () => ({ nonsense: true }) });
+    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2 }), llm, date);
+    expect(report).toMatchObject({ mergedTop: 0, events: 9 });
+  });
+
+  it("marks an article whose story happened in another country, with no city to place it (decision 107)", async () => {
+    const day = toRunDate("2026-09-28");
+    await db.insert(sources).values([
+      { id: "qa1", name: "Bay Herald", url: "https://qa1.example/feed.xml", topic: "world", tier: "general", desk: "world", placeName: "Doha", lat: 25.29, lon: 51.53 },
+      { id: "us1", name: "Harbor Times", url: "https://us1.example/feed.xml", topic: "world", tier: "general", desk: "world", placeName: "New York", lat: 40.71, lon: -74.01 },
+    ]);
+    const [a, b, c, d] = await db
+      .insert(articles)
+      .values(
+        (["qa1", "us1", "qa1", "qa1"] as const).map((sourceId, i) => ({ sourceId, url: `https://${sourceId}.example/x${i}`, title: `Item ${i}`, lead: "A lead.", publishedAt: new Date(Date.UTC(2026, 8, 28, 10 + i)) })),
+      )
+      .returning({ id: articles.id });
+    const llm = new FakeLlm({
+      "cluster-world": () => ({
+        events: [
+          // A ruling by a judge in another country: no city, the country only.
+          { title: "A judge approves a merger settlement", articleIds: [a!.id, b!.id], importance: 2, importanceReason: "x", topic: "economy", where: null, country: "US" },
+          // News of the outlet's own country with no city: an ordinary unplaced story.
+          { title: "The cabinet meets", articleIds: [c!.id], importance: 2, importanceReason: "x", topic: "politics", where: null, country: "qa" },
+          // A city that checks out: placed there, so not marked.
+          { title: "A ferry docks in New York", articleIds: [d!.id], importance: 2, importanceReason: "x", topic: "other", where: { city: "New York", country: "US", lat: 40.7, lon: -74 }, country: "US" },
+        ],
+        skipped: [],
+      }),
+    });
+    const report = await runClusterWorld(db, testConfig(), llm, day);
+    expect(report).toMatchObject({ placed: 1, abroad: 1 });
+    const links = await db.select().from(eventArticles);
+    const marked = (id: number) => links.find((l) => l.articleId === id)!.abroad;
+    expect([marked(a!.id), marked(b!.id), marked(c!.id), marked(d!.id)]).toEqual([true, false, false, false]);
+
+    // The map file carries the mark, and never the country.
+    const file = await loadMapView(db, day, new Date(Date.UTC(2026, 8, 29)));
+    const item = (id: number) => file.items.find((i) => i.id === `a${id}`)!;
+    expect(item(a!.id)).toMatchObject({ abroad: true });
+    expect(file.places[item(a!.id).place]!.name).toBe("Doha");
+    for (const id of [b!.id, c!.id, d!.id]) expect(item(id).abroad).toBeUndefined();
+    expect(item(d!.id).from).toBe("Doha");
+    expect(JSON.stringify(file)).not.toContain('"US"');
   });
 
   it("reads merge keys however the model brackets or capitalises them", () => {
