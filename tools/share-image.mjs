@@ -56,7 +56,7 @@ ${dots.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${d
 </svg>`;
 
 const brand = word
-  ? `<h1 class="small">GlobalGist</h1><p class="tag small">One World. One Word.</p><div class="rule"></div><p class="date">${esc(dateOf(map.telegram.runDate))}</p><p class="word" style="font-size:${wordSize}px">${esc(word)}</p><p class="line">Chosen by AI, weighing the day's news, good and bad.</p>`
+  ? `<h1 class="small">GlobalGist</h1><p class="tag small">One World. One Word.</p><div class="rule"></div><p class="date">${esc(dateOf(map.telegram.runDate))}</p><p class="word" style="font-size:${wordSize}px">${esc(word)}</p><p class="line">Chosen by AI from the day's news, good and bad.</p>`
   : `<h1>GlobalGist</h1><div class="rule"></div><p class="tag">One World. One Word.</p><p class="line">The day's news on a map, placed where it happened.</p>`;
 
 const html = `<!doctype html><meta charset="utf-8"><style>

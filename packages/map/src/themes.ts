@@ -2206,11 +2206,20 @@ export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[]
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee"] },
 ];
 
+/**
+ * The designs listed first in the Design menu (decision 111): a short set that shows the range, so a reader isn't met
+ * with fifty names. Every other design stays in its group below.
+ */
+export const FEATURED: readonly string[] = ["morning", "cabinet", "blueprint", "arcadia", "stitch", "glass", "wire", "drive", "nightcap", "cube"];
+
 /** The Design menu's groups for the designs that exist, each design exactly once, in the order listed. */
 export function designMenu(ids: readonly string[]): { label: string; ids: ThemeId[] }[] {
   const have = new Set(ids);
   const placed = new Set<string>();
   const groups: { label: string; ids: ThemeId[] }[] = [];
+  const featured = FEATURED.filter((id) => have.has(id)) as ThemeId[];
+  featured.forEach((id) => placed.add(id));
+  groups.push({ label: "Featured", ids: featured });
   for (const g of DESIGN_GROUPS) {
     const list: ThemeId[] = [];
     for (const id of g.ids) {

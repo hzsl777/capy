@@ -659,7 +659,7 @@ function renderKey() {
   const row = (svg: SVGSVGElement, label: string) => h("li", {}, svg as unknown as Node, h("span", {}, label));
   const mono = t.fresh === t.dot;
   $("key-body").replaceChildren(
-    h("p", { class: "key-note" }, "The mark shows how an AI model rated the place's top story, from 1 to 5. A bigger mark means more reports."),
+    h("p", { class: "key-note" }, "Marks show an AI model's 1 to 5 rating of a place's top story. Bigger marks mean more reports."),
     h(
       "ul",
       {},
@@ -896,7 +896,7 @@ function renderIdle(panel: HTMLElement) {
       "div",
       { class: "idle" },
       lettered(h("h2", { class: "panel-title" }), "Latest reports"),
-      h("p", { class: "count" }, "The map stops on a place. Drag the map to choose another."),
+      h("p", { class: "count" }, "Drag the map to pick a place."),
       h("ol", { class: "stories" }, ...latest.map((it) => storyButton(it, now, true))),
       tileNote(),
     ),
@@ -1149,7 +1149,7 @@ function renderTelegramStrip() {
     // "Today's Word" while the word on show is the newest one; while the next is being chosen, or when a day had none,
     // the strip shows an older word and says so, so the label doesn't claim it is today's.
     h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, status.note ? "Latest Word" : "Today's Word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "Chosen by AI, weighing the day's news, good and bad. ", how), statusLine, scale(t.band)),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "Chosen by AI from the day's news, good and bad. ", how), statusLine, scale(t.band)),
   );
 }
 
@@ -1214,7 +1214,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model sorted the day's reports into events and rated each event from 1 to 5 for importance. It scored each event rated 3 or higher from \u22122 (severe harm) to +2 (resolution) by what happened to people, quoting a checked sentence for each score. A fixed formula, not the model, sets the day. If any scored event is below zero, the lowest of those scores sets the day, so good news never cancels out a tragedy. Otherwise the day is the average score, and more important events count for more.",
+        "An AI model scored each event rated 3 or more from \u22122 to +2 by what happened to people, quoting a checked sentence each time. A fixed formula, not the model, sets the day. If any score is below zero, the lowest one sets it, so good news never cancels a tragedy. Otherwise the day is the average, weighted by importance.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),
@@ -1301,7 +1301,7 @@ function renderEvent(panel: HTMLElement, ev: MapEvent) {
       section("What changes next", ev.whatChangesNext),
       h("h3", { class: "rule-head" }, "Sources"),
       h("ol", { class: "sources" }, ...sources),
-      h("p", { class: "fine" }, "An AI model wrote this, including the title. Each sentence links to the passage it quotes. A program removed any sentence whose passage was not in the source."),
+      h("p", { class: "fine" }, "Written by AI, title included. Each sentence links to the passage it quotes. Sentences whose quote wasn't in the source were removed."),
     ),
   );
 }
@@ -1585,7 +1585,7 @@ async function start() {
     // The strip would otherwise say "Loading the word..." for good.
     $("telegram").replaceChildren(h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, first ? "No word yet" : "The word couldn't be loaded")));
     $("panel").replaceChildren(
-      h("p", { class: "pad" }, first ? "The first map isn't ready yet. It appears after the day's run, which starts just after midnight UTC." : "The news couldn't be loaded. Try again in a few minutes."),
+      h("p", { class: "pad" }, first ? "The first map appears after the daily update, just after midnight UTC." : "The news couldn't be loaded. Try again in a few minutes."),
     );
     return;
   }
