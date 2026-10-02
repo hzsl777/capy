@@ -10568,8 +10568,9 @@ dialog.x-home::backdrop {
   padding: 34px 48px 30px;
 }
 /* Twelve channels of one size, four by three (decision 114). The grid is as wide as three rows of 16:10 tiles can be
-   and still fit above the bar; a tile whose text needs more room grows, and its row with it. */
+   and still fit above the bar; a tile whose text needs more room grows, and every row with it, so all stay one size. */
 .x-home-grid {
+  container-type: inline-size;
   width: 100%;
   max-width: min(1240px, calc((100dvh - 112px - 64px - 44px) * 16 / 10 * 4 / 3 + 66px));
   margin: auto;
@@ -10589,7 +10590,9 @@ dialog.x-home::backdrop {
 .x-ch {
   position: relative;
   min-width: 0;
-  aspect-ratio: 16 / 10;
+  /* 16:10 from the grid's width (four tiles, three gaps), as a minimum rather than an aspect-ratio, which kept a
+     tile from stretching to its row and let one tile outgrow the rest. */
+  min-height: calc((100cqw - 66px) / 4 * 10 / 16);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10623,9 +10626,16 @@ button.x-ch:focus-visible {
   position: absolute;
   left: 16px;
   bottom: 12px;
+  align-items: center;
+  gap: 6px;
   font: 800 15px/1 var(--font-mast);
   color: #ffffff;
   text-shadow: 0 1px 4px rgba(0, 10, 30, 0.8);
+}
+.x-ch-map .x-ch-cap .x-ico {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 1px 3px rgba(0, 10, 30, 0.8));
 }
 .x-ch-screen {
   position: relative;
@@ -10673,6 +10683,12 @@ button.x-ch:focus-visible {
 }
 .x-ch-word {
   container-type: inline-size;
+  gap: 4px;
+}
+/* The word tile holds the most, so its icon is a little smaller and the tile keeps the grid's shape. */
+.x-ch-word .x-ch-art .x-ico {
+  width: 32px;
+  height: 32px;
 }
 .x-ch-word-text {
   max-width: 100%;
@@ -10681,6 +10697,15 @@ button.x-ch:focus-visible {
   text-transform: uppercase;
   color: #1a82c2;
   text-shadow: 0 1px 0 #ffffff, 0 2px 6px rgba(52, 187, 232, 0.3);
+}
+/* The tile's date and "Chosen by AI" break between the two, never inside the date. */
+.x-ch-date > span {
+  white-space: nowrap;
+}
+@media (max-width: 380px) {
+  .x-ch-date > span {
+    white-space: normal;
+  }
 }
 .x-ch-date {
   font-size: 12px;
@@ -10697,10 +10722,6 @@ button.x-ch:focus-visible {
   color: var(--muted);
   overflow-wrap: anywhere;
 }
-.x-ch-latest .x-ch-body {
-  align-items: flex-start;
-  text-align: left;
-}
 .x-ch-latest .x-ch-place {
   letter-spacing: 0.04em;
   color: #1476b4;
@@ -10712,6 +10733,28 @@ button.x-ch:focus-visible {
 .x-ch-latest .meta {
   font-size: 12px;
   color: var(--muted);
+}
+/* Short laptop screens: smaller tiles, so a little less around the text. */
+@media (max-height: 700px) and (min-width: 761px) {
+  .x-home-scroll {
+    padding: 16px 40px;
+  }
+  .x-home-grid {
+    max-width: min(1240px, calc((100dvh - 112px - 32px - 28px) * 16 / 10 * 4 / 3 + 42px));
+    gap: 14px;
+  }
+  .x-ch {
+    min-height: calc((100cqw - 42px) / 4 * 10 / 16);
+    gap: 4px;
+    padding: 10px 14px;
+  }
+  .x-ch .x-ch-art .x-ico {
+    width: 30px;
+    height: 30px;
+  }
+  .x-ch-title {
+    font-size: 16px;
+  }
 }
 .x-ch-art {
   display: flex;
@@ -11138,11 +11181,6 @@ button.x-ch:focus-visible {
   font-size: 16px;
   color: var(--muted);
 }
-.x-ch-marks {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
 .x-pv-arrow {
   flex: none;
   width: 64px;
@@ -11288,8 +11326,9 @@ button.x-ch:focus-visible {
   .x-home-grid {
     max-width: none;
   }
+  /* Every tile in a row as tall as the tallest, and none shorter than 16:11; a fixed ratio let a row's tiles differ. */
   .x-ch {
-    aspect-ratio: 16 / 11;
+    min-height: calc((100cqw - 12px) / 2 * 11 / 16);
   }
   .x-ch-title {
     font-size: 16px;
@@ -11297,10 +11336,6 @@ button.x-ch:focus-visible {
   .x-ico {
     width: 30px;
     height: 30px;
-  }
-  .x-ch-marks .x-ch-mark {
-    width: 26px;
-    height: 26px;
   }
   .x-home-bar {
     height: 86px;
