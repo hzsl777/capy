@@ -992,3 +992,12 @@ Davis saw the same flydubai story several times among the day's scored events, e
 Readers said the site's explanations read as padded. The About dialog, the word's view, the explanation note, the Key and the empty states now say the same things in about half the words, in plain language. No rule, number or limit changed: the scale, the formula, the three score runs, the 25-event cap, GDELT's two stories per town and the translation and privacy notes are all still there.
 
 The Design menu now opens with ten featured designs (`FEATURED` in `src/themes.ts`): Morning Edition, Cabinet Map, Blueprint, Course of Empire, Cross Stitch, Rose Window, Wire Room, Night Drive, Bedtime Tea and Console Menu. Every other design is still in its group below, so nothing is removed and each design is listed once.
+
+## 112. Past words under the word (October 2, 2026)
+
+The site showed one word a day and no way to see the words before it. The word's own view now ends with "Earlier": the last 7 days with a word, newest first, each with its short date, the word and its step on the scale, so a reader sees how the days went. One line under the list says each word was chosen by AI from its own day's news (decision 40).
+
+1. **Data.** `MapFile.recent` holds each day's date, word and band, and nothing else about that day. `loadMapView` fills it from the `telegrams` table: the 7 newest days before the word shown, so a carried word (decision 81) is never listed twice. Days with no word are left out.
+2. **Plain text.** The site opens only the newest day. The Worker serves `/data/<date>.json`, but the site has no way to open a past day, so a past word opens nothing. Opening past days would be its own decision.
+3. **Sample.** The fictional day's sample gets eight earlier words as telegram rows only (`worldPastWords` in the world fixture), with one day without a word, so the dev site shows the list.
+4. The word rules, the lists and the scale do not change, and no model calls are added.

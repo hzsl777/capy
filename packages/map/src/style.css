@@ -859,6 +859,24 @@ summary {
 .telegram-view .story .excerpt-quote {
   font-size: 13px;
 }
+/* Earlier words under the word (decision 112): date, word and step on one line, wrapping rather than clipping.
+   Colours and fonts come from each design's .meta and .headline. */
+.earlier-day {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 7px 2px;
+}
+.earlier-date {
+  min-width: 4.5em;
+}
+.earlier-word {
+  flex: 1 1 auto;
+}
+.earlier + .fine {
+  margin-top: 8px;
+}
 .explain-text {
   font: 16px/1.6 var(--font-body);
   margin: 6px 0 4px;

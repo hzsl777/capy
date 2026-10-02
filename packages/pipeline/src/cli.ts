@@ -1,7 +1,7 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
 import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
-import { editions, feedback, latestFinishedMapDate, latestMapDate, loadEditionView, loadMapView, localBase, readers } from "@2dayai/db";
+import { editions, feedback, latestFinishedMapDate, latestMapDate, loadEditionView, loadMapView, localBase, readers, telegrams } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { loadConfig, requireDatabaseUrl } from "./config.js";
@@ -264,7 +264,7 @@ switch (command) {
     // the read model. The model answers from the fictional world fixture's script.
     const { createTestDb } = await import("./test/db.js");
     const { FakeLlm } = await import("./llm/fake.js");
-    const { worldAnswers, worldFeedFor, worldSourcesYaml } = await import("./fixtures/world.js");
+    const { worldAnswers, worldFeedFor, worldPastWords, worldSourcesYaml } = await import("./fixtures/world.js");
     const { worldGdeltFor } = await import("./fixtures/gdelt.js");
     const { db: memory, close } = await createTestDb();
     const dir = mkdtempSync(join(tmpdir(), "capy-demo-"));
@@ -277,6 +277,8 @@ switch (command) {
       sourcesPath: join(dir, "sources.yaml"),
       readersDir: dir,
     });
+    // The earlier days' words, so the sample shows the list under the word (decision 112).
+    await memory.insert(telegrams).values(worldPastWords(date));
     const full = { ...(await loadMapView(memory, date)), source: "sample" as const };
     await close();
     const out = values.out ?? "packages/map/public/data/sample.json";

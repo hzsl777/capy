@@ -97,6 +97,9 @@ export type MapTelegram = {
   scores: { eventId: number; score: number; because: string }[];
 };
 
+/** An earlier day's word, its date (YYYY-MM-DD) and its step on the scale. */
+export type MapRecentWord = { date: string; word: string; band: -2 | -1 | 0 | 1 | 2 };
+
 export type MapFile = {
   version: 2;
   /**
@@ -113,6 +116,12 @@ export type MapFile = {
   events: Record<string, MapEvent>;
   /** Null when no telegram was written for the date (no explained world events, or the stage failed). */
   telegram: MapTelegram | null;
+  /**
+   * The words before the one shown (decision 112): the 7 newest days with a word before `telegram.runDate`, or before
+   * `runDate` when there is no word, newest first. Days with no word are left out. Only each day's date, word and band
+   * are sent; its events stay in that day's own file. Absent in files made before it was added.
+   */
+  recent?: MapRecentWord[];
   /**
    * Where the day's GDELT local stories are, when they are kept out of this file (decision 78). Absent when the file
    * holds them itself, as the pipeline's own full view does.

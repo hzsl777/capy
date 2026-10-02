@@ -1,7 +1,7 @@
 // A fictional world-desk day: invented publishers pinned to real cities, reporting on invented places
 // (Kestrel Valley, Port Lenn, the Oren highlands, Varda). Used by the tests and by `stage -- demo`, which
 // builds the site's sample data through the real stages. Nothing here is real news.
-import type { WorldTopic } from "@2dayai/core";
+import { MOOD_WORDS, type MoodBand, type WorldTopic } from "@2dayai/core";
 import type { FakeAnswer } from "../llm/fake.js";
 
 type Outlet = { id: string; name: string; place: string; lat: number; lon: number };
@@ -238,6 +238,35 @@ function storyByHeadline(headline: string): { story: Story; index: number } | nu
     if (index >= 0) return { story, index };
   }
   return null;
+}
+
+/**
+ * The words of the days before the fictional day, for the list of earlier words under the word (decision 112). Only
+ * telegram rows: no stories or events stand behind them, and the site gets nothing about those days but the date,
+ * the word and the band. Three days before has no word, and the ninth is past the list's seven, so the sample shows
+ * both rules.
+ */
+const PAST_WORDS: { daysBefore: number; band: MoodBand; pick: number }[] = [
+  { daysBefore: 1, band: 0, pick: 0 },
+  { daysBefore: 2, band: 1, pick: 1 },
+  { daysBefore: 4, band: -1, pick: 1 },
+  { daysBefore: 5, band: -2, pick: 2 },
+  { daysBefore: 6, band: 1, pick: 3 },
+  { daysBefore: 7, band: 2, pick: 1 },
+  { daysBefore: 8, band: 0, pick: 1 },
+  { daysBefore: 9, band: -1, pick: 2 },
+];
+
+/** Telegram rows for the days before `runDate`, each word from its band's list. */
+export function worldPastWords(runDate: string): { runDate: string; scope: string; word: string; band: MoodBand; promptVersion: string }[] {
+  const day = Date.parse(`${runDate}T00:00:00Z`);
+  return PAST_WORDS.map((p) => ({
+    runDate: new Date(day - p.daysBefore * 86_400_000).toISOString().slice(0, 10),
+    scope: "world",
+    word: MOOD_WORDS[p.band][p.pick]!,
+    band: p.band,
+    promptVersion: "telegram-word.v1",
+  }));
 }
 
 /** Scripted model answers for the world desk, the way a good run would answer. `badWordFirst` exercises the retry. */

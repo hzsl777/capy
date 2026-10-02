@@ -133,6 +133,12 @@ export function formatRunDate(runDate: string): string {
   return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
 }
 
+/** A run date in short, "Sep 29" in English, for the list of earlier words (decision 112). */
+export function formatShortDate(runDate: string): string {
+  const d = new Date(`${runDate}T12:00:00Z`);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
+}
+
 /**
  * What the word strip says about the word (decision 81). A word belongs to a finished UTC day and is shown under that
  * day's date until the next one is chosen. `note` says when the next is on its way (the day that just ended has no

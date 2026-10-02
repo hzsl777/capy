@@ -161,6 +161,7 @@ import {
   TOPIC_LABEL,
   formatCoords,
   formatRunDate,
+  formatShortDate,
   wordStatus,
   groupByPlace,
   hasTiers,
@@ -1224,8 +1225,35 @@ function renderTelegram(panel: HTMLElement) {
         { class: "stories" },
         ...t.scores.flatMap((sc) => eventButton(sc.eventId, file.events[String(sc.eventId)]?.title ?? "", h("blockquote", { class: "excerpt-quote" }, sc.because))),
       ),
+      ...earlierWords(file),
     ),
   );
+}
+
+/**
+ * The words before this one, newest first, each with its date and step on the scale (decision 112). Plain text: the
+ * site opens only the newest day, so a past word has nothing to open.
+ */
+function earlierWords(file: NewsFile): HTMLElement[] {
+  const recent = file.recent ?? [];
+  if (recent.length === 0) return [];
+  return [
+    h("h3", { class: "rule-head" }, "Earlier"),
+    h(
+      "ol",
+      { class: "stories earlier" },
+      ...recent.map((r) =>
+        h(
+          "li",
+          { class: "earlier-day" },
+          h("time", { class: "meta earlier-date", datetime: r.date }, formatShortDate(r.date)),
+          h("span", { class: "headline earlier-word" }, r.word),
+          h("span", { class: "meta earlier-band" }, BAND_LABEL[r.band] ?? ""),
+        ),
+      ),
+    ),
+    h("p", { class: "fine" }, "Each word was chosen by AI from its own day's news."),
+  ];
 }
 
 function openEvent(id: number, back: "telegram" | "reader") {
