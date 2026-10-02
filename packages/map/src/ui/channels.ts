@@ -47,7 +47,7 @@ export interface ChannelSource {
 const NS = "http://www.w3.org/2000/svg";
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-type Icon = "topics" | "pins" | "about" | "globe" | "grid" | "replay" | "translate" | "events" | "earlier" | "designs" | "prev" | "next";
+type Icon = "word" | "latest" | "key" | "topics" | "pins" | "about" | "globe" | "grid" | "replay" | "translate" | "events" | "earlier" | "designs" | "prev" | "next";
 
 let src: ChannelSource;
 let home: HTMLDialogElement;
@@ -80,7 +80,26 @@ function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
 function icon(kind: Icon): SVGElement {
   const s = svg("svg", { viewBox: "0 0 40 40", class: `x-ico x-ico-${kind}`, "aria-hidden": "true" });
   const line = { fill: "none", stroke: "currentColor", "stroke-width": 2.6, "stroke-linecap": "round", "stroke-linejoin": "round" };
-  if (kind === "topics") {
+  if (kind === "word") {
+    // A dial with its needle: the word sits on a scale.
+    s.append(
+      svg("path", { d: "M5 29A15 15 0 0 1 35 29", ...line }),
+      svg("path", { d: "M9.5 18.5L12 20.5M20 14V17M30.5 18.5L28 20.5", ...line, "stroke-width": 2 }),
+      svg("path", { d: "M20 29L27 20", ...line }),
+      svg("circle", { cx: 20, cy: 29, r: 3, fill: "currentColor" }),
+    );
+  } else if (kind === "latest") {
+    // A folded page of news: a headline bar, two lines and a picture.
+    s.append(
+      svg("rect", { x: 4, y: 7, width: 32, height: 26, rx: 4, ...line }),
+      svg("path", { d: "M10 14H30", ...line, "stroke-width": 3.4 }),
+      svg("path", { d: "M10 21H19M10 27H19", ...line, "stroke-width": 2.2 }),
+      svg("rect", { x: 23, y: 19.5, width: 7, height: 8, rx: 1.5, fill: "currentColor" }),
+    );
+  } else if (kind === "key") {
+    // A key: a ring, its shaft and two teeth.
+    s.append(svg("circle", { cx: 11, cy: 20, r: 7.5, ...line, "stroke-width": 3 }), svg("path", { d: "M18.5 20H36M29.5 20V27M35 20V26", ...line, "stroke-width": 3 }));
+  } else if (kind === "topics") {
     // Three topic chips, one of them on.
     s.append(
       svg("rect", { x: 3, y: 8, width: 15, height: 10, rx: 5, ...line }),
@@ -158,11 +177,6 @@ function mark(kind: "hollow" | "filled" | "ringed" | "fresh", size = 32): SVGEle
   return s;
 }
 
-/** The Key tile's three marks in a row. */
-function marks(): HTMLElement {
-  return h("span", { class: "x-ch-marks" }, mark("hollow"), mark("filled"), mark("ringed"));
-}
-
 const art = (kind: Icon) => h("span", { class: "x-ch-art" }, icon(kind));
 const title = (text: string) => h("span", { class: "x-ch-title" }, text);
 const note = (text: string) => h("span", { class: "x-ch-note" }, text);
@@ -172,13 +186,13 @@ const CHANNELS: { id: Channel; name: string; tile: () => Node[]; screen: () => N
   {
     id: "map",
     name: "The map",
-    tile: () => [h("span", { class: "x-ch-screen" }, tileCanvas), h("span", { class: "x-ch-cap" }, SITE_NAME)],
+    tile: () => [h("span", { class: "x-ch-screen" }, tileCanvas), h("span", { class: "x-ch-cap" }, icon("globe"), SITE_NAME)],
     screen: () => [],
   },
   {
     id: "word",
     name: "Today's word",
-    tile: () => wordBlock(false),
+    tile: () => [art("word"), ...wordBlock(false)],
     screen: () => wordBlock(true),
   },
   {
@@ -200,7 +214,7 @@ const CHANNELS: { id: Channel; name: string; tile: () => Node[]; screen: () => N
   {
     id: "latest",
     name: "Latest report",
-    tile: () => [h("span", { class: "x-ch-body x-ch-left" }, h("span", { class: "x-ch-kicker" }, "Latest report"), ...(src.latest() ?? [note("No reports in this window")]))],
+    tile: () => [art("latest"), h("span", { class: "x-ch-body" }, h("span", { class: "x-ch-kicker" }, "Latest report"), ...(src.latest() ?? [note("No reports in this window")]))],
     screen: () => [h("p", { class: "x-pv-kicker" }, "Latest report"), h("div", { class: "x-pv-latest" }, ...(src.latest() ?? [h("p", { class: "x-pv-text" }, "No reports in this window.")]))],
   },
   {
@@ -234,7 +248,7 @@ const CHANNELS: { id: Channel; name: string; tile: () => Node[]; screen: () => N
   {
     id: "key",
     name: "Key",
-    tile: () => [marks(), title("Key"), note("What the marks mean")],
+    tile: () => [art("key"), title("Key"), note("What the marks mean")],
     screen: () => [
       h("p", { class: "x-pv-kicker" }, "Key"),
       h("ul", { class: "x-pv-key" }, ...KEY_ROWS.map(([label, kind]) => h("li", {}, mark(kind, 40), h("span", {}, label)))),
@@ -306,6 +320,8 @@ function wordBlock(big: boolean): Node[] {
   const word = h("span", { class: big ? "x-pv-word" : "x-ch-word-text" }, w.word);
   word.style.setProperty("--len", String(Math.max(4, w.word.length)));
   const sc = big ? src.scale() : null;
+  // The tile keeps the date and the label on one line, so the word stays large under the tile's icon.
+  if (!big) return [h("span", { class: "x-ch-kicker" }, w.kicker), word, h("span", { class: "x-ch-date" }, h("span", {}, `${w.date} ·`), " ", h("span", {}, "Chosen by AI"))];
   return [
     h("span", { class: "x-ch-kicker" }, w.kicker),
     word,
