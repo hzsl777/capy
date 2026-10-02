@@ -161,6 +161,7 @@ import {
   TOPIC_LABEL,
   formatCoords,
   formatRunDate,
+  formatShortDate,
   wordStatus,
   groupByPlace,
   hasTiers,
@@ -168,6 +169,7 @@ import {
   loadNews,
   mergeTiles,
   NO_DAY_YET,
+  passes,
   tileCell,
   tileUrl,
   TIERS,
@@ -183,7 +185,7 @@ import { THEMES, designMenu, type ThemeId, type ViewMode } from "./themes.ts";
 import { MapView, type Dot } from "./map/view.ts";
 import { loadHigh, loadLow } from "./map/basemap.ts";
 import { browserLanguages, LANGUAGES, lastFailure, needsTranslation, normalizeLanguage, OWN_NAMES, translate } from "./translate.ts";
-import { loadPins, prefs, rawPref, savePins, setPref, type Pin } from "./pins.ts";
+import { isNew, loadPins, markSeen, newCounts, prefs, rawPref, savePins, setPref, startClocks } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
@@ -260,9 +262,9 @@ state.view = urlView === "2d" || urlView === "3d" ? urlView : savedView || null;
 
 const viewOf = () => state.view ?? THEMES[state.theme].defaultView;
 
-function filters(): Filters {
+function filters(live = state.live): Filters {
   const gen = state.file?.generatedAt ?? Date.now() / 1000;
-  if (state.live) return { topics: state.topics, from: gen - 24 * 3600, to: gen };
+  if (live) return { topics: state.topics, from: gen - 24 * 3600, to: gen };
   const to = gen - (SLOTS - state.slot) * 900;
   return { topics: state.topics, from: to - REPLAY_WINDOW, to };
 }
@@ -384,6 +386,8 @@ function loadTilesInView() {
       refreshDots();
       renderTicker();
       syncTranslate();
+      renderPins();
+      refreshChannels();
     }
     // The idle list too, so a failed load is said even where no place is tuned yet.
     if (!state.reader && !state.telegram && !state.event) renderPanel();
@@ -417,6 +421,69 @@ function pinnedIndices(): number[] {
   if (!state.file) return [];
   const ids = new Set(state.pins.map((p) => p.id));
   return state.file.places.flatMap((p, i) => (ids.has(p.id) ? [i] : []));
+}
+
+// ---- what is new at pinned places since the reader's last look -----------------------
+
+/** The map's own clock for a look: the end of the reports on show (the day's file, or the replay's moment). */
+const lookTime = () => filters().to;
+
+/**
+ * How many reports came out at each pinned place since the reader last looked there, by pin id: the day's window with
+ * the topics on, as the place's panel lists them. A town's local stories count once their tile is loaded for the map;
+ * no tile is loaded just to count.
+ */
+function pinNews(): Map<string, number> {
+  const out = new Map<string, number>();
+  const file = state.file;
+  if (!file) return out;
+  const seen = new Map<number, number>();
+  for (const p of state.pins) {
+    const i = state.placeIds.get(p.id);
+    if (i !== undefined && p.seen !== undefined) seen.set(i, p.seen);
+  }
+  if (!seen.size) return out;
+  const f = filters(true);
+  const counts = newCounts(
+    file.items.filter((it) => seen.has(it.place) && passes(it, f)),
+    seen,
+  );
+  for (const p of state.pins) {
+    const n = counts.get(state.placeIds.get(p.id) ?? -1);
+    if (n) out.set(p.id, n);
+  }
+  return out;
+}
+
+/** The pinned place whose panel is open and its last look before this one, so its "New" marks stay while it is open. */
+let look: { id: string; since: number | undefined } | null = null;
+let lookTimer = 0;
+const LOOK_MS = 1500;
+
+/**
+ * The open place's last look before this one, when it is pinned. The first time its panel shows, a look begins; it
+ * counts once the place has stayed open a moment, so dragging past a pinned place doesn't use up what is new there.
+ */
+function lookAt(id: string | null): number | undefined {
+  const pin = id === null ? undefined : state.pins.find((p) => p.id === id);
+  if (!pin) {
+    look = null;
+    clearTimeout(lookTimer);
+    return undefined;
+  }
+  if (look?.id !== pin.id) {
+    look = { id: pin.id, since: pin.seen };
+    clearTimeout(lookTimer);
+    lookTimer = window.setTimeout(() => {
+      const idx = state.placeIds.get(pin.id);
+      if (look?.id !== pin.id || idx === undefined || state.tuned?.length !== 1 || state.tuned[0] !== idx) return;
+      state.pins = markSeen(state.pins, pin.id, lookTime());
+      savePins(state.pins);
+      renderPins();
+      refreshChannels();
+    }, LOOK_MS);
+  }
+  return look.since;
 }
 
 function flyToPlace(index: number) {
@@ -616,9 +683,11 @@ function renderPins() {
   // The menu appears once there is something in it; the Pin button in a place's panel adds the first.
   $("pins-menu").hidden = state.pins.length === 0;
   $("pins-count").textContent = state.pins.length ? `(${state.pins.length})` : "";
+  const news = pinNews();
   box.replaceChildren(
     ...state.pins.map((pin) => {
-      const b = h("button", { type: "button", class: "menu-item" }, pin.name);
+      const n = news.get(pin.id);
+      const b = h("button", { type: "button", class: "menu-item" }, pin.name, n ? h("span", { class: "pin-new" }, `${n} new`) : null);
       b.addEventListener("click", () => {
         closeMenus();
         flyToId(pin.id);
@@ -702,7 +771,7 @@ function onFiltersChanged() {
 
 let renderToken = 0;
 
-function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
+function metaLine(it: Item, now: number, showPublisher = true, marked = false): HTMLElement {
   // A story placed where it happened says where its outlet is, so "Le Monde, Paris" reads right under Caracas.
   const parts = showPublisher ? [it.from ? `${it.publisher}, ${it.from}` : it.publisher, timeAgo(it.t, now)] : [timeAgo(it.t, now)];
   // A local story from the GDELT index says so, so no one takes its outlet for one we chose (decision 54).
@@ -711,7 +780,8 @@ function metaLine(it: Item, now: number, showPublisher = true): HTMLElement {
   if (lang && it.lang !== "en") parts.push(lang);
   // "Other" says nothing, so only named topics show.
   if (it.topics[0] && it.topics[0] !== "other") parts.push(TOPIC_LABEL[it.topics[0]]);
-  return h("span", { class: "meta" }, parts.join(" · "));
+  // New since the last look at a pinned place: a word in the ink, never the "fresh" colour, which means the last hour.
+  return h("span", { class: "meta" }, ...(marked ? [h("span", { class: "new-mark" }, "New"), " "] : []), parts.join(" · "));
 }
 
 /** With a language picked, swaps an element's text for its translation and labels it (decision 97). */
@@ -739,14 +809,14 @@ function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
   return translated(h(tag, { class: tag === "h2" ? "reader-headline" : "headline", lang: it.lang !== "und" ? it.lang : undefined }, it.title), it.title, it.lang);
 }
 
-function storyButton(it: Item, now: number, showPlace = false, showPublisher = true): HTMLElement {
+function storyButton(it: Item, now: number, showPlace = false, showPublisher = true, marked = false): HTMLElement {
   const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.publisher)).size - 1 : 0;
   const b = h(
     "button",
     { type: "button", class: "story" },
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
-    metaLine(it, now, showPublisher),
+    metaLine(it, now, showPublisher, marked),
     others > 0 ? h("span", { class: "related" }, `Also reported by ${others} other ${others === 1 ? "outlet" : "outlets"}`) : null,
   );
   b.addEventListener("click", () => openReader(it));
@@ -891,6 +961,7 @@ function renderIdle(panel: HTMLElement) {
     .map((list) => list[0])
     .sort((a, b) => b.t - a.t)
     .slice(0, 12);
+  lookAt(null);
   panel.replaceChildren(
     h(
       "div",
@@ -915,11 +986,14 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
   const onePublisher = publishers.size === 1 ? [...publishers][0] : null;
   const count = `${all.length} ${all.length === 1 ? "report" : "reports"}`;
   let head: HTMLElement;
+  // At a pinned place, the reports since the reader's last look there say "New"; the order stays newest first.
+  const since = lookAt(indices.length === 1 ? place.id : null);
   if (indices.length === 1) {
     const pinned = state.pins.some((p) => p.id === place.id);
     const pin = h("button", { type: "button", class: "tool pin", "aria-pressed": String(pinned) }, pinned ? "Pinned" : "Pin");
     pin.addEventListener("click", () => {
-      state.pins = pinned ? state.pins.filter((p) => p.id !== place.id) : [...state.pins, { id: place.id, name: place.name } as Pin];
+      // A new pin starts its clock now, so nothing there is new until reports come in after it.
+      state.pins = pinned ? state.pins.filter((p) => p.id !== place.id) : [...state.pins, { id: place.id, name: place.name, seen: lookTime() }];
       savePins(state.pins);
       renderPins();
       map.setPinned(pinnedIndices());
@@ -955,7 +1029,7 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
   const label = { here, elsewhere: "From outlets elsewhere", abroad, gdelt: "Local sites found through GDELT" } as const;
   const lists = groups.flatMap((g) => [
     ...(groups.length > 1 || g.origin === "abroad" ? [h("h3", { class: "stories-group" }, label[g.origin])] : []),
-    h("ol", { class: "stories" }, ...g.items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher))),
+    h("ol", { class: "stories" }, ...g.items.map((it) => storyButton(it, file.generatedAt, indices.length > 1, !onePublisher, isNew(it.t, since)))),
   ]);
   panel.replaceChildren(
     head,
@@ -1224,8 +1298,35 @@ function renderTelegram(panel: HTMLElement) {
         { class: "stories" },
         ...t.scores.flatMap((sc) => eventButton(sc.eventId, file.events[String(sc.eventId)]?.title ?? "", h("blockquote", { class: "excerpt-quote" }, sc.because))),
       ),
+      ...earlierWords(file),
     ),
   );
+}
+
+/**
+ * The words before this one, newest first, each with its date and step on the scale (decision 112). Plain text: the
+ * site opens only the newest day, so a past word has nothing to open.
+ */
+function earlierWords(file: NewsFile): HTMLElement[] {
+  const recent = file.recent ?? [];
+  if (recent.length === 0) return [];
+  return [
+    h("h3", { class: "rule-head" }, "Earlier"),
+    h(
+      "ol",
+      { class: "stories earlier" },
+      ...recent.map((r) =>
+        h(
+          "li",
+          { class: "earlier-day" },
+          h("time", { class: "meta earlier-date", datetime: r.date }, formatShortDate(r.date)),
+          h("span", { class: "headline earlier-word" }, r.word),
+          h("span", { class: "meta earlier-band" }, BAND_LABEL[r.band] ?? ""),
+        ),
+      ),
+    ),
+    h("p", { class: "fine" }, "Each word was chosen by AI from its own day's news."),
+  ];
 }
 
 function openEvent(id: number, back: "telegram" | "reader") {
@@ -1543,7 +1644,7 @@ async function start() {
       return it && state.file ? [h("span", { class: "x-ch-place" }, state.file.places[it.place]!.name), headline(it), metaLine(it, state.file.generatedAt)] : null;
     },
     topics: () => (state.topics.size === FILTERS.length ? "All topics" : `${state.topics.size} of ${FILTERS.length} topics`),
-    pins: () => state.pins.map((p) => p.name),
+    pins: () => ({ names: state.pins.map((p) => p.name), news: [...pinNews().values()].reduce((a, b) => a + b, 0) }),
     language: () => (state.translateTo ? `Into ${nativeName(state.translateTo)}` : "Headlines as published"),
     headlines: () => {
       const file = state.file;
@@ -1592,6 +1693,12 @@ async function start() {
   state.stories = storyIndex(state.file);
   state.tiered = hasTiers(state.file);
   state.file.places.forEach((p, i) => state.placeIds.set(p.id, i));
+  // Pins saved before last looks were kept start their clock with this file.
+  if (state.pins.some((p) => p.seen === undefined)) {
+    state.pins = startClocks(state.pins, state.file.generatedAt);
+    savePins(state.pins);
+  }
+  renderPins();
   if (state.file.source !== "live") {
     const banner = $("banner");
     banner.hidden = false;

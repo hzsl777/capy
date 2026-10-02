@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, wordProblems } from "@2dayai/core";
 import { events, loadLocalTile, loadMapView, latestMapDate, localBase, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
@@ -196,6 +196,48 @@ describe("the world desk on a real Postgres engine", () => {
     // Only for a week: an older word is not carried.
     expect((await loadMapView(db, toRunDate("2026-10-06"))).telegram).toBeNull();
     expect((await loadMapView(db, toRunDate("2026-10-04"))).telegram).toMatchObject({ runDate: date });
+  });
+
+  it("lists the 7 newest earlier words under the word, newest first, skipping days with none (decision 112)", async () => {
+    // State from the test above: 2026-09-27 has a word, 2026-09-28 has none and carries it.
+    const own = (await loadMapView(db, date)).telegram!;
+    const past = (d: string, band: -2 | -1 | 0 | 1 | 2) => ({ runDate: d, scope: "world", word: MOOD_WORDS[band][0]!, band, promptVersion: "telegram-word.v1" });
+    // Nine earlier days with a word, one day with none (09-22), and a word from another scope that is never listed.
+    await db.insert(telegrams).values([
+      past("2026-09-16", 2),
+      past("2026-09-17", 1),
+      past("2026-09-18", 0),
+      past("2026-09-19", -1),
+      past("2026-09-20", -2),
+      past("2026-09-21", 0),
+      past("2026-09-23", 1),
+      past("2026-09-24", 2),
+      past("2026-09-25", -1),
+      past("2026-09-26", 0),
+      { ...past("2026-09-26", 1), scope: "other" },
+    ]);
+    const map = await loadMapView(db, date);
+    expect(map.telegram).toMatchObject({ word: own.word, runDate: date });
+    expect(map.recent).toEqual([
+      { date: "2026-09-26", word: MOOD_WORDS[0][0], band: 0 },
+      { date: "2026-09-25", word: MOOD_WORDS[-1][0], band: -1 },
+      { date: "2026-09-24", word: MOOD_WORDS[2][0], band: 2 },
+      { date: "2026-09-23", word: MOOD_WORDS[1][0], band: 1 },
+      { date: "2026-09-21", word: MOOD_WORDS[0][0], band: 0 },
+      { date: "2026-09-20", word: MOOD_WORDS[-2][0], band: -2 },
+      { date: "2026-09-19", word: MOOD_WORDS[-1][0], band: -1 },
+    ]);
+    // Nothing but the date, the word and the band.
+    for (const r of map.recent!) expect(Object.keys(r).sort()).toEqual(["band", "date", "word"]);
+    // A day with no word carries the last one; the list starts before the carried word and never repeats it.
+    const carried = await loadMapView(db, toRunDate("2026-09-28"));
+    expect(carried.telegram).toMatchObject({ runDate: date });
+    expect(carried.recent!.map((r) => r.date)).toEqual(map.recent!.map((r) => r.date));
+    // Each day lists the words before it. This one has no word and nothing to carry (those days have no events).
+    expect((await loadMapView(db, toRunDate("2026-09-21"))).recent!.map((r) => r.date)).toEqual(["2026-09-20", "2026-09-19", "2026-09-18", "2026-09-17", "2026-09-16"]);
+    // The site's file keeps the list (splitLocal).
+    expect(splitLocal(map, localBase(date)).main.recent).toEqual(map.recent);
+    await db.delete(telegrams).where(lt(telegrams.runDate, date));
   });
 
   it("sets aside a score run that breaks the rules twice and asks another (decision 51)", async () => {

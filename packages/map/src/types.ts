@@ -2,9 +2,9 @@
  * The site's data contract is MapFile in @2dayai/core (packages/core/src/map.ts), built from the database by
  * loadMapView. Type-only imports: nothing from core is bundled into the site.
  */
-import type { MapEvent, MapFile, MapItem, MapLocalIndex, MapPlace, MapTelegram, MapTile, MapTileItem, WorldTopic } from "@2dayai/core";
+import type { MapEvent, MapFile, MapItem, MapLocalIndex, MapPlace, MapRecentWord, MapTelegram, MapTile, MapTileItem, WorldTopic } from "@2dayai/core";
 
-export type { MapEvent, MapFile, MapItem, MapLocalIndex, MapPlace, MapTelegram, MapTile, MapTileItem };
+export type { MapEvent, MapFile, MapItem, MapLocalIndex, MapPlace, MapRecentWord, MapTelegram, MapTile, MapTileItem };
 export type Topic = WorldTopic;
 
 /** Same list as WORLD_TOPICS in core, repeated here as a value so the site stays free of zod. */

@@ -3,13 +3,15 @@
 // and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
 // reported.
 import { and, desc, eq, exists, gte, inArray, lt, lte, sql } from "drizzle-orm";
-import { ingestWindow, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { ingestWindow, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
 import type { Db } from "./types.js";
 
 type Stored = { whatHappened: VerifiedSentence[]; whyItMatters: VerifiedSentence[]; whatChangesNext: VerifiedSentence[] };
 
 const EXCERPT_MAX = 300;
+/** How many earlier words the day's file lists under the word (decision 112). */
+export const RECENT_WORDS = 7;
 /** A story's city this close to a publisher's city is the same dot. */
 const SAME_CITY_KM = 25;
 
@@ -264,11 +266,25 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     }
   }
 
+  // The words before the one shown, newest first (decision 112): only their dates, words and steps on the scale.
+  // A carried word is the newest shown, so the list starts before it and never repeats it.
+  let recent: MapRecentWord[] | undefined;
+  if (!opts.noCarry) {
+    const rows = await db
+      .select({ d: t.telegrams.runDate, word: t.telegrams.word, band: t.telegrams.band })
+      .from(t.telegrams)
+      .where(and(eq(t.telegrams.scope, "world"), lt(t.telegrams.runDate, telegram?.runDate ?? date), gte(t.telegrams.band, -2), lte(t.telegrams.band, 2)))
+      .orderBy(desc(t.telegrams.runDate))
+      .limit(RECENT_WORDS);
+    recent = rows.flatMap((r) => (isBand(r.band) ? [{ date: r.d, word: r.word, band: r.band }] : []));
+  }
+
   // The day's file is as new as its window's end, or its newest local story once the refresh during the day has read
   // past that end (decision 80), and never newer than now.
   const newestLocal = (await db.select({ at: sql<Date | null>`max(${t.localStories.publishedAt})` }).from(t.localStories).where(eq(t.localStories.runDate, date)))[0]?.at;
   const upTo = Math.max(to.getTime(), newestLocal ? new Date(newestLocal).getTime() : 0);
   const file: MapFile = { version: 2, source: "live", generatedAt: Math.floor(Math.min(now.getTime(), upTo) / 1000), runDate: date, places, items, events, telegram };
+  if (recent) file.recent = recent;
   if (local) file.local = local;
   return file;
 }

@@ -25,8 +25,8 @@ export interface ChannelSource {
   latest(): Node[] | null;
   /** Which topics are on, as a short line. */
   topics(): string;
-  /** The reader's pinned places by name. */
-  pins(): string[];
+  /** The reader's pinned places by name, and how many reports came out there since the reader last looked. */
+  pins(): { names: string[]; news: number };
   /** The language headlines are translated into, by its own name, or a line saying they show as published. */
   language(): string;
   /** The newest headlines, each with its place's name, for the crawl on the map channel's screen. */
@@ -240,7 +240,7 @@ export function refreshChannels(): void {
   latestTile.replaceChildren(h("span", { class: "x-ch-kicker" }, "Latest report"), ...(latest ?? [h("span", { class: "x-ch-note" }, "No reports in this window")]));
   topicsLine.textContent = src.topics();
   const pins = src.pins();
-  pinsLine.textContent = pins.length ? pins.join(" · ") : "Pin a place from its list";
+  pinsLine.textContent = pins.names.length ? [pins.news ? `${pins.news} new` : "", ...pins.names].filter(Boolean).join(" · ") : "Pin a place from its list";
   languageLine.textContent = src.language();
   keyMarks.replaceChildren(marks());
   fillCrawl();
