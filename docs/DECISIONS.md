@@ -986,3 +986,9 @@ Davis saw the same flydubai story several times among the day's scored events, e
 
 1. **The merge prompt (`cluster-world-merge.v2`)** counts same-day developments of one story, by the same main actor on the same matter, as one story, and keeps different matters apart (two airlines' separate news, or one airline's new route and its results).
 2. **A second merge pass** looks only at the events of importance 3 or more, the ones explained and scored for the word, after the first. It runs on every day with two or more such events, even a one-batch day, with the telegram's model (`cluster-world-merge-top`, a judgment stage like the telegram's own calls). Code checks its groups like the first pass's. If it fails, the events stand as they are and the day goes on. The run report counts its groups as `mergedTop`.
+
+## 111. Shorter words on the site, and ten designs first (October 2, 2026)
+
+Readers said the site's explanations read as padded. The About dialog, the word's view, the explanation note, the Key and the empty states now say the same things in about half the words, in plain language. No rule, number or limit changed: the scale, the formula, the three score runs, the 25-event cap, GDELT's two stories per town and the translation and privacy notes are all still there.
+
+The Design menu now opens with ten featured designs (`FEATURED` in `src/themes.ts`): Morning Edition, Cabinet Map, Blueprint, Course of Empire, Cross Stitch, Rose Window, Wire Room, Night Drive, Bedtime Tea and Console Menu. Every other design is still in its group below, so nothing is removed and each design is listed once.
