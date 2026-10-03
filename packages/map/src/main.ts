@@ -170,6 +170,7 @@ import {
   mergeTiles,
   NO_DAY_YET,
   passes,
+  replayStops,
   tileCell,
   tileUrl,
   TIERS,
@@ -1454,7 +1455,9 @@ function stopReplay() {
 function bindTimebar() {
   $("time").addEventListener("input", (e) => {
     stopReplay();
-    setSlot(+(e.target as HTMLInputElement).value, false);
+    // The slider's end is now: the last 24 hours, as Live shows them, not a three-hour window that may hold nothing yet.
+    const slot = +(e.target as HTMLInputElement).value;
+    setSlot(slot, slot >= SLOTS);
   });
   $("live").addEventListener("click", () => {
     stopReplay();
@@ -1462,17 +1465,26 @@ function bindTimebar() {
   });
   $("play").addEventListener("click", () => {
     if (state.playing) return stopReplay();
+    // Only the moments with something on the map at this zoom, so the replay never sits on an empty map.
+    const times = state.file
+      ? state.file.items
+          .filter((it) => passes(it, { topics: state.topics, from: -Infinity, to: Infinity }) && tierOf(it, state.tiered) <= state.level)
+          .map((it) => it.t)
+          .sort((a, b) => a - b)
+      : [];
+    const stops = replayStops(times, state.file?.generatedAt ?? Date.now() / 1000, REPLAY_WINDOW / 900, SLOTS, REPLAY_WINDOW);
+    if (!stops.length) return setSlot(SLOTS, true);
     $("play").textContent = "Pause";
-    let slot = state.live || state.slot >= SLOTS ? REPLAY_WINDOW / 900 : state.slot;
-    setSlot(slot);
+    let at = state.live || state.slot >= SLOTS ? 0 : Math.max(0, stops.findIndex((s) => s >= state.slot));
+    setSlot(stops[at]);
     state.playing = window.setInterval(() => {
-      slot += 1;
-      if (slot > SLOTS) {
+      at += 1;
+      if (at >= stops.length) {
         stopReplay();
         setSlot(SLOTS, true);
         return;
       }
-      setSlot(slot);
+      setSlot(stops[at]);
     }, 220);
   });
 }
