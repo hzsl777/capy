@@ -72,9 +72,13 @@ import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
 // Desktop 95 (experimental).
 import { DesktopCache, drawDesktop } from "./desktop.ts";
+// Herbarium (experimental).
+import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
 import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, VinylCache } from "./vinyl.ts";
+import { drawWoodblock } from "./woodblock.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
+import { drawStijl } from "./stijl.ts";
 import { drawRender, RenderCache } from "./render.ts";
 import { drawPaper, PaperCache } from "./paper.ts";
 import { drawPostcard, PostcardCache } from "./postcard.ts";
@@ -324,6 +328,8 @@ export class MapView {
   private towers = new TowersCache();
   /** Desktop 95: the small canvas it snaps to sixteen colours. */
   private desktop = new DesktopCache();
+  /** Herbarium: its pencil water lines, the leaf grid's mountains and what lies round the globe. */
+  private herbarium = new HerbariumCache();
   /** Record Player: the tonearm and sleeve layers, and where the finger last was on the record (src/map/vinyl.ts). */
   private vinyl = new VinylCache();
   private recordAt: [number, number] | null = null;
@@ -1911,7 +1917,9 @@ export class MapView {
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "towers") return drawTowers(f, this.towers);
     if (t.surface === "desktop") return drawDesktop(f, this.desktop);
+    if (t.surface === "herbarium") return drawHerbarium(f, this.herbarium);
     if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
+    if (t.surface === "woodblock") return drawWoodblock(f);
     if (t.surface === "core") return drawCore(f, this.core);
     if (t.surface === "render") return drawRender(f, this.firstRender);
     if (t.surface === "paper") return drawPaper(f, this.paper);
@@ -1928,6 +1936,7 @@ export class MapView {
     else if (t.surface === "flap") drawFlap(f, this.flap);
     else if (t.surface === "postcard") drawPostcard(f, this.postcard);
     else if (t.surface === "zine") drawZine(f, this.zine);
+    else if (t.surface === "stijl") drawStijl(f);
     else drawGlass(f, this.glass);
   }
 

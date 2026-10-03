@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2542,6 +2542,127 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#ffe800",
     tuned: "#3255a4",
     arc: "#3255a4",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Primary, experimental: after the feel of the De Stijl movement of the 1910s and 20s, and no copy of any painting
+  // (src/map/stijl.ts). Land as flat rectangles of a grid fixed to longitude and latitude, divided by thick black
+  // lines, mostly white and light grey with a fixed seeded few in yellow or blue (never red); a plain pale sea.
+  // Round black markers with a white edge, so none reads as a cell; red for fresh reports.
+  stijl: {
+    id: "stijl",
+    label: "Primary",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "stijl",
+    globeScale: 0.44,
+    ocean: "#e7e5dd",
+    land: "#fdfcf8",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#111111",
+    coastWidth: 3,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#e7e5dd",
+    ice: "#fdfcf8",
+    relief: "rgba(0,0,0,0)",
+    dot: "#111111",
+    dotStroke: "#ffffff",
+    fresh: "#d62a1e",
+    tuned: "#111111",
+    arc: "#1d4fa0",
+    glow: false,
+    pinRing: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Herbarium (experimental): after the feel of a botanist's herbarium, pressed plants on heavy cream mounting paper
+  // (src/map/herbarium.ts). Land as pressed foliage in faded greens and browns, coloured by latitude and relief, a fine
+  // ink coast, the sea as the sheet with pencil water lines and pressed specimens at tested open-sea spots; the globe a
+  // pressed-paper ball on a round card mount. Ink specimen-pin markers with a short shadow, rust for fresh reports.
+  herbarium: {
+    id: "herbarium",
+    label: "Herbarium",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "herbarium",
+    globeScale: 0.38,
+    ocean: "#f3ecdc",
+    land: "#bdb690",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bevel",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#2f2a24",
+    coastWidth: 0.85,
+    waterlines: 0,
+    waterline: "rgba(84,84,90,0.34)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(78,92,112,0.4)",
+    lake: "#f3ecdc",
+    ice: "#e8e1ce",
+    relief: "rgba(0,0,0,0)",
+    dot: "#2b2520",
+    dotStroke: "#f7f1e2",
+    fresh: "#b24a28",
+    tuned: "#2b2520",
+    arc: "#6f5a88",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Woodblock (experimental): after the feel of Japanese colour woodblock prints of the 1800s, our own drawings in
+  // that manner and none copied (src/map/woodblock.ts). Flat Prussian blue sea stepped paler toward the shore, soft
+  // green and ochre land in a black keyblock coast, curling wave crests at tested open-sea spots, bands of cloud
+  // behind the globe. Small vermilion dots with a black keyline, washi white for fresh reports.
+  woodblock: {
+    id: "woodblock",
+    label: "Woodblock",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "woodblock",
+    globeScale: 0.4,
+    ocean: "#1f4f7d",
+    land: "#97a873",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#1d1b18",
+    coastWidth: 1.15,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "#3c6f9c",
+    lake: "#3c6f9c",
+    ice: "#efece2",
+    relief: "#6d8656",
+    dot: "#c4472d",
+    dotStroke: "#1d1b18",
+    fresh: "#faf3e2",
+    tuned: "#1d1b18",
+    arc: "#faf3e2",
     glow: false,
     atmosphere: null,
     shade: null,

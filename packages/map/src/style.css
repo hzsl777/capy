@@ -21450,3 +21450,1472 @@ button.x-ch:focus-visible {
     transform: none;
   }
 }
+
+/* ==========================================================================
+   Primary (stijl, experimental): after the feel of the De Stijl movement of the 1910s and 20s, a public art
+   movement, copying no painting (src/map/stijl.ts). The page is laid out as one composition: thick black bars
+   between the masthead, the toolbar, the map, the panel and the time bar (the body's black showing through the gaps
+   between them), and a few flat blocks of red, yellow and blue in the masthead's corners and at the toolbar's ends,
+   on lines that run on from one to the other. The name and the word large in Jost, a geometric sans. Buttons are flat
+   white rectangles in thick black borders, filled with a primary when on; panels are white with black rules. No
+   motion anywhere.
+   ========================================================================== */
+:root[data-theme="stijl"] {
+  color-scheme: light;
+  --page: #f7f5ef;
+  --panel: #ffffff;
+  --ink: #111111;
+  --ink-2: #2a2a2a;
+  --muted: #555552;
+  --rule: #111111;
+  --accent: #d62a1e;
+  --on-accent: #ffffff;
+  --hover: rgba(17, 17, 17, 0.06);
+  --reticle: #111111;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --red: #d62a1e;
+  --yellow: #f4c400;
+  --blue: #1d4fa0;
+  --grey: #d9d9d4;
+  --black: #111111;
+  /* The bars between the page's parts, the lines round buttons, and the blocks at the page's corners. */
+  --bar: 7px;
+  --line: 3px;
+  --corner-l: 64px;
+  --corner-r: 46px;
+  --font-mast: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-head: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-body: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-ui: "Jost", "Futura", "Century Gothic", sans-serif;
+}
+/* The body is black, and its parts sit apart by one bar: the black between them is the composition's lines. */
+:root[data-theme="stijl"] body {
+  background: var(--black);
+  gap: var(--bar);
+}
+:root[data-theme="stijl"] .masthead,
+:root[data-theme="stijl"] .toolbar,
+:root[data-theme="stijl"] .banner,
+:root[data-theme="stijl"] .timebar {
+  border: 0;
+}
+
+/* The masthead: a red block in the left corner over a white one, split by a bar; a yellow block over a blue one in
+   the right corner. The vertical bars line up with the toolbar's blocks below. */
+:root[data-theme="stijl"] .masthead {
+  padding: 12px calc(var(--corner-r) + var(--bar) + var(--gutter)) 12px calc(var(--corner-l) + var(--bar) + var(--gutter));
+  background:
+    linear-gradient(var(--black), var(--black)) var(--corner-l) 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) 0 62% / var(--corner-l) var(--bar) no-repeat,
+    linear-gradient(var(--red), var(--red)) 0 0 / var(--corner-l) 62% no-repeat,
+    linear-gradient(var(--black), var(--black)) right var(--corner-r) top 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) right 0 top 44% / var(--corner-r) var(--bar) no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) right 0 top 0 / var(--corner-r) 44% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) right 0 bottom 0 / var(--corner-r) 56% no-repeat,
+    var(--page);
+}
+:root[data-theme="stijl"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(30px, 3.2vw, 46px);
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[data-theme="stijl"] .telegram-kicker,
+:root[data-theme="stijl"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink-2);
+}
+:root[data-theme="stijl"] .telegram-note,
+:root[data-theme="stijl"] .telegram-none,
+:root[data-theme="stijl"] .telegram-status {
+  font-family: var(--font-ui);
+  font-style: normal;
+  color: var(--ink-2);
+}
+/* The word: large black geometric capitals on a thick black rule. */
+:root[data-theme="stijl"] .telegram-word,
+:root[data-theme="stijl"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .telegram-word {
+  border-bottom: var(--bar) solid var(--black);
+  padding: 0 6px 2px;
+}
+:root[data-theme="stijl"] .telegram-word:hover,
+:root[data-theme="stijl"] .telegram-word:focus-visible {
+  background: var(--yellow);
+}
+
+/* The toolbar: a blue block at its left end and a yellow one at its right, each closed by a bar that runs on from
+   the masthead's. */
+:root[data-theme="stijl"] .toolbar {
+  padding: 8px calc(var(--corner-r) + var(--bar) + var(--gutter)) 8px calc(var(--corner-l) + var(--bar) + var(--gutter));
+  background:
+    linear-gradient(var(--black), var(--black)) var(--corner-l) 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 0 / var(--corner-l) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) right var(--corner-r) top 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) right 0 top 0 / var(--corner-r) 100% no-repeat,
+    var(--page);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="stijl"] .banner {
+  background: var(--page);
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+}
+
+/* Buttons: flat white rectangles in thick black borders; the one that is on is filled with a primary. */
+:root[data-theme="stijl"] .tool,
+:root[data-theme="stijl"] .tool.quiet,
+:root[data-theme="stijl"] .pick select,
+:root[data-theme="stijl"] .menu > summary,
+:root[data-theme="stijl"] .chip,
+:root[data-theme="stijl"] .key-btn,
+:root[data-theme="stijl"] .key-close,
+:root[data-theme="stijl"] dialog .close,
+:root[data-theme="stijl"] .menu-item {
+  border: var(--line) solid var(--black);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: none;
+}
+:root[data-theme="stijl"] .pick {
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .pick::after {
+  opacity: 1;
+}
+:root[data-theme="stijl"] .pick option,
+:root[data-theme="stijl"] .pick optgroup {
+  background: #ffffff;
+  color: var(--ink);
+  text-transform: none;
+}
+:root[data-theme="stijl"] .tool:hover,
+:root[data-theme="stijl"] .tool.quiet:hover,
+:root[data-theme="stijl"] .pick select:hover,
+:root[data-theme="stijl"] .menu > summary:hover,
+:root[data-theme="stijl"] .chip:hover,
+:root[data-theme="stijl"] .key-btn:hover,
+:root[data-theme="stijl"] .key-close:hover,
+:root[data-theme="stijl"] dialog .close:hover,
+:root[data-theme="stijl"] .menu-item:hover {
+  background: var(--grey);
+}
+:root[data-theme="stijl"] .tool[aria-pressed="true"],
+:root[data-theme="stijl"] .key-btn[aria-expanded="true"] {
+  background: var(--red);
+  color: #ffffff;
+}
+:root[data-theme="stijl"] .menu[open] > summary {
+  background: var(--yellow);
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .chip[aria-pressed="true"],
+:root[data-theme="stijl"] .menu-item[aria-checked="true"] {
+  background: var(--blue);
+  color: #ffffff;
+}
+:root[data-theme="stijl"] .chip-all {
+  border-style: solid;
+}
+:root[data-theme="stijl"] .menu-item {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+:root[data-theme="stijl"] .menu-item + .menu-item {
+  margin-top: 4px;
+}
+:root[data-theme="stijl"] .tool[disabled] {
+  opacity: 0.45;
+}
+:root[data-theme="stijl"] :focus-visible {
+  outline: var(--line) solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Menus, the Key, the notes and the dialogs: white, in a thick black edge, with no shadow. */
+:root[data-theme="stijl"] .menu-body,
+:root[data-theme="stijl"] .key-pop,
+:root[data-theme="stijl"] .map-note,
+:root[data-theme="stijl"] dialog {
+  background: #ffffff;
+  border: var(--bar) solid var(--black);
+  border-radius: 0;
+  box-shadow: none;
+}
+:root[data-theme="stijl"] .menu-body {
+  top: calc(100% + 8px);
+  padding: 12px;
+}
+:root[data-theme="stijl"] .key-pop {
+  padding: 14px 16px;
+}
+:root[data-theme="stijl"] dialog {
+  padding: 24px 28px 26px;
+}
+:root[data-theme="stijl"] dialog::backdrop {
+  background: rgba(17, 17, 17, 0.55);
+}
+:root[data-theme="stijl"] dialog .close,
+:root[data-theme="stijl"] .key-close {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* The stage: the map and the panel with a bar between them. */
+:root[data-theme="stijl"] .stage {
+  background: var(--black);
+  column-gap: var(--bar);
+}
+:root[data-theme="stijl"] .map {
+  background: var(--page);
+}
+:root[data-theme="stijl"] .crosshair {
+  --arm: 8px;
+  --weight: 3px;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  /* A white edge, so the black reticle still reads where it crosses a black line. */
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+:root[data-theme="stijl"] .key-btn {
+  padding: 5px 12px;
+}
+:root[data-theme="stijl"] .zoom {
+  border: 0;
+  background: none;
+  gap: 0;
+}
+:root[data-theme="stijl"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border: var(--line) solid var(--black);
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 22px;
+}
+:root[data-theme="stijl"] .zoom button + button {
+  border-top: 0;
+}
+:root[data-theme="stijl"] .zoom button:hover {
+  background: var(--grey);
+}
+
+/* The panel: white, with black rules. */
+:root[data-theme="stijl"] .panel {
+  background: #ffffff;
+  border: 0;
+}
+:root[data-theme="stijl"] .panel-title,
+:root[data-theme="stijl"] .place-name,
+:root[data-theme="stijl"] .key-head h2,
+:root[data-theme="stijl"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .dateline {
+  border-bottom: var(--bar) solid var(--black);
+}
+:root[data-theme="stijl"] .dateline .coords,
+:root[data-theme="stijl"] .count,
+:root[data-theme="stijl"] .meta {
+  font-family: var(--font-ui);
+  font-style: normal;
+}
+/* Section heads: a strip between black rules with a red block at the start. */
+:root[data-theme="stijl"] .rule-head,
+:root[data-theme="stijl"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  border: 0;
+  border-top: var(--line) solid var(--black);
+  border-bottom: var(--line) solid var(--black);
+  border-left: 22px solid var(--red);
+  padding: 6px 10px;
+}
+:root[data-theme="stijl"] .stories-group {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  opacity: 1;
+  color: var(--ink-2);
+}
+:root[data-theme="stijl"] .stories + .stories-group {
+  border-top: var(--line) solid var(--black);
+}
+:root[data-theme="stijl"] .stories li + li {
+  border-top: 1px solid var(--black);
+}
+:root[data-theme="stijl"] .headline {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+:root[data-theme="stijl"] .story:hover {
+  background: rgba(244, 196, 0, 0.18);
+}
+:root[data-theme="stijl"] .scale {
+  border: var(--line) solid var(--black);
+  font-family: var(--font-ui);
+}
+:root[data-theme="stijl"] .scale .step + .step {
+  border-left: var(--line) solid var(--black);
+}
+:root[data-theme="stijl"] .scale .step.on {
+  background: var(--blue);
+  color: #ffffff;
+}
+:root[data-theme="stijl"] .cite,
+:root[data-theme="stijl"] .source-num,
+:root[data-theme="stijl"] .score-chip {
+  border-color: var(--black);
+  font-family: var(--font-ui);
+}
+:root[data-theme="stijl"] .excerpt-quote {
+  font-style: normal;
+  border-left: var(--bar) solid var(--yellow);
+}
+:root[data-theme="stijl"] dialog a,
+:root[data-theme="stijl"] .panel a {
+  color: var(--ink);
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 2px;
+}
+
+/* The time bar: a white strip under the last bar. */
+:root[data-theme="stijl"] .timebar {
+  background: var(--page);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="stijl"] .slider input {
+  accent-color: var(--black);
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="stijl"] {
+    --bar: 5px;
+    --corner-l: 14px;
+    --corner-r: 14px;
+  }
+  :root[data-theme="stijl"] .masthead {
+    padding-inline: calc(var(--corner-l) + var(--bar) + 8px);
+  }
+  :root[data-theme="stijl"] .toolbar {
+    padding-inline: calc(var(--corner-l) + var(--bar) + 6px) calc(var(--corner-r) + var(--bar) + 6px);
+  }
+  :root[data-theme="stijl"] #about-btn {
+    right: calc(var(--corner-r) + var(--bar) + 6px);
+    border-width: var(--line);
+  }
+  :root[data-theme="stijl"] .stage,
+  :root[data-theme="stijl"] .stage:has(.panel.framed) {
+    row-gap: var(--bar);
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .pick select,
+  :root[data-theme="stijl"] .menu > summary {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    border-width: 2px;
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .menu > summary {
+    padding-inline: 7px;
+  }
+  :root[data-theme="stijl"] .pick select {
+    padding-left: 7px;
+    padding-right: 17px;
+  }
+  :root[data-theme="stijl"] .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="stijl"] .telegram-word {
+    border-bottom-width: 5px;
+  }
+  /* The dateline sits between two black rules, as heavy as the buttons' edges. */
+  :root[data-theme="stijl"] .telegram-date {
+    border-top: var(--line) solid var(--black);
+    border-bottom: var(--line) solid var(--black);
+  }
+  :root[data-theme="stijl"] dialog {
+    padding: 20px 18px 22px;
+  }
+}
+/* The narrowest phones: thinner corner blocks and tighter buttons, so the toolbar keeps to one row. */
+@media (max-width: 400px) {
+  :root[data-theme="stijl"] {
+    --corner-l: 9px;
+    --corner-r: 9px;
+  }
+  :root[data-theme="stijl"] .toolbar {
+    gap: 4px;
+    padding-inline: calc(var(--corner-l) + var(--bar) + 4px) calc(var(--corner-r) + var(--bar) + 4px);
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .pick select,
+  :root[data-theme="stijl"] .menu > summary {
+    font-size: 11.5px;
+    letter-spacing: 0;
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .menu > summary {
+    padding-inline: 6px;
+  }
+  :root[data-theme="stijl"] .pick select {
+    padding-left: 6px;
+    padding-right: 15px;
+  }
+  :root[data-theme="stijl"] .pick::after {
+    right: 5px;
+  }
+}
+
+/* ---- Herbarium (id herbarium, experimental): after the feel of a botanist's herbarium, pressed plants on heavy cream
+   mounting sheets under thin strips of linen tape, and no institution's name, collection marks, stamps or real labels.
+   The page is a specimen sheet; the panel, the word, the Key, the menus and the About dialog are typed specimen
+   labels in a double ink rule, held by linen tape at their corners (drawn as background layers in a clear margin, so
+   the tape reaches past the label's edge and the text scrolls inside it). Buttons are small paper tags with a
+   reinforced hole, section heads are small capitals in a classic serif, the reports are typewritten. The foliage,
+   specimens, the round mount and the pins' shadows are drawn on the canvas (src/map/herbarium.ts). --------------- */
+:root[data-theme="herbarium"] {
+  color-scheme: light;
+  --page: #f3ecdc;
+  --panel: #fbf7ec;
+  --ink: #2b2620;
+  --ink-2: #463e34;
+  --muted: #675d4f;
+  --rule: #3a332b;
+  --accent: #56633a;
+  --on-accent: #fbf7ec;
+  --hover: rgba(86, 99, 58, 0.09);
+  --reticle: #2b2620;
+  --grain-opacity: 0;
+  --grain-blend: multiply;
+  --font-mast: "EB Garamond", Garamond, Georgia, serif;
+  --font-head: "Courier Prime", "Courier New", monospace;
+  --font-body: "EB Garamond", Garamond, Georgia, serif;
+  --font-ui: "EB Garamond", Garamond, Georgia, serif;
+  --font-type: "Special Elite", "Courier Prime", "Courier New", monospace;
+  --hb-tag: #efe3c4;
+  --hb-tag-edge: #8f7a57;
+  --hb-tag-on: #56633a;
+  --hb-pencil: #77736c;
+  /* Paper fibres: long faint streaks pulled out of noise, warm brown on the cream. */
+  --hb-fibres: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.5' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.47 0 0 0 0 0.39 0 0 0 0 0.26 1.1 0 0 0 -0.63'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* Linen tape: a strip with frayed ends and a fine weave, turned across a corner. Left and right are mirror images. */
+  --hb-tape-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='36'%3E%3Cdefs%3E%3Cpattern id='w' width='2.6' height='2.6' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .6H2.6M.6 0V2.6' stroke='%23927b56' stroke-opacity='.28' stroke-width='.6'/%3E%3C/pattern%3E%3C/defs%3E%3Cg transform='rotate(-27 36 18)'%3E%3Cpath id='t' d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='%23e8dcc0' fill-opacity='.92'/%3E%3Cpath d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='url(%23w)' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3C/svg%3E");
+  --hb-tape-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='36'%3E%3Cdefs%3E%3Cpattern id='w' width='2.6' height='2.6' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .6H2.6M.6 0V2.6' stroke='%23927b56' stroke-opacity='.28' stroke-width='.6'/%3E%3C/pattern%3E%3C/defs%3E%3Cg transform='rotate(27 36 18)'%3E%3Cpath d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='%23e8dcc0' fill-opacity='.92'/%3E%3Cpath d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='url(%23w)' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3C/svg%3E");
+  /* A typed label in a clear margin of --hb-m: the card, its shadow and a double ink rule, under two strips of tape
+     at its top corners. Background layers keep still while the label's text scrolls. */
+  --hb-m: 12px;
+  --hb-label:
+    var(--hb-tape-l) left 0 top 0 / 72px 36px no-repeat,
+    var(--hb-tape-r) right 0 top 0 / 72px 36px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) left var(--hb-m) top var(--hb-m) / calc(100% - 2 * var(--hb-m)) 1.5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) left var(--hb-m) bottom var(--hb-m) / calc(100% - 2 * var(--hb-m)) 1.5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) left var(--hb-m) top var(--hb-m) / 1.5px calc(100% - 2 * var(--hb-m)) no-repeat,
+    linear-gradient(var(--ink), var(--ink)) right var(--hb-m) top var(--hb-m) / 1.5px calc(100% - 2 * var(--hb-m)) no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) left calc(var(--hb-m) + 4px) top calc(var(--hb-m) + 4px) / calc(100% - 2 * var(--hb-m) - 8px) 0.75px no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) left calc(var(--hb-m) + 4px) bottom calc(var(--hb-m) + 4px) / calc(100% - 2 * var(--hb-m) - 8px) 0.75px no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) left calc(var(--hb-m) + 4px) top calc(var(--hb-m) + 4px) / 0.75px calc(100% - 2 * var(--hb-m) - 8px) no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) right calc(var(--hb-m) + 4px) top calc(var(--hb-m) + 4px) / 0.75px calc(100% - 2 * var(--hb-m) - 8px) no-repeat,
+    linear-gradient(var(--panel), var(--panel)) left var(--hb-m) top var(--hb-m) / calc(100% - 2 * var(--hb-m)) calc(100% - 2 * var(--hb-m)) no-repeat,
+    linear-gradient(rgba(70, 52, 30, 0.13), rgba(70, 52, 30, 0.13)) left calc(var(--hb-m) + 3px) top calc(var(--hb-m) + 4px) / calc(100% - 2 * var(--hb-m)) calc(100% - 2 * var(--hb-m)) no-repeat;
+}
+/* The sheet: cream mounting paper with fibres and a few soft patches of foxing, all far larger than a marker. */
+:root[data-theme="herbarium"] body {
+  background:
+    radial-gradient(ellipse 160px 110px at 6% 88%, rgba(176, 128, 72, 0.1), transparent 70%),
+    radial-gradient(ellipse 90px 70px at 96% 6%, rgba(176, 128, 72, 0.09), transparent 70%),
+    radial-gradient(circle 40px at 31% 3%, rgba(160, 112, 62, 0.08), transparent 70%),
+    radial-gradient(ellipse 120px 80px at 74% 97%, rgba(176, 128, 72, 0.07), transparent 70%),
+    var(--hb-fibres) 0 0 / 320px 320px,
+    var(--page);
+}
+/* The masthead: the name in spaced small capitals like a printed sheet's heading, over a fine double rule. */
+:root[data-theme="herbarium"] .masthead {
+  border-bottom: 0;
+  padding-block: 12px 14px;
+  background:
+    linear-gradient(var(--rule), var(--rule)) left var(--gutter) bottom 4px / calc(100% - 2 * var(--gutter)) 1px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) left var(--gutter) bottom 0 / calc(100% - 2 * var(--gutter)) 0.6px no-repeat;
+}
+:root[data-theme="herbarium"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 500;
+  font-size: clamp(24px, 2.5vw, 34px);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+:root[data-theme="herbarium"] .mast-tag {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+/* The word is the label's title field: a typed card in a double rule, held by tape at two corners, its fields
+   captioned in small capitals; the scale is a printed row of choices with the day's circled in pencil. */
+:root[data-theme="herbarium"] .telegram {
+  padding: 15px 18px 10px;
+  background: var(--panel);
+  border: 1.5px solid var(--ink);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 3.75px var(--ink-2),
+    3px 4px 0 -1px rgba(70, 52, 30, 0.13);
+}
+:root[data-theme="herbarium"] .telegram::before,
+:root[data-theme="herbarium"] .telegram::after {
+  content: "";
+  position: absolute;
+  top: -14px;
+  width: 60px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Out past the corners, so the tape never lies over the date or the word. */
+:root[data-theme="herbarium"] .telegram::before {
+  left: -20px;
+  background: var(--hb-tape-l) 0 0 / 60px 30px no-repeat;
+}
+:root[data-theme="herbarium"] .telegram::after {
+  right: -14px;
+  background: var(--hb-tape-r) 0 0 / 60px 30px no-repeat;
+}
+:root[data-theme="herbarium"] .telegram-kicker,
+:root[data-theme="herbarium"] .telegram-date {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .telegram-date {
+  font-family: var(--font-type);
+  font-variant-caps: normal;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .telegram-note,
+:root[data-theme="herbarium"] .telegram-none {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .telegram-word {
+  font-family: var(--font-type);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  border-bottom: 1px dotted var(--hb-pencil);
+  padding: 2px 8px 4px;
+}
+:root[data-theme="herbarium"] .telegram-word:hover,
+:root[data-theme="herbarium"] .telegram-word:focus-visible {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .telegram-big {
+  font-family: var(--font-type);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .scale {
+  border: 0;
+  gap: 2px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.08em;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+:root[data-theme="herbarium"] .scale .step {
+  padding: 3px 6px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+:root[data-theme="herbarium"] .scale .step + .step {
+  border-left: 0;
+}
+:root[data-theme="herbarium"] .scale .step.on {
+  background: none;
+  color: var(--ink);
+  border-radius: 50%;
+  outline: 1.3px solid var(--hb-pencil);
+  outline-offset: 0;
+}
+/* The toolbar's buttons are small paper tags: buff card with clipped corners at the hole's end, a reinforced hole,
+   small capitals. The one that's on is the moss green tag. */
+:root[data-theme="herbarium"] .toolbar {
+  border-bottom: 0;
+  padding-block: 10px 6px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .tool,
+:root[data-theme="herbarium"] .pick select,
+:root[data-theme="herbarium"] .menu > summary,
+:root[data-theme="herbarium"] .key-btn,
+:root[data-theme="herbarium"] .key-close,
+:root[data-theme="herbarium"] dialog .close {
+  --hb-face: var(--hb-tag);
+  --hb-hole: var(--page);
+  border: 1px solid var(--hb-tag-edge);
+  border-radius: 0 2px 2px 0;
+  padding-left: 22px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - 0.7px), var(--hb-tag-edge) calc(50% - 0.7px) calc(50% + 0.7px), transparent calc(50% + 0.7px)) left top / 7px 7px no-repeat border-box,
+    linear-gradient(to top right, transparent calc(50% - 0.7px), var(--hb-tag-edge) calc(50% - 0.7px) calc(50% + 0.7px), transparent calc(50% + 0.7px)) left bottom / 7px 7px no-repeat border-box,
+    radial-gradient(circle at var(--hb-hole-x, 11px) 50%, var(--hb-hole) 0 2.4px, #b49a6c 2.6px 4.2px, rgba(143, 122, 87, 0.6) 4.3px 4.8px, transparent 5px) border-box,
+    var(--hb-face);
+}
+:root[data-theme="herbarium"] .pick select {
+  padding-right: 24px;
+}
+:root[data-theme="herbarium"] .pick::after {
+  opacity: 0.75;
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .tool:hover,
+:root[data-theme="herbarium"] .pick select:hover,
+:root[data-theme="herbarium"] .menu > summary:hover,
+:root[data-theme="herbarium"] .key-btn:hover,
+:root[data-theme="herbarium"] .key-close:hover,
+:root[data-theme="herbarium"] dialog .close:hover {
+  --hb-face: #e7d7b2;
+}
+:root[data-theme="herbarium"] .tool[aria-pressed="true"],
+:root[data-theme="herbarium"] .menu[open] > summary,
+:root[data-theme="herbarium"] .key-btn[aria-expanded="true"],
+:root[data-theme="herbarium"] .tool.primary {
+  --hb-face: var(--hb-tag-on);
+  color: var(--on-accent);
+}
+:root[data-theme="herbarium"] .key-close,
+:root[data-theme="herbarium"] dialog .close {
+  width: auto;
+  min-width: 40px;
+  height: 32px;
+  padding: 0 8px 0 20px;
+  font-size: 20px;
+  line-height: 1;
+}
+:root[data-theme="herbarium"] .pick option {
+  font-variant-caps: normal;
+}
+/* Topics are little label slips, ticked in moss when shown. */
+:root[data-theme="herbarium"] .chip {
+  border: 1px solid var(--hb-tag-edge);
+  background: var(--panel);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+}
+:root[data-theme="herbarium"] .chip[aria-pressed="true"] {
+  background: var(--hb-tag-on);
+  border-color: var(--hb-tag-on);
+  color: var(--on-accent);
+}
+:root[data-theme="herbarium"] .chip:hover {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .chip[aria-pressed="true"]:hover {
+  background: #4a5631;
+}
+:root[data-theme="herbarium"] .banner {
+  border-bottom: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 12px/1.3 var(--font-head);
+}
+/* The map is mounted on the sheet in a fine double rule. */
+:root[data-theme="herbarium"] .map {
+  margin: 12px 6px 14px var(--gutter);
+  border: 1px solid rgba(47, 42, 36, 0.7);
+  box-shadow:
+    0 0 0 4px var(--page),
+    0 0 0 4.8px rgba(47, 42, 36, 0.4);
+}
+:root[data-theme="herbarium"] .crosshair {
+  --weight: 1.2px;
+  --arm: 8px;
+}
+:root[data-theme="herbarium"] .key-btn {
+  font-size: 14px;
+  padding: 4px 9px 4px 22px;
+}
+:root[data-theme="herbarium"] .zoom {
+  border: 1px solid var(--hb-tag-edge);
+  background: var(--panel);
+  box-shadow: 2px 3px 0 -1px rgba(70, 52, 30, 0.15);
+}
+:root[data-theme="herbarium"] .zoom button {
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .zoom button:hover {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .zoom button + button {
+  border-top: 1px solid var(--hb-tag-edge);
+}
+:root[data-theme="herbarium"] .map-note {
+  border: 1.5px solid var(--ink);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 3.75px var(--ink-2);
+  font: 14px/1.35 var(--font-head);
+}
+/* The panel is the sheet's typed label, in the lower right as on a mounted sheet: it sits at the foot of its column
+   and grows upward as the list gets longer, scrolling inside its rule once it fills the column. */
+:root[data-theme="herbarium"] .panel {
+  margin: 4px var(--gutter) 6px 4px;
+  border: var(--hb-m) solid transparent;
+  padding: 18px 16px 20px;
+  background: var(--hb-label);
+  background-origin: border-box;
+  background-clip: border-box;
+  scrollbar-color: #b9a882 transparent;
+}
+:root[data-theme="herbarium"] .panel:not(.framed) {
+  align-self: end;
+  max-height: calc(100% - 10px);
+  min-height: min(260px, calc(100% - 10px));
+}
+:root[data-theme="herbarium"] .panel.framed {
+  padding: 6px;
+}
+:root[data-theme="herbarium"] .panel-title,
+:root[data-theme="herbarium"] .place-name {
+  font-family: var(--font-type);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+/* The label's fields are captioned in small capitals, the way a printed label's are. */
+:root[data-theme="herbarium"] .dateline .place-name::before {
+  content: "Locality" / "";
+  display: block;
+  margin-bottom: 3px;
+  font: 13px/1 var(--font-ui);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .dateline {
+  border-bottom: 1px solid var(--ink);
+  box-shadow: 0 3px 0 -2px var(--ink-2);
+  padding-bottom: 9px;
+  align-items: end;
+}
+:root[data-theme="herbarium"] .dateline .coords,
+:root[data-theme="herbarium"] .count {
+  font: italic 14px/1.35 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .rule-head,
+:root[data-theme="herbarium"] .stories-group,
+:root[data-theme="herbarium"] dialog h3,
+:root[data-theme="herbarium"] .key-head h2 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.16em;
+  color: var(--ink-2);
+  opacity: 1;
+}
+:root[data-theme="herbarium"] .rule-head {
+  text-align: left;
+  padding: 5px 0 4px;
+  border-top: 0.75px solid var(--ink-2);
+  border-bottom: 0.75px solid var(--ink-2);
+}
+/* The reports are typed onto the label's ruled lines, newest first. */
+:root[data-theme="herbarium"] .stories li + li {
+  border-top: 1px dotted rgba(58, 51, 43, 0.45);
+}
+:root[data-theme="herbarium"] .stories + .stories-group {
+  border-top: 0.75px solid var(--ink-2);
+}
+:root[data-theme="herbarium"] .story {
+  padding: 10px 2px 9px;
+}
+:root[data-theme="herbarium"] .story:hover,
+:root[data-theme="herbarium"] .story:focus-visible {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .headline,
+:root[data-theme="herbarium"] .earlier-word {
+  font: 700 15px/1.35 var(--font-head);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .meta {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .kicker {
+  font: 13px/1.2 var(--font-ui);
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .related {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--accent);
+}
+:root[data-theme="herbarium"] .new-mark {
+  font-family: var(--font-head);
+}
+:root[data-theme="herbarium"] .reader-headline {
+  font: 700 21px/1.3 var(--font-head);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .excerpt,
+:root[data-theme="herbarium"] .explain-text {
+  font-family: var(--font-head);
+  font-size: 15px;
+  line-height: 1.55;
+}
+:root[data-theme="herbarium"] .excerpt-quote {
+  border-left: 2px solid var(--hb-pencil);
+  font-style: italic;
+}
+:root[data-theme="herbarium"] .source-title {
+  font-family: var(--font-head);
+}
+:root[data-theme="herbarium"] .cite,
+:root[data-theme="herbarium"] .source-num,
+:root[data-theme="herbarium"] .score-chip {
+  border-color: var(--hb-tag-edge);
+  font-family: var(--font-head);
+}
+/* The Key is a small label of its own, taped like the panel. */
+:root[data-theme="herbarium"] .key-pop {
+  border: var(--hb-m) solid transparent;
+  padding: 16px 16px 16px;
+  background: var(--hb-label);
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: none;
+  font: 14px/1.35 var(--font-body);
+}
+:root[data-theme="herbarium"] .key-note {
+  font-style: italic;
+}
+/* Topics and Pinned open as label slips. */
+:root[data-theme="herbarium"] .menu-body {
+  border: 1.5px solid var(--ink);
+  background: var(--panel);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 3.75px var(--ink-2),
+    3px 4px 0 -1px rgba(70, 52, 30, 0.15);
+  padding: 12px;
+  font-family: var(--font-body);
+}
+:root[data-theme="herbarium"] .menu-item {
+  font: 15px/1.3 var(--font-head);
+  border-bottom: 1px dotted rgba(58, 51, 43, 0.45);
+}
+/* About is a sheet of its own: the same paper and label rule, taped at its top corners. */
+:root[data-theme="herbarium"] dialog {
+  border: var(--hb-m) solid transparent;
+  padding: 22px 26px 24px;
+  background: var(--hb-label);
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: none;
+  color: var(--ink);
+  font: 17px/1.5 var(--font-body);
+}
+:root[data-theme="herbarium"] dialog::backdrop {
+  background: rgba(60, 46, 28, 0.32);
+}
+:root[data-theme="herbarium"] dialog h2 {
+  font-family: var(--font-type);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="herbarium"] dialog .fine {
+  font-size: 14px;
+}
+/* The time bar: a pencil line on the sheet, its handle a specimen pin's head. */
+:root[data-theme="herbarium"] .timebar {
+  border-top: 0;
+  padding-block: 6px 10px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .time-label {
+  font: 13px/1 var(--font-head);
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .slider input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: linear-gradient(var(--hb-pencil), var(--hb-pencil)) center / 100% 1.5px no-repeat;
+  cursor: pointer;
+}
+:root[data-theme="herbarium"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #f7f1e2;
+  background: radial-gradient(circle at 35% 32%, #7a6f62 0, #2b2520 55%, #15110d 100%);
+  box-shadow: 2px 3px 2px rgba(70, 52, 30, 0.3);
+}
+:root[data-theme="herbarium"] .slider input::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #f7f1e2;
+  background: radial-gradient(circle at 35% 32%, #7a6f62 0, #2b2520 55%, #15110d 100%);
+  box-shadow: 2px 3px 2px rgba(70, 52, 30, 0.3);
+}
+:root[data-theme="herbarium"] .slider input::-moz-range-track {
+  background: transparent;
+}
+@media (max-width: 760px) {
+  :root[data-theme="herbarium"] {
+    --hb-m: 10px;
+  }
+  :root[data-theme="herbarium"] .mast-title {
+    font-size: 24px;
+  }
+  :root[data-theme="herbarium"] .telegram {
+    width: calc(100% - 8px);
+    padding: 8px 10px;
+  }
+  :root[data-theme="herbarium"] .telegram::before {
+    left: -8px;
+  }
+  :root[data-theme="herbarium"] .telegram::after {
+    right: -8px;
+  }
+  :root[data-theme="herbarium"] .telegram-date {
+    border-color: rgba(58, 51, 43, 0.45);
+    border-top-style: dotted;
+    border-bottom-style: dotted;
+  }
+  :root[data-theme="herbarium"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 44px) / (var(--len, 8) * 0.72)));
+  }
+  :root[data-theme="herbarium"] .tool,
+  :root[data-theme="herbarium"] .pick select,
+  :root[data-theme="herbarium"] .menu > summary {
+    --hb-hole-x: 9px;
+    font-size: 13.5px;
+    padding-left: 16px;
+    padding-right: 7px;
+    letter-spacing: 0.01em;
+  }
+  :root[data-theme="herbarium"] .pick select {
+    padding-right: 17px;
+  }
+  :root[data-theme="herbarium"] .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="herbarium"] #about-btn {
+    padding: 5px 6px 5px 17px;
+  }
+  :root[data-theme="herbarium"] .map {
+    margin: 8px 12px 8px;
+  }
+  :root[data-theme="herbarium"] .panel {
+    margin: 0 4px 2px;
+    padding: 14px 12px 16px;
+  }
+  :root[data-theme="herbarium"] .panel:not(.framed) {
+    align-self: stretch;
+    max-height: none;
+    min-height: 0;
+  }
+  :root[data-theme="herbarium"] .panel-title,
+  :root[data-theme="herbarium"] .place-name {
+    font-size: 21px;
+  }
+}
+/* The narrowest phones: the four tags still fit one row. */
+@media (max-width: 380px) {
+  :root[data-theme="herbarium"] .tool,
+  :root[data-theme="herbarium"] .pick select,
+  :root[data-theme="herbarium"] .menu > summary {
+    --hb-hole-x: 8px;
+    font-size: 12.5px;
+    padding-left: 14px;
+    padding-right: 5px;
+    letter-spacing: 0;
+  }
+  :root[data-theme="herbarium"] .pick select {
+    padding-right: 15px;
+  }
+  :root[data-theme="herbarium"] .pick::after {
+    right: 5px;
+  }
+}
+/* A pressed sprig of our own drawing on the sheet above the label, taped down; decoration only, outside the map. */
+@media (min-width: 1100px) and (min-height: 800px) {
+  :root[data-theme="herbarium"] .stage {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='280' viewBox='0 0 170 280'%3E%3Cpath d='M93 272C88 205 70 150 76 96C79 64 86 40 88 14' fill='none' stroke='%2376683f' stroke-width='1.8' stroke-linecap='round'/%3E%3Cg stroke='%235b5636' stroke-opacity='.55' stroke-width='.7'%3E%3Cpath d='M86 232c-14-15-34-19-50-12c12 12 32 18 50 12z' fill='%238e8a58' fill-opacity='.88'/%3E%3Cpath d='M82 206c14-16 34-21 52-15c-12 13-33 20-52 15z' fill='%239ca37c' fill-opacity='.88'/%3E%3Cpath d='M78 176c-13-16-33-22-50-16c11 13 31 20 50 16z' fill='%237e8a58' fill-opacity='.88'/%3E%3Cpath d='M76 148c14-16 33-22 50-17c-11 14-31 21-50 17z' fill='%23b7a06a' fill-opacity='.88'/%3E%3Cpath d='M76 120c-12-15-30-20-45-15c10 12 28 18 45 15z' fill='%238e8a58' fill-opacity='.88'/%3E%3Cpath d='M78 94c12-14 29-19 44-14c-10 12-27 17-44 14z' fill='%239ca37c' fill-opacity='.88'/%3E%3Cpath d='M82 68c-10-12-25-16-37-12c8 10 23 15 37 12z' fill='%23a99a66' fill-opacity='.88'/%3E%3Cpath d='M85 46c10-12 23-15 34-11c-8 10-21 14-34 11z' fill='%237e8a58' fill-opacity='.88'/%3E%3Cpath d='M88 18c-4-8-6-12-4-17c5 4 6 10 4 17z' fill='%238e8a58' fill-opacity='.88'/%3E%3C/g%3E%3Cg fill='none' stroke='%235b5636' stroke-opacity='.4' stroke-width='.6'%3E%3Cpath d='M86 232l-44-9M82 206l46-12M78 176l-44-12M76 148l44-13M76 120l-39-12M78 94l38-11M82 68l-32-9M85 46l29-8'/%3E%3C/g%3E%3Cg transform='rotate(-9 92 244)'%3E%3Cpath d='M68 237H117L115 240L117 243L115 246L117 250H68L70 247L68 244L70 241Z' fill='%23e8dcc0' fill-opacity='.92' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3Cg transform='rotate(12 80 120)'%3E%3Cpath d='M60 115H100L98 118L100 121L98 124H60L62 121L60 118Z' fill='%23e8dcc0' fill-opacity='.9' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3C/svg%3E") right calc(var(--gutter) + 70px) top 22px / 150px 247px no-repeat;
+  }
+}
+:root[data-theme="herbarium"] .telegram-word:hover,
+:root[data-theme="herbarium"] .telegram-word:focus-visible {
+  text-decoration-thickness: 1.5px;
+}
+
+/* ---- Woodblock (id woodblock, experimental): after the feel of Japanese colour woodblock prints of the 1800s, a
+   style centuries old and in the public domain; our own drawings in that manner, none copied, no figures and no
+   lettering. Washi paper with fibres, flat areas of colour in Prussian blue, pale indigo, muted vermilion, soft green
+   and ochre, each block's edge cut in a black keyline, and bokashi, a soft gradient inside one colour. The name and
+   the word sit in rectangular title slips with a coloured border; beside the name, a red seal of our own, an abstract
+   wave in a square with no characters. Panels are paper slips in a thin black frame; buttons are small flat slips of
+   colour. The sea, the waves and the clouds are drawn on the canvas (src/map/woodblock.ts). ---------------------- */
+:root[data-theme="woodblock"] {
+  color-scheme: light;
+  --page: #f1e6cf;
+  --panel: #f7f0de;
+  --ink: #1d1b18;
+  --ink-2: #3b352c;
+  --muted: #655a48;
+  --rule: #1d1b18;
+  --accent: #1f4f7d;
+  --on-accent: #f7f0de;
+  --hover: rgba(31, 79, 125, 0.1);
+  --reticle: #faf3e2;
+  --grain-opacity: 0.22;
+  --grain-blend: multiply;
+  --font-mast: "Kaushan Script", "Brush Script MT", cursive;
+  --font-head: "Shippori Mincho", Georgia, serif;
+  --font-body: "Shippori Mincho", Georgia, serif;
+  --font-ui: "Shippori Mincho", Georgia, serif;
+  --wb-sumi: #1d1b18;
+  --wb-prussian: #1f4f7d;
+  --wb-deep: #173a5e;
+  --wb-indigo: #b9cdd8;
+  --wb-pale: #7fa3c0;
+  --wb-vermilion: #c4472d;
+  --wb-green: #97a873;
+  --wb-ochre: #d4a659;
+  --wb-ochre-pale: #e3c287;
+  --wb-slip: #fbf5e6;
+  /* Washi: long thin fibres, darker and paler, scattered across the sheet. */
+  --wb-fibres: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0.2 213.4Q-2.5 181.5 -5 149.6' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.76'/%3E%3Cpath d='M61.8 170.9Q92.1 185.2 124.4 194.3' stroke='%238a6d45' stroke-opacity='0.11' stroke-width='0.61'/%3E%3Cpath d='M32.1 190.3Q47.6 199.7 64.4 206.6' stroke='%238a6d45' stroke-opacity='0.19' stroke-width='0.34'/%3E%3Cpath d='M218.1 109.2Q201.5 86.4 191.1 60.3' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.78'/%3E%3Cpath d='M81.1 111.5Q95.7 80.2 105.8 47.2' stroke='%238a6d45' stroke-opacity='0.12' stroke-width='0.74'/%3E%3Cpath d='M70.2 216.4Q39.8 199.4 7.4 186.7' stroke='%238a6d45' stroke-opacity='0.10' stroke-width='0.42'/%3E%3Cpath d='M105.7 90.7Q75.1 81.1 45.5 68.8' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.61'/%3E%3Cpath d='M105.3 111.8Q99.4 78.9 90.1 46.8' stroke='%238a6d45' stroke-opacity='0.14' stroke-width='0.62'/%3E%3Cpath d='M3.6 152.5Q-0.1 168.9 -1.2 185.7' stroke='%238a6d45' stroke-opacity='0.17' stroke-width='0.56'/%3E%3Cpath d='M71.2 200.5Q107.6 210 144.8 215.6' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.78'/%3E%3Cpath d='M48.2 56.5Q44 37.8 39 19.3' stroke='%238a6d45' stroke-opacity='0.19' stroke-width='0.41'/%3E%3Cpath d='M34.6 45.5Q21.4 31 7.6 17.1' stroke='%238a6d45' stroke-opacity='0.12' stroke-width='0.34'/%3E%3Cpath d='M72.9 89.8Q55.9 72.4 44.4 50.9' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.44'/%3E%3Cpath d='M219.2 2.7Q241.2 -26.8 266.1 -53.9' stroke='%238a6d45' stroke-opacity='0.19' stroke-width='0.77'/%3E%3Cpath d='M-0.8 2.7Q21.2 -26.8 46.1 -53.9' stroke='%238a6d45' stroke-opacity='0.19' stroke-width='0.77'/%3E%3Cpath d='M155.7 174.1Q118.1 173.7 80.5 174.4' stroke='%238a6d45' stroke-opacity='0.14' stroke-width='0.70'/%3E%3Cpath d='M196.8 127.7Q195.7 144.4 201.4 160.2' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.31'/%3E%3Cpath d='M4.2 1.7Q-16.8 21.8 -33.1 45.8' stroke='%238a6d45' stroke-opacity='0.09' stroke-width='0.53'/%3E%3Cpath d='M12.6 189.5Q-15.5 183.5 -43 175.6' stroke='%238a6d45' stroke-opacity='0.08' stroke-width='0.73'/%3E%3Cpath d='M61.6 217.3Q55.2 198.5 49.5 179.5' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.60'/%3E%3Cpath d='M76.7 183Q97.1 169.3 115.7 153.2' stroke='%238a6d45' stroke-opacity='0.12' stroke-width='0.64'/%3E%3Cpath d='M0.6 24Q-19.2 27.5 -39.2 29.9' stroke='%238a6d45' stroke-opacity='0.13' stroke-width='0.77'/%3E%3Cpath d='M154 207.3Q125.9 210.6 97.9 213.7' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.40'/%3E%3Cpath d='M199.2 89.3Q164.6 101.4 129 109.8' stroke='%238a6d45' stroke-opacity='0.14' stroke-width='0.53'/%3E%3Cpath d='M39.1 11.4Q19.6 9.2 0.7 3.8' stroke='%238a6d45' stroke-opacity='0.15' stroke-width='0.34'/%3E%3Cpath d='M121.8 78.2Q98.1 78.2 74.4 79.4' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.33'/%3E%3Cpath d='M178.5 203.3Q166.1 217.4 158.9 234.7' stroke='%238a6d45' stroke-opacity='0.15' stroke-width='0.49'/%3E%3Cpath d='M178.5 -16.7Q166.1 -2.6 158.9 14.7' stroke='%238a6d45' stroke-opacity='0.15' stroke-width='0.49'/%3E%3Cpath d='M167.2 102.7Q186.3 104.7 204.9 109.4' stroke='%238a6d45' stroke-opacity='0.11' stroke-width='0.52'/%3E%3Cpath d='M177.5 35Q181.8 7 188.9 -20.5' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.59'/%3E%3Cpath d='M185.4 156.6Q166.3 182.4 151.7 211.1' stroke='%238a6d45' stroke-opacity='0.09' stroke-width='0.62'/%3E%3Cpath d='M87.6 172Q74.8 164.9 61.5 158.8' stroke='%238a6d45' stroke-opacity='0.20' stroke-width='0.32'/%3E%3Cpath d='M153.4 198.2Q173.3 170.9 193.7 144' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.46'/%3E%3Cpath d='M199.3 179Q188.8 158.2 178.5 137.2' stroke='%238a6d45' stroke-opacity='0.17' stroke-width='0.32'/%3E%3Cpath d='M89.5 22.7Q99.2 9.7 110.9 -1.4' stroke='%238a6d45' stroke-opacity='0.14' stroke-width='0.67'/%3E%3Cpath d='M138.3 170.2Q155.1 165.9 169.5 156.2' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.55'/%3E%3Cpath d='M166.9 14.6Q151.3 21.6 137.8 32.2' stroke='%238a6d45' stroke-opacity='0.20' stroke-width='0.55'/%3E%3Cpath d='M146.7 216Q136.6 206.5 125.8 197.9' stroke='%238a6d45' stroke-opacity='0.17' stroke-width='0.72'/%3E%3Cpath d='M47.7 3.3Q26.7 19.8 3.6 33.2' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.42'/%3E%3Cpath d='M202.3 215.2Q223 224.2 240.4 238.6' stroke='%238a6d45' stroke-opacity='0.09' stroke-width='0.49'/%3E%3Cpath d='M-17.7 215.2Q3 224.2 20.4 238.6' stroke='%238a6d45' stroke-opacity='0.09' stroke-width='0.49'/%3E%3Cpath d='M202.3 -4.8Q223 4.2 240.4 18.6' stroke='%238a6d45' stroke-opacity='0.09' stroke-width='0.49'/%3E%3Cpath d='M-17.7 -4.8Q3 4.2 20.4 18.6' stroke='%238a6d45' stroke-opacity='0.09' stroke-width='0.49'/%3E%3Cpath d='M41.2 9.9Q49.8 20.6 62.1 26.5' stroke='%238a6d45' stroke-opacity='0.16' stroke-width='0.36'/%3E%3Cpath d='M112.6 90.7Q86.5 101.2 60.6 112' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.45'/%3E%3Cpath d='M101.3 95.2Q84 109.5 68.1 125.3' stroke='%238a6d45' stroke-opacity='0.11' stroke-width='0.54'/%3E%3Cpath d='M109.7 217.2Q97 185.5 86.4 152.9' stroke='%238a6d45' stroke-opacity='0.13' stroke-width='0.64'/%3E%3Cpath d='M143.2 6.6Q119.5 12.5 95.1 14.3' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.60'/%3E%3Cpath d='M91.8 50.8Q117.2 67.4 141.7 85.2' stroke='%238a6d45' stroke-opacity='0.12' stroke-width='0.75'/%3E%3Cpath d='M88.5 56.7Q107.7 54.4 126.1 48.6' stroke='%238a6d45' stroke-opacity='0.12' stroke-width='0.46'/%3E%3Cpath d='M78.8 113.9Q54.1 87.3 33.4 57.5' stroke='%23fffaf0' stroke-opacity='0.6' stroke-width='0.52'/%3E%3C/g%3E%3C/svg%3E");
+  /* The seal: a square of vermilion with uneven edges, and inside it an abstract curling wave and two swells
+     left in the paper's colour. No characters, nothing that reads as a name. */
+  --wb-seal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M3.2 4.1L20 3.4L36.8 3.1L37.2 20.6L36.6 36.9L19.4 37.3L3.4 36.6L2.9 20.2Z' fill='%23b8402a'/%3E%3Cpath d='M6 6.4H34V33.8H6Z' fill='none' stroke='%23f7efdc' stroke-width='1.3'/%3E%3Cg fill='none' stroke='%23f7efdc' stroke-linecap='round' stroke-width='2.4'%3E%3Cpath d='M10 24C11.5 15.5 21 11 27.5 15.5C31 18 29.5 23 25.5 22.6C23 22.3 22.6 19.6 24.4 18.8'/%3E%3Cpath d='M10.5 28.6C15 26.6 18.5 30.4 23 28.4S29 27 30.5 28.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-theme="woodblock"] body {
+  background: var(--wb-fibres) 0 0 / 220px 220px, var(--page);
+}
+/* The masthead: washi under a band of Prussian blue that fades downward, as a print's sky does from its top edge. */
+:root[data-theme="woodblock"] .masthead {
+  border-bottom: 2px solid var(--wb-sumi);
+  box-shadow: 0 3px 0 -1px var(--page), 0 4px 0 -1px var(--wb-sumi);
+  background:
+    linear-gradient(to bottom, rgba(31, 79, 125, 0.85), rgba(31, 79, 125, 0.3) 5px, rgba(31, 79, 125, 0) 14px),
+    var(--wb-fibres) 0 0 / 220px 220px,
+    var(--page);
+  padding-top: 14px;
+  padding-bottom: 12px;
+}
+/* The name on a title slip: pale paper in a Prussian blue border with a black keyline inside it, the seal beside. */
+:root[data-theme="woodblock"] .brand {
+  position: relative;
+  align-items: flex-start;
+  padding-right: 46px;
+}
+:root[data-theme="woodblock"] .mast-title {
+  position: relative;
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--wb-sumi);
+  padding: 3px 14px 5px;
+  border: 3px solid var(--wb-prussian);
+  box-shadow: inset 0 0 0 2px var(--wb-slip), inset 0 0 0 3px var(--wb-sumi), 1px 1px 0 var(--wb-sumi);
+  background: linear-gradient(to bottom, #fdf8ea, #f4e6c4);
+}
+:root[data-theme="woodblock"] .mast-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -44px;
+  width: 34px;
+  height: 34px;
+  margin-top: -17px;
+  background: var(--wb-seal) center / contain no-repeat;
+  transform: rotate(-3deg);
+}
+:root[data-theme="woodblock"] .mast-tag {
+  margin-top: 4px;
+  font: 600 13px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+:root[data-theme="woodblock"] .telegram-kicker,
+:root[data-theme="woodblock"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+}
+:root[data-theme="woodblock"] .telegram-note,
+:root[data-theme="woodblock"] .telegram-none {
+  font: 400 13px/1.35 var(--font-body);
+  color: var(--muted);
+}
+/* The word in a cartouche of its own: a vermilion border round a pale slip, a black keyline inside. */
+:root[data-theme="woodblock"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--wb-deep);
+  border: 3px solid var(--wb-vermilion);
+  padding: 2px 18px 8px;
+  margin-top: 4px;
+  box-shadow: inset 0 0 0 2px var(--wb-slip), inset 0 0 0 3px var(--wb-sumi), 1px 1px 0 var(--wb-sumi);
+  background: linear-gradient(to bottom, #fdf8ea, #f4e6c4);
+}
+:root[data-theme="woodblock"] .telegram-word:hover,
+:root[data-theme="woodblock"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  background: linear-gradient(to bottom, #f6efe0, #dde6e6);
+  box-shadow: inset 0 0 0 2px var(--wb-slip), inset 0 0 0 3px var(--wb-sumi), 0 0 0 2px var(--wb-sumi);
+}
+:root[data-theme="woodblock"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--wb-deep);
+}
+/* The scale: a row of small flat slips, the day's step printed in Prussian blue. */
+:root[data-theme="woodblock"] .scale {
+  border: 1px solid var(--wb-sumi);
+  background: var(--wb-slip);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="woodblock"] .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="woodblock"] .scale .step + .step {
+  border-left: 1px solid var(--wb-sumi);
+}
+:root[data-theme="woodblock"] .scale .step.on {
+  background: var(--wb-prussian);
+  color: var(--wb-slip);
+}
+:root[data-theme="woodblock"] .score-chip {
+  border-color: var(--wb-sumi);
+}
+:root[data-theme="woodblock"] .score-chip.s0,
+:root[data-theme="woodblock"] .score-chip.s1 {
+  background: var(--wb-prussian);
+  color: var(--wb-slip);
+}
+:root[data-theme="woodblock"] .toolbar {
+  border-bottom: 1px solid var(--wb-sumi);
+}
+:root[data-theme="woodblock"] .banner {
+  border-bottom: 1px solid var(--wb-sumi);
+  background: var(--wb-indigo);
+  color: var(--wb-sumi);
+}
+/* Buttons are small flat slips of colour: pale indigo with a black keyline; open or on, Prussian blue. */
+:root[data-theme="woodblock"] .tool,
+:root[data-theme="woodblock"] .pick select,
+:root[data-theme="woodblock"] .menu > summary,
+:root[data-theme="woodblock"] .chip,
+:root[data-theme="woodblock"] .key-btn,
+:root[data-theme="woodblock"] .key-close,
+:root[data-theme="woodblock"] dialog .close {
+  border: 1px solid var(--wb-sumi);
+  border-radius: 0;
+  background: var(--wb-indigo);
+  color: var(--wb-sumi);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  box-shadow: 2px 2px 0 rgba(29, 27, 24, 0.85);
+}
+:root[data-theme="woodblock"] .pick::after {
+  opacity: 0.9;
+  color: var(--wb-sumi);
+}
+:root[data-theme="woodblock"] .tool:hover,
+:root[data-theme="woodblock"] .pick select:hover,
+:root[data-theme="woodblock"] .menu > summary:hover,
+:root[data-theme="woodblock"] .chip:hover,
+:root[data-theme="woodblock"] .key-btn:hover,
+:root[data-theme="woodblock"] .key-close:hover,
+:root[data-theme="woodblock"] dialog .close:hover {
+  background: var(--wb-ochre-pale);
+}
+:root[data-theme="woodblock"] .tool[aria-pressed="true"],
+:root[data-theme="woodblock"] .menu[open] > summary,
+:root[data-theme="woodblock"] .chip[aria-pressed="true"],
+:root[data-theme="woodblock"] .key-btn[aria-expanded="true"] {
+  background: var(--wb-prussian);
+  color: var(--wb-slip);
+  box-shadow: 1px 1px 0 rgba(29, 27, 24, 0.85);
+  transform: translate(1px, 1px);
+}
+/* The mincho sits low and deep in its line: a taller line, so no descender is cut at the select's foot. */
+:root[data-theme="woodblock"] .pick select {
+  line-height: 1.4;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+:root[data-theme="woodblock"] .pick option {
+  font-weight: 400;
+}
+:root[data-theme="woodblock"] .chip-all {
+  border-style: dashed;
+}
+/* The map lies on the washi; the canvas leaves the paper showing round the sheet and the globe. */
+:root[data-theme="woodblock"] .map {
+  background: var(--wb-fibres) 0 0 / 220px 220px, var(--page);
+}
+:root[data-theme="woodblock"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px var(--wb-sumi)) drop-shadow(0 0 1px var(--wb-sumi));
+}
+:root[data-theme="woodblock"] .key-btn {
+  font-size: 13px;
+}
+:root[data-theme="woodblock"] .zoom {
+  border: 1px solid var(--wb-sumi);
+  background: var(--wb-indigo);
+  box-shadow: 2px 2px 0 rgba(29, 27, 24, 0.85);
+}
+:root[data-theme="woodblock"] .zoom button {
+  color: var(--wb-sumi);
+  font-weight: 600;
+}
+:root[data-theme="woodblock"] .zoom button:hover {
+  background: var(--wb-ochre-pale);
+}
+:root[data-theme="woodblock"] .zoom button + button {
+  border-top: 1px solid var(--wb-sumi);
+}
+/* Panels are paper slips: pale washi in a thin black frame, with a hairline round it just outside, so text that
+   scrolls inside never runs across a line. */
+:root[data-theme="woodblock"] .panel {
+  margin: 14px 16px 16px 14px;
+  border: 1px solid var(--wb-sumi);
+  outline: 1px solid rgba(29, 27, 24, 0.75);
+  outline-offset: 3px;
+  background: var(--wb-fibres) 0 0 / 220px 220px, var(--panel);
+  box-shadow: 0 0 0 3px var(--panel);
+}
+:root[data-theme="woodblock"] .menu-body,
+:root[data-theme="woodblock"] .key-pop,
+:root[data-theme="woodblock"] .map-note,
+:root[data-theme="woodblock"] dialog {
+  border: 1px solid var(--wb-sumi);
+  border-radius: 0;
+  outline: 1px solid rgba(29, 27, 24, 0.75);
+  outline-offset: 3px;
+  background: var(--wb-fibres) 0 0 / 220px 220px, var(--panel);
+  color: var(--ink);
+  box-shadow: 0 0 0 3px var(--panel), 6px 6px 0 rgba(29, 27, 24, 0.2);
+}
+/* The dialogs' top edge printed with a band of Prussian blue that fades down, like the masthead. */
+:root[data-theme="woodblock"] dialog {
+  background:
+    linear-gradient(to bottom, rgba(31, 79, 125, 0.7), rgba(31, 79, 125, 0) 22px) top / 100% 22px no-repeat,
+    var(--wb-fibres) 0 0 / 220px 220px,
+    var(--panel);
+}
+:root[data-theme="woodblock"] dialog::backdrop {
+  background: rgba(23, 58, 94, 0.4);
+}
+:root[data-theme="woodblock"] .panel-title,
+:root[data-theme="woodblock"] .place-name,
+:root[data-theme="woodblock"] .key-head h2,
+:root[data-theme="woodblock"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  color: var(--wb-sumi);
+  overflow-wrap: anywhere;
+}
+/* The place's name on a small slip of its own, marked with a vermilion bar down its left edge. */
+:root[data-theme="woodblock"] .panel-title,
+:root[data-theme="woodblock"] .place-name {
+  font-size: 23px;
+  text-transform: none;
+  padding-left: 12px;
+  border-left: 5px solid var(--wb-vermilion);
+}
+:root[data-theme="woodblock"] .key-head h2,
+:root[data-theme="woodblock"] dialog h2 {
+  font-size: 20px;
+}
+:root[data-theme="woodblock"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wb-prussian);
+}
+:root[data-theme="woodblock"] .dateline {
+  border-bottom: 2px solid var(--wb-sumi);
+}
+:root[data-theme="woodblock"] .dateline .coords,
+:root[data-theme="woodblock"] .count,
+:root[data-theme="woodblock"] .meta {
+  font-style: normal;
+}
+/* Section heads are slips of pale ochre in a keyline. */
+:root[data-theme="woodblock"] .rule-head {
+  border: 1px solid var(--wb-sumi);
+  padding: 6px 10px;
+  background: var(--wb-ochre-pale);
+  color: var(--wb-sumi);
+  text-align: left;
+}
+:root[data-theme="woodblock"] .stories li + li {
+  border-top: 1px solid rgba(29, 27, 24, 0.3);
+}
+:root[data-theme="woodblock"] .story:hover,
+:root[data-theme="woodblock"] .story:focus-visible {
+  outline: none;
+  background: rgba(185, 205, 216, 0.45);
+}
+:root[data-theme="woodblock"] .headline {
+  font-weight: 600;
+}
+:root[data-theme="woodblock"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.25;
+}
+:root[data-theme="woodblock"] .cite,
+:root[data-theme="woodblock"] .source-num {
+  border-color: var(--wb-sumi);
+  border-radius: 0;
+  color: var(--wb-prussian);
+}
+:root[data-theme="woodblock"] .excerpt-quote {
+  font-style: normal;
+  border-left: 4px solid var(--wb-pale);
+}
+/* The time bar: washi under a black rule, the slider in vermilion. */
+:root[data-theme="woodblock"] .timebar {
+  border-top: 2px solid var(--wb-sumi);
+  background: var(--wb-fibres) 0 0 / 220px 220px, var(--page);
+}
+:root[data-theme="woodblock"] .time-label {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+:root[data-theme="woodblock"] .slider input {
+  accent-color: var(--wb-vermilion);
+}
+@media (max-width: 760px) {
+  :root[data-theme="woodblock"] .mast-title {
+    font-size: 24px;
+    padding: 2px 10px 4px;
+  }
+  :root[data-theme="woodblock"] .brand {
+    padding-right: 40px;
+  }
+  :root[data-theme="woodblock"] .mast-title::after {
+    right: -38px;
+    width: 30px;
+    height: 30px;
+    margin-top: -15px;
+  }
+  :root[data-theme="woodblock"] .telegram-word {
+    padding: 2px 12px 6px;
+  }
+  :root[data-theme="woodblock"] .panel {
+    margin: 10px 10px 10px;
+  }
+}
+/* The mincho's wide capitals: a smaller, lighter face on a narrow phone, so the four controls keep to one row. */
+@media (max-width: 400px) {
+  :root[data-theme="woodblock"] .toolbar {
+    font-size: 12px;
+  }
+  :root[data-theme="woodblock"] .pick select,
+  :root[data-theme="woodblock"] .menu > summary,
+  :root[data-theme="woodblock"] .tool {
+    font-weight: 400;
+    box-shadow: 1px 1px 0 rgba(29, 27, 24, 0.85);
+  }
+  :root[data-theme="woodblock"] .pick select {
+    padding: 4px 17px 4px 6px;
+  }
+  :root[data-theme="woodblock"] .pick::after {
+    right: 5px;
+  }
+  :root[data-theme="woodblock"] .menu > summary {
+    padding: 7px 6px;
+  }
+}
