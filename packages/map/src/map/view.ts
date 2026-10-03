@@ -75,6 +75,8 @@ import { drawMachine, MachineCache } from "./machine.ts";
 import { drawRender, RenderCache } from "./render.ts";
 import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
+// Departures (experimental): the hall's wall map and the clock's ring round the globe.
+import { drawFlap, FlapCache } from "./flap.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -319,6 +321,8 @@ export class MapView {
   private machine = new MachineCache();
   /** First Render: its room, lamp, ball and bevelled screen. */
   private firstRender = new RenderCache();
+  /** Departures: its lamp patterns and the clock's ring. */
+  private flap = new FlapCache();
   /**
    * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
    * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
@@ -1851,6 +1855,7 @@ export class MapView {
     else if (t.surface === "aquarium") drawAquarium(f, this.aquarium);
     else if (t.surface === "lava") drawLava(f, this.lava);
     else if (t.surface === "machine") drawMachine(f, this.machine);
+    else if (t.surface === "flap") drawFlap(f, this.flap);
     else drawGlass(f, this.glass);
   }
 

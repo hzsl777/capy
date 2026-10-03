@@ -193,6 +193,11 @@ import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
 import { hideChannels, mountChannels, refreshChannels, showChannels, type Channel } from "./ui/channels.ts";
+// Departures (experimental): the split-flap board's tiles, rows and hall clock.
+import "@fontsource-variable/martian-mono/wdth.css";
+import "@fontsource/barlow-condensed/500.css";
+import "@fontsource/barlow-condensed/600.css";
+import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -500,6 +505,8 @@ function flyToPlace(index: number) {
 const LETTER_THEMES = new Set<ThemeId>(["bit64", "aquarium", "lava", "stadium", "popup"]);
 // Undersea Town's cartoon lettering tips and bobs each letter its own way.
 LETTER_THEMES.add("reef");
+// Departures sets the name, the word and the panel's title in split-flap tiles, one letter per tile.
+LETTER_THEMES.add("flap");
 let boardShown = "";
 /** Sleeper Car's on-board display: the place name slides in when it changes, like the next stop. */
 function boardName(el: HTMLElement, text: string): HTMLElement {
@@ -524,6 +531,7 @@ function lettered(el: HTMLElement, text: string) {
       return span;
     }),
   );
+  if (state.theme === "flap") flipIn(el, el.id || el.className);
   return el;
 }
 
@@ -814,12 +822,16 @@ function headline(it: Item, tag: "span" | "h2" = "span"): HTMLElement {
 
 function storyButton(it: Item, now: number, showPlace = false, showPublisher = true, marked = false): HTMLElement {
   const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.publisher)).size - 1 : 0;
+  // Departures: a board's row starts with the report's time and its outlet, so the line under the headline keeps the
+  // rest (how long ago, GDELT, the language, the topic) and names the outlet only once.
+  const board = state.theme === "flap" ? boardHead(it.t, showPublisher ? (it.from ? `${it.publisher}, ${it.from}` : it.publisher) : null) : null;
   const b = h(
     "button",
     { type: "button", class: "story" },
+    board,
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
-    metaLine(it, now, showPublisher, marked),
+    metaLine(it, now, showPublisher && !board, marked),
     others > 0 ? h("span", { class: "related" }, `Also reported by ${others} other ${others === 1 ? "outlet" : "outlets"}`) : null,
   );
   b.addEventListener("click", () => openReader(it));
@@ -990,6 +1002,7 @@ function renderIdle(panel: HTMLElement) {
       tileNote(),
     ),
   );
+  if (state.theme === "flap") boardTurn(panel, "latest");
 }
 
 /** One place, or nearby places merged at this zoom: their own outlets' reports first, then the rest, each newest first. */
@@ -1055,6 +1068,8 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
     ...(more ? [more] : []),
     ...(note ? [note] : []),
   );
+  // Departures: the rows turn over to the new place's reports, in the panel's own order.
+  if (state.theme === "flap") boardTurn(panel, indices.join(","));
 }
 
 function renderReader(panel: HTMLElement, it: Item) {
@@ -1646,6 +1661,7 @@ async function start() {
   renderPanel();
   bindTimebar();
   bindGlobal();
+  mountBoard($("toolbar"), $("masthead"));
   mountExtras({
     theme: () => state.theme,
     tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),

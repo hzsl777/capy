@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2267,6 +2267,47 @@ export const THEMES: Record<ThemeId, Theme> = {
     tuned: "#ffffff",
     arc: "#f0c537",
     glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Departures (experimental): after the feel of a split-flap departures board in a big station hall, with no
+  // operator's, airline's, railway's or maker's names, logos or colours. The map is the hall's wall map, a charcoal
+  // sheet with land as warm off-white dots and thin yellow coasts; the globe sits in a round hall clock's ring of
+  // ticks (src/map/flap.ts). Small square lamps for markers, warm white with an orange lamp for fresh reports, so
+  // neither reads as the yellow of the coasts or the amber of the board's times.
+  flap: {
+    id: "flap",
+    label: "Departures",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEqualEarth,
+    surface: "flap",
+    globeScale: 0.4,
+    ocean: "#1c1d1f",
+    land: "#262628",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "square",
+    textureInk: "rgba(238,226,200,0.6)",
+    coast: "#e9bf2e",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(233,191,46,0.1)",
+    oceanHatch: null,
+    graticule: "rgba(238,226,200,0.06)",
+    graticuleDash: [],
+    river: "rgba(28,29,31,0.8)",
+    lake: "#1c1d1f",
+    ice: "rgba(238,226,200,0.3)",
+    relief: "rgba(255,244,214,0.85)",
+    dot: "#fff6df",
+    dotStroke: "#0d0d0e",
+    fresh: "#ff7a1a",
+    tuned: "#ffffff",
+    arc: "rgba(233,191,46,0.85)",
+    glow: true,
     atmosphere: null,
     shade: null,
     neatline: false,
