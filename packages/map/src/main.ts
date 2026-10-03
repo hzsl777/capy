@@ -207,6 +207,11 @@ import "@fontsource-variable/martian-mono/wdth.css";
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
 import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
+// Woodblock (experimental): a brush-like face for the name and the word, and a mincho serif's Latin for reading.
+import "@fontsource/kaushan-script/latin-400.css";
+import "@fontsource/shippori-mincho/latin-400.css";
+import "@fontsource/shippori-mincho/latin-600.css";
+import "@fontsource/shippori-mincho/latin-700.css";
 // Desktop 95 (experimental): the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
