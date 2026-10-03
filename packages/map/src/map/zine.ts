@@ -1,4 +1,4 @@
-// Riso Zine (id riso, experimental): after the feel of a zine printed on a stencil duplicator in two or three spot
+// Zine (id zine, experimental): after the feel of a zine printed on a stencil duplicator in two or three spot
 // inks on warm recycled paper, a little out of register, and none of any maker's, shop's or zine's names, logos,
 // lettering or art. Only the inks: fluorescent pink, medium blue and, sparingly, yellow, with purple wherever pink
 // and blue overprint (each ink multiplies over what is under it, as ink on paper does).
@@ -128,12 +128,12 @@ export function screenAnchor(proj: GeoProjection, globe: boolean): [number, numb
   return proj([0, 0]) ?? [cx, cy];
 }
 
-export class RisoCache {
+export class ZineCache {
   tiles = new Map<string, HTMLCanvasElement>();
 }
 
 /** A screen's tile in device pixels, with the dots at its corners cut by its edges so it repeats seamlessly. */
-function screenTile(cache: RisoCache, s: Screen, ink: string, dpr: number): HTMLCanvasElement {
+function screenTile(cache: ZineCache, s: Screen, ink: string, dpr: number): HTMLCanvasElement {
   const n = Math.max(2, Math.round(s.pitch * dpr));
   const r = s.r * dpr;
   const key = `dots:${s.grid}:${n}:${r.toFixed(2)}:${ink}`;
@@ -159,7 +159,7 @@ function screenTile(cache: RisoCache, s: Screen, ink: string, dpr: number): HTML
  * Specks: a tile of small marks scattered from a fixed seed, `density` of them per 100 square pixels. Paper-coloured
  * specks knock holes in the ink; dark ones are flecks in the paper.
  */
-function speckTile(cache: RisoCache, ink: string, density: number, size: number, dpr: number, seed: number): HTMLCanvasElement {
+function speckTile(cache: ZineCache, ink: string, density: number, size: number, dpr: number, seed: number): HTMLCanvasElement {
   const n = Math.round(160 * dpr);
   const key = `speck:${ink}:${density}:${size}:${n}:${seed}`;
   let c = cache.tiles.get(key);
@@ -192,7 +192,7 @@ function anchored(ctx: CanvasRenderingContext2D, tile: HTMLCanvasElement, at: [n
   return p;
 }
 
-export function drawRiso(f: SurfaceFrame, cache: RisoCache) {
+export function drawZine(f: SurfaceFrame, cache: ZineCache) {
   const { ctx, w, h, dpr, proj, mode } = f;
   const globe = mode === "3d";
   const [cx, cy] = proj.translate();

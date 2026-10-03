@@ -1,26 +1,26 @@
-// Riso Zine (src/map/riso.ts): the inks overprint purple, the second pass sits a pixel or two off, the dot screens
+// Zine (src/map/zine.ts): the inks overprint purple, the second pass sits a pixel or two off, the dot screens
 // get fuller where the land is darker and travel with the map, the globe's halftone shading grows toward its lower
 // right limb in nested zones, and nothing moves.
 import { describe, expect, it } from "vitest";
 import { geoOrthographic } from "d3-geo";
-import { BLUE, coverage, inZone, landScreens, misregister, overprint, PAPER, PINK, screenAnchor, SHADE_ZONES, shadeAt, worldFit, YELLOW } from "../src/map/riso.ts";
+import { BLUE, coverage, inZone, landScreens, misregister, overprint, PAPER, PINK, screenAnchor, SHADE_ZONES, shadeAt, worldFit, YELLOW } from "../src/map/zine.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number];
 
-describe("Riso Zine", () => {
+describe("Zine", () => {
   it("is experimental, so it opens only from a link and stays off the Design menu, and nothing on it moves", () => {
-    const t = THEMES.riso;
+    const t = THEMES.zine;
     expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("riso");
-    expect(FEATURED).not.toContain("riso");
+    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("zine");
+    expect(FEATURED).not.toContain("zine");
     expect(t.motion).toBeFalsy();
     expect(t.scene).toBeUndefined();
-    expect(t.surface).toBe("riso");
+    expect(t.surface).toBe("zine");
   });
 
   it("prints its markers in the inks: pink, yellow for fresh reports, on the paper", () => {
-    const t = THEMES.riso;
+    const t = THEMES.zine;
     expect(t.dot).toBe(PINK);
     expect(t.fresh).toBe(YELLOW);
     expect(t.fresh).not.toBe(t.dot);
@@ -70,7 +70,7 @@ describe("Riso Zine", () => {
 
   it("anchors the map's dot screens to the world, so they move with the land when it is dragged", () => {
     const at = (lon: number, lat: number) =>
-      THEMES.riso
+      THEMES.zine
         .projection2d()
         .rotate([-lon, 0])
         .center([0, lat])

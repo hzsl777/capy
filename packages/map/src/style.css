@@ -20914,14 +20914,14 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Riso Zine (id riso, experimental): after the feel of a zine printed on a stencil duplicator in two or three
+/* ---- Zine (id zine, experimental): after the feel of a zine printed on a stencil duplicator in two or three
    spot inks on warm recycled paper, slightly out of register, cut and pasted and stapled; no maker's, shop's or zine's
    names, logos, lettering or art. Fluorescent pink and a medium blue, yellow now and then, purple where pink and blue
    overprint (the second ink multiplies over the first). The name and the word are printed twice, the second ink a few
    pixels off; panels are slips of paper pasted on with tape or a staple; buttons are stamped labels and stickers;
    section heads are typed on strips. Misregistration and grain stay on headings and decoration: headlines and
-   everything read are one crisp ink. The map's inks are drawn on the canvas (src/map/riso.ts). ------------------ */
-:root[data-theme="riso"] {
+   everything read are one crisp ink. The map's inks are drawn on the canvas (src/map/zine.ts). ------------------ */
+:root[data-theme="zine"] {
   color-scheme: light;
   --page: #f4efe4;
   --panel: #fbf8f1;
@@ -20953,15 +20953,15 @@ button.x-ch:focus-visible {
   /* A staple: a grey wire with a lit edge. */
   --rz-staple: linear-gradient(to bottom, #9b9aa2, #e2e1e6 45%, #7a7983);
 }
-:root[data-theme="riso"] body {
+:root[data-theme="zine"] body {
   background: var(--rz-paper) 0 0 / 240px 240px, var(--page);
 }
 /* A staple line down the page's left edge on wide screens: three staples through the fold. */
 @media (min-width: 1100px) {
-  :root[data-theme="riso"] body {
+  :root[data-theme="zine"] body {
     padding-left: 30px;
   }
-  :root[data-theme="riso"] body::before {
+  :root[data-theme="zine"] body::before {
     content: "";
     position: fixed;
     top: 0;
@@ -20980,19 +20980,19 @@ button.x-ch:focus-visible {
 }
 
 /* ---- masthead: the name big and off register, the word printed the same way ---- */
-:root[data-theme="riso"] .masthead {
+:root[data-theme="zine"] .masthead {
   border-bottom: 0;
   padding-bottom: 18px;
   background: var(--rz-dots-pink) left bottom 3px / 6px 6px repeat-x;
 }
-:root[data-theme="riso"] .mast-title,
-:root[data-theme="riso"] .telegram-word {
+:root[data-theme="zine"] .mast-title,
+:root[data-theme="zine"] .telegram-word {
   position: relative;
 }
 /* The second ink: the same letters again over the first, unread by screen readers, multiplied so the overlap prints
    purple, and a few pixels off. */
-:root[data-theme="riso"] .mast-title::after,
-:root[data-theme="riso"] .telegram-word::after {
+:root[data-theme="zine"] .mast-title::after,
+:root[data-theme="zine"] .telegram-word::after {
   content: attr(data-ink) / "";
   position: absolute;
   left: 0;
@@ -21001,7 +21001,7 @@ button.x-ch:focus-visible {
   pointer-events: none;
   mix-blend-mode: multiply;
 }
-:root[data-theme="riso"] .mast-title {
+:root[data-theme="zine"] .mast-title {
   font-family: var(--font-mast);
   font-weight: 400;
   font-size: clamp(30px, 3.4vw, 46px);
@@ -21012,12 +21012,12 @@ button.x-ch:focus-visible {
   transform: rotate(-2deg);
   transform-origin: left center;
 }
-:root[data-theme="riso"] .mast-title::after {
+:root[data-theme="zine"] .mast-title::after {
   color: var(--rz-blue);
   transform: translate(3px, 2px);
 }
 /* The tagline typed on a strip of yellow paper. */
-:root[data-theme="riso"] .mast-tag {
+:root[data-theme="zine"] .mast-tag {
   align-self: flex-start;
   margin-top: 8px;
   padding: 2px 7px;
@@ -21029,7 +21029,7 @@ button.x-ch:focus-visible {
   box-shadow: 1px 1px 0 rgba(31, 28, 44, 0.18);
 }
 /* "Today's Word" as a rubber stamp. */
-:root[data-theme="riso"] .telegram-kicker {
+:root[data-theme="zine"] .telegram-kicker {
   display: inline-block;
   padding: 2px 6px 1px;
   border: 2px solid var(--rz-pink);
@@ -21040,19 +21040,19 @@ button.x-ch:focus-visible {
   transform: rotate(-3deg);
   margin-bottom: 4px;
 }
-:root[data-theme="riso"] .telegram-date {
+:root[data-theme="zine"] .telegram-date {
   font: 700 12px/1.2 var(--font-ui);
   letter-spacing: 0.12em;
   color: var(--ink-2);
 }
-:root[data-theme="riso"] .telegram-note,
-:root[data-theme="riso"] .telegram-none {
+:root[data-theme="zine"] .telegram-note,
+:root[data-theme="zine"] .telegram-none {
   font: 400 13px/1.35 var(--font-ui);
   font-style: normal;
   color: var(--ink-2);
 }
 /* The word: blue capitals, the pink pass a few pixels off. Size from the word's length, wide letters allowed for. */
-:root[data-theme="riso"] .telegram-word {
+:root[data-theme="zine"] .telegram-word {
   font-family: var(--font-head);
   font-weight: 400;
   font-size: min(82px, calc(34vw / var(--len, 8)));
@@ -21062,18 +21062,18 @@ button.x-ch:focus-visible {
   border-bottom: 0;
   padding: 0 6px 4px 2px;
 }
-:root[data-theme="riso"] .telegram-word::after {
+:root[data-theme="zine"] .telegram-word::after {
   left: 2px;
   color: var(--rz-pink);
   transform: translate(4px, 3px);
 }
-:root[data-theme="riso"] .telegram-word:hover,
-:root[data-theme="riso"] .telegram-word:focus-visible {
+:root[data-theme="zine"] .telegram-word:hover,
+:root[data-theme="zine"] .telegram-word:focus-visible {
   outline: none;
   text-decoration: none;
   background: linear-gradient(transparent 62%, rgba(255, 232, 0, 0.75) 62% 92%, transparent 92%);
 }
-:root[data-theme="riso"] .telegram-big {
+:root[data-theme="zine"] .telegram-big {
   font-family: var(--font-head);
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -21081,43 +21081,43 @@ button.x-ch:focus-visible {
   text-shadow: 3px 2px 0 rgba(255, 72, 176, 0.8);
 }
 /* The scale: a strip of five stickers, the day's in yellow. */
-:root[data-theme="riso"] .scale {
+:root[data-theme="zine"] .scale {
   border: 2px solid var(--rz-blue);
   background: var(--rz-slip);
   box-shadow: 3px 3px 0 var(--rz-pink);
 }
-:root[data-theme="riso"] .scale .step {
+:root[data-theme="zine"] .scale .step {
   font-family: var(--font-ui);
   font-weight: 700;
   color: var(--ink);
 }
-:root[data-theme="riso"] .scale .step + .step {
+:root[data-theme="zine"] .scale .step + .step {
   border-left: 2px dashed var(--rz-blue);
 }
-:root[data-theme="riso"] .scale .step.on {
+:root[data-theme="zine"] .scale .step.on {
   background: var(--rz-yellow);
   color: var(--ink);
 }
 
 /* ---- toolbar: stamped labels ---- */
-:root[data-theme="riso"] .toolbar {
+:root[data-theme="zine"] .toolbar {
   border-bottom: 0;
   padding-block: 10px 8px;
   font-family: var(--font-ui);
 }
-:root[data-theme="riso"] .banner {
+:root[data-theme="zine"] .banner {
   border-bottom: 0;
   background: none;
   font-family: var(--font-ui);
   color: var(--ink-2);
 }
-:root[data-theme="riso"] .tool,
-:root[data-theme="riso"] .pick select,
-:root[data-theme="riso"] .menu > summary,
-:root[data-theme="riso"] .chip,
-:root[data-theme="riso"] .key-btn,
-:root[data-theme="riso"] .key-close,
-:root[data-theme="riso"] dialog .close {
+:root[data-theme="zine"] .tool,
+:root[data-theme="zine"] .pick select,
+:root[data-theme="zine"] .menu > summary,
+:root[data-theme="zine"] .chip,
+:root[data-theme="zine"] .key-btn,
+:root[data-theme="zine"] .key-close,
+:root[data-theme="zine"] dialog .close {
   border: 2px solid var(--rz-blue);
   border-radius: 2px;
   background: var(--rz-slip);
@@ -21127,34 +21127,34 @@ button.x-ch:focus-visible {
   letter-spacing: 0.04em;
   box-shadow: 2px 2px 0 var(--rz-pink);
 }
-:root[data-theme="riso"] .toolbar > :nth-child(odd) {
+:root[data-theme="zine"] .toolbar > :nth-child(odd) {
   transform: rotate(-1deg);
 }
-:root[data-theme="riso"] .toolbar > :nth-child(even) {
+:root[data-theme="zine"] .toolbar > :nth-child(even) {
   transform: rotate(0.8deg);
 }
-:root[data-theme="riso"] .pick::after {
+:root[data-theme="zine"] .pick::after {
   opacity: 1;
   color: var(--rz-pink);
 }
-:root[data-theme="riso"] .pick option {
+:root[data-theme="zine"] .pick option {
   font-weight: 400;
   color: var(--ink);
 }
-:root[data-theme="riso"] .tool:hover,
-:root[data-theme="riso"] .pick select:hover,
-:root[data-theme="riso"] .menu > summary:hover,
-:root[data-theme="riso"] .chip:hover,
-:root[data-theme="riso"] .key-btn:hover,
-:root[data-theme="riso"] .key-close:hover,
-:root[data-theme="riso"] dialog .close:hover {
+:root[data-theme="zine"] .tool:hover,
+:root[data-theme="zine"] .pick select:hover,
+:root[data-theme="zine"] .menu > summary:hover,
+:root[data-theme="zine"] .chip:hover,
+:root[data-theme="zine"] .key-btn:hover,
+:root[data-theme="zine"] .key-close:hover,
+:root[data-theme="zine"] dialog .close:hover {
   background: #fff6a8;
 }
 /* On: a pink sticker pressed flat. */
-:root[data-theme="riso"] .tool[aria-pressed="true"],
-:root[data-theme="riso"] .menu[open] > summary,
-:root[data-theme="riso"] .chip[aria-pressed="true"],
-:root[data-theme="riso"] .key-btn[aria-expanded="true"] {
+:root[data-theme="zine"] .tool[aria-pressed="true"],
+:root[data-theme="zine"] .menu[open] > summary,
+:root[data-theme="zine"] .chip[aria-pressed="true"],
+:root[data-theme="zine"] .key-btn[aria-expanded="true"] {
   background: var(--rz-pink);
   color: var(--ink);
   border-color: var(--ink);
@@ -21162,18 +21162,18 @@ button.x-ch:focus-visible {
 }
 
 /* ---- the map: a printed slip pasted on, with tape over its top edge ---- */
-:root[data-theme="riso"] .stage {
+:root[data-theme="zine"] .stage {
   position: relative;
 }
-:root[data-theme="riso"] .map {
+:root[data-theme="zine"] .map {
   margin: 14px 10px 14px 14px;
   border: 7px solid var(--rz-slip);
   background: #ece5d5;
   box-shadow: 4px 5px 0 rgba(50, 85, 164, 0.28);
 }
 /* Two pieces of tape across the slip's top edge, on its paper border and the page above it, never on the map. */
-:root[data-theme="riso"] .stage::before,
-:root[data-theme="riso"] .stage::after {
+:root[data-theme="zine"] .stage::before,
+:root[data-theme="zine"] .stage::after {
   content: "";
   position: absolute;
   top: 2px;
@@ -21184,19 +21184,19 @@ button.x-ch:focus-visible {
   pointer-events: none;
   z-index: 4;
 }
-:root[data-theme="riso"] .stage::before {
+:root[data-theme="zine"] .stage::before {
   left: 46px;
   transform: rotate(-3deg);
 }
-:root[data-theme="riso"] .stage::after {
+:root[data-theme="zine"] .stage::after {
   left: calc(100% - var(--panel-w) - 150px);
   transform: rotate(2.5deg);
 }
-:root[data-theme="riso"] .stage:has(.panel.framed)::after {
+:root[data-theme="zine"] .stage:has(.panel.framed)::after {
   display: none;
 }
 /* The reticle: a printer's registration mark, a ring through a cross, with the pink pass off register. */
-:root[data-theme="riso"] .crosshair {
+:root[data-theme="zine"] .crosshair {
   --arm: 12px;
   --weight: 1.5px;
   width: 28px;
@@ -21210,27 +21210,27 @@ button.x-ch:focus-visible {
     linear-gradient(var(--rz-blue), var(--rz-blue)) right center / var(--arm) var(--weight) no-repeat;
   filter: drop-shadow(1.5px 1px 0 rgba(255, 72, 176, 0.75));
 }
-:root[data-theme="riso"] .key-btn {
+:root[data-theme="zine"] .key-btn {
   font-size: 13px;
 }
-:root[data-theme="riso"] .zoom {
+:root[data-theme="zine"] .zoom {
   border: 2px solid var(--rz-blue);
   background: var(--rz-slip);
   box-shadow: 2px 2px 0 var(--rz-pink);
 }
-:root[data-theme="riso"] .zoom button {
+:root[data-theme="zine"] .zoom button {
   color: var(--rz-blue);
   font-weight: 700;
 }
-:root[data-theme="riso"] .zoom button:hover {
+:root[data-theme="zine"] .zoom button:hover {
   background: #fff6a8;
 }
-:root[data-theme="riso"] .zoom button + button {
+:root[data-theme="zine"] .zoom button + button {
   border-top: 2px solid var(--rz-blue);
 }
 
 /* ---- panels: slips of whiter paper pasted on, a plate printed off behind them ---- */
-:root[data-theme="riso"] .panel {
+:root[data-theme="zine"] .panel {
   margin: 14px 18px 18px 6px;
   padding-top: 22px;
   border: 0;
@@ -21238,7 +21238,7 @@ button.x-ch:focus-visible {
   box-shadow: 5px 6px 0 var(--rz-pink);
 }
 /* A staple through the slip's top left corner. */
-:root[data-theme="riso"] .panel::before {
+:root[data-theme="zine"] .panel::before {
   content: "";
   position: absolute;
   top: 8px;
@@ -21250,10 +21250,10 @@ button.x-ch:focus-visible {
   box-shadow: 1px 1px 0 rgba(31, 28, 44, 0.25);
   pointer-events: none;
 }
-:root[data-theme="riso"] .menu-body,
-:root[data-theme="riso"] .key-pop,
-:root[data-theme="riso"] .map-note,
-:root[data-theme="riso"] dialog {
+:root[data-theme="zine"] .menu-body,
+:root[data-theme="zine"] .key-pop,
+:root[data-theme="zine"] .map-note,
+:root[data-theme="zine"] dialog {
   border: 0;
   border-radius: 0;
   /* A whiter slip than the panel, so one pasted over the other reads as a second piece of paper. */
@@ -21261,20 +21261,20 @@ button.x-ch:focus-visible {
   color: var(--ink);
   box-shadow: 5px 6px 0 var(--rz-blue);
 }
-:root[data-theme="riso"] .key-pop {
+:root[data-theme="zine"] .key-pop {
   box-shadow: 5px 6px 0 var(--rz-pink);
   font-size: 13px;
 }
-:root[data-theme="riso"] .key-note {
+:root[data-theme="zine"] .key-note {
   font-size: 12px;
 }
 /* Tape across the top of the About dialog and the Key. */
-:root[data-theme="riso"] dialog,
-:root[data-theme="riso"] .key-pop {
+:root[data-theme="zine"] dialog,
+:root[data-theme="zine"] .key-pop {
   padding-top: 26px;
 }
-:root[data-theme="riso"] dialog::before,
-:root[data-theme="riso"] .key-pop::before {
+:root[data-theme="zine"] dialog::before,
+:root[data-theme="zine"] .key-pop::before {
   content: "";
   position: absolute;
   top: 0;
@@ -21286,14 +21286,14 @@ button.x-ch:focus-visible {
   transform: rotate(-2deg);
   pointer-events: none;
 }
-:root[data-theme="riso"] dialog::backdrop {
+:root[data-theme="zine"] dialog::backdrop {
   background: rgba(50, 85, 164, 0.3);
 }
 /* Heads in the chunky capitals with the pink pass a little off; reading text below stays one ink. */
-:root[data-theme="riso"] .panel-title,
-:root[data-theme="riso"] .place-name,
-:root[data-theme="riso"] .key-head h2,
-:root[data-theme="riso"] dialog h2 {
+:root[data-theme="zine"] .panel-title,
+:root[data-theme="zine"] .place-name,
+:root[data-theme="zine"] .key-head h2,
+:root[data-theme="zine"] dialog h2 {
   font-family: var(--font-head);
   font-weight: 400;
   letter-spacing: 0.01em;
@@ -21302,17 +21302,17 @@ button.x-ch:focus-visible {
   text-shadow: 2px 1.5px 0 rgba(255, 72, 176, 0.7);
   overflow-wrap: anywhere;
 }
-:root[data-theme="riso"] .panel-title,
-:root[data-theme="riso"] .place-name {
+:root[data-theme="zine"] .panel-title,
+:root[data-theme="zine"] .place-name {
   font-size: 24px;
 }
-:root[data-theme="riso"] .key-head h2,
-:root[data-theme="riso"] dialog h2 {
+:root[data-theme="zine"] .key-head h2,
+:root[data-theme="zine"] dialog h2 {
   font-size: 20px;
 }
 /* Sub-heads typed on a yellow strip, the way a zine pastes in a typed label. */
-:root[data-theme="riso"] dialog h3,
-:root[data-theme="riso"] .rule-head {
+:root[data-theme="zine"] dialog h3,
+:root[data-theme="zine"] .rule-head {
   display: table;
   border: 0;
   padding: 3px 8px 2px;
@@ -21325,128 +21325,128 @@ button.x-ch:focus-visible {
   transform: rotate(-1deg);
   box-shadow: 1px 1px 0 rgba(31, 28, 44, 0.18);
 }
-:root[data-theme="riso"] .rule-head {
+:root[data-theme="zine"] .rule-head {
   margin: 18px 0 6px;
 }
-:root[data-theme="riso"] .dateline {
+:root[data-theme="zine"] .dateline {
   border-bottom: 2px dashed var(--rz-pink);
 }
-:root[data-theme="riso"] .dateline .coords,
-:root[data-theme="riso"] .count,
-:root[data-theme="riso"] .meta,
-:root[data-theme="riso"] .byline {
+:root[data-theme="zine"] .dateline .coords,
+:root[data-theme="zine"] .count,
+:root[data-theme="zine"] .meta,
+:root[data-theme="zine"] .byline {
   font-family: var(--font-ui);
   font-style: normal;
 }
-:root[data-theme="riso"] .stories-group {
+:root[data-theme="zine"] .stories-group {
   font-family: var(--font-ui);
   font-weight: 700;
   opacity: 1;
   color: var(--ink-2);
 }
-:root[data-theme="riso"] .stories li + li {
+:root[data-theme="zine"] .stories li + li {
   border-top: 1px dashed rgba(50, 85, 164, 0.45);
 }
-:root[data-theme="riso"] .story:hover,
-:root[data-theme="riso"] .story:focus-visible {
+:root[data-theme="zine"] .story:hover,
+:root[data-theme="zine"] .story:focus-visible {
   outline: none;
   background: rgba(255, 232, 0, 0.28);
 }
-:root[data-theme="riso"] .headline {
+:root[data-theme="zine"] .headline {
   font-family: var(--font-body);
   font-weight: 700;
   line-height: 1.24;
   color: var(--ink);
 }
-:root[data-theme="riso"] .reader-headline {
+:root[data-theme="zine"] .reader-headline {
   font-family: var(--font-body);
   font-weight: 700;
   line-height: 1.15;
   color: var(--ink);
 }
-:root[data-theme="riso"] .excerpt::first-letter {
+:root[data-theme="zine"] .excerpt::first-letter {
   font-family: var(--font-head);
   font-weight: 400;
   color: var(--rz-blue);
 }
-:root[data-theme="riso"] .related {
+:root[data-theme="zine"] .related {
   color: var(--rz-blue);
 }
-:root[data-theme="riso"] .cite,
-:root[data-theme="riso"] .source-num {
+:root[data-theme="zine"] .cite,
+:root[data-theme="zine"] .source-num {
   border-color: var(--rz-blue);
   border-radius: 0;
   color: var(--rz-blue);
 }
-:root[data-theme="riso"] .excerpt-quote {
+:root[data-theme="zine"] .excerpt-quote {
   font-style: normal;
   border-left: 4px solid var(--rz-pink);
 }
-:root[data-theme="riso"] .menu-item {
+:root[data-theme="zine"] .menu-item {
   font-family: var(--font-ui);
   color: var(--ink);
   border-bottom: 1px dashed rgba(50, 85, 164, 0.45);
 }
-:root[data-theme="riso"] .lead img {
+:root[data-theme="zine"] .lead img {
   filter: grayscale(1) contrast(1.15);
   mix-blend-mode: multiply;
 }
 /* The Key's marks: the blue pass's outline multiplies over the pink as on the map (renderKey in main.ts). */
-.riso-plate {
+.zine-plate {
   mix-blend-mode: multiply;
 }
 
 /* ---- time bar: a strip along the foot under a band of blue dots, stamped buttons, a pink thumb ---- */
-:root[data-theme="riso"] .timebar {
+:root[data-theme="zine"] .timebar {
   border-top: 0;
   padding-top: 12px;
   background: var(--rz-dots-blue) left top / 6px 6px repeat-x;
   font-family: var(--font-ui);
 }
-:root[data-theme="riso"] .time-label {
+:root[data-theme="zine"] .time-label {
   font-weight: 700;
   color: var(--ink-2);
 }
-:root[data-theme="riso"] .slider input {
+:root[data-theme="zine"] .slider input {
   accent-color: var(--rz-pink);
 }
 
 @media (max-width: 760px) {
-  :root[data-theme="riso"] .masthead {
+  :root[data-theme="zine"] .masthead {
     padding-bottom: 14px;
   }
-  :root[data-theme="riso"] .mast-title {
+  :root[data-theme="zine"] .mast-title {
     font-size: 28px;
     transform-origin: center;
   }
-  :root[data-theme="riso"] .mast-tag {
+  :root[data-theme="zine"] .mast-tag {
     align-self: center;
   }
-  :root[data-theme="riso"] .telegram-word {
+  :root[data-theme="zine"] .telegram-word {
     font-size: min(56px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.9)));
   }
-  :root[data-theme="riso"] .map {
+  :root[data-theme="zine"] .map {
     margin: 12px 10px 8px;
     border-width: 5px;
   }
-  :root[data-theme="riso"] .stage::before,
-  :root[data-theme="riso"] .stage::after {
+  :root[data-theme="zine"] .stage::before,
+  :root[data-theme="zine"] .stage::after {
     top: 1px;
     height: 12px;
   }
-  :root[data-theme="riso"] .panel {
+  :root[data-theme="zine"] .panel {
     margin: 4px 14px 12px 10px;
     box-shadow: 4px 4px 0 var(--rz-pink);
   }
-  :root[data-theme="riso"] .stage::before {
+  :root[data-theme="zine"] .stage::before {
     left: 24px;
   }
-  :root[data-theme="riso"] .stage::after {
+  :root[data-theme="zine"] .stage::after {
     left: auto;
     right: 24px;
   }
-  :root[data-theme="riso"] .toolbar > :nth-child(odd),
-  :root[data-theme="riso"] .toolbar > :nth-child(even) {
+  :root[data-theme="zine"] .toolbar > :nth-child(odd),
+  :root[data-theme="zine"] .toolbar > :nth-child(even) {
     transform: none;
   }
 }

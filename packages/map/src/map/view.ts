@@ -82,8 +82,8 @@ import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, ne
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 // Departures (experimental): the hall's wall map and the clock's ring round the globe.
 import { drawFlap, FlapCache } from "./flap.ts";
-// Riso Zine (experimental): the map printed in blue and pink halftone inks, off register.
-import { BLUE as RISO_BLUE, drawRiso, misregister as risoOffset, RisoCache } from "./riso.ts";
+// Zine (experimental): the map printed in blue and pink halftone inks, off register.
+import { BLUE as ZINE_BLUE, drawZine, misregister as zineOffset, ZineCache } from "./zine.ts";
 
 export interface Dot {
   /** Index into NewsFile.places. */
@@ -339,8 +339,8 @@ export class MapView {
   private paper = new PaperCache();
   /** Postcards: the folded sheet's paper and the paper globe's light and shadow. */
   private postcard = new PostcardCache();
-  /** Riso Zine: its dot screens and specks. */
-  private riso = new RisoCache();
+  /** Zine: its dot screens and specks. */
+  private zine = new ZineCache();
   /**
    * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
    * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
@@ -1927,7 +1927,7 @@ export class MapView {
     else if (t.surface === "machine") drawMachine(f, this.machine);
     else if (t.surface === "flap") drawFlap(f, this.flap);
     else if (t.surface === "postcard") drawPostcard(f, this.postcard);
-    else if (t.surface === "riso") drawRiso(f, this.riso);
+    else if (t.surface === "zine") drawZine(f, this.zine);
     else drawGlass(f, this.glass);
   }
 
@@ -2679,14 +2679,14 @@ export class MapView {
       ctx.lineWidth = hollow ? 1.6 : 1.2;
       ctx.strokeStyle = hollow ? ink : t.dotStroke;
       strokeShape();
-      if (t.surface === "riso") {
-        // Riso Zine: the blue pass prints each mark's outline a little off register from its pink or yellow.
-        const [dx, dy] = risoOffset(this.w, this.h);
+      if (t.surface === "zine") {
+        // Zine: the blue pass prints each mark's outline a little off register from its pink or yellow.
+        const [dx, dy] = zineOffset(this.w, this.h);
         ctx.save();
         ctx.globalCompositeOperation = "multiply";
         ctx.translate(dx * 0.8, dy * 0.8);
         ctx.lineWidth = 1.2;
-        ctx.strokeStyle = RISO_BLUE;
+        ctx.strokeStyle = ZINE_BLUE;
         shape(x, y, r + (hollow ? 0 : 0.6));
         strokeShape();
         ctx.restore();

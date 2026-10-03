@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "riso";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "riso";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2507,18 +2507,18 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Riso Zine (experimental): after the feel of a zine printed on a stencil duplicator in spot inks on recycled paper,
-  // a little out of register, and none of any maker's, shop's or zine's names, logos or art (src/map/riso.ts). Land
+  // Zine (experimental): after the feel of a zine printed on a stencil duplicator in spot inks on recycled paper,
+  // a little out of register, and none of any maker's, shop's or zine's names, logos or art (src/map/zine.ts). Land
   // in a blue halftone, coasts in pink printed a pixel or two off, pink dots in the shallows, bare paper sea. Pink
   // markers with a blue outline printed off register (view.ts), yellow for fresh reports. Plate carree, so a drag
   // moves every point of the map by the same amount and the dot screens can travel with the land exactly.
-  riso: {
-    id: "riso",
-    label: "Riso Zine",
+  zine: {
+    id: "zine",
+    label: "Zine",
     experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
-    surface: "riso",
+    surface: "zine",
     globeScale: 0.42,
     ocean: "#f4efe4",
     land: "#cfe0ec",

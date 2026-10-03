@@ -211,7 +211,7 @@ import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts"
 import { mountPaper } from "./ui/paper.ts";
 import { mountDial, moveDial } from "./ui/dial.ts";
 import { renderPostcard } from "./ui/postcard.ts";
-// Riso Zine (experimental): chunky display capitals for the off-register name and word.
+// Zine (experimental): chunky display capitals for the off-register name and word.
 import "@fontsource/bowlby-one/400.css";
 
 const BASE = import.meta.env.BASE_URL;
@@ -539,7 +539,7 @@ function boardName(el: HTMLElement, text: string): HTMLElement {
 
 /** Puts text in an element, one span per letter in the designs that want it. Screen readers get the whole text. */
 function lettered(el: HTMLElement, text: string) {
-  // Riso Zine prints the name and the word twice, the second ink off register: CSS sets this copy, unread, over the text.
+  // Zine prints the name and the word twice, the second ink off register: CSS sets this copy, unread, over the text.
   el.dataset.ink = text;
   if (!LETTER_THEMES.has(state.theme)) {
     el.textContent = text;
@@ -756,15 +756,15 @@ function renderKey() {
       el.setAttribute("stroke-width", String(width));
       if (dash) el.setAttribute("stroke-dasharray", dash);
       svg.append(el);
-      // Riso Zine: the blue pass's outline, off register, as the map prints it (view.ts).
-      if (t.surface === "riso" && of === undefined && fill !== "none") {
+      // Zine: the blue pass's outline, off register, as the map prints it (view.ts).
+      if (t.surface === "zine" && of === undefined && fill !== "none") {
         const ring = el.cloneNode() as SVGPathElement;
         ring.setAttribute("d", markPath(t.dotShape, fill === t.dotStroke ? r : r + 0.6));
         ring.setAttribute("fill", "none");
         ring.setAttribute("stroke", t.tuned);
         ring.setAttribute("stroke-width", "1.2");
         ring.setAttribute("transform", "translate(1.2 1)");
-        ring.classList.add("riso-plate");
+        ring.classList.add("zine-plate");
         svg.append(ring);
       }
     });
