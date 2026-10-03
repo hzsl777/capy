@@ -1020,3 +1020,11 @@ Davis asked for Console Menu's home screen to work like the console's channel me
 ## 115. Deploys keep the Worker's dashboard settings (October 3, 2026)
 
 Davis added settings to the Worker in Cloudflare's dashboard and found them gone. Every deploy, which Workers Builds runs on each merge, deleted the Worker's variables of type Text unless told to keep them; only secrets survive a deploy. `wrangler.toml` now sets `keep_vars = true`, so a deploy leaves variables set in the dashboard alone. Tokens such as `GITHUB_DISPATCH_TOKEN` (decision 91) still go in as type Secret.
+
+## 116. Replay plays only moments with reports; the slider's end is the last 24 hours; no browser translate offer (October 3, 2026)
+
+Davis found Replay showing an empty globe for a while, and no reports after dragging the time bar back to the end. The outlets' stories come in with the daily run, while the map's clock moves on with GDELT's local stories during the day (decision 80), and those show only at the closest zoom. So Replay crossed hours with nothing on the map, and the slider's end showed only the last three hours.
+
+1. **Replay plays only the time bar's moments whose three-hour window holds a report shown at the reader's zoom** (`replayStops` in `src/data.ts`), then returns to the last 24 hours. With none, it goes straight there.
+2. **The slider's end is the last 24 hours,** as Live shows them.
+3. **The page tells the browser not to offer translation** (`<meta name="google" content="notranslate">`). Headlines appear as published in many languages, so the browser kept offering to translate a page that is in English. The site's own Translate button does it, labelled (decision 97).

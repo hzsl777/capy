@@ -37,6 +37,28 @@ export function passes(item: MapItem, f: Filters): boolean {
   return item.topics.some((t) => f.topics.has(t));
 }
 
+/**
+ * The time bar's stops Replay plays, in order: the slots from `first` to `slots` whose window (`windowSec` ending at the
+ * slot's time) holds at least one of `times` (sorted, unix seconds). The outlets' stories come in once a day while the
+ * map's clock moves on with GDELT's (decision 80), so stretches with nothing on the map at the reader's zoom are skipped.
+ */
+export function replayStops(times: readonly number[], end: number, first: number, slots: number, windowSec: number, slotSec = 900): number[] {
+  const out: number[] = [];
+  for (let s = first; s <= slots; s++) {
+    const to = end - (slots - s) * slotSec;
+    const from = to - windowSec;
+    let lo = 0;
+    let hi = times.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (times[mid] < from) lo = mid + 1;
+      else hi = mid;
+    }
+    if (lo < times.length && times[lo] <= to) out.push(s);
+  }
+  return out;
+}
+
 /** Items per place index that pass the filters, newest first. */
 /** Zoom tiers: the whole world shows tier 0, and each step in adds the next (decisions 30 and 46). */
 export const TIERS = 5;
