@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2385,6 +2385,44 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#52c8ff",
     tuned: "#fff3dc",
     arc: "#ef7d2e",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Paper Screen, experimental: after the feel of an e-ink reading device (src/map/paper.ts, src/ui/paper.ts). Greys only
+  // from one sixteen-step ramp, ink to a warm paper white: white sea with fine water lines, stippled mid-grey land,
+  // black coasts. Black circle markers; fresh reports get the dotted ring, so nothing needs a colour.
+  paper: {
+    id: "paper",
+    label: "Paper Screen",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "paper",
+    ocean: "#f5f3ee",
+    land: "#acaba7",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "#474543",
+    coast: "#1b1a18",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "#acaba7",
+    oceanHatch: null,
+    graticule: "#c9c8c3",
+    graticuleDash: [1, 3],
+    river: "#8f8e8a",
+    lake: "#f5f3ee",
+    ice: "#e6e5e0",
+    relief: "#474543",
+    dot: "#1b1a18",
+    dotStroke: "#f5f3ee",
+    fresh: "#1b1a18",
+    tuned: "#1b1a18",
+    arc: "#474543",
     glow: false,
     atmosphere: null,
     shade: null,

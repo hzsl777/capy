@@ -140,6 +140,10 @@ import "@fontsource/rubik/800-italic.css";
 import "@fontsource/rubik/900-italic.css";
 import "@fontsource/rubik/400.css";
 import "@fontsource/rubik-mono-one/400.css";
+import "@fontsource/literata/400.css";
+import "@fontsource/literata/400-italic.css";
+import "@fontsource/literata/600.css";
+import "@fontsource/literata/700.css";
 import "@fontsource/amatic-sc/700.css";
 import "@fontsource/arvo/400.css";
 import "@fontsource/arvo/700.css";
@@ -201,6 +205,7 @@ import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
 // Desktop 95 (experimental): the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
+import { mountPaper } from "./ui/paper.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -1684,6 +1689,8 @@ async function start() {
     builtAt: () => state.file?.generatedAt ?? null,
     kmPerPixel: () => map.kmPerPixel(),
   });
+  // Paper Screen's pages for the panel and the About dialog (experimental); idle in every other design.
+  mountPaper();
   mountChannels({
     theme: () => state.theme,
     word: () => {
