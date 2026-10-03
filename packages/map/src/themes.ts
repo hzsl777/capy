@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2385,6 +2385,122 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#52c8ff",
     tuned: "#fff3dc",
     arc: "#ef7d2e",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Paper Screen, experimental: after the feel of an e-ink reading device (src/map/paper.ts, src/ui/paper.ts). Greys only
+  // from one sixteen-step ramp, ink to a warm paper white: white sea with fine water lines, stippled mid-grey land,
+  // black coasts. Black circle markers; fresh reports get the dotted ring, so nothing needs a colour.
+  paper: {
+    id: "paper",
+    label: "Paper Screen",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "paper",
+    ocean: "#f5f3ee",
+    land: "#acaba7",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "#474543",
+    coast: "#1b1a18",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "#acaba7",
+    oceanHatch: null,
+    graticule: "#c9c8c3",
+    graticuleDash: [1, 3],
+    river: "#8f8e8a",
+    lake: "#f5f3ee",
+    ice: "#e6e5e0",
+    relief: "#474543",
+    dot: "#1b1a18",
+    dotStroke: "#f5f3ee",
+    fresh: "#1b1a18",
+    tuned: "#1b1a18",
+    arc: "#474543",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Shortwave, experimental: after the feel of a mid-century world-band radio receiver. The world drawn like an old
+  // radio's dial map, cream paper land on a sepia-green sea with thin brown coasts and a faint grid, and on the globe
+  // the same ball lit warm from behind. The page tunes it with a dial and a knob under the map (src/ui/dial.ts, laid
+  // out by src/map/shortwave.ts). Amber dial-lamp dots, red for fresh reports.
+  shortwave: {
+    id: "shortwave",
+    label: "Shortwave",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#a3ab86",
+    land: "#f1e6c6",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#6a4526",
+    coastWidth: 0.8,
+    waterlines: 2,
+    waterline: "rgba(74,58,30,0.16)",
+    oceanHatch: null,
+    graticule: "rgba(84,58,30,0.26)",
+    graticuleDash: [],
+    river: "rgba(84,104,86,0.55)",
+    lake: "#a3ab86",
+    ice: "#f8f2df",
+    relief: "rgba(106,69,38,0.42)",
+    dot: "#e68a1c",
+    dotStroke: "#3a220f",
+    fresh: "#d0321f",
+    tuned: "#b3221a",
+    arc: "rgba(179,34,26,0.7)",
+    glow: true,
+    atmosphere: "rgba(255,196,112,0.62)",
+    shade: "rgba(74,46,20,0.34)",
+    neatline: false,
+    decor: null,
+  },
+  // Postcards, experimental: after the feel of travel postcards on a wire rack in a corner shop (src/map/postcard.ts,
+  // src/ui/postcard.ts). A folded paper travel map, cream land on pale blue sea with the sheet's creases, or a paper
+  // globe printed in gores; the place's panel is a postcard that turns over. Airmail red circles with a cream edge,
+  // airmail blue for fresh reports.
+  postcard: {
+    id: "postcard",
+    label: "Postcards",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "postcard",
+    globeScale: 0.4,
+    ocean: "#c6dfe6",
+    land: "#f2e6c8",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#6d8796",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(77,118,140,0.22)",
+    graticuleDash: [3, 3],
+    river: "#86b4c7",
+    lake: "#c6dfe6",
+    ice: "#fbf8ef",
+    relief: "rgba(122,92,58,0.42)",
+    dot: "#c8352d",
+    dotStroke: "#fbf6ea",
+    fresh: "#2457a8",
+    tuned: "#2b2118",
+    arc: "rgba(36,87,168,0.85)",
     glow: false,
     atmosphere: null,
     shade: null,

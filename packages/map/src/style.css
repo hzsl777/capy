@@ -18658,3 +18658,2258 @@ button.x-ch:focus-visible {
     font-size: 8.5px;
   }
 }
+
+/* ---- Paper Screen (id paper, experimental): after the feel of an e-ink reading device, with no maker's or product's
+   name, logo, case shape, button symbols or screens. Sixteen greys, no colour: the --pp-g ramp runs from the ink (0)
+   to a slightly warm paper white (15), the same steps the canvas draws with (GREYS in src/map/paper.ts). Literata
+   for reading, Source Sans 3 for the controls, simple outline icons of our own. On a wide screen the page sits in a
+   thin dark bezel with a small page-turn button on each side; on a phone the page fills the screen. The panel and the
+   About dialog turn pages instead of scrolling (src/ui/paper.ts): each is laid out in columns one page wide, shown a
+   page at a time, with Previous, "Page 2 of 3" and Next at its foot. The grey a page fades toward during a turn
+   (--pp-g14) sits behind the page and shows only then. ------------------------------------------------------------- */
+:root[data-theme="paper"] {
+  color-scheme: light;
+  --pp-g0: #1b1a18;
+  --pp-g1: #2a2826;
+  --pp-g2: #383735;
+  --pp-g3: #474543;
+  --pp-g4: #555451;
+  --pp-g5: #64625f;
+  --pp-g6: #72716e;
+  --pp-g7: #817f7c;
+  --pp-g8: #8f8e8a;
+  --pp-g9: #9e9c98;
+  --pp-g10: #acaba7;
+  --pp-g11: #bbb9b5;
+  --pp-g12: #c9c8c3;
+  --pp-g13: #d8d6d1;
+  --pp-g14: #e6e5e0;
+  --pp-g15: #f5f3ee;
+  --page: #f5f3ee;
+  --panel: #f5f3ee;
+  --ink: #1b1a18;
+  --ink-2: #383735;
+  --muted: #64625f;
+  --rule: #1b1a18;
+  --accent: #1b1a18;
+  --on-accent: #f5f3ee;
+  --hover: #e6e5e0;
+  --reticle: #1b1a18;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Literata", Georgia, "Times New Roman", serif;
+  --font-head: "Literata", Georgia, "Times New Roman", serif;
+  --font-body: "Literata", Georgia, "Times New Roman", serif;
+  --font-ui: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  /* The page's side margins, generous like a book's; the columns' gap is both together, so a page is the panel's width. */
+  --pp-pad: 26px;
+  --panel-w: clamp(300px, 31vw, 420px);
+  --pp-i-globe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.2'/%3E%3Cellipse cx='8' cy='8' rx='2.7' ry='6.2'/%3E%3Cpath d='M1.8 8h12.4'/%3E%3C/svg%3E");
+  --pp-i-page: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 1.8h6l3 3v9.4h-9z'/%3E%3Cpath d='M9.5 1.8v3h3'/%3E%3Cpath d='M5.6 8h4.8M5.6 10.6h4.8'/%3E%3C/svg%3E");
+  --pp-i-topics: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 4h8.5M5.5 8h8.5M5.5 12h8.5'/%3E%3Cpath d='M2.3 4h.1M2.3 8h.1M2.3 12h.1' stroke-width='2'/%3E%3C/svg%3E");
+  --pp-i-translate: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 2.5h8v5.5H6.2L3.8 10V8H2z'/%3E%3Cpath d='M12 6h2v5.5h-1.4v2l-2.4-2H6.5V10'/%3E%3C/svg%3E");
+  --pp-i-pin: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 1.8h8v12.4l-4-3.2-4 3.2z'/%3E%3C/svg%3E");
+  --pp-i-about: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.2'/%3E%3Cpath d='M8 7.2v4.2'/%3E%3Cpath d='M8 4.7v.1' stroke-width='1.8'/%3E%3C/svg%3E");
+  --pp-i-replay: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.2 8.6a4.9 4.9 0 1 0 1.5-4.2'/%3E%3Cpath d='M4.4 1.8v2.8h2.8'/%3E%3C/svg%3E");
+  --pp-i-key: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='2.5' width='12' height='11' rx='1.5'/%3E%3Cpath d='M7 6h4.5M7 10h4.5'/%3E%3Cpath d='M4.4 6h.1M4.4 10h.1' stroke-width='2'/%3E%3C/svg%3E");
+}
+:root[data-theme="paper"] body {
+  background: var(--page);
+  -webkit-font-smoothing: auto;
+}
+/* Everything that makes the page: paper, whatever is behind it. */
+:root[data-theme="paper"] .masthead,
+:root[data-theme="paper"] .toolbar,
+:root[data-theme="paper"] .banner,
+:root[data-theme="paper"] .timebar {
+  background: var(--page);
+}
+:root[data-theme="paper"] .masthead {
+  border-bottom: 1px solid var(--pp-g12);
+  padding-block: 12px;
+}
+:root[data-theme="paper"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  font-size: clamp(24px, 2.4vw, 32px);
+  letter-spacing: -0.01em;
+}
+:root[data-theme="paper"] .mast-tag {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ink-2);
+}
+:root[data-theme="paper"] .telegram-kicker,
+:root[data-theme="paper"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+}
+:root[data-theme="paper"] .telegram-note,
+:root[data-theme="paper"] .telegram-none,
+:root[data-theme="paper"] .telegram-status {
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+/* The word as a book's title: the reading face in sentence case, a fine rule under it to say it opens. */
+:root[data-theme="paper"] .telegram-word {
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  color: var(--ink);
+  border-bottom: 1px solid var(--pp-g6);
+  padding: 0 6px 4px;
+}
+:root[data-theme="paper"] .telegram-word:hover {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+:root[data-theme="paper"] .scale {
+  border-color: var(--ink);
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="paper"] .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="paper"] .scale .step.on {
+  background: var(--ink);
+  color: var(--page);
+}
+
+/* Controls: outlined in ink with soft corners, filled in ink when on, like an e-ink screen's touch buttons. */
+:root[data-theme="paper"] .toolbar {
+  border-bottom: 1px solid var(--pp-g12);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="paper"] .tool,
+:root[data-theme="paper"] .pick select,
+:root[data-theme="paper"] .menu > summary,
+:root[data-theme="paper"] .chip,
+:root[data-theme="paper"] .key-btn,
+:root[data-theme="paper"] .key-close,
+:root[data-theme="paper"] dialog .close,
+:root[data-theme="paper"] .pp-turn {
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="paper"] .chip {
+  border-radius: 999px;
+}
+:root[data-theme="paper"] .tool:hover,
+:root[data-theme="paper"] .pick select:hover,
+:root[data-theme="paper"] .menu > summary:hover,
+:root[data-theme="paper"] .chip:hover,
+:root[data-theme="paper"] .key-btn:hover,
+:root[data-theme="paper"] .key-close:hover,
+:root[data-theme="paper"] dialog .close:hover,
+:root[data-theme="paper"] .pp-turn:hover:not(:disabled) {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .tool[aria-pressed="true"],
+:root[data-theme="paper"] .tool.primary,
+:root[data-theme="paper"] .menu[open] > summary,
+:root[data-theme="paper"] .chip[aria-pressed="true"],
+:root[data-theme="paper"] .key-btn[aria-expanded="true"] {
+  background: var(--ink);
+  color: var(--page);
+}
+:root[data-theme="paper"] .tool.primary:hover {
+  background: var(--pp-g2);
+}
+:root[data-theme="paper"] :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+:root[data-theme="paper"] .pick::after {
+  opacity: 1;
+}
+/* Outline icons beside the controls, drawn in the text's own ink. */
+:root[data-theme="paper"] .pick:has(#view-select)::before,
+:root[data-theme="paper"] .pick:has(#design-select)::before,
+:root[data-theme="paper"] #translate-pick::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  margin-top: -7.5px;
+  background: currentColor;
+  -webkit-mask: var(--pp-i-globe) center / contain no-repeat;
+  mask: var(--pp-i-globe) center / contain no-repeat;
+  pointer-events: none;
+}
+:root[data-theme="paper"] .pick:has(#design-select)::before {
+  -webkit-mask-image: var(--pp-i-page);
+  mask-image: var(--pp-i-page);
+}
+:root[data-theme="paper"] #translate-pick::before {
+  -webkit-mask-image: var(--pp-i-translate);
+  mask-image: var(--pp-i-translate);
+}
+:root[data-theme="paper"] .pick select {
+  padding-left: 30px;
+}
+:root[data-theme="paper"] .menu > summary::before,
+:root[data-theme="paper"] #about-btn .wide::before,
+:root[data-theme="paper"] #play::before,
+:root[data-theme="paper"] .key-btn::before {
+  content: "";
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  vertical-align: -3px;
+  background: currentColor;
+  -webkit-mask: var(--pp-i-topics) center / contain no-repeat;
+  mask: var(--pp-i-topics) center / contain no-repeat;
+}
+:root[data-theme="paper"] #pins-menu > summary::before {
+  -webkit-mask-image: var(--pp-i-pin);
+  mask-image: var(--pp-i-pin);
+}
+:root[data-theme="paper"] #about-btn .wide::before {
+  -webkit-mask-image: var(--pp-i-about);
+  mask-image: var(--pp-i-about);
+}
+:root[data-theme="paper"] #play::before {
+  -webkit-mask-image: var(--pp-i-replay);
+  mask-image: var(--pp-i-replay);
+}
+:root[data-theme="paper"] .key-btn::before {
+  width: 13px;
+  height: 13px;
+  margin-right: 5px;
+  vertical-align: -2px;
+  -webkit-mask-image: var(--pp-i-key);
+  mask-image: var(--pp-i-key);
+}
+:root[data-theme="paper"] .menu-body,
+:root[data-theme="paper"] .key-pop,
+:root[data-theme="paper"] .map-note {
+  background: var(--page);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: none;
+}
+:root[data-theme="paper"] .menu-item {
+  border-bottom-color: var(--pp-g12);
+}
+:root[data-theme="paper"] .banner {
+  border-bottom: 1px solid var(--pp-g12);
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+}
+
+/* The map: the canvas draws the paper, the stipple and the coasts. */
+:root[data-theme="paper"] .stage {
+  background: var(--pp-g14);
+}
+:root[data-theme="paper"] .map {
+  background: var(--page);
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+:root[data-theme="paper"] .key-btn {
+  font-size: 13px;
+  padding: 5px 10px;
+}
+:root[data-theme="paper"] .zoom {
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--page);
+  overflow: hidden;
+}
+:root[data-theme="paper"] .zoom button {
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="paper"] .zoom button:hover {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .zoom button + button {
+  border-top-color: var(--ink);
+}
+
+/* The page: the panel laid out in columns one page wide and one page tall, so it turns rather than scrolls. */
+:root[data-theme="paper"] .panel {
+  grid-column: 2;
+  grid-row: 1;
+  border-left: 1px solid var(--ink);
+  background: var(--page);
+  padding: 22px var(--pp-pad) 14px;
+}
+:root[data-theme="paper"] .panel:not(.framed) {
+  overflow: hidden;
+  column-count: 1;
+  column-gap: calc(2 * var(--pp-pad));
+  column-fill: auto;
+  /* Turns by swipe, tap and keys; nothing pans it. */
+  touch-action: pinch-zoom;
+  overscroll-behavior: none;
+}
+:root[data-theme="paper"] .panel.framed {
+  grid-row: 1 / 3;
+  padding: 0;
+}
+/* Keep a story, a source or a heading with what follows it whole on a page where it fits; a longer one still flows on. */
+:root[data-theme="paper"] .stories li,
+:root[data-theme="paper"] .source,
+:root[data-theme="paper"] .dateline,
+:root[data-theme="paper"] .actions,
+:root[data-theme="paper"] .scale,
+:root[data-theme="paper"] .earlier-day,
+:root[data-theme="paper"] .lead,
+:root[data-theme="paper"] .event-score {
+  break-inside: avoid;
+}
+:root[data-theme="paper"] .panel h2,
+:root[data-theme="paper"] .panel h3,
+:root[data-theme="paper"] .kicker,
+:root[data-theme="paper"] .back,
+:root[data-theme="paper"] .pp-pages h2,
+:root[data-theme="paper"] .pp-pages h3 {
+  break-after: avoid;
+}
+:root[data-theme="paper"] .lead img {
+  max-height: min(240px, 34dvh);
+  border: 1px solid var(--ink);
+  filter: grayscale(1);
+}
+:root[data-theme="paper"] .panel-title,
+:root[data-theme="paper"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+:root[data-theme="paper"] .dateline {
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 10px;
+}
+:root[data-theme="paper"] .dateline .coords,
+:root[data-theme="paper"] .count,
+:root[data-theme="paper"] .meta,
+:root[data-theme="paper"] .byline {
+  font-family: var(--font-ui);
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="paper"] .meta {
+  font-size: 13.5px;
+}
+:root[data-theme="paper"] .headline {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.35;
+}
+:root[data-theme="paper"] .story {
+  padding: 12px 2px;
+  gap: 4px;
+}
+:root[data-theme="paper"] .story:hover {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .stories li + li {
+  border-top: 1px solid var(--pp-g12);
+}
+:root[data-theme="paper"] .stories-group {
+  font-family: var(--font-ui);
+  opacity: 1;
+  color: var(--ink-2);
+}
+:root[data-theme="paper"] .stories + .stories-group {
+  border-top: 1px solid var(--pp-g12);
+}
+:root[data-theme="paper"] .related {
+  font-family: var(--font-ui);
+  color: var(--ink-2);
+}
+:root[data-theme="paper"] .kicker,
+:root[data-theme="paper"] .fine,
+:root[data-theme="paper"] .translated {
+  font-family: var(--font-ui);
+  color: var(--muted);
+}
+:root[data-theme="paper"] .fine {
+  font-size: 13px;
+  line-height: 1.45;
+}
+:root[data-theme="paper"] .rule-head {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--pp-g12);
+  text-align: left;
+}
+:root[data-theme="paper"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: clamp(22px, 2.2vw, 28px);
+  line-height: 1.2;
+}
+:root[data-theme="paper"] .byline {
+  border-bottom: 1px solid var(--pp-g12);
+}
+:root[data-theme="paper"] .excerpt,
+:root[data-theme="paper"] .explain-text {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+:root[data-theme="paper"] .excerpt::first-letter {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+:root[data-theme="paper"] .excerpt-quote {
+  border-left: 2px solid var(--ink);
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="paper"] .cite,
+:root[data-theme="paper"] .source-num {
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  color: var(--ink);
+}
+:root[data-theme="paper"] .source {
+  border-top-color: var(--pp-g12);
+}
+:root[data-theme="paper"] .source-title {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+:root[data-theme="paper"] .score-chip {
+  border-radius: 4px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="paper"] .event-score {
+  font-family: var(--font-body);
+}
+
+/* The page's foot: Previous, the page count, Next. Hidden in every other design. */
+.pp-pager,
+.pp-side {
+  display: none;
+}
+:root[data-theme="paper"] .pp-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px 10px;
+  background: var(--page);
+  font: 600 14px/1.2 var(--font-ui);
+  color: var(--ink);
+}
+:root[data-theme="paper"] .stage > .pp-pager {
+  grid-column: 2;
+  grid-row: 2;
+  border-left: 1px solid var(--ink);
+  border-top: 1px solid var(--pp-g12);
+}
+:root[data-theme="paper"] .panel.framed + .pp-pager {
+  display: none;
+}
+:root[data-theme="paper"] .pp-turn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  line-height: 1.1;
+  cursor: pointer;
+}
+:root[data-theme="paper"] .pp-turn:disabled {
+  border-color: var(--pp-g11);
+  color: var(--pp-g8);
+  cursor: default;
+}
+:root[data-theme="paper"] .pp-icon {
+  flex: none;
+  display: block;
+}
+:root[data-theme="paper"] .pp-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+/* About is paged too: the text in its own columns over the same fading grey, its foot under it. */
+:root[data-theme="paper"] dialog {
+  width: min(620px, calc(100vw - 32px));
+  height: min(640px, calc(100dvh - 48px));
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: none;
+  background: var(--pp-g14);
+  overflow: hidden;
+}
+:root[data-theme="paper"] dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+:root[data-theme="paper"] dialog::backdrop {
+  background: rgba(27, 26, 24, 0.4);
+}
+:root[data-theme="paper"] .pp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 10px 28px;
+  border-bottom: 1px solid var(--pp-g12);
+  background: var(--page);
+}
+:root[data-theme="paper"] .pp-head h2 {
+  margin: 0;
+}
+:root[data-theme="paper"] .pp-head form {
+  flex: none;
+}
+:root[data-theme="paper"] dialog .close {
+  float: none;
+}
+:root[data-theme="paper"] .pp-pages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 22px 28px 12px;
+  column-count: 1;
+  column-gap: 56px;
+  column-fill: auto;
+  background: var(--page);
+  touch-action: pinch-zoom;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+:root[data-theme="paper"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+:root[data-theme="paper"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+:root[data-theme="paper"] .pp-pages p,
+:root[data-theme="paper"] .pp-pages li {
+  orphans: 2;
+  widows: 2;
+}
+:root[data-theme="paper"] dialog > .pp-pager {
+  border-top: 1px solid var(--pp-g12);
+}
+
+/* The time bar is the page's last line. */
+:root[data-theme="paper"] .timebar {
+  border-top: 1px solid var(--pp-g12);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="paper"] .slider input {
+  accent-color: var(--ink);
+}
+:root[data-theme="paper"] .time-label {
+  color: var(--ink-2);
+}
+
+/* A wide screen holds the page in a thin dark bezel, with the device's two page buttons on its sides. */
+@media (min-width: 761px) {
+  :root[data-theme="paper"] body {
+    background: var(--pp-g1);
+    padding: 12px 34px;
+  }
+  :root[data-theme="paper"] .masthead {
+    border-radius: 6px 6px 0 0;
+  }
+  :root[data-theme="paper"] .timebar {
+    border-radius: 0 0 6px 6px;
+  }
+  :root[data-theme="paper"] .stage {
+    grid-template-columns: minmax(0, 1fr) var(--panel-w);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  :root[data-theme="paper"] .stage:has(.panel.framed) {
+    grid-template-columns: minmax(0, 1fr) min(62vw, 920px);
+  }
+  :root[data-theme="paper"] .pp-side {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    top: 50%;
+    z-index: 40;
+    width: 20px;
+    height: 72px;
+    margin-top: -36px;
+    padding: 0;
+    border: 1px solid var(--pp-g4);
+    border-radius: 10px;
+    background: var(--pp-g1);
+    color: var(--pp-g11);
+    cursor: pointer;
+  }
+  :root[data-theme="paper"] .pp-side:hover {
+    color: var(--pp-g15);
+    border-color: var(--pp-g8);
+  }
+  :root[data-theme="paper"] .pp-side:focus-visible {
+    outline-color: var(--pp-g15);
+  }
+  :root[data-theme="paper"] .pp-side-prev {
+    left: 7px;
+  }
+  :root[data-theme="paper"] .pp-side-next {
+    right: 7px;
+  }
+  /* The Key opens inside the page, clear of the bezel's right button. */
+  :root[data-theme="paper"] .key-pop {
+    right: 52px;
+    bottom: 64px;
+  }
+}
+
+/* On a phone the page fills the screen: a shorter masthead, the map over the page, its foot at the bottom. */
+@media (max-width: 760px) {
+  :root[data-theme="paper"] {
+    --pp-pad: 18px;
+  }
+  :root[data-theme="paper"] .masthead {
+    gap: 2px;
+    padding-block: 8px 6px;
+  }
+  :root[data-theme="paper"] .mast-title {
+    font-size: 24px;
+  }
+  :root[data-theme="paper"] .mast-tag {
+    font-size: 12px;
+  }
+  :root[data-theme="paper"] .telegram-date {
+    border-top-color: var(--pp-g12);
+    border-bottom-color: var(--pp-g12);
+    padding: 3px 0;
+    font-size: 11px;
+  }
+  :root[data-theme="paper"] .telegram-center {
+    margin-top: 0;
+  }
+  :root[data-theme="paper"] .telegram-word {
+    font-size: min(46px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.62)));
+  }
+  :root[data-theme="paper"] .telegram-side .telegram-note {
+    font-size: 11.5px;
+  }
+  :root[data-theme="paper"] .stage,
+  :root[data-theme="paper"] .stage:has(.panel.framed) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr) auto;
+  }
+  :root[data-theme="paper"] .stage:has(.panel.reading) {
+    grid-template-rows: minmax(0, 0.5fr) minmax(0, 1.5fr) auto;
+  }
+  :root[data-theme="paper"] .stage:has(.panel.framed) {
+    grid-template-rows: 0 minmax(0, 1fr) auto;
+  }
+  :root[data-theme="paper"] .map {
+    grid-row: 1;
+  }
+  :root[data-theme="paper"] .panel {
+    grid-column: 1;
+    grid-row: 2;
+    border-left: 0;
+    border-top: 1px solid var(--ink);
+    padding-top: 16px;
+  }
+  :root[data-theme="paper"] .panel.framed {
+    grid-row: 2;
+  }
+  :root[data-theme="paper"] .stage > .pp-pager {
+    grid-column: 1;
+    grid-row: 3;
+    border-left: 0;
+    padding: 6px var(--gutter) 8px;
+  }
+  :root[data-theme="paper"] .place-name,
+  :root[data-theme="paper"] .panel-title {
+    font-size: 22px;
+  }
+  :root[data-theme="paper"] .headline {
+    font-size: 16px;
+  }
+  /* The toolbar keeps to one row on a 360 pixel phone, so its icons step aside there. */
+  :root[data-theme="paper"] .pick select {
+    padding-left: 8px;
+  }
+  :root[data-theme="paper"] .pick:has(#view-select)::before,
+  :root[data-theme="paper"] .pick:has(#design-select)::before,
+  :root[data-theme="paper"] #translate-pick::before,
+  :root[data-theme="paper"] .menu > summary::before {
+    display: none;
+  }
+  :root[data-theme="paper"] .pp-pages {
+    padding: 16px 20px 10px;
+    column-gap: 40px;
+  }
+  :root[data-theme="paper"] .pp-head {
+    padding-left: 20px;
+  }
+}
+
+/* ---- Shortwave (id shortwave, experimental): after the feel of a mid-century world-band radio receiver, with no
+   maker's name, logo or dial printing copied. A walnut cabinet round the page, cream push-buttons in brass rims,
+   Bakelite knobs for zoom, and under the map the radio's front (src/ui/dial.ts): a speaker grille, a green tuning lamp,
+   a long backlit cream dial window with a red needle, and the big tuning knob that turns the world. The panel is the
+   radio's printed station log card. Limelight for the name and the word, Barlow Condensed for the dial's printing and
+   the buttons, Courier Prime for the card. ------------------------------------------------------------------------ */
+.sw-radio {
+  display: none;
+}
+:root[data-theme="shortwave"] {
+  color-scheme: light;
+  --page: #3d2414;
+  --panel: #f6eed6;
+  --ink: #2f2012;
+  --ink-2: #4a3520;
+  --muted: #6e5a40;
+  --rule: #8a6a3a;
+  --accent: #a3271b;
+  --on-accent: #fff6e0;
+  --hover: rgba(122, 82, 34, 0.1);
+  --reticle: #c62a1c;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Limelight", "Rockwell", Georgia, serif;
+  --font-head: "Courier Prime", "Courier New", monospace;
+  --font-body: "Courier Prime", "Courier New", monospace;
+  --font-ui: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --sw-cream: #f3e7c4;
+  --sw-cream-2: #e7d6a6;
+  --sw-brass: #c49a4a;
+  --sw-brass-hi: #ecd08c;
+  --sw-brass-lo: #7d5c22;
+  --sw-bakelite: #2d170a;
+  --sw-red: #c62a1c;
+  --sw-card-rule: rgba(64, 104, 168, 0.2);
+  /* Walnut: long dark streaks of grain drawn once from noise over a warm brown, the figure running across the cabinet. */
+  --sw-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='420'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0016 0.075' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.035 0 0 0 0 0.01 3.2 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E");
+  /* Its lighter figure: the same kind of noise, finer and paler, a little off the dark streaks. */
+  --sw-figure: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.003 0.16' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.62 0 0 0 0 0.4 0 0 0 0 0.22 1.4 0 0 0 -0.78'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --sw-wood:
+    var(--sw-grain) 0 0 / 1600px 420px,
+    var(--sw-figure) 0 0 / 1600px 300px,
+    linear-gradient(to bottom, rgba(255, 214, 160, 0.06), rgba(0, 0, 0, 0.12)),
+    #5a3419;
+  /* A push-button: a cream cap, domed a little, in a brass rim. */
+  --sw-cap: radial-gradient(ellipse 120% 90% at 50% 18%, #fffaf0 0%, #f3e7c4 48%, #ddc994 100%);
+  --sw-cap-hover: radial-gradient(ellipse 120% 90% at 50% 18%, #ffffff 0%, #f8eed2 48%, #e6d3a2 100%);
+  --sw-cap-down: radial-gradient(ellipse 120% 90% at 50% 80%, #fff3d6 0%, #efd9a4 55%, #d7bb7a 100%);
+  --sw-rim: 0 0 0 2px var(--sw-brass), 0 0 0 3px var(--sw-brass-lo), 0 2px 0 3px rgba(0, 0, 0, 0.45);
+  --sw-rim-down: 0 0 0 2px var(--sw-brass-hi), 0 0 0 3px var(--sw-brass-lo), inset 0 2px 3px rgba(90, 60, 20, 0.45);
+}
+:root[data-theme="shortwave"] body {
+  background: var(--sw-wood);
+}
+
+/* The masthead: the cabinet's top, the name in cream deco capitals like an inlaid nameplate, a brass strip below. */
+:root[data-theme="shortwave"] .masthead {
+  border-bottom: 0;
+  box-shadow: inset 0 -3px 0 var(--sw-brass), inset 0 -4px 0 var(--sw-brass-lo), inset 0 -10px 8px -6px rgba(0, 0, 0, 0.35);
+  padding-bottom: 14px;
+}
+:root[data-theme="shortwave"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(26px, 2.8vw, 38px);
+  letter-spacing: 0.02em;
+  color: var(--sw-cream);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 230, 180, 0.25);
+  white-space: nowrap;
+}
+:root[data-theme="shortwave"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sw-brass-hi);
+}
+:root[data-theme="shortwave"] .telegram-kicker,
+:root[data-theme="shortwave"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--sw-brass-hi);
+}
+:root[data-theme="shortwave"] .telegram-note,
+:root[data-theme="shortwave"] .telegram-none,
+:root[data-theme="shortwave"] .telegram-status {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 14px;
+  color: #ecdcb6;
+}
+:root[data-theme="shortwave"] .telegram-side .telegram-note {
+  font-size: 14px;
+}
+:root[data-theme="shortwave"] .telegram-note a,
+:root[data-theme="shortwave"] .telegram .note-link {
+  color: var(--sw-cream);
+}
+/* The word on a small backlit plate of dial glass in a brass bezel. */
+:root[data-theme="shortwave"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #3a2410;
+  padding: 2px 0.45em 4px;
+  border: 0;
+  border-radius: 6px;
+  background: radial-gradient(ellipse 80% 120% at 50% 50%, #fff6d8 0%, #f6e6b8 55%, #e2c98a 100%);
+  box-shadow: 0 0 0 2px var(--sw-brass), 0 0 0 3px var(--sw-brass-lo), 0 0 18px rgba(255, 196, 110, 0.35), inset 0 0 10px rgba(150, 100, 30, 0.35);
+  text-decoration: none;
+}
+:root[data-theme="shortwave"] .telegram-word:hover,
+:root[data-theme="shortwave"] .telegram-word:focus-visible {
+  outline: none;
+  background: radial-gradient(ellipse 80% 120% at 50% 50%, #ffffff 0%, #fbedc6 55%, #e8d299 100%);
+  box-shadow: 0 0 0 2px var(--sw-brass-hi), 0 0 0 3px var(--sw-brass-lo), 0 0 24px rgba(255, 196, 110, 0.55), inset 0 0 10px rgba(150, 100, 30, 0.3);
+}
+:root[data-theme="shortwave"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+}
+:root[data-theme="shortwave"] .scale {
+  border: 1px solid var(--sw-brass-lo);
+  border-radius: 4px;
+  background: #f3e7c4;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: var(--ink);
+}
+:root[data-theme="shortwave"] .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="shortwave"] .scale .step + .step {
+  border-left-color: rgba(125, 92, 34, 0.5);
+}
+:root[data-theme="shortwave"] .scale .step.on {
+  background: var(--sw-red);
+  color: #fff6e0;
+}
+:root[data-theme="shortwave"] .telegram-view .scale {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+/* The toolbar and time bar are bands of the cabinet, the controls cream push-buttons in brass rims. */
+:root[data-theme="shortwave"] .toolbar {
+  border-bottom: 0;
+  padding-block: 9px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  gap: 12px;
+}
+:root[data-theme="shortwave"] .banner {
+  background: rgba(20, 10, 4, 0.35);
+  color: #ecdcb6;
+  border-bottom: 0;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="shortwave"] .tool,
+:root[data-theme="shortwave"] .tool.quiet,
+:root[data-theme="shortwave"] .pick select,
+:root[data-theme="shortwave"] .menu > summary,
+:root[data-theme="shortwave"] .chip,
+:root[data-theme="shortwave"] .key-btn,
+:root[data-theme="shortwave"] .key-close,
+:root[data-theme="shortwave"] dialog .close {
+  border: 0;
+  border-radius: 5px;
+  background: var(--sw-cap);
+  color: #3a2410;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: var(--sw-rim);
+}
+:root[data-theme="shortwave"] .pick {
+  color: #3a2410;
+}
+:root[data-theme="shortwave"] .pick::after {
+  opacity: 0.8;
+}
+:root[data-theme="shortwave"] .pick option,
+:root[data-theme="shortwave"] .pick optgroup {
+  background: #f6eed6;
+  color: var(--ink);
+  text-transform: none;
+}
+:root[data-theme="shortwave"] .tool:hover,
+:root[data-theme="shortwave"] .tool.quiet:hover,
+:root[data-theme="shortwave"] .pick select:hover,
+:root[data-theme="shortwave"] .menu > summary:hover,
+:root[data-theme="shortwave"] .chip:hover,
+:root[data-theme="shortwave"] .key-btn:hover,
+:root[data-theme="shortwave"] .key-close:hover,
+:root[data-theme="shortwave"] dialog .close:hover {
+  background: var(--sw-cap-hover);
+}
+/* Pressed in: the cap sinks into its rim and a small red mark lights under it, as a band button's would. */
+:root[data-theme="shortwave"] .tool[aria-pressed="true"],
+:root[data-theme="shortwave"] .menu[open] > summary,
+:root[data-theme="shortwave"] .chip[aria-pressed="true"],
+:root[data-theme="shortwave"] .key-btn[aria-expanded="true"] {
+  background:
+    linear-gradient(var(--sw-red), var(--sw-red)) 50% calc(100% - 3px) / 14px 2px no-repeat,
+    var(--sw-cap-down);
+  color: #2a1808;
+  box-shadow: var(--sw-rim-down);
+}
+:root[data-theme="shortwave"] .tool[disabled] {
+  opacity: 0.55;
+}
+:root[data-theme="shortwave"] .tool:focus-visible,
+:root[data-theme="shortwave"] .pick select:focus-visible,
+:root[data-theme="shortwave"] .menu > summary:focus-visible,
+:root[data-theme="shortwave"] .chip:focus-visible,
+:root[data-theme="shortwave"] .key-btn:focus-visible {
+  outline: 2px solid #ffe08a;
+  outline-offset: 3px;
+}
+:root[data-theme="shortwave"] .chip {
+  margin: 2px;
+}
+:root[data-theme="shortwave"] .timebar {
+  border-top: 0;
+  box-shadow: inset 0 3px 0 var(--sw-brass), inset 0 4px 0 var(--sw-brass-lo);
+  padding-top: 13px;
+  color: #ecdcb6;
+}
+:root[data-theme="shortwave"] .time-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: var(--sw-cream);
+}
+:root[data-theme="shortwave"] .slider input {
+  accent-color: var(--sw-brass);
+}
+
+/* The radio's front is its own row under the map, so the map keeps its whole frame. */
+:root[data-theme="shortwave"] .stage {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+:root[data-theme="shortwave"] .map {
+  grid-column: 1;
+  grid-row: 1;
+}
+:root[data-theme="shortwave"] .panel {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+/* The map behind glass in a brass bezel, lit warm from behind: the light shows round the globe. */
+:root[data-theme="shortwave"] .map {
+  margin: 10px 6px 0 12px;
+  border-radius: 14px;
+  background: radial-gradient(ellipse 58% 62% at 50% 50%, #f8d79a 0%, #d99a52 38%, #7a4520 72%, #2e1a0c 100%);
+  box-shadow: 0 0 0 3px var(--sw-brass), 0 0 0 4px var(--sw-brass-lo), 0 0 0 9px #2d180b, 0 4px 14px 9px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="shortwave"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #fff6e0) drop-shadow(0 0 1px #fff6e0);
+}
+:root[data-theme="shortwave"] .key-btn {
+  font-size: 13px;
+  padding: 5px 12px;
+}
+/* Zoom: two round Bakelite knobs with ridged edges and a cream sign. */
+:root[data-theme="shortwave"] .zoom {
+  border: 0;
+  background: none;
+  gap: 10px;
+}
+:root[data-theme="shortwave"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--sw-cream);
+  font: 600 22px/1 var(--font-ui);
+  background:
+    radial-gradient(circle at 38% 32%, #7a4a26 0%, #46260f 42%, #1e0f05 68%, transparent 69%),
+    repeating-conic-gradient(#2a160a 0deg 6deg, #5a341a 6deg 12deg);
+  box-shadow: 0 0 0 1px #140a03, 0 3px 5px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="shortwave"] .zoom button:hover {
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 38% 32%, #8a5530 0%, #52301a 42%, #24130a 68%, transparent 69%),
+    repeating-conic-gradient(#2a160a 0deg 6deg, #5a341a 6deg 12deg);
+}
+:root[data-theme="shortwave"] .zoom button + button {
+  border-top: 0;
+}
+
+/* The station log card: the panel, the menus, the Key, the notes and the dialogs are cream cards ruled in faint blue
+   with a red rule at the head, typed in Courier Prime. */
+:root[data-theme="shortwave"] .panel,
+:root[data-theme="shortwave"] .menu-body,
+:root[data-theme="shortwave"] .key-pop,
+:root[data-theme="shortwave"] .map-note,
+:root[data-theme="shortwave"] dialog {
+  background: repeating-linear-gradient(to bottom, transparent 0 25px, var(--sw-card-rule) 25px 26px) local, var(--panel);
+  border: 0;
+  border-radius: 3px;
+  color: var(--ink);
+  box-shadow: 0 0 0 1px rgba(110, 80, 40, 0.5), 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="shortwave"] .panel {
+  margin: 10px 12px 12px 10px;
+  padding: 20px 22px 26px;
+  border-top: 4px solid var(--sw-red);
+}
+:root[data-theme="shortwave"] .panel.framed {
+  padding: 0;
+}
+:root[data-theme="shortwave"] .menu-body,
+:root[data-theme="shortwave"] .key-pop {
+  padding: 14px 18px 16px;
+  border-top: 3px solid var(--sw-red);
+}
+:root[data-theme="shortwave"] .menu-body {
+  min-width: 260px;
+}
+:root[data-theme="shortwave"] dialog {
+  padding: 24px 28px 26px;
+  border-top: 5px solid var(--sw-red);
+}
+:root[data-theme="shortwave"] dialog::backdrop {
+  background: rgba(30, 16, 6, 0.62);
+}
+:root[data-theme="shortwave"] .panel-title,
+:root[data-theme="shortwave"] .place-name,
+:root[data-theme="shortwave"] .key-head h2,
+:root[data-theme="shortwave"] dialog h2 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="shortwave"] .key-head h2 {
+  font-size: 17px;
+}
+:root[data-theme="shortwave"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+:root[data-theme="shortwave"] .dateline {
+  border-bottom: 2px solid var(--sw-red);
+}
+:root[data-theme="shortwave"] .dateline .coords,
+:root[data-theme="shortwave"] .count,
+:root[data-theme="shortwave"] .meta {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 13px;
+  color: var(--muted);
+}
+:root[data-theme="shortwave"] .kicker {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+/* Section heads are printed bands on the card: condensed capitals between two rules. */
+:root[data-theme="shortwave"] .rule-head {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-top: 1px solid rgba(163, 39, 27, 0.6);
+  border-bottom: 1px solid rgba(163, 39, 27, 0.6);
+  padding: 4px 0;
+}
+:root[data-theme="shortwave"] .stories-group {
+  font-family: var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  opacity: 1;
+}
+:root[data-theme="shortwave"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #24180c;
+}
+:root[data-theme="shortwave"] .reader-headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+:root[data-theme="shortwave"] .story:hover,
+:root[data-theme="shortwave"] .story:focus-visible {
+  outline: none;
+  background: rgba(230, 138, 28, 0.12);
+}
+:root[data-theme="shortwave"] .cite,
+:root[data-theme="shortwave"] .source-num {
+  border-color: var(--rule);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="shortwave"] .excerpt-quote {
+  font-style: normal;
+  border-left: 3px solid var(--sw-red);
+}
+:root[data-theme="shortwave"] .panel a,
+:root[data-theme="shortwave"] dialog a {
+  color: var(--accent);
+}
+
+/* ---- The radio's front: grille, lamp, dial and knob on a walnut ledge with a brass strip along its top. ---- */
+:root[data-theme="shortwave"] .sw-radio {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 104px;
+  margin: 14px 6px 10px 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background:
+    linear-gradient(to bottom, rgba(255, 220, 170, 0.08), rgba(0, 0, 0, 0.18)),
+    var(--sw-grain) 0 0 / 1600px 420px,
+    #4b2a14;
+  box-shadow: inset 0 1px 0 rgba(255, 220, 170, 0.18), inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px #1d0f05, 0 3px 8px rgba(0, 0, 0, 0.4);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* The speaker grille: gold-threaded cloth in a woven diamond, behind three thin wooden bars. */
+:root[data-theme="shortwave"] .sw-grille {
+  flex: 0 1 170px;
+  min-width: 90px;
+  align-self: stretch;
+  border-radius: 6px;
+  background:
+    linear-gradient(to right, transparent 0 24%, #3c210f 24% 27%, transparent 27% 48.5%, #3c210f 48.5% 51.5%, transparent 51.5% 73%, #3c210f 73% 76%, transparent 76%),
+    repeating-linear-gradient(45deg, rgba(60, 36, 12, 0.35) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(-45deg, rgba(60, 36, 12, 0.35) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(to right, rgba(255, 236, 190, 0.18) 0 1px, transparent 1px 3px),
+    linear-gradient(to bottom, #c6a466, #a8844a);
+  box-shadow: inset 0 0 0 1px #2a160a, inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--sw-brass-lo);
+}
+/* The tuning lamp in a small brass cup. */
+:root[data-theme="shortwave"] .sw-eye {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  padding: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a0f06 60%, var(--sw-brass-lo) 62%, var(--sw-brass-hi) 80%, var(--sw-brass) 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="shortwave"] .sw-eye-tube {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+:root[data-theme="shortwave"] .sw-eye-lit {
+  opacity: 0.42;
+  transition: opacity var(--sw-lamp-fade, 0.5s) linear;
+}
+:root[data-theme="shortwave"] .sw-eye-wing {
+  opacity: 0.42;
+  transform-box: view-box;
+  transform-origin: 20px 20px;
+  transition:
+    transform var(--sw-lamp-fade, 0.5s) ease-in-out,
+    opacity var(--sw-lamp-fade, 0.5s) linear;
+}
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-lit,
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-wing {
+  opacity: 1;
+}
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-left {
+  transform: rotate(var(--sw-wing, 38deg));
+}
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-right {
+  transform: rotate(calc(-1 * var(--sw-wing, 38deg)));
+}
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px rgba(120, 230, 120, 0.35);
+}
+/* The dial: a long window of cream glass, lit from behind, in a brass bezel. */
+:root[data-theme="shortwave"] .sw-dial {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+  padding: 4px;
+  border-radius: 8px;
+  background: linear-gradient(to bottom, var(--sw-brass-hi), var(--sw-brass) 40%, var(--sw-brass-lo));
+  box-shadow: 0 0 0 1px #1d0f05, 0 2px 4px rgba(0, 0, 0, 0.45);
+  cursor: ew-resize;
+}
+:root[data-theme="shortwave"] .sw-glass {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 5px;
+  background: radial-gradient(ellipse 70% 140% at 50% 50%, #fff7dc 0%, #f6e6b6 52%, #dcc184 100%);
+  box-shadow: inset 0 0 0 1px rgba(90, 60, 20, 0.55), inset 0 3px 8px rgba(110, 70, 20, 0.35), inset 0 0 22px rgba(255, 190, 90, 0.35);
+}
+/* The printed scale, inset so the numbers at its two ends stay on the glass. */
+:root[data-theme="shortwave"] .sw-scale {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 8px;
+  bottom: 8px;
+}
+:root[data-theme="shortwave"] .sw-ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  width: 100%;
+  height: 22px;
+  margin-top: -4px;
+  overflow: visible;
+}
+:root[data-theme="shortwave"] .sw-tick {
+  stroke: #3a2614;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:root[data-theme="shortwave"] .sw-major {
+  stroke-width: 1.6;
+}
+:root[data-theme="shortwave"] .sw-band {
+  fill: #9a7a44;
+}
+:root[data-theme="shortwave"] .sw-band-b {
+  fill: #3a2614;
+}
+:root[data-theme="shortwave"] .sw-nums {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+}
+:root[data-theme="shortwave"] .sw-num {
+  position: absolute;
+  bottom: 6px;
+  transform: translateX(-50%);
+  font: 600 17px/1 var(--font-ui);
+  letter-spacing: 0.02em;
+  color: #2c1c0c;
+  white-space: nowrap;
+}
+:root[data-theme="shortwave"] .sw-num small {
+  margin-left: 1px;
+  font-size: 0.62em;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+/* The needle: a thin red line the height of the scale with a small dark cap, standing at the reticle's longitude. */
+:root[data-theme="shortwave"] .sw-needle {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--sw-red);
+  box-shadow: 0 0 3px rgba(198, 42, 28, 0.45), 1px 0 0 rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+:root[data-theme="shortwave"] .sw-needle::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 0;
+  width: 8px;
+  height: 5px;
+  border-radius: 1px;
+  background: #3a2614;
+}
+/* Static: a faint grain over the glass between places, drifting slowly; it fades out once a place is tuned. */
+:root[data-theme="shortwave"] .sw-static {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--sw-static, 0.32);
+  mix-blend-mode: multiply;
+  transition: opacity var(--sw-static-fade, 0.6s) linear;
+}
+:root[data-theme="shortwave"] .sw-static::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -220px;
+  right: 0;
+  background-image: var(--grain);
+  animation: sw-drift var(--sw-drift, 16s) linear infinite;
+}
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-static {
+  opacity: 0;
+}
+:root[data-theme="shortwave"] .sw-radio.tuned .sw-static::before {
+  animation-play-state: paused;
+}
+@keyframes sw-drift {
+  to {
+    transform: translateX(220px);
+  }
+}
+/* The tuning knob: big, round and ridged; it turns with the world, and dragging round it turns the world. */
+:root[data-theme="shortwave"] .sw-tune {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+:root[data-theme="shortwave"] .sw-tune-label {
+  font: 600 11px/1 var(--font-ui);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sw-brass-hi);
+  white-space: nowrap;
+}
+:root[data-theme="shortwave"] .sw-knob {
+  position: relative;
+  flex: none;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.55));
+}
+:root[data-theme="shortwave"] .sw-knob:active {
+  cursor: grabbing;
+}
+:root[data-theme="shortwave"] .sw-knob:focus-visible {
+  outline: 3px solid #ffe08a;
+  outline-offset: 3px;
+}
+:root[data-theme="shortwave"] .sw-knob-body {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+:root[data-theme="shortwave"] .sw-knob-gloss {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(ellipse 46% 30% at 38% 26%, rgba(255, 236, 205, 0.32), transparent 70%);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="shortwave"] .sw-static::before {
+    animation: none;
+  }
+  :root[data-theme="shortwave"] .sw-static,
+  :root[data-theme="shortwave"] .sw-eye-lit,
+  :root[data-theme="shortwave"] .sw-eye-wing {
+    transition: none;
+  }
+}
+@media (max-width: 1100px) {
+  :root[data-theme="shortwave"] .sw-grille {
+    flex-basis: 96px;
+  }
+}
+/* Between a phone and a wide screen the name shares its row with the word. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  :root[data-theme="shortwave"] .mast-title {
+    font-size: 24px;
+  }
+  :root[data-theme="shortwave"] .mast-tag {
+    letter-spacing: 0.14em;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="shortwave"] .toolbar {
+    gap: 9px;
+    font-size: 14px;
+    padding-inline: 12px;
+  }
+  :root[data-theme="shortwave"] .tool,
+  :root[data-theme="shortwave"] .pick select,
+  :root[data-theme="shortwave"] .menu > summary {
+    letter-spacing: 0.02em;
+  }
+  :root[data-theme="shortwave"] .tool,
+  :root[data-theme="shortwave"] .menu > summary {
+    padding-inline: 8px;
+  }
+  :root[data-theme="shortwave"] .pick select {
+    padding-left: 8px;
+    padding-right: 19px;
+  }
+  :root[data-theme="shortwave"] .pick::after {
+    right: 7px;
+  }
+  :root[data-theme="shortwave"] .mast-title {
+    font-size: 28px;
+  }
+  :root[data-theme="shortwave"] .telegram-word {
+    font-size: min(48px, calc((100vw - 2 * var(--gutter) - 32px) / (var(--len, 8) * 0.9)));
+  }
+  :root[data-theme="shortwave"] .telegram-big {
+    font-size: min(30px, calc((100vw - 2 * var(--gutter) - 64px) / 13));
+  }
+  :root[data-theme="shortwave"] .stage,
+  :root[data-theme="shortwave"] .stage:has(.panel.framed) {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1.2fr) auto minmax(0, 0.8fr);
+  }
+  :root[data-theme="shortwave"] .stage:has(.panel.reading) {
+    grid-template-rows: minmax(0, 0.6fr) auto minmax(0, 1.4fr);
+  }
+  :root[data-theme="shortwave"] .stage:has(.panel.framed) {
+    grid-template-rows: 0 0 minmax(0, 1fr);
+  }
+  :root[data-theme="shortwave"] .stage:has(.panel.framed) .sw-radio {
+    display: none;
+  }
+  :root[data-theme="shortwave"] .map {
+    margin: 8px 10px 0;
+    border-radius: 10px;
+  }
+  :root[data-theme="shortwave"] .panel {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 8px 10px 10px;
+    padding: 16px 16px 22px;
+  }
+  :root[data-theme="shortwave"] .sw-radio {
+    height: 62px;
+    gap: 8px;
+    margin: 12px 10px 2px;
+    padding: 6px 8px;
+  }
+  :root[data-theme="shortwave"] .sw-grille {
+    display: none;
+  }
+  :root[data-theme="shortwave"] .sw-eye {
+    width: 34px;
+    height: 34px;
+    padding: 2px;
+  }
+  :root[data-theme="shortwave"] .sw-scale {
+    left: 14px;
+    right: 14px;
+    top: 4px;
+    bottom: 5px;
+  }
+  :root[data-theme="shortwave"] .sw-num {
+    bottom: 3px;
+    font-size: 13px;
+  }
+  :root[data-theme="shortwave"] .sw-ticks {
+    height: 16px;
+    margin-top: -2px;
+  }
+  :root[data-theme="shortwave"] .sw-knob {
+    width: 52px;
+    height: 52px;
+  }
+  :root[data-theme="shortwave"] .sw-tune-label {
+    display: none;
+  }
+  :root[data-theme="shortwave"] .zoom button {
+    width: 36px;
+    height: 36px;
+  }
+  :root[data-theme="shortwave"] dialog {
+    padding: 22px 18px 22px;
+  }
+}
+
+/* ---- Postcards (experimental): a wire rack of travel postcards in a corner shop -------------------------------
+   After the feel only: no postal service's, airline's, map maker's or company's names, logos, stamps or marks.
+   The map is a folded paper travel map (src/map/postcard.ts); the place's panel is a postcard that turns over
+   (src/ui/postcard.ts); airmail chevrons run round the page and under the masthead; kraft paper buttons and
+   rubber-stamp labels; the rack's chrome wires down the panel's side. */
+:root[data-theme="postcard"] {
+  color-scheme: light;
+  --page: #efe6cf;
+  --panel: #f8f1df;
+  --ink: #2b2118;
+  --ink-2: #4a3b2a;
+  --muted: #6b5a44;
+  --rule: #8a6a42;
+  --accent: #2457a8;
+  --on-accent: #fbf6ea;
+  --hover: rgba(36, 87, 168, 0.08);
+  --reticle: #2b2118;
+  --grain-opacity: 0.32;
+  --grain-blend: multiply;
+  --font-mast: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --font-head: "Courier Prime", "Courier New", monospace;
+  --font-body: "Courier Prime", "Courier New", monospace;
+  --font-ui: "Special Elite", "Courier Prime", "Courier New", monospace;
+  --panel-w: clamp(300px, 32vw, 450px);
+  --pc-red: #c8352d;
+  --pc-blue: #2457a8;
+  --pc-navy: #1f3a6e;
+  --pc-card: #f8f1df;
+  --pc-behind: #ece2c9;
+  --pc-kraft: #c9a272;
+  --pc-kraft-dark: #8a6a42;
+  --pc-rule: #dcc7a5;
+  /* Airmail chevrons: red, cream, blue, cream, at an angle. Our own stripe, no service's mark. */
+  --pc-chevrons: repeating-linear-gradient(-45deg, var(--pc-red) 0 10px, #fbf6ea 10px 16px, var(--pc-blue) 16px 26px, #fbf6ea 26px 32px);
+}
+:root[data-theme="postcard"] body {
+  border: 8px solid transparent;
+  border-image: var(--pc-chevrons) 8;
+  background: var(--page);
+}
+:root[data-theme="postcard"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background: var(--pc-chevrons) left bottom / 100% 8px no-repeat, linear-gradient(#fbf6ea, #f4ecd8);
+}
+:root[data-theme="postcard"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: 0.01em;
+  color: var(--pc-blue);
+  text-shadow: 2px 2px 0 #fbf6ea, 3px 3px 0 var(--pc-red);
+}
+:root[data-theme="postcard"] .mast-tag {
+  font: italic 400 13px/1.3 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="postcard"] .telegram-date {
+  font-family: var(--font-ui);
+  color: var(--ink-2);
+}
+/* Rubber-stamp labels: inked capitals in a ruled box, set a little crooked. */
+:root[data-theme="postcard"] .telegram-kicker,
+:root[data-theme="postcard"] .pc-label,
+:root[data-theme="postcard"] .stories-group,
+:root[data-theme="postcard"] .rule-head {
+  display: inline-block;
+  font: 400 12px/1.2 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--pc-red);
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  padding: 2px 7px 1px;
+  transform: rotate(-2deg);
+  opacity: 0.88;
+  box-shadow: inset 0 0 0 1px rgba(200, 53, 45, 0.25);
+}
+:root[data-theme="postcard"] .telegram-kicker {
+  color: var(--pc-blue);
+}
+:root[data-theme="postcard"] .telegram-note,
+:root[data-theme="postcard"] .telegram-none,
+:root[data-theme="postcard"] .telegram-status {
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="postcard"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--pc-red);
+  border-bottom: 0;
+  padding: 2px 8px 6px;
+  text-shadow: 2px 2px 0 #fbf6ea, 4px 4px 0 var(--pc-navy);
+}
+:root[data-theme="postcard"] .telegram-word:hover,
+:root[data-theme="postcard"] .telegram-word:focus-visible {
+  outline: none;
+  background: var(--hover);
+  box-shadow: inset 0 0 0 2px var(--pc-blue);
+}
+:root[data-theme="postcard"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--pc-red);
+  text-shadow: 2px 2px 0 #fbf6ea, 3px 3px 0 var(--pc-navy);
+}
+:root[data-theme="postcard"] .scale {
+  border: 1.5px solid var(--pc-kraft-dark);
+  background: #fbf6ea;
+}
+:root[data-theme="postcard"] .scale .step {
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+:root[data-theme="postcard"] .scale .step + .step {
+  border-left: 1.5px solid var(--pc-kraft-dark);
+}
+:root[data-theme="postcard"] .scale .step.on {
+  background: var(--pc-blue);
+  color: #fbf6ea;
+}
+:root[data-theme="postcard"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px;
+}
+:root[data-theme="postcard"] .banner {
+  border-bottom: 1px dashed var(--pc-kraft-dark);
+  background: #f4ecd8;
+  color: var(--ink-2);
+}
+/* Kraft paper buttons: brown wrapping paper with its fibres, a darker edge, typed labels. */
+:root[data-theme="postcard"] .tool,
+:root[data-theme="postcard"] .pick select,
+:root[data-theme="postcard"] .menu > summary,
+:root[data-theme="postcard"] .chip,
+:root[data-theme="postcard"] .key-btn,
+:root[data-theme="postcard"] .key-close,
+:root[data-theme="postcard"] dialog .close,
+:root[data-theme="postcard"] .zoom {
+  border: 1.5px solid var(--pc-kraft-dark);
+  border-radius: 3px;
+  background: linear-gradient(#dcbb8c, var(--pc-kraft));
+  color: #33240f;
+  font-family: var(--font-ui);
+  box-shadow: 0 1px 0 rgba(255, 248, 230, 0.6) inset, 0 2px 0 rgba(90, 64, 30, 0.35);
+}
+:root[data-theme="postcard"] .tool:hover,
+:root[data-theme="postcard"] .pick select:hover,
+:root[data-theme="postcard"] .menu > summary:hover,
+:root[data-theme="postcard"] .chip:hover,
+:root[data-theme="postcard"] .key-btn:hover,
+:root[data-theme="postcard"] .key-close:hover,
+:root[data-theme="postcard"] dialog .close:hover {
+  background: linear-gradient(#e4c69a, #d4b083);
+}
+/* On: the paper inked blue. */
+:root[data-theme="postcard"] .tool[aria-pressed="true"],
+:root[data-theme="postcard"] .menu[open] > summary,
+:root[data-theme="postcard"] .chip[aria-pressed="true"],
+:root[data-theme="postcard"] .key-btn[aria-expanded="true"],
+:root[data-theme="postcard"] .tool.primary {
+  background: var(--pc-blue);
+  border-color: var(--pc-navy);
+  color: #fbf6ea;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) inset;
+}
+:root[data-theme="postcard"] .pick::after {
+  opacity: 1;
+  color: #33240f;
+}
+:root[data-theme="postcard"] .pick option,
+:root[data-theme="postcard"] .pick optgroup {
+  font-family: var(--font-body);
+  background: #fbf6ea;
+}
+:root[data-theme="postcard"] .zoom button {
+  color: #33240f;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+:root[data-theme="postcard"] .zoom button + button {
+  border-top: 1.5px solid var(--pc-kraft-dark);
+}
+:root[data-theme="postcard"] .zoom button:hover {
+  background: rgba(255, 248, 230, 0.3);
+}
+/* Behind the paper globe, the shop's counter; in Map view the canvas covers it with the folded sheet. */
+:root[data-theme="postcard"] .map {
+  background: radial-gradient(ellipse at 50% 40%, #f4ecd8 0%, #e8dcbf 70%, #dccdaa 100%);
+}
+:root[data-theme="postcard"] .crosshair {
+  --weight: 2px;
+}
+/* The panel hangs on the rack: chrome wires down its side, lit from the left, then the shop's paper. */
+:root[data-theme="postcard"] .panel {
+  border-left: 0;
+  padding-left: calc(var(--gutter) + 18px);
+  background:
+    linear-gradient(90deg, transparent 3px, #8b9096 3px, #f3f5f7 4.5px, #6f747b 6px, transparent 6px, transparent 11px, #8b9096 11px, #f3f5f7 12.5px, #6f747b 14px, transparent 14px) left top / 18px 100% no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 56px, #8b9096 56px, #f3f5f7 57.5px, #6f747b 59px, transparent 59px 150px) left top / 18px 100% no-repeat,
+    linear-gradient(90deg, rgba(60, 44, 20, 0.16), transparent) 18px 0 / 30px 100% no-repeat,
+    var(--pc-card);
+}
+:root[data-theme="postcard"] .panel:has(> .pc) {
+  background-color: var(--pc-behind);
+}
+:root[data-theme="postcard"] .panel.framed {
+  padding-left: 18px;
+}
+:root[data-theme="postcard"] .panel-title,
+:root[data-theme="postcard"] .key-head h2,
+:root[data-theme="postcard"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--pc-blue);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="postcard"] .panel-title {
+  font-size: 24px;
+}
+:root[data-theme="postcard"] .key-head h2 {
+  font-size: 16px;
+}
+:root[data-theme="postcard"] dialog h2 {
+  font-size: 24px;
+}
+:root[data-theme="postcard"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  color: var(--pc-red);
+}
+:root[data-theme="postcard"] .dateline {
+  border-bottom: 1.5px solid var(--pc-rule);
+}
+/* The place's name as if written at the top of the card in blue ink. */
+:root[data-theme="postcard"] .place-name {
+  font: 400 26px/1.1 "Kalam", "Patrick Hand", cursive;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--pc-navy);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="postcard"] .dateline .coords,
+:root[data-theme="postcard"] .count,
+:root[data-theme="postcard"] .meta {
+  font-style: normal;
+  font-family: var(--font-body);
+}
+:root[data-theme="postcard"] .headline {
+  font: 700 15.5px/1.3 var(--font-head);
+}
+:root[data-theme="postcard"] .story:hover,
+:root[data-theme="postcard"] .story:focus-visible {
+  outline: none;
+  background: rgba(36, 87, 168, 0.08);
+}
+:root[data-theme="postcard"] .stories li + li {
+  border-top: 1px solid var(--pc-rule);
+}
+:root[data-theme="postcard"] .related {
+  font-family: var(--font-body);
+  color: var(--pc-blue);
+}
+:root[data-theme="postcard"] .reader-headline {
+  font: 700 clamp(22px, 2.2vw, 28px) / 1.2 var(--font-head);
+}
+:root[data-theme="postcard"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="postcard"] .lead img {
+  filter: sepia(0.25) saturate(0.9);
+  border: 6px solid #fbf6ea;
+  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.35);
+}
+:root[data-theme="postcard"] .cite,
+:root[data-theme="postcard"] .source-num {
+  border-color: var(--pc-blue);
+  color: var(--pc-blue);
+}
+:root[data-theme="postcard"] .excerpt-quote {
+  border-left: 3px solid var(--pc-red);
+}
+/* Menus, the Key, notes and the About dialog are airmail paper: cream, with the chevrons round the edge. */
+:root[data-theme="postcard"] .menu-body,
+:root[data-theme="postcard"] .key-pop,
+:root[data-theme="postcard"] .map-note,
+:root[data-theme="postcard"] dialog {
+  border: 7px solid transparent;
+  border-image: var(--pc-chevrons) 7;
+  border-radius: 0;
+  background: #fbf6ea;
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(60, 40, 20, 0.3);
+}
+:root[data-theme="postcard"] dialog::backdrop {
+  background: rgba(43, 33, 24, 0.4);
+}
+:root[data-theme="postcard"] dialog {
+  font-size: 15px;
+}
+:root[data-theme="postcard"] .timebar {
+  border-top: 0;
+  padding-top: 15px;
+  background: var(--pc-chevrons) left top / 100% 8px no-repeat, linear-gradient(#f4ecd8, #fbf6ea);
+}
+:root[data-theme="postcard"] .time-label {
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="postcard"] .slider input {
+  accent-color: var(--pc-red);
+}
+
+/* The postcard itself (src/ui/postcard.ts), shown only in this design. */
+.pc-bar,
+.pc-card {
+  display: none;
+}
+:root[data-theme="postcard"] .pc-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+:root[data-theme="postcard"] .pc-turn {
+  font-size: 13px;
+}
+:root[data-theme="postcard"] .pc-narrow {
+  display: none;
+}
+:root[data-theme="postcard"] .pc-card {
+  display: block;
+  container-type: inline-size;
+  perspective: 1600px;
+}
+:root[data-theme="postcard"] .pc-flip {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 460ms cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+:root[data-theme="postcard"] .pc[data-side="back"] .pc-flip {
+  transform: rotateY(180deg);
+}
+:root[data-theme="postcard"] .pc-front,
+:root[data-theme="postcard"] .pc-back {
+  grid-area: 1 / 1;
+  align-self: start;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(60, 40, 20, 0.3), 0 6px 14px rgba(60, 40, 20, 0.18);
+}
+:root[data-theme="postcard"] .pc-back {
+  transform: rotateY(180deg);
+}
+:root[data-theme="postcard"] .pc[data-rest="front"] .pc-back {
+  display: none;
+}
+/* A new card slides out of the rack; the slide only moves it, so no light swings. */
+:root[data-theme="postcard"] .pc-in .pc-card {
+  animation: pc-slide 280ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes pc-slide {
+  from {
+    transform: translateX(-34px) rotate(-1.5deg);
+  }
+  to {
+    transform: none;
+  }
+}
+/* The front: a picture in a white border, the name across it. */
+:root[data-theme="postcard"] .pc-front {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: calc(100cqi * 0.66);
+  padding: 0;
+  border: 8px solid #f7f0de;
+  background: #cfe5ea;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: center;
+  color: inherit;
+}
+:root[data-theme="postcard"] .pc-front:focus-visible {
+  outline: 3px solid var(--pc-blue);
+  outline-offset: 2px;
+}
+:root[data-theme="postcard"] .pc-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.pc-sky {
+  fill: #cfe5ea;
+}
+.pc-glow {
+  fill: #f6e3a6;
+}
+.pc-sun {
+  fill: #f3c95a;
+}
+.pc-cloud {
+  fill: #f7f3e6;
+}
+.pc-ridge {
+  fill: #b8cf94;
+}
+.pc-sea {
+  fill: #9fcbd6;
+}
+.pc-wave {
+  fill: none;
+  stroke: #e8f3f4;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.pc-sand {
+  fill: #e9d7a9;
+}
+.pc-cape {
+  fill: #9dbd7c;
+}
+.pc-boat {
+  fill: #f7f3e6;
+  stroke: #5a6f7a;
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+.pc-birds {
+  fill: none;
+  stroke: #5a6f7a;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+:root[data-theme="postcard"] .pc-front-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px 16px;
+}
+/* The big letters: our own large-letter lettering, stepped back in navy with a cream edge, and filled with a sunlit
+   gradient by a copy of the name laid over it (the ::after), so the fill stays clean over the steps. */
+:root[data-theme="postcard"] .pc-name {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  font: 400 clamp(22px, calc(100cqi * 1.02 / var(--len, 7)), 66px) / 1.02 var(--font-mast);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  color: var(--pc-navy);
+  -webkit-text-stroke: 5px #fbf6ea;
+  paint-order: stroke fill;
+  text-shadow: 1px 1px 0 var(--pc-navy), 2px 2px 0 var(--pc-navy), 3px 3px 0 var(--pc-navy), 4px 4px 0 var(--pc-navy), 5px 5px 0 #14284f, 6px 6px 0 #14284f, 7px 7px 4px rgba(20, 30, 50, 0.35);
+  transform: rotate(-4deg);
+}
+:root[data-theme="postcard"] .pc-name::after {
+  content: attr(data-name);
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  background: linear-gradient(180deg, #f9d65c 0%, #f2b54a 50%, #e4683a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+:root[data-theme="postcard"] .pc-names {
+  max-width: 100%;
+  padding: 2px 8px;
+  background: rgba(251, 246, 234, 0.9);
+  font: 700 13px/1.3 var(--font-body);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+/* The back: "Post card" printed across the top, the ruled message side, the divider, and the stamp and postmark. */
+:root[data-theme="postcard"] .pc-back {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  grid-template-areas: "printed printed" "head addr" "msg addr";
+  grid-template-rows: auto auto 1fr;
+  min-height: calc(100cqi * 0.66);
+  padding: 8px 12px 18px 14px;
+  background: var(--pc-card);
+  color: var(--ink);
+}
+:root[data-theme="postcard"] .pc-printed {
+  grid-area: printed;
+  margin: 0 0 6px;
+  text-align: center;
+  font: 700 12px/1.2 var(--font-body);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:root[data-theme="postcard"] .pc-head {
+  grid-area: head;
+  min-width: 0;
+  padding-right: 12px;
+}
+:root[data-theme="postcard"] .pc-head .dateline {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "name" "coords" "pin";
+  row-gap: 4px;
+  justify-items: start;
+}
+:root[data-theme="postcard"] .pc-msg {
+  grid-area: msg;
+  min-width: 0;
+  padding-right: 12px;
+}
+/* The message side is ruled, and the stories are typed on its lines: every line of text is one ruling high. */
+:root[data-theme="postcard"] .pc-msg {
+  --pc-pitch: 22px;
+  padding-top: 4px;
+  background: repeating-linear-gradient(180deg, transparent 0 calc(var(--pc-pitch) - 1px), var(--pc-rule) calc(var(--pc-pitch) - 1px) var(--pc-pitch)) 0 4px / 100% calc(100% - 4px) no-repeat;
+}
+:root[data-theme="postcard"] .pc-msg .story {
+  gap: 0;
+  padding: 0 2px var(--pc-pitch);
+}
+:root[data-theme="postcard"] .pc-msg .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="postcard"] .pc-msg .headline,
+:root[data-theme="postcard"] .pc-msg .meta,
+:root[data-theme="postcard"] .pc-msg .related,
+:root[data-theme="postcard"] .pc-msg .translated,
+:root[data-theme="postcard"] .pc-msg .kicker,
+:root[data-theme="postcard"] .pc-msg .count,
+:root[data-theme="postcard"] .pc-msg .fine {
+  line-height: var(--pc-pitch);
+}
+:root[data-theme="postcard"] .pc-msg .count,
+:root[data-theme="postcard"] .pc-msg .fine {
+  margin: 0;
+}
+/* A stamped group label is one ruling high, with a blank line before it. */
+:root[data-theme="postcard"] .pc-msg .stories-group {
+  margin: 0 0 var(--pc-pitch);
+  padding: 3px 7px 1px;
+  line-height: 14px;
+}
+:root[data-theme="postcard"] .pc-msg .stories + .stories-group {
+  padding-top: 3px;
+}
+:root[data-theme="postcard"] .pc-addr {
+  grid-area: addr;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-left: 1.5px solid var(--pc-rule);
+  padding-left: 8px;
+}
+:root[data-theme="postcard"] .pc-stamp {
+  width: 58px;
+  height: auto;
+  filter: drop-shadow(0 1px 1px rgba(60, 40, 20, 0.3));
+}
+.pc-stamp-paper {
+  fill: #fbf8ee;
+}
+.pc-stamp-frame {
+  fill: #d7e8ef;
+  stroke: #c8352d;
+  stroke-width: 1.6;
+}
+.pc-stamp-globe {
+  fill: #f1e2b8;
+  stroke: #2457a8;
+  stroke-width: 1.6;
+}
+.pc-stamp-line {
+  fill: none;
+  stroke: #2457a8;
+  stroke-width: 1;
+}
+:root[data-theme="postcard"] .pc-postmark {
+  width: 104px;
+  height: auto;
+  margin-top: -34px;
+  margin-right: 4px;
+  opacity: 0.8;
+}
+.pc-postmark .pc-ring,
+.pc-postmark .pc-cancel {
+  fill: none;
+  stroke: #3a3f58;
+  stroke-width: 2.2;
+}
+.pc-postmark .pc-ring.thin {
+  stroke-width: 1.2;
+}
+.pc-mark-name,
+.pc-mark-date {
+  fill: #3a3f58;
+  font-family: "Courier Prime", "Courier New", monospace;
+  font-weight: 700;
+}
+.pc-mark-name {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+.pc-mark-date {
+  font-size: 11px;
+}
+:root[data-theme="postcard"] .pc-line {
+  display: block;
+  width: 100%;
+  height: 26px;
+  border-bottom: 1.5px solid var(--pc-rule);
+}
+@media (max-width: 760px) {
+  :root[data-theme="postcard"] body {
+    border-width: 5px;
+  }
+  :root[data-theme="postcard"] .mast-title {
+    font-size: 26px;
+  }
+  /* The typed labels are wide, so the phone's toolbar gets a size smaller to keep it on one row. */
+  :root[data-theme="postcard"] .toolbar {
+    font-size: 12px;
+  }
+  :root[data-theme="postcard"] .toolbar .tool,
+  :root[data-theme="postcard"] .toolbar .menu > summary {
+    padding-inline: 7px;
+  }
+  :root[data-theme="postcard"] .toolbar .pick select {
+    padding-left: 7px;
+    padding-right: 17px;
+  }
+  :root[data-theme="postcard"] .toolbar .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="postcard"] .telegram-word {
+    font-size: min(54px, calc((100vw - 2 * var(--gutter) - 30px) / (var(--len, 8) * 0.95)));
+  }
+  /* On a phone the panel sits under the map, so the rack runs along its top and cards drop out of it. */
+  :root[data-theme="postcard"] .panel {
+    padding-left: var(--gutter);
+    padding-top: 24px;
+    background:
+      linear-gradient(180deg, transparent 4px, #8b9096 4px, #f3f5f7 5.5px, #6f747b 7px, transparent 7px, transparent 12px, #8b9096 12px, #f3f5f7 13.5px, #6f747b 15px, transparent 15px) left top / 100% 18px no-repeat,
+      repeating-linear-gradient(90deg, transparent 0 40px, #8b9096 40px, #f3f5f7 41.5px, #6f747b 43px, transparent 43px 140px) left top / 100% 18px no-repeat,
+      var(--pc-card);
+  }
+  :root[data-theme="postcard"] .panel:has(> .pc) {
+    background-color: var(--pc-behind);
+  }
+  :root[data-theme="postcard"] .panel.framed {
+    padding: 18px 0 0;
+  }
+  @keyframes pc-slide {
+    from {
+      transform: translateY(-22px) rotate(-1deg);
+    }
+    to {
+      transform: none;
+    }
+  }
+  /* The panel is short under the map, so the Turn button sits on the card's top corner and the picture is wide. */
+  :root[data-theme="postcard"] .pc {
+    position: relative;
+  }
+  :root[data-theme="postcard"] .pc-bar {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 2;
+    margin: 0;
+  }
+  :root[data-theme="postcard"] .pc-label,
+  :root[data-theme="postcard"] .pc-wide {
+    display: none;
+  }
+  :root[data-theme="postcard"] .pc-narrow {
+    display: inline;
+  }
+  :root[data-theme="postcard"] .pc-turn {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  :root[data-theme="postcard"] .pc-printed {
+    text-align: right;
+    letter-spacing: 0.35em;
+  }
+  :root[data-theme="postcard"] .pc-front {
+    height: calc(100cqi * 0.46);
+  }
+  :root[data-theme="postcard"] .pc-back {
+    grid-template-columns: minmax(0, 1fr) 92px;
+    grid-template-areas: "printed printed" "head addr" "msg msg";
+    min-height: calc(100cqi * 0.46);
+    padding-inline: 10px;
+  }
+  :root[data-theme="postcard"] .pc-addr {
+    border-left: 0;
+    padding-left: 0;
+  }
+  :root[data-theme="postcard"] .pc-msg {
+    padding-right: 0;
+    border-top: 1.5px solid var(--pc-rule);
+    margin-top: 6px;
+  }
+  :root[data-theme="postcard"] .pc-stamp {
+    width: 50px;
+  }
+  :root[data-theme="postcard"] .pc-postmark {
+    width: 88px;
+    margin-top: -28px;
+    margin-right: 2px;
+  }
+  :root[data-theme="postcard"] .pc-line {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="postcard"] .pc-flip {
+    transition: none;
+  }
+  :root[data-theme="postcard"] .pc-in .pc-card {
+    animation: none;
+  }
+}

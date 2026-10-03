@@ -140,6 +140,10 @@ import "@fontsource/rubik/800-italic.css";
 import "@fontsource/rubik/900-italic.css";
 import "@fontsource/rubik/400.css";
 import "@fontsource/rubik-mono-one/400.css";
+import "@fontsource/literata/400.css";
+import "@fontsource/literata/400-italic.css";
+import "@fontsource/literata/600.css";
+import "@fontsource/literata/700.css";
 import "@fontsource/amatic-sc/700.css";
 import "@fontsource/arvo/400.css";
 import "@fontsource/arvo/700.css";
@@ -150,6 +154,9 @@ import "@fontsource/josefin-sans/600.css";
 import "@fontsource/josefin-sans/700.css";
 // Gummy Cluster (Nunito, above, for reading).
 import "@fontsource/lilita-one/400.css";
+// Shortwave (experimental): the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
+import "@fontsource/barlow-condensed/500.css";
+import "@fontsource/barlow-condensed/600.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -201,6 +208,9 @@ import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
 // Desktop 95 (experimental): the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
+import { mountPaper } from "./ui/paper.ts";
+import { mountDial, moveDial } from "./ui/dial.ts";
+import { renderPostcard } from "./ui/postcard.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -320,6 +330,8 @@ const map = new MapView($("map"), THEMES[state.theme], {
   onDraw() {
     tilesSoon();
     syncVinyl();
+    // Shortwave's needle follows the reticle on every frame, the idle spin's included (src/ui/dial.ts).
+    moveDial();
   },
 });
 map.setMode(viewOf());
@@ -1079,6 +1091,14 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
   );
   // Departures: the rows turn over to the new place's reports, in the panel's own order.
   if (state.theme === "flap") boardTurn(panel, indices.join(","));
+  const body = [...lists, ...(more ? [more] : []), ...(note ? [note] : [])];
+  // Postcards (experimental): the same dateline and lists, on the back of a postcard that turns over (src/ui/postcard.ts).
+  if (state.theme === "postcard") {
+    const names = indices.map((i) => file.places[i].name);
+    const key = indices.map((i) => file.places[i].id).join(",");
+    return renderPostcard(panel, { key, title: names.length > 1 ? `${names.length} places` : place.name, names, head, body, when: all[0]?.t ?? lookTime() });
+  }
+  panel.replaceChildren(head, ...body);
 }
 
 function renderReader(panel: HTMLElement, it: Item) {
@@ -1683,6 +1703,16 @@ async function start() {
         .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
     builtAt: () => state.file?.generatedAt ?? null,
     kmPerPixel: () => map.kmPerPixel(),
+  });
+  // Paper Screen's pages for the panel and the About dialog (experimental); idle in every other design.
+  mountPaper();
+  // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
+  mountDial({
+    theme: () => state.theme,
+    center: () => map.center(),
+    tuned: () => state.tuned !== null,
+    turnTo: (lon) => map.turnTo(lon),
+    turnBy: (px) => map.turnBy(px),
   });
   mountChannels({
     theme: () => state.theme,

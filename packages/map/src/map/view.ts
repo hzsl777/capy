@@ -76,6 +76,8 @@ import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, 
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
 import { drawRender, RenderCache } from "./render.ts";
+import { drawPaper, PaperCache } from "./paper.ts";
+import { drawPostcard, PostcardCache } from "./postcard.ts";
 import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 // Departures (experimental): the hall's wall map and the clock's ring round the globe.
@@ -331,6 +333,10 @@ export class MapView {
   private firstRender = new RenderCache();
   /** Departures: its lamp patterns and the clock's ring. */
   private flap = new FlapCache();
+  /** Paper Screen: the full drawing of the last still view, and the stipple tile. */
+  private paper = new PaperCache();
+  /** Postcards: the folded sheet's paper and the paper globe's light and shadow. */
+  private postcard = new PostcardCache();
   /**
    * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
    * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
@@ -679,6 +685,24 @@ export class MapView {
     this.lat = lat;
     this.clampLat();
     this.request();
+  }
+
+  /**
+   * Shortwave's tuning dial (src/ui/dial.ts) turns the world east or west as a drag on the map would: the spin and any
+   * flight stop, the latitude stays. `turnTo` goes to a longitude; `turnBy` moves the reticle east by `px` screen pixels.
+   */
+  turnTo(lon: number) {
+    this.touched();
+    this.stopAnim();
+    this.lon = wrap(lon);
+    this.moved();
+  }
+
+  turnBy(px: number) {
+    this.touched();
+    this.stopAnim();
+    this.pan(-px, 0);
+    this.moved();
   }
 
   // ---- geometry ---------------------------------------------------------
@@ -1886,6 +1910,7 @@ export class MapView {
     if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
     if (t.surface === "core") return drawCore(f, this.core);
     if (t.surface === "render") return drawRender(f, this.firstRender);
+    if (t.surface === "paper") return drawPaper(f, this.paper);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
@@ -1897,6 +1922,7 @@ export class MapView {
     else if (t.surface === "lava") drawLava(f, this.lava);
     else if (t.surface === "machine") drawMachine(f, this.machine);
     else if (t.surface === "flap") drawFlap(f, this.flap);
+    else if (t.surface === "postcard") drawPostcard(f, this.postcard);
     else drawGlass(f, this.glass);
   }
 
