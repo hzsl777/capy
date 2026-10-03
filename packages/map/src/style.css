@@ -20913,3 +20913,540 @@ button.x-ch:focus-visible {
     animation: none;
   }
 }
+
+/* ---- Zine (id zine, experimental): after the feel of a zine printed on a stencil duplicator in two or three
+   spot inks on warm recycled paper, slightly out of register, cut and pasted and stapled; no maker's, shop's or zine's
+   names, logos, lettering or art. Fluorescent pink and a medium blue, yellow now and then, purple where pink and blue
+   overprint (the second ink multiplies over the first). The name and the word are printed twice, the second ink a few
+   pixels off; panels are slips of paper pasted on with tape or a staple; buttons are stamped labels and stickers;
+   section heads are typed on strips. Misregistration and grain stay on headings and decoration: headlines and
+   everything read are one crisp ink. The map's inks are drawn on the canvas (src/map/zine.ts). ------------------ */
+:root[data-theme="zine"] {
+  color-scheme: light;
+  --page: #f4efe4;
+  --panel: #fbf8f1;
+  --ink: #1f1c2c;
+  --ink-2: #3a3550;
+  --muted: #5a546c;
+  --rule: #3255a4;
+  --accent: #3255a4;
+  --on-accent: #fbf8f1;
+  --hover: rgba(255, 72, 176, 0.13);
+  --reticle: #3255a4;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Bowlby One", "Arial Black", Impact, sans-serif;
+  --font-head: "Bowlby One", "Arial Black", Impact, sans-serif;
+  --font-body: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Courier Prime", "Courier New", monospace;
+  --rz-pink: #ff48b0;
+  --rz-blue: #3255a4;
+  --rz-yellow: #ffe800;
+  --rz-slip: #fbf8f1;
+  /* Halftone screens in each ink, for bands along the masthead and the time bar. */
+  --rz-dots-pink: radial-gradient(circle, rgba(255, 72, 176, 0.85) 1.3px, transparent 1.7px);
+  --rz-dots-blue: radial-gradient(circle, rgba(50, 85, 164, 0.8) 1.2px, transparent 1.6px);
+  /* The paper: fine grain and the odd fleck, under everything and never over the text. */
+  --rz-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .28 0 0 0 0 .2 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3Cg fill='%23493c30' fill-opacity='.45'%3E%3Ccircle cx='31' cy='47' r='.8'/%3E%3Ccircle cx='190' cy='22' r='.6'/%3E%3Ccircle cx='121' cy='170' r='.9'/%3E%3Cellipse cx='212' cy='201' rx='1.4' ry='.5'/%3E%3Ccircle cx='70' cy='219' r='.5'/%3E%3C/g%3E%3Ccircle cx='158' cy='96' r='.7' fill='%23ff48b0' fill-opacity='.5'/%3E%3Ccircle cx='17' cy='141' r='.6' fill='%233255a4' fill-opacity='.5'/%3E%3C/svg%3E");
+  /* A strip of translucent yellow tape. */
+  --rz-tape: linear-gradient(100deg, rgba(255, 232, 0, 0.62), rgba(255, 240, 120, 0.5) 50%, rgba(255, 232, 0, 0.62));
+  /* A staple: a grey wire with a lit edge. */
+  --rz-staple: linear-gradient(to bottom, #9b9aa2, #e2e1e6 45%, #7a7983);
+}
+:root[data-theme="zine"] body {
+  background: var(--rz-paper) 0 0 / 240px 240px, var(--page);
+}
+/* A staple line down the page's left edge on wide screens: three staples through the fold. */
+@media (min-width: 1100px) {
+  :root[data-theme="zine"] body {
+    padding-left: 30px;
+  }
+  :root[data-theme="zine"] body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    pointer-events: none;
+    z-index: 1;
+    border-right: 1px dashed rgba(50, 85, 164, 0.35);
+    background:
+      var(--rz-staple) 50% 14% / 4px 34px no-repeat,
+      var(--rz-staple) 50% 50% / 4px 34px no-repeat,
+      var(--rz-staple) 50% 86% / 4px 34px no-repeat;
+    filter: drop-shadow(1px 1px 0 rgba(31, 28, 44, 0.25));
+  }
+}
+
+/* ---- masthead: the name big and off register, the word printed the same way ---- */
+:root[data-theme="zine"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 18px;
+  background: var(--rz-dots-pink) left bottom 3px / 6px 6px repeat-x;
+}
+:root[data-theme="zine"] .mast-title,
+:root[data-theme="zine"] .telegram-word {
+  position: relative;
+}
+/* The second ink: the same letters again over the first, unread by screen readers, multiplied so the overlap prints
+   purple, and a few pixels off. */
+:root[data-theme="zine"] .mast-title::after,
+:root[data-theme="zine"] .telegram-word::after {
+  content: attr(data-ink) / "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+:root[data-theme="zine"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(30px, 3.4vw, 46px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--rz-pink);
+  transform: rotate(-2deg);
+  transform-origin: left center;
+}
+:root[data-theme="zine"] .mast-title::after {
+  color: var(--rz-blue);
+  transform: translate(3px, 2px);
+}
+/* The tagline typed on a strip of yellow paper. */
+:root[data-theme="zine"] .mast-tag {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 2px 7px;
+  font: 700 13px/1.3 var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--rz-yellow);
+  transform: rotate(1deg);
+  box-shadow: 1px 1px 0 rgba(31, 28, 44, 0.18);
+}
+/* "Today's Word" as a rubber stamp. */
+:root[data-theme="zine"] .telegram-kicker {
+  display: inline-block;
+  padding: 2px 6px 1px;
+  border: 2px solid var(--rz-pink);
+  font: 700 12px/1.2 var(--font-ui);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rz-blue);
+  transform: rotate(-3deg);
+  margin-bottom: 4px;
+}
+:root[data-theme="zine"] .telegram-date {
+  font: 700 12px/1.2 var(--font-ui);
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+}
+:root[data-theme="zine"] .telegram-note,
+:root[data-theme="zine"] .telegram-none {
+  font: 400 13px/1.35 var(--font-ui);
+  font-style: normal;
+  color: var(--ink-2);
+}
+/* The word: blue capitals, the pink pass a few pixels off. Size from the word's length, wide letters allowed for. */
+:root[data-theme="zine"] .telegram-word {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: min(82px, calc(34vw / var(--len, 8)));
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: var(--rz-blue);
+  border-bottom: 0;
+  padding: 0 6px 4px 2px;
+}
+:root[data-theme="zine"] .telegram-word::after {
+  left: 2px;
+  color: var(--rz-pink);
+  transform: translate(4px, 3px);
+}
+:root[data-theme="zine"] .telegram-word:hover,
+:root[data-theme="zine"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  background: linear-gradient(transparent 62%, rgba(255, 232, 0, 0.75) 62% 92%, transparent 92%);
+}
+:root[data-theme="zine"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--rz-blue);
+  text-shadow: 3px 2px 0 rgba(255, 72, 176, 0.8);
+}
+/* The scale: a strip of five stickers, the day's in yellow. */
+:root[data-theme="zine"] .scale {
+  border: 2px solid var(--rz-blue);
+  background: var(--rz-slip);
+  box-shadow: 3px 3px 0 var(--rz-pink);
+}
+:root[data-theme="zine"] .scale .step {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: var(--ink);
+}
+:root[data-theme="zine"] .scale .step + .step {
+  border-left: 2px dashed var(--rz-blue);
+}
+:root[data-theme="zine"] .scale .step.on {
+  background: var(--rz-yellow);
+  color: var(--ink);
+}
+
+/* ---- toolbar: stamped labels ---- */
+:root[data-theme="zine"] .toolbar {
+  border-bottom: 0;
+  padding-block: 10px 8px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="zine"] .banner {
+  border-bottom: 0;
+  background: none;
+  font-family: var(--font-ui);
+  color: var(--ink-2);
+}
+:root[data-theme="zine"] .tool,
+:root[data-theme="zine"] .pick select,
+:root[data-theme="zine"] .menu > summary,
+:root[data-theme="zine"] .chip,
+:root[data-theme="zine"] .key-btn,
+:root[data-theme="zine"] .key-close,
+:root[data-theme="zine"] dialog .close {
+  border: 2px solid var(--rz-blue);
+  border-radius: 2px;
+  background: var(--rz-slip);
+  color: var(--rz-blue);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 2px 2px 0 var(--rz-pink);
+}
+:root[data-theme="zine"] .toolbar > :nth-child(odd) {
+  transform: rotate(-1deg);
+}
+:root[data-theme="zine"] .toolbar > :nth-child(even) {
+  transform: rotate(0.8deg);
+}
+:root[data-theme="zine"] .pick::after {
+  opacity: 1;
+  color: var(--rz-pink);
+}
+:root[data-theme="zine"] .pick option {
+  font-weight: 400;
+  color: var(--ink);
+}
+:root[data-theme="zine"] .tool:hover,
+:root[data-theme="zine"] .pick select:hover,
+:root[data-theme="zine"] .menu > summary:hover,
+:root[data-theme="zine"] .chip:hover,
+:root[data-theme="zine"] .key-btn:hover,
+:root[data-theme="zine"] .key-close:hover,
+:root[data-theme="zine"] dialog .close:hover {
+  background: #fff6a8;
+}
+/* On: a pink sticker pressed flat. */
+:root[data-theme="zine"] .tool[aria-pressed="true"],
+:root[data-theme="zine"] .menu[open] > summary,
+:root[data-theme="zine"] .chip[aria-pressed="true"],
+:root[data-theme="zine"] .key-btn[aria-expanded="true"] {
+  background: var(--rz-pink);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 2px 2px 0 var(--rz-blue);
+}
+
+/* ---- the map: a printed slip pasted on, with tape over its top edge ---- */
+:root[data-theme="zine"] .stage {
+  position: relative;
+}
+:root[data-theme="zine"] .map {
+  margin: 14px 10px 14px 14px;
+  border: 7px solid var(--rz-slip);
+  background: #ece5d5;
+  box-shadow: 4px 5px 0 rgba(50, 85, 164, 0.28);
+}
+/* Two pieces of tape across the slip's top edge, on its paper border and the page above it, never on the map. */
+:root[data-theme="zine"] .stage::before,
+:root[data-theme="zine"] .stage::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  width: 78px;
+  height: 16px;
+  background: var(--rz-tape);
+  box-shadow: 0 1px 1px rgba(31, 28, 44, 0.12);
+  pointer-events: none;
+  z-index: 4;
+}
+:root[data-theme="zine"] .stage::before {
+  left: 46px;
+  transform: rotate(-3deg);
+}
+:root[data-theme="zine"] .stage::after {
+  left: calc(100% - var(--panel-w) - 150px);
+  transform: rotate(2.5deg);
+}
+:root[data-theme="zine"] .stage:has(.panel.framed)::after {
+  display: none;
+}
+/* The reticle: a printer's registration mark, a ring through a cross, with the pink pass off register. */
+:root[data-theme="zine"] .crosshair {
+  --arm: 12px;
+  --weight: 1.5px;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  background:
+    radial-gradient(circle, transparent 6.2px, var(--rz-blue) 6.6px 7.9px, transparent 8.3px),
+    linear-gradient(var(--rz-blue), var(--rz-blue)) center top / var(--weight) var(--arm) no-repeat,
+    linear-gradient(var(--rz-blue), var(--rz-blue)) center bottom / var(--weight) var(--arm) no-repeat,
+    linear-gradient(var(--rz-blue), var(--rz-blue)) left center / var(--arm) var(--weight) no-repeat,
+    linear-gradient(var(--rz-blue), var(--rz-blue)) right center / var(--arm) var(--weight) no-repeat;
+  filter: drop-shadow(1.5px 1px 0 rgba(255, 72, 176, 0.75));
+}
+:root[data-theme="zine"] .key-btn {
+  font-size: 13px;
+}
+:root[data-theme="zine"] .zoom {
+  border: 2px solid var(--rz-blue);
+  background: var(--rz-slip);
+  box-shadow: 2px 2px 0 var(--rz-pink);
+}
+:root[data-theme="zine"] .zoom button {
+  color: var(--rz-blue);
+  font-weight: 700;
+}
+:root[data-theme="zine"] .zoom button:hover {
+  background: #fff6a8;
+}
+:root[data-theme="zine"] .zoom button + button {
+  border-top: 2px solid var(--rz-blue);
+}
+
+/* ---- panels: slips of whiter paper pasted on, a plate printed off behind them ---- */
+:root[data-theme="zine"] .panel {
+  margin: 14px 18px 18px 6px;
+  padding-top: 22px;
+  border: 0;
+  background: var(--rz-paper) 0 0 / 240px 240px, var(--panel);
+  box-shadow: 5px 6px 0 var(--rz-pink);
+}
+/* A staple through the slip's top left corner. */
+:root[data-theme="zine"] .panel::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 26px;
+  height: 4px;
+  background: var(--rz-staple);
+  transform: rotate(-30deg);
+  box-shadow: 1px 1px 0 rgba(31, 28, 44, 0.25);
+  pointer-events: none;
+}
+:root[data-theme="zine"] .menu-body,
+:root[data-theme="zine"] .key-pop,
+:root[data-theme="zine"] .map-note,
+:root[data-theme="zine"] dialog {
+  border: 0;
+  border-radius: 0;
+  /* A whiter slip than the panel, so one pasted over the other reads as a second piece of paper. */
+  background: var(--rz-paper) 0 0 / 240px 240px, #fffdf8;
+  color: var(--ink);
+  box-shadow: 5px 6px 0 var(--rz-blue);
+}
+:root[data-theme="zine"] .key-pop {
+  box-shadow: 5px 6px 0 var(--rz-pink);
+  font-size: 13px;
+}
+:root[data-theme="zine"] .key-note {
+  font-size: 12px;
+}
+/* Tape across the top of the About dialog and the Key. */
+:root[data-theme="zine"] dialog,
+:root[data-theme="zine"] .key-pop {
+  padding-top: 26px;
+}
+:root[data-theme="zine"] dialog::before,
+:root[data-theme="zine"] .key-pop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 96px;
+  height: 16px;
+  margin-left: -48px;
+  background: var(--rz-tape);
+  transform: rotate(-2deg);
+  pointer-events: none;
+}
+:root[data-theme="zine"] dialog::backdrop {
+  background: rgba(50, 85, 164, 0.3);
+}
+/* Heads in the chunky capitals with the pink pass a little off; reading text below stays one ink. */
+:root[data-theme="zine"] .panel-title,
+:root[data-theme="zine"] .place-name,
+:root[data-theme="zine"] .key-head h2,
+:root[data-theme="zine"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.12;
+  color: var(--rz-blue);
+  text-shadow: 2px 1.5px 0 rgba(255, 72, 176, 0.7);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="zine"] .panel-title,
+:root[data-theme="zine"] .place-name {
+  font-size: 24px;
+}
+:root[data-theme="zine"] .key-head h2,
+:root[data-theme="zine"] dialog h2 {
+  font-size: 20px;
+}
+/* Sub-heads typed on a yellow strip, the way a zine pastes in a typed label. */
+:root[data-theme="zine"] dialog h3,
+:root[data-theme="zine"] .rule-head {
+  display: table;
+  border: 0;
+  padding: 3px 8px 2px;
+  background: var(--rz-yellow);
+  font: 700 13px/1.25 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: left;
+  transform: rotate(-1deg);
+  box-shadow: 1px 1px 0 rgba(31, 28, 44, 0.18);
+}
+:root[data-theme="zine"] .rule-head {
+  margin: 18px 0 6px;
+}
+:root[data-theme="zine"] .dateline {
+  border-bottom: 2px dashed var(--rz-pink);
+}
+:root[data-theme="zine"] .dateline .coords,
+:root[data-theme="zine"] .count,
+:root[data-theme="zine"] .meta,
+:root[data-theme="zine"] .byline {
+  font-family: var(--font-ui);
+  font-style: normal;
+}
+:root[data-theme="zine"] .stories-group {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  opacity: 1;
+  color: var(--ink-2);
+}
+:root[data-theme="zine"] .stories li + li {
+  border-top: 1px dashed rgba(50, 85, 164, 0.45);
+}
+:root[data-theme="zine"] .story:hover,
+:root[data-theme="zine"] .story:focus-visible {
+  outline: none;
+  background: rgba(255, 232, 0, 0.28);
+}
+:root[data-theme="zine"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1.24;
+  color: var(--ink);
+}
+:root[data-theme="zine"] .reader-headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ink);
+}
+:root[data-theme="zine"] .excerpt::first-letter {
+  font-family: var(--font-head);
+  font-weight: 400;
+  color: var(--rz-blue);
+}
+:root[data-theme="zine"] .related {
+  color: var(--rz-blue);
+}
+:root[data-theme="zine"] .cite,
+:root[data-theme="zine"] .source-num {
+  border-color: var(--rz-blue);
+  border-radius: 0;
+  color: var(--rz-blue);
+}
+:root[data-theme="zine"] .excerpt-quote {
+  font-style: normal;
+  border-left: 4px solid var(--rz-pink);
+}
+:root[data-theme="zine"] .menu-item {
+  font-family: var(--font-ui);
+  color: var(--ink);
+  border-bottom: 1px dashed rgba(50, 85, 164, 0.45);
+}
+:root[data-theme="zine"] .lead img {
+  filter: grayscale(1) contrast(1.15);
+  mix-blend-mode: multiply;
+}
+/* The Key's marks: the blue pass's outline multiplies over the pink as on the map (renderKey in main.ts). */
+.zine-plate {
+  mix-blend-mode: multiply;
+}
+
+/* ---- time bar: a strip along the foot under a band of blue dots, stamped buttons, a pink thumb ---- */
+:root[data-theme="zine"] .timebar {
+  border-top: 0;
+  padding-top: 12px;
+  background: var(--rz-dots-blue) left top / 6px 6px repeat-x;
+  font-family: var(--font-ui);
+}
+:root[data-theme="zine"] .time-label {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+:root[data-theme="zine"] .slider input {
+  accent-color: var(--rz-pink);
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="zine"] .masthead {
+    padding-bottom: 14px;
+  }
+  :root[data-theme="zine"] .mast-title {
+    font-size: 28px;
+    transform-origin: center;
+  }
+  :root[data-theme="zine"] .mast-tag {
+    align-self: center;
+  }
+  :root[data-theme="zine"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.9)));
+  }
+  :root[data-theme="zine"] .map {
+    margin: 12px 10px 8px;
+    border-width: 5px;
+  }
+  :root[data-theme="zine"] .stage::before,
+  :root[data-theme="zine"] .stage::after {
+    top: 1px;
+    height: 12px;
+  }
+  :root[data-theme="zine"] .panel {
+    margin: 4px 14px 12px 10px;
+    box-shadow: 4px 4px 0 var(--rz-pink);
+  }
+  :root[data-theme="zine"] .stage::before {
+    left: 24px;
+  }
+  :root[data-theme="zine"] .stage::after {
+    left: auto;
+    right: 24px;
+  }
+  :root[data-theme="zine"] .toolbar > :nth-child(odd),
+  :root[data-theme="zine"] .toolbar > :nth-child(even) {
+    transform: none;
+  }
+}
