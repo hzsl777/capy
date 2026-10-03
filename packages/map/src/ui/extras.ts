@@ -16,6 +16,9 @@
 // - Dual Screen: the clamshell's parts that aren't screens or buttons: the top screen's bezel, two speaker grilles,
 //   the hinge with its power light, and a direction pad beside the touch screen whose four arms move the map as the
 //   arrow keys do. No maker's name, logo or button lettering.
+// - Machine Music: a synth rack in a strip under the map: a sixteen-step sequencer whose lit step walks two steps a
+//   second, a scope trace, two meters and a few knobs. Decoration only: it shows no data and means nothing, holds still
+//   for reduced motion and stops in a hidden tab. Its timing is in src/map/machine.ts, where the test checks it.
 // Place names go in as text, never as HTML.
 
 import type { ThemeId } from "../themes.ts";
@@ -23,6 +26,7 @@ import { columnName, sheetGrid } from "../map/sheet.ts";
 import { minimapDisc, minimapMargin } from "../map/minimap.ts";
 import { h } from "./dom.ts";
 import { scaleBar } from "../data.ts";
+import { METER_SWING_S, SCOPE_PASS_S, SEQ_FADE_S, SEQ_HZ, SEQ_STEPS, seqStep } from "../map/machine.ts";
 
 export interface ExtrasSource {
   theme(): ThemeId;
@@ -68,6 +72,9 @@ let guessPos: HTMLElement;
 let guessBar: HTMLElement;
 let guessKm: HTMLElement;
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let rackPads: HTMLElement[] = [];
+let seqLit = -1;
+let seqTimer = 0;
 
 function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
   const el = document.createElementNS(NS, tag);
@@ -281,6 +288,98 @@ function shell(): HTMLElement[] {
   ];
 }
 
+/** A scope's trace: two passes of a fixed wave, so the loop has no seam as it slides past. */
+function scope(): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 200 40", preserveAspectRatio: "none", class: "x-scope", "aria-hidden": "true" });
+  const grid = svg("path", { d: "M0 20H200M50 0V40M100 0V40M150 0V40M0 10H200M0 30H200", stroke: "rgba(154,154,148,0.22)", "stroke-width": 0.6, fill: "none", "vector-effect": "non-scaling-stroke" });
+  let d = "";
+  for (let x = 0; x <= 400; x += 2) {
+    const y = 20 - 11 * Math.sin((x * Math.PI * 2) / 50) * (0.55 + 0.45 * Math.sin((x * Math.PI * 2) / 200));
+    d += `${x ? "L" : "M"}${x} ${y.toFixed(1)}`;
+  }
+  const run = svg("g", { class: "x-scope-run" });
+  run.append(svg("path", { d, stroke: "#ff3a2f", "stroke-width": 1.4, fill: "none", "vector-effect": "non-scaling-stroke" }));
+  s.append(grid, run);
+  return s;
+}
+
+/** A needle meter: a pale face with a scale of ticks, red at the top end, and a needle that swings slowly. */
+function meter(k: number): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 60 36", class: "x-meter", "aria-hidden": "true" });
+  s.append(svg("rect", { x: 1, y: 1, width: 58, height: 34, rx: 2, fill: "#d9d9d1", stroke: "#0a0a0a", "stroke-width": 1.5 }));
+  for (let i = 0; i <= 10; i++) {
+    const a = ((-50 + i * 10) * Math.PI) / 180;
+    const r0 = i % 5 === 0 ? 20 : 22;
+    s.append(
+      svg("line", {
+        x1: (30 + Math.sin(a) * r0).toFixed(1),
+        y1: (33 - Math.cos(a) * r0).toFixed(1),
+        x2: (30 + Math.sin(a) * 25).toFixed(1),
+        y2: (33 - Math.cos(a) * 25).toFixed(1),
+        stroke: i >= 8 ? "#d71920" : "#1a1a19",
+        "stroke-width": i >= 8 ? 1.6 : 1,
+      }),
+    );
+  }
+  const needle = svg("line", { x1: 30, y1: 33, x2: 30, y2: 9, stroke: "#0a0a0a", "stroke-width": 1.2, class: "x-needle" });
+  needle.style.animationDuration = `${METER_SWING_S[k % METER_SWING_S.length]}s`;
+  s.append(needle, svg("circle", { cx: 30, cy: 33, r: 2.4, fill: "#0a0a0a" }));
+  return s;
+}
+
+/** Four knobs, each turned to its own fixed angle: grey caps with a fine knurl and a white line. */
+function knobs(): SVGElement {
+  const s = svg("svg", { viewBox: "0 0 128 36", class: "x-knobs", "aria-hidden": "true" });
+  [-120, -35, 40, 110].forEach((turn, i) => {
+    const cx = 16 + i * 32;
+    s.append(
+      svg("circle", { cx, cy: 18, r: 14, fill: "none", stroke: "#6b6b66", "stroke-width": 1, "stroke-dasharray": "1 2.6" }),
+      svg("circle", { cx, cy: 18, r: 11, fill: "#1b1b1a", stroke: "#9a9a94", "stroke-width": 1 }),
+      svg("circle", { cx, cy: 18, r: 8, fill: "#3a3a37" }),
+      svg("line", { x1: cx, y1: 18, x2: cx, y2: 8, stroke: "#f4f4ee", "stroke-width": 1.6, "stroke-linecap": "square", transform: `rotate(${turn} ${cx} 18)` }),
+    );
+  });
+  return s;
+}
+
+/**
+ * Machine Music's rack under the map. The sequencer's sixteen pads light one at a time: the page lights the next on
+ * the step's beat (`runSeq`), and the light's fade is a CSS transition as long as the model in machine.ts says.
+ */
+function rack(): HTMLElement {
+  rackPads = Array.from({ length: SEQ_STEPS }, (_, i) => h("span", { class: i % 4 === 0 ? "x-step x-beat" : "x-step" }));
+  const el = h(
+    "div",
+    { class: "x-rack", "aria-hidden": "true" },
+    h("span", { class: "x-rack-ear" }),
+    h("div", { class: "x-rack-mod x-seq" }, ...rackPads),
+    h("div", { class: "x-rack-mod x-scope-mod" }, scope()),
+    h("div", { class: "x-rack-mod x-meters" }, meter(0), meter(1)),
+    h("div", { class: "x-rack-mod x-knob-mod" }, knobs()),
+    h("span", { class: "x-rack-ear" }),
+  );
+  el.style.setProperty("--seq-fade", `${SEQ_FADE_S}s`);
+  el.style.setProperty("--scope-pass", `${SCOPE_PASS_S}s`);
+  return el;
+}
+
+/** Lights the sequencer's step for now, or the still step for reduced motion. */
+function tickSeq() {
+  const k = seqStep(performance.now() / 1000, reduced);
+  if (k === seqLit) return;
+  rackPads[seqLit]?.classList.remove("on");
+  rackPads[k]?.classList.add("on");
+  seqLit = k;
+}
+
+/** Steps the sequencer on each beat, timed to the beat rather than a fixed interval, so the steps stay even. */
+function runSeq() {
+  tickSeq();
+  const per = 1 / SEQ_HZ;
+  const t = performance.now() / 1000;
+  seqTimer = window.setTimeout(runSeq, (per - (t % per)) * 1000 + 8);
+}
+
 function booth(): HTMLElement {
   return h("div", { class: "x-booth", "aria-hidden": "true" }, turntable("#9dff2e"), h("div", { class: "x-booth-mid" }, waveform(), mixer()), turntable("#ff3fd4"));
 }
@@ -322,6 +421,8 @@ export function mountExtras(source: ExtrasSource) {
   mapEl.append(routeBar());
   // Dual Screen: the pad sits just after the map, so it comes next in the tab order; the rest is drawing.
   mapEl.after(dpad());
+  // Machine Music: the rack is a strip of its own under the map, so the map keeps its whole frame.
+  mapEl.after(rack());
   document.body.append(...shell());
   new ResizeObserver(() => {
     layoutSheet();
@@ -487,6 +588,13 @@ export function refreshExtras() {
   if ((theme === "rail" || theme === "terminal" || theme === "tactical") && document.visibilityState === "visible") {
     tick();
     timer = window.setInterval(tick, theme === "tactical" && !reduced ? 1000 : 15000);
+  }
+  // Machine Music's sequencer walks only while it shows, never in a hidden tab, and holds one step for reduced motion.
+  clearTimeout(seqTimer);
+  seqTimer = 0;
+  if (theme === "machine") {
+    if (!reduced && document.visibilityState === "visible") runSeq();
+    else tickSeq();
   }
 }
 

@@ -71,6 +71,8 @@ import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
 import { CoreCache, drawCore } from "./core.ts";
+import { drawMachine, MachineCache } from "./machine.ts";
+import { drawRender, RenderCache } from "./render.ts";
 import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 
@@ -313,6 +315,10 @@ export class MapView {
   private towers = new TowersCache();
   /** Green Core: its orb, tubes and panel. */
   private core = new CoreCache();
+  /** Machine Music: the stage and spotlights behind the wireframe sphere. */
+  private machine = new MachineCache();
+  /** First Render: its room, lamp, ball and bevelled screen. */
+  private firstRender = new RenderCache();
   /**
    * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
    * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
@@ -1834,6 +1840,7 @@ export class MapView {
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "towers") return drawTowers(f, this.towers);
     if (t.surface === "core") return drawCore(f, this.core);
+    if (t.surface === "render") return drawRender(f, this.firstRender);
     if (t.surface === "neon") drawNeon(f, this.neon);
     else if (t.surface === "stitch") drawStitch(f, this.stitch);
     else if (t.surface === "sheet") drawSheet(f, this.sheet);
@@ -1843,6 +1850,7 @@ export class MapView {
     else if (t.surface === "rail") drawRail(f, this.rail);
     else if (t.surface === "aquarium") drawAquarium(f, this.aquarium);
     else if (t.surface === "lava") drawLava(f, this.lava);
+    else if (t.surface === "machine") drawMachine(f, this.machine);
     else drawGlass(f, this.glass);
   }
 
