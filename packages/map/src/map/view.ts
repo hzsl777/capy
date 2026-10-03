@@ -70,6 +70,8 @@ import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
+// Desktop 95 (experimental).
+import { DesktopCache, drawDesktop } from "./desktop.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
 import { drawRender, RenderCache } from "./render.ts";
@@ -315,6 +317,8 @@ export class MapView {
   private gloss = new GlossCache();
   /** Crystal Towers: its floor, towers, drifting cubes and the world under them. */
   private towers = new TowersCache();
+  /** Desktop 95: the small canvas it snaps to sixteen colours. */
+  private desktop = new DesktopCache();
   /** Green Core: its orb, tubes and panel. */
   private core = new CoreCache();
   /** Machine Music: the stage and spotlights behind the wireframe sphere. */
@@ -1843,6 +1847,7 @@ export class MapView {
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "towers") return drawTowers(f, this.towers);
+    if (t.surface === "desktop") return drawDesktop(f, this.desktop);
     if (t.surface === "core") return drawCore(f, this.core);
     if (t.surface === "render") return drawRender(f, this.firstRender);
     if (t.surface === "neon") drawNeon(f, this.neon);

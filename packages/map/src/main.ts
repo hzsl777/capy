@@ -198,6 +198,8 @@ import "@fontsource-variable/martian-mono/wdth.css";
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
 import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
+// Desktop 95 (experimental): the site as a desktop of windows.
+import { mountDesktop } from "./ui/desktop.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -1712,6 +1714,21 @@ async function start() {
         .map((it) => ({ place: file.places[it.place]!.name, title: it.title }));
     },
     open: openChannel,
+    about: () => ($("about") as HTMLDialogElement).showModal(),
+  });
+  // Desktop 95 (experimental): moves the page's own parts into windows while it shows, and back after.
+  mountDesktop({
+    theme: () => state.theme,
+    wordView: () => state.telegram,
+    openWord: openTelegram,
+    closeWord: () => {
+      closeTelegram();
+      renderPanel();
+    },
+    setKey,
+    replay: () => {
+      if (!state.playing) $("play").click();
+    },
     about: () => ($("about") as HTMLDialogElement).showModal(),
   });
 

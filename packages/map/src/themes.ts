@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2308,6 +2308,44 @@ export const THEMES: Record<ThemeId, Theme> = {
     tuned: "#ffffff",
     arc: "rgba(233,191,46,0.85)",
     glow: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Desktop 95 (experimental): after the feel of a mid-1990s desktop operating system, with no maker's or product's
+  // name, logo, sounds or art. The site is a teal desktop of windows (src/ui/desktop.ts); the map is drawn as an old
+  // program would, in sixteen colours with dithered shallows and shading, at half resolution (src/map/desktop.ts).
+  desktop: {
+    id: "desktop",
+    label: "Desktop 95",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "desktop",
+    ocean: "#000080",
+    land: "#008000",
+    landTexture: "none",
+    pixel: 2,
+    dotShape: "square",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#000000",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "#0000ff",
+    graticuleDash: [],
+    river: "#0000ff",
+    lake: "#000080",
+    ice: "#ffffff",
+    relief: "#808000",
+    dot: "#ffffff",
+    dotStroke: "#000000",
+    fresh: "#ff0000",
+    tuned: "#ffff00",
+    arc: "#ffff00",
+    glow: false,
     atmosphere: null,
     shade: null,
     neatline: false,
