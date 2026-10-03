@@ -1064,3 +1064,10 @@ From the list Davis picked. Experimental (decision 105), opened only by `?theme=
 ## 122. Experimental design: Primary (October 3, 2026)
 
 From the list Davis picked, after the De Stijl movement with no copy of any painting. Experimental (decision 105), opened only by `?theme=stijl`. The page is a composition of white fields between thick black bars, with blocks of red, yellow and blue at the masthead's and toolbar's corners. The land is cut into rectangles on a grid of longitude and latitude, thick black lines over land only; a few large cells are yellow or blue, chosen by a hash of the cell's position alone, never by news or any political unit, and always larger than the largest marker (tested). No land cell is red, keeping the rule that no land is red; red appears on the map only as the colour for fresh reports. Round black markers with a white edge, so none reads as a cell.
+
+## 123. Experimental designs: Herbarium and Woodblock (October 3, 2026)
+
+The last two from the list Davis picked. Both experimental (decision 105), opened only by `?theme=herbarium` and `?theme=woodblock`, look-led and still.
+
+- **Herbarium** (`herbarium`): a botanist's pressed-plant sheets. The land is pressed foliage, small flat leaves on a grid fixed to the world, coloured by latitude band, relief and ice only; a fine ink coast; cream mounting paper with pencil water lines. Pressed specimens of our own (a fern, a leaf, a flower, a grass) are taped at eight tested open-sea spots and round the globe, never over it or a place. The panel is a typed specimen label with the place as its locality. No handwritten notes, so nothing reads as information it isn't.
+- **Woodblock** (`woodblock`): after Japanese colour woodblock prints, with no copy of any print, no figures and no Japanese text. Flat Prussian blue sea with bokashi toward the coasts and the sheet's edges, soft green land with ochre deserts from the relief layer, a black keyblock coast, faint woodgrain. Curling waves of our own drawing sit at ten tested open-sea spots, sized to their open water; bands of mist sit round the globe, never over it. A red seal of our own, an abstract wave, by the name.
