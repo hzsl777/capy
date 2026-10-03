@@ -1772,6 +1772,8 @@ async function start() {
     savePins(state.pins);
   }
   renderPins();
+  // The toolbar was drawn before the file arrived, so Translate learns only now whether there is anything to translate.
+  syncTranslate();
   if (state.file.source !== "live") {
     const banner = $("banner");
     banner.hidden = false;

@@ -1035,3 +1035,12 @@ Davis asked for a design after 1970s and 80s German electronic music and its con
 
 - **Machine Music** (`machine`): black, signal red, warm grey and white; a red-ruled black screen or a red wireframe sphere on a dark stage; a synth rack under the map whose sequencer, scope and meters are decoration only, still for reduced motion and never flashing.
 - **First Render** (`render`): flat-shaded polygons under one hard light; a low-poly ball in a room of teal zigzag wallpaper with a turning umbrella lamp, or faceted land on a screen set into the wall.
+
+## 118. Two more experimental designs: Departures and Desktop 95 (October 3, 2026)
+
+From the list Davis picked. Both are experimental (decision 105), opened only by `?theme=flap` and `?theme=desktop`, and change how the site reads, as Console Menu does.
+
+- **Departures** (`flap`): a split-flap departures board. The name and the word flip in tile by tile; the panel is the board, each story a row with its time in amber and its headline, exactly as published, on flap cells behind the real text so it stays selectable and translatable. The map is a hall's wall map of warm lamps; the globe sits in a hall clock's ring with no hands.
+- **Desktop 95** (`desktop`): a mid-1990s desktop computer, with no maker's name, logo or wording. The map, the panel, the word, the Key, Topics, Pinned, the Design menu, Translate and About open as windows that can be dragged, minimised to a taskbar and closed; a taskbar has a menu, a button per window and a clock. On a phone each window fills the screen. The map is drawn in sixteen colours with dithering.
+
+Building Desktop 95 showed that Translate's picker was always hidden under the CSS that showed it: the toolbar decided before the day's file loaded. It now decides once the file is in, and a hidden picker stays hidden.

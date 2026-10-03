@@ -651,6 +651,10 @@ summary {
   position: relative;
   display: inline-flex;
 }
+/* A picker with nothing to offer (Translate on a day with no languages) stays hidden; the display above overrode it. */
+.pick[hidden] {
+  display: none;
+}
 .pick select {
   appearance: none;
   -webkit-appearance: none;
