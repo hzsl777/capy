@@ -1028,3 +1028,10 @@ Davis found Replay showing an empty globe for a while, and no reports after drag
 1. **Replay plays only the time bar's moments whose three-hour window holds a report shown at the reader's zoom** (`replayStops` in `src/data.ts`), then returns to the last 24 hours. With none, it goes straight there.
 2. **The slider's end is the last 24 hours,** as Live shows them.
 3. **The page tells the browser not to offer translation** (`<meta name="google" content="notranslate">`). Headlines appear as published in many languages, so the browser kept offering to translate a page that is in English. The site's own Translate button does it, labelled (decision 97).
+
+## 117. Two more experimental designs: Machine Music and First Render (October 3, 2026)
+
+Davis asked for a design after 1970s and 80s German electronic music and its constructivist posters, and one after the first computer-animated music videos of the mid-1980s. Both are experimental (decision 105): opened only by a link, `?theme=machine` and `?theme=render`, and not counted among the designs until Davis decides. Neither uses any band's, song's or video's name, figures, faces, sleeves or frames.
+
+- **Machine Music** (`machine`): black, signal red, warm grey and white; a red-ruled black screen or a red wireframe sphere on a dark stage; a synth rack under the map whose sequencer, scope and meters are decoration only, still for reduced motion and never flashing.
+- **First Render** (`render`): flat-shaded polygons under one hard light; a low-poly ball in a room of teal zigzag wallpaper with a turning umbrella lamp, or faceted land on a screen set into the wall.
