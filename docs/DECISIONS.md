@@ -1083,3 +1083,10 @@ Neon wrote that the project had used 82% (4.1 GB) of the free plan's 5 GB monthl
 
 Left: the daily run's export once a day, now only the columns shown, and the stages' own reads.
 
+
+## 125. The reticle meets the story; the site retries its map file (October 3, 2026)
+
+Davis found the reticle finicky in some designs: a place counted as tuned within 22 pixels of the reticle, so after a drag the dot and the reticle often sat apart, and on a phone a place took careful aiming.
+
+1. **When a drag or its glide ends, the nearest place within 48 pixels of the reticle glides under it** (`snapToNearest` in `src/map/view.ts`), as a spin's landing already did. It is measured where tuning measures, at the place's ground point, and flies through the design's own camera, so it works the same on the globe, the flat map, tilted, warped and framed pictures, the cube and the record (checked in a browser on every design in both views). Keys, zoom and taps are unchanged: a tap on a dot already flies to it.
+2. **The site tries the day's file three times**, a second and then three apart, before it says the news couldn't be loaded, so a network blip or a deploy in progress doesn't leave a reader with an empty map. A missing day (the Worker's 404) still says so at once.

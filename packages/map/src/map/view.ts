@@ -236,6 +236,11 @@ type PatternKind = "halftone" | "matrix" | "dither" | "hatch" | "blocks" | "gras
 
 const DEG = 180 / Math.PI;
 const TUNE_RADIUS = 22;
+/**
+ * When a drag ends, the nearest place within this many pixels of the reticle glides under it, as a spin's landing does,
+ * so the reticle always meets the place it tunes, in every design and on a phone (decision 125).
+ */
+const SNAP_RADIUS = 48;
 /** How high Polygon Kingdom's terrain stands: a height of 1 is this share of the projection's scale, in pixels. */
 const LIFT = 0.02;
 const MAX_ZOOM = 14;
@@ -963,6 +968,7 @@ export class MapView {
       const recent = performance.now() - this.velocity.t < 80;
       if (recent && Math.hypot(this.velocity.x, this.velocity.y) > 0.15) this.glide();
       else {
+        this.snapNext = true;
         this.moved();
       }
     };
@@ -1078,6 +1084,7 @@ export class MapView {
       if (Math.hypot(vx, vy) > 0.02 && this.pointers.size === 0) {
         this.frame = requestAnimationFrame(tick);
       } else {
+        if (this.pointers.size === 0) this.snapNext = true;
         this.moved();
       }
     };
@@ -1127,7 +1134,36 @@ export class MapView {
       if (this.settle()) return this.moved();
       this.retune();
       this.events.onDraw?.();
+      if (this.snapNext) {
+        this.snapNext = false;
+        this.snapToNearest();
+      }
     });
+  }
+
+  /** Set when a drag or its glide has just ended: the next drawn frame, with the places where they now are, snaps. */
+  private snapNext = false;
+
+  /**
+   * The nearest place within SNAP_RADIUS of the reticle glides under it (decision 125). Measured where tuning measures,
+   * at the place's ground point, through the design's own camera, so it works the same on the globe, the flat map, a
+   * tilted or warped picture and the record. A place already under the reticle stays put.
+   */
+  private snapToNearest() {
+    if (this.spinning || this.anim || this.pointers.size > 0) return;
+    const cx = this.w / 2;
+    const cy = this.h / 2;
+    let best: Spot | null = null;
+    let bestD = SNAP_RADIUS;
+    for (const s of this.screen) {
+      const d = Math.hypot((s.gx ?? s.x) - cx, (s.gy ?? s.y) - cy);
+      if (d < bestD) {
+        best = s;
+        bestD = d;
+      }
+    }
+    if (!best || bestD < 1.5) return;
+    this.flyTo(best.lon, best.lat, this.zoom, 320);
   }
 
   private retune() {

@@ -2,7 +2,7 @@
 
 The map, published as GlobalGist, is one of two products in capy. The other is 2DayAI (see the root AGENTS.md and CONTEXT.md). GlobalGist is the public site. It puts world news on a map by where it happens (decision 44), in the spirit of Radio Garden. One word heads it: the emotion the day's world reporting evokes, on a scored scale from Severe harm to Resolution (decision 59).
 
-On open, the map or globe turns until a place lands under the small reticle in the middle; drag to turn it yourself. The place under the reticle is "tuned", and the side panel lists what its outlets reported. Opening the word shows:
+On open, the map or globe turns until a place lands under the small reticle in the middle; drag to turn it yourself, and when you let go the nearest place within reach glides under the reticle (decision 125). The place under the reticle is "tuned", and the side panel lists what its outlets reported. Opening the word shows:
 
 - the scale and the events that shaped the day
 - every event's score with the sentence it rests on

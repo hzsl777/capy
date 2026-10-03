@@ -342,7 +342,9 @@ const map = new MapView($("map"), THEMES[state.theme], {
     // Shortwave's needle follows the reticle on every frame, the idle spin's included (src/ui/dial.ts).
     moveDial();
   },
-});
+});// The dev server only: browser checks read the map's centre (the snap on release, decision 125). Not in the build.
+if (import.meta.env.DEV) (window as unknown as { __map: MapView }).__map = map;
+
 map.setMode(viewOf());
 
 function refreshDots() {

@@ -13,19 +13,25 @@ export interface Filters {
 export const NO_DAY_YET = "no day yet";
 
 /** Live data from the Worker (data/latest.json), else the placeholder sample made by `npm run map:sample`. */
-export async function loadNews(base = import.meta.env.BASE_URL): Promise<MapFile> {
+export async function loadNews(base = import.meta.env.BASE_URL, wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))): Promise<MapFile> {
   let noDayYet = false;
-  for (const name of ["latest.json", "sample.json"]) {
-    try {
-      const res = await fetch(`${base}data/${name}`, { cache: "no-cache" });
-      // The Worker answers 404 until the first daily run has written a day.
-      if (res.status === 404 && name === "latest.json") noDayYet = true;
-      if (!res.ok) continue;
-      const file = (await res.json()) as MapFile;
-      if (file.version === 2 && Array.isArray(file.items)) return file;
-    } catch {
-      /* try the next file */
+  // The day's file is tried three times, a second and then three apart, before the page says it couldn't load: a
+  // network blip or a deploy in progress shouldn't leave a reader with no news (decision 125).
+  for (const [attempt, pause] of [0, 1000, 3000].entries()) {
+    if (pause) await wait(pause);
+    for (const name of ["latest.json", "sample.json"]) {
+      try {
+        const res = await fetch(`${base}data/${name}`, { cache: "no-cache" });
+        // The Worker answers 404 until the first daily run has written a day.
+        if (res.status === 404 && name === "latest.json") noDayYet = true;
+        if (!res.ok) continue;
+        const file = (await res.json()) as MapFile;
+        if (file.version === 2 && Array.isArray(file.items)) return file;
+      } catch {
+        /* try the next file */
+      }
     }
+    if (noDayYet || attempt === 2) break;
   }
   throw new Error(noDayYet ? NO_DAY_YET : "No news data found");
 }
