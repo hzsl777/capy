@@ -651,6 +651,10 @@ summary {
   position: relative;
   display: inline-flex;
 }
+/* A picker with nothing to offer (Translate on a day with no languages) stays hidden; the display above overrode it. */
+.pick[hidden] {
+  display: none;
+}
 .pick select {
   appearance: none;
   -webkit-appearance: none;
@@ -16460,5 +16464,1615 @@ button.x-ch:focus-visible {
   :root[data-theme="render"] .zoom {
     right: 26px;
     bottom: 26px;
+  }
+}
+
+/* ---- Departures (id flap, experimental): after the feel of a split-flap departures board in a big station hall,
+   with no operator's, airline's, railway's or maker's names, logos or colours. Black board panels, flaps with a split
+   across the middle of each character, amber for times, white for text, a hall clock in the toolbar, buttons as small
+   flap tiles; the map is the hall's wall map (src/map/flap.ts) and the moving parts are src/ui/flap.ts. ---------- */
+/* Hidden in every other design: the board's column heads and the hall clock. */
+.fl-heads,
+.fl-clock {
+  display: none;
+}
+:root[data-theme="flap"] {
+  color-scheme: dark;
+  --page: #0d0d0e;
+  --panel: #09090a;
+  --ink: #f6f3ea;
+  --ink-2: #dcd7cc;
+  --muted: #aaa498;
+  --rule: #3a3a3d;
+  --accent: #f5b81c;
+  --on-accent: #0d0d0e;
+  --hover: rgba(245, 184, 28, 0.08);
+  --reticle: #f5c53a;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-board: "Martian Mono Variable", "DejaVu Sans Mono", "Menlo", monospace;
+  --font-mast: var(--font-board);
+  --font-head: var(--font-board);
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+  /* A flap: a lighter top half over the split, the darker bottom half, and the board's black between flaps. */
+  --fl-top: #262628;
+  --fl-bottom: #1d1d1f;
+  --fl-split: #000000;
+  --fl-gap: #09090a;
+  --fl-amber: #f5b81c;
+  /* A small flap tile for buttons: two halves and a hairline split. */
+  --fl-tile: linear-gradient(to bottom, #2e2e31 0 calc(50% - 0.5px), #000 calc(50% - 0.5px) calc(50% + 0.5px), #222225 calc(50% + 0.5px));
+  /* A lit tile: its split is only a shade darker, so it never reads as a line struck through dark letters. */
+  --fl-tile-on: linear-gradient(to bottom, #ffc93d 0 calc(50% - 0.5px), #dba11a calc(50% - 0.5px) calc(50% + 0.5px), #f0b318 calc(50% + 0.5px));
+}
+:root[data-theme="flap"] body {
+  background: var(--page);
+}
+
+/* Lettering in flap cells: one cell per character, each with its split, laid behind the text. The board's letters are
+   all one width, so every glyph sits in its own cell as the line wraps; a block is a whole number of cells wide, so
+   the last cell in a row is never cut. Mixed case and every character as published. */
+:root[data-theme="flap"] .headline,
+:root[data-theme="flap"] .reader-headline,
+:root[data-theme="flap"] .place-name,
+:root[data-theme="flap"] .fl-time,
+:root[data-theme="flap"] .fl-outlet,
+:root[data-theme="flap"] .time-label {
+  --fl-track: 0.1em;
+  --fl-cw: calc(1ch + var(--fl-track));
+  --fl-lh: 26px;
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  letter-spacing: var(--fl-track);
+  line-height: var(--fl-lh);
+  overflow-wrap: anywhere;
+  background-image:
+    linear-gradient(to bottom, transparent calc(50% - 2px), var(--fl-split) calc(50% - 2px) calc(50% - 1px), transparent calc(50% - 1px)),
+    linear-gradient(to right, transparent calc(100% - 2px), var(--fl-gap) calc(100% - 2px)),
+    linear-gradient(to bottom, var(--fl-top) calc(50% - 1.5px), var(--fl-bottom) calc(50% - 1.5px) calc(100% - 3px), var(--fl-gap) calc(100% - 3px));
+  background-size: var(--fl-cw) var(--fl-lh);
+  background-position: calc(var(--fl-track) / -2) 0;
+  background-origin: content-box;
+  background-clip: content-box;
+}
+:root[data-theme="flap"] .headline,
+:root[data-theme="flap"] .reader-headline,
+:root[data-theme="flap"] .place-name {
+  display: block;
+  width: round(down, 100%, var(--fl-cw));
+}
+:root[data-theme="flap"] .headline {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+:root[data-theme="flap"] .reader-headline {
+  --fl-lh: 36px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 6px 0 10px;
+}
+:root[data-theme="flap"] .place-name {
+  --fl-lh: 38px;
+  font-size: 25px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+:root[data-theme="flap"] .fl-time {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fl-amber);
+  white-space: nowrap;
+}
+:root[data-theme="flap"] .fl-outlet {
+  --fl-lh: 22px;
+  display: inline;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---- masthead: the board's header, the name in flap tiles, white on black ---- */
+:root[data-theme="flap"] .masthead {
+  background: #050505;
+  border-bottom: 1px solid #2a2a2c;
+  box-shadow: inset 0 -3px 0 #111113;
+}
+/* One tile per letter, so the name is set a little smaller than the other designs' and never breaks between tiles. */
+:root[data-theme="flap"] .mast-title {
+  font-family: var(--font-board);
+  font-size: clamp(22px, 2.4vw, 34px);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: #ffffff;
+}
+:root[data-theme="flap"] .mast-tag {
+  font: 600 12px/1.3 var(--font-board);
+  font-stretch: 75%;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fl-amber);
+  margin-top: 6px;
+}
+/* One letter per tile: the tile's two halves with the split between them, and its top flap, which rests folded into
+   the split and falls when the tile turns (src/ui/flap.ts sets fl-a or fl-b for each flap). */
+:root[data-theme="flap"] .lt {
+  display: inline-block;
+  position: relative;
+  padding: 0.07em 0.15em 0.05em;
+  margin: 0 0.035em;
+  text-align: center;
+  color: #ffffff;
+  background: linear-gradient(to bottom, #2c2c2f 0 calc(50% - 1px), #000 calc(50% - 1px) calc(50% + 1px), #222225 calc(50% + 1px));
+  border-radius: 0.07em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 1px rgba(0, 0, 0, 0.8);
+}
+:root[data-theme="flap"] .lt::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50%;
+  margin-bottom: 1px;
+  border-radius: 0.07em 0.07em 0 0;
+  background: #313134;
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+  pointer-events: none;
+}
+:root[data-theme="flap"] .lt.fl-a::before {
+  animation: fl-fold-a 60ms ease-in;
+}
+:root[data-theme="flap"] .lt.fl-b::before {
+  animation: fl-fold-b 60ms ease-in;
+}
+@keyframes fl-fold-a {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+@keyframes fl-fold-b {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+:root[data-theme="flap"] .telegram-kicker,
+:root[data-theme="flap"] .telegram-date {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] .telegram-kicker {
+  color: var(--muted);
+}
+:root[data-theme="flap"] .telegram-note,
+:root[data-theme="flap"] .telegram-status {
+  font-family: var(--font-ui);
+  font-style: normal;
+  color: var(--ink-2);
+}
+/* Each letter of the word is a tile almost an em wide, so the length-based size is a little smaller than elsewhere. */
+:root[data-theme="flap"] .telegram-word {
+  font-family: var(--font-board);
+  font-size: min(72px, calc(34vw / var(--len, 8)));
+  font-stretch: 75%;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #ffffff;
+  border-bottom: 0;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+:root[data-theme="flap"] .telegram-word:hover,
+:root[data-theme="flap"] .telegram-word:focus-visible {
+  text-decoration: none;
+  outline: 2px solid var(--fl-amber);
+  outline-offset: 2px;
+  background: none;
+}
+:root[data-theme="flap"] .telegram-big {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+:root[data-theme="flap"] .scale {
+  border: 1px solid #000;
+  border-radius: 3px;
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 600;
+  background: var(--fl-tile);
+}
+:root[data-theme="flap"] .scale .step {
+  color: var(--muted);
+}
+:root[data-theme="flap"] .scale .step + .step {
+  border-left: 2px solid #000;
+}
+:root[data-theme="flap"] .scale .step.on {
+  background: var(--fl-tile-on);
+  color: #0d0d0e;
+}
+
+/* ---- toolbar: small flap tiles on the board's black, with the hall clock at the end ---- */
+:root[data-theme="flap"] .toolbar {
+  background: #0b0b0c;
+  border-bottom: 1px solid #000;
+  box-shadow: 0 1px 0 #1f1f22;
+}
+:root[data-theme="flap"] .tool,
+:root[data-theme="flap"] .pick select,
+:root[data-theme="flap"] .menu > summary,
+:root[data-theme="flap"] .chip,
+:root[data-theme="flap"] .zoom button,
+:root[data-theme="flap"] .key-btn,
+:root[data-theme="flap"] .key-close,
+:root[data-theme="flap"] dialog .close {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #f6f3ea;
+  border: 1px solid #000;
+  border-radius: 3px;
+  background: var(--fl-tile);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+:root[data-theme="flap"] .tool:hover,
+:root[data-theme="flap"] .pick select:hover,
+:root[data-theme="flap"] .menu > summary:hover,
+:root[data-theme="flap"] .chip:hover,
+:root[data-theme="flap"] .zoom button:hover,
+:root[data-theme="flap"] .key-btn:hover,
+:root[data-theme="flap"] .key-close:hover,
+:root[data-theme="flap"] dialog .close:hover {
+  background: var(--fl-tile);
+  border-color: var(--fl-amber);
+}
+:root[data-theme="flap"] .tool.quiet {
+  border-color: #000;
+}
+:root[data-theme="flap"] .tool[aria-pressed="true"],
+:root[data-theme="flap"] .tool.primary,
+:root[data-theme="flap"] .menu[open] > summary,
+:root[data-theme="flap"] .chip[aria-pressed="true"],
+:root[data-theme="flap"] .key-btn[aria-expanded="true"] {
+  background: var(--fl-tile-on);
+  color: #0d0d0e;
+  border-color: #000;
+}
+:root[data-theme="flap"] .chip-all {
+  border-style: dashed;
+  border-color: #6d6d70;
+}
+:root[data-theme="flap"] .pick::after {
+  color: var(--fl-amber);
+  opacity: 1;
+}
+:root[data-theme="flap"] .pick option,
+:root[data-theme="flap"] .pick optgroup {
+  background: #111113;
+  color: #f6f3ea;
+}
+:root[data-theme="flap"] .fl-clock {
+  display: inline-flex;
+  order: 99;
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+:root[data-theme="flap"] .fl-clock svg {
+  width: 100%;
+  height: 100%;
+}
+:root[data-theme="flap"] .menu-body,
+:root[data-theme="flap"] .key-pop,
+:root[data-theme="flap"] dialog {
+  background: #0b0b0c;
+  color: var(--ink);
+  border: 1px solid #2c2c2f;
+  border-top: 3px solid var(--fl-amber);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="flap"] .menu-item {
+  border-bottom: 1px solid #222225;
+  font-family: var(--font-ui);
+  font-size: 15px;
+}
+:root[data-theme="flap"] .banner {
+  background: #0b0b0c;
+  color: var(--fl-amber);
+  border-bottom: 1px solid #000;
+  font-family: var(--font-ui);
+  letter-spacing: 0.06em;
+}
+
+/* ---- the map: the hall's wall map, and the reticle as a board's arrow box ---- */
+:root[data-theme="flap"] .map {
+  background: #131415;
+}
+:root[data-theme="flap"] .crosshair {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  background: none;
+  border: 2px solid var(--reticle);
+  border-radius: 2px;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+}
+:root[data-theme="flap"] .crosshair::before {
+  content: "";
+  position: absolute;
+  right: calc(100% + 4px);
+  top: 50%;
+  margin-top: -6px;
+  border-style: solid;
+  border-width: 6px 0 6px 9px;
+  border-color: transparent transparent transparent var(--reticle);
+}
+:root[data-theme="flap"] .zoom {
+  border: 0;
+  background: none;
+  gap: 4px;
+}
+:root[data-theme="flap"] .zoom button + button {
+  border-top: 1px solid #000;
+}
+:root[data-theme="flap"] .key-btn {
+  font-size: 12px;
+}
+:root[data-theme="flap"] .key-head h2,
+:root[data-theme="flap"] dialog h2 {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+:root[data-theme="flap"] .key-note {
+  color: var(--muted);
+}
+:root[data-theme="flap"] .key-body li {
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+:root[data-theme="flap"] dialog h3 {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  letter-spacing: 0.12em;
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] dialog a,
+:root[data-theme="flap"] .reader a:not(.tool) {
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ---- the panel: the board itself, a row per report ---- */
+:root[data-theme="flap"] .panel {
+  background: var(--panel);
+  border-left: 1px solid #000;
+  box-shadow: inset 1px 0 0 #1f1f22;
+}
+:root[data-theme="flap"] .dateline {
+  border-bottom: 2px solid var(--fl-amber);
+  padding-bottom: 10px;
+}
+:root[data-theme="flap"] .dateline .coords,
+:root[data-theme="flap"] .count {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 14px;
+  color: var(--muted);
+}
+:root[data-theme="flap"] .panel-title {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+/* The board's column heads over the rows, like the strip of labels along a board's top. */
+:root[data-theme="flap"] .fl-heads {
+  display: grid;
+  grid-template-columns: 5.6em minmax(0, 1fr);
+  column-gap: 10px;
+  margin: 12px 0 0;
+  padding: 0 2px 4px;
+  border-bottom: 1px solid #2a2a2d;
+  font: 600 11px/1.2 var(--font-board);
+  font-stretch: 75%;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] .stories-group {
+  display: block;
+  margin: 16px 0 4px;
+  padding: 3px 8px;
+  font: 600 11px/1.3 var(--font-board);
+  font-stretch: 75%;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 1;
+  color: #0d0d0e;
+  background: var(--fl-amber);
+  border-radius: 2px;
+}
+:root[data-theme="flap"] .stories + .stories-group {
+  border-top: 0;
+  padding-top: 3px;
+}
+:root[data-theme="flap"] .stories li + li {
+  border-top: 1px solid #1c1c1f;
+}
+/* A row: the time in the left column, beside the outlet, the place where the list names one, the headline and the
+   line under it. Never numbered. */
+:root[data-theme="flap"] .story {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 4px;
+  align-items: start;
+  padding: 10px 2px;
+}
+:root[data-theme="flap"] .story > * {
+  grid-column: 2;
+}
+:root[data-theme="flap"] .story > .fl-row {
+  display: contents;
+}
+:root[data-theme="flap"] .fl-row > .fl-time {
+  grid-column: 1;
+  grid-row: 1 / span 6;
+}
+:root[data-theme="flap"] .fl-row > .fl-outlet {
+  grid-column: 2;
+  justify-self: start;
+  max-width: round(down, 100%, var(--fl-cw));
+}
+:root[data-theme="flap"] .story:hover,
+:root[data-theme="flap"] .story:focus-visible {
+  background: rgba(245, 184, 28, 0.06);
+  outline: 1px solid rgba(245, 184, 28, 0.6);
+  outline-offset: -1px;
+}
+:root[data-theme="flap"] .kicker {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] .meta,
+:root[data-theme="flap"] .translated,
+:root[data-theme="flap"] .related {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 14px;
+  color: var(--muted);
+}
+:root[data-theme="flap"] .related {
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] .new-mark {
+  color: var(--ink);
+}
+/* The rows turning over when the tuned place changes: each row's time folds in and its flaps settle left to right,
+   one row after another from the top (src/ui/flap.ts sets fl-turn and each row's --fl-i). */
+:root[data-theme="flap"] .fl-turn .stories > li .fl-time {
+  animation: fl-turn-fold 240ms ease-out both;
+  animation-delay: calc(var(--fl-i, 0) * 40ms);
+  transform-origin: 50% 50%;
+}
+:root[data-theme="flap"] .fl-turn .stories > li .fl-outlet,
+:root[data-theme="flap"] .fl-turn .stories > li .headline {
+  animation: fl-turn 240ms steps(8, end) both;
+  animation-delay: calc(var(--fl-i, 0) * 40ms);
+}
+@keyframes fl-turn {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes fl-turn-fold {
+  from {
+    transform: scaleY(0.08);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ---- the reader, the word's view and explanations on the board ---- */
+:root[data-theme="flap"] .byline,
+:root[data-theme="flap"] .fine {
+  font-family: var(--font-ui);
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="flap"] .fine {
+  font-size: 13px;
+}
+:root[data-theme="flap"] .byline {
+  font-size: 15px;
+  border-bottom: 1px solid #2a2a2d;
+}
+:root[data-theme="flap"] .excerpt {
+  font: 17px/1.5 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="flap"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="flap"] .lead img {
+  filter: grayscale(1) contrast(1.05) brightness(0.9);
+  border: 1px solid #000;
+  border-radius: 3px;
+}
+:root[data-theme="flap"] .rule-head {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: left;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--fl-amber);
+  color: #0d0d0e;
+}
+:root[data-theme="flap"] .explain-text {
+  color: var(--ink-2);
+}
+:root[data-theme="flap"] .excerpt-quote {
+  border-left-color: var(--fl-amber);
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="flap"] .cite,
+:root[data-theme="flap"] .source-num,
+:root[data-theme="flap"] .score-chip {
+  font-family: var(--font-board);
+  font-stretch: 75%;
+  border-color: #3a3a3d;
+  border-radius: 2px;
+}
+:root[data-theme="flap"] .cite {
+  color: var(--fl-amber);
+}
+:root[data-theme="flap"] .source-title {
+  font-family: var(--font-ui);
+  font-size: 17px;
+}
+:root[data-theme="flap"] .event-score {
+  font-family: var(--font-body);
+}
+
+/* ---- time bar: the board's foot, Replay and Live as tiles, the window's times in amber flaps ---- */
+:root[data-theme="flap"] .timebar {
+  background: #0b0b0c;
+  border-top: 1px solid #000;
+  box-shadow: inset 0 1px 0 #1f1f22;
+}
+:root[data-theme="flap"] .slider input {
+  accent-color: var(--fl-amber);
+}
+:root[data-theme="flap"] .time-label {
+  --fl-lh: 24px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fl-amber);
+  text-transform: uppercase;
+  padding: 0;
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="flap"] .telegram-word {
+    font-size: min(48px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 1.05)));
+  }
+  /* The board's letters are wide, so the phone's one row of controls sets them a little smaller and closer. */
+  :root[data-theme="flap"] .toolbar .tool,
+  :root[data-theme="flap"] .toolbar .pick select,
+  :root[data-theme="flap"] .toolbar .menu > summary {
+    font-size: 12px;
+    letter-spacing: 0.01em;
+  }
+  :root[data-theme="flap"] .mast-title {
+    font-size: 26px;
+  }
+  :root[data-theme="flap"] .mast-tag {
+    margin-top: 4px;
+  }
+  :root[data-theme="flap"] .place-name {
+    --fl-lh: 32px;
+    font-size: 20px;
+  }
+  :root[data-theme="flap"] .tool,
+  :root[data-theme="flap"] .menu > summary {
+    padding-inline: 7px;
+  }
+  :root[data-theme="flap"] .pick select {
+    padding-left: 7px;
+    padding-right: 18px;
+  }
+  :root[data-theme="flap"] .pick::after {
+    right: 7px;
+  }
+  :root[data-theme="flap"] .time-label {
+    font-size: 12px;
+  }
+}
+@media (max-width: 400px) {
+  :root[data-theme="flap"] .toolbar {
+    gap: 4px;
+  }
+  :root[data-theme="flap"] .toolbar .tool,
+  :root[data-theme="flap"] .toolbar .pick select,
+  :root[data-theme="flap"] .toolbar .menu > summary {
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+  :root[data-theme="flap"] .toolbar .tool,
+  :root[data-theme="flap"] .toolbar .menu > summary {
+    padding-inline: 6px;
+  }
+  :root[data-theme="flap"] .toolbar .pick select {
+    padding-left: 6px;
+    padding-right: 16px;
+  }
+  :root[data-theme="flap"] .toolbar .pick::after {
+    right: 6px;
+  }
+}
+/* On a phone the clock hangs in the masthead's top corner, opposite About (mountBoard in src/ui/flap.ts). */
+@media (max-width: 760px) {
+  :root[data-theme="flap"] .masthead > .fl-clock {
+    position: absolute;
+    top: 8px;
+    left: var(--gutter);
+    width: 30px;
+    height: 30px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="flap"] .lt::before,
+  :root[data-theme="flap"] .fl-turn .stories > li .fl-time,
+  :root[data-theme="flap"] .fl-turn .stories > li .fl-outlet,
+  :root[data-theme="flap"] .fl-turn .stories > li .headline {
+    animation: none;
+  }
+}
+
+/* ---- Desktop 95 (id desktop, experimental): after the feel of a mid-1990s desktop operating system, with no maker's
+   or product's name, logo, sounds, icons or menu wording. A teal desktop of grey bevelled windows with navy title bars
+   (src/ui/desktop.ts), a taskbar along the bottom, our own pixel icons, Pixelify Sans for the chrome and IBM Plex Sans
+   for reading. The map is drawn in sixteen colours at half resolution (src/map/desktop.ts). Nothing animates. ---- */
+:root[data-theme="desktop"] {
+  color-scheme: light;
+  --page: #008080;
+  --panel: #ffffff;
+  --ink: #000000;
+  --ink-2: #1a1a1a;
+  --muted: #4a4a4a;
+  --rule: #808080;
+  --accent: #000080;
+  --on-accent: #ffffff;
+  --hover: #dcdcf0;
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Tahoma", sans-serif;
+  --font-head: "IBM Plex Sans", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", Arial, sans-serif;
+  --font-ui: "Pixelify Sans", "Tahoma", sans-serif;
+  --dk-bar: 36px;
+  /* The bevels: a raised control lit from the upper left, a sunken field, and a pressed control. */
+  --dk-raised: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  --dk-sunken: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000, inset -2px -2px #dfdfdf;
+  --dk-pressed: inset 1px 1px #000, inset -1px -1px #fff, inset 2px 2px #808080, inset -2px -2px #dfdfdf;
+}
+:root[data-theme="desktop"] body {
+  background: #008080;
+}
+/* The page's own rows step aside: their parts live in the windows now. */
+:root[data-theme="desktop"] body > .masthead,
+:root[data-theme="desktop"] body > .toolbar,
+:root[data-theme="desktop"] body > .stage,
+:root[data-theme="desktop"] body > .ticker,
+:root[data-theme="desktop"] body > .timebar {
+  display: none;
+}
+.dk-desk,
+.dk-taskbar {
+  display: none;
+}
+:root[data-theme="desktop"] .dk-desk {
+  display: block;
+  position: fixed;
+  inset: 0 0 var(--dk-bar) 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #008080;
+  font: 15px/1.2 var(--font-ui);
+}
+
+/* ---- desktop icons ---- */
+:root[data-theme="desktop"] .dk-icons {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  bottom: 6px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 76px);
+  grid-auto-columns: 84px;
+  gap: 2px 4px;
+}
+.dk-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  background: none;
+  border: 1px dotted transparent;
+  color: #fff;
+  font: 14px/1.1 var(--font-ui);
+  cursor: default;
+  text-align: center;
+}
+.dk-icon-label {
+  padding: 1px 3px;
+  overflow-wrap: anywhere;
+}
+.dk-icon.dk-picked .dk-icon-label,
+.dk-icon:focus-visible .dk-icon-label {
+  background: #000080;
+}
+.dk-icon:focus-visible {
+  outline: 0;
+  border-color: #fff;
+}
+.dk-icon.dk-picked .dk-ico-big {
+  opacity: 0.7;
+}
+.dk-ico {
+  display: block;
+  flex: none;
+}
+.dk-ico-big {
+  width: 32px;
+  height: 32px;
+}
+.dk-ico-small {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- windows ---- */
+.dk-win {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  min-height: 96px;
+  padding: 4px;
+  background: #c0c0c0;
+  color: #000;
+  box-shadow: var(--dk-raised);
+}
+.dk-win[hidden] {
+  display: none;
+}
+.dk-win:focus {
+  outline: 0;
+}
+.dk-title {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 3px 2px 4px;
+  background: linear-gradient(90deg, #808080, #b8b8b8);
+  color: #d8d8d8;
+  font: 700 15px/1.1 var(--font-ui);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: default;
+}
+.dk-active > .dk-title,
+.dk-strip > .dk-title,
+.dk-about-title {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+}
+.dk-title-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dk-tbtns {
+  flex: none;
+  display: flex;
+  gap: 2px;
+}
+.dk-tbtn {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: #c0c0c0;
+  color: #000;
+  box-shadow: var(--dk-raised);
+  cursor: pointer;
+}
+.dk-tbtn.dk-close {
+  margin-left: 2px;
+}
+.dk-tbtn:active {
+  box-shadow: var(--dk-pressed);
+}
+.dk-tbtn:active .dk-glyph {
+  transform: translate(1px, 1px);
+}
+.dk-glyph {
+  width: 8px;
+  height: 7px;
+}
+.dk-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 3px;
+}
+:root[data-theme="desktop"] .dk-win.dk-maxed {
+  left: 0 !important;
+  top: var(--dk-top, 0px) !important;
+  width: 100% !important;
+  height: calc(100% - var(--dk-top, 0px)) !important;
+}
+
+/* A plain grey button, raised, pressed while held. */
+.dk-button,
+:root[data-theme="desktop"] .tool,
+:root[data-theme="desktop"] .zoom button,
+:root[data-theme="desktop"] .key-btn,
+:root[data-theme="desktop"] .chip,
+:root[data-theme="desktop"] .dk-task,
+:root[data-theme="desktop"] .dk-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 0;
+  background: #c0c0c0;
+  color: #000;
+  box-shadow: var(--dk-raised);
+  font: 15px/1.1 var(--font-ui);
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+.dk-button:active,
+:root[data-theme="desktop"] .tool:active,
+:root[data-theme="desktop"] .zoom button:active,
+:root[data-theme="desktop"] .key-btn:active,
+:root[data-theme="desktop"] .chip:active,
+:root[data-theme="desktop"] .chip[aria-pressed="true"],
+:root[data-theme="desktop"] .tool[aria-pressed="true"],
+:root[data-theme="desktop"] .dk-task[aria-pressed="true"],
+:root[data-theme="desktop"] .dk-menu-btn[aria-expanded="true"] {
+  box-shadow: var(--dk-pressed);
+  background: #c0c0c0;
+  color: #000;
+}
+:root[data-theme="desktop"] .chip[aria-pressed="true"],
+:root[data-theme="desktop"] .dk-task[aria-pressed="true"] {
+  /* A control that stays pressed shows the old checked grey: a fine light dither. */
+  background: repeating-conic-gradient(#ffffff 0 25%, #c0c0c0 0 50%) 0 0 / 2px 2px;
+  font-weight: 700;
+}
+:root[data-theme="desktop"] .tool:hover,
+:root[data-theme="desktop"] .chip:hover {
+  background-color: #c0c0c0;
+}
+:root[data-theme="desktop"] .tool.primary {
+  outline: 1px solid #000;
+  outline-offset: -1px;
+  background: #c0c0c0;
+  color: #000;
+  font-weight: 700;
+}
+:root[data-theme="desktop"] :focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -5px;
+}
+:root[data-theme="desktop"] .dk-title :focus-visible {
+  outline-offset: -3px;
+}
+
+/* ---- the word's window, fixed at the top of the desktop ---- */
+.dk-strip {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(700px, calc(100% - 200px));
+  min-height: 0;
+  z-index: 5;
+}
+:root[data-theme="desktop"] .dk-strip .telegram {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 12px;
+  padding: 6px 10px 8px;
+  margin: 0;
+  background: #c0c0c0;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-date {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  justify-self: start;
+  align-self: center;
+  padding: 3px 6px;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  font: 14px/1.2 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+  color: #000;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-center {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  margin: 0;
+}
+/* The window's title says the label, so it is said once. */
+:root[data-theme="desktop"] .dk-strip .telegram-center .telegram-kicker {
+  display: none;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-side {
+  display: contents;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-note {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  justify-self: end;
+  text-align: right;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-status {
+  grid-column: 1 / 4;
+  grid-row: 3;
+  justify-self: center;
+  text-align: center;
+}
+/* The five steps under the word, across the window. */
+:root[data-theme="desktop"] .dk-strip .scale {
+  grid-column: 1 / 4;
+  grid-row: 4;
+  justify-self: center;
+}
+:root[data-theme="desktop"] .dk-strip .telegram > .telegram-kicker:only-child {
+  grid-column: 1 / 4;
+  justify-self: center;
+}
+:root[data-theme="desktop"] .telegram-kicker {
+  font: 14px/1.2 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+  color: #000;
+}
+:root[data-theme="desktop"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #000080;
+  font-size: min(44px, calc(30vw / var(--len, 8)));
+  padding: 4px 10px;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+}
+:root[data-theme="desktop"] .telegram-word:hover {
+  background: #fff;
+}
+:root[data-theme="desktop"] .telegram-note,
+:root[data-theme="desktop"] .telegram-status {
+  font: 13px/1.25 var(--font-ui);
+  font-style: normal;
+  color: #000;
+}
+:root[data-theme="desktop"] .note-link {
+  color: #000080;
+}
+:root[data-theme="desktop"] .scale {
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  padding: 2px;
+  font: 12px/1 var(--font-ui);
+  letter-spacing: 0;
+}
+:root[data-theme="desktop"] .scale .step {
+  color: #404040;
+  padding: 3px 5px;
+}
+:root[data-theme="desktop"] .scale .step + .step {
+  border-left: 1px solid #c0c0c0;
+}
+:root[data-theme="desktop"] .scale .step.on {
+  background: #000080;
+  color: #fff;
+}
+
+/* ---- the map's window ---- */
+.dk-menubar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 2px 5px;
+}
+:root[data-theme="desktop"] .pick select {
+  min-height: 28px;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  font: 15px/1.1 var(--font-ui);
+  padding: 4px 28px 4px 8px;
+  color: #000;
+}
+/* A long place name wraps inside the button rather than running out of the window. */
+.dk-reports-btn {
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+}
+.dk-reports-btn span {
+  overflow-wrap: anywhere;
+}
+/* The dropdown's arrow on a raised grey square, as the old lists had. */
+:root[data-theme="desktop"] .pick::after {
+  content: "";
+  right: 2px;
+  width: 18px;
+  height: calc(100% - 4px);
+  opacity: 1;
+  background:
+    linear-gradient(45deg, transparent 50%, #000 50%) calc(50% - 2px) 55% / 4px 4px no-repeat,
+    linear-gradient(-45deg, transparent 50%, #000 50%) calc(50% + 2px) 55% / 4px 4px no-repeat,
+    #c0c0c0;
+  box-shadow: var(--dk-raised);
+}
+:root[data-theme="desktop"] .dk-win-map .banner {
+  margin: 0 0 4px;
+  padding: 3px 8px;
+  background: #ffffe1;
+  color: #000;
+  border: 1px solid #000;
+  font: 14px/1.25 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-win-map .map {
+  flex: 1 1 auto;
+  min-height: 120px;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  background: #808080;
+}
+:root[data-theme="desktop"] .map canvas {
+  cursor: crosshair;
+}
+:root[data-theme="desktop"] .map canvas:focus-visible {
+  outline: 2px dotted #ffff00;
+  outline-offset: -4px;
+}
+:root[data-theme="desktop"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
+}
+:root[data-theme="desktop"] .key-btn {
+  left: 8px;
+  top: 8px;
+  min-height: 26px;
+  padding: 2px 10px;
+}
+:root[data-theme="desktop"] .zoom {
+  right: 8px;
+  bottom: 8px;
+  gap: 2px;
+  border: 0;
+  background: none;
+}
+:root[data-theme="desktop"] .zoom button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font: 700 20px/1 var(--font-ui);
+}
+:root[data-theme="desktop"] .zoom button + button {
+  border-top: 0;
+}
+/* The time bar as the window's status bar: Replay, the slider in a sunken field, the time, Live. */
+:root[data-theme="desktop"] .dk-win-map .timebar {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  font: 14px/1.1 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-win-map .slider {
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+}
+:root[data-theme="desktop"] .slider input {
+  accent-color: #000080;
+}
+:root[data-theme="desktop"] .time-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+}
+
+/* ---- the panel, in the reports window or the word's ---- */
+:root[data-theme="desktop"] .dk-body > .panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  padding: 12px 14px 20px;
+  font-size: 15px;
+}
+:root[data-theme="desktop"] .dk-body > .panel.framed {
+  padding: 2px;
+}
+:root[data-theme="desktop"] .panel-title,
+:root[data-theme="desktop"] .place-name {
+  font: 700 24px/1.1 var(--font-mast);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #000080;
+}
+:root[data-theme="desktop"] .dateline {
+  border-bottom: 2px groove #fff;
+}
+:root[data-theme="desktop"] .count,
+:root[data-theme="desktop"] .dateline .coords,
+:root[data-theme="desktop"] .meta,
+:root[data-theme="desktop"] .byline {
+  font-style: normal;
+}
+:root[data-theme="desktop"] .headline {
+  font: 600 16px/1.25 var(--font-body);
+}
+:root[data-theme="desktop"] .story:hover {
+  background: #dcdcf0;
+}
+:root[data-theme="desktop"] .story:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -2px;
+}
+:root[data-theme="desktop"] .stories-group,
+:root[data-theme="desktop"] .rule-head,
+:root[data-theme="desktop"] .kicker {
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+:root[data-theme="desktop"] .rule-head {
+  text-align: left;
+  border: 0;
+  padding: 4px 8px;
+  background: #000080;
+  color: #fff;
+  text-transform: none;
+  font-size: 15px;
+}
+:root[data-theme="desktop"] .reader-headline {
+  font: 700 clamp(21px, 2.2vw, 26px) / 1.2 var(--font-body);
+}
+:root[data-theme="desktop"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="desktop"] .lead img {
+  filter: none;
+  border: 0;
+  box-shadow: var(--dk-sunken);
+  padding: 2px;
+}
+:root[data-theme="desktop"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #000080;
+}
+:root[data-theme="desktop"] .score-chip {
+  border: 0;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+  background: #c0c0c0;
+  color: #000;
+}
+:root[data-theme="desktop"] .score-chip.s0,
+:root[data-theme="desktop"] .score-chip.s1 {
+  background: #000;
+  color: #fff;
+}
+
+/* ---- the Key, Topics and Pinned windows ---- */
+:root[data-theme="desktop"] .dk-body > .key-pop,
+:root[data-theme="desktop"] .dk-body > .key-pop[hidden] {
+  display: block;
+  position: static;
+  width: auto;
+  max-height: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 10px 12px;
+  border: 0;
+  box-shadow: var(--dk-sunken);
+  background: #fff;
+  font: 14px/1.3 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-body > .key-pop .key-head {
+  display: none;
+}
+:root[data-theme="desktop"] .key-note {
+  font-size: 13px;
+  color: #000;
+}
+:root[data-theme="desktop"] .key-body svg {
+  border-radius: 0 !important;
+}
+:root[data-theme="desktop"] .dk-body > #topics,
+:root[data-theme="desktop"] .dk-body > #pins {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 10px;
+  border: 0;
+  max-width: none;
+  min-width: 0;
+  box-shadow: var(--dk-sunken);
+  background: #fff;
+}
+:root[data-theme="desktop"] .dk-body > #pins {
+  display: block;
+  padding: 4px;
+}
+:root[data-theme="desktop"] #pins .menu-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0;
+  padding: 6px 8px;
+  font: 15px/1.2 var(--font-ui);
+  cursor: pointer;
+}
+:root[data-theme="desktop"] #pins .menu-item:hover,
+:root[data-theme="desktop"] #pins .menu-item:focus-visible {
+  background: #000080;
+  color: #fff;
+  outline: 0;
+}
+
+/* ---- dialog boxes: Designs and Translate ---- */
+.dk-dialog {
+  min-height: 0;
+}
+.dk-dialog-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 8px 6px;
+}
+.dk-dialog-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+.dk-dialog-text p {
+  margin: 0;
+  font: 14px/1.3 var(--font-ui);
+}
+.dk-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px 4px;
+}
+.dk-ok {
+  min-width: 80px;
+}
+.dk-none {
+  display: none;
+}
+:root[data-theme="desktop"] #translate-pick[hidden] {
+  display: none;
+}
+:root[data-theme="desktop"] #translate-pick[hidden] ~ .dk-none {
+  display: block;
+}
+:root[data-theme="desktop"] .dk-dialog .pick {
+  max-width: 100%;
+}
+
+/* ---- About, as a help window ---- */
+:root[data-theme="desktop"] dialog#about {
+  padding: 0 0 6px;
+  border: 0;
+  background: #c0c0c0;
+  box-shadow: var(--dk-raised);
+  font: 15px/1.5 var(--font-body);
+}
+:root[data-theme="desktop"] dialog#about::backdrop {
+  background: transparent;
+}
+:root[data-theme="desktop"] dialog#about > :not(.dk-about-title, form) {
+  margin-left: 14px;
+  margin-right: 14px;
+}
+:root[data-theme="desktop"] dialog#about > form {
+  display: none;
+}
+:root[data-theme="desktop"] .dk-about-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0 0 8px;
+  box-shadow: 0 0 0 4px #c0c0c0;
+}
+:root[data-theme="desktop"] dialog#about h2 {
+  font: 700 22px/1.2 var(--font-mast);
+  color: #000080;
+}
+:root[data-theme="desktop"] dialog#about h3 {
+  font: 700 15px/1.2 var(--font-ui);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  padding: 3px 8px;
+  background: #000080;
+  color: #fff;
+}
+:root[data-theme="desktop"] dialog#about .fine {
+  font: 13px/1.35 var(--font-body);
+  color: #000;
+}
+
+/* ---- the taskbar ---- */
+:root[data-theme="desktop"] .dk-taskbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dk-bar);
+  padding: 4px 3px 3px;
+  background: #c0c0c0;
+  box-shadow: inset 0 1px #dfdfdf, inset 0 2px #fff;
+  z-index: 2;
+  font: 15px/1.1 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-menu-btn {
+  flex: none;
+  font-weight: 700;
+  padding: 2px 8px;
+  height: 100%;
+  min-height: 0;
+}
+.dk-tasks {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 3px;
+  height: 100%;
+  /* Many windows scroll sideways rather than cut a name short. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+:root[data-theme="desktop"] .dk-task {
+  flex: none;
+  justify-content: flex-start;
+  height: 100%;
+  min-height: 0;
+  padding: 2px 10px 2px 6px;
+}
+.dk-tray {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 10px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+  font: 14px/1 var(--font-ui);
+  white-space: nowrap;
+}
+.dk-menu {
+  position: absolute;
+  left: 2px;
+  bottom: calc(100% - 2px);
+  min-width: 220px;
+  padding: 3px;
+  background: #c0c0c0;
+  box-shadow: var(--dk-raised);
+  display: flex;
+  flex-direction: column;
+}
+.dk-menu[hidden] {
+  display: none;
+}
+.dk-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 18px 5px 8px;
+  border: 0;
+  background: none;
+  color: #000;
+  font: 15px/1.2 var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+.dk-menu-item .dk-ico {
+  width: 24px;
+  height: 24px;
+}
+.dk-menu-item:hover,
+.dk-menu-item:focus-visible {
+  background: #000080;
+  color: #fff;
+  outline: 0;
+}
+
+/* ---- phones: one window at a time, full screen under the word; nothing to drag ---- */
+@media (max-width: 760px) {
+  :root[data-theme="desktop"] {
+    --dk-bar: 44px;
+  }
+  :root[data-theme="desktop"] .dk-strip {
+    left: 4px;
+    right: 4px;
+    top: 4px;
+    width: auto;
+    transform: none;
+  }
+  :root[data-theme="desktop"] .dk-strip .telegram {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 4px 6px 6px;
+  }
+  :root[data-theme="desktop"] .dk-strip .telegram-date,
+  :root[data-theme="desktop"] .dk-strip .telegram-center,
+  :root[data-theme="desktop"] .dk-strip .telegram-note,
+  :root[data-theme="desktop"] .dk-strip .telegram-status {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: center;
+    align-items: center;
+    text-align: center;
+  }
+  :root[data-theme="desktop"] .dk-strip .telegram-date {
+    font-size: 13px;
+    padding: 2px 6px;
+  }
+  :root[data-theme="desktop"] .telegram-word {
+    font-size: min(34px, calc((100vw - 48px) / (var(--len, 8) * 0.78)));
+  }
+  :root[data-theme="desktop"] .dk-strip .scale {
+    display: none;
+  }
+  :root[data-theme="desktop"] .dk-icons {
+    top: var(--dk-top, 120px);
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    grid-auto-rows: 80px;
+  }
+  :root[data-theme="desktop"] .dk-win:not(.dk-strip) {
+    left: 0 !important;
+    top: var(--dk-top, 0px) !important;
+    width: 100% !important;
+    height: calc(100% - var(--dk-top, 0px)) !important;
+    min-width: 0;
+  }
+  /* A dialog box keeps the height its text needs. */
+  :root[data-theme="desktop"] .dk-win.dk-dialog {
+    height: auto !important;
+    max-height: calc(100% - var(--dk-top, 0px));
+  }
+  :root[data-theme="desktop"] .dk-tbtn {
+    width: 32px;
+    height: 28px;
+  }
+  :root[data-theme="desktop"] .dk-tbtn.dk-max {
+    display: none;
+  }
+  /* The taskbar's buttons show their icons; the name stays their label for screen readers. */
+  :root[data-theme="desktop"] .dk-task .dk-task-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  :root[data-theme="desktop"] .dk-task {
+    padding: 2px 10px;
+  }
+  :root[data-theme="desktop"] .dk-task .dk-ico-small {
+    width: 24px;
+    height: 24px;
+  }
+  .dk-tray {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
+  :root[data-theme="desktop"] dialog#about {
+    max-width: calc(100vw - 8px);
+    max-height: calc(100dvh - 8px);
   }
 }
