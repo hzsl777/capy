@@ -1,4 +1,4 @@
-// Postcards (id postcard, experimental): after the feel of travel postcards on a spinning wire rack in a corner shop,
+// Postcards (id postcard): after the feel of travel postcards on a spinning wire rack in a corner shop,
 // and the folded paper travel maps sold beside them. Nothing is copied from any postal service, airline, map maker or
 // company: no names, logos, stamps, marks or art. Everything here is our own drawing.
 //

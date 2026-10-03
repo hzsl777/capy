@@ -1,4 +1,4 @@
-// Primary (id stijl, experimental): after the feel of the De Stijl movement of the 1910s and 20s, a public art
+// Primary (id stijl): after the feel of the De Stijl movement of the 1910s and 20s, a public art
 // movement, and no copy of any one painting. The land is a composition of flat rectangles cut from a grid fixed to
 // longitude and latitude, divided by thick black lines; the sea is plain and has no lines at all.
 //
@@ -111,14 +111,14 @@ export function linesIn(axis: 0 | 1, level: number, lo: number, hi: number): num
 /**
  * A cell's fill from its position alone: its level, the candidate indices of its west and south lines, and how many
  * units wide and tall it is. Only cells of two units or more can take yellow or blue, so colour always comes as a broad
- * block, and the bigger the cell the likelier (from one in seven to one in three), as such a composition sets its
- * colour in its larger fields; on land away from the coast about one rectangle in five or six is coloured. Some more are light grey. Nothing else goes in.
+ * block, and the bigger the cell the likelier (from about one in three to three in five), as such a composition sets its
+ * colour in its larger fields. Some more are light grey. Nothing else goes in.
  */
 export function cellFill(level: number, i: number, j: number, wide: number, tall: number): Fill {
   const n = lonCount(level);
   const h = hash3(level + 101, wrap(i, n), j);
-  if (wide * tall >= 2 && h < Math.min(0.36, 0.07 * wide * tall)) return PRIMARIES[Math.floor(hash3(level + 211, wrap(i, n), j) * PRIMARIES.length)]!;
-  if (h > 0.83) return "grey";
+  if (wide * tall >= 2 && h < Math.min(0.45, 0.1 * wide * tall)) return PRIMARIES[Math.floor(hash3(level + 211, wrap(i, n), j) * PRIMARIES.length)]!;
+  if (h > 0.86) return "grey";
   return "white";
 }
 
@@ -131,21 +131,34 @@ export function levelFor(ppd: number, target: number): number {
 export const wrapLon = (lon: number) => ((((lon + 180) % 360) + 360) % 360) - 180;
 
 /**
- * Whether a cell, grown by a margin, is solid at every sample (land and no lake, as `solid` says): a coloured cell
- * is then a whole rectangle on land, and the coast never cuts a small coloured piece from it. The margin is half the
- * land raster's own cell, so a sample sits in every raster cell the rectangle touches.
+ * Whether a cell, grown by a margin, is land at every sample (as `land` says) and lake at no more than a few: a
+ * coloured cell is then a whole rectangle on land, its outline never cut by the coast into a shape of its own. A lake
+ * only makes a hole inside it, with the rectangle's black edges still round it, so up to `LAKE_ALLOWED` of the samples
+ * may be lake; without that, the broad fields at the whole world's zoom, which nearly all hold some lake, stay white.
+ * The margin is half the land raster's own cell, so a sample sits in every raster cell the rectangle touches.
  */
-export function solidLand(solid: (lon: number, lat: number) => boolean, lon0: number, lon1: number, lat0: number, lat1: number): boolean {
+export const LAKE_ALLOWED = 0.15;
+export function solidLand(
+  land: (lon: number, lat: number) => boolean,
+  lake: (lon: number, lat: number) => boolean,
+  lon0: number,
+  lon1: number,
+  lat0: number,
+  lat1: number,
+): boolean {
   const m = 0.25;
   const a0 = lon0 - m, a1 = lon1 + m;
   const b0 = Math.max(-90, lat0 - m), b1 = Math.min(90, lat1 + m);
   const nx = Math.min(32, Math.max(4, Math.ceil((a1 - a0) / 0.5)));
   const ny = Math.min(32, Math.max(4, Math.ceil((b1 - b0) / 0.5)));
+  const allowed = Math.floor((nx + 1) * (ny + 1) * LAKE_ALLOWED);
+  let wet = 0;
   for (let y = 0; y <= ny; y++) {
     const lat = b0 + ((b1 - b0) * y) / ny;
     for (let x = 0; x <= nx; x++) {
-      const lon = a0 + ((a1 - a0) * x) / nx;
-      if (!solid(wrapLon(lon), lat)) return false;
+      const lon = wrapLon(a0 + ((a1 - a0) * x) / nx);
+      if (!land(lon, lat)) return false;
+      if (lake(lon, lat) && ++wet > allowed) return false;
     }
   }
   return true;
@@ -296,12 +309,15 @@ export function drawStijl(f: SurfaceFrame) {
 
   const lw = lineWidth(w, h);
   const ppd = (proj.scale() * Math.PI) / 180;
-  // A unit of the grid stays about 26 to 40 pixels on screen whatever the zoom.
-  const level = levelFor(ppd, Math.max(26, Math.min(40, Math.min(w, h) / 18)));
+  // A unit of the grid stays about 26 to 40 pixels on screen whatever the zoom. Zoomed out to the whole map, the
+  // coarsest grids' rectangles almost all reach the coast, so none could take colour: there the grid goes one level
+  // finer while its unit stays at least 15 pixels.
+  let level = levelFor(ppd, Math.max(26, Math.min(40, Math.min(w, h) / 18)));
+  if (level < 3 && stepOf(level + 1) * ppd >= 15) level++;
   const grid = gridInView(level, f.lon, f.lat, viewSpan(w, h, mode, proj.scale(), f.lat));
   // Lakes from both basemaps: the detailed one, drawn once zoomed in, has small lakes the light one lacks.
   const wet = [lakeRaster(f.low), lakeRaster(f.map)];
-  const solid = (lon: number, lat: number) => f.isLand(lon, lat) && !wet.some((l) => l(lon, lat));
+  const lake = (lon: number, lat: number) => wet.some((l) => l(lon, lat));
   const centre: [number, number] | null = globe ? [f.lon, f.lat] : null;
 
   ctx.save();
@@ -312,7 +328,7 @@ export function drawStijl(f: SurfaceFrame) {
       if (c.fill !== fill) continue;
       if (fill !== "grey") {
         const [sw, sh] = screenSize(proj, c, centre);
-        if (!colourFits(sw, sh) || !solidLand(solid, c.lon0, c.lon1, c.lat0, c.lat1)) continue;
+        if (!colourFits(sw, sh) || !solidLand(f.isLand, lake, c.lon0, c.lon1, c.lat0, c.lat1)) continue;
       }
       rings.push([cellRing(c.lon0, c.lon1, c.lat0, c.lat1)]);
     }

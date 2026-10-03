@@ -71,7 +71,7 @@ import "@fontsource/shrikhand/400.css";
 import "@fontsource/jost/400.css";
 import "@fontsource/jost/500.css";
 import "@fontsource/jost/600.css";
-// Primary (stijl, experimental): its name and word.
+// Primary (stijl): its name and word.
 import "@fontsource/jost/700.css";
 import "@fontsource/fraunces/400.css";
 import "@fontsource/fraunces/600.css";
@@ -207,18 +207,18 @@ import "@fontsource-variable/martian-mono/wdth.css";
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
 import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
-// Woodblock (experimental): a brush-like face for the name and the word, and a mincho serif's Latin for reading.
+// Woodblock: a brush-like face for the name and the word, and a mincho serif's Latin for reading.
 import "@fontsource/kaushan-script/latin-400.css";
 import "@fontsource/shippori-mincho/latin-400.css";
 import "@fontsource/shippori-mincho/latin-600.css";
 import "@fontsource/shippori-mincho/latin-700.css";
-// Desktop 95 (experimental): the site as a desktop of windows.
+// Desktop 95: the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
 import { mountPaper } from "./ui/paper.ts";
 import { mountDial, moveDial } from "./ui/dial.ts";
 import { renderPostcard } from "./ui/postcard.ts";
-// Zine (experimental): chunky display capitals for the off-register name and word.
+// Zine: chunky display capitals for the off-register name and word.
 import "@fontsource/bowlby-one/400.css";
 
 const BASE = import.meta.env.BASE_URL;
@@ -1116,7 +1116,7 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
   // Departures: the rows turn over to the new place's reports, in the panel's own order.
   if (state.theme === "flap") boardTurn(panel, indices.join(","));
   const body = [...lists, ...(more ? [more] : []), ...(note ? [note] : [])];
-  // Postcards (experimental): the same dateline and lists, on the back of a postcard that turns over (src/ui/postcard.ts).
+  // Postcards: the same dateline and lists, on the back of a postcard that turns over (src/ui/postcard.ts).
   if (state.theme === "postcard") {
     const names = indices.map((i) => file.places[i].name);
     const key = indices.map((i) => file.places[i].id).join(",");
@@ -1777,7 +1777,7 @@ async function start() {
     open: openChannel,
     about: () => ($("about") as HTMLDialogElement).showModal(),
   });
-  // Desktop 95 (experimental): moves the page's own parts into windows while it shows, and back after.
+  // Desktop 95: moves the page's own parts into windows while it shows, and back after.
   mountDesktop({
     theme: () => state.theme,
     wordView: () => state.telegram,

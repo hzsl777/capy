@@ -1,4 +1,4 @@
-// Desktop 95 (experimental): the site as a mid-1990s desktop, after the feel only. No maker's or product's name,
+// Desktop 95: the site as a mid-1990s desktop, after the feel only. No maker's or product's name,
 // logo, sounds, icons or menu wording: the icons are our own pixel drawings and the menu button carries the site's name.
 //
 // A teal desktop of windows. The site's own elements move into window frames while the design is on and go back to

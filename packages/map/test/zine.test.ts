@@ -9,10 +9,10 @@ import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number];
 
 describe("Zine", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu, and nothing on it moves", () => {
+  it("is in the Design menu, in one group and not featured, and nothing on it moves", () => {
     const t = THEMES.zine;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("zine");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("zine"))).toHaveLength(1);
     expect(FEATURED).not.toContain("zine");
     expect(t.motion).toBeFalsy();
     expect(t.scene).toBeUndefined();

@@ -13,10 +13,10 @@ const css = readFileSync(here("../src/style.css"), "utf8").replace(/\/\*[\s\S]*?
 const ours = css.slice(css.indexOf(':root[data-theme="postcard"] {'));
 
 describe("Postcards", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured", () => {
     const t = THEMES.postcard;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("postcard");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("postcard"))).toHaveLength(1);
     expect(FEATURED).not.toContain("postcard");
     expect(t.surface).toBe("postcard");
   });

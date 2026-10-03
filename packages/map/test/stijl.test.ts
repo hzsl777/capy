@@ -30,10 +30,10 @@ const WORLD = { lon: 180, lat: 90 };
 const key = (level: number, c: StijlCell) => `${((c.i % lonCount(level)) + lonCount(level)) % lonCount(level)}:${c.j}`;
 
 describe("Primary", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured", () => {
     const t = THEMES.stijl;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("stijl");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("stijl"))).toHaveLength(1);
     expect(FEATURED).not.toContain("stijl");
     expect(t.surface).toBe("stijl");
   });
@@ -90,7 +90,7 @@ describe("Primary", () => {
     }
   });
 
-  it("never makes land red, and keeps colour sparse, broad and evenly spread between yellow and blue", () => {
+  it("never makes land red, and keeps colour to about a third of the cells, broad and evenly spread between yellow and blue", () => {
     expect(PRIMARIES).not.toContain("red");
     const counts: Record<string, number> = { white: 0, grey: 0, yellow: 0, blue: 0 };
     let all = 0;
@@ -105,11 +105,11 @@ describe("Primary", () => {
     expect(narrow).toBe(0);
     expect(Object.keys(counts).sort()).toEqual(["blue", "grey", "white", "yellow"]);
     const coloured = counts.yellow! + counts.blue!;
-    expect(coloured / all).toBeLessThan(0.26);
-    expect(coloured / all).toBeGreaterThan(0.08);
+    expect(coloured / all).toBeLessThan(0.4);
+    expect(coloured / all).toBeGreaterThan(0.22);
     for (const p of PRIMARIES) expect(counts[p]! / coloured).toBeGreaterThan(0.4);
-    // Most of the land stays white or light grey.
-    expect(counts.white! / all).toBeGreaterThan(0.55);
+    // Most of the land stays white or light grey, so the marks read.
+    expect((counts.white! + counts.grey!) / all).toBeGreaterThan(0.58);
   });
 
   it("runs every fourth line through, never leaves out every eighth meridian, and keeps rectangles within eight units", () => {
@@ -147,15 +147,21 @@ describe("Primary", () => {
     }
   });
 
-  it("paints colour only on solid land, never where any part of the cell or its margin is sea or lake", () => {
+  it("paints colour only on whole land, never where the coast cuts the cell or its margin, and round small lakes only", () => {
     // A square continent from 0 to 40 east and 0 to 30 north.
     const land = (lon: number, lat: number) => lon >= 0 && lon <= 40 && lat >= 0 && lat <= 30;
-    expect(solidLand(land, 5, 15, 5, 15)).toBe(true);
-    expect(solidLand(land, 30, 40, 5, 15)).toBe(false);
-    expect(solidLand(land, -5, 5, 5, 15)).toBe(false);
-    // A lake inside the cell, smaller than the sample spacing of the land raster, is still found.
-    const lake = (lon: number, lat: number) => land(lon, lat) && !(Math.abs(lon - 10.2) < 0.3 && Math.abs(lat - 10.2) < 0.3);
-    expect(solidLand(lake, 5, 15, 5, 15)).toBe(false);
+    const dry = () => false;
+    expect(solidLand(land, dry, 5, 15, 5, 15)).toBe(true);
+    expect(solidLand(land, dry, 30, 40, 5, 15)).toBe(false);
+    expect(solidLand(land, dry, -5, 5, 5, 15)).toBe(false);
+    // Sea smaller than the sample spacing of the land raster, inside the cell, is still found.
+    const inlet = (lon: number, lat: number) => land(lon, lat) && !(Math.abs(lon - 10.2) < 0.3 && Math.abs(lat - 10.2) < 0.3);
+    expect(solidLand(inlet, dry, 5, 15, 5, 15)).toBe(false);
+    // A lake only makes a hole, so a small one is let through, and one over the allowed share is not.
+    const pond = (lon: number, lat: number) => Math.abs(lon - 10) < 1 && Math.abs(lat - 10) < 1;
+    expect(solidLand(land, pond, 5, 15, 5, 15)).toBe(true);
+    const lake = (lon: number, lat: number) => Math.abs(lon - 10) < 2.5 && Math.abs(lat - 10) < 2.5;
+    expect(solidLand(land, lake, 5, 15, 5, 15)).toBe(false);
   });
 
   it("paints colour only where the rectangle is longer than the largest marker", () => {

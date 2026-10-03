@@ -1,4 +1,4 @@
-// Zine (id zine, experimental): after the feel of a zine printed on a stencil duplicator in two or three spot
+// Zine (id zine): after the feel of a zine printed on a stencil duplicator in two or three spot
 // inks on warm recycled paper, a little out of register, and none of any maker's, shop's or zine's names, logos,
 // lettering or art. Only the inks: fluorescent pink, medium blue and, sparingly, yellow, with purple wherever pink
 // and blue overprint (each ink multiplies over what is under it, as ink on paper does).

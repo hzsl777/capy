@@ -31,7 +31,7 @@ Screenshots use the fictional sample: invented outlets and places, run through t
 - **The word.** Each day the `telegram` stage scores every explained world event from -2 to 2 by what happened to people. Each score quotes the sentence it rests on. Code places the day on a five-step scale. The worst significant event sets a bad day, so good news never averages a tragedy away. The model then picks the word from that step's fixed list. The site shows every score and its reason.
 - **Four depths.** The word, then the events with one line each, then each event's explanation with numbered citations, then the sources with the passages quoted. Headlines appear as the outlets published them.
 - **Hundreds of outlets.** 560 outlets in 501 cities, covering nearly every country and territory, stateless nations and Indigenous communities, and the regions of the ten most populous countries (decisions 31, 45, 48 and 49). Zoomed out, the map shows the most important and most widely reported stories; each step in adds the next of five tiers, and dot size follows importance (decisions 30 and 46). On open it turns until a place lands under the reticle.
-- Fifty-one designs, Map or Globe, a 24-hour replay, topic filters, pinned places, and translation into about a hundred languages.
+- Fifty-seven designs, Map or Globe, a 24-hour replay, topic filters, pinned places, and translation into about a hundred languages.
 
 ## Run it
 

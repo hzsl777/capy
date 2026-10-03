@@ -1,4 +1,4 @@
-// Postcards (experimental): the tuned place's panel is a postcard from the shop's wire rack. Its front is a picture
+// Postcards: the tuned place's panel is a postcard from the shop's wire rack. Its front is a picture
 // of our own (sky, sea and land, never a real landmark or a flag) under the place's name in big lettering of our own,
 // the city's name only; its back is the panel's own stories, typed on the ruled left side in the panel's own order,
 // with a stamp of our own design (a globe, no country, no value) and a round postmark with the name and the date on

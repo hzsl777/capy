@@ -16131,7 +16131,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- First Render (id render, experimental): after the feel of the first computer-animated music videos of the
+/* ---- First Render (id render): after the feel of the first computer-animated music videos of the
    mid-1980s. Untextured flat colour, hard edges and one light: teal wallpaper with small yellow zigzag bolts of our
    own drawing, cobalt, tomato red, mint grey, mustard and a pink and white stripe. Buttons and panels are chunky
    blocks, a flat front face over a darker side, never a gradient. The ball, the room and the bevelled screen are
@@ -17170,7 +17170,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Desktop 95 (id desktop, experimental): after the feel of a mid-1990s desktop operating system, with no maker's
+/* ---- Desktop 95 (id desktop): after the feel of a mid-1990s desktop operating system, with no maker's
    or product's name, logo, sounds, icons or menu wording. A teal desktop of grey bevelled windows with navy title bars
    (src/ui/desktop.ts), a taskbar along the bottom, our own pixel icons, Pixelify Sans for the chrome and IBM Plex Sans
    for reading. The map is drawn in sixteen colours at half resolution (src/map/desktop.ts). Nothing animates. ---- */
@@ -20171,7 +20171,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Postcards (experimental): a wire rack of travel postcards in a corner shop -------------------------------
+/* ---- Postcards: a wire rack of travel postcards in a corner shop -------------------------------
    After the feel only: no postal service's, airline's, map maker's or company's names, logos, stamps or marks.
    The map is a folded paper travel map (src/map/postcard.ts); the place's panel is a postcard that turns over
    (src/ui/postcard.ts); airmail chevrons run round the page and under the masthead; kraft paper buttons and
@@ -20914,7 +20914,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Zine (id zine, experimental): after the feel of a zine printed on a stencil duplicator in two or three
+/* ---- Zine (id zine): after the feel of a zine printed on a stencil duplicator in two or three
    spot inks on warm recycled paper, slightly out of register, cut and pasted and stapled; no maker's, shop's or zine's
    names, logos, lettering or art. Fluorescent pink and a medium blue, yellow now and then, purple where pink and blue
    overprint (the second ink multiplies over the first). The name and the word are printed twice, the second ink a few
@@ -21452,7 +21452,7 @@ button.x-ch:focus-visible {
 }
 
 /* ==========================================================================
-   Primary (stijl, experimental): after the feel of the De Stijl movement of the 1910s and 20s, a public art
+   Primary (stijl): after the feel of the De Stijl movement of the 1910s and 20s, a public art
    movement, copying no painting (src/map/stijl.ts). The page is laid out as one composition: thick black bars
    between the masthead, the toolbar, the map, the panel and the time bar (the body's black showing through the gaps
    between them), and a few flat blocks of red, yellow and blue in the masthead's corners and at the toolbar's ends,
@@ -21817,10 +21817,26 @@ button.x-ch:focus-visible {
 }
 
 /* The time bar: a white strip under the last bar. */
+/* The time bar: a red block at its left end and a blue one at its right, closed by bars like the toolbar's. */
 :root[data-theme="stijl"] .timebar {
-  background: var(--page);
+  padding-left: calc(var(--corner-l) + var(--bar) + var(--gutter));
+  padding-right: calc(var(--corner-r) + var(--bar) + var(--gutter));
+  background:
+    linear-gradient(var(--black), var(--black)) var(--corner-l) 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--red), var(--red)) 0 0 / var(--corner-l) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) right var(--corner-r) top 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) right 0 top 0 / var(--corner-r) 100% no-repeat,
+    var(--page);
   font-family: var(--font-ui);
   font-weight: 600;
+}
+/* The panel: a yellow field across its top, closed by a bar. */
+:root[data-theme="stijl"] .panel {
+  background:
+    linear-gradient(var(--black), var(--black)) 0 18px / 100% var(--bar) no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) 0 0 / 100% 18px no-repeat,
+    #ffffff;
+  padding-top: calc(18px + var(--bar) + 12px);
 }
 :root[data-theme="stijl"] .slider input {
   accent-color: var(--black);
@@ -22521,7 +22537,7 @@ button.x-ch:focus-visible {
   text-decoration-thickness: 1.5px;
 }
 
-/* ---- Woodblock (id woodblock, experimental): after the feel of Japanese colour woodblock prints of the 1800s, a
+/* ---- Woodblock (id woodblock): after the feel of Japanese colour woodblock prints of the 1800s, a
    style centuries old and in the public domain; our own drawings in that manner, none copied, no figures and no
    lettering. Washi paper with fibres, flat areas of colour in Prussian blue, pale indigo, muted vermilion, soft green
    and ochre, each block's edge cut in a black keyline, and bokashi, a soft gradient inside one colour. The name and

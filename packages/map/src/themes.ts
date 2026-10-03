@@ -2232,14 +2232,13 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // First Render, experimental: after the feel of the first computer-animated music videos of the mid-1980s
+  // First Render: after the feel of the first computer-animated music videos of the mid-1980s
   // (src/map/render.ts). The world as untextured flat-shaded polygons under one hard light: a low-poly ball in a room
   // of teal wallpaper and checked floor, or flat facets on a screen in a two-tone bevel. White gem markers, tomato red
   // for fresh reports.
   render: {
     id: "render",
     label: "First Render",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "render",
@@ -2313,13 +2312,12 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Desktop 95 (experimental): after the feel of a mid-1990s desktop operating system, with no maker's or product's
+  // Desktop 95: after the feel of a mid-1990s desktop operating system, with no maker's or product's
   // name, logo, sounds or art. The site is a teal desktop of windows (src/ui/desktop.ts); the map is drawn as an old
   // program would, in sixteen colours with dithered shallows and shading, at half resolution (src/map/desktop.ts).
   desktop: {
     id: "desktop",
     label: "Desktop 95",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "desktop",
@@ -2467,14 +2465,13 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Postcards, experimental: after the feel of travel postcards on a wire rack in a corner shop (src/map/postcard.ts,
+  // Postcards: after the feel of travel postcards on a wire rack in a corner shop (src/map/postcard.ts,
   // src/ui/postcard.ts). A folded paper travel map, cream land on pale blue sea with the sheet's creases, or a paper
   // globe printed in gores; the place's panel is a postcard that turns over. Airmail red circles with a cream edge,
   // airmail blue for fresh reports.
   postcard: {
     id: "postcard",
     label: "Postcards",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     surface: "postcard",
@@ -2507,7 +2504,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Zine (experimental): after the feel of a zine printed on a stencil duplicator in spot inks on recycled paper,
+  // Zine: after the feel of a zine printed on a stencil duplicator in spot inks on recycled paper,
   // a little out of register, and none of any maker's, shop's or zine's names, logos or art (src/map/zine.ts). Land
   // in a blue halftone, coasts in pink printed a pixel or two off, pink dots in the shallows, bare paper sea. Pink
   // markers with a blue outline printed off register (view.ts), yellow for fresh reports. Plate carree, so a drag
@@ -2515,7 +2512,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   zine: {
     id: "zine",
     label: "Zine",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "zine",
@@ -2548,14 +2544,13 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Primary, experimental: after the feel of the De Stijl movement of the 1910s and 20s, and no copy of any painting
+  // Primary: after the feel of the De Stijl movement of the 1910s and 20s, and no copy of any painting
   // (src/map/stijl.ts). Land as flat rectangles of a grid fixed to longitude and latitude, divided by thick black
   // lines, mostly white and light grey with a fixed seeded few in yellow or blue (never red); a plain pale sea.
   // Round black markers with a white edge, so none reads as a cell; red for fresh reports.
   stijl: {
     id: "stijl",
     label: "Primary",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "stijl",
@@ -2629,14 +2624,13 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Woodblock (experimental): after the feel of Japanese colour woodblock prints of the 1800s, our own drawings in
+  // Woodblock: after the feel of Japanese colour woodblock prints of the 1800s, our own drawings in
   // that manner and none copied (src/map/woodblock.ts). Flat Prussian blue sea stepped paler toward the shore, soft
   // green and ochre land in a black keyblock coast, curling wave crests at tested open-sea spots, bands of cloud
   // behind the globe. Small vermilion dots with a black keyline, washi white for fresh reports.
   woodblock: {
     id: "woodblock",
     label: "Woodblock",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "woodblock",
@@ -2676,11 +2670,11 @@ export const THEMES: Record<ThemeId, Theme> = {
  * elsewhere slot in by id, and any design not listed here lands in "Other", so none ever drops out of the menu.
  */
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
-  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup"] },
-  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave"] },
+  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop"] },
   { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "crunch", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
-  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee"] },
+  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard"] },
 ];
 
 /**

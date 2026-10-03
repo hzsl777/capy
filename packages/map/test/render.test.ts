@@ -29,10 +29,10 @@ const SIZES: [number, number][] = [
 ];
 
 describe("First Render", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured", () => {
     const t = THEMES.render;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("render");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("render"))).toHaveLength(1);
     expect(FEATURED).not.toContain("render");
     expect(t.fresh).not.toBe(t.dot);
   });
