@@ -684,6 +684,24 @@ export class MapView {
     this.request();
   }
 
+  /**
+   * Shortwave's tuning dial (src/ui/dial.ts) turns the world east or west as a drag on the map would: the spin and any
+   * flight stop, the latitude stays. `turnTo` goes to a longitude; `turnBy` moves the reticle east by `px` screen pixels.
+   */
+  turnTo(lon: number) {
+    this.touched();
+    this.stopAnim();
+    this.lon = wrap(lon);
+    this.moved();
+  }
+
+  turnBy(px: number) {
+    this.touched();
+    this.stopAnim();
+    this.pan(-px, 0);
+    this.moved();
+  }
+
   // ---- geometry ---------------------------------------------------------
 
   private projection(): GeoProjection {

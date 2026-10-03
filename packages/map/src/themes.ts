@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -2426,6 +2426,44 @@ export const THEMES: Record<ThemeId, Theme> = {
     glow: false,
     atmosphere: null,
     shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Shortwave, experimental: after the feel of a mid-century world-band radio receiver. The world drawn like an old
+  // radio's dial map, cream paper land on a sepia-green sea with thin brown coasts and a faint grid, and on the globe
+  // the same ball lit warm from behind. The page tunes it with a dial and a knob under the map (src/ui/dial.ts, laid
+  // out by src/map/shortwave.ts). Amber dial-lamp dots, red for fresh reports.
+  shortwave: {
+    id: "shortwave",
+    label: "Shortwave",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    ocean: "#a3ab86",
+    land: "#f1e6c6",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#6a4526",
+    coastWidth: 0.8,
+    waterlines: 2,
+    waterline: "rgba(74,58,30,0.16)",
+    oceanHatch: null,
+    graticule: "rgba(84,58,30,0.26)",
+    graticuleDash: [],
+    river: "rgba(84,104,86,0.55)",
+    lake: "#a3ab86",
+    ice: "#f8f2df",
+    relief: "rgba(106,69,38,0.42)",
+    dot: "#e68a1c",
+    dotStroke: "#3a220f",
+    fresh: "#d0321f",
+    tuned: "#b3221a",
+    arc: "rgba(179,34,26,0.7)",
+    glow: true,
+    atmosphere: "rgba(255,196,112,0.62)",
+    shade: "rgba(74,46,20,0.34)",
     neatline: false,
     decor: null,
   },

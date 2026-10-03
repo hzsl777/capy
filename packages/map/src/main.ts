@@ -154,6 +154,9 @@ import "@fontsource/josefin-sans/600.css";
 import "@fontsource/josefin-sans/700.css";
 // Gummy Cluster (Nunito, above, for reading).
 import "@fontsource/lilita-one/400.css";
+// Shortwave (experimental): the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
+import "@fontsource/barlow-condensed/500.css";
+import "@fontsource/barlow-condensed/600.css";
 import "./style.css";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
@@ -206,6 +209,7 @@ import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
 import { mountPaper } from "./ui/paper.ts";
+import { mountDial, moveDial } from "./ui/dial.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -325,6 +329,8 @@ const map = new MapView($("map"), THEMES[state.theme], {
   onDraw() {
     tilesSoon();
     syncVinyl();
+    // Shortwave's needle follows the reticle on every frame, the idle spin's included (src/ui/dial.ts).
+    moveDial();
   },
 });
 map.setMode(viewOf());
@@ -1691,6 +1697,14 @@ async function start() {
   });
   // Paper Screen's pages for the panel and the About dialog (experimental); idle in every other design.
   mountPaper();
+  // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
+  mountDial({
+    theme: () => state.theme,
+    center: () => map.center(),
+    tuned: () => state.tuned !== null,
+    turnTo: (lon) => map.turnTo(lon),
+    turnBy: (px) => map.turnBy(px),
+  });
   mountChannels({
     theme: () => state.theme,
     word: () => {
