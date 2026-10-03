@@ -21450,3 +21450,457 @@ button.x-ch:focus-visible {
     transform: none;
   }
 }
+
+/* ==========================================================================
+   Primary (stijl, experimental): after the feel of the De Stijl movement of the 1910s and 20s, a public art
+   movement, copying no painting (src/map/stijl.ts). The page is laid out as one composition: thick black bars
+   between the masthead, the toolbar, the map, the panel and the time bar (the body's black showing through the gaps
+   between them), and a few flat blocks of red, yellow and blue in the masthead's corners and at the toolbar's ends,
+   on lines that run on from one to the other. The name and the word large in Jost, a geometric sans. Buttons are flat
+   white rectangles in thick black borders, filled with a primary when on; panels are white with black rules. No
+   motion anywhere.
+   ========================================================================== */
+:root[data-theme="stijl"] {
+  color-scheme: light;
+  --page: #f7f5ef;
+  --panel: #ffffff;
+  --ink: #111111;
+  --ink-2: #2a2a2a;
+  --muted: #555552;
+  --rule: #111111;
+  --accent: #d62a1e;
+  --on-accent: #ffffff;
+  --hover: rgba(17, 17, 17, 0.06);
+  --reticle: #111111;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --red: #d62a1e;
+  --yellow: #f4c400;
+  --blue: #1d4fa0;
+  --grey: #d9d9d4;
+  --black: #111111;
+  /* The bars between the page's parts, the lines round buttons, and the blocks at the page's corners. */
+  --bar: 7px;
+  --line: 3px;
+  --corner-l: 64px;
+  --corner-r: 46px;
+  --font-mast: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-head: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-body: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-ui: "Jost", "Futura", "Century Gothic", sans-serif;
+}
+/* The body is black, and its parts sit apart by one bar: the black between them is the composition's lines. */
+:root[data-theme="stijl"] body {
+  background: var(--black);
+  gap: var(--bar);
+}
+:root[data-theme="stijl"] .masthead,
+:root[data-theme="stijl"] .toolbar,
+:root[data-theme="stijl"] .banner,
+:root[data-theme="stijl"] .timebar {
+  border: 0;
+}
+
+/* The masthead: a red block in the left corner over a white one, split by a bar; a yellow block over a blue one in
+   the right corner. The vertical bars line up with the toolbar's blocks below. */
+:root[data-theme="stijl"] .masthead {
+  padding: 12px calc(var(--corner-r) + var(--bar) + var(--gutter)) 12px calc(var(--corner-l) + var(--bar) + var(--gutter));
+  background:
+    linear-gradient(var(--black), var(--black)) var(--corner-l) 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) 0 62% / var(--corner-l) var(--bar) no-repeat,
+    linear-gradient(var(--red), var(--red)) 0 0 / var(--corner-l) 62% no-repeat,
+    linear-gradient(var(--black), var(--black)) right var(--corner-r) top 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) right 0 top 44% / var(--corner-r) var(--bar) no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) right 0 top 0 / var(--corner-r) 44% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) right 0 bottom 0 / var(--corner-r) 56% no-repeat,
+    var(--page);
+}
+:root[data-theme="stijl"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(30px, 3.2vw, 46px);
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[data-theme="stijl"] .telegram-kicker,
+:root[data-theme="stijl"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink-2);
+}
+:root[data-theme="stijl"] .telegram-note,
+:root[data-theme="stijl"] .telegram-none,
+:root[data-theme="stijl"] .telegram-status {
+  font-family: var(--font-ui);
+  font-style: normal;
+  color: var(--ink-2);
+}
+/* The word: large black geometric capitals on a thick black rule. */
+:root[data-theme="stijl"] .telegram-word,
+:root[data-theme="stijl"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .telegram-word {
+  border-bottom: var(--bar) solid var(--black);
+  padding: 0 6px 2px;
+}
+:root[data-theme="stijl"] .telegram-word:hover,
+:root[data-theme="stijl"] .telegram-word:focus-visible {
+  background: var(--yellow);
+}
+
+/* The toolbar: a blue block at its left end and a yellow one at its right, each closed by a bar that runs on from
+   the masthead's. */
+:root[data-theme="stijl"] .toolbar {
+  padding: 8px calc(var(--corner-r) + var(--bar) + var(--gutter)) 8px calc(var(--corner-l) + var(--bar) + var(--gutter));
+  background:
+    linear-gradient(var(--black), var(--black)) var(--corner-l) 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 0 / var(--corner-l) 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) right var(--corner-r) top 0 / var(--bar) 100% no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) right 0 top 0 / var(--corner-r) 100% no-repeat,
+    var(--page);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="stijl"] .banner {
+  background: var(--page);
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+}
+
+/* Buttons: flat white rectangles in thick black borders; the one that is on is filled with a primary. */
+:root[data-theme="stijl"] .tool,
+:root[data-theme="stijl"] .tool.quiet,
+:root[data-theme="stijl"] .pick select,
+:root[data-theme="stijl"] .menu > summary,
+:root[data-theme="stijl"] .chip,
+:root[data-theme="stijl"] .key-btn,
+:root[data-theme="stijl"] .key-close,
+:root[data-theme="stijl"] dialog .close,
+:root[data-theme="stijl"] .menu-item {
+  border: var(--line) solid var(--black);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: none;
+}
+:root[data-theme="stijl"] .pick {
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .pick::after {
+  opacity: 1;
+}
+:root[data-theme="stijl"] .pick option,
+:root[data-theme="stijl"] .pick optgroup {
+  background: #ffffff;
+  color: var(--ink);
+  text-transform: none;
+}
+:root[data-theme="stijl"] .tool:hover,
+:root[data-theme="stijl"] .tool.quiet:hover,
+:root[data-theme="stijl"] .pick select:hover,
+:root[data-theme="stijl"] .menu > summary:hover,
+:root[data-theme="stijl"] .chip:hover,
+:root[data-theme="stijl"] .key-btn:hover,
+:root[data-theme="stijl"] .key-close:hover,
+:root[data-theme="stijl"] dialog .close:hover,
+:root[data-theme="stijl"] .menu-item:hover {
+  background: var(--grey);
+}
+:root[data-theme="stijl"] .tool[aria-pressed="true"],
+:root[data-theme="stijl"] .key-btn[aria-expanded="true"] {
+  background: var(--red);
+  color: #ffffff;
+}
+:root[data-theme="stijl"] .menu[open] > summary {
+  background: var(--yellow);
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .chip[aria-pressed="true"],
+:root[data-theme="stijl"] .menu-item[aria-checked="true"] {
+  background: var(--blue);
+  color: #ffffff;
+}
+:root[data-theme="stijl"] .chip-all {
+  border-style: solid;
+}
+:root[data-theme="stijl"] .menu-item {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+:root[data-theme="stijl"] .menu-item + .menu-item {
+  margin-top: 4px;
+}
+:root[data-theme="stijl"] .tool[disabled] {
+  opacity: 0.45;
+}
+:root[data-theme="stijl"] :focus-visible {
+  outline: var(--line) solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Menus, the Key, the notes and the dialogs: white, in a thick black edge, with no shadow. */
+:root[data-theme="stijl"] .menu-body,
+:root[data-theme="stijl"] .key-pop,
+:root[data-theme="stijl"] .map-note,
+:root[data-theme="stijl"] dialog {
+  background: #ffffff;
+  border: var(--bar) solid var(--black);
+  border-radius: 0;
+  box-shadow: none;
+}
+:root[data-theme="stijl"] .menu-body {
+  top: calc(100% + 8px);
+  padding: 12px;
+}
+:root[data-theme="stijl"] .key-pop {
+  padding: 14px 16px;
+}
+:root[data-theme="stijl"] dialog {
+  padding: 24px 28px 26px;
+}
+:root[data-theme="stijl"] dialog::backdrop {
+  background: rgba(17, 17, 17, 0.55);
+}
+:root[data-theme="stijl"] dialog .close,
+:root[data-theme="stijl"] .key-close {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* The stage: the map and the panel with a bar between them. */
+:root[data-theme="stijl"] .stage {
+  background: var(--black);
+  column-gap: var(--bar);
+}
+:root[data-theme="stijl"] .map {
+  background: var(--page);
+}
+:root[data-theme="stijl"] .crosshair {
+  --arm: 8px;
+  --weight: 3px;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  /* A white edge, so the black reticle still reads where it crosses a black line. */
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+:root[data-theme="stijl"] .key-btn {
+  padding: 5px 12px;
+}
+:root[data-theme="stijl"] .zoom {
+  border: 0;
+  background: none;
+  gap: 0;
+}
+:root[data-theme="stijl"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border: var(--line) solid var(--black);
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 22px;
+}
+:root[data-theme="stijl"] .zoom button + button {
+  border-top: 0;
+}
+:root[data-theme="stijl"] .zoom button:hover {
+  background: var(--grey);
+}
+
+/* The panel: white, with black rules. */
+:root[data-theme="stijl"] .panel {
+  background: #ffffff;
+  border: 0;
+}
+:root[data-theme="stijl"] .panel-title,
+:root[data-theme="stijl"] .place-name,
+:root[data-theme="stijl"] .key-head h2,
+:root[data-theme="stijl"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+:root[data-theme="stijl"] .dateline {
+  border-bottom: var(--bar) solid var(--black);
+}
+:root[data-theme="stijl"] .dateline .coords,
+:root[data-theme="stijl"] .count,
+:root[data-theme="stijl"] .meta {
+  font-family: var(--font-ui);
+  font-style: normal;
+}
+/* Section heads: a strip between black rules with a red block at the start. */
+:root[data-theme="stijl"] .rule-head,
+:root[data-theme="stijl"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  border: 0;
+  border-top: var(--line) solid var(--black);
+  border-bottom: var(--line) solid var(--black);
+  border-left: 22px solid var(--red);
+  padding: 6px 10px;
+}
+:root[data-theme="stijl"] .stories-group {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  opacity: 1;
+  color: var(--ink-2);
+}
+:root[data-theme="stijl"] .stories + .stories-group {
+  border-top: var(--line) solid var(--black);
+}
+:root[data-theme="stijl"] .stories li + li {
+  border-top: 1px solid var(--black);
+}
+:root[data-theme="stijl"] .headline {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+:root[data-theme="stijl"] .story:hover {
+  background: rgba(244, 196, 0, 0.18);
+}
+:root[data-theme="stijl"] .scale {
+  border: var(--line) solid var(--black);
+  font-family: var(--font-ui);
+}
+:root[data-theme="stijl"] .scale .step + .step {
+  border-left: var(--line) solid var(--black);
+}
+:root[data-theme="stijl"] .scale .step.on {
+  background: var(--blue);
+  color: #ffffff;
+}
+:root[data-theme="stijl"] .cite,
+:root[data-theme="stijl"] .source-num,
+:root[data-theme="stijl"] .score-chip {
+  border-color: var(--black);
+  font-family: var(--font-ui);
+}
+:root[data-theme="stijl"] .excerpt-quote {
+  font-style: normal;
+  border-left: var(--bar) solid var(--yellow);
+}
+:root[data-theme="stijl"] dialog a,
+:root[data-theme="stijl"] .panel a {
+  color: var(--ink);
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 2px;
+}
+
+/* The time bar: a white strip under the last bar. */
+:root[data-theme="stijl"] .timebar {
+  background: var(--page);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="stijl"] .slider input {
+  accent-color: var(--black);
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="stijl"] {
+    --bar: 5px;
+    --corner-l: 14px;
+    --corner-r: 14px;
+  }
+  :root[data-theme="stijl"] .masthead {
+    padding-inline: calc(var(--corner-l) + var(--bar) + 8px);
+  }
+  :root[data-theme="stijl"] .toolbar {
+    padding-inline: calc(var(--corner-l) + var(--bar) + 6px) calc(var(--corner-r) + var(--bar) + 6px);
+  }
+  :root[data-theme="stijl"] #about-btn {
+    right: calc(var(--corner-r) + var(--bar) + 6px);
+    border-width: var(--line);
+  }
+  :root[data-theme="stijl"] .stage,
+  :root[data-theme="stijl"] .stage:has(.panel.framed) {
+    row-gap: var(--bar);
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .pick select,
+  :root[data-theme="stijl"] .menu > summary {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    border-width: 2px;
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .menu > summary {
+    padding-inline: 7px;
+  }
+  :root[data-theme="stijl"] .pick select {
+    padding-left: 7px;
+    padding-right: 17px;
+  }
+  :root[data-theme="stijl"] .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="stijl"] .telegram-word {
+    border-bottom-width: 5px;
+  }
+  /* The dateline sits between two black rules, as heavy as the buttons' edges. */
+  :root[data-theme="stijl"] .telegram-date {
+    border-top: var(--line) solid var(--black);
+    border-bottom: var(--line) solid var(--black);
+  }
+  :root[data-theme="stijl"] dialog {
+    padding: 20px 18px 22px;
+  }
+}
+/* The narrowest phones: thinner corner blocks and tighter buttons, so the toolbar keeps to one row. */
+@media (max-width: 400px) {
+  :root[data-theme="stijl"] {
+    --corner-l: 9px;
+    --corner-r: 9px;
+  }
+  :root[data-theme="stijl"] .toolbar {
+    gap: 4px;
+    padding-inline: calc(var(--corner-l) + var(--bar) + 4px) calc(var(--corner-r) + var(--bar) + 4px);
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .pick select,
+  :root[data-theme="stijl"] .menu > summary {
+    font-size: 11.5px;
+    letter-spacing: 0;
+  }
+  :root[data-theme="stijl"] .tool,
+  :root[data-theme="stijl"] .menu > summary {
+    padding-inline: 6px;
+  }
+  :root[data-theme="stijl"] .pick select {
+    padding-left: 6px;
+    padding-right: 15px;
+  }
+  :root[data-theme="stijl"] .pick::after {
+    right: 5px;
+  }
+}

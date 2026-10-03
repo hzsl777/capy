@@ -75,6 +75,7 @@ import { DesktopCache, drawDesktop } from "./desktop.ts";
 import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, VinylCache } from "./vinyl.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
+import { drawStijl } from "./stijl.ts";
 import { drawRender, RenderCache } from "./render.ts";
 import { drawPaper, PaperCache } from "./paper.ts";
 import { drawPostcard, PostcardCache } from "./postcard.ts";
@@ -1928,6 +1929,7 @@ export class MapView {
     else if (t.surface === "flap") drawFlap(f, this.flap);
     else if (t.surface === "postcard") drawPostcard(f, this.postcard);
     else if (t.surface === "zine") drawZine(f, this.zine);
+    else if (t.surface === "stijl") drawStijl(f);
     else drawGlass(f, this.glass);
   }
 
