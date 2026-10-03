@@ -1,6 +1,6 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
-import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, WORLD_TOPICS, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, withLocalStories, WORLD_TOPICS, type LocalStory, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import { editions, feedback, latestFinishedMapDate, latestMapDate, loadEditionView, loadMapView, localBase, readers, telegrams } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
@@ -162,7 +162,19 @@ switch (command) {
       break;
     }
     const latest = toRunDate(day);
-    console.log(await recorded(d, latest, "refresh", () => runLocal(d, latest, config.local, undefined, undefined, rollingWindow())));
+    const keep: { stories?: LocalStory[] } = {};
+    console.log(await recorded(d, latest, "refresh", () => runLocal(d, latest, config.local, undefined, undefined, rollingWindow(), keep)));
+    // With --out, the day's file and its tiles as well. Built from --in, the file already published, when it is this
+    // day's, so a refresh reads nothing back from the database (decision 124); otherwise exported as the daily run does.
+    if (values.out) {
+      const base = values.in && existsSync(values.in) ? (JSON.parse(readFileSync(values.in, "utf8")) as MapFile) : null;
+      const fromBase = !!base && base.runDate === latest && !!keep.stories;
+      const full = fromBase ? withLocalStories(base, keep.stories!, new Date()) : await loadMapView(d, latest);
+      mkdirSync(dirname(values.out), { recursive: true });
+      const { main, tiles } = writeMapFiles(full, values.out, localBase(latest));
+      if (values.manifest) writeFileSync(values.manifest, JSON.stringify(tiles));
+      console.log(`${values.out}: ${fromBase ? "the published file with new local stories" : "exported from the database"}, ${main.items.length} items, ${tiles.length} tiles of local stories`);
+    }
     break;
   }
   case "map headlines": {

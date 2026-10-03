@@ -1,20 +1,16 @@
 name: Refresh local stories
-# Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours and right
-# after each daily run (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
+# Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
 # called. About two minutes a run, 240 runs a month: see README.md, "Hosting", for the Actions budget.
 # The Worker's cron trigger starts it every three hours at minute 41 (decision 91); GitHub's own schedule skipped
 # runs for hours, and is no longer used here, so a run is never started twice.
+# It no longer follows each daily run: the daily run has just stored the same day's local stories, and each run reads
+# the whole map back from the database, whose free plan allows 5 GB of transfer a month (decision 124).
 on:
-  workflow_run:
-    workflows: ["Daily run"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   refresh:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # One writer of the map at a time: a refresh waits for a daily run in progress, and the other way round, so an
@@ -55,16 +51,19 @@ jobs:
             12|13|21|22) npm run -s stage -- ingest --date "$(date -u +%F)" | tail -n 1 ;;
             *) echo "Not a collection hour." ;;
           esac
+      # The file the site already has: the refresh swaps its local stories for the new ones instead of reading the whole
+      # day back from the database, whose free plan allows 5 GB of transfer a month (decision 124). Without it, the
+      # refresh exports the day from the database as before.
+      - name: Fetch the published map
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+        run: npx wrangler r2 object get globalgist-maps/latest.json --file base.json --remote || echo "::warning::no published map to start from; exporting from the database"
       - name: Refresh the local stories
         id: refresh
         if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
         run: |
           set -o pipefail
-          npm run -s stage -- refresh | tee refresh.txt
+          npm run -s stage -- refresh --in base.json --out map.json --manifest tiles.json | tee refresh.txt
           if grep -q "nothing to refresh" refresh.txt; then echo "skip=1" >> "$GITHUB_OUTPUT"; fi
-      - name: Export the map
-        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.refresh.outputs.skip != '1'
-        run: npm run -s stage -- map export --out map.json --manifest tiles.json
       # The same checks and order as the daily run: nothing is stored from a broken file, then the tiles first, then the
       # day's file that lists them, each upload tried three times.
       - name: Store the map for the site

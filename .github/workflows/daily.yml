@@ -6,11 +6,6 @@ on:
   # second to start does nothing. Delivery is in deliver.yml.
   schedule:
     - cron: "7 0 * * *"
-  # A finished deploy starts the day if its map doesn't exist yet, so going live needs no manual run.
-  workflow_run:
-    workflows: ["Deploy site"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
     inputs:
       date:
@@ -29,7 +24,7 @@ permissions:
   contents: read
 jobs:
   day:
-    if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && inputs.demo_run_id == ''
+    if: inputs.demo_run_id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 180
     # One writer of the map at a time, shared with the refresh during the day (refresh.yml, decision 80).
@@ -84,26 +79,31 @@ jobs:
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         run: npm run stage -- llm check
       - name: Run the day
+        id: day
         if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
         env:
           DATE: ${{ inputs.date }}
           STAGE: ${{ inputs.stage }}
-          IF_MISSING: ${{ (github.event_name == 'workflow_run' || github.event_name == 'schedule' || inputs.if_missing == 'true') && '--if-missing' || '' }}
+          IF_MISSING: ${{ (github.event_name == 'schedule' || inputs.if_missing == 'true') && '--if-missing' || '' }}
         run: |
+          set -o pipefail
           # One stage alone, named in words only, so the input can't smuggle in anything else.
           if [ -n "$STAGE" ]; then
             if ! [[ "$STAGE" =~ ^[a-z]+(\ [a-z]+)?$ ]]; then echo "::error::stage must be one or two lowercase words"; exit 1; fi
             npm run stage -- $STAGE ${DATE:+--date "$DATE"}
           elif [ -n "$DATE" ]; then
-            npm run stage -- day --date "$DATE" $IF_MISSING
+            npm run stage -- day --date "$DATE" $IF_MISSING | tee day.txt
           else
-            npm run stage -- day $IF_MISSING
+            npm run stage -- day $IF_MISSING | tee day.txt
           fi
+          # A day that already exists is not exported or stored again: each export reads the day back from the
+          # database, and the free plan's monthly transfer is small (decision 124).
+          if [ -f day.txt ] && grep -q "already exists. Nothing to do." day.txt; then echo "skip=1" >> "$GITHUB_OUTPUT"; fi
       # The day's map as a downloadable file, kept a week: what the site shows, for checking a day or loading it into
       # a demo without database access (decision 41). Its local stories go in tiles beside it, in local/<date>/, and
       # tiles.json lists them for R2 (decision 78).
       - name: Export the map
-        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && steps.day.outputs.skip != '1'
         run: npm run -s stage -- map export --out map.json --manifest tiles.json
       # The site's copy: the Worker streams these files from R2 instead of building the map on every request, which
       # takes longer than the free plan's 10 ms (decision 73). The day's tiles first, 20 at a time, then the day's
@@ -112,7 +112,7 @@ jobs:
       # stories, no explained event and no local story, a listed tile missing) stops the step before anything is
       # stored, so the site keeps the file it has. Each upload is tried three times, as R2 and the network blip.
       - name: Store the map for the site
-        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != ''
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.day.outputs.skip != '1'
         env:
           DATE: ${{ inputs.date }}
         run: |
@@ -134,13 +134,13 @@ jobs:
       # The day's share image (decision 92): the word, its date and the day's places, 1200 by 630, for link previews.
       # A failure here never fails the day; the site then keeps the last image, or the timeless one.
       - name: Store the share image
-        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != ''
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.day.outputs.skip != '1'
         continue-on-error: true
         run: |
           node tools/share-image.mjs og.png map.json "$(command -v google-chrome || command -v chromium)"
           npx wrangler r2 object put globalgist-maps/og.png --file og.png --content-type image/png --remote
       - uses: actions/upload-artifact@v4
-        if: env.DATABASE_URL != '' && env.LLM_API_KEY != ''
+        if: env.DATABASE_URL != '' && env.LLM_API_KEY != '' && steps.day.outputs.skip != '1'
         with:
           name: map
           path: |

@@ -5,7 +5,7 @@
 // No model reads these stories: they cost nothing, never join an event and sit at the lowest zoom tier.
 import { Unzip, UnzipInflate } from "fflate";
 import { eq } from "drizzle-orm";
-import { ingestWindow, placeIdFor, type RunDate } from "@2dayai/core";
+import { ingestWindow, placeIdFor, type LocalStory, type RunDate } from "@2dayai/core";
 import { loadMapView, localStories, type Db } from "@2dayai/db";
 import { Gazetteer, km, type Located } from "../places.js";
 import { noControl } from "../text.js";
@@ -250,6 +250,8 @@ export async function runLocal(
   fetchGdelt: GdeltFetcher = defaultGdeltFetcher,
   gaz = Gazetteer.loadWithTowns(),
   window: { from: Date; to: Date } = ingestWindow(date),
+  /** Given, it receives the stories stored, so a refresh can publish them without reading them back (decision 124). */
+  keep?: { stories?: LocalStory[] },
 ): Promise<LocalReport> {
   const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0 };
   if (limits.perTown === 0) {
@@ -374,6 +376,7 @@ export async function runLocal(
     await tx.delete(localStories).where(eq(localStories.runDate, date));
     for (let i = 0; i < rows.length; i += 1000) await tx.insert(localStories).values(rows.slice(i, i + 1000)).onConflictDoNothing();
   });
+  if (keep) keep.stories = rows;
   const filled = new Set(picked.map((p) => p.region));
   return {
     files: urls.length,

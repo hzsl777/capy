@@ -3,7 +3,7 @@
 // and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
 // reported.
 import { and, desc, eq, exists, gte, inArray, lt, lte, sql } from "drizzle-orm";
-import { ingestWindow, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { ingestWindow, localMapItem, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
 import type { Db } from "./types.js";
 
@@ -77,8 +77,13 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
   const date = toRunDate(runDate);
   const { from, to } = ingestWindow(date);
 
+  // Only the columns the map shows. A whole article row carries its fetched text (body), kept for explanations and
+  // never shown on the map; reading it on every export was most of the database's monthly transfer (decision 124).
   const rows = await db
-    .select({ article: t.articles, source: t.sources })
+    .select({
+      article: { id: t.articles.id, title: t.articles.title, url: t.articles.url, lead: t.articles.lead, publishedAt: t.articles.publishedAt },
+      source: { name: t.sources.name, lang: t.sources.lang, lat: t.sources.lat, lon: t.sources.lon, placeName: t.sources.placeName },
+    })
     .from(t.articles)
     .innerJoin(t.sources, eq(t.sources.id, t.articles.sourceId))
     .where(and(eq(t.sources.desk, "world"), gte(t.articles.publishedAt, from), lt(t.articles.publishedAt, to)));
@@ -115,7 +120,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
     placeIndex.set(id, idx);
     return idx;
   };
-  const placeOf = (s: typeof t.sources.$inferSelect): number | null => (s.lat === null || s.lon === null || !s.placeName ? null : pin(s.placeName, s.lat, s.lon));
+  const placeOf = (s: Pick<typeof t.sources.$inferSelect, "lat" | "lon" | "placeName">): number | null => (s.lat === null || s.lon === null || !s.placeName ? null : pin(s.placeName, s.lat, s.lon));
 
   const worldEvents = await db.select().from(t.events).where(and(eq(t.events.runDate, date), eq(t.events.desk, "world")));
   const eventIds = worldEvents.map((e) => e.id);
@@ -293,20 +298,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
 const LOCAL_ORDER = [desc(t.localStories.publishedAt), t.localStories.id] as const;
 
 function localItem(s: typeof t.localStories.$inferSelect, place: number): MapItem {
-  return {
-    id: `g${s.id}`,
-    t: Math.floor(s.publishedAt.getTime() / 1000),
-    title: s.title,
-    url: s.url,
-    domain: s.domain,
-    publisher: s.domain,
-    lang: s.lang ?? "",
-    topics: [],
-    place,
-    reach: 1,
-    importance: 1,
-    via: "gdelt",
-  };
+  return localMapItem(s, place);
 }
 
 /** How many local stories each tile of a day has, counted in the database (decision 78). */
