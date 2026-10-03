@@ -20170,3 +20170,746 @@ button.x-ch:focus-visible {
     padding: 22px 18px 22px;
   }
 }
+
+/* ---- Postcards (experimental): a wire rack of travel postcards in a corner shop -------------------------------
+   After the feel only: no postal service's, airline's, map maker's or company's names, logos, stamps or marks.
+   The map is a folded paper travel map (src/map/postcard.ts); the place's panel is a postcard that turns over
+   (src/ui/postcard.ts); airmail chevrons run round the page and under the masthead; kraft paper buttons and
+   rubber-stamp labels; the rack's chrome wires down the panel's side. */
+:root[data-theme="postcard"] {
+  color-scheme: light;
+  --page: #efe6cf;
+  --panel: #f8f1df;
+  --ink: #2b2118;
+  --ink-2: #4a3b2a;
+  --muted: #6b5a44;
+  --rule: #8a6a42;
+  --accent: #2457a8;
+  --on-accent: #fbf6ea;
+  --hover: rgba(36, 87, 168, 0.08);
+  --reticle: #2b2118;
+  --grain-opacity: 0.32;
+  --grain-blend: multiply;
+  --font-mast: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --font-head: "Courier Prime", "Courier New", monospace;
+  --font-body: "Courier Prime", "Courier New", monospace;
+  --font-ui: "Special Elite", "Courier Prime", "Courier New", monospace;
+  --panel-w: clamp(300px, 32vw, 450px);
+  --pc-red: #c8352d;
+  --pc-blue: #2457a8;
+  --pc-navy: #1f3a6e;
+  --pc-card: #f8f1df;
+  --pc-behind: #ece2c9;
+  --pc-kraft: #c9a272;
+  --pc-kraft-dark: #8a6a42;
+  --pc-rule: #dcc7a5;
+  /* Airmail chevrons: red, cream, blue, cream, at an angle. Our own stripe, no service's mark. */
+  --pc-chevrons: repeating-linear-gradient(-45deg, var(--pc-red) 0 10px, #fbf6ea 10px 16px, var(--pc-blue) 16px 26px, #fbf6ea 26px 32px);
+}
+:root[data-theme="postcard"] body {
+  border: 8px solid transparent;
+  border-image: var(--pc-chevrons) 8;
+  background: var(--page);
+}
+:root[data-theme="postcard"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background: var(--pc-chevrons) left bottom / 100% 8px no-repeat, linear-gradient(#fbf6ea, #f4ecd8);
+}
+:root[data-theme="postcard"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: 0.01em;
+  color: var(--pc-blue);
+  text-shadow: 2px 2px 0 #fbf6ea, 3px 3px 0 var(--pc-red);
+}
+:root[data-theme="postcard"] .mast-tag {
+  font: italic 400 13px/1.3 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="postcard"] .telegram-date {
+  font-family: var(--font-ui);
+  color: var(--ink-2);
+}
+/* Rubber-stamp labels: inked capitals in a ruled box, set a little crooked. */
+:root[data-theme="postcard"] .telegram-kicker,
+:root[data-theme="postcard"] .pc-label,
+:root[data-theme="postcard"] .stories-group,
+:root[data-theme="postcard"] .rule-head {
+  display: inline-block;
+  font: 400 12px/1.2 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--pc-red);
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  padding: 2px 7px 1px;
+  transform: rotate(-2deg);
+  opacity: 0.88;
+  box-shadow: inset 0 0 0 1px rgba(200, 53, 45, 0.25);
+}
+:root[data-theme="postcard"] .telegram-kicker {
+  color: var(--pc-blue);
+}
+:root[data-theme="postcard"] .telegram-note,
+:root[data-theme="postcard"] .telegram-none,
+:root[data-theme="postcard"] .telegram-status {
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="postcard"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--pc-red);
+  border-bottom: 0;
+  padding: 2px 8px 6px;
+  text-shadow: 2px 2px 0 #fbf6ea, 4px 4px 0 var(--pc-navy);
+}
+:root[data-theme="postcard"] .telegram-word:hover,
+:root[data-theme="postcard"] .telegram-word:focus-visible {
+  outline: none;
+  background: var(--hover);
+  box-shadow: inset 0 0 0 2px var(--pc-blue);
+}
+:root[data-theme="postcard"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--pc-red);
+  text-shadow: 2px 2px 0 #fbf6ea, 3px 3px 0 var(--pc-navy);
+}
+:root[data-theme="postcard"] .scale {
+  border: 1.5px solid var(--pc-kraft-dark);
+  background: #fbf6ea;
+}
+:root[data-theme="postcard"] .scale .step {
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+:root[data-theme="postcard"] .scale .step + .step {
+  border-left: 1.5px solid var(--pc-kraft-dark);
+}
+:root[data-theme="postcard"] .scale .step.on {
+  background: var(--pc-blue);
+  color: #fbf6ea;
+}
+:root[data-theme="postcard"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px;
+}
+:root[data-theme="postcard"] .banner {
+  border-bottom: 1px dashed var(--pc-kraft-dark);
+  background: #f4ecd8;
+  color: var(--ink-2);
+}
+/* Kraft paper buttons: brown wrapping paper with its fibres, a darker edge, typed labels. */
+:root[data-theme="postcard"] .tool,
+:root[data-theme="postcard"] .pick select,
+:root[data-theme="postcard"] .menu > summary,
+:root[data-theme="postcard"] .chip,
+:root[data-theme="postcard"] .key-btn,
+:root[data-theme="postcard"] .key-close,
+:root[data-theme="postcard"] dialog .close,
+:root[data-theme="postcard"] .zoom {
+  border: 1.5px solid var(--pc-kraft-dark);
+  border-radius: 3px;
+  background: linear-gradient(#dcbb8c, var(--pc-kraft));
+  color: #33240f;
+  font-family: var(--font-ui);
+  box-shadow: 0 1px 0 rgba(255, 248, 230, 0.6) inset, 0 2px 0 rgba(90, 64, 30, 0.35);
+}
+:root[data-theme="postcard"] .tool:hover,
+:root[data-theme="postcard"] .pick select:hover,
+:root[data-theme="postcard"] .menu > summary:hover,
+:root[data-theme="postcard"] .chip:hover,
+:root[data-theme="postcard"] .key-btn:hover,
+:root[data-theme="postcard"] .key-close:hover,
+:root[data-theme="postcard"] dialog .close:hover {
+  background: linear-gradient(#e4c69a, #d4b083);
+}
+/* On: the paper inked blue. */
+:root[data-theme="postcard"] .tool[aria-pressed="true"],
+:root[data-theme="postcard"] .menu[open] > summary,
+:root[data-theme="postcard"] .chip[aria-pressed="true"],
+:root[data-theme="postcard"] .key-btn[aria-expanded="true"],
+:root[data-theme="postcard"] .tool.primary {
+  background: var(--pc-blue);
+  border-color: var(--pc-navy);
+  color: #fbf6ea;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) inset;
+}
+:root[data-theme="postcard"] .pick::after {
+  opacity: 1;
+  color: #33240f;
+}
+:root[data-theme="postcard"] .pick option,
+:root[data-theme="postcard"] .pick optgroup {
+  font-family: var(--font-body);
+  background: #fbf6ea;
+}
+:root[data-theme="postcard"] .zoom button {
+  color: #33240f;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+:root[data-theme="postcard"] .zoom button + button {
+  border-top: 1.5px solid var(--pc-kraft-dark);
+}
+:root[data-theme="postcard"] .zoom button:hover {
+  background: rgba(255, 248, 230, 0.3);
+}
+/* Behind the paper globe, the shop's counter; in Map view the canvas covers it with the folded sheet. */
+:root[data-theme="postcard"] .map {
+  background: radial-gradient(ellipse at 50% 40%, #f4ecd8 0%, #e8dcbf 70%, #dccdaa 100%);
+}
+:root[data-theme="postcard"] .crosshair {
+  --weight: 2px;
+}
+/* The panel hangs on the rack: chrome wires down its side, lit from the left, then the shop's paper. */
+:root[data-theme="postcard"] .panel {
+  border-left: 0;
+  padding-left: calc(var(--gutter) + 18px);
+  background:
+    linear-gradient(90deg, transparent 3px, #8b9096 3px, #f3f5f7 4.5px, #6f747b 6px, transparent 6px, transparent 11px, #8b9096 11px, #f3f5f7 12.5px, #6f747b 14px, transparent 14px) left top / 18px 100% no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 56px, #8b9096 56px, #f3f5f7 57.5px, #6f747b 59px, transparent 59px 150px) left top / 18px 100% no-repeat,
+    linear-gradient(90deg, rgba(60, 44, 20, 0.16), transparent) 18px 0 / 30px 100% no-repeat,
+    var(--pc-card);
+}
+:root[data-theme="postcard"] .panel:has(> .pc) {
+  background-color: var(--pc-behind);
+}
+:root[data-theme="postcard"] .panel.framed {
+  padding-left: 18px;
+}
+:root[data-theme="postcard"] .panel-title,
+:root[data-theme="postcard"] .key-head h2,
+:root[data-theme="postcard"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--pc-blue);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="postcard"] .panel-title {
+  font-size: 24px;
+}
+:root[data-theme="postcard"] .key-head h2 {
+  font-size: 16px;
+}
+:root[data-theme="postcard"] dialog h2 {
+  font-size: 24px;
+}
+:root[data-theme="postcard"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  color: var(--pc-red);
+}
+:root[data-theme="postcard"] .dateline {
+  border-bottom: 1.5px solid var(--pc-rule);
+}
+/* The place's name as if written at the top of the card in blue ink. */
+:root[data-theme="postcard"] .place-name {
+  font: 400 26px/1.1 "Kalam", "Patrick Hand", cursive;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--pc-navy);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="postcard"] .dateline .coords,
+:root[data-theme="postcard"] .count,
+:root[data-theme="postcard"] .meta {
+  font-style: normal;
+  font-family: var(--font-body);
+}
+:root[data-theme="postcard"] .headline {
+  font: 700 15.5px/1.3 var(--font-head);
+}
+:root[data-theme="postcard"] .story:hover,
+:root[data-theme="postcard"] .story:focus-visible {
+  outline: none;
+  background: rgba(36, 87, 168, 0.08);
+}
+:root[data-theme="postcard"] .stories li + li {
+  border-top: 1px solid var(--pc-rule);
+}
+:root[data-theme="postcard"] .related {
+  font-family: var(--font-body);
+  color: var(--pc-blue);
+}
+:root[data-theme="postcard"] .reader-headline {
+  font: 700 clamp(22px, 2.2vw, 28px) / 1.2 var(--font-head);
+}
+:root[data-theme="postcard"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="postcard"] .lead img {
+  filter: sepia(0.25) saturate(0.9);
+  border: 6px solid #fbf6ea;
+  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.35);
+}
+:root[data-theme="postcard"] .cite,
+:root[data-theme="postcard"] .source-num {
+  border-color: var(--pc-blue);
+  color: var(--pc-blue);
+}
+:root[data-theme="postcard"] .excerpt-quote {
+  border-left: 3px solid var(--pc-red);
+}
+/* Menus, the Key, notes and the About dialog are airmail paper: cream, with the chevrons round the edge. */
+:root[data-theme="postcard"] .menu-body,
+:root[data-theme="postcard"] .key-pop,
+:root[data-theme="postcard"] .map-note,
+:root[data-theme="postcard"] dialog {
+  border: 7px solid transparent;
+  border-image: var(--pc-chevrons) 7;
+  border-radius: 0;
+  background: #fbf6ea;
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(60, 40, 20, 0.3);
+}
+:root[data-theme="postcard"] dialog::backdrop {
+  background: rgba(43, 33, 24, 0.4);
+}
+:root[data-theme="postcard"] dialog {
+  font-size: 15px;
+}
+:root[data-theme="postcard"] .timebar {
+  border-top: 0;
+  padding-top: 15px;
+  background: var(--pc-chevrons) left top / 100% 8px no-repeat, linear-gradient(#f4ecd8, #fbf6ea);
+}
+:root[data-theme="postcard"] .time-label {
+  font-family: var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="postcard"] .slider input {
+  accent-color: var(--pc-red);
+}
+
+/* The postcard itself (src/ui/postcard.ts), shown only in this design. */
+.pc-bar,
+.pc-card {
+  display: none;
+}
+:root[data-theme="postcard"] .pc-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+:root[data-theme="postcard"] .pc-turn {
+  font-size: 13px;
+}
+:root[data-theme="postcard"] .pc-narrow {
+  display: none;
+}
+:root[data-theme="postcard"] .pc-card {
+  display: block;
+  container-type: inline-size;
+  perspective: 1600px;
+}
+:root[data-theme="postcard"] .pc-flip {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 460ms cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+:root[data-theme="postcard"] .pc[data-side="back"] .pc-flip {
+  transform: rotateY(180deg);
+}
+:root[data-theme="postcard"] .pc-front,
+:root[data-theme="postcard"] .pc-back {
+  grid-area: 1 / 1;
+  align-self: start;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(60, 40, 20, 0.3), 0 6px 14px rgba(60, 40, 20, 0.18);
+}
+:root[data-theme="postcard"] .pc-back {
+  transform: rotateY(180deg);
+}
+:root[data-theme="postcard"] .pc[data-rest="front"] .pc-back {
+  display: none;
+}
+/* A new card slides out of the rack; the slide only moves it, so no light swings. */
+:root[data-theme="postcard"] .pc-in .pc-card {
+  animation: pc-slide 280ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes pc-slide {
+  from {
+    transform: translateX(-34px) rotate(-1.5deg);
+  }
+  to {
+    transform: none;
+  }
+}
+/* The front: a picture in a white border, the name across it. */
+:root[data-theme="postcard"] .pc-front {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: calc(100cqi * 0.66);
+  padding: 0;
+  border: 8px solid #f7f0de;
+  background: #cfe5ea;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: center;
+  color: inherit;
+}
+:root[data-theme="postcard"] .pc-front:focus-visible {
+  outline: 3px solid var(--pc-blue);
+  outline-offset: 2px;
+}
+:root[data-theme="postcard"] .pc-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.pc-sky {
+  fill: #cfe5ea;
+}
+.pc-glow {
+  fill: #f6e3a6;
+}
+.pc-sun {
+  fill: #f3c95a;
+}
+.pc-cloud {
+  fill: #f7f3e6;
+}
+.pc-ridge {
+  fill: #b8cf94;
+}
+.pc-sea {
+  fill: #9fcbd6;
+}
+.pc-wave {
+  fill: none;
+  stroke: #e8f3f4;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.pc-sand {
+  fill: #e9d7a9;
+}
+.pc-cape {
+  fill: #9dbd7c;
+}
+.pc-boat {
+  fill: #f7f3e6;
+  stroke: #5a6f7a;
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+.pc-birds {
+  fill: none;
+  stroke: #5a6f7a;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+:root[data-theme="postcard"] .pc-front-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px 16px;
+}
+/* The big letters: our own large-letter lettering, stepped back in navy with a cream edge, and filled with a sunlit
+   gradient by a copy of the name laid over it (the ::after), so the fill stays clean over the steps. */
+:root[data-theme="postcard"] .pc-name {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  font: 400 clamp(22px, calc(100cqi * 1.02 / var(--len, 7)), 66px) / 1.02 var(--font-mast);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  color: var(--pc-navy);
+  -webkit-text-stroke: 5px #fbf6ea;
+  paint-order: stroke fill;
+  text-shadow: 1px 1px 0 var(--pc-navy), 2px 2px 0 var(--pc-navy), 3px 3px 0 var(--pc-navy), 4px 4px 0 var(--pc-navy), 5px 5px 0 #14284f, 6px 6px 0 #14284f, 7px 7px 4px rgba(20, 30, 50, 0.35);
+  transform: rotate(-4deg);
+}
+:root[data-theme="postcard"] .pc-name::after {
+  content: attr(data-name);
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  background: linear-gradient(180deg, #f9d65c 0%, #f2b54a 50%, #e4683a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+:root[data-theme="postcard"] .pc-names {
+  max-width: 100%;
+  padding: 2px 8px;
+  background: rgba(251, 246, 234, 0.9);
+  font: 700 13px/1.3 var(--font-body);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+/* The back: "Post card" printed across the top, the ruled message side, the divider, and the stamp and postmark. */
+:root[data-theme="postcard"] .pc-back {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  grid-template-areas: "printed printed" "head addr" "msg addr";
+  grid-template-rows: auto auto 1fr;
+  min-height: calc(100cqi * 0.66);
+  padding: 8px 12px 18px 14px;
+  background: var(--pc-card);
+  color: var(--ink);
+}
+:root[data-theme="postcard"] .pc-printed {
+  grid-area: printed;
+  margin: 0 0 6px;
+  text-align: center;
+  font: 700 12px/1.2 var(--font-body);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:root[data-theme="postcard"] .pc-head {
+  grid-area: head;
+  min-width: 0;
+  padding-right: 12px;
+}
+:root[data-theme="postcard"] .pc-head .dateline {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "name" "coords" "pin";
+  row-gap: 4px;
+  justify-items: start;
+}
+:root[data-theme="postcard"] .pc-msg {
+  grid-area: msg;
+  min-width: 0;
+  padding-right: 12px;
+}
+/* The message side is ruled, and the stories are typed on its lines: every line of text is one ruling high. */
+:root[data-theme="postcard"] .pc-msg {
+  --pc-pitch: 22px;
+  padding-top: 4px;
+  background: repeating-linear-gradient(180deg, transparent 0 calc(var(--pc-pitch) - 1px), var(--pc-rule) calc(var(--pc-pitch) - 1px) var(--pc-pitch)) 0 4px / 100% calc(100% - 4px) no-repeat;
+}
+:root[data-theme="postcard"] .pc-msg .story {
+  gap: 0;
+  padding: 0 2px var(--pc-pitch);
+}
+:root[data-theme="postcard"] .pc-msg .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="postcard"] .pc-msg .headline,
+:root[data-theme="postcard"] .pc-msg .meta,
+:root[data-theme="postcard"] .pc-msg .related,
+:root[data-theme="postcard"] .pc-msg .translated,
+:root[data-theme="postcard"] .pc-msg .kicker,
+:root[data-theme="postcard"] .pc-msg .count,
+:root[data-theme="postcard"] .pc-msg .fine {
+  line-height: var(--pc-pitch);
+}
+:root[data-theme="postcard"] .pc-msg .count,
+:root[data-theme="postcard"] .pc-msg .fine {
+  margin: 0;
+}
+/* A stamped group label is one ruling high, with a blank line before it. */
+:root[data-theme="postcard"] .pc-msg .stories-group {
+  margin: 0 0 var(--pc-pitch);
+  padding: 3px 7px 1px;
+  line-height: 14px;
+}
+:root[data-theme="postcard"] .pc-msg .stories + .stories-group {
+  padding-top: 3px;
+}
+:root[data-theme="postcard"] .pc-addr {
+  grid-area: addr;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-left: 1.5px solid var(--pc-rule);
+  padding-left: 8px;
+}
+:root[data-theme="postcard"] .pc-stamp {
+  width: 58px;
+  height: auto;
+  filter: drop-shadow(0 1px 1px rgba(60, 40, 20, 0.3));
+}
+.pc-stamp-paper {
+  fill: #fbf8ee;
+}
+.pc-stamp-frame {
+  fill: #d7e8ef;
+  stroke: #c8352d;
+  stroke-width: 1.6;
+}
+.pc-stamp-globe {
+  fill: #f1e2b8;
+  stroke: #2457a8;
+  stroke-width: 1.6;
+}
+.pc-stamp-line {
+  fill: none;
+  stroke: #2457a8;
+  stroke-width: 1;
+}
+:root[data-theme="postcard"] .pc-postmark {
+  width: 104px;
+  height: auto;
+  margin-top: -34px;
+  margin-right: 4px;
+  opacity: 0.8;
+}
+.pc-postmark .pc-ring,
+.pc-postmark .pc-cancel {
+  fill: none;
+  stroke: #3a3f58;
+  stroke-width: 2.2;
+}
+.pc-postmark .pc-ring.thin {
+  stroke-width: 1.2;
+}
+.pc-mark-name,
+.pc-mark-date {
+  fill: #3a3f58;
+  font-family: "Courier Prime", "Courier New", monospace;
+  font-weight: 700;
+}
+.pc-mark-name {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+.pc-mark-date {
+  font-size: 11px;
+}
+:root[data-theme="postcard"] .pc-line {
+  display: block;
+  width: 100%;
+  height: 26px;
+  border-bottom: 1.5px solid var(--pc-rule);
+}
+@media (max-width: 760px) {
+  :root[data-theme="postcard"] body {
+    border-width: 5px;
+  }
+  :root[data-theme="postcard"] .mast-title {
+    font-size: 26px;
+  }
+  /* The typed labels are wide, so the phone's toolbar gets a size smaller to keep it on one row. */
+  :root[data-theme="postcard"] .toolbar {
+    font-size: 12px;
+  }
+  :root[data-theme="postcard"] .toolbar .tool,
+  :root[data-theme="postcard"] .toolbar .menu > summary {
+    padding-inline: 7px;
+  }
+  :root[data-theme="postcard"] .toolbar .pick select {
+    padding-left: 7px;
+    padding-right: 17px;
+  }
+  :root[data-theme="postcard"] .toolbar .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="postcard"] .telegram-word {
+    font-size: min(54px, calc((100vw - 2 * var(--gutter) - 30px) / (var(--len, 8) * 0.95)));
+  }
+  /* On a phone the panel sits under the map, so the rack runs along its top and cards drop out of it. */
+  :root[data-theme="postcard"] .panel {
+    padding-left: var(--gutter);
+    padding-top: 24px;
+    background:
+      linear-gradient(180deg, transparent 4px, #8b9096 4px, #f3f5f7 5.5px, #6f747b 7px, transparent 7px, transparent 12px, #8b9096 12px, #f3f5f7 13.5px, #6f747b 15px, transparent 15px) left top / 100% 18px no-repeat,
+      repeating-linear-gradient(90deg, transparent 0 40px, #8b9096 40px, #f3f5f7 41.5px, #6f747b 43px, transparent 43px 140px) left top / 100% 18px no-repeat,
+      var(--pc-card);
+  }
+  :root[data-theme="postcard"] .panel:has(> .pc) {
+    background-color: var(--pc-behind);
+  }
+  :root[data-theme="postcard"] .panel.framed {
+    padding: 18px 0 0;
+  }
+  @keyframes pc-slide {
+    from {
+      transform: translateY(-22px) rotate(-1deg);
+    }
+    to {
+      transform: none;
+    }
+  }
+  /* The panel is short under the map, so the Turn button sits on the card's top corner and the picture is wide. */
+  :root[data-theme="postcard"] .pc {
+    position: relative;
+  }
+  :root[data-theme="postcard"] .pc-bar {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 2;
+    margin: 0;
+  }
+  :root[data-theme="postcard"] .pc-label,
+  :root[data-theme="postcard"] .pc-wide {
+    display: none;
+  }
+  :root[data-theme="postcard"] .pc-narrow {
+    display: inline;
+  }
+  :root[data-theme="postcard"] .pc-turn {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  :root[data-theme="postcard"] .pc-printed {
+    text-align: right;
+    letter-spacing: 0.35em;
+  }
+  :root[data-theme="postcard"] .pc-front {
+    height: calc(100cqi * 0.46);
+  }
+  :root[data-theme="postcard"] .pc-back {
+    grid-template-columns: minmax(0, 1fr) 92px;
+    grid-template-areas: "printed printed" "head addr" "msg msg";
+    min-height: calc(100cqi * 0.46);
+    padding-inline: 10px;
+  }
+  :root[data-theme="postcard"] .pc-addr {
+    border-left: 0;
+    padding-left: 0;
+  }
+  :root[data-theme="postcard"] .pc-msg {
+    padding-right: 0;
+    border-top: 1.5px solid var(--pc-rule);
+    margin-top: 6px;
+  }
+  :root[data-theme="postcard"] .pc-stamp {
+    width: 50px;
+  }
+  :root[data-theme="postcard"] .pc-postmark {
+    width: 88px;
+    margin-top: -28px;
+    margin-right: 2px;
+  }
+  :root[data-theme="postcard"] .pc-line {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="postcard"] .pc-flip {
+    transition: none;
+  }
+  :root[data-theme="postcard"] .pc-in .pc-card {
+    animation: none;
+  }
+}

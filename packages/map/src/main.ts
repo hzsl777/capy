@@ -210,6 +210,7 @@ import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
 import { mountPaper } from "./ui/paper.ts";
 import { mountDial, moveDial } from "./ui/dial.ts";
+import { renderPostcard } from "./ui/postcard.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -1090,6 +1091,14 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
   );
   // Departures: the rows turn over to the new place's reports, in the panel's own order.
   if (state.theme === "flap") boardTurn(panel, indices.join(","));
+  const body = [...lists, ...(more ? [more] : []), ...(note ? [note] : [])];
+  // Postcards (experimental): the same dateline and lists, on the back of a postcard that turns over (src/ui/postcard.ts).
+  if (state.theme === "postcard") {
+    const names = indices.map((i) => file.places[i].name);
+    const key = indices.map((i) => file.places[i].id).join(",");
+    return renderPostcard(panel, { key, title: names.length > 1 ? `${names.length} places` : place.name, names, head, body, when: all[0]?.t ?? lookTime() });
+  }
+  panel.replaceChildren(head, ...body);
 }
 
 function renderReader(panel: HTMLElement, it: Item) {

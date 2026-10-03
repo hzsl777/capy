@@ -77,6 +77,7 @@ import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
 import { drawRender, RenderCache } from "./render.ts";
 import { drawPaper, PaperCache } from "./paper.ts";
+import { drawPostcard, PostcardCache } from "./postcard.ts";
 import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 // Departures (experimental): the hall's wall map and the clock's ring round the globe.
@@ -334,6 +335,8 @@ export class MapView {
   private flap = new FlapCache();
   /** Paper Screen: the full drawing of the last still view, and the stipple tile. */
   private paper = new PaperCache();
+  /** Postcards: the folded sheet's paper and the paper globe's light and shadow. */
+  private postcard = new PostcardCache();
   /**
    * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
    * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
@@ -1919,6 +1922,7 @@ export class MapView {
     else if (t.surface === "lava") drawLava(f, this.lava);
     else if (t.surface === "machine") drawMachine(f, this.machine);
     else if (t.surface === "flap") drawFlap(f, this.flap);
+    else if (t.surface === "postcard") drawPostcard(f, this.postcard);
     else drawGlass(f, this.glass);
   }
 

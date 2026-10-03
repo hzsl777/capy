@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2464,6 +2464,46 @@ export const THEMES: Record<ThemeId, Theme> = {
     glow: true,
     atmosphere: "rgba(255,196,112,0.62)",
     shade: "rgba(74,46,20,0.34)",
+    neatline: false,
+    decor: null,
+  },
+  // Postcards, experimental: after the feel of travel postcards on a wire rack in a corner shop (src/map/postcard.ts,
+  // src/ui/postcard.ts). A folded paper travel map, cream land on pale blue sea with the sheet's creases, or a paper
+  // globe printed in gores; the place's panel is a postcard that turns over. Airmail red circles with a cream edge,
+  // airmail blue for fresh reports.
+  postcard: {
+    id: "postcard",
+    label: "Postcards",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoNaturalEarth1,
+    surface: "postcard",
+    globeScale: 0.4,
+    ocean: "#c6dfe6",
+    land: "#f2e6c8",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#6d8796",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(77,118,140,0.22)",
+    graticuleDash: [3, 3],
+    river: "#86b4c7",
+    lake: "#c6dfe6",
+    ice: "#fbf8ef",
+    relief: "rgba(122,92,58,0.42)",
+    dot: "#c8352d",
+    dotStroke: "#fbf6ea",
+    fresh: "#2457a8",
+    tuned: "#2b2118",
+    arc: "rgba(36,87,168,0.85)",
+    glow: false,
+    atmosphere: null,
+    shade: null,
     neatline: false,
     decor: null,
   },
