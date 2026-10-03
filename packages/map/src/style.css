@@ -16126,3 +16126,339 @@ button.x-ch:focus-visible {
     padding: 22px 20px 22px;
   }
 }
+
+/* ---- First Render (id render, experimental): after the feel of the first computer-animated music videos of the
+   mid-1980s. Untextured flat colour, hard edges and one light: teal wallpaper with small yellow zigzag bolts of our
+   own drawing, cobalt, tomato red, mint grey, mustard and a pink and white stripe. Buttons and panels are chunky
+   blocks, a flat front face over a darker side, never a gradient. The ball, the room and the bevelled screen are
+   drawn on the canvas (src/map/render.ts). ------------------------------------------------------------------------ */
+:root[data-theme="render"] {
+  color-scheme: light;
+  --page: #2e9c98;
+  --panel: #f6fbf8;
+  --ink: #16204f;
+  --ink-2: #26346e;
+  --muted: #475486;
+  --rule: #16204f;
+  --accent: #2a4fc0;
+  --on-accent: #ffffff;
+  --hover: rgba(42, 79, 192, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Rubik Mono One", "Arial Black", Arial, sans-serif;
+  --font-head: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --rd-navy: #16204f;
+  --rd-cobalt: #2a4fc0;
+  --rd-side: #1c3790;
+  --rd-yellow: #f0c537;
+  --rd-tomato: #d8392b;
+  --rd-mint: #a9d3c3;
+  --rd-face: #f2f9f5;
+  /* The wallpaper: teal with small yellow zigzag bolts, each with a hard darker shadow, the second half a tile off
+     the first and turned the other way, so the pattern doesn't line up in rows. */
+  --rd-wall: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Crect width='56' height='56' fill='%232e9c98'/%3E%3Cg fill='none' stroke-width='2.6' stroke-miterlimit='8'%3E%3Cpath d='M7 18L11 12L15 16L20 9' stroke='%231d7774' transform='translate(1.4 1.4)'/%3E%3Cpath d='M7 18L11 12L15 16L20 9' stroke='%23f0c537'/%3E%3Cpath d='M35 39L39 46L43 41L48 48' stroke='%231d7774' transform='translate(1.4 1.4)'/%3E%3Cpath d='M35 39L39 46L43 41L48 48' stroke='%23f0c537'/%3E%3C/g%3E%3C/svg%3E");
+  /* The pink and white stripe. */
+  --rd-stripe: repeating-linear-gradient(-45deg, #f497bd 0 7px, #ffffff 7px 14px);
+  /* A block's side: the front face stepped back a pixel at a time, flat and dark, as if lit from the upper left. */
+  --rd-block: 1px 1px 0 var(--rd-side), 2px 2px 0 var(--rd-side), 3px 3px 0 var(--rd-side), 4px 4px 0 var(--rd-side);
+  --rd-block-in: 1px 1px 0 var(--rd-side), 2px 2px 0 var(--rd-side);
+  --rd-slab: 1px 1px 0 var(--rd-side), 2px 2px 0 var(--rd-side), 3px 3px 0 var(--rd-side), 4px 4px 0 var(--rd-side), 5px 5px 0 var(--rd-side), 6px 6px 0 var(--rd-side), 7px 7px 0 var(--rd-side), 8px 8px 0 var(--rd-navy);
+}
+:root[data-theme="render"] body {
+  background: var(--rd-wall) 0 0 / 56px 56px, var(--page);
+}
+/* The masthead is a cobalt band with the pink and white stripe along its foot. */
+:root[data-theme="render"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 22px;
+  background:
+    linear-gradient(var(--rd-navy), var(--rd-navy)) left bottom / 100% 2px no-repeat,
+    var(--rd-stripe) left bottom 2px / 100% 10px no-repeat,
+    linear-gradient(var(--rd-navy), var(--rd-navy)) left bottom 12px / 100% 2px no-repeat,
+    var(--rd-cobalt);
+  color: #ffffff;
+}
+:root[data-theme="render"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(22px, 2.5vw, 34px);
+  letter-spacing: 0;
+  color: var(--rd-yellow);
+  white-space: nowrap;
+  /* Extruded capitals: the letters stepped back toward the lower right in tomato red, darker at the back. */
+  text-shadow: 1px 1px 0 var(--rd-tomato), 2px 2px 0 var(--rd-tomato), 3px 3px 0 var(--rd-tomato), 4px 4px 0 #8e2117, 5px 5px 0 #8e2117, 6px 6px 0 var(--rd-navy);
+}
+:root[data-theme="render"] .mast-tag {
+  margin-top: 6px;
+  font: 500 13px/1.3 var(--font-ui);
+  letter-spacing: 0.04em;
+  color: #dcefe7;
+}
+:root[data-theme="render"] .telegram-kicker,
+:root[data-theme="render"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #dcefe7;
+}
+:root[data-theme="render"] .telegram-note,
+:root[data-theme="render"] .telegram-none {
+  font: 400 13px/1.3 var(--font-ui);
+  color: #e8f4ee;
+}
+:root[data-theme="render"] .telegram-note a {
+  color: var(--rd-yellow);
+}
+/* The word in the same blocky capitals, white, extruded toward the lower right. */
+:root[data-theme="render"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #ffffff;
+  border-bottom: 0;
+  padding: 2px 8px 6px 2px;
+  text-shadow: 1px 1px 0 var(--rd-tomato), 2px 2px 0 var(--rd-tomato), 3px 3px 0 var(--rd-tomato), 4px 4px 0 #8e2117, 5px 5px 0 #8e2117, 6px 6px 0 var(--rd-navy);
+}
+:root[data-theme="render"] .telegram-word:hover,
+:root[data-theme="render"] .telegram-word:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 2px var(--rd-yellow);
+}
+:root[data-theme="render"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--rd-cobalt);
+  text-shadow: 1px 1px 0 var(--rd-yellow), 2px 2px 0 var(--rd-yellow), 3px 3px 0 var(--rd-navy);
+}
+:root[data-theme="render"] .scale {
+  border: 2px solid var(--rd-navy);
+  background: var(--rd-face);
+  box-shadow: var(--rd-block-in);
+}
+:root[data-theme="render"] .scale .step {
+  color: var(--rd-navy);
+  font-weight: 500;
+}
+:root[data-theme="render"] .scale .step + .step {
+  border-left: 2px solid var(--rd-navy);
+}
+:root[data-theme="render"] .scale .step.on {
+  background: var(--rd-yellow);
+  color: var(--rd-navy);
+}
+:root[data-theme="render"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px 10px;
+}
+:root[data-theme="render"] .banner {
+  border-bottom: 2px solid var(--rd-navy);
+  background: var(--rd-mint);
+  color: var(--rd-navy);
+}
+/* Buttons are chunky blocks: a flat pale front face, a hard navy edge and a darker cobalt side; pressed, the block
+   sinks into its side. */
+:root[data-theme="render"] .tool,
+:root[data-theme="render"] .pick select,
+:root[data-theme="render"] .menu > summary,
+:root[data-theme="render"] .chip,
+:root[data-theme="render"] .key-btn,
+:root[data-theme="render"] .key-close,
+:root[data-theme="render"] dialog .close {
+  border: 2px solid var(--rd-navy);
+  border-radius: 0;
+  background: var(--rd-face);
+  color: var(--rd-navy);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  box-shadow: var(--rd-block);
+}
+:root[data-theme="render"] .pick::after {
+  opacity: 1;
+  color: var(--rd-navy);
+}
+:root[data-theme="render"] .tool:hover,
+:root[data-theme="render"] .pick select:hover,
+:root[data-theme="render"] .menu > summary:hover,
+:root[data-theme="render"] .chip:hover,
+:root[data-theme="render"] .key-btn:hover,
+:root[data-theme="render"] .key-close:hover,
+:root[data-theme="render"] dialog .close:hover {
+  background: var(--rd-mint);
+}
+:root[data-theme="render"] .tool[aria-pressed="true"],
+:root[data-theme="render"] .menu[open] > summary,
+:root[data-theme="render"] .chip[aria-pressed="true"],
+:root[data-theme="render"] .key-btn[aria-expanded="true"] {
+  background: var(--rd-yellow);
+  color: var(--rd-navy);
+  transform: translate(2px, 2px);
+  box-shadow: var(--rd-block-in);
+}
+:root[data-theme="render"] .pick option {
+  font-weight: 400;
+}
+/* The map is the room: the same wallpaper, the canvas adding the floor, the lamp and the screen's bevel. */
+:root[data-theme="render"] .map {
+  background: var(--rd-wall) 0 0 / 56px 56px, var(--page);
+}
+:root[data-theme="render"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(1px 1px 0 var(--rd-navy)) drop-shadow(-1px -1px 0 var(--rd-navy));
+}
+/* Inside the screen's bevel in Map view (screenOf in render.ts: a 26 pixel margin and a 16 pixel bevel). */
+:root[data-theme="render"] .key-btn {
+  left: 52px;
+  top: 52px;
+  font-size: 13px;
+}
+:root[data-theme="render"] .zoom {
+  right: 54px;
+  bottom: 54px;
+  border: 2px solid var(--rd-navy);
+  background: var(--rd-face);
+  box-shadow: var(--rd-block);
+}
+:root[data-theme="render"] .zoom button {
+  color: var(--rd-navy);
+  font-weight: 700;
+}
+:root[data-theme="render"] .zoom button:hover {
+  background: var(--rd-mint);
+}
+:root[data-theme="render"] .zoom button + button {
+  border-top: 2px solid var(--rd-navy);
+}
+/* Panels are slabs: a flat pale face in a navy edge over a deep cobalt side. */
+:root[data-theme="render"] .panel {
+  margin: 12px 20px 20px 4px;
+  border: 3px solid var(--rd-navy);
+  background: var(--panel);
+  box-shadow: var(--rd-slab);
+}
+:root[data-theme="render"] .menu-body,
+:root[data-theme="render"] .key-pop,
+:root[data-theme="render"] .map-note,
+:root[data-theme="render"] dialog {
+  border: 3px solid var(--rd-navy);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--rd-slab);
+}
+:root[data-theme="render"] dialog::backdrop {
+  background: rgba(22, 32, 79, 0.45);
+}
+:root[data-theme="render"] .panel-title,
+:root[data-theme="render"] .place-name,
+:root[data-theme="render"] .key-head h2,
+:root[data-theme="render"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.15;
+  color: var(--rd-cobalt);
+  text-shadow: 2px 2px 0 var(--rd-yellow);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="render"] .panel-title,
+:root[data-theme="render"] .place-name {
+  font-size: 22px;
+}
+:root[data-theme="render"] .key-head h2,
+:root[data-theme="render"] dialog h2 {
+  font-size: 20px;
+}
+:root[data-theme="render"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rd-tomato);
+}
+:root[data-theme="render"] .dateline {
+  border-bottom: 3px solid var(--rd-navy);
+}
+:root[data-theme="render"] .dateline .coords,
+:root[data-theme="render"] .count,
+:root[data-theme="render"] .meta {
+  font-style: normal;
+}
+/* Section heads are a mint strip with the stripe down its left side. */
+:root[data-theme="render"] .rule-head {
+  border: 2px solid var(--rd-navy);
+  padding: 6px 10px 6px 22px;
+  background: var(--rd-stripe) left / 12px 100% no-repeat, var(--rd-mint);
+  color: var(--rd-navy);
+  text-align: left;
+}
+:root[data-theme="render"] .stories li + li {
+  border-top: 2px solid #d5e9e0;
+}
+:root[data-theme="render"] .story:hover,
+:root[data-theme="render"] .story:focus-visible {
+  outline: none;
+  background: #e2f1ea;
+}
+:root[data-theme="render"] .headline {
+  font-weight: 500;
+}
+:root[data-theme="render"] .reader-headline {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  line-height: 1.2;
+}
+:root[data-theme="render"] .cite,
+:root[data-theme="render"] .source-num {
+  border-color: var(--rd-navy);
+  border-radius: 0;
+  color: var(--rd-cobalt);
+}
+:root[data-theme="render"] .excerpt-quote {
+  font-style: normal;
+  border-left: 4px solid var(--rd-tomato);
+}
+/* The time bar is a cobalt band like the masthead, the stripe along its top. */
+:root[data-theme="render"] .timebar {
+  border-top: 0;
+  padding-top: 19px;
+  background:
+    linear-gradient(var(--rd-navy), var(--rd-navy)) left top / 100% 2px no-repeat,
+    var(--rd-stripe) left top 2px / 100% 10px no-repeat,
+    linear-gradient(var(--rd-navy), var(--rd-navy)) left top 12px / 100% 2px no-repeat,
+    var(--rd-cobalt);
+  color: #ffffff;
+}
+:root[data-theme="render"] .time-label {
+  color: #e8f4ee;
+  font-weight: 500;
+}
+:root[data-theme="render"] .slider input {
+  accent-color: var(--rd-yellow);
+}
+@media (max-width: 760px) {
+  :root[data-theme="render"] .mast-title {
+    font-size: 22px;
+  }
+  :root[data-theme="render"] .telegram-word {
+    font-size: min(54px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.95)));
+  }
+  :root[data-theme="render"] .panel {
+    margin: 6px 14px 14px 8px;
+  }
+}
+/* A phone's screen sits closer to the frame's edge (an 8 pixel margin and a 9 pixel bevel). */
+@media (max-width: 519px) {
+  :root[data-theme="render"] .key-btn {
+    left: 24px;
+    top: 24px;
+  }
+  :root[data-theme="render"] .zoom {
+    right: 26px;
+    bottom: 26px;
+  }
+}
