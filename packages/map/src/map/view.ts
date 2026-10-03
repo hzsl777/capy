@@ -71,6 +71,7 @@ import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
 import { CoreCache, drawCore } from "./core.ts";
+import { drawMachine, MachineCache } from "./machine.ts";
 import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
 
@@ -313,6 +314,8 @@ export class MapView {
   private towers = new TowersCache();
   /** Green Core: its orb, tubes and panel. */
   private core = new CoreCache();
+  /** Machine Music: the stage and spotlights behind the wireframe sphere. */
+  private machine = new MachineCache();
   /**
    * Folding Cube (src/map/fold.ts): the opening, played once per page load, and the fold between Map and Globe view,
    * each from the time it began. Places are always placed and tuned at rest (`foldRest`), and while either runs they
@@ -1843,6 +1846,7 @@ export class MapView {
     else if (t.surface === "rail") drawRail(f, this.rail);
     else if (t.surface === "aquarium") drawAquarium(f, this.aquarium);
     else if (t.surface === "lava") drawLava(f, this.lava);
+    else if (t.surface === "machine") drawMachine(f, this.machine);
     else drawGlass(f, this.glass);
   }
 

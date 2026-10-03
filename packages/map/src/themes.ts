@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2186,6 +2186,46 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#ffa21f",
     tuned: "#ffffff",
     arc: "#ffd27a",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Machine Music, experimental: after the feel of 1970s and 80s German electronic music and constructivist posters
+  // (src/map/machine.ts). The world on a black screen under a fine red grid, or a red wireframe sphere on a dark stage
+  // under two spotlights; grey land with a thin glowing red coast. Square red pads with a dark edge, white for fresh
+  // reports. Black, signal red, warm grey and white only.
+  machine: {
+    id: "machine",
+    label: "Machine Music",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "machine",
+    globeScale: 0.38,
+    ocean: "#0b0b0a",
+    land: "#4b4b47",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "square",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#ff3a2f",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "rgba(215,25,32,0.2)",
+    oceanHatch: null,
+    graticule: "rgba(215,25,32,0.3)",
+    graticuleDash: [],
+    river: "rgba(5,5,5,0.6)",
+    lake: "#0b0b0a",
+    ice: "#85857f",
+    relief: "rgba(214,214,204,0.22)",
+    dot: "#e8232a",
+    dotStroke: "#0a0a0a",
+    fresh: "#f4f4ee",
+    tuned: "#ffffff",
+    arc: "rgba(232,232,224,0.8)",
     glow: false,
     atmosphere: null,
     shade: null,
