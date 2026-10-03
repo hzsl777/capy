@@ -1,6 +1,7 @@
 // The contract between the database and the public map. The Worker builds it from the database with
 // loadMapView; the site renders it. Type-only, so the site imports it without pulling in zod.
 import type { WorldTopic } from "./world.js";
+import { ingestWindow, toRunDate } from "./dates.js";
 
 export type MapPlace = {
   /** Stable across runs, used for pins: "ll:<lat>,<lon>" of the city. */
@@ -222,6 +223,70 @@ export function splitLocal(full: MapFile, base: string, deg = LOCAL_TILE_DEG): {
   }
   const main: MapFile = { ...full, places, items, events, local: { deg, base, tiles: Object.fromEntries([...out].map(([k, t]) => [k, t.items.length])) } };
   return { main, tiles: out };
+}
+
+/** A local story from the GDELT index as stored: what the map shows of it. */
+export type LocalStory = { url: string; title: string; domain: string; lang: string | null; publishedAt: Date; placeName: string; lat: number; lon: number };
+
+/**
+ * A local story's id on the map, from its link: the same in the daily export, in a refresh and in a tile the Worker
+ * builds, and across refreshes, which replace the stored rows (decision 124). A 53-bit hash, so tens of thousands of
+ * links a day don't collide.
+ */
+export function localStoryId(url: string): string {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < url.length; i++) {
+    const c = url.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 2654435761);
+    h2 = Math.imul(h2 ^ c, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return `g${(4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36)}`;
+}
+
+/** A local story as the map lists it: the lowest rank, published by its site, via GDELT (decisions 54 and 67). */
+export function localMapItem(s: LocalStory, place: number): MapItem {
+  return {
+    id: localStoryId(s.url),
+    t: Math.floor(s.publishedAt.getTime() / 1000),
+    title: s.title,
+    url: s.url,
+    domain: s.domain,
+    publisher: s.domain,
+    lang: s.lang ?? "",
+    topics: [],
+    place,
+    reach: 1,
+    importance: 1,
+    via: "gdelt",
+  };
+}
+
+/**
+ * The day's file with these local stories in place of the ones it had: what a refresh stores (decisions 80 and 124).
+ * It starts from the file already published, so a refresh reads nothing back from the database. Local stories keep
+ * their own places (a town is the same point, never merged into a nearby city), and the file is as new as its window's
+ * end or its newest local story, never newer than now, as the export makes it. The result has its local stories
+ * inline; splitLocal cuts them into tiles.
+ */
+export function withLocalStories(file: MapFile, stories: LocalStory[], now: Date): MapFile {
+  const places = file.places.slice();
+  const index = new Map(places.map((p, i) => [p.id, i]));
+  const items = file.items.filter((it) => it.via !== "gdelt");
+  const sorted = stories.slice().sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime() || (a.url < b.url ? -1 : a.url > b.url ? 1 : 0));
+  for (const s of sorted) {
+    const id = placeIdFor(s.lat, s.lon);
+    let at = index.get(id);
+    if (at === undefined) index.set(id, (at = places.push({ id, name: s.placeName, lat: s.lat, lon: s.lon }) - 1));
+    items.push(localMapItem(s, at));
+  }
+  items.sort((a, b) => b.t - a.t);
+  const { to } = ingestWindow(toRunDate(file.runDate));
+  const newest = sorted[0]?.publishedAt.getTime() ?? 0;
+  const { local: _, ...rest } = file;
+  return { ...rest, places, items, generatedAt: Math.floor(Math.min(now.getTime(), Math.max(to.getTime(), newest)) / 1000) };
 }
 
 export function placeIdFor(lat: number, lon: number): string {

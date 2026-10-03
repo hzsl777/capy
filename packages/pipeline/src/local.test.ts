@@ -1,8 +1,8 @@
 // Local stories from GDELT (decisions 54, 67 and 78) on a real Postgres engine, with GDELT's files built here: no network.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { zipSync, strToU8 } from "fflate";
-import { ingestWindow, rollingWindow, toRunDate } from "@2dayai/core";
-import { articles, eventArticles, events, loadMapView, localStories, sources, type Db } from "@2dayai/db";
+import { ingestWindow, rollingWindow, splitLocal, toRunDate, withLocalStories, type LocalStory } from "@2dayai/core";
+import { articles, eventArticles, events, loadMapView, localBase, localStories, sources, type Db } from "@2dayai/db";
 import { gkgRow as row, gkgZip as zip } from "./fixtures/gdelt.js";
 import { forEachLine, gdeltFileUrls, parseGkgRow, pickLocal, runLocal, type LocalCandidate, type TownCandidates } from "./stages/local.js";
 import { runPrune } from "./stages/prune.js";
@@ -117,6 +117,29 @@ describe("local stories for towns no outlet reached", () => {
     const nakuruItem = map.items.find((i) => i.title === "Nakuru county assembly story number 2")!;
     expect(map.places[njoroItem.place]!.name).toBe("Njoro");
     expect(njoroItem.place).not.toBe(nakuruItem.place);
+  });
+
+  it("builds a refresh's file from the published one, the same as reading the day back from the database (decision 124)", async () => {
+    const now = new Date("2026-09-28T12:00:00Z");
+    // The file the site has: yesterday's run's local stories.
+    await runLocal(db, date, limits(2), files([], [nakuru(1, "01"), nakuru(2, "02")]));
+    const published = splitLocal(await loadMapView(db, date, now), localBase(date)).main;
+    // The refresh's stories, kept in memory, then built two ways: from the published file, and from the database.
+    const keep: { stories?: LocalStory[] } = {};
+    const english = [
+      nakuru(3, "03"), nakuru(4, "04"),
+      row({ url: "https://www.kenyans.co.ke/njoro2", title: "Njoro farmers open a second market this week", when: "20260927050000", towns: [NJORO] }),
+      row({ url: "https://www.ladige.it/b", title: "Il consiglio comunale approva il piano per le scuole", lang: "ita", when: "20260927060000", towns: [TRENTO] }),
+    ];
+    await runLocal(db, date, limits(2), files([], english), undefined, undefined, keep);
+    expect(keep.stories).toHaveLength(4);
+    const fromDb = splitLocal(await loadMapView(db, date, now), localBase(date));
+    const fromFile = splitLocal(withLocalStories(published, keep.stories!, now), localBase(date));
+    expect(fromFile.main).toEqual(fromDb.main);
+    expect([...fromFile.tiles]).toEqual([...fromDb.tiles]);
+    // The old local stories are gone, and the ids come from the links, so they match the database's export.
+    expect(fromFile.main.local?.tiles).toEqual(fromDb.main.local?.tiles);
+    expect([...fromFile.tiles.values()].flatMap((t) => t.items.map((i) => i[2]))).not.toContain("Nakuru county assembly story number 1");
   });
 
   it("gives every town its newest story before any town gets a second, and reads a shared name as the nearest", async () => {

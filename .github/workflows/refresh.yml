@@ -51,16 +51,19 @@ jobs:
             12|13|21|22) npm run -s stage -- ingest --date "$(date -u +%F)" | tail -n 1 ;;
             *) echo "Not a collection hour." ;;
           esac
+      # The file the site already has: the refresh swaps its local stories for the new ones instead of reading the whole
+      # day back from the database, whose free plan allows 5 GB of transfer a month (decision 124). Without it, the
+      # refresh exports the day from the database as before.
+      - name: Fetch the published map
+        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
+        run: npx wrangler r2 object get globalgist-maps/latest.json --file base.json --remote || echo "::warning::no published map to start from; exporting from the database"
       - name: Refresh the local stories
         id: refresh
         if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
         run: |
           set -o pipefail
-          npm run -s stage -- refresh | tee refresh.txt
+          npm run -s stage -- refresh --in base.json --out map.json --manifest tiles.json | tee refresh.txt
           if grep -q "nothing to refresh" refresh.txt; then echo "skip=1" >> "$GITHUB_OUTPUT"; fi
-      - name: Export the map
-        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && steps.refresh.outputs.skip != '1'
-        run: npm run -s stage -- map export --out map.json --manifest tiles.json
       # The same checks and order as the daily run: nothing is stored from a broken file, then the tiles first, then the
       # day's file that lists them, each upload tried three times.
       - name: Store the map for the site

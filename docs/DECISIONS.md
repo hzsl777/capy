@@ -1079,6 +1079,7 @@ Neon wrote that the project had used 82% (4.1 GB) of the free plan's 5 GB monthl
 1. **The export reads only the columns the map shows.** It read every article row whole, including the fetched page text (`body`) kept for explanations, which the map never shows. Enrich now checks text length in the database instead of reading the text.
 2. **Deploys no longer start the daily run.** That trigger made the site's first day appear by itself at launch; the site is live, the clock and GitHub's schedule start the day, and the first day of a new install is one run from the Actions tab. A run that finds its day already built no longer exports or stores it again.
 3. **The refresh no longer follows each daily run.** The daily run has just stored the same day's local stories; the refresh runs on the clock only, every three hours (decision 91).
+4. **The refresh reads nothing back.** It starts from the file the site already has in R2, swaps its local stories for the ones it has just fetched and stored (`withLocalStories` in core), and stores the result; reading R2 costs nothing against the database's limit. A test checks the result is the same file the export makes from the database. Without a published file for the day, it exports from the database as before. A local story's id now comes from its link, not its database row, so the two ways agree and ids stay the same across refreshes.
 
-The refresh still reads the day's local stories back to export them, eight times a day. If that alone keeps the month near the limit, the next step is for the refresh to write the tiles from the stories it has just fetched instead of reading them back.
+Left: the daily run's export once a day, now only the columns shown, and the stages' own reads.
 

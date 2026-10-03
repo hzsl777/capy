@@ -3,7 +3,7 @@
 // and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
 // reported.
 import { and, desc, eq, exists, gte, inArray, lt, lte, sql } from "drizzle-orm";
-import { ingestWindow, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { ingestWindow, localMapItem, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
 import type { Db } from "./types.js";
 
@@ -298,20 +298,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
 const LOCAL_ORDER = [desc(t.localStories.publishedAt), t.localStories.id] as const;
 
 function localItem(s: typeof t.localStories.$inferSelect, place: number): MapItem {
-  return {
-    id: `g${s.id}`,
-    t: Math.floor(s.publishedAt.getTime() / 1000),
-    title: s.title,
-    url: s.url,
-    domain: s.domain,
-    publisher: s.domain,
-    lang: s.lang ?? "",
-    topics: [],
-    place,
-    reach: 1,
-    importance: 1,
-    via: "gdelt",
-  };
+  return localMapItem(s, place);
 }
 
 /** How many local stories each tile of a day has, counted in the database (decision 78). */
