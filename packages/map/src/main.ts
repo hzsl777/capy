@@ -200,6 +200,7 @@ import "@fontsource/barlow-condensed/600.css";
 import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
 // Desktop 95 (experimental): the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
+import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -288,7 +289,8 @@ let idleTimer = 0;
 /** After a minute without input, and nothing open to read, the map starts turning again. */
 function armIdleSpin() {
   clearTimeout(idleTimer);
-  if (reducedMotion) return;
+  // Record Player's stop key keeps the platter still until the reader starts it again.
+  if (reducedMotion || deckStopped()) return;
   idleTimer = window.setTimeout(() => {
     const menuOpen = document.querySelector("details.menu[open], dialog[open]");
     if (state.reader || state.telegram || state.event || menuOpen || !state.live) return armIdleSpin();
@@ -315,7 +317,10 @@ const map = new MapView($("map"), THEMES[state.theme], {
     armIdleSpin();
     renderCard();
   },
-  onDraw: tilesSoon,
+  onDraw() {
+    tilesSoon();
+    syncVinyl();
+  },
 });
 map.setMode(viewOf());
 
@@ -831,6 +836,8 @@ function storyButton(it: Item, now: number, showPlace = false, showPublisher = t
     "button",
     { type: "button", class: "story" },
     board,
+    // Record Player lists a place's stories like the tracks on a sleeve, each with its time where a track's number would be.
+    state.theme === "vinyl" ? h("time", { class: "story-at", datetime: new Date(it.t * 1000).toISOString() }, new Date(it.t * 1000).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })) : null,
     showPlace ? h("span", { class: "kicker" }, state.file!.places[it.place].name) : null,
     headline(it),
     metaLine(it, now, showPublisher && !board, marked),
@@ -1504,7 +1511,7 @@ function bindTimebar() {
         return;
       }
       setSlot(stops[at]);
-    }, 220);
+    }, replayStepMs());
   });
 }
 
@@ -1730,6 +1737,17 @@ async function start() {
       if (!state.playing) $("play").click();
     },
     about: () => ($("about") as HTMLDialogElement).showModal(),
+  });
+  // Record Player (experimental): the record's centre label and its deck.
+  mountVinyl({
+    theme: () => state.theme,
+    spinning: () => map.isSpinning,
+    start: () => map.startSpin(),
+    stop: () => {
+      map.stopSpin();
+      armIdleSpin();
+    },
+    date: () => (state.file ? formatRunDate(wordStatus(state.file).date) : ""),
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
