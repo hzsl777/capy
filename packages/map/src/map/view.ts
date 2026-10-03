@@ -72,6 +72,7 @@ import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
 // Desktop 95 (experimental).
 import { DesktopCache, drawDesktop } from "./desktop.ts";
+import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, VinylCache } from "./vinyl.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
 import { drawRender, RenderCache } from "./render.ts";
@@ -319,6 +320,9 @@ export class MapView {
   private towers = new TowersCache();
   /** Desktop 95: the small canvas it snaps to sixteen colours. */
   private desktop = new DesktopCache();
+  /** Record Player: the tonearm and sleeve layers, and where the finger last was on the record (src/map/vinyl.ts). */
+  private vinyl = new VinylCache();
+  private recordAt: [number, number] | null = null;
   /** Green Core: its orb, tubes and panel. */
   private core = new CoreCache();
   /** Machine Music: the stage and spotlights behind the wireframe sphere. */
@@ -645,6 +649,7 @@ export class MapView {
 
   panBy(dx: number, dy: number) {
     this.stopAnim();
+    this.recordAt = null;
     this.pan(dx, dy);
     this.moved();
   }
@@ -679,6 +684,12 @@ export class MapView {
   // ---- geometry ---------------------------------------------------------
 
   private projection(): GeoProjection {
+    // Record Player's Globe view: the record seen from the tonearm, the needle on the frame's centre.
+    if (this.isRecord())
+      return recordProjection(this.lon, this.lat, this.baseScale, this.zoom, this.w, this.h, [
+        [-CLIP_MARGIN, -CLIP_MARGIN],
+        [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
+      ]);
     if (this.mode === "3d") {
       return geoOrthographic()
         .rotate([-this.lon, -this.lat])
@@ -758,7 +769,10 @@ export class MapView {
   }
 
   private clampLat() {
-    if (this.isFold() && this.mode === "2d") {
+    if (this.isRecord()) {
+      // The needle stops short of the centre label and goes as far as the record's edge, the South Pole.
+      this.lat = clamp(this.lat, NEEDLE_LAT[0], NEEDLE_LAT[1]);
+    } else if (this.isFold() && this.mode === "2d") {
       // The net has the poles in the middle of its top and bottom faces, so the centre may go all the way.
       this.lat = clamp(this.lat, -90, 90);
     } else if (this.mode === "3d") {
@@ -785,6 +799,8 @@ export class MapView {
   private visible(lon: number, lat: number): boolean {
     // On the cube, which faces show decides (placeAt), not the distance from the centre.
     if (this.mode === "2d" || this.isFold()) return true;
+    // The whole world is on the record; only the cap under the centre label, where no place lies, is hidden.
+    if (this.isRecord()) return 90 - lat > CAP;
     return this.cosFromCenter(lon, lat) > Math.sin(0.03);
   }
 
@@ -807,7 +823,15 @@ export class MapView {
 
   // ---- input ------------------------------------------------------------
 
-  private pan(dx: number, dy: number) {
+  private pan(dx: number, dy: number, at?: [number, number]) {
+    if (this.isRecord()) {
+      // Record Player: the point under the finger stays under it, the record turning round its spindle and sliding
+      // under the needle (src/map/vinyl.ts). Without a finger (a glide, the arrow keys), as if dragged at the needle.
+      const to: [number, number] = at ?? (this.recordAt ? [this.recordAt[0] + dx, this.recordAt[1] + dy] : [this.w / 2 + dx, this.h / 2 + dy]);
+      if (this.recordAt || at) this.recordAt = to;
+      [this.lon, this.lat] = dragRecord(this.lon, this.lat, recordScale(this.baseScale, this.zoom), this.w, this.h, [to[0] - dx, to[1] - dy], to);
+      return;
+    }
     // Under a warp a drag moves the flat picture under the centre by as much as it moves on screen (decision 75).
     if (this.warp) [dx, dy] = this.warp.unpan(dx, dy);
     const k = this.baseScale * this.zoom * this.sceneMag();
@@ -841,6 +865,7 @@ export class MapView {
         this.tiltDrag = { y: e.clientY, by: this.tiltOffset };
         this.down = null;
       } else if (this.pointers.size === 1) {
+        this.recordAt = null;
         this.down = { x: e.clientX, y: e.clientY, t: performance.now() };
         this.velocity = { x: 0, y: 0, t: performance.now() };
       } else if (this.pointers.size === 2) {
@@ -870,7 +895,10 @@ export class MapView {
       } else if (this.pointers.size === 1) {
         const dx = cur.x - prev.x;
         const dy = cur.y - prev.y;
-        this.pan(dx, dy);
+        if (this.isRecord()) {
+          const rect = c.getBoundingClientRect();
+          this.pan(dx, dy, [cur.x - rect.left, cur.y - rect.top]);
+        } else this.pan(dx, dy);
         if (this.theme.surface === "chalk" && !this.still()) {
           const rect = c.getBoundingClientRect();
           this.trail.push({ x: cur.x - rect.left, y: cur.y - rect.top, t: performance.now() });
@@ -1447,6 +1475,8 @@ export class MapView {
   private placeAt(proj: GeoProjection, lon: number, lat: number): { x: number; y: number; s: number } | null {
     if (this.theme.scene) return this.scenePlace(proj, lon, lat);
     if (this.isFold()) return foldPlace(this.foldCamera(), lon, lat);
+    // The South Pole is the record's whole edge; a place there sits where the needle reaches it.
+    if (this.isRecord() && lat < NEEDLE_LAT[0]) [lon, lat] = [this.lon, NEEDLE_LAT[0]];
     const p = proj([lon, lat]);
     if (!p) return null;
     const m = this.terrainNow;
@@ -1523,6 +1553,11 @@ export class MapView {
 
   private isFold(): boolean {
     return this.theme.surface === "fold";
+  }
+
+  /** Record Player's Globe view, where the world is a record under the tonearm (src/map/vinyl.ts). */
+  private isRecord(): boolean {
+    return this.theme.surface === "vinyl" && this.mode === "3d";
   }
 
   private foldHide = false;
@@ -1848,6 +1883,7 @@ export class MapView {
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "towers") return drawTowers(f, this.towers);
     if (t.surface === "desktop") return drawDesktop(f, this.desktop);
+    if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
     if (t.surface === "core") return drawCore(f, this.core);
     if (t.surface === "render") return drawRender(f, this.firstRender);
     if (t.surface === "neon") drawNeon(f, this.neon);
@@ -2349,7 +2385,7 @@ export class MapView {
    */
   private *candidates(proj: GeoProjection): Iterable<Dot> {
     // A cube's face can show places further round than a globe's rim, so Folding Cube asks of every place.
-    if (this.mode !== "3d" || this.isFold()) {
+    if (this.mode !== "3d" || this.isFold() || this.isRecord()) {
       yield* this.dots;
       return;
     }

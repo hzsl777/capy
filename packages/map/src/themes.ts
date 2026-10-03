@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2345,6 +2345,46 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#ff0000",
     tuned: "#ffff00",
     arc: "#ffff00",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Record Player, experimental: after the feel of a 1970s home turntable (src/map/vinyl.ts). Globe view is the
+  // record seen from above, the world on it round the North Pole at the spindle, turning under the tonearm whose
+  // needle is the reticle; Map view is the sleeve's back, printed in brown ink. Cream land on black vinyl, orange
+  // label-like dots that read on the vinyl, the cream land and the sleeve's ink alike, sky blue for fresh reports.
+  vinyl: {
+    id: "vinyl",
+    label: "Record Player",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    surface: "vinyl",
+    globeScale: 0.44,
+    ocean: "#0d0c0d",
+    land: "#d9c8a2",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "circle",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#8a6a45",
+    coastWidth: 0.8,
+    waterlines: 0,
+    waterline: "rgba(255,250,240,0.06)",
+    oceanHatch: null,
+    graticule: "rgba(255,250,240,0.06)",
+    graticuleDash: [],
+    river: "rgba(110,82,50,0.45)",
+    lake: "#0d0c0d",
+    ice: "#aba498",
+    relief: "rgba(0,0,0,0)",
+    dot: "#ff7a1f",
+    dotStroke: "#1b0f06",
+    fresh: "#52c8ff",
+    tuned: "#fff3dc",
+    arc: "#ef7d2e",
     glow: false,
     atmosphere: null,
     shade: null,
