@@ -21904,3 +21904,619 @@ button.x-ch:focus-visible {
     right: 5px;
   }
 }
+
+/* ---- Herbarium (id herbarium, experimental): after the feel of a botanist's herbarium, pressed plants on heavy cream
+   mounting sheets under thin strips of linen tape, and no institution's name, collection marks, stamps or real labels.
+   The page is a specimen sheet; the panel, the word, the Key, the menus and the About dialog are typed specimen
+   labels in a double ink rule, held by linen tape at their corners (drawn as background layers in a clear margin, so
+   the tape reaches past the label's edge and the text scrolls inside it). Buttons are small paper tags with a
+   reinforced hole, section heads are small capitals in a classic serif, the reports are typewritten. The foliage,
+   specimens, the round mount and the pins' shadows are drawn on the canvas (src/map/herbarium.ts). --------------- */
+:root[data-theme="herbarium"] {
+  color-scheme: light;
+  --page: #f3ecdc;
+  --panel: #fbf7ec;
+  --ink: #2b2620;
+  --ink-2: #463e34;
+  --muted: #675d4f;
+  --rule: #3a332b;
+  --accent: #56633a;
+  --on-accent: #fbf7ec;
+  --hover: rgba(86, 99, 58, 0.09);
+  --reticle: #2b2620;
+  --grain-opacity: 0;
+  --grain-blend: multiply;
+  --font-mast: "EB Garamond", Garamond, Georgia, serif;
+  --font-head: "Courier Prime", "Courier New", monospace;
+  --font-body: "EB Garamond", Garamond, Georgia, serif;
+  --font-ui: "EB Garamond", Garamond, Georgia, serif;
+  --font-type: "Special Elite", "Courier Prime", "Courier New", monospace;
+  --hb-tag: #efe3c4;
+  --hb-tag-edge: #8f7a57;
+  --hb-tag-on: #56633a;
+  --hb-pencil: #77736c;
+  /* Paper fibres: long faint streaks pulled out of noise, warm brown on the cream. */
+  --hb-fibres: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.5' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.47 0 0 0 0 0.39 0 0 0 0 0.26 1.1 0 0 0 -0.63'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* Linen tape: a strip with frayed ends and a fine weave, turned across a corner. Left and right are mirror images. */
+  --hb-tape-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='36'%3E%3Cdefs%3E%3Cpattern id='w' width='2.6' height='2.6' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .6H2.6M.6 0V2.6' stroke='%23927b56' stroke-opacity='.28' stroke-width='.6'/%3E%3C/pattern%3E%3C/defs%3E%3Cg transform='rotate(-27 36 18)'%3E%3Cpath id='t' d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='%23e8dcc0' fill-opacity='.92'/%3E%3Cpath d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='url(%23w)' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3C/svg%3E");
+  --hb-tape-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='36'%3E%3Cdefs%3E%3Cpattern id='w' width='2.6' height='2.6' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .6H2.6M.6 0V2.6' stroke='%23927b56' stroke-opacity='.28' stroke-width='.6'/%3E%3C/pattern%3E%3C/defs%3E%3Cg transform='rotate(27 36 18)'%3E%3Cpath d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='%23e8dcc0' fill-opacity='.92'/%3E%3Cpath d='M9 10H63L61 12.7L63 15.4L61 18.1L63 20.8L61 23.5L63 26H9L11 23.3L9 20.6L11 17.9L9 15.2L11 12.5Z' fill='url(%23w)' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3C/svg%3E");
+  /* A typed label in a clear margin of --hb-m: the card, its shadow and a double ink rule, under two strips of tape
+     at its top corners. Background layers keep still while the label's text scrolls. */
+  --hb-m: 12px;
+  --hb-label:
+    var(--hb-tape-l) left 0 top 0 / 72px 36px no-repeat,
+    var(--hb-tape-r) right 0 top 0 / 72px 36px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) left var(--hb-m) top var(--hb-m) / calc(100% - 2 * var(--hb-m)) 1.5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) left var(--hb-m) bottom var(--hb-m) / calc(100% - 2 * var(--hb-m)) 1.5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) left var(--hb-m) top var(--hb-m) / 1.5px calc(100% - 2 * var(--hb-m)) no-repeat,
+    linear-gradient(var(--ink), var(--ink)) right var(--hb-m) top var(--hb-m) / 1.5px calc(100% - 2 * var(--hb-m)) no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) left calc(var(--hb-m) + 4px) top calc(var(--hb-m) + 4px) / calc(100% - 2 * var(--hb-m) - 8px) 0.75px no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) left calc(var(--hb-m) + 4px) bottom calc(var(--hb-m) + 4px) / calc(100% - 2 * var(--hb-m) - 8px) 0.75px no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) left calc(var(--hb-m) + 4px) top calc(var(--hb-m) + 4px) / 0.75px calc(100% - 2 * var(--hb-m) - 8px) no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) right calc(var(--hb-m) + 4px) top calc(var(--hb-m) + 4px) / 0.75px calc(100% - 2 * var(--hb-m) - 8px) no-repeat,
+    linear-gradient(var(--panel), var(--panel)) left var(--hb-m) top var(--hb-m) / calc(100% - 2 * var(--hb-m)) calc(100% - 2 * var(--hb-m)) no-repeat,
+    linear-gradient(rgba(70, 52, 30, 0.13), rgba(70, 52, 30, 0.13)) left calc(var(--hb-m) + 3px) top calc(var(--hb-m) + 4px) / calc(100% - 2 * var(--hb-m)) calc(100% - 2 * var(--hb-m)) no-repeat;
+}
+/* The sheet: cream mounting paper with fibres and a few soft patches of foxing, all far larger than a marker. */
+:root[data-theme="herbarium"] body {
+  background:
+    radial-gradient(ellipse 160px 110px at 6% 88%, rgba(176, 128, 72, 0.1), transparent 70%),
+    radial-gradient(ellipse 90px 70px at 96% 6%, rgba(176, 128, 72, 0.09), transparent 70%),
+    radial-gradient(circle 40px at 31% 3%, rgba(160, 112, 62, 0.08), transparent 70%),
+    radial-gradient(ellipse 120px 80px at 74% 97%, rgba(176, 128, 72, 0.07), transparent 70%),
+    var(--hb-fibres) 0 0 / 320px 320px,
+    var(--page);
+}
+/* The masthead: the name in spaced small capitals like a printed sheet's heading, over a fine double rule. */
+:root[data-theme="herbarium"] .masthead {
+  border-bottom: 0;
+  padding-block: 12px 14px;
+  background:
+    linear-gradient(var(--rule), var(--rule)) left var(--gutter) bottom 4px / calc(100% - 2 * var(--gutter)) 1px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) left var(--gutter) bottom 0 / calc(100% - 2 * var(--gutter)) 0.6px no-repeat;
+}
+:root[data-theme="herbarium"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 500;
+  font-size: clamp(24px, 2.5vw, 34px);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+:root[data-theme="herbarium"] .mast-tag {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+/* The word is the label's title field: a typed card in a double rule, held by tape at two corners, its fields
+   captioned in small capitals; the scale is a printed row of choices with the day's circled in pencil. */
+:root[data-theme="herbarium"] .telegram {
+  padding: 15px 18px 10px;
+  background: var(--panel);
+  border: 1.5px solid var(--ink);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 3.75px var(--ink-2),
+    3px 4px 0 -1px rgba(70, 52, 30, 0.13);
+}
+:root[data-theme="herbarium"] .telegram::before,
+:root[data-theme="herbarium"] .telegram::after {
+  content: "";
+  position: absolute;
+  top: -14px;
+  width: 60px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Out past the corners, so the tape never lies over the date or the word. */
+:root[data-theme="herbarium"] .telegram::before {
+  left: -20px;
+  background: var(--hb-tape-l) 0 0 / 60px 30px no-repeat;
+}
+:root[data-theme="herbarium"] .telegram::after {
+  right: -14px;
+  background: var(--hb-tape-r) 0 0 / 60px 30px no-repeat;
+}
+:root[data-theme="herbarium"] .telegram-kicker,
+:root[data-theme="herbarium"] .telegram-date {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .telegram-date {
+  font-family: var(--font-type);
+  font-variant-caps: normal;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .telegram-note,
+:root[data-theme="herbarium"] .telegram-none {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .telegram-word {
+  font-family: var(--font-type);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  border-bottom: 1px dotted var(--hb-pencil);
+  padding: 2px 8px 4px;
+}
+:root[data-theme="herbarium"] .telegram-word:hover,
+:root[data-theme="herbarium"] .telegram-word:focus-visible {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .telegram-big {
+  font-family: var(--font-type);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .scale {
+  border: 0;
+  gap: 2px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.08em;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+:root[data-theme="herbarium"] .scale .step {
+  padding: 3px 6px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+:root[data-theme="herbarium"] .scale .step + .step {
+  border-left: 0;
+}
+:root[data-theme="herbarium"] .scale .step.on {
+  background: none;
+  color: var(--ink);
+  border-radius: 50%;
+  outline: 1.3px solid var(--hb-pencil);
+  outline-offset: 0;
+}
+/* The toolbar's buttons are small paper tags: buff card with clipped corners at the hole's end, a reinforced hole,
+   small capitals. The one that's on is the moss green tag. */
+:root[data-theme="herbarium"] .toolbar {
+  border-bottom: 0;
+  padding-block: 10px 6px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .tool,
+:root[data-theme="herbarium"] .pick select,
+:root[data-theme="herbarium"] .menu > summary,
+:root[data-theme="herbarium"] .key-btn,
+:root[data-theme="herbarium"] .key-close,
+:root[data-theme="herbarium"] dialog .close {
+  --hb-face: var(--hb-tag);
+  --hb-hole: var(--page);
+  border: 1px solid var(--hb-tag-edge);
+  border-radius: 0 2px 2px 0;
+  padding-left: 22px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - 0.7px), var(--hb-tag-edge) calc(50% - 0.7px) calc(50% + 0.7px), transparent calc(50% + 0.7px)) left top / 7px 7px no-repeat border-box,
+    linear-gradient(to top right, transparent calc(50% - 0.7px), var(--hb-tag-edge) calc(50% - 0.7px) calc(50% + 0.7px), transparent calc(50% + 0.7px)) left bottom / 7px 7px no-repeat border-box,
+    radial-gradient(circle at var(--hb-hole-x, 11px) 50%, var(--hb-hole) 0 2.4px, #b49a6c 2.6px 4.2px, rgba(143, 122, 87, 0.6) 4.3px 4.8px, transparent 5px) border-box,
+    var(--hb-face);
+}
+:root[data-theme="herbarium"] .pick select {
+  padding-right: 24px;
+}
+:root[data-theme="herbarium"] .pick::after {
+  opacity: 0.75;
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .tool:hover,
+:root[data-theme="herbarium"] .pick select:hover,
+:root[data-theme="herbarium"] .menu > summary:hover,
+:root[data-theme="herbarium"] .key-btn:hover,
+:root[data-theme="herbarium"] .key-close:hover,
+:root[data-theme="herbarium"] dialog .close:hover {
+  --hb-face: #e7d7b2;
+}
+:root[data-theme="herbarium"] .tool[aria-pressed="true"],
+:root[data-theme="herbarium"] .menu[open] > summary,
+:root[data-theme="herbarium"] .key-btn[aria-expanded="true"],
+:root[data-theme="herbarium"] .tool.primary {
+  --hb-face: var(--hb-tag-on);
+  color: var(--on-accent);
+}
+:root[data-theme="herbarium"] .key-close,
+:root[data-theme="herbarium"] dialog .close {
+  width: auto;
+  min-width: 40px;
+  height: 32px;
+  padding: 0 8px 0 20px;
+  font-size: 20px;
+  line-height: 1;
+}
+:root[data-theme="herbarium"] .pick option {
+  font-variant-caps: normal;
+}
+/* Topics are little label slips, ticked in moss when shown. */
+:root[data-theme="herbarium"] .chip {
+  border: 1px solid var(--hb-tag-edge);
+  background: var(--panel);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+}
+:root[data-theme="herbarium"] .chip[aria-pressed="true"] {
+  background: var(--hb-tag-on);
+  border-color: var(--hb-tag-on);
+  color: var(--on-accent);
+}
+:root[data-theme="herbarium"] .chip:hover {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .chip[aria-pressed="true"]:hover {
+  background: #4a5631;
+}
+:root[data-theme="herbarium"] .banner {
+  border-bottom: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 12px/1.3 var(--font-head);
+}
+/* The map is mounted on the sheet in a fine double rule. */
+:root[data-theme="herbarium"] .map {
+  margin: 12px 6px 14px var(--gutter);
+  border: 1px solid rgba(47, 42, 36, 0.7);
+  box-shadow:
+    0 0 0 4px var(--page),
+    0 0 0 4.8px rgba(47, 42, 36, 0.4);
+}
+:root[data-theme="herbarium"] .crosshair {
+  --weight: 1.2px;
+  --arm: 8px;
+}
+:root[data-theme="herbarium"] .key-btn {
+  font-size: 14px;
+  padding: 4px 9px 4px 22px;
+}
+:root[data-theme="herbarium"] .zoom {
+  border: 1px solid var(--hb-tag-edge);
+  background: var(--panel);
+  box-shadow: 2px 3px 0 -1px rgba(70, 52, 30, 0.15);
+}
+:root[data-theme="herbarium"] .zoom button {
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .zoom button:hover {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .zoom button + button {
+  border-top: 1px solid var(--hb-tag-edge);
+}
+:root[data-theme="herbarium"] .map-note {
+  border: 1.5px solid var(--ink);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 3.75px var(--ink-2);
+  font: 14px/1.35 var(--font-head);
+}
+/* The panel is the sheet's typed label, in the lower right as on a mounted sheet: it sits at the foot of its column
+   and grows upward as the list gets longer, scrolling inside its rule once it fills the column. */
+:root[data-theme="herbarium"] .panel {
+  margin: 4px var(--gutter) 6px 4px;
+  border: var(--hb-m) solid transparent;
+  padding: 18px 16px 20px;
+  background: var(--hb-label);
+  background-origin: border-box;
+  background-clip: border-box;
+  scrollbar-color: #b9a882 transparent;
+}
+:root[data-theme="herbarium"] .panel:not(.framed) {
+  align-self: end;
+  max-height: calc(100% - 10px);
+  min-height: min(260px, calc(100% - 10px));
+}
+:root[data-theme="herbarium"] .panel.framed {
+  padding: 6px;
+}
+:root[data-theme="herbarium"] .panel-title,
+:root[data-theme="herbarium"] .place-name {
+  font-family: var(--font-type);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+/* The label's fields are captioned in small capitals, the way a printed label's are. */
+:root[data-theme="herbarium"] .dateline .place-name::before {
+  content: "Locality" / "";
+  display: block;
+  margin-bottom: 3px;
+  font: 13px/1 var(--font-ui);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .dateline {
+  border-bottom: 1px solid var(--ink);
+  box-shadow: 0 3px 0 -2px var(--ink-2);
+  padding-bottom: 9px;
+  align-items: end;
+}
+:root[data-theme="herbarium"] .dateline .coords,
+:root[data-theme="herbarium"] .count {
+  font: italic 14px/1.35 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .rule-head,
+:root[data-theme="herbarium"] .stories-group,
+:root[data-theme="herbarium"] dialog h3,
+:root[data-theme="herbarium"] .key-head h2 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.16em;
+  color: var(--ink-2);
+  opacity: 1;
+}
+:root[data-theme="herbarium"] .rule-head {
+  text-align: left;
+  padding: 5px 0 4px;
+  border-top: 0.75px solid var(--ink-2);
+  border-bottom: 0.75px solid var(--ink-2);
+}
+/* The reports are typed onto the label's ruled lines, newest first. */
+:root[data-theme="herbarium"] .stories li + li {
+  border-top: 1px dotted rgba(58, 51, 43, 0.45);
+}
+:root[data-theme="herbarium"] .stories + .stories-group {
+  border-top: 0.75px solid var(--ink-2);
+}
+:root[data-theme="herbarium"] .story {
+  padding: 10px 2px 9px;
+}
+:root[data-theme="herbarium"] .story:hover,
+:root[data-theme="herbarium"] .story:focus-visible {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .headline,
+:root[data-theme="herbarium"] .earlier-word {
+  font: 700 15px/1.35 var(--font-head);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .meta {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .kicker {
+  font: 13px/1.2 var(--font-ui);
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .related {
+  font: italic 14px/1.3 var(--font-body);
+  color: var(--accent);
+}
+:root[data-theme="herbarium"] .new-mark {
+  font-family: var(--font-head);
+}
+:root[data-theme="herbarium"] .reader-headline {
+  font: 700 21px/1.3 var(--font-head);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .excerpt,
+:root[data-theme="herbarium"] .explain-text {
+  font-family: var(--font-head);
+  font-size: 15px;
+  line-height: 1.55;
+}
+:root[data-theme="herbarium"] .excerpt-quote {
+  border-left: 2px solid var(--hb-pencil);
+  font-style: italic;
+}
+:root[data-theme="herbarium"] .source-title {
+  font-family: var(--font-head);
+}
+:root[data-theme="herbarium"] .cite,
+:root[data-theme="herbarium"] .source-num,
+:root[data-theme="herbarium"] .score-chip {
+  border-color: var(--hb-tag-edge);
+  font-family: var(--font-head);
+}
+/* The Key is a small label of its own, taped like the panel. */
+:root[data-theme="herbarium"] .key-pop {
+  border: var(--hb-m) solid transparent;
+  padding: 16px 16px 16px;
+  background: var(--hb-label);
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: none;
+  font: 14px/1.35 var(--font-body);
+}
+:root[data-theme="herbarium"] .key-note {
+  font-style: italic;
+}
+/* Topics and Pinned open as label slips. */
+:root[data-theme="herbarium"] .menu-body {
+  border: 1.5px solid var(--ink);
+  background: var(--panel);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 3.75px var(--ink-2),
+    3px 4px 0 -1px rgba(70, 52, 30, 0.15);
+  padding: 12px;
+  font-family: var(--font-body);
+}
+:root[data-theme="herbarium"] .menu-item {
+  font: 15px/1.3 var(--font-head);
+  border-bottom: 1px dotted rgba(58, 51, 43, 0.45);
+}
+/* About is a sheet of its own: the same paper and label rule, taped at its top corners. */
+:root[data-theme="herbarium"] dialog {
+  border: var(--hb-m) solid transparent;
+  padding: 22px 26px 24px;
+  background: var(--hb-label);
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: none;
+  color: var(--ink);
+  font: 17px/1.5 var(--font-body);
+}
+:root[data-theme="herbarium"] dialog::backdrop {
+  background: rgba(60, 46, 28, 0.32);
+}
+:root[data-theme="herbarium"] dialog h2 {
+  font-family: var(--font-type);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="herbarium"] dialog .fine {
+  font-size: 14px;
+}
+/* The time bar: a pencil line on the sheet, its handle a specimen pin's head. */
+:root[data-theme="herbarium"] .timebar {
+  border-top: 0;
+  padding-block: 6px 10px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .time-label {
+  font: 13px/1 var(--font-head);
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .slider input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: linear-gradient(var(--hb-pencil), var(--hb-pencil)) center / 100% 1.5px no-repeat;
+  cursor: pointer;
+}
+:root[data-theme="herbarium"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #f7f1e2;
+  background: radial-gradient(circle at 35% 32%, #7a6f62 0, #2b2520 55%, #15110d 100%);
+  box-shadow: 2px 3px 2px rgba(70, 52, 30, 0.3);
+}
+:root[data-theme="herbarium"] .slider input::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #f7f1e2;
+  background: radial-gradient(circle at 35% 32%, #7a6f62 0, #2b2520 55%, #15110d 100%);
+  box-shadow: 2px 3px 2px rgba(70, 52, 30, 0.3);
+}
+:root[data-theme="herbarium"] .slider input::-moz-range-track {
+  background: transparent;
+}
+@media (max-width: 760px) {
+  :root[data-theme="herbarium"] {
+    --hb-m: 10px;
+  }
+  :root[data-theme="herbarium"] .mast-title {
+    font-size: 24px;
+  }
+  :root[data-theme="herbarium"] .telegram {
+    width: calc(100% - 8px);
+    padding: 8px 10px;
+  }
+  :root[data-theme="herbarium"] .telegram::before {
+    left: -8px;
+  }
+  :root[data-theme="herbarium"] .telegram::after {
+    right: -8px;
+  }
+  :root[data-theme="herbarium"] .telegram-date {
+    border-color: rgba(58, 51, 43, 0.45);
+    border-top-style: dotted;
+    border-bottom-style: dotted;
+  }
+  :root[data-theme="herbarium"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 44px) / (var(--len, 8) * 0.72)));
+  }
+  :root[data-theme="herbarium"] .tool,
+  :root[data-theme="herbarium"] .pick select,
+  :root[data-theme="herbarium"] .menu > summary {
+    --hb-hole-x: 9px;
+    font-size: 13.5px;
+    padding-left: 16px;
+    padding-right: 7px;
+    letter-spacing: 0.01em;
+  }
+  :root[data-theme="herbarium"] .pick select {
+    padding-right: 17px;
+  }
+  :root[data-theme="herbarium"] .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="herbarium"] #about-btn {
+    padding: 5px 6px 5px 17px;
+  }
+  :root[data-theme="herbarium"] .map {
+    margin: 8px 12px 8px;
+  }
+  :root[data-theme="herbarium"] .panel {
+    margin: 0 4px 2px;
+    padding: 14px 12px 16px;
+  }
+  :root[data-theme="herbarium"] .panel:not(.framed) {
+    align-self: stretch;
+    max-height: none;
+    min-height: 0;
+  }
+  :root[data-theme="herbarium"] .panel-title,
+  :root[data-theme="herbarium"] .place-name {
+    font-size: 21px;
+  }
+}
+/* The narrowest phones: the four tags still fit one row. */
+@media (max-width: 380px) {
+  :root[data-theme="herbarium"] .tool,
+  :root[data-theme="herbarium"] .pick select,
+  :root[data-theme="herbarium"] .menu > summary {
+    --hb-hole-x: 8px;
+    font-size: 12.5px;
+    padding-left: 14px;
+    padding-right: 5px;
+    letter-spacing: 0;
+  }
+  :root[data-theme="herbarium"] .pick select {
+    padding-right: 15px;
+  }
+  :root[data-theme="herbarium"] .pick::after {
+    right: 5px;
+  }
+}
+/* A pressed sprig of our own drawing on the sheet above the label, taped down; decoration only, outside the map. */
+@media (min-width: 1100px) and (min-height: 800px) {
+  :root[data-theme="herbarium"] .stage {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='280' viewBox='0 0 170 280'%3E%3Cpath d='M93 272C88 205 70 150 76 96C79 64 86 40 88 14' fill='none' stroke='%2376683f' stroke-width='1.8' stroke-linecap='round'/%3E%3Cg stroke='%235b5636' stroke-opacity='.55' stroke-width='.7'%3E%3Cpath d='M86 232c-14-15-34-19-50-12c12 12 32 18 50 12z' fill='%238e8a58' fill-opacity='.88'/%3E%3Cpath d='M82 206c14-16 34-21 52-15c-12 13-33 20-52 15z' fill='%239ca37c' fill-opacity='.88'/%3E%3Cpath d='M78 176c-13-16-33-22-50-16c11 13 31 20 50 16z' fill='%237e8a58' fill-opacity='.88'/%3E%3Cpath d='M76 148c14-16 33-22 50-17c-11 14-31 21-50 17z' fill='%23b7a06a' fill-opacity='.88'/%3E%3Cpath d='M76 120c-12-15-30-20-45-15c10 12 28 18 45 15z' fill='%238e8a58' fill-opacity='.88'/%3E%3Cpath d='M78 94c12-14 29-19 44-14c-10 12-27 17-44 14z' fill='%239ca37c' fill-opacity='.88'/%3E%3Cpath d='M82 68c-10-12-25-16-37-12c8 10 23 15 37 12z' fill='%23a99a66' fill-opacity='.88'/%3E%3Cpath d='M85 46c10-12 23-15 34-11c-8 10-21 14-34 11z' fill='%237e8a58' fill-opacity='.88'/%3E%3Cpath d='M88 18c-4-8-6-12-4-17c5 4 6 10 4 17z' fill='%238e8a58' fill-opacity='.88'/%3E%3C/g%3E%3Cg fill='none' stroke='%235b5636' stroke-opacity='.4' stroke-width='.6'%3E%3Cpath d='M86 232l-44-9M82 206l46-12M78 176l-44-12M76 148l44-13M76 120l-39-12M78 94l38-11M82 68l-32-9M85 46l29-8'/%3E%3C/g%3E%3Cg transform='rotate(-9 92 244)'%3E%3Cpath d='M68 237H117L115 240L117 243L115 246L117 250H68L70 247L68 244L70 241Z' fill='%23e8dcc0' fill-opacity='.92' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3Cg transform='rotate(12 80 120)'%3E%3Cpath d='M60 115H100L98 118L100 121L98 124H60L62 121L60 118Z' fill='%23e8dcc0' fill-opacity='.9' stroke='%238f7a57' stroke-opacity='.45' stroke-width='.6'/%3E%3C/g%3E%3C/svg%3E") right calc(var(--gutter) + 70px) top 22px / 150px 247px no-repeat;
+  }
+}
+:root[data-theme="herbarium"] .telegram-word:hover,
+:root[data-theme="herbarium"] .telegram-word:focus-visible {
+  text-decoration-thickness: 1.5px;
+}
