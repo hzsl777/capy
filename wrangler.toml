@@ -5,6 +5,9 @@ name = "globalgist"
 main = "packages/web/src/index.ts"
 compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]
+# Every deploy (Workers Builds runs one on each merge) deletes variables added in the dashboard as Text unless this is
+# set; secrets are never deleted. Without it, settings typed into the dashboard vanished at the next merge (decision 115).
+keep_vars = true
 # Secrets: DATABASE_URL. The "Deploy site" workflow copies it from GitHub; with Workers Builds alone, add it
 # under the Worker's Settings, then Variables and Secrets.
 

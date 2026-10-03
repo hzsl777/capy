@@ -1016,3 +1016,7 @@ Pins only flew to a place. Now they say what came in since the reader last looke
 ## 114. Console Menu: twelve equal channels, each with its own screen (October 2, 2026)
 
 Davis asked for Console Menu's home screen to work like the console's channel menu. It now has twelve channels of one size, four by three: the map, today's word, the day's events, the latest report, earlier words, Topics, the Key, Pinned, Replay, Translate, Designs and About. Every channel opens its own screen first, large, with Menu and Start under it and arrows at its sides that step to the channel before or after, wrapping round; the left and right keys do the same. Start goes into the map at that channel's part (the word's view, scrolled to the earlier words for that channel; the design list for Designs), and About opens over the menu. On a phone the grid is two wide. This replaces decision 104's single map screen and its larger map tile.
+
+## 115. Deploys keep the Worker's dashboard settings (October 3, 2026)
+
+Davis added settings to the Worker in Cloudflare's dashboard and found them gone. Every deploy, which Workers Builds runs on each merge, deleted the Worker's variables of type Text unless told to keep them; only secrets survive a deploy. `wrangler.toml` now sets `keep_vars = true`, so a deploy leaves variables set in the dashboard alone. Tokens such as `GITHUB_DISPATCH_TOKEN` (decision 91) still go in as type Secret.
