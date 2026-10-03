@@ -2,7 +2,7 @@
 // extracts the main text, and stores it. Failures leave the article with what the feed gave.
 import { Readability } from "@mozilla/readability";
 import { parseHTML } from "linkedom";
-import { and, eq, gte, inArray, isNull, lt, type SQL } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt, sql, type SQL } from "drizzle-orm";
 import { ingestWindow, type RunDate } from "@2dayai/core";
 import { articles, sources, type Db } from "@2dayai/db";
 import { decodeBody, noControl } from "../text.js";
@@ -50,12 +50,14 @@ export async function runEnrich(db: Db, date: RunDate, fetchPage: PageFetcher = 
   const where: SQL[] = [gte(articles.publishedAt, from), lt(articles.publishedAt, to), isNull(articles.enrichedAt)];
   if (scope.articleIds) where.push(inArray(articles.id, scope.articleIds));
   if (scope.desk) where.push(eq(sources.desk, scope.desk));
-  const rows = await db
-    .select({ id: articles.id, url: articles.url, body: articles.body })
+  // The length is checked in the database, so the text of articles that already have enough never leaves it
+  // (decision 124).
+  where.push(sql`char_length(${articles.body}) < ${MIN_BODY_CHARS}`);
+  const candidates = await db
+    .select({ id: articles.id, url: articles.url })
     .from(articles)
     .innerJoin(sources, eq(sources.id, articles.sourceId))
     .where(and(...where));
-  const candidates = rows.filter((r) => r.body.length < MIN_BODY_CHARS);
   let enriched = 0;
   let failed = 0;
   const queue = [...candidates];

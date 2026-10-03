@@ -15,9 +15,9 @@ If `main` was merged before the secrets existed, the deploy skipped. Run "Deploy
 What happens on its own:
 
 - "Deploy site" publishes the site at `https://globalgist.<account>.workers.dev` and copies `DATABASE_URL` into the Worker.
-- When the deploy finishes, "Daily run" starts if today's map doesn't exist yet. It checks the model key first, then builds the day in ten to twenty minutes. Until then the site says the first map is being made.
+- The first day needs one run of "Daily run" from the Actions tab once the site is up (deploys no longer start it, decision 124). It checks the model key first, then builds the day in ten to twenty minutes. Until then the site says the first map is being made.
 - Every day just after midnight UTC "Daily run" builds the day that just ended (midnight to midnight UTC, decision 81), then deletes world data older than 30 days and fetched page text older than two, so the free database never fills. GitHub often starts scheduled runs late, by up to several hours. Until the run finishes the site keeps the last word under its own date and says the next one is being chosen. A day whose word fails the checks shows the last word from the week before, under its own date, and says the day had none.
-- Between daily runs, "Refresh local stories" runs every three hours and right after each daily run. It replaces the latest map's local stories with the last 24 hours of GDELT and stores the map again, in about two minutes and with no model calls, so the map's towns stay current through the day. The outlets' stories, the events and the word change only with the daily run (decision 80). Run it from the Actions tab to refresh by hand.
+- Between daily runs, "Refresh local stories" runs every three hours. It replaces the latest map's local stories with the last 24 hours of GDELT and stores the map again, in about two minutes and with no model calls, so the map's towns stay current through the day. The outlets' stories, the events and the word change only with the daily run (decision 80). Run it from the Actions tab to refresh by hand.
 - Before anything goes to R2, the daily run and the refresh check the file with `map check`: valid JSON, a day's map, outlet stories, an explained event or a local story, and every listed tile on disk. A file that fails stops the run, and the file already stored stays up. The refresh and the export only publish a day whose telegram stage finished (with or without a word), so a daily run that failed part way never reaches the site (decision 85).
 - If GDELT has no readable file for the window, the local stage keeps the stories it had instead of emptying the map. Uploads to R2 are tried three times.
 - If the newest finished map is three days old, the refresh fails after storing, so a daily run GitHub dropped or cancelled still sends you an email.
@@ -132,7 +132,7 @@ GitHub's own schedule started the daily run hours late or not at all, and skippe
 2. **Give it to the Worker.** In the Cloudflare dashboard: Workers & Pages, `globalgist`, Settings, **Variables and Secrets**, Add. Type **Secret** (not Text), name `GITHUB_DISPATCH_TOKEN`, value the token. Deploy. Secrets set there survive every later deploy, and since decision 115 so do Text variables.
 3. **Check it.** In the same Worker, Settings, Trigger Events lists the two cron lines. After the next minute 41, the Actions tab shows a "Refresh local stories" run started by `workflow_dispatch`. Every attempt shows in the Worker's Logs (Workers & Pages, `globalgist`, Logs; turned on by `[observability]` in `wrangler.toml`) as a line starting `clock`: "started refresh.yml", or the reason it failed ("GITHUB_DISPATCH_TOKEN is not set", "GitHub answered 401" for a token that is wrong or expired, 403 or 404 for one without Actions: Read and write on `capy`).
 
-Until the secret is set, the refresh runs only after each daily run, and the daily run waits for GitHub's schedule.
+Until the secret is set, the refresh doesn't run, and the daily run waits for GitHub's schedule.
 
 ### Map files in R2
 

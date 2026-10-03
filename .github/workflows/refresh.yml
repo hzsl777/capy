@@ -1,20 +1,16 @@
 name: Refresh local stories
-# Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours and right
-# after each daily run (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
+# Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
 # called. About two minutes a run, 240 runs a month: see README.md, "Hosting", for the Actions budget.
 # The Worker's cron trigger starts it every three hours at minute 41 (decision 91); GitHub's own schedule skipped
 # runs for hours, and is no longer used here, so a run is never started twice.
+# It no longer follows each daily run: the daily run has just stored the same day's local stories, and each run reads
+# the whole map back from the database, whose free plan allows 5 GB of transfer a month (decision 124).
 on:
-  workflow_run:
-    workflows: ["Daily run"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   refresh:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # One writer of the map at a time: a refresh waits for a daily run in progress, and the other way round, so an
