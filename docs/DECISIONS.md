@@ -1141,3 +1141,15 @@ Davis found "basically no new news stories since yesterday". Under decisions 80 
 4. **The repository is public.** On the private repository's 2,000 free minutes, the daily run, the refresh and CI already came to about 645 minutes in the first four days of October; reading every feed eight times a day would not fit. Public repositories' Actions minutes are free. Before the switch the whole history was searched for tokens, keys and database addresses: only placeholders such as `postgres://user:password@host` were found. Secrets stay in GitHub and Cloudflare secrets. Commit authors' email addresses become public with the history.
 5. **Faster feeds.** Feeds are fetched 24 at a time instead of 8.
 6. **The Worker's fallback** builds the newest finished day (`latestFinishedMapDate`), never the day under way, which has events and no word.
+
+## 131. A Design picker of cards instead of the long dropdown (October 4, 2026)
+
+Davis asked for "a more efficient way of selecting themes besides the big dropdown", something custom like the Topics button's menu, and chose a visual gallery, starred and recent designs, and a swipe on the phone, "user convenient first, keeping design principles too".
+
+1. **The Design select opens a picker** (`src/ui/designs.ts`): a popover of cards under the select, a sheet from the bottom on a phone, or over the select when it sits low on the page. It is a `.menu-body`, so it takes each design's own menu look, the way Topics does; only its place and size are set by its id, with a solid panel colour under any glassy menu.
+2. **Each card shows the design**: its own sea, a continent and an island in its land and coast colours, a mark and a fresh mark, from the design's `Theme`, with its name and a star. Nothing on a card is news or a place.
+3. **Finding one**: a search box, and filter chips for Starred, Light, Dark (by how light the design's sea and land are) and each of the menu's groups. A search or filter shows one flat list in the menu's order.
+4. **Starred, then recent**: starred designs come first, then the six most recently used, then the menu's featured designs and groups as before (decisions 77 and 111). Both lists are kept in the browser only.
+5. **Trying designs is quick**: a card applies its design at once and the picker stays open; Escape, the close button or a click outside closes it. The arrow keys move between cards, and Enter, Space or Alt+Down on the select open it.
+6. **On a phone, a sideways swipe on the masthead** steps to the next or previous design in the menu's order, and its name shows for a moment (and is read out). The picker says so.
+7. **The select stays**, showing the design that is on: every design styles it, and Desktop 95 moves it into its Designs dialog. It no longer opens the browser's own list. Couch Potato's Designs channel opens the picker too.
