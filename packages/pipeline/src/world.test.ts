@@ -2,13 +2,14 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { eq, lt } from "drizzle-orm";
-import { allowedWords, dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, WORD_REPEAT_DAYS, wordProblems } from "@2dayai/core";
-import { events, loadLocalTile, loadMapView, latestMapDate, localBase, telegrams, type Db } from "@2dayai/db";
+import { and, eq, lt, notInArray } from "drizzle-orm";
+import { allowedWords, dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, withTodayStories, WORD_REPEAT_DAYS, wordProblems } from "@2dayai/core";
+import { articles, events, loadLocalTile, loadMapView, latestMapDate, localBase, sources, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
 import { worldGdeltFor } from "./fixtures/gdelt.js";
 import { worldAnswers, worldFeedFor, worldSourcesYaml } from "./fixtures/world.js";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
+import { runClusterWorld } from "./stages/cluster.js";
 import { runLocal } from "./stages/local.js";
 import { runTelegram } from "./stages/telegram.js";
 import { createTestDb } from "./test/db.js";
@@ -262,6 +263,44 @@ describe("the world desk on a real Postgres engine", () => {
     const report = await runTelegram(db, testConfig(), llm, date);
     expect(report).toMatchObject({ written: true, band: -1, scoreRuns: 3, rejected: 1 });
     expect(llm.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(5);
+  });
+
+  it("groups only the day's new articles during the day, keeping its events and word, and adds them to the published file (decision 130)", async () => {
+    const before = await db.select({ id: events.id }).from(events).where(eq(events.runDate, date));
+    const [word] = await db.select().from(telegrams).where(eq(telegrams.runDate, date));
+    const [src] = await db.select({ id: sources.id }).from(sources).where(eq(sources.desk, "world")).limit(1);
+    const [fresh] = await db
+      .insert(articles)
+      .values({ sourceId: src!.id, url: "https://late.example/ferry", title: "Evening ferry adds a second crossing", lead: "The ferry adds a crossing.", publishedAt: new Date("2026-09-28T01:00:00Z") })
+      .returning({ id: articles.id });
+    const llm = new FakeLlm(worldAnswers());
+    const report = await runClusterWorld(db, testConfig(), llm, date, [], { onlyNew: true });
+    // The model saw only the new article, twice (the first pass and the pass for what it left), and no merge pass ran.
+    expect(report).toMatchObject({ articles: 1, events: 1, alone: 1, merged: 0, onlyNew: true });
+    expect(llm.calls.map((c) => c.stage)).toEqual(["cluster-world", "cluster-world"]);
+    expect(llm.calls[0]!.user).toContain("Evening ferry adds a second crossing");
+    expect(llm.calls[0]!.user).not.toContain("Grain port reopens");
+    const after = await db.select({ id: events.id }).from(events).where(eq(events.runDate, date));
+    expect(after).toHaveLength(before.length + 1);
+    expect(after.map((e) => e.id)).toEqual(expect.arrayContaining(before.map((e) => e.id)));
+    expect((await db.select().from(telegrams).where(eq(telegrams.runDate, date)))[0]?.word).toBe(word!.word);
+
+    // The published file of the day before takes the day's stories by place, replacing its own copy of any.
+    const day = await loadMapView(db, date, new Date("2026-09-28T02:00:00Z"), { local: "index", noCarry: true });
+    const published = { ...day, runDate: "2026-09-26", items: [day.items[0]!], places: [day.places[day.items[0]!.place]!], generatedAt: 1 };
+    const merged = withTodayStories(published, day, new Date("2026-09-28T02:00:00Z"));
+    expect(merged.runDate).toBe("2026-09-26");
+    expect(merged.telegram).toEqual(published.telegram);
+    expect(merged.items).toHaveLength(day.items.length);
+    expect(new Set(merged.places.map((p) => p.id)).size).toBe(merged.places.length);
+    expect(merged.items.every((it) => it.event === undefined)).toBe(true);
+    const ferry = merged.items.find((it) => it.id === `a${fresh!.id}`)!;
+    expect(merged.places[ferry.place]!.id).toBe(day.places[day.items.find((it) => it.id === ferry.id)!.place]!.id);
+    expect(merged.generatedAt).toBe(Date.parse("2026-09-28T01:00:00Z") / 1000);
+
+    // Put the fixture day back as it was for the tests that follow.
+    await db.delete(events).where(and(eq(events.runDate, date), notInArray(events.id, before.map((e) => e.id))));
+    await db.delete(articles).where(eq(articles.id, fresh!.id));
   });
 });
 

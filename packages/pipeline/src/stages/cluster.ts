@@ -115,6 +115,8 @@ export type WorldClusterReport = ClusterReport & {
   alone: number;
   /** Balance groups left out today because a side had no story, with the sides that had none (decision 90). */
   held?: Held[];
+  /** Set by the refresh during the day: only articles no event holds yet were grouped, and none was removed (decision 130). */
+  onlyNew?: boolean;
 };
 
 type WorldRow = { id: number; source: string; place: string; title: string; lead: string; lat: number | null; lon: number | null };
@@ -176,8 +178,12 @@ export function worldMergeUserContent(evs: BatchEvent[], outletOf: Map<number, s
   return `Events from today's batches, ${evs.length} in total. Each starts with its key in brackets.\n\n${lines.join("\n\n")}`;
 }
 
-/** `sourceList` carries the balance groups (decision 90); without it nothing is held. */
-export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: RunDate, sourceList: Source[] = []): Promise<WorldClusterReport> {
+/**
+ * `sourceList` carries the balance groups (decision 90); without it nothing is held. With `onlyNew`, the refresh during
+ * the day (decision 130): only the articles no event of the date holds yet are grouped, into new events beside the ones
+ * already there, with no merge passes and nothing deleted; the daily run groups the whole day again once it ends.
+ */
+export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: RunDate, sourceList: Source[] = [], opts: { onlyNew?: boolean } = {}): Promise<WorldClusterReport> {
   const { from, to } = ingestWindow(date);
   // Newest first across every source, so each batch is a slice of the day from many places, not one region.
   const all = await db
@@ -189,6 +195,19 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   const bySource = new Map<string, number>();
   for (const r of all) bySource.set(r.sourceId, (bySource.get(r.sourceId) ?? 0) + 1);
   const { held, heldSources } = heldGroups(sourceList, bySource);
+  // Articles an event of the date already holds: during the day they keep their events and still count toward their
+  // outlet's daily cap, so the day never shows more of one outlet than the daily run would.
+  const grouped = opts.onlyNew
+    ? new Set(
+        (
+          await db
+            .select({ id: eventArticles.articleId })
+            .from(eventArticles)
+            .innerJoin(events, eq(events.id, eventArticles.eventId))
+            .where(and(eq(events.runDate, date), eq(events.desk, "world")))
+        ).map((r) => r.id),
+      )
+    : new Set<number>();
   const perSource = new Map<string, number>();
   const rows: WorldRow[] = all
     .filter((r) => !heldSources.has(r.sourceId))
@@ -197,9 +216,11 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
       perSource.set(r.sourceId, n);
       return n <= config.worldPerSource;
     })
+    .filter((r) => !grouped.has(r.id))
     .map((r) => ({ id: r.id, source: r.source, place: r.place ?? "unknown", title: r.title, lead: r.lead, lat: r.lat, lon: r.lon }));
 
   if (rows.length === 0) {
+    if (opts.onlyNew) return { articles: 0, events: 0, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0, onlyNew: true };
     await clearWorldDay(db, date);
     return { articles: 0, events: 0, placed: 0, alone: 0, skipped: 0, unknownIds: 0, unassigned: 0, byTopic: {}, batches: 0, merged: 0, mergeDropped: 0, ...(held.length ? { held } : {}) };
   }
@@ -258,7 +279,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   let final = batchEvents;
   let merged = 0;
   let mergeDropped = 0;
-  if (batches.length > 1 && batchEvents.length > 1) {
+  if (!opts.onlyNew && batches.length > 1 && batchEvents.length > 1) {
     const mergePrompt = loadPrompt("cluster-world-merge", CLUSTER_WORLD_MERGE_PROMPT_VERSION);
     const outletOf = new Map(rows.map((r) => [r.id, `${r.source} (${r.place})`]));
     const answer = await llm.parse({ stage: "cluster-world-merge", prompt: mergePrompt, schema: WorldClusterMergeSchema, user: worldMergeUserContent(batchEvents, outletOf), effort: config.effort.cluster }, date);
@@ -272,7 +293,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   // are one story, so those few are asked about once more on their own. A failure here costs only this check.
   let mergedTop = 0;
   const top = final.filter((e) => e.importance >= TOP_IMPORTANCE);
-  if (top.length > 1) {
+  if (!opts.onlyNew && top.length > 1) {
     const mergePrompt = loadPrompt("cluster-world-merge", CLUSTER_WORLD_MERGE_PROMPT_VERSION);
     const outletOf = new Map(rows.map((r) => [r.id, `${r.source} (${r.place})`]));
     try {
@@ -287,8 +308,8 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
 
   final = [...final, ...singles];
 
-  // Every model call succeeded, so the date's world events are replaced only now.
-  await clearWorldDay(db, date);
+  // Every model call succeeded, so the date's world events are replaced only now; during the day they are added to.
+  if (!opts.onlyNew) await clearWorldDay(db, date);
   const byTopic: Record<string, number> = {};
   gazetteer ??= Gazetteer.load();
   const rowOf = new Map(rows.map((r) => [r.id, r]));
@@ -319,7 +340,7 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
     );
     byTopic[ev.topic] = (byTopic[ev.topic] ?? 0) + 1;
   }
-  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped, mergedTop, abroad, ...(held.length ? { held } : {}) };
+  return { articles: rows.length, events: final.length, placed, skipped, unknownIds, unassigned, alone: singles.length, byTopic, batches: batches.length, merged, mergeDropped, mergedTop, abroad, ...(held.length ? { held } : {}), ...(opts.onlyNew ? { onlyNew: true } : {}) };
 }
 
 /** A two-letter country code in capitals, or null. */

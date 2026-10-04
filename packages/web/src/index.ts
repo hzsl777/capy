@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { Hono, type Context } from "hono";
 import { renderEditionPage, renderEventPage, renderFeedbackConfirm, renderFeedbackPage, renderNotFound, renderUnavailable, tileBounds, toRunDate } from "@2dayai/core";
 import * as schema from "@2dayai/db";
-import { findEditionEvent, latestMapDate, loadEditionView, loadLocalTile, loadMapView, recordFeedback, type Db } from "@2dayai/db";
+import { findEditionEvent, latestFinishedMapDate, loadEditionView, loadLocalTile, loadMapView, recordFeedback, type Db } from "@2dayai/db";
 import { startRun, type ClockEnv } from "./clock.js";
 
 /** No run date before this one has data: the project began in September 2026. */
@@ -178,7 +178,8 @@ export function createApp(dbOf: (env: Bindings) => Db = neonDb) {
       const file = await stored(c.env, "latest.json");
       if (file) return file;
       const db = dbOf(c.env);
-      const date = await latestMapDate(db);
+      // The newest finished day: during the day the refresh groups the day under way, which has no word yet (decision 130).
+      const date = await latestFinishedMapDate(db);
       if (!date) return c.json({ error: "no map data yet" }, 404);
       return c.json(await loadMapView(db, date, new Date(), { local: "index" }), 200, { "Cache-Control": MAP_CACHE });
     }),

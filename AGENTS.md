@@ -14,7 +14,7 @@ Read CONTEXT.md first: it is the whole picture and what Davis has decided. Both 
 - Secrets live in GitHub Actions and Cloudflare secrets, never in the repository. CI runs a secret scan.
 - Tests never call the network. Use the recorded fixtures in `packages/pipeline/src/fixtures` (briefing and the fictional world desk) and the FakeLlm.
 - No em dashes in copy, docs or commit messages.
-- The repository is private: Actions has 2,000 free minutes a month. Don't add scheduled jobs without checking the budget in README.md "Hosting".
+- The repository is public (decision 130), so Actions minutes are not counted. Secrets stay in GitHub and Cloudflare secrets, and nothing personal goes in the repository.
 
 ## Commands
 
