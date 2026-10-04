@@ -1,7 +1,7 @@
 // A fictional world-desk day: invented publishers pinned to real cities, reporting on invented places
 // (Kestrel Valley, Port Lenn, the Oren highlands, Varda). Used by the tests and by `stage -- demo`, which
 // builds the site's sample data through the real stages. Nothing here is real news.
-import { MOOD_WORDS, type MoodBand, type WorldTopic } from "@2dayai/core";
+import { ingestWindow, MOOD_WORDS, toRunDate, type MoodBand, type WorldTopic } from "@2dayai/core";
 import type { FakeAnswer } from "../llm/fake.js";
 
 type Outlet = { id: string; name: string; place: string; lat: number; lon: number };
@@ -220,13 +220,12 @@ export function worldSourcesYaml(): string {
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
-/** One RSS document per outlet, dated inside the ingest window of `runDate` (that day, UTC hours; decision 81). */
+/** One RSS document per outlet, dated inside the ingest window of `runDate`, `hour` hours into it (decision 127). */
 export function worldFeedFor(url: string, runDate: string): string {
   const outlet = new URL(url).hostname.replace(/\.example$/, "");
-  const day = new Date(`${runDate}T00:00:00Z`);
+  const { from } = ingestWindow(toRunDate(runDate));
   const items = WORLD_STORIES.flatMap((s) => s.articles.filter((a) => a.outlet === outlet)).map((a) => {
-    const when = new Date(day);
-    when.setUTCHours(a.hour, 0, 0, 0);
+    const when = new Date(from.getTime() + a.hour * 3600_000);
     return `<item><title>${esc(a.headline)}</title><link>${worldArticleUrl(a.outlet, a.headline)}</link><pubDate>${when.toUTCString()}</pubDate><description>${esc(a.body.split(". ")[0]!.replace(/\.$/, ""))}.</description><content:encoded><![CDATA[<p>${a.body}</p>]]></content:encoded></item>`;
   });
   return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>${outlet}</title>${items.join("")}</channel></rss>`;

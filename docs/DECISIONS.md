@@ -1104,3 +1104,15 @@ Davis found Primary "a lil more colorful" would suit it. Its rules for colour st
 4. **The page shows more of the three colours**: a red block and a blue one at the time bar's ends and a yellow band across the panel's top. Land is still never red.
 
 Machine Music, Departures, Record Player, Paper Screen and Shortwave stay experimental for rework; Herbarium stays as it is, off the menu.
+
+
+## 127. The day ends at midnight in New York, a word is dated like a morning paper, and headlines lose their emoji (October 4, 2026)
+
+Davis opened the site on Sunday, October 4 and found it "stuck on 10/3", and had asked for the day to follow Eastern time. Nothing was stuck: under decision 81 a day ran midnight to midnight UTC, the word for Saturday was built at 00:07 UTC (8 pm Saturday in New York), and the page showed it under Saturday's date all through Sunday. This reverses decision 81's time zone and how a word is dated.
+
+1. **The day runs midnight to midnight in New York** (`DAY_ZONE` and `ingestWindow` in `packages/core/src/dates.ts`). A day is 24 hours, 23 or 25 on the two days the clocks change, so no hour is lost or read twice. Every stage, the map and 2DayAI's editions use the same window. The refresh of local stories still reads the last 24 hours (decision 80).
+2. **The clock follows it.** Cron lines are UTC and New York moves an hour twice a year, so the Worker asks for the daily run at 04:07 and 05:07 UTC (`wrangler.toml`, `clock.ts`); the first after midnight there builds the day and the other finds it built. GitHub's own backup schedule moves to 06:07 UTC.
+3. **A word is dated the morning after the day it weighed,** as a paper is (`editionDate` in the site's `data.ts`): the word built from Saturday's news shows under Sunday's date from just after midnight in New York, and the strip says "Chosen by AI from Saturday's news, good and bad." The word's own view still names the day of reporting ("The world's reporting · Saturday, October 3"), and the list of earlier words and the share image use the same dating. Data files, tiles and URLs stay keyed by the day of reporting.
+4. **The changeover leaves four hours unread once.** October 3 was built on the UTC day; October 4 starts at midnight in New York, 04:00 UTC, so the outlets' stories from 00:00 to 04:00 UTC on October 4 are in neither day. Local stories are unaffected, since the refresh reads the last 24 hours.
+5. **Headlines and feed summaries lose their emoji** (`withoutEmoji` in the site's `data.ts`). Some outlets put pictographs or flags beside a headline, and Davis saw them on the map. A flag sets a country's symbol beside a story (neutrality rule 1), and the rest read as the site's own decoration. Only pictographs, flags and the characters that join them go; every word, digit and punctuation mark stays as published, and the copyright and trademark signs are kept. The site does it on load, so it covers the day's file and the tiles without a new export.
+6. **Cost.** None: no model calls are added, and the daily run still runs once.

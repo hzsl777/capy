@@ -171,8 +171,10 @@ import {
   FILTERS,
   TOPIC_LABEL,
   formatCoords,
+  editionDate,
   formatRunDate,
   formatShortDate,
+  formatWeekday,
   wordStatus,
   groupByPlace,
   hasTiers,
@@ -1290,13 +1292,13 @@ function renderTelegramStrip() {
   // Read like a front page: the word's own date, then the word under its label, then who chose it. A word belongs to
   // a finished day and stays until the next is chosen; the status line says when that is under way (decision 81).
   const status = wordStatus(file);
-  const date = h("p", { class: "telegram-date" }, formatRunDate(status.date));
+  const date = h("p", { class: "telegram-date" }, formatRunDate(editionDate(status.date)));
   const statusLine = status.note ? h("span", { class: "telegram-status" }, status.note) : null;
   if (!t) {
     el.replaceChildren(date, h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "No word for this day"), statusLine));
     return;
   }
-  const word = lettered(h("button", { type: "button", class: "telegram-word", "aria-label": `The word for ${formatRunDate(status.date)}: ${t.word}. Open to see how it was chosen.` }), t.word);
+  const word = lettered(h("button", { type: "button", class: "telegram-word", "aria-label": `The word for ${formatRunDate(editionDate(status.date))}: ${t.word}. Open to see how it was chosen.` }), t.word);
   word.addEventListener("click", openTelegram);
   // The word is the page's headline. Its size follows its length, so "Joy" and "Encouragement" both fill the
   // space without overflowing a phone.
@@ -1309,7 +1311,7 @@ function renderTelegramStrip() {
     // "Today's Word" while the word on show is the newest one; while the next is being chosen, or when a day had none,
     // the strip shows an older word and says so, so the label doesn't claim it is today's.
     h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, status.note ? "Latest Word" : "Today's Word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "Chosen by AI from the day's news, good and bad. ", how), statusLine, scale(t.band)),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from ${formatWeekday(status.date)}'s news, good and bad. `, how), statusLine, scale(t.band)),
   );
 }
 
@@ -1405,7 +1407,7 @@ function earlierWords(file: NewsFile): HTMLElement[] {
         h(
           "li",
           { class: "earlier-day" },
-          h("time", { class: "meta earlier-date", datetime: r.date }, formatShortDate(r.date)),
+          h("time", { class: "meta earlier-date", datetime: editionDate(r.date) }, formatShortDate(editionDate(r.date))),
           h("span", { class: "headline earlier-word" }, r.word),
           h("span", { class: "meta earlier-band" }, BAND_LABEL[r.band] ?? ""),
         ),
@@ -1744,7 +1746,7 @@ async function start() {
       const file = state.file;
       if (!file) return null;
       const status = wordStatus(file);
-      const date = formatRunDate(status.date);
+      const date = formatRunDate(editionDate(status.date));
       return file.telegram ? { kicker: status.note ? "Latest Word" : "Today's Word", word: file.telegram.word, date } : { none: "No word for this day", date };
     },
     scale: () => {
@@ -1752,7 +1754,7 @@ async function start() {
       return band === undefined ? null : { steps: [-2, -1, 0, 1, 2].map((b) => BAND_LABEL[b]!), on: band + 2 };
     },
     events: () => state.file?.telegram?.items.map((i) => i.line) ?? [],
-    recent: () => (state.file?.recent ?? []).map((r) => ({ date: formatShortDate(r.date), word: r.word, step: BAND_LABEL[r.band] ?? "" })),
+    recent: () => (state.file?.recent ?? []).map((r) => ({ date: formatShortDate(editionDate(r.date)), word: r.word, step: BAND_LABEL[r.band] ?? "" })),
     topicList: () => FILTERS.map((f) => ({ label: TOPIC_LABEL[f], on: state.topics.has(f) })),
     design: () => THEMES[state.theme].label,
     latest: () => {
@@ -1801,7 +1803,7 @@ async function start() {
       map.stopSpin();
       armIdleSpin();
     },
-    date: () => (state.file ? formatRunDate(wordStatus(state.file).date) : ""),
+    date: () => (state.file ? formatRunDate(editionDate(wordStatus(state.file).date)) : ""),
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.

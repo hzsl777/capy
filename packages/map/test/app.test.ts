@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { byOrigin, canonicalRedirect, FILTERS, formatCoords, formatRunDate, wordStatus, groupByPlace, hasTiers, passes, scaleBar, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
+import { byOrigin, canonicalRedirect, editionDate, FILTERS, formatCoords, formatWeekday, lastFullDay, withoutEmoji, wordStatus, groupByPlace, hasTiers, passes, scaleBar, tierOf, timeAgo, weightOf, type Filters } from "../src/data.ts";
 import type { MapFile, MapItem } from "../src/types.ts";
 
 const base: MapItem = { id: "1", t: 100, title: "t", url: "https://x", domain: "x", publisher: "X", lang: "en", topics: [], place: 0 };
@@ -76,21 +76,39 @@ describe("zoom tiers (decision 30)", () => {
   });
 });
 
-describe("the word's date and status line (decision 81)", () => {
+describe("the word's date and status line (decisions 81 and 127)", () => {
   const word = (runDate: string) => ({ word: "Grief", band: -1, runDate, items: [], scores: [] }) as unknown as MapFile["telegram"];
-  const noon = new Date("2026-10-01T12:00:00Z");
+  // Noon on October 1 in New York.
+  const noon = new Date("2026-10-01T16:00:00Z");
 
-  it("shows a finished day's word under its own date, with nothing more to say", () => {
+  it("shows a finished day's word, dated like a morning paper the day after the news it weighed", () => {
     expect(wordStatus({ source: "live", runDate: "2026-09-30", telegram: word("2026-09-30") }, noon)).toEqual({ date: "2026-09-30", note: null });
+    expect(editionDate("2026-09-30")).toBe("2026-10-01");
+    expect(editionDate("2026-12-31")).toBe("2027-01-01");
+  });
+
+  it("ends the day at midnight in New York, in summer and winter time", () => {
+    expect(lastFullDay(new Date("2026-10-04T03:59:00Z"))).toBe("2026-10-02");
+    expect(lastFullDay(new Date("2026-10-04T04:01:00Z"))).toBe("2026-10-03");
+    expect(lastFullDay(new Date("2026-12-05T04:30:00Z"))).toBe("2026-12-03");
+    expect(lastFullDay(new Date("2026-12-05T05:01:00Z"))).toBe("2026-12-04");
   });
 
   it("keeps the last word after midnight and says the next one is being chosen", () => {
-    const early = new Date("2026-10-01T00:20:00Z");
-    expect(wordStatus({ source: "live", runDate: "2026-09-29", telegram: word("2026-09-29") }, early)).toEqual({ date: "2026-09-29", note: `The word for ${formatRunDate("2026-09-30")} is being chosen.` });
+    const early = new Date("2026-10-01T04:20:00Z");
+    expect(wordStatus({ source: "live", runDate: "2026-09-29", telegram: word("2026-09-29") }, early)).toEqual({ date: "2026-09-29", note: `The next word, from ${formatWeekday("2026-09-30")}'s news, is being chosen.` });
   });
 
   it("names the day that had no word when an earlier word is carried", () => {
-    expect(wordStatus({ source: "live", runDate: "2026-09-30", telegram: word("2026-09-29") }, noon)).toEqual({ date: "2026-09-29", note: `${formatRunDate("2026-09-30")} has no word: none passed the checks.` });
+    expect(wordStatus({ source: "live", runDate: "2026-09-30", telegram: word("2026-09-29") }, noon)).toEqual({ date: "2026-09-29", note: `${formatWeekday("2026-09-30")}'s news gave no word: none passed the checks.` });
+  });
+
+  it("takes emoji and flags off headlines and keeps every word, digit and sign as published", () => {
+    expect(withoutEmoji("\u{1F534} Live: talks resume \u{1F1FA}\u{1F1F8}")).toBe("Live: talks resume");
+    expect(withoutEmoji("Rain \u26A0\uFE0F floods 3 towns \u{1F30A}\u{1F44D}\u{1F3FD}")).toBe("Rain floods 3 towns");
+    expect(withoutEmoji("Fund\u00ae says \u00a9 2026, 50% off\u2122")).toBe("Fund\u00ae says \u00a9 2026, 50% off\u2122");
+    expect(withoutEmoji("Минск: погода")).toBe("Минск: погода");
+    expect(withoutEmoji("東京の天気")).toBe("東京の天気");
   });
 
   it("says nothing of the kind for the sample or a demo", () => {
