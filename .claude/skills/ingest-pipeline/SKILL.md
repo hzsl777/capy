@@ -35,6 +35,9 @@ config/sources.yaml (desk: world, with place)
                                          Decisions 54, 67, 78. `stage -- refresh` (refresh.yml, every three hours
                                          and after each daily run) reads the last 24 hours (rollingWindow) into the
                                          latest map's date instead, run recorded as "refresh". Decision 80.
+                                         With --outlets it also ingests the day under way and runs cluster world
+                                         with onlyNew (new articles only, no merges, nothing deleted), and
+                                         withTodayStories adds them to the published file. Decision 130.
   -> loadMapView     db/src/map.ts       the whole day. splitLocal (core) cuts it into the site's file and 10-degree
                                          tiles of local stories; map export writes both, the daily run stores both
                                          in R2 (latest.json, <date>.json, local/<date>/<tile>.json), and the Worker

@@ -289,6 +289,34 @@ export function withLocalStories(file: MapFile, stories: LocalStory[], now: Date
   return { ...rest, places, items, generatedAt: Math.floor(Math.min(now.getTime(), Math.max(to.getTime(), newest)) / 1000) };
 }
 
+/**
+ * The finished day's file with the outlets' stories of the day under way added (decision 130): what the refresh stores
+ * every three hours. `today` is that day as `loadMapView` builds it while it runs, its articles grouped so far. Its
+ * stories join the file's by place id, so a city stays one dot; any the file already had from an earlier refresh are
+ * replaced, and the finished day's own stories, events and word stay as they are. Today has no explanations yet, so
+ * none of its stories opens one. The file is as new as its newest story, never newer than now.
+ */
+export function withTodayStories(file: MapFile, today: MapFile, now: Date): MapFile {
+  const places = file.places.slice();
+  const index = new Map(places.map((p, i) => [p.id, i]));
+  const placeOf = (i: number): number => {
+    const p = today.places[i]!;
+    let at = index.get(p.id);
+    if (at === undefined) index.set(p.id, (at = places.push({ ...p }) - 1));
+    return at;
+  };
+  const fresh = today.items.filter((it) => it.via !== "gdelt");
+  const ids = new Set(fresh.map((it) => it.id));
+  const items = file.items.filter((it) => !ids.has(it.id));
+  for (const it of fresh) {
+    const { event: _, ...rest } = it;
+    items.push({ ...rest, place: placeOf(it.place) });
+  }
+  items.sort((a, b) => b.t - a.t);
+  const newest = fresh.reduce((n, it) => Math.max(n, it.t), 0);
+  return { ...file, places, items, generatedAt: Math.min(Math.floor(now.getTime() / 1000), Math.max(file.generatedAt, newest)) };
+}
+
 export function placeIdFor(lat: number, lon: number): string {
   return `ll:${lat.toFixed(2)},${lon.toFixed(2)}`;
 }

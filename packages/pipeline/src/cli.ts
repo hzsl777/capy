@@ -1,6 +1,6 @@
 // Entry point. `npm run stage -- <command> [--date YYYY-MM-DD]`. Each stage is re-runnable per date (spec decision 6).
 import { parseArgs } from "node:util";
-import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, withLocalStories, WORLD_TOPICS, type LocalStory, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { placeIdFor, renderEditionText, lastFullRunDate, rollingWindow, toRunDate, withLocalStories, withTodayStories, WORLD_TOPICS, zoneDate, type LocalStory, type MapFile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import { editions, feedback, latestFinishedMapDate, latestMapDate, loadEditionView, loadMapView, localBase, readers, telegrams } from "@2dayai/db";
 import { createDb } from "@2dayai/db/node";
 import { and, desc, eq, gte } from "drizzle-orm";
@@ -39,6 +39,7 @@ const { values, positionals } = parseArgs({
     fixture: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
     "if-missing": { type: "boolean", default: false },
+    outlets: { type: "boolean", default: false },
     out: { type: "string" },
     manifest: { type: "string" },
     in: { type: "string" },
@@ -80,7 +81,8 @@ const HELP = `Commands:
   cluster world          group the world desk's articles into events with a topic (model)
   telegram               score the day's world events three times, keep the middle, pick the one-word mood (model)
   local                  GDELT local stories from the towns no outlet reached (no model, decisions 54, 67 and 78)
-  refresh                the latest map's local stories again, from the last 24 hours of GDELT (no model, decision 80)
+  refresh                the latest map's local stories again, from the last 24 hours of GDELT (no model, decision 80);
+                         --outlets also reads the outlets' feeds and groups the day's new articles (decision 130)
   map export [--out f]   the public map's data for the date (default: latest): the day's file, and its tiles of local
                          stories in local/<date>/ beside it; --manifest f lists the tiles for wrangler r2 bulk put
   map check --in f       refuses (exit 1) a day's file not fit to be the site's latest; --manifest f checks its tiles
@@ -162,6 +164,24 @@ switch (command) {
       break;
     }
     const latest = toRunDate(day);
+    // The outlets' stories of the day under way (decision 130): their feeds read again and the new articles grouped
+    // by the model, into the day's own events, which the daily run groups afresh once the day ends. Grouping titles and
+    // summaries costs cents; it still stops at a quarter of the day's spend ceiling, so the daily run, whose
+    // explanations cost the most, always has room for the word.
+    const today = zoneDate();
+    let outlets = false;
+    if (values.outlets && today > latest) {
+      const world = loadSources(values.sources).filter((s) => s.desk === "world");
+      const reports = await recorded(d, today, "refresh-ingest", () => runIngest(d, world, today));
+      console.log(`ingest: ${reports.reduce((n, r) => n + r.inserted, 0)} new articles from ${reports.filter((r) => !r.error).length} of ${reports.length} outlets`);
+      const spent = await spentToday(d, today);
+      if (!config.llmApiKey) console.log("No model key; the day's new articles wait for the daily run.");
+      else if (spent >= config.dailySpendCeilingUsd / 4) console.log(`Spent ${spent.toFixed(4)} USD on ${today}, a quarter of the ceiling; the new articles wait for the daily run.`);
+      else {
+        console.log(await recorded(d, today, "refresh-cluster", () => runClusterWorld(d, config, createLlm(config, d), today, world, { onlyNew: true })));
+        outlets = true;
+      }
+    }
     const keep: { stories?: LocalStory[] } = {};
     console.log(await recorded(d, latest, "refresh", () => runLocal(d, latest, config.local, undefined, undefined, rollingWindow(), keep)));
     // With --out, the day's file and its tiles as well. Built from --in, the file already published, when it is this
@@ -169,11 +189,12 @@ switch (command) {
     if (values.out) {
       const base = values.in && existsSync(values.in) ? (JSON.parse(readFileSync(values.in, "utf8")) as MapFile) : null;
       const fromBase = !!base && base.runDate === latest && !!keep.stories;
-      const full = fromBase ? withLocalStories(base, keep.stories!, new Date()) : await loadMapView(d, latest);
+      const finished = fromBase ? withLocalStories(base, keep.stories!, new Date()) : await loadMapView(d, latest);
+      const full = outlets ? withTodayStories(finished, await loadMapView(d, today, new Date(), { local: "index", noCarry: true }), new Date()) : finished;
       mkdirSync(dirname(values.out), { recursive: true });
       const { main, tiles } = writeMapFiles(full, values.out, localBase(latest));
       if (values.manifest) writeFileSync(values.manifest, JSON.stringify(tiles));
-      console.log(`${values.out}: ${fromBase ? "the published file with new local stories" : "exported from the database"}, ${main.items.length} items, ${tiles.length} tiles of local stories`);
+      console.log(`${values.out}: ${fromBase ? "the published file with new local stories" : "exported from the database"}${outlets ? " and today's outlet stories" : ""}, ${main.items.length} items, ${tiles.length} tiles of local stories`);
     }
     break;
   }

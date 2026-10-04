@@ -89,7 +89,7 @@ Three runtimes on free tiers, one language, one database as the contract between
 
 | Part | Runs on | Job |
 |---|---|---|
-| Pipeline | GitHub Actions cron, just after midnight New York time daily (decision 127); local stories refreshed every three hours (decision 80); delivery every two hours | ingest, enrich, readers sync, cluster, explain, select, deliver |
+| Pipeline | GitHub Actions cron, just after midnight New York time daily (decision 127); local stories refreshed and the outlets' new stories grouped every three hours (decisions 80 and 130); delivery every two hours | ingest, enrich, readers sync, cluster, explain, select, deliver |
 | Database | Neon Postgres | every artifact of every run, plus feedback and spend |
 | Web | Cloudflare Worker (Hono) | the public map (static build of packages/map) and its data from the database. 2DayAI reader pages and feedback (server-rendered, no client JS) |
 

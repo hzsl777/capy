@@ -201,8 +201,11 @@ export async function articlesFromFeed(source: Source, xml: string, date: RunDat
  */
 export type IngestReport = { source: string; fetched: number; inserted: number; feedUrl?: string; feedTitle?: string; headlines?: string[]; declared?: string[]; error?: string; failedDays?: number; paused?: boolean };
 
-/** Feeds fetched at once. Hundreds of outlets one after another could take an hour on a slow day. */
-const INGEST_CONCURRENCY = 8;
+/**
+ * Feeds fetched at once. Hundreds of outlets one after another could take an hour on a slow day, and the refresh reads
+ * them all every three hours (decision 130).
+ */
+const INGEST_CONCURRENCY = 24;
 /** After this many failed days in a row a source is tried once a week, on Sundays (decision 36). */
 export const PAUSE_AFTER_FAILED_DAYS = 7;
 

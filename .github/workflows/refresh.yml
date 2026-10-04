@@ -1,6 +1,8 @@
 name: Refresh local stories
-# Between daily runs, the latest map's local stories become the last 24 hours' of GDELT, every three hours (decision 80). The outlets' stories, the events and the word stay the daily run's. No model is
-# called. About two minutes a run, 240 runs a month: see README.md, "Hosting", for the Actions budget.
+# Between daily runs, every three hours: the latest map's local stories become the last 24 hours' of GDELT (decision 80),
+# and the outlets' new stories of the day under way are read and grouped by the model and added beside the finished
+# day's (decision 130). The finished day's events and word stay the daily run's. The repository is public, so Actions
+# minutes are not counted.
 # The Worker's cron trigger starts it every three hours at minute 41 (decision 91); GitHub's own schedule skipped
 # runs for hours, and is no longer used here, so a run is never started twice.
 # It no longer follows each daily run: the daily run has just stored the same day's local stories, and each run reads
@@ -12,7 +14,7 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     # One writer of the map at a time: a refresh waits for a daily run in progress, and the other way round, so an
     # older day's file never replaces a newer one in R2.
     concurrency:
@@ -21,6 +23,13 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       GDELT_PER_TOWN: ${{ vars.GDELT_PER_TOWN }}
+      # The model groups the day's new articles (decision 130), at the standard price so a run takes minutes, not the
+      # flex queue's wait; it stops at a quarter of the day's spend ceiling, leaving the rest for the daily run's word.
+      LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      MODEL: ${{ vars.MODEL }}
+      LLM_BATCH: "false"
+      DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       GDELT_MAX: ${{ vars.GDELT_MAX }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.R2_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -40,17 +49,6 @@ jobs:
       # A refresh can run before the next daily run, so it brings the tables up to date the same way first.
       - if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
         run: npm run db:migrate
-      # The outlets' stories, collected during the day as well as by the daily run (decision 90). Many feeds hold only
-      # their newest 10 to 30 items, so a daily run GitHub starts hours late misses the end of the day before. Twice a
-      # day this stores the day's stories so far; the daily run adds the rest and builds the day from all of them. Only
-      # in a run the clock started, not one after a daily run, about four minutes each: see README.md, "Hosting".
-      - name: Collect the outlets' stories
-        if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != '' && github.event_name == 'workflow_dispatch'
-        run: |
-          case "$(date -u +%H)" in
-            12|13|21|22) npm run -s stage -- ingest --date "$(date -u +%F)" | tail -n 1 ;;
-            *) echo "Not a collection hour." ;;
-          esac
       # The file the site already has: the refresh swaps its local stories for the new ones instead of reading the whole
       # day back from the database, whose free plan allows 5 GB of transfer a month (decision 124). Without it, the
       # refresh exports the day from the database as before.
@@ -62,7 +60,7 @@ jobs:
         if: env.DATABASE_URL != '' && env.CLOUDFLARE_API_TOKEN != ''
         run: |
           set -o pipefail
-          npm run -s stage -- refresh --in base.json --out map.json --manifest tiles.json | tee refresh.txt
+          npm run -s stage -- refresh --outlets --in base.json --out map.json --manifest tiles.json | tee refresh.txt
           if grep -q "nothing to refresh" refresh.txt; then echo "skip=1" >> "$GITHUB_OUTPUT"; fi
       # The same checks and order as the daily run: nothing is stored from a broken file, then the tiles first, then the
       # day's file that lists them, each upload tried three times.
