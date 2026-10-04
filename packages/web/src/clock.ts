@@ -2,8 +2,13 @@
 // Cloudflare's cron triggers, which fire on time, ask GitHub to start the runs. GitHub's schedule stays only as the
 // daily run's backup; whichever start comes second finds the day built and does nothing.
 
-/** The cron lines in wrangler.toml's [triggers]. */
-export const CRON_DAILY = "7 0 * * *";
+/**
+ * The cron lines in wrangler.toml's [triggers]. The day ends at midnight in New York (decision 127), which is 04:00 UTC
+ * in summer time and 05:00 in winter, and cron lines are UTC, so the daily run is asked for at both 04:07 and 05:07:
+ * the first that comes after midnight there builds the day, and the other finds it built and does nothing.
+ */
+export const CRON_DAILY = "7 4 * * *";
+export const CRON_DAILY_WINTER = "7 5 * * *";
 export const CRON_REFRESH = "41 */3 * * *";
 
 const REPO = "hzsl777/capy";
@@ -13,7 +18,7 @@ export type ClockEnv = { GITHUB_DISPATCH_TOKEN?: string };
 
 /** The workflow a cron line starts, with its inputs. */
 export function runFor(cron: string): { workflow: string; inputs: Record<string, string> } | null {
-  if (cron === CRON_DAILY) return { workflow: "daily.yml", inputs: { if_missing: "true" } };
+  if (cron === CRON_DAILY || cron === CRON_DAILY_WINTER) return { workflow: "daily.yml", inputs: { if_missing: "true" } };
   if (cron === CRON_REFRESH) return { workflow: "refresh.yml", inputs: {} };
   return null;
 }

@@ -9,8 +9,8 @@ export type GkgTown = { type?: string; name: string; lat: number; lon: number; i
 /** One GKG 2.1 row: 27 tab-separated columns, with only the ones the local stage reads filled in. */
 export function gkgRow(o: { url: string; title?: string; when?: string; towns?: GkgTown[]; lang?: string | undefined; collection?: string }): string {
   const c = Array.from({ length: 27 }, () => "");
-  c[0] = `${o.when ?? "20260927030000"}-1`;
-  c[1] = o.when ?? "20260927030000";
+  c[0] = `${o.when ?? "20260927070000"}-1`;
+  c[1] = o.when ?? "20260927070000";
   c[2] = o.collection ?? "1";
   c[3] = new URL(o.url).hostname;
   c[4] = o.url;
@@ -64,14 +64,14 @@ const LOCAL: Local[] = [
 ];
 
 /**
- * The fictional day's GDELT files: every local story in the quarter hour at 03:00 on the run date, each dated
- * `hour` hours into the day's window.
+ * The fictional day's GDELT files: every local story in the quarter hour three hours into the run date's window, each
+ * dated `hour` hours into the day's window.
  */
 export function worldGdeltFor(url: string, runDate: string): Uint8Array | null {
-  const stamp = `${runDate.replace(/-/g, "")}030000`;
+  const { from } = ingestWindow(toRunDate(runDate));
+  const stamp = new Date(from.getTime() + 3 * 3600_000).toISOString().replace(/[-:T]/g, "").slice(0, 14);
   if (!url.endsWith(`${stamp}.gkg.csv.zip`) && !url.endsWith(`${stamp}.translation.gkg.csv.zip`)) return null;
   const translated = url.includes(".translation.");
-  const { from } = ingestWindow(toRunDate(runDate));
   const rows = LOCAL.filter((l) => !!l.lang === translated).map((l) => {
     const when = new Date(from.getTime() + l.hour * 3600_000);
     const slug = l.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

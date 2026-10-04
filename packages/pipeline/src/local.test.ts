@@ -38,7 +38,7 @@ describe("reading a GDELT row", () => {
   it("takes the title, the language and the town the article names most", () => {
     const a = parseGkgRow(row({ url: "https://www.ladige.it/a", title: "Il consiglio provinciale approva il bilancio &amp; il piano", lang: "ita", towns: [{ ...TRENTO, offset: 300 }, { ...NAKURU, offset: 10 }, { ...TRENTO, offset: 500 }] }), true)!;
     expect(a).toMatchObject({ domain: "www.ladige.it", title: "Il consiglio provinciale approva il bilancio & il piano", lang: "it", town: { name: "Trento" } });
-    expect(a.publishedAt.toISOString()).toBe("2026-09-27T03:00:00.000Z");
+    expect(a.publishedAt.toISOString()).toBe("2026-09-27T07:00:00.000Z");
   });
 
   it("places a story in the country it names most, never at a city it only cites (decision 93)", () => {
@@ -77,27 +77,27 @@ describe("reading a GDELT row", () => {
   it("lists every quarter hour of the day's window, in English and translated", () => {
     const urls = gdeltFileUrls(ingestWindow(date));
     expect(urls).toHaveLength(96 * 2);
-    expect(urls[0]).toBe("http://data.gdeltproject.org/gdeltv2/20260927000000.gkg.csv.zip");
-    expect(urls[1]).toBe("http://data.gdeltproject.org/gdeltv2/20260927000000.translation.gkg.csv.zip");
-    expect(urls.at(-1)).toBe("http://data.gdeltproject.org/gdeltv2/20260927234500.translation.gkg.csv.zip");
+    expect(urls[0]).toBe("http://data.gdeltproject.org/gdeltv2/20260927040000.gkg.csv.zip");
+    expect(urls[1]).toBe("http://data.gdeltproject.org/gdeltv2/20260927040000.translation.gkg.csv.zip");
+    expect(urls.at(-1)).toBe("http://data.gdeltproject.org/gdeltv2/20260928034500.translation.gkg.csv.zip");
   });
 });
 
 describe("local stories for towns no outlet reached", () => {
   const nakuru = (n: number, hour: string) => row({ url: `https://www.kenyans.co.ke/n${n}`, title: `Nakuru county assembly story number ${n}`, when: `20260927${hour}0000`, towns: [NAKURU] });
   const files = (translated: string[], english: string[]) => async (url: string) => {
-    if (url.endsWith("20260927030000.translation.gkg.csv.zip")) return zip(translated);
-    if (url.endsWith("20260927030000.gkg.csv.zip")) return zip(english);
+    if (url.endsWith("20260927070000.translation.gkg.csv.zip")) return zip(translated);
+    if (url.endsWith("20260927070000.gkg.csv.zip")) return zip(english);
     return null;
   };
 
   it("keeps each town's newest two, placed at the checked town, and skips repeats and other days", async () => {
     const english = [
-      nakuru(1, "01"), nakuru(2, "05"), nakuru(3, "03"), nakuru(4, "02"),
-      nakuru(3, "03"), // the same URL again
-      row({ url: "https://other.example/copy", title: "Nakuru county assembly story number 2", when: "20260927040000", towns: [NAKURU] }), // same title
-      row({ url: "https://www.kenyans.co.ke/njoro", title: "Njoro farmers open a new market this week", when: "20260927040000", towns: [NJORO] }),
-      row({ url: "https://www.kenyans.co.ke/old", title: "An older Nakuru story from the day before", when: "20260925040000", towns: [NAKURU] }),
+      nakuru(1, "05"), nakuru(2, "09"), nakuru(3, "07"), nakuru(4, "06"),
+      nakuru(3, "07"), // the same URL again
+      row({ url: "https://other.example/copy", title: "Nakuru county assembly story number 2", when: "20260927080000", towns: [NAKURU] }), // same title
+      row({ url: "https://www.kenyans.co.ke/njoro", title: "Njoro farmers open a new market this week", when: "20260927080000", towns: [NJORO] }),
+      row({ url: "https://www.kenyans.co.ke/old", title: "An older Nakuru story from the day before", when: "20260925080000", towns: [NAKURU] }),
     ];
     const report = await runLocal(db, date, limits(2), files([row({ url: "https://www.ladige.it/a", title: "Il consiglio provinciale approva il bilancio", lang: "ita", towns: [TRENTO] })], english));
     expect(report).toMatchObject({ files: 192, filesMissing: 190, filesFailed: 0, regionsFilled: 2, stories: 4, towns: 3, townsTagged: 3, townsNearOutlet: 0 });
@@ -120,16 +120,16 @@ describe("local stories for towns no outlet reached", () => {
   });
 
   it("builds a refresh's file from the published one, the same as reading the day back from the database (decision 124)", async () => {
-    const now = new Date("2026-09-28T12:00:00Z");
+    const now = new Date("2026-09-28T16:00:00Z");
     // The file the site has: yesterday's run's local stories.
-    await runLocal(db, date, limits(2), files([], [nakuru(1, "01"), nakuru(2, "02")]));
+    await runLocal(db, date, limits(2), files([], [nakuru(1, "05"), nakuru(2, "06")]));
     const published = splitLocal(await loadMapView(db, date, now), localBase(date)).main;
     // The refresh's stories, kept in memory, then built two ways: from the published file, and from the database.
     const keep: { stories?: LocalStory[] } = {};
     const english = [
-      nakuru(3, "03"), nakuru(4, "04"),
-      row({ url: "https://www.kenyans.co.ke/njoro2", title: "Njoro farmers open a second market this week", when: "20260927050000", towns: [NJORO] }),
-      row({ url: "https://www.ladige.it/b", title: "Il consiglio comunale approva il piano per le scuole", lang: "ita", when: "20260927060000", towns: [TRENTO] }),
+      nakuru(3, "07"), nakuru(4, "08"),
+      row({ url: "https://www.kenyans.co.ke/njoro2", title: "Njoro farmers open a second market this week", when: "20260927090000", towns: [NJORO] }),
+      row({ url: "https://www.ladige.it/b", title: "Il consiglio comunale approva il piano per le scuole", lang: "ita", when: "20260927100000", towns: [TRENTO] }),
     ];
     await runLocal(db, date, limits(2), files([], english), undefined, undefined, keep);
     expect(keep.stories).toHaveLength(4);
@@ -145,9 +145,9 @@ describe("local stories for towns no outlet reached", () => {
   it("gives every town its newest story before any town gets a second, and reads a shared name as the nearest", async () => {
     const trento = (n: number, hour: string) => row({ url: `https://www.ladige.it/t${n}`, title: `Trento city council story number ${n}`, when: `20260927${hour}0000`, towns: [TRENTO] });
     const english = [
-      trento(1, "07"), trento(2, "06"), trento(3, "05"), trento(4, "04"),
-      row({ url: "https://www.ladige.it/r1", title: "Rovereto opens its new school this autumn", when: "20260927010000", towns: [ROVERETO] }),
-      row({ url: "https://www.ledger-enquirer.com/a", title: "Columbus city council meets on the river walk", when: "20260927020000", towns: [COLUMBUS_GA] }),
+      trento(1, "11"), trento(2, "10"), trento(3, "09"), trento(4, "08"),
+      row({ url: "https://www.ladige.it/r1", title: "Rovereto opens its new school this autumn", when: "20260927050000", towns: [ROVERETO] }),
+      row({ url: "https://www.ledger-enquirer.com/a", title: "Columbus city council meets on the river walk", when: "20260927060000", towns: [COLUMBUS_GA] }),
     ];
     // Over the day's limit of three: each town's newest, Rovereto's although it is the oldest, before Trento's second.
     const capped = await runLocal(db, date, limits(2, 3), files([], english));
@@ -167,12 +167,12 @@ describe("local stories for towns no outlet reached", () => {
 
   it("leaves out the town an outlet's story sits in, and replaces its own stories on a re-run", async () => {
     await db.insert(sources).values({ id: "nakuru-daily", name: "Nakuru Daily", url: "https://nd.example/rss", topic: "world", tier: "general", desk: "world", placeName: "Nakuru", lat: -0.2833, lon: 36.0667 });
-    const [a] = await db.insert(articles).values({ sourceId: "nakuru-daily", url: "https://nd.example/1", title: "Water project opens", lead: "", publishedAt: new Date("2026-09-27T02:00:00Z") }).returning();
+    const [a] = await db.insert(articles).values({ sourceId: "nakuru-daily", url: "https://nd.example/1", title: "Water project opens", lead: "", publishedAt: new Date("2026-09-27T06:00:00Z") }).returning();
     const [e] = await db.insert(events).values({ runDate: date, title: "Water project opens", importance: 2, importanceReason: "x", promptVersion: "t", desk: "world", topic: "other" }).returning();
     await db.insert(eventArticles).values({ eventId: e!.id, articleId: a!.id });
 
-    const west = row({ url: "https://www.kenyans.co.ke/west", title: "Nakuru West ward gets new street lights", when: "20260927060000", towns: [NAKURU_WEST] });
-    const report = await runLocal(db, date, limits(2), files([], [nakuru(9, "06"), west, row({ url: "https://www.ladige.it/b", title: "Trento, riapre la biblioteca comunale dopo i lavori", towns: [TRENTO] })]));
+    const west = row({ url: "https://www.kenyans.co.ke/west", title: "Nakuru West ward gets new street lights", when: "20260927100000", towns: [NAKURU_WEST] });
+    const report = await runLocal(db, date, limits(2), files([], [nakuru(9, "10"), west, row({ url: "https://www.ladige.it/b", title: "Trento, riapre la biblioteca comunale dopo i lavori", towns: [TRENTO] })]));
     // Nakuru and a point 2 km from it are the outlet's town.
     expect(report).toMatchObject({ regionsFilled: 1, townsTagged: 3, townsNearOutlet: 2 });
     const rows = await db.select().from(localStories);
@@ -182,9 +182,9 @@ describe("local stories for towns no outlet reached", () => {
   it("gives the towns around an outlet's town their own stories (decision 78)", async () => {
     const naivasha = (n: number, hour: string) => row({ url: `https://www.kenyans.co.ke/v${n}`, title: `Naivasha lake level story number ${n}`, when: `20260927${hour}0000`, towns: [NAIVASHA] });
     const english = [
-      nakuru(10, "07"),
-      row({ url: "https://www.kenyans.co.ke/njoro2", title: "Njoro college opens a new library wing", when: "20260927070000", towns: [NJORO] }),
-      naivasha(1, "01"), naivasha(2, "03"), naivasha(3, "02"),
+      nakuru(10, "11"),
+      row({ url: "https://www.kenyans.co.ke/njoro2", title: "Njoro college opens a new library wing", when: "20260927110000", towns: [NJORO] }),
+      naivasha(1, "05"), naivasha(2, "07"), naivasha(3, "06"),
     ];
     const report = await runLocal(db, date, limits(2), files([], english));
     // Nakuru has the outlet's story. Njoro, 15 km away, and Naivasha, 60 km away, are towns of their own.
@@ -195,7 +195,7 @@ describe("local stories for towns no outlet reached", () => {
   });
 
   it("keeps three days of local stories", async () => {
-    const story = (runDate: string, n: number) => ({ runDate, url: `https://a.example/${n}`, title: "A local story of some length", domain: "a.example", publishedAt: new Date(`${runDate}T01:00:00Z`), placeName: "Trento", lat: 46.07, lon: 11.12, region: "IT/Trentino-Alto Adige" });
+    const story = (runDate: string, n: number) => ({ runDate, url: `https://a.example/${n}`, title: "A local story of some length", domain: "a.example", publishedAt: new Date(`${runDate}T05:00:00Z`), placeName: "Trento", lat: 46.07, lon: 11.12, region: "IT/Trentino-Alto Adige" });
     await db.insert(localStories).values([story("2026-09-23", 1), story("2026-09-24", 2), story("2026-09-26", 3)]);
     expect((await runPrune(db, date, 30)).localStories).toBe(1);
     expect((await db.select().from(localStories)).map((r) => r.url).sort()).toContain("https://a.example/2");
@@ -203,28 +203,28 @@ describe("local stories for towns no outlet reached", () => {
   });
 
   it("refreshes the day's local stories from the last 24 hours, past the day's window (decision 80)", async () => {
-    const afternoon = row({ url: "https://www.ladige.it/pm", title: "Trento, the afternoon council session ends early", when: "20260928131500", towns: [TRENTO] });
-    const morning = row({ url: "https://www.ladige.it/am", title: "Trento, the morning market moves to the square", when: "20260927030000", towns: [TRENTO] });
-    const refreshFiles = async (url: string) => (url.endsWith("20260928131500.gkg.csv.zip") ? zip([afternoon]) : url.endsWith("20260927030000.gkg.csv.zip") ? zip([morning]) : null);
+    const afternoon = row({ url: "https://www.ladige.it/pm", title: "Trento, the afternoon council session ends early", when: "20260928171500", towns: [TRENTO] });
+    const morning = row({ url: "https://www.ladige.it/am", title: "Trento, the morning market moves to the square", when: "20260927070000", towns: [TRENTO] });
+    const refreshFiles = async (url: string) => (url.endsWith("20260928171500.gkg.csv.zip") ? zip([afternoon]) : url.endsWith("20260927070000.gkg.csv.zip") ? zip([morning]) : null);
     // The daily run reads the day's window, which closes at midnight: the next afternoon's story is not in it.
     await runLocal(db, date, limits(2), refreshFiles);
     expect((await db.select().from(localStories)).map((r) => r.title)).toEqual(["Trento, the morning market moves to the square"]);
-    const before = await loadMapView(db, date, new Date("2026-09-28T14:07:00Z"));
-    expect(before.generatedAt).toBe(Date.parse("2026-09-28T00:00:00Z") / 1000);
+    const before = await loadMapView(db, date, new Date("2026-09-28T18:07:00Z"));
+    expect(before.generatedAt).toBe(Date.parse("2026-09-28T04:00:00Z") / 1000);
 
     // The refresh the next afternoon reads the 24 hours before its last quarter hour: the morning story is still in.
-    const window = rollingWindow(new Date("2026-09-28T02:07:00Z"));
-    expect(window).toEqual({ from: new Date("2026-09-27T02:00:00Z"), to: new Date("2026-09-28T02:00:00Z") });
-    const later = rollingWindow(new Date("2026-09-28T14:07:00Z"));
+    const window = rollingWindow(new Date("2026-09-28T06:07:00Z"));
+    expect(window).toEqual({ from: new Date("2026-09-27T06:00:00Z"), to: new Date("2026-09-28T06:00:00Z") });
+    const later = rollingWindow(new Date("2026-09-28T18:07:00Z"));
     expect((await runLocal(db, date, limits(2), refreshFiles, undefined, window)).stories).toBe(1);
     // Twelve hours later the morning story has left the last 24 hours and the afternoon one has come in.
     const report = await runLocal(db, date, limits(2), refreshFiles, undefined, later);
     expect(report).toMatchObject({ files: 192, stories: 1 });
     expect((await db.select().from(localStories)).map((r) => r.title)).toEqual(["Trento, the afternoon council session ends early"]);
     // The file says it is as new as its newest story, never newer than now.
-    const after = await loadMapView(db, date, new Date("2026-09-28T14:07:00Z"));
-    expect(after.generatedAt).toBe(Date.parse("2026-09-28T13:15:00Z") / 1000);
-    expect((await loadMapView(db, date, new Date("2026-09-28T12:00:00Z"))).generatedAt).toBe(Date.parse("2026-09-28T12:00:00Z") / 1000);
+    const after = await loadMapView(db, date, new Date("2026-09-28T18:07:00Z"));
+    expect(after.generatedAt).toBe(Date.parse("2026-09-28T17:15:00Z") / 1000);
+    expect((await loadMapView(db, date, new Date("2026-09-28T16:00:00Z"))).generatedAt).toBe(Date.parse("2026-09-28T16:00:00Z") / 1000);
     await db.delete(localStories);
   });
 
@@ -235,8 +235,8 @@ describe("local stories for towns no outlet reached", () => {
   });
 
   it("keeps the day's local stories when GDELT is down or has no file at all", async () => {
-    const story = row({ url: "https://www.ladige.it/keep", title: "Trento, the bridge reopens to traffic today", when: "20260927030000", towns: [TRENTO] });
-    await runLocal(db, date, limits(2), async (url) => (url.endsWith("20260927030000.gkg.csv.zip") ? zip([story]) : null));
+    const story = row({ url: "https://www.ladige.it/keep", title: "Trento, the bridge reopens to traffic today", when: "20260927070000", towns: [TRENTO] });
+    await runLocal(db, date, limits(2), async (url) => (url.endsWith("20260927070000.gkg.csv.zip") ? zip([story]) : null));
     expect(await db.select().from(localStories)).toHaveLength(1);
     await expect(runLocal(db, date, limits(2), async () => { throw new Error("fetch failed"); })).rejects.toThrow(/none of the 192 GDELT files/);
     await expect(runLocal(db, date, limits(2), async () => null)).rejects.toThrow(/none of the 192 GDELT files/);

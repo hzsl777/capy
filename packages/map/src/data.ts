@@ -26,7 +26,13 @@ export async function loadNews(base = import.meta.env.BASE_URL, wait = (ms: numb
         if (res.status === 404 && name === "latest.json") noDayYet = true;
         if (!res.ok) continue;
         const file = (await res.json()) as MapFile;
-        if (file.version === 2 && Array.isArray(file.items)) return file;
+        if (file.version === 2 && Array.isArray(file.items)) {
+          for (const it of file.items) {
+            it.title = withoutEmoji(it.title);
+            if (it.excerpt) it.excerpt = withoutEmoji(it.excerpt);
+          }
+          return file;
+        }
       } catch {
         /* try the next file */
       }
@@ -167,18 +173,53 @@ export function formatShortDate(runDate: string): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
+/** A run date's weekday, "Saturday", for "Saturday's news". */
+export function formatWeekday(runDate: string): string {
+  return new Date(`${runDate}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" });
+}
+
 /**
- * What the word strip says about the word (decision 81). A word belongs to a finished UTC day and is shown under that
- * day's date until the next one is chosen. `note` says when the next is on its way (the day that just ended has no
- * map yet) or when the map's own day had no word and an earlier one is shown. Never for the sample or a demo.
+ * The date a word is shown under: the day after the day it covers, as a morning paper is dated (decision 127). The
+ * daily run builds a day just after it ends at midnight in New York, so the word on show carries today's date there,
+ * and the strip says whose news it weighed ("Chosen by AI from Saturday's news").
+ */
+export function editionDate(runDate: string): string {
+  return new Date(Date.parse(`${runDate}T12:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+}
+
+/** The time zone the day ends in (decision 127), as in core's dates.ts. */
+export const DAY_ZONE = "America/New_York";
+const zoneDay = new Intl.DateTimeFormat("en-CA", { timeZone: DAY_ZONE, year: "numeric", month: "2-digit", day: "2-digit" });
+
+/** The last day that has ended in New York: the one the daily run builds next, or has just built. */
+export function lastFullDay(now: Date = new Date()): string {
+  return new Date(Date.parse(`${zoneDay.format(now)}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
+ * What the word strip says about the word (decisions 81 and 127). A word belongs to a finished day and is shown until
+ * the next one is chosen. `note` says when the next is on its way (the day that just ended has no map yet) or when the
+ * map's own day had no word and an earlier one is shown. Never for the sample or a demo.
  */
 export function wordStatus(file: Pick<MapFile, "runDate" | "source" | "telegram">, now: Date = new Date()): { date: string; note: string | null } {
   const date = file.telegram?.runDate ?? file.runDate;
   if (file.source !== "live") return { date, note: null };
-  const yesterday = new Date(now.getTime() - 86_400_000).toISOString().slice(0, 10);
-  if (file.runDate < yesterday) return { date, note: `The word for ${formatRunDate(yesterday)} is being chosen.` };
-  if (file.telegram && file.telegram.runDate !== file.runDate) return { date, note: `${formatRunDate(file.runDate)} has no word: none passed the checks.` };
+  const last = lastFullDay(now);
+  if (file.runDate < last) return { date, note: `The next word, from ${formatWeekday(last)}'s news, is being chosen.` };
+  if (file.telegram && file.telegram.runDate !== file.runDate) return { date, note: `${formatWeekday(file.runDate)}'s news gave no word: none passed the checks.` };
   return { date, note: null };
+}
+
+/**
+ * Headlines and summaries without emoji (decision 127). Some outlets put pictographs or flags beside a headline; a
+ * flag would set a country's symbol beside a story, and the rest read as the site's own decoration. Only the
+ * pictographs go, with the joiners and selectors that build them; the words, letters, digits and punctuation stay as
+ * published, and the copyright and trademark signs are kept.
+ */
+const EMOJI = /(?![\u00a9\u00ae\u2122])\p{Extended_Pictographic}|\p{Regional_Indicator}|[\u200d\ufe0e\ufe0f\u20e3]|[\u{1f3fb}-\u{1f3ff}]|[\u{e0020}-\u{e007f}]/gu;
+export function withoutEmoji(text: string): string {
+  if (!/[^\u0000-\u2000]/.test(text)) return text;
+  return text.replace(EMOJI, "").replace(/\s{2,}/g, " ").trim();
 }
 
 const langNames = typeof Intl !== "undefined" && "DisplayNames" in Intl ? new Intl.DisplayNames(undefined, { type: "language" }) : null;
@@ -234,7 +275,7 @@ export function tileUrl(dataBase: string, index: MapLocalIndex, key: string): st
 
 /** A tile's rows as the site's stories: every one a GDELT local story, the lowest rank, no topic. */
 export function tileItems(tile: MapTile, placeOf: (i: number) => number): MapItem[] {
-  return tile.items.map(([id, t, title, url, domain, lang, place]) => ({ id, t, title, url, domain, publisher: domain, lang, topics: [], place: placeOf(place), reach: 1, importance: 1, via: "gdelt" }));
+  return tile.items.map(([id, t, title, url, domain, lang, place]) => ({ id, t, title: withoutEmoji(title), url, domain, publisher: domain, lang, topics: [], place: placeOf(place), reach: 1, importance: 1, via: "gdelt" }));
 }
 
 /**

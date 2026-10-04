@@ -1,15 +1,16 @@
 name: Daily run
 on:
-  # Just after midnight UTC, when the day's window closes (decision 81, packages/core/src/dates.ts): the run builds
-  # the day that just ended. The Worker's cron trigger starts it at 00:07 on time (decision 91); GitHub's own schedule,
+  # Just after midnight in New York, when the day's window closes (decision 127, packages/core/src/dates.ts): the run
+  # builds the day that just ended. The Worker's cron triggers start it at 04:07 and 05:07 UTC, for summer and winter
+  # time (decision 91); GitHub's own schedule, an hour after the second,
   # which has started it hours late or not at all, stays as a backup. Both build only a day whose map is missing, so the
   # second to start does nothing. Delivery is in deliver.yml.
   schedule:
-    - cron: "7 0 * * *"
+    - cron: "7 6 * * *"
   workflow_dispatch:
     inputs:
       date:
-        description: Run date (YYYY-MM-DD). Defaults to today.
+        description: Run date (YYYY-MM-DD). Defaults to the last finished day in New York.
         required: false
       demo_run_id:
         description: Instead of a run, publish this earlier run's map file to the demo-data branch for the demo page.

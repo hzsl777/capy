@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CRON_DAILY, CRON_REFRESH, runFor, startRun } from "./clock.js";
+import { CRON_DAILY, CRON_DAILY_WINTER, CRON_REFRESH, runFor, startRun } from "./clock.js";
 
 type Call = { url: string; init: RequestInit };
 const answering = (status: number, calls: Call[]) =>
@@ -11,6 +11,7 @@ const answering = (status: number, calls: Call[]) =>
 describe("the site's clock (decision 91)", () => {
   it("starts the daily run only if its day is missing, and the refresh as it is", () => {
     expect(runFor(CRON_DAILY)).toEqual({ workflow: "daily.yml", inputs: { if_missing: "true" } });
+    expect(runFor(CRON_DAILY_WINTER)).toEqual({ workflow: "daily.yml", inputs: { if_missing: "true" } });
     expect(runFor(CRON_REFRESH)).toEqual({ workflow: "refresh.yml", inputs: {} });
     expect(runFor("0 0 * * *")).toBeNull();
   });
