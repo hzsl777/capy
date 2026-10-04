@@ -8,16 +8,17 @@
 // Each call gets one retry with its problems spelled out. A score run that still breaks the rules is set aside
 // and another is asked, up to two more; if none passes, or the word fails twice, the day has no word (decision
 // 51). The checks themselves never loosen, and an outage or the spend ceiling still fails the stage.
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, gte, inArray, lt } from "drizzle-orm";
 import {
+  allowedWords,
   dayBand,
   medianScores,
   MOOD_BAND_LABEL,
-  MOOD_WORDS,
   scoreProblems,
   TelegramScoresSchema,
   TelegramWordSchema,
   wordProblems,
+  WORD_REPEAT_DAYS,
   type MoodBand,
   type RunDate,
   type ScoredEvent,
@@ -68,10 +69,10 @@ export function scoreUserContent(date: RunDate, cands: Candidate[]): string {
   return `Run date: ${date}. World events with verified explanations, ${cands.length} in total. Score every one.\n\n${cands.map(eventBlock).join("\n\n")}`;
 }
 
-export function wordUserContent(date: RunDate, band: MoodBand, cands: Candidate[], scored: TelegramScores): string {
+export function wordUserContent(date: RunDate, band: MoodBand, cands: Candidate[], scored: TelegramScores, recent: readonly string[] = []): string {
   const score = new Map(scored.scores.map((s) => [s.eventId, s.score]));
   const list = cands.map((c) => `${eventBlock(c)}\nscore: ${score.get(c.id) ?? 0}`).join("\n\n");
-  return `Run date: ${date}.\nThe day's band, computed from the scores: ${band} (${MOOD_BAND_LABEL[band]}).\nAllowed words for this band: ${MOOD_WORDS[band].join(", ")}.\n\nScored events, ${cands.length} in total:\n\n${list}`;
+  return `Run date: ${date}.\nThe day's band, computed from the scores: ${band} (${MOOD_BAND_LABEL[band]}).\nAllowed words for this band: ${allowedWords(band, recent).join(", ")}.\n\nScored events, ${cands.length} in total:\n\n${list}`;
 }
 
 /** One model call, validated; one retry with the problems listed; then a thrown error. */
@@ -166,14 +167,23 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
   const scoredEvents: ScoredEvent[] = scored.value.scores.map((s) => ({ eventId: s.eventId, importance: importance.get(s.eventId) ?? 1, score: s.score }));
   const band = dayBand(scoredEvents)!;
 
+  // The past week's words, so no word repeats within it (decision 128): they are left off the allowed list.
+  const weekBefore = new Date(Date.parse(`${date}T12:00:00Z`) - WORD_REPEAT_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const recent = (
+    await db
+      .select({ word: telegrams.word })
+      .from(telegrams)
+      .where(and(eq(telegrams.scope, TELEGRAM_SCOPE), lt(telegrams.runDate, date), gte(telegrams.runDate, weekBefore)))
+  ).map((r) => r.word);
+
   const wordPrompt = loadPrompt("telegram-word", TELEGRAM_WORD_PROMPT_VERSION);
   let worded: { value: TelegramWord; retried: boolean };
   try {
     worded = await checkedCall(
       llm,
       date,
-      { stage: "telegram-word", prompt: wordPrompt, schema: TelegramWordSchema, user: wordUserContent(date, band, cands, scored.value), effort: config.effort.telegram },
-      (v: TelegramWord) => wordProblems(v, band, scoredEvents),
+      { stage: "telegram-word", prompt: wordPrompt, schema: TelegramWordSchema, user: wordUserContent(date, band, cands, scored.value, recent), effort: config.effort.telegram },
+      (v: TelegramWord) => wordProblems(v, band, scoredEvents, recent),
     );
   } catch (err) {
     if (!ruleBroken(err)) throw err;

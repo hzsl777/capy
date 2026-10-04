@@ -97,12 +97,24 @@ export const MOOD_BAND_LABEL: Record<MoodBand, string> = { [-2]: "Severe harm", 
  * never verdicts about who is right. Changing a list is a decision (docs/DECISIONS.md), not a tweak.
  */
 export const MOOD_WORDS: Record<MoodBand, readonly string[]> = {
-  [-2]: ["Grief", "Mourning", "Sorrow", "Anguish"],
-  [-1]: ["Unease", "Strain", "Worry", "Heaviness"],
-  0: ["Watchful", "Uncertain", "Unsettled", "Wary"],
-  1: ["Relief", "Hope", "Reassurance", "Encouragement"],
-  2: ["Joy", "Gratitude", "Gladness", "Elation"],
+  [-2]: ["Grief", "Mourning", "Sorrow", "Anguish", "Heartbreak", "Lament", "Desolation", "Distress", "Devastation", "Bereavement", "Woe", "Shock"],
+  [-1]: ["Unease", "Strain", "Worry", "Heaviness", "Concern", "Disquiet", "Apprehension", "Trouble", "Tension", "Gloom", "Burden", "Dismay"],
+  0: ["Watchful", "Uncertain", "Unsettled", "Wary", "Ambivalent", "Restless", "Guarded", "Pensive", "Cautious", "Waiting", "Hesitant", "Torn"],
+  1: ["Relief", "Hope", "Reassurance", "Encouragement", "Comfort", "Optimism", "Calm", "Respite", "Easing", "Renewal", "Steadiness", "Solace"],
+  2: ["Joy", "Gratitude", "Gladness", "Elation", "Delight", "Contentment", "Jubilation", "Wonder", "Cheer", "Warmth", "Euphoria", "Rejoicing"],
 };
+
+/**
+ * No word is used twice within this many days (decision 128): Davis asked for a different word every day, and on most
+ * days the worst event sets the same band. Each band's list is longer than this, so a word is always left.
+ */
+export const WORD_REPEAT_DAYS = 7;
+
+/** The words a day may use: its band's list less the words of the days before it within `WORD_REPEAT_DAYS`. */
+export function allowedWords(band: MoodBand, recent: readonly string[]): string[] {
+  const used = new Set(recent.map((w) => w.trim().toLowerCase()));
+  return MOOD_WORDS[band].filter((w) => !used.has(w.toLowerCase()));
+}
 
 /** Events of this importance or more can set a bad day on their own. */
 export const SIGNIFICANT_IMPORTANCE = 3;
@@ -175,10 +187,13 @@ export function scoreProblems(sc: TelegramScores, usable: Map<number, VerifiedSe
   return problems;
 }
 
-/** The word must come from the band's list, and a bad day must name the event that set it. */
-export function wordProblems(w: TelegramWord, band: MoodBand, scored: ScoredEvent[]): string[] {
+/**
+ * The word must come from the band's list and not be one of the past week's words (`recent`, decision 128), and a bad
+ * day must name the event that set it.
+ */
+export function wordProblems(w: TelegramWord, band: MoodBand, scored: ScoredEvent[], recent: readonly string[] = []): string[] {
   const problems: string[] = [];
-  const allowed = MOOD_WORDS[band];
+  const allowed = allowedWords(band, recent);
   if (!allowed.includes(w.word.trim())) problems.push(`word "${w.word.trim()}" is not one of: ${allowed.join(", ")}`);
   const ids = new Map(scored.map((e) => [e.eventId, e]));
   const seen = new Set<number>();

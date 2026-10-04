@@ -1690,12 +1690,12 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Console Menu (id cube): the clean, glossy menus of late-2000s home consoles in the chrome, and inside the map an
+  // Couch Potato (id cube): the clean, glossy menus of late-2000s home consoles in the chrome, and inside the map an
   // old news channel's Earth in dark blue space (src/map/gloss.ts, decision 104). No console maker's names, logos,
   // menus or characters.
   cube: {
     id: "cube",
-    label: "Console Menu",
+    label: "Couch Potato",
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "gloss",

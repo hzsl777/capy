@@ -9985,7 +9985,7 @@ button.link {
 }
 
 /* ==========================================================================
-   Console Menu (id cube) and Dual Screen (id dual): two console eras. Console Menu is the clean, glossy home menu
+   Couch Potato (id cube) and Dual Screen (id dual): two console eras. Couch Potato is the clean, glossy home menu
    of early-2000s consoles (src/map/gloss.ts); Dual Screen is a two-screen handheld, the word and the stories on one
    screen and the map on the touch screen. No console maker's names, logos, menus or characters.
    ========================================================================== */
@@ -10030,7 +10030,7 @@ button.link {
   --font-ui: "Tiny5", "Pixelify Sans", "Courier New", monospace;
 }
 
-/* ---- Console Menu: white plastic, pale blue light, glossy bubble buttons, slow wavy lines ------------------ */
+/* ---- Couch Potato: white plastic, pale blue light, glossy bubble buttons, slow wavy lines ------------------ */
 :root[data-theme="cube"] body {
   background:
     radial-gradient(ellipse 80% 60% at 50% 40%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
@@ -10262,7 +10262,7 @@ button.link {
   }
 }
 
-/* ---- Console Menu: the home screen of channels and the news channel (decision 100) --------------------------
+/* ---- Couch Potato: the home screen of channels and the news channel (decision 100) --------------------------
    The home screen (src/ui/channels.ts) is a modal dialog of rounded channel tiles on pale grey lines over a rounded
    bottom bar with a clock and two round buttons. In the map: a soft blue screen behind the globe, the tuned place's
    headline in a rounded card above the reticle (main.ts), a crawl of the newest headlines, and a Menu button. Our own

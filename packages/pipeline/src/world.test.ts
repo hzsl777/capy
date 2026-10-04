@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq, lt } from "drizzle-orm";
-import { dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, wordProblems } from "@2dayai/core";
+import { allowedWords, dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, WORD_REPEAT_DAYS, wordProblems } from "@2dayai/core";
 import { events, loadLocalTile, loadMapView, latestMapDate, localBase, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
 import { worldGdeltFor } from "./fixtures/gdelt.js";
@@ -150,6 +150,21 @@ describe("the world desk on a real Postgres engine", () => {
     expect(await runTelegram(db, testConfig({ telegramScoreRuns: 1 }), new FakeLlm(worldAnswers()), date)).toMatchObject({ scoreRuns: 1, split: 0 });
   });
 
+  it("never uses a word from the past week again, even when the band repeats (decision 128)", async () => {
+    // The day before had the same band and took its first word; a week and a day before had the second, which is free again.
+    await db.insert(telegrams).values([
+      { runDate: "2026-09-26", scope: "world", word: "Unease", band: -1, promptVersion: "test" },
+      { runDate: "2026-09-19", scope: "world", word: "Strain", band: -1, promptVersion: "test" },
+    ]);
+    const llm = new FakeLlm(worldAnswers());
+    expect(await runTelegram(db, testConfig(), llm, date)).toMatchObject({ written: true, band: -1, word: "Strain" });
+    const user = llm.calls.find((c) => c.stage === "telegram-word")!.user;
+    expect(user).toContain("Allowed words for this band: Strain, Worry,");
+    expect(user).not.toMatch(/Allowed words[^\n]*Unease/);
+    await db.delete(telegrams).where(lt(telegrams.runDate, date));
+    expect(await runTelegram(db, testConfig(), new FakeLlm(worldAnswers()), date)).toMatchObject({ word: "Unease" });
+  });
+
   it("drops a stale telegram when the world desk is re-clustered, and writes no word without explained events", async () => {
     await runDay(db, testConfig(), new FakeLlm({ ...worldAnswers(), "cluster-world": () => ({ events: [], skipped: [] }) }), date, deps);
     expect(await db.select().from(telegrams)).toHaveLength(0); // nothing explained, so no word at all
@@ -286,6 +301,15 @@ describe("telegram checks", () => {
     expect(wordProblems({ word: "Relief", events: [{ eventId: 2, line: "x" }] }, -1, scored)[0]).toMatch(/not one of: Unease/);
     expect(wordProblems({ word: "Unease", events: [{ eventId: 1, line: "x" }] }, -1, scored)).toContain("include the event that set the day (one of: 2)");
     expect(wordProblems({ word: "Hope", events: [{ eventId: 1, line: "x" }] }, 1, scored)).toEqual([]);
+  });
+  it("rejects a word from the past week whatever its band, and always leaves a word to choose (decision 128)", () => {
+    const scored = [{ eventId: 2, importance: 4, score: -1 }];
+    expect(wordProblems({ word: "Unease", events: [{ eventId: 2, line: "x" }] }, -1, scored, ["unease"])[0]).toMatch(/not one of: Strain/);
+    expect(wordProblems({ word: "Strain", events: [{ eventId: 2, line: "x" }] }, -1, scored, ["Unease"])).toEqual([]);
+    for (const band of [-2, -1, 0, 1, 2] as const) {
+      expect(MOOD_WORDS[band].length).toBeGreaterThan(WORD_REPEAT_DAYS);
+      expect(allowedWords(band, MOOD_WORDS[band].slice(0, WORD_REPEAT_DAYS)).length).toBeGreaterThan(0);
+    }
   });
   it("takes the middle of repeat scores, with the reason from a run that gave it", () => {
     const run = (score: number, because: string) => ({ scores: [{ eventId: 1, score, because }, { eventId: 2, score: 0, because: "Same." }] });

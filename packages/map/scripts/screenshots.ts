@@ -32,7 +32,7 @@ try {
         await page.waitForFunction(() => document.querySelector(".place-name"));
         await page.waitForTimeout(1600);
         await page.screenshot({ path: `${OUT}/${label}-${theme}-${view}.jpg`, quality: 82 });
-        // Console Menu's home screen of channels (decision 100), opened from the Menu button and closed with Escape.
+        // Couch Potato's home screen of channels (decision 100), opened from the Menu button and closed with Escape.
         if (theme === "cube" && view === "3d") {
           await page.locator(".x-menu").click();
           await page.waitForTimeout(900);

@@ -1,4 +1,4 @@
-// Console Menu (id cube): inside the map, an old console news channel's Earth (decision 104). In Globe view the
+// Couch Potato (id cube): inside the map, an old console news channel's Earth (decision 104). In Globe view the
 // planet hangs in dark blue space with a glow of air round it; in Map view the same Earth fills one rounded channel
 // tile with a white plastic rim. The sea is deep blue with lighter shallows, the land green, darker in the tropics and
 // the northern forests and dun toward the poles, with tan deserts, soft brown mountains and white ice. The stars

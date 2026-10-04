@@ -1116,3 +1116,17 @@ Davis opened the site on Sunday, October 4 and found it "stuck on 10/3", and had
 4. **The changeover leaves four hours unread once.** October 3 was built on the UTC day; October 4 starts at midnight in New York, 04:00 UTC, so the outlets' stories from 00:00 to 04:00 UTC on October 4 are in neither day. Local stories are unaffected, since the refresh reads the last 24 hours.
 5. **Headlines and feed summaries lose their emoji** (`withoutEmoji` in the site's `data.ts`). Some outlets put pictographs or flags beside a headline, and Davis saw them on the map. A flag sets a country's symbol beside a story (neutrality rule 1), and the rest read as the site's own decoration. Only pictographs, flags and the characters that join them go; every word, digit and punctuation mark stays as published, and the copyright and trademark signs are kept. The site does it on load, so it covers the day's file and the tiles without a new export.
 6. **Cost.** None: no model calls are added, and the daily run still runs once.
+
+
+## 128. A different word every day: twelve words a band, none twice in a week (October 4, 2026)
+
+Davis saw the word repeat ("why is the word still grief every day, should be a new word"): October 1 and 2 were both Anguish and October 3 Grief. The band was the cause. Under decision 26 the worst significant event sets a bad day, and among two dozen explained world events there is nearly always one scored Severe harm, so most days land in the same band, which had four words. Davis asked for a different word every day.
+
+1. **Each band has twelve words** (`MOOD_WORDS` in `packages/core/src/world.ts`), still emotions a reader might feel on reading the day's reporting and never verdicts about who is right, all distinct across bands, none longer than "Encouragement", so every word still fits a phone.
+2. **No word is used twice within seven days** (`WORD_REPEAT_DAYS`, `allowedWords`). The telegram stage reads the words of the week before the day and leaves them off the allowed list it gives the model, and `wordProblems` rejects one if the model uses it anyway, so the list of earlier words under the word never shows a repeat. Each list is longer than seven, so a word is always left.
+3. **The scale itself is unchanged.** The worst significant event still sets a bad day, so the band will often read Severe harm; the formula was not loosened (neutrality rule 5). Changing how the band is set is a separate question for Davis.
+4. **Cost.** None: the same calls, with a shorter list in one of them.
+
+## 129. Console Menu is now Couch Potato (October 4, 2026)
+
+Davis asked for a cheekier name for Console Menu. It is now Couch Potato in the Design menu, the docs and the code's comments: a channel menu you flick through from the sofa, naming no console or maker. The id stays `cube`, so saved settings and links keep working. Earlier decisions keep the old name as written.
