@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { THEMES, designMenu, type ThemeId } from "../src/themes.ts";
 import { isDark, luminance, menuOrder, readIds, stepDesign, withRecent } from "../src/ui/designs.ts";
@@ -34,5 +35,10 @@ describe("the Design picker (decision 131)", () => {
     const dark = listed.filter(isDark).length;
     expect(dark).toBeGreaterThan(5);
     expect(listed.length - dark).toBeGreaterThan(5);
+  });
+
+  it("has a preview picture for every design, made by scripts/thumbs.ts (decision 132)", () => {
+    const missing = (Object.keys(THEMES) as ThemeId[]).filter((id) => !existsSync(new URL(`../public/thumbs/${id}.jpg`, import.meta.url)));
+    expect(missing, "run npm run map:build && npm run map:thumbs <id>").toEqual([]);
   });
 });

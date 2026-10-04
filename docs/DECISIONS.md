@@ -1153,3 +1153,12 @@ Davis asked for "a more efficient way of selecting themes besides the big dropdo
 5. **Trying designs is quick**: a card applies its design at once and the picker stays open; Escape, the close button or a click outside closes it. The arrow keys move between cards, and Enter, Space or Alt+Down on the select open it.
 6. **On a phone, a sideways swipe on the masthead** steps to the next or previous design in the menu's order, and its name shows for a moment (and is read out). The picker says so.
 7. **The select stays**, showing the design that is on: every design styles it, and Desktop 95 moves it into its Designs dialog. It no longer opens the browser's own list. Couch Potato's Designs channel opens the picker too.
+
+## 132. Real previews in the Design picker, a separate Star button, a legend of the marks, and one date (October 4, 2026)
+
+Davis found the Design picker's cards hard to read ("all those circles and then a box behind the star"), worried that people trying to pick a design would hit the star, asked for a small legend of what the map's marks mean under the word's scale, and saw "Sunday, October 4" in the masthead but "The world's reporting · Saturday, October 3" in the word's view.
+
+1. **Each card shows the design itself**: a 320 by 200 picture of the whole page in that design's default view with a place tuned (`public/thumbs/<id>.jpg`, about 14 KB each, 900 KB for all 66, loaded only as the picker scrolls to them). `scripts/thumbs.ts` (`npm run map:thumbs`, after a build) makes them, and `test/designs.test.ts` fails for a design without one. The colour sketch from decision 131 stands in only if a picture fails to load.
+2. **The star is its own button**: a full-width "Star" button under each picture, with a large star, filled in the design's accent once starred ("Starred"). Nothing is laid over the picture, so a tap on a picture always picks the design. The design that is on says "On" by its name.
+3. **A legend of the marks under the scale**: "Story rating" with the design's own ringed, filled and hollow marks for 4-5, 2-3 and 1, drawn by the same code as the Key (`markSvg`), so it always matches the map. It is hidden on a phone, as the scale is there, where the Key on the map has it.
+4. **One date everywhere.** The word's view now reads "Sunday, October 4 · from Saturday's news", the same date as the masthead (decision 127), instead of the date of the reporting alone.
