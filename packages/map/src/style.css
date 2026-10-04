@@ -827,64 +827,100 @@ summary {
 }
 #design-pop .dgrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 10px;
 }
 #design-pop .dcard {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule);
+}
+#design-pop .dcard.on {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
 }
 #design-pop .dcard-pick {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 4px;
+  gap: 0;
   width: 100%;
-  padding: 4px;
+  padding: 0;
   font: inherit;
   color: inherit;
   text-align: left;
   background: transparent;
-  border: 1px solid var(--rule);
+  border: 0;
   cursor: pointer;
 }
-#design-pop .dcard-pick:hover {
-  background: var(--hover);
-}
-#design-pop .dcard-pick[aria-pressed="true"] {
-  outline: 3px solid var(--accent);
-  outline-offset: -1px;
+#design-pop .dcard-pick:hover .dthumb,
+#design-pop .dcard-pick:focus-visible .dthumb {
+  filter: brightness(1.06);
 }
 #design-pop .dcard-pick:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
+#design-pop .dthumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: var(--hover);
+}
 #design-pop .dcard-name {
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  font-size: 14px;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
+#design-pop .dcard-on {
+  flex: none;
+  padding: 2px 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+/* The star: a full-width button of its own under the picture, big enough to hit and to see, filled when starred. */
 #design-pop .dcard-star {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  font-size: 16px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 4px 8px 8px;
+  min-height: 36px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 13px;
   color: var(--ink);
-  background: var(--panel);
+  background: transparent;
   border: 1px solid var(--rule);
   cursor: pointer;
+}
+#design-pop .dcard-star:hover {
+  background: var(--hover);
 }
 #design-pop .dcard-star[aria-pressed="true"] {
   background: var(--accent);
   color: var(--on-accent);
+  border-color: var(--accent);
+}
+#design-pop .dstar-icon {
+  font-size: 22px;
+  line-height: 1;
 }
 /* The card's picture: the design's own sea, a continent and an island in its land and coast, a mark and a fresh one. */
 #design-pop .dsw {
   position: relative;
   display: block;
-  height: 58px;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
 }
 #design-pop .dsw-land {
@@ -1067,6 +1103,26 @@ summary {
 }
 .telegram-view .scale {
   margin: 0 0 10px;
+}
+/* What the map's marks mean, under the scale and in the same small type (decision 132): each mark in the design's own
+   shape on its own sea, highest rating first. */
+.importance {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 11px/1 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.importance .imp-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+}
+.importance svg {
+  flex: none;
 }
 .score-chip {
   display: inline-block;
@@ -1729,7 +1785,8 @@ dialog .close {
     gap: 4px 10px;
   }
   /* The scale waits for the word's own view on a phone; the AI label always stays. */
-  .telegram .scale {
+  .telegram .scale,
+  .telegram .importance {
     display: none;
   }
 }

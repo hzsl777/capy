@@ -106,9 +106,17 @@ export function mountDesignPicker(select: HTMLSelectElement, host: DesignPickerH
     return sw;
   };
 
+  // A picture of the design itself (decision 132): the whole page in its default view, made by scripts/thumbs.ts. Until
+  // it loads, or if it is missing, the design's own sea, land and marks stand in.
+  const picture = (id: ThemeId): HTMLElement => {
+    const img = h("img", { class: "dthumb", src: `${import.meta.env.BASE_URL}thumbs/${id}.jpg`, alt: "", width: "320", height: "200", loading: "lazy", decoding: "async" }) as HTMLImageElement;
+    img.addEventListener("error", () => img.replaceWith(swatch(id)), { once: true });
+    return img;
+  };
+
   const card = (id: ThemeId): HTMLElement => {
     const on = id === host.current();
-    const pickBtn = h("button", { type: "button", class: "dcard-pick", "aria-pressed": String(on), "data-id": id }, swatch(id), h("span", { class: "dcard-name" }, THEMES[id].label));
+    const pickBtn = h("button", { type: "button", class: "dcard-pick", "aria-pressed": String(on), "data-id": id }, picture(id), h("span", { class: "dcard-name" }, THEMES[id].label, on ? h("span", { class: "dcard-on" }, "On") : null));
     pickBtn.addEventListener("click", () => {
       recent = withRecent(recent, id);
       setPref(RECENT, recent.join(","));
@@ -116,8 +124,15 @@ export function mountDesignPicker(select: HTMLSelectElement, host: DesignPickerH
       render();
       grid?.querySelector<HTMLElement>(`[data-id="${id}"]`)?.focus();
     });
+    // The star is its own wide button under the picture, never on it, so picking a design and starring it can't be
+    // mistaken for each other.
     const starred = stars.includes(id);
-    const star = h("button", { type: "button", class: "dcard-star", "aria-pressed": String(starred), "aria-label": `${starred ? "Unstar" : "Star"} ${THEMES[id].label}`, title: starred ? "Starred" : "Star" }, starred ? "★" : "☆");
+    const star = h(
+      "button",
+      { type: "button", class: "dcard-star", "aria-pressed": String(starred), "aria-label": `${starred ? "Remove the star from" : "Star"} ${THEMES[id].label}` },
+      h("span", { class: "dstar-icon", "aria-hidden": "true" }, starred ? "\u2605" : "\u2606"),
+      h("span", {}, starred ? "Starred" : "Star"),
+    );
     star.addEventListener("click", () => {
       stars = stars.includes(id) ? stars.filter((s) => s !== id) : [...stars, id];
       setPref(STARS, stars.join(","));

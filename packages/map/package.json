@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "basemap": "tsx scripts/build-basemap.ts",
-    "screenshots": "tsx scripts/screenshots.ts"
+    "screenshots": "tsx scripts/screenshots.ts",
+    "thumbs": "tsx scripts/thumbs.ts"
   },
   "dependencies": {
     "@2dayai/core": "*",
