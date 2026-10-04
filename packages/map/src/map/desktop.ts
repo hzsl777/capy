@@ -1,4 +1,4 @@
-// Desktop 95 (experimental): the world drawn simply, as a mid-1990s desktop program would, in the sixteen colours of
+// Desktop 95: the world drawn simply, as a mid-1990s desktop program would, in the sixteen colours of
 // an early colour PC screen. Flat green land with a black coast on a navy sea, a band of dithered shallows along every
 // shore, a dotted grid of longitude and latitude, olive marks for mountains and dithered white ice. Globe view is the
 // same ball on black, its shading done by ordered dithering between each colour and its darker or lighter partner,

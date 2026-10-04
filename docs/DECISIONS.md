@@ -1083,3 +1083,24 @@ Neon wrote that the project had used 82% (4.1 GB) of the free plan's 5 GB monthl
 
 Left: the daily run's export once a day, now only the columns shown, and the stages' own reads.
 
+
+## 125. The reticle meets the story; the site retries its map file (October 3, 2026)
+
+Davis found the reticle finicky in some designs: a place counted as tuned within 22 pixels of the reticle, so after a drag the dot and the reticle often sat apart, and on a phone a place took careful aiming.
+
+1. **When a drag or its glide ends, the nearest place within 48 pixels of the reticle glides under it** (`snapToNearest` in `src/map/view.ts`), as a spin's landing already did. It is measured where tuning measures, at the place's ground point, and flies through the design's own camera, so it works the same on the globe, the flat map, tilted, warped and framed pictures, the cube and the record (checked in a browser on every design in both views). Keys, zoom and taps are unchanged: a tap on a dot already flies to it.
+2. **The site tries the day's file three times**, a second and then three apart, before it says the news couldn't be loaded, so a network blip or a deploy in progress doesn't leave a reader with an empty map. A missing day (the Worker's 404) still says so at once.
+
+
+## 126. Six designs join the Design menu; Primary gets more colour (October 3, 2026)
+
+Davis looked at the experimental designs and asked for First Render (`render`), Desktop 95 (`desktop`), Postcards (`postcard`), Zine (`zine`), Primary (`stijl`) and Woodblock (`woodblock`) to go live. They leave the experiments (decision 105) and join the Design menu's groups: Zine, Woodblock and Primary under Paper, ink and craft, First Render and Desktop 95 under Screens and signals, Postcards under Places and moods. None is featured. The site now has fifty-seven designs.
+
+Davis found Primary "a lil more colorful" would suit it. Its rules for colour stay: yellow and blue only, set by a hash of the cell's position, never on a cell the coast cuts and never on one too small to be longer than the largest marker. What changed:
+
+1. **More cells take colour**: the odds rise with the cell's size up to about two in five.
+2. **A small lake no longer keeps a cell white.** A lake only makes a hole inside the rectangle, whose black edges stay round it, so up to 15% of the cell may be lake. The coast is as strict as before: the colour's outline is always the rectangle's own.
+3. **Zoomed out to the whole map, the grid goes one level finer** while its unit stays at least 15 pixels, since at the coarsest level nearly every rectangle reaches a coast and none could take colour.
+4. **The page shows more of the three colours**: a red block and a blue one at the time bar's ends and a yellow band across the panel's top. Land is still never red.
+
+Machine Music, Departures, Record Player, Paper Screen and Shortwave stay experimental for rework; Herbarium stays as it is, off the menu.

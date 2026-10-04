@@ -1,4 +1,4 @@
-// First Render (id render, experimental): after the feel of the first computer-animated music videos of the
+// First Render (id render): after the feel of the first computer-animated music videos of the
 // mid-1980s, and nothing else from them: no people or figures, no names, no frames or art. Untextured polygons, each
 // flat-shaded by one hard light with no smoothing, in saturated colours, in a room built from a few big flat planes.
 //

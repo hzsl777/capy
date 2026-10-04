@@ -18,10 +18,10 @@ function noise(w: number, h: number, seed = 7): Uint8ClampedArray {
 }
 
 describe("Desktop 95", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured", () => {
     const t = THEMES.desktop;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("desktop");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("desktop"))).toHaveLength(1);
     expect(FEATURED).not.toContain("desktop");
     expect(t.fresh).not.toBe(t.dot);
     expect(t.motion).toBeFalsy();

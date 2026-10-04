@@ -1,4 +1,4 @@
-// Woodblock (id woodblock, experimental): after the feel of Japanese colour woodblock prints of the 1800s, a style
+// Woodblock (id woodblock): after the feel of Japanese colour woodblock prints of the 1800s, a style
 // centuries old and in the public domain. Nothing is copied from any print: the waves, the clouds and the seal are
 // our own drawings in that manner, and there are no figures, no people and no lettering.
 //
