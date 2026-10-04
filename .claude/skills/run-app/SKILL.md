@@ -1,6 +1,6 @@
 ---
 name: run-app
-description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, Newsroom, Frog Pond, Honeycomb, Tarot, Course of Empire, Bedtime Tea, Campus, Lasso, Night Drive, Cross Stitch, Rose Window, Nightclub, Poolside, Snow Globe, Spreadsheet, Market Terminal, Country Club, Sleeper Car, Aquarium, Lava Lamp, Radar Sweep, Film Noir, Arcade Cabinet, Stadium Jumbotron, Pop-up Book, Toy Train Set, Chalkboard, Sketchbook, Rave, Console Menu, Dual Screen, Old Realm, Tactical, Undersea Town, Block World, Pin Drop, Deli Counter, Marquee, Gummy Cluster) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
+description: Start the GlobalGist news map locally, open a specific design (Morning Edition, Cabinet Map, Wire Room, Ops Room, Blueprint, Pirate, Space, Candy Shop, Stage Select, Overworld, Polygon Kingdom, Realize, Newsroom, Frog Pond, Honeycomb, Tarot, Course of Empire, Bedtime Tea, Campus, Lasso, Night Drive, Cross Stitch, Rose Window, Nightclub, Poolside, Snow Globe, Spreadsheet, Market Terminal, Country Club, Sleeper Car, Aquarium, Lava Lamp, Radar Sweep, Film Noir, Arcade Cabinet, Stadium Jumbotron, Pop-up Book, Toy Train Set, Chalkboard, Sketchbook, Rave, Couch Potato, Dual Screen, Old Realm, Tactical, Undersea Town, Block World, Pin Drop, Deli Counter, Marquee, Gummy Cluster) in Map or Globe view, tune to a place, and take screenshots to check a change visually. Use when asked to run, preview, screenshot or visually verify the app.
 ---
 
 # Run the app
@@ -15,7 +15,7 @@ Paths in this skill are relative to `packages/map/`. Run npm scripts from the re
    - `&view=2d|3d`
    - Without `place`, the map turns until a place lands under the reticle (not with reduced motion).
    - `&place=<place id>` flies to that place, e.g. `ll:-1.29,36.82` (Nairobi in the sample). Place ids are `ll:<lat>,<lon>` of the publisher's city.
-   - Console Menu (`cube`) opens in the map; its home screen of channel tiles opens from the Menu button (`.x-menu`) or by picking the design from the Design menu, and Escape returns to the map.
+   - Couch Potato (`cube`) opens in the map; its home screen of channel tiles opens from the Menu button (`.x-menu`) or by picking the design from the Design menu, and Escape returns to the map.
 
 ## Screenshots
 

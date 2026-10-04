@@ -120,7 +120,7 @@ import "@fontsource/kalam/latin-ext-700.css";
 // Rave.
 import "@fontsource/unbounded/700.css";
 import "@fontsource/unbounded/900.css";
-// Console Menu and Dual Screen.
+// Couch Potato and Dual Screen.
 import "@fontsource/m-plus-rounded-1c/latin-500.css";
 import "@fontsource/m-plus-rounded-1c/latin-800.css";
 import "@fontsource/m-plus-rounded-1c/latin-ext-500.css";
@@ -627,7 +627,7 @@ function renderToolbar() {
       state.theme = id;
       setPref("theme", id);
       applyTheme();
-      // Choosing Console Menu shows its home screen of channels, with the map as the first tile (decision 100).
+      // Choosing Couch Potato shows its home screen of channels, with the map as the first tile (decision 100).
       if (id === "cube") showChannels(false);
     },
   );
@@ -907,7 +907,7 @@ function renderPanelView() {
   renderPlaces(panel, state.tuned);
 }
 
-// ---- Console Menu: the news channel's headline card (decision 100) --------------
+// ---- Couch Potato: the news channel's headline card (decision 100) --------------
 
 let card: HTMLElement | null = null;
 let cardFor = "";
@@ -977,7 +977,7 @@ function renderCard() {
   }
 }
 
-/** Where a channel on Console Menu's home screen leads, once the map is showing. */
+/** Where a channel on Couch Potato's home screen leads, once the map is showing. */
 function openChannel(channel: Channel) {
   if (channel === "word" || channel === "events") return openTelegram();
   if (channel === "earlier") {
@@ -1567,7 +1567,7 @@ function bindTimebar() {
 const TICKER_THEMES = new Set<ThemeId>(["wire", "newsroom"]);
 // Market Terminal's ticker: the newest headlines only, never prices, arrows or colours for up and down.
 TICKER_THEMES.add("terminal");
-// Console Menu's news channel: a crawl of the newest headlines along the bottom (decision 100).
+// Couch Potato's news channel: a crawl of the newest headlines along the bottom (decision 100).
 TICKER_THEMES.add("cube");
 
 function renderTicker() {

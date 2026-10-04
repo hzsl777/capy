@@ -1,11 +1,11 @@
-// Console Menu's home screen (decisions 100, 104 and 114): twelve channels of one size in a grid of four by three over
+// Couch Potato's home screen (decisions 100, 104 and 114): twelve channels of one size in a grid of four by three over
 // pale grey lines, after the feel of a late-2000s console's channel menu, with a rounded bottom bar holding a clock and
 // two round buttons. Every channel opens its own screen first, large, with Menu and Start under it and arrows at its
 // sides that step to the channel before or after, as the console did; Start goes into the map at that channel's part.
 // The map channel is a live copy of the map's own canvas with the newest headlines crawling under it. Our own drawing
 // and CSS only: no console maker's names, logos, sounds, characters or art.
 //
-// Only Console Menu shows any of this. It is a modal <dialog>, so focus stays in it, Escape steps back, and the page
+// Only Couch Potato shows any of this. It is a modal <dialog>, so focus stays in it, Escape steps back, and the page
 // behind is inert; the Menu button on the map brings it back. Text goes in as text, never as HTML.
 
 import { THEMES, type ThemeId } from "../themes.ts";
