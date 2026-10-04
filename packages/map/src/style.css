@@ -729,6 +729,233 @@ summary {
   font-size: 14px;
 }
 
+/* The Design picker (decision 131, src/ui/designs.ts): a popover of cards under the Design select, or a sheet from
+   the bottom on a phone. It is a .menu-body, so every design's own menu look applies; only its place and size are
+   set here, by id so no design's menu rules move it. */
+#design-pop {
+  position: fixed;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  transform: none;
+  /* Under whatever a design paints its menus with, so a glassy menu (Lava Lamp) still reads over the map. */
+  background-color: var(--panel);
+  z-index: 60;
+  width: min(680px, calc(100vw - 16px));
+  max-width: none;
+  max-height: min(72vh, 640px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font: 14px/1.25 var(--font-ui);
+  color: var(--ink);
+}
+/* The popover scrolls as one; its rows keep their own height instead of shrinking to fit. */
+#design-pop > * {
+  flex: none;
+}
+#design-pop.sheet {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  width: 100%;
+  max-height: 78vh;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
+#design-pop .dtop {
+  position: sticky;
+  top: -10px;
+  margin: -10px -10px 0;
+  padding: 10px 10px 6px;
+  background: var(--panel);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#design-pop .dhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#design-pop .dtitle {
+  margin: 0;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+}
+#design-pop .dsearch {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 6px 8px;
+}
+#design-pop .dclose {
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--rule);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+#design-pop .dchips {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+#design-pop .dchips .chip {
+  white-space: nowrap;
+  flex: none;
+}
+#design-pop .dgroup {
+  margin: 8px 0 4px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+#design-pop .dgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 8px;
+}
+#design-pop .dcard {
+  position: relative;
+}
+#design-pop .dcard-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+  padding: 4px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+}
+#design-pop .dcard-pick:hover {
+  background: var(--hover);
+}
+#design-pop .dcard-pick[aria-pressed="true"] {
+  outline: 3px solid var(--accent);
+  outline-offset: -1px;
+}
+#design-pop .dcard-pick:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+#design-pop .dcard-name {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+#design-pop .dcard-star {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  cursor: pointer;
+}
+#design-pop .dcard-star[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+/* The card's picture: the design's own sea, a continent and an island in its land and coast, a mark and a fresh one. */
+#design-pop .dsw {
+  position: relative;
+  display: block;
+  height: 58px;
+  overflow: hidden;
+}
+#design-pop .dsw-land {
+  position: absolute;
+  left: 10%;
+  top: 22%;
+  width: 52%;
+  height: 62%;
+  border: 2px solid;
+  border-radius: 46% 54% 40% 60% / 58% 44% 56% 42%;
+}
+#design-pop .dsw-isle {
+  left: 70%;
+  top: 56%;
+  width: 16%;
+  height: 26%;
+  border-radius: 50% 40% 55% 45%;
+}
+#design-pop .dsw-dot {
+  position: absolute;
+  left: 30%;
+  top: 44%;
+  width: 11px;
+  height: 11px;
+  border: 2px solid;
+  border-radius: 50%;
+}
+#design-pop .dsw-fresh {
+  left: 6%;
+  top: 8%;
+}
+#design-pop .dtip,
+#design-pop .dnone {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+/* The design a swipe on the phone's masthead changed to, shown for a moment. */
+#design-toast {
+  position: fixed;
+  left: 50%;
+  top: 12px;
+  z-index: 70;
+  margin: 0;
+  padding: 6px 12px;
+  transform: translateX(-50%);
+  font: 14px/1.2 var(--font-ui);
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  opacity: 0;
+  pointer-events: none;
+}
+#design-toast.show {
+  animation: design-toast 1.6s ease-out;
+}
+@keyframes design-toast {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #design-toast.show {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* Sample and demo files only; live data never shows it. Quiet, so it doesn't compete with the map. */
 .banner {
   margin: 0;

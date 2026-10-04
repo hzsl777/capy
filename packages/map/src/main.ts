@@ -204,6 +204,7 @@ import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
 import { hideChannels, mountChannels, refreshChannels, showChannels, type Channel } from "./ui/channels.ts";
+import { mountDesignPicker } from "./ui/designs.ts";
 // Departures (experimental): the split-flap board's tiles, rows and hall clock.
 import "@fontsource-variable/martian-mono/wdth.css";
 import "@fontsource/barlow-condensed/500.css";
@@ -601,6 +602,24 @@ function groupDesigns(el: HTMLSelectElement) {
   el.value = state.theme;
 }
 
+function chooseDesign(id: ThemeId) {
+  closeMenus();
+  state.theme = id;
+  setPref("theme", id);
+  applyTheme();
+  // Choosing Couch Potato shows its home screen of channels, with the map as the first tile (decision 100).
+  if (id === "cube") showChannels(false);
+}
+
+// The Design picker (decision 131): cards with each design's colours, search, filters, stars and recent ones, and a
+// swipe on the phone's masthead. The select stays in the toolbar and opens it.
+const designPicker = mountDesignPicker($("design-select") as HTMLSelectElement, {
+  current: () => state.theme,
+  ids: menuIds,
+  pick: chooseDesign,
+  phone: () => phone.matches,
+});
+
 function renderToolbar() {
   dropdown(
     $("view-select") as HTMLSelectElement,
@@ -622,14 +641,7 @@ function renderToolbar() {
     $("design-select") as HTMLSelectElement,
     menuIds().map((id) => [id, phone.matches ? THEMES[id].label.split(" ")[0]! : THEMES[id].label]),
     state.theme,
-    (id) => {
-      closeMenus();
-      state.theme = id;
-      setPref("theme", id);
-      applyTheme();
-      // Choosing Couch Potato shows its home screen of channels, with the map as the first tile (decision 100).
-      if (id === "cube") showChannels(false);
-    },
+    chooseDesign,
   );
   groupDesigns($("design-select") as HTMLSelectElement);
 
@@ -999,11 +1011,7 @@ function openChannel(channel: Channel) {
     else if (channel === "key") setKey(true);
     else if (channel === "replay" && !state.playing) $("play").click();
     else if (channel === "designs") {
-      try {
-        ($("design-select") as HTMLSelectElement).showPicker();
-      } catch {
-        // Without showPicker, or without a click to allow it: the focused list opens on Enter or Space.
-      }
+      designPicker.open();
     }
     else if (channel === "translate" && !$("translate-pick").hidden) {
       try {
