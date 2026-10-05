@@ -4,10 +4,8 @@
 // gentle rate, without a flash.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { geoContains, geoDistance } from "d3-geo";
-import type { FeatureCollection, Position } from "geojson";
-import { feature } from "topojson-client";
-import type { GeometryCollection, Topology } from "topojson-specification";
+import { geoDistance } from "d3-geo";
+import type { Position } from "geojson";
 import { describe, expect, it } from "vitest";
 import {
   BANDS,
