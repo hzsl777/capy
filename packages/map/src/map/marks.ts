@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe" | "buoy" | "seed";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe" | "buoy" | "seed" | "carrot";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -89,6 +89,17 @@ const SEED_TURN = -0.75;
 function seedAt(u: number, v: number): string {
   const c = Math.cos(SEED_TURN), s = Math.sin(SEED_TURN);
   return `${f(u * c - v * s)} ${f(u * s + v * c)}`;
+}
+
+// Bunny (experimental): a carrot, our own drawing, turned so its leafy top points to the upper right. One closed outline
+// (a tapered body with a rounded shoulder and three round leaves), so hollow, filled and ringed read as in every shape.
+const CARROT_TURN = -0.8;
+const CARROT_K = 0.8;
+
+/** A point in the carrot's own frame (u along its length toward the leaves, v across it), turned and scaled, as SVG numbers. */
+function carrotAt(u: number, v: number, r: number): string {
+  const c = Math.cos(CARROT_TURN), s = Math.sin(CARROT_TURN);
+  return `${f(r * CARROT_K * (u * c - v * s))} ${f(r * CARROT_K * (u * s + v * c))}`;
 }
 
 /** The outline of a marker of radius r, as SVG path data. */
@@ -330,6 +341,16 @@ export function markPath(shape: MarkShape, r: number): string {
       const R = r * BUOY_R, cy = r * BUOY_CY, nx = r * BUOY_NECK;
       const ny = cy - Math.sqrt(R * R - nx * nx);
       return `M${f(-nx)} ${f(r * BUOY_TOP)}H${f(nx)}V${f(ny)}A${f(R)} ${f(R)} 0 1 1 ${f(-nx)} ${f(ny)}Z`;
+    }
+    case "carrot": {
+      const a = (u: number, v: number) => carrotAt(u, v, r);
+      return (
+        `M${a(-1.3, 0)}C${a(-0.8, -0.12)} ${a(-0.1, -0.5)} ${a(0.35, -0.5)}C${a(0.5, -0.5)} ${a(0.55, -0.4)} ${a(0.5, -0.32)}` +
+        `Q${a(0.82, -0.7)} ${a(1.05, -0.62)}Q${a(0.95, -0.3)} ${a(0.72, -0.14)}` +
+        `Q${a(1.2, -0.2)} ${a(1.35, 0)}Q${a(1.2, 0.2)} ${a(0.72, 0.14)}` +
+        `Q${a(0.95, 0.3)} ${a(1.05, 0.62)}Q${a(0.82, 0.7)} ${a(0.5, 0.32)}` +
+        `C${a(0.55, 0.4)} ${a(0.5, 0.5)} ${a(0.35, 0.5)}C${a(-0.1, 0.5)} ${a(-0.8, 0.12)} ${a(-1.3, 0)}Z`
+      );
     }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X

@@ -236,6 +236,9 @@ import "@fontsource/lexend/400.css";
 import "@fontsource/lexend/600.css";
 // Burger Joint (experimental): the Topics menu's burger, built from the topics that are on.
 import { syncBurger } from "./ui/burger.ts";
+// Bunny (experimental): Fraunces for the name, the word and the heads (Nunito, above, for reading).
+import "@fontsource/fraunces/latin-700.css";
+import "@fontsource/fraunces/latin-800.css";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h

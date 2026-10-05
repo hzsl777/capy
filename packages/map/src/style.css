@@ -26318,3 +26318,500 @@ button.x-ch:focus-visible {
     padding-inline: 8px;
   }
 }
+
+/* ==========================================================================
+   Bunny (id bunny, experimental): a burrow and a meadow, every picture our own drawing (the canvas side is
+   src/map/bunny.ts). The masthead is sky over a turf edge; under it the page is earth, and the controls run along a
+   tunnel of cream in a wall of soft biscuit-brown. The panel, the menus, the Key and the About dialog are chambers: cream
+   rooms in earth walls with a floor of hay. The name carries a pair of ears of our own, the word stands in an arched
+   doorway, buttons are round pebbles of cream, the zoom buttons round pads, and the time slider is a tunnel with a
+   carrot to move along it. Soft round letters: Fraunces for the name, the word and the heads, Nunito for reading.
+   Nothing moves in the page; the one thing that moves is the bunny on the canvas.
+   ========================================================================== */
+:root[data-theme="bunny"] {
+  color-scheme: light;
+  --page: #f6e6d2;
+  --panel: #fffaf0;
+  --ink: #43303a;
+  --ink-2: #5a424e;
+  --muted: #76595f;
+  --rule: #b99682;
+  --accent: #b4521a;
+  --on-accent: #fffaf0;
+  --hover: rgba(180, 82, 26, 0.09);
+  --reticle: #43303a;
+  --grain-opacity: 0;
+  --grain-blend: multiply;
+  --font-mast: "Fraunces", Georgia, serif;
+  --font-head: "Fraunces", Georgia, serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+  --bn-earth: #caa690;
+  --bn-earth-hi: #e6cdb9;
+  --bn-earth-lo: #a98470;
+  --bn-wall: #b99682;
+  --bn-cream: #fff6e8;
+  --bn-grass: #b8dca4;
+  --bn-grass-deep: #6aac78;
+  --bn-sky: #cde6f2;
+  --bn-carrot: #f08a3a;
+  --bn-hay: #efd48c;
+  --bn-hay-deep: #cfa95a;
+  /* A pair of ears of our own: two long ovals with a pink inside, one leaning. */
+  --bn-ears: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Cg stroke='%23d9c9b3' stroke-width='1.4'%3E%3Cellipse cx='13' cy='20' rx='5.6' ry='17' transform='rotate(-10 13 36)' fill='%23fffaf0'/%3E%3Cellipse cx='27' cy='20' rx='5.6' ry='17' transform='rotate(8 27 36)' fill='%23fffaf0'/%3E%3C/g%3E%3Cellipse cx='13' cy='20' rx='2.8' ry='12.5' transform='rotate(-10 13 36)' fill='%23f7b9c6'/%3E%3Cellipse cx='27' cy='20' rx='2.8' ry='12.5' transform='rotate(8 27 36)' fill='%23f7b9c6'/%3E%3C/svg%3E");
+  /* A carrot lying along the slider, leaves to the left. */
+  --bn-carrot-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 22'%3E%3Cpath d='M13 11C8 5 3 3 0 6c4 1 7 3 9 5-3 1-6 3-8 7 5-1 9-3 12-7Z' fill='%2369b176' stroke='%234f9161' stroke-width='1' stroke-linejoin='round'/%3E%3Cpath d='M12 6.5C12 3.5 15 3.5 17 4.5L38 10c4 1 4 2 0 3L17 18.5c-2 1-5 1-5-2Z' fill='%23f08a3a' stroke='%23d9691f' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M19 6l1.5 4M26 8l1 4M32 10l.8 2.6' stroke='%23d9691f' stroke-width='1' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E");
+  --bn-speck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23a98470'%3E%3Ccircle cx='9' cy='14' r='1.3' fill-opacity='.35'/%3E%3Ccircle cx='47' cy='8' r='.9' fill-opacity='.3'/%3E%3Ccircle cx='88' cy='22' r='1.5' fill-opacity='.3'/%3E%3Ccircle cx='30' cy='52' r='1' fill-opacity='.35'/%3E%3Ccircle cx='71' cy='60' r='1.4' fill-opacity='.28'/%3E%3Ccircle cx='108' cy='74' r='1' fill-opacity='.35'/%3E%3Ccircle cx='15' cy='96' r='1.5' fill-opacity='.3'/%3E%3Ccircle cx='58' cy='104' r='1' fill-opacity='.35'/%3E%3Ccircle cx='96' cy='110' r='1.3' fill-opacity='.3'/%3E%3Ccircle cx='60' cy='34' r='.8' fill-opacity='.3'/%3E%3C/g%3E%3C/svg%3E");
+  /* A turf edge: round bumps of grass along the foot of the masthead. */
+  --bn-turf: radial-gradient(circle at 11px 0, var(--bn-grass) 0 9px, transparent 9.5px) 0 0 / 22px 11px repeat-x;
+}
+:root[data-theme="bunny"] body {
+  background: var(--bn-speck) 0 0 / 120px 120px, var(--page);
+}
+
+/* ---- masthead: sky over a turf edge ---- */
+:root[data-theme="bunny"] .masthead {
+  position: relative;
+  border-bottom: 0;
+  padding-bottom: 20px;
+  background: linear-gradient(to bottom, #cde6f2, #e8f2ee 55%, #fdeedc);
+}
+:root[data-theme="bunny"] .masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 11px;
+  background: var(--bn-turf);
+  pointer-events: none;
+}
+:root[data-theme="bunny"] .masthead::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 4px;
+  background: var(--bn-grass);
+  pointer-events: none;
+}
+:root[data-theme="bunny"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.05;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: #4a3340;
+}
+:root[data-theme="bunny"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 0.85em;
+  height: 0.95em;
+  margin-right: 0.18em;
+  vertical-align: -0.08em;
+  background: var(--bn-ears) center bottom / contain no-repeat;
+}
+:root[data-theme="bunny"] .mast-tag {
+  font: 700 12.5px/1.3 var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+:root[data-theme="bunny"] .telegram-kicker,
+:root[data-theme="bunny"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+}
+:root[data-theme="bunny"] .telegram-note,
+:root[data-theme="bunny"] .telegram-none {
+  font: italic 600 13px/1.35 var(--font-body);
+  opacity: 1;
+  color: var(--ink-2);
+}
+/* The word stands in an arched doorway: cream inside, an earth wall round it, a round top like the burrow's window. */
+:root[data-theme="bunny"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #4a3340;
+  border: 4px solid var(--bn-wall);
+  border-radius: 999px 999px 16px 16px;
+  padding: 4px 30px 6px;
+  margin-top: 2px;
+  background: linear-gradient(to bottom, #fffdf7, var(--bn-cream));
+  box-shadow: inset 0 -5px 0 var(--bn-hay), 0 3px 8px rgba(100, 70, 60, 0.2);
+}
+:root[data-theme="bunny"] .telegram-word:hover,
+:root[data-theme="bunny"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  border-color: var(--bn-earth-lo);
+  background: linear-gradient(to bottom, #fffdf7, #fdecd2);
+}
+:root[data-theme="bunny"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #4a3340;
+}
+:root[data-theme="bunny"] .scale {
+  border: 2px solid var(--bn-wall);
+  border-radius: 999px;
+  background: var(--bn-cream);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  overflow: hidden;
+}
+:root[data-theme="bunny"] .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="bunny"] .scale .step + .step {
+  border-left: 1px solid #dcc3ae;
+}
+:root[data-theme="bunny"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="bunny"] .score-chip {
+  border-color: var(--bn-wall);
+  border-radius: 999px;
+}
+:root[data-theme="bunny"] .score-chip.s0,
+:root[data-theme="bunny"] .score-chip.s1 {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ---- toolbar: a tunnel, cream inside an earth wall ---- */
+:root[data-theme="bunny"] .toolbar {
+  margin: 10px var(--gutter) 8px;
+  padding: 6px 12px;
+  border: 4px solid var(--bn-wall);
+  border-radius: 28px;
+  background: var(--bn-cream);
+  box-shadow: inset 0 5px 10px -4px rgba(120, 80, 60, 0.28), 0 0 0 3px var(--bn-earth-hi);
+  font: 700 14px/1 var(--font-ui);
+}
+:root[data-theme="bunny"] .banner {
+  margin: 0 var(--gutter) 6px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 246, 232, 0.85);
+  color: var(--ink);
+  font-weight: 700;
+}
+:root[data-theme="bunny"] .tool,
+:root[data-theme="bunny"] .pick select,
+:root[data-theme="bunny"] .menu > summary,
+:root[data-theme="bunny"] .chip,
+:root[data-theme="bunny"] .key-btn,
+:root[data-theme="bunny"] .key-close,
+:root[data-theme="bunny"] dialog .close {
+  border: 2px solid var(--bn-earth-lo);
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #fffdf7, #f6e6d0);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 800;
+  box-shadow: 0 2px 0 rgba(150, 110, 90, 0.4);
+}
+:root[data-theme="bunny"] .tool:hover,
+:root[data-theme="bunny"] .pick select:hover,
+:root[data-theme="bunny"] .menu > summary:hover,
+:root[data-theme="bunny"] .chip:hover,
+:root[data-theme="bunny"] .key-btn:hover,
+:root[data-theme="bunny"] .key-close:hover,
+:root[data-theme="bunny"] dialog .close:hover {
+  background: linear-gradient(to bottom, #fffdf7, #fbe3c4);
+  border-color: var(--accent);
+}
+:root[data-theme="bunny"] .tool[aria-pressed="true"],
+:root[data-theme="bunny"] .menu[open] > summary,
+:root[data-theme="bunny"] .chip[aria-pressed="true"],
+:root[data-theme="bunny"] .key-btn[aria-expanded="true"] {
+  border-color: #8a3d10;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: inset 0 2px 4px rgba(60, 20, 0, 0.35);
+}
+:root[data-theme="bunny"] .menu[open] > summary::after,
+:root[data-theme="bunny"] .chip[aria-pressed="true"] * {
+  color: inherit;
+}
+:root[data-theme="bunny"] .pick::after {
+  color: var(--ink);
+}
+:root[data-theme="bunny"] .pick select {
+  line-height: 1.3;
+}
+:root[data-theme="bunny"] .pick option {
+  font-weight: 600;
+}
+:root[data-theme="bunny"] .chip-all {
+  border-style: dashed;
+}
+
+/* ---- the stage: earth with the map's window and the panel's chamber in it ---- */
+:root[data-theme="bunny"] .stage {
+  position: relative;
+  background: var(--bn-speck) 0 0 / 120px 120px, var(--bn-earth-hi);
+}
+:root[data-theme="bunny"] .map {
+  background: var(--bn-sky);
+}
+:root[data-theme="bunny"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #fffaf0) drop-shadow(0 0 1px #fffaf0);
+}
+:root[data-theme="bunny"] .key-btn {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+/* The zoom buttons: two round pads of cream with an earth rim. */
+:root[data-theme="bunny"] .zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+:root[data-theme="bunny"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--bn-earth-lo);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fffdf7, #f6e6d0);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: 0 2px 0 rgba(150, 110, 90, 0.4);
+}
+:root[data-theme="bunny"] .zoom button + button {
+  border-top: 2px solid var(--bn-earth-lo);
+}
+:root[data-theme="bunny"] .zoom button:hover {
+  background: radial-gradient(circle at 40% 35%, #fffdf7, #fbe3c4);
+  border-color: var(--accent);
+}
+
+/* ---- the chamber: a cream room in an earth wall, a floor of hay along its foot, a pair of ears over its roof ---- */
+:root[data-theme="bunny"] .panel {
+  margin: 34px 14px 14px 14px;
+  border: 5px solid var(--bn-wall);
+  border-radius: 28px;
+  /* The floor of hay is a pale strip behind the text, which keeps clear of it at the end of the list. */
+  background: linear-gradient(to top, rgba(239, 212, 140, 0.7) 0 7px, transparent 7px), var(--panel);
+  padding-bottom: 30px;
+  box-shadow: inset 0 0 0 2px #f3e3d3, inset 0 10px 16px -10px rgba(120, 80, 60, 0.3), 0 3px 8px rgba(100, 70, 60, 0.28);
+}
+:root[data-theme="bunny"] .panel.framed {
+  margin-top: 34px;
+}
+:root[data-theme="bunny"] .stage::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 64px;
+  width: 52px;
+  height: 36px;
+  background: var(--bn-ears) center bottom / contain no-repeat;
+  pointer-events: none;
+  z-index: 2;
+}
+:root[data-theme="bunny"] .menu-body,
+:root[data-theme="bunny"] .key-pop,
+:root[data-theme="bunny"] .map-note,
+:root[data-theme="bunny"] dialog {
+  border: 5px solid var(--bn-wall);
+  border-radius: 24px;
+  background: linear-gradient(to top, var(--bn-hay) 0 7px, transparent 7px), var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px #f3e3d3, 0 6px 18px rgba(80, 50, 50, 0.28);
+}
+:root[data-theme="bunny"] dialog::backdrop {
+  background: rgba(74, 51, 64, 0.42);
+}
+:root[data-theme="bunny"] .panel-title,
+:root[data-theme="bunny"] .place-name,
+:root[data-theme="bunny"] .key-head h2,
+:root[data-theme="bunny"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 800;
+  line-height: 1.12;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #4a3340;
+  overflow-wrap: anywhere;
+}
+:root[data-theme="bunny"] .panel-title,
+:root[data-theme="bunny"] .place-name {
+  font-size: 27px;
+}
+:root[data-theme="bunny"] .key-head h2,
+:root[data-theme="bunny"] dialog h2 {
+  font-size: 22px;
+}
+:root[data-theme="bunny"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+:root[data-theme="bunny"] .dateline {
+  border-bottom: 2px dotted var(--bn-earth-lo);
+  padding-bottom: 8px;
+}
+:root[data-theme="bunny"] .dateline .coords,
+:root[data-theme="bunny"] .count,
+:root[data-theme="bunny"] .meta {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--muted);
+}
+:root[data-theme="bunny"] .rule-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+:root[data-theme="bunny"] .rule-head::before,
+:root[data-theme="bunny"] .rule-head::after {
+  content: "";
+  flex: 1 1 12px;
+  min-width: 12px;
+  border-top: 3px dotted #dcc3ae;
+}
+:root[data-theme="bunny"] .stories li + li {
+  border-top: 2px dotted #dcc3ae;
+}
+:root[data-theme="bunny"] .story:hover,
+:root[data-theme="bunny"] .story:focus-visible {
+  outline: none;
+  background: rgba(253, 236, 210, 0.8);
+  border-radius: 12px;
+}
+:root[data-theme="bunny"] .headline {
+  font-weight: 800;
+  color: var(--ink);
+}
+:root[data-theme="bunny"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 800;
+  line-height: 1.25;
+}
+:root[data-theme="bunny"] .cite,
+:root[data-theme="bunny"] .source-num {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+:root[data-theme="bunny"] .excerpt-quote {
+  font-style: italic;
+  border-left: 4px solid var(--bn-hay-deep);
+}
+
+/* ---- time bar: earth, with the slider a tunnel and a carrot to move along it ---- */
+:root[data-theme="bunny"] .timebar {
+  border-top: 0;
+  background: var(--bn-speck) 0 0 / 120px 120px, var(--bn-earth-hi);
+  box-shadow: inset 0 4px 0 var(--bn-earth);
+}
+:root[data-theme="bunny"] .time-label {
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+  font-weight: 800;
+}
+:root[data-theme="bunny"] .slider input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 30px;
+  margin: 0;
+}
+:root[data-theme="bunny"] .slider input::-webkit-slider-runnable-track {
+  height: 14px;
+  border: 3px solid var(--bn-wall);
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #f3e3d0, var(--bn-cream));
+  box-shadow: inset 0 3px 4px rgba(120, 80, 60, 0.3);
+}
+:root[data-theme="bunny"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 42px;
+  height: 21px;
+  margin-top: -6px;
+  border: 0;
+  background: var(--bn-carrot-img) center / contain no-repeat;
+  filter: drop-shadow(0 1px 1px rgba(80, 40, 20, 0.4));
+}
+:root[data-theme="bunny"] .slider input::-moz-range-track {
+  height: 8px;
+  border: 3px solid var(--bn-wall);
+  border-radius: 999px;
+  background: var(--bn-cream);
+}
+:root[data-theme="bunny"] .slider input::-moz-range-thumb {
+  width: 42px;
+  height: 21px;
+  border: 0;
+  border-radius: 0;
+  background: var(--bn-carrot-img) center / contain no-repeat;
+}
+:root[data-theme="bunny"] .slider input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+@media (max-width: 760px) {
+  :root[data-theme="bunny"] .mast-title {
+    font-size: 28px;
+  }
+  :root[data-theme="bunny"] .telegram-word {
+    padding: 3px 10px 5px;
+    border-width: 3px;
+  }
+  :root[data-theme="bunny"] .toolbar {
+    margin: 8px var(--gutter) 6px;
+    padding: 5px 8px;
+    border-width: 3px;
+    border-radius: 24px;
+  }
+  :root[data-theme="bunny"] .panel,
+  :root[data-theme="bunny"] .panel.framed {
+    margin: 14px 10px 10px;
+  }
+  :root[data-theme="bunny"] .stage::after {
+    display: none;
+  }
+  :root[data-theme="bunny"] .zoom button {
+    width: 36px;
+    height: 36px;
+  }
+}
+/* Heavy rounded capitals are wide: a little closer on a narrow phone, so the controls keep to one row. */
+@media (max-width: 400px) {
+  :root[data-theme="bunny"] .toolbar {
+    gap: 4px;
+    padding: 5px 6px;
+    font-size: 12.5px;
+    border-width: 3px;
+  }
+  :root[data-theme="bunny"] .tool,
+  :root[data-theme="bunny"] .menu > summary {
+    padding: 7px 7px;
+  }
+  :root[data-theme="bunny"] .pick select {
+    padding: 7px 17px 7px 7px;
+    letter-spacing: 0;
+  }
+}
