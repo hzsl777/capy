@@ -1,4 +1,4 @@
-// Machine Music (src/map/machine.ts, src/ui/machine.ts): an experimental design that stays off the Design menu; its rack
+// Machine Music (src/map/machine.ts, src/ui/machine.ts): a design in the menu (decision 134); its rack
 // under the map shows only in this design; and everything that moves never flashes (WCAG 2.3.1): the sequencer lights
 // one step at a time, slowly, so the row's light holds steady and no step lights more than three times a second, and
 // the chasers are a few pixels tall and step at the same slow pace. The stage's picture is the canvas's and never lies
@@ -35,10 +35,11 @@ const sum = (a: number[]) => a.reduce((s, v) => s + v, 0);
 const css = readFileSync(here("../src/style.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 
 describe("Machine Music", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
     const t = THEMES.machine;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("machine");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("machine"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("machine");
     expect(FEATURED).not.toContain("machine");
     expect(t.surface).toBe("machine");
   });

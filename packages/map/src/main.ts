@@ -156,7 +156,7 @@ import "@fontsource/josefin-sans/600.css";
 import "@fontsource/josefin-sans/700.css";
 // Gummy Cluster (Nunito, above, for reading).
 import "@fontsource/lilita-one/400.css";
-// Shortwave (experimental): the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
+// Shortwave: the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
 import "./style.css";
@@ -205,7 +205,7 @@ import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
 import { hideChannels, mountChannels, refreshChannels, showChannels, type Channel } from "./ui/channels.ts";
 import { mountDesignPicker } from "./ui/designs.ts";
-// Departures (experimental): the split-flap board's tiles, rows and hall clock.
+// Departures: the split-flap board's tiles, rows and hall clock.
 import "@fontsource-variable/martian-mono/wdth.css";
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
@@ -223,7 +223,7 @@ import { mountDial, moveDial } from "./ui/dial.ts";
 import { renderPostcard } from "./ui/postcard.ts";
 // Zine: chunky display capitals for the off-register name and word.
 import "@fontsource/bowlby-one/400.css";
-// Tiramisu (experimental): the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card.
+// Tiramisu: the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card.
 import { beanCrease } from "./map/marks.ts";
 import "@fontsource/playfair-display/400-italic.css";
 import "@fontsource/playfair-display/600-italic.css";
@@ -1792,7 +1792,7 @@ async function start() {
     kmPerPixel: () => map.kmPerPixel(),
     level: () => map.level(),
   });
-  // Notebook's pages for the panel and the About dialog (experimental); idle in every other design.
+  // Notebook's pages for the panel and the About dialog; idle in every other design.
   mountPaper();
   // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
   mountDial({
@@ -1860,7 +1860,7 @@ async function start() {
     },
     about: () => ($("about") as HTMLDialogElement).showModal(),
   });
-  // Record Player (experimental): the record's centre label and its deck.
+  // Record Player: the record's centre label and its deck.
   mountVinyl({
     theme: () => state.theme,
     spinning: () => map.isSpinning,

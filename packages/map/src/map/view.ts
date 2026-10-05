@@ -75,7 +75,7 @@ import { drawSoup, SoupCache } from "./soup.ts";
 import { DesktopCache, drawDesktop } from "./desktop.ts";
 // Herbarium (experimental).
 import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
-// Tiramisu (experimental): the dish, the bowl and the coffee bean's crease.
+// Tiramisu: the dish, the bowl and the coffee bean's crease.
 import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
 import { beanCrease2D } from "./marks.ts";
 import { BRAKE_DEG, CAP, dragRecord, drawVinyl, NEEDLE_LAT, needleAt, recordBase, recordProjection, recordSpin, turnToNeedle, VinylCache } from "./vinyl.ts";
@@ -88,7 +88,7 @@ import { drawPaper, PaperCache } from "./paper.ts";
 import { drawPostcard, PostcardCache } from "./postcard.ts";
 import { Camera, drawFold, foldArc, foldBase, foldPlace, INTRO_MS, introPose, netInvert, netPoint, restingPose, TURN_MS, turnPose } from "./fold.ts";
 import { readerTilt, stepTilt, tiltRange, twoFingerGesture, TILT_KEY_STEP, TILT_PER_PX } from "./tilt.ts";
-// Departures (experimental): the hall's wall map and the clock's ring round the globe.
+// Departures: the hall's wall map and the clock's ring round the globe.
 import { drawFlap, FlapCache } from "./flap.ts";
 // Zine: the map printed in blue and pink halftone inks, off register.
 import { BLUE as ZINE_BLUE, drawZine, misregister as zineOffset, ZineCache } from "./zine.ts";

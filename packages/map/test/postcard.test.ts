@@ -1,4 +1,4 @@
-// Postcards (src/map/postcard.ts, src/ui/postcard.ts): an experimental design that stays off the Design menu; the
+// Postcards (src/map/postcard.ts, src/ui/postcard.ts): a design in the menu (decision 126); the
 // folded sheet's creases never run through the reticle; and the postcard's slide and turn stay under the no-flash
 // limit (WCAG 2.3.1): short, still for reduced motion, never more than once a second on their own, and between two
 // faces close enough in brightness that the turn swings the panel's light less than 10%.

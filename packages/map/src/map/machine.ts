@@ -1,4 +1,4 @@
-// Machine Music (id machine, experimental): after the feel of 1970s and 80s German electronic music stage shows and
+// Machine Music (id machine): after the feel of 1970s and 80s German electronic music stage shows and
 // record sleeves, and the constructivist posters they borrowed from. Nothing is copied from any of them: no names,
 // figures, sleeve or poster art, lettering or logos. Black, signal red, warm grey and white only.
 //

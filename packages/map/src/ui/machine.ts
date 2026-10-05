@@ -1,4 +1,4 @@
-// Machine Music's rack under the map (experimental, src/map/machine.ts has its timing and its picture). A strip of
+// Machine Music's rack under the map (src/map/machine.ts has its timing and its picture). A strip of
 // its own below the map, so the map keeps its whole frame, built like a rack of modules and hidden by CSS in every
 // other design. Two kinds of module:
 // - Controls that do real things, as real buttons: a transport key (Replay), a rocker for Map and Globe, zoom keys

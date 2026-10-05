@@ -1,4 +1,4 @@
-// Record Player (vinyl, experimental): after the feel of a 1970s home turntable, and none of any maker's, label's,
+// Record Player (id vinyl): after the feel of a 1970s home turntable, and none of any maker's, label's,
 // artist's or album's names, logos or art. The reader plays the world like a record.
 //
 // Globe view is a turntable seen from above, and the record on it really turns. The deck is fixed to the screen: a slab

@@ -2199,7 +2199,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   machine: {
     id: "machine",
     label: "Machine Music",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "machine",
@@ -2279,7 +2278,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   flap: {
     id: "flap",
     label: "Departures",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEqualEarth,
     surface: "flap",
@@ -2356,7 +2354,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   vinyl: {
     id: "vinyl",
     label: "Record Player",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
     surface: "vinyl",
@@ -2395,7 +2392,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   paper: {
     id: "paper",
     label: "Notebook",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     surface: "paper",
@@ -2434,7 +2430,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   shortwave: {
     id: "shortwave",
     label: "Shortwave",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     ocean: "#a3ab86",
@@ -2670,7 +2665,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   tiramisu: {
     id: "tiramisu",
     label: "Tiramisu",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "tiramisu",
@@ -2710,7 +2704,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   soup: {
     id: "soup",
     label: "Noodle Bowl",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEqualEarth,
     surface: "soup",
@@ -2751,11 +2744,11 @@ export const THEMES: Record<ThemeId, Theme> = {
  * elsewhere slot in by id, and any design not listed here lands in "Other", so none ever drops out of the menu.
  */
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
-  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl"] },
-  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop"] },
+  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl", "paper"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop", "machine", "flap", "shortwave"] },
   { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "crunch", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
   { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
-  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard"] },
+  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard", "vinyl", "tiramisu", "soup"] },
 ];
 
 /**

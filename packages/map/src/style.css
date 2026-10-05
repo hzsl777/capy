@@ -15811,7 +15811,7 @@ button.x-ch:focus-visible {
 }
 
 /* ==========================================================================
-   Machine Music (machine, experimental): after the feel of 1970s and 80s German electronic music stage shows and the
+   Machine Music (machine): after the feel of 1970s and 80s German electronic music stage shows and the
    constructivist posters they borrowed from, copying none of their names, figures, sleeves, posters or lettering
    (src/map/machine.ts). A black stage, signal red, warm greys and white, nothing else. Wide-tracked pixel capitals
    (Silkscreen) for the name and the word, Barlow and IBM Plex Mono for reading. The page is one poster: a diagonal
@@ -17088,7 +17088,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Departures (id flap, experimental): after the feel of a split-flap departures board in a big station hall,
+/* ---- Departures (id flap): after the feel of a split-flap departures board in a big station hall,
    with no operator's, airline's, railway's or maker's names, logos or colours. Its own colours, never amber on black: the hall is warm stone with brass hairlines and signage blue and bottle green; the board hung in it
    is slate green-grey flap tiles with cream characters, and the map is the hall's wall map (src/map/flap.ts), deep
    blue-green with cream lamps. Flaps have a split across the middle of each character, buttons are small signage tiles,
@@ -18743,7 +18743,7 @@ button.x-ch:focus-visible {
 }
 
 /* ==========================================================================
-   Record Player (vinyl, experimental): after the feel of a 1970s home turntable, and none of any maker's, label's,
+   Record Player (vinyl): after the feel of a 1970s home turntable, and none of any maker's, label's,
    artist's or album's names, logos or art (src/map/vinyl.ts, src/ui/vinyl.ts). A walnut plinth, a brushed aluminium
    faceplate with keys like a hi-fi's, a tuning dial for the time bar, the panel as the back of a record sleeve with the
    tuned place's stories listed like its tracks (a time where a track's number would be, never a rank), and the word
@@ -19270,7 +19270,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Notebook (id paper, experimental): a ruled school notebook page with the world drawn on it by hand in ballpoint
+/* ---- Notebook (id paper): a ruled school notebook page with the world drawn on it by hand in ballpoint
    pen. The page is the stylesheet's (src/map/paper.ts draws only the pen over a clear sea): white paper ruled in pale
    blue every 28 pixels, a red double margin line, three punched holes, lying on a desk on wide screens. The site's own
    writing is in a handwriting face (Patrick Hand for reading, Dancing Script for the name and the word) in blue ballpoint
@@ -20106,7 +20106,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Shortwave (id shortwave, experimental): after the feel of a mid-century world-band radio receiver, with no
+/* ---- Shortwave (id shortwave): after the feel of a mid-century world-band radio receiver, with no
    maker's name, logo or dial printing copied. A walnut cabinet round the page, cream push-buttons in brass rims,
    Bakelite knobs for zoom, and under the map the radio's front (src/ui/dial.ts): a speaker grille, a green tuning lamp,
    a long backlit cream dial window with a red needle, and the big tuning knob that turns the world. The panel is the
@@ -23924,7 +23924,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Tiramisu (id tiramisu, experimental): a cream and cocoa pasticceria of our own, no cafe's or brand's name, mark
+/* ---- Tiramisu (id tiramisu): a cream and cocoa pasticceria of our own, no cafe's or brand's name, mark
    or packaging. The page is cream dusted with cocoa; the name and the word in Playfair Display's italic like a pastry
    label; the panel, the menus, the Key and the About dialog are menu cards in a fine double cocoa rule; buttons are
    cocoa-dusted tiles, the zoom buttons piped cream rosettes. Reading text is Lora in espresso brown on cream. Nothing
@@ -24354,7 +24354,7 @@ button.x-ch:focus-visible {
 }
 
 /* ==========================================================================
-   Noodle Bowl (soup, experimental): the world in a bowl of broth, drawn on the canvas (src/map/soup.ts). The page is
+   Noodle Bowl (soup): the world in a bowl of broth, drawn on the canvas (src/map/soup.ts). The page is
    the table it stands on: warm linen, red lacquer, cream china and soy-brown ink, rounded pill buttons, cream panels
    with a lacquer edge, and a small bowl of our own beside the name. No maker's, shop's or dish's brand.
    ========================================================================== */
