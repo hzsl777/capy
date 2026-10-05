@@ -76,18 +76,18 @@ import { AlienCache, drawAlien } from "./alien.ts";
 import { drawSoup, SoupCache } from "./soup.ts";
 // Desktop 95.
 import { DesktopCache, drawDesktop } from "./desktop.ts";
-// Herbarium (experimental).
+// Garden (formerly Herbarium).
 import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
 // Tiramisu: the dish, the bowl and the coffee bean's crease.
 import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
-// Bunny (experimental): the burrow, the lawn and the bunny that hops out to the tuned place.
+// Bunny: the burrow, the lawn and the bunny that hops out to the tuned place.
 import { BunnyCache, drawBunnyScene } from "./bunny.ts";
 import { beanCrease2D } from "./marks.ts";
-// Burger Joint (experimental): the stack of layers round the world, on a tray.
+// Burger Joint: the stack of layers round the world, on a tray.
 import { BurgerCache, drawBurger } from "./burger.ts";
 import { BRAKE_DEG, CAP, dragRecord, drawVinyl, NEEDLE_LAT, needleAt, recordBase, recordProjection, recordSpin, turnToNeedle, VinylCache } from "./vinyl.ts";
 import { drawWoodblock } from "./woodblock.ts";
-// Lobster (experimental): the chart and the dock, and the buoy mark's painted band.
+// Lobster: the chart and the dock, and the buoy mark's painted band.
 import { drawLobster, LobsterCache } from "./lobster.ts";
 import { buoyBand2D } from "./marks.ts";
 import { CoreCache, drawCore } from "./core.ts";

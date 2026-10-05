@@ -1,4 +1,4 @@
-// Bunny (id bunny, experimental): a burrow and a meadow, every picture our own drawing. The bunnies are soft, round and
+// Bunny (id bunny): a burrow and a meadow, every picture our own drawing. The bunnies are soft, round and
 // plain: a round body, a round head, long ears with a pink inside, a cotton tail. They are none of any book, film,
 // cartoon, game, toy or brand, and nothing here copies a mark of any maker.
 //

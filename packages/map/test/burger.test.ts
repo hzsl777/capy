@@ -1,6 +1,6 @@
 // Burger Joint (src/map/burger.ts, src/ui/burger.ts): the leaf veins are tied to the world's longitude and latitude,
 // the stack of layers round the world is built in order from rings that fit their shapes, the tray's bottles keep clear
-// of the globe's stack, the map's window, the Key, the zoom buttons and each other, the design is experimental only,
+// of the globe's stack, the map's window, the Key, the zoom buttons and each other, the design is in the menu,
 // land is never red, and nothing in it moves.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -238,10 +238,10 @@ describe("burger: the Topics menu's burger", () => {
 describe("burger: the design", () => {
   const t = THEMES.burger;
 
-  it("is experimental only", () => {
-    expect(t.experimental).toBe(true);
+  it("is in the Design menu, in one group and not featured (decision 138)", () => {
     expect(t.surface).toBe("burger");
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("burger");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("burger"))).toHaveLength(1);
     expect(FEATURED).not.toContain("burger");
   });
 
@@ -279,14 +279,14 @@ describe("burger: the design", () => {
   it("writes no text on the canvas and no em dash anywhere in its files", () => {
     expect(source).not.toMatch(/fillText|strokeText/);
     expect(source).not.toContain("—");
-    const start = css.indexOf("Burger Joint (burger, experimental)");
+    const start = css.indexOf("Burger Joint (burger):");
     expect(start).toBeGreaterThan(-1);
     expect(css.slice(start)).not.toContain("—");
     expect(css.slice(start)).not.toMatch(/style="/);
   });
 
   it("prints the panel's ticket with a reveal that changes no light, and not for reduced motion", () => {
-    const start = css.indexOf("Burger Joint (burger, experimental)");
+    const start = css.indexOf("Burger Joint (burger):");
     const sheet = css.slice(start);
     expect(sheet).toContain("prefers-reduced-motion: no-preference");
     const frames = sheet.slice(sheet.indexOf("@keyframes burger-print"), sheet.indexOf("@keyframes burger-print") + 200);

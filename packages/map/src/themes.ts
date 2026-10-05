@@ -2746,7 +2746,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   alien: {
     id: "alien",
     label: "Alien",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEqualEarth,
     surface: "alien",
@@ -2787,7 +2786,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   lobster: {
     id: "lobster",
     label: "Lobster",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "lobster",
@@ -2827,7 +2825,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   burger: {
     id: "burger",
     label: "Burger Joint",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "burger",
@@ -2868,7 +2865,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   bunny: {
     id: "bunny",
     label: "Bunny",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
     surface: "bunny",
@@ -2911,8 +2907,8 @@ export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[]
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl", "paper"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop", "machine", "flap", "shortwave"] },
   { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "crunch", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
-  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space", "herbarium"] },
-  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard", "vinyl", "tiramisu", "soup"] },
+  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space", "herbarium", "alien", "bunny"] },
+  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard", "vinyl", "tiramisu", "soup", "burger", "lobster"] },
 ];
 
 /**

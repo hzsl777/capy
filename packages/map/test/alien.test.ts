@@ -25,7 +25,7 @@ import {
   type Box,
 } from "../src/map/alien.ts";
 import { markPath } from "../src/map/marks.ts";
-import { DESIGN_GROUPS, THEMES } from "../src/themes.ts";
+import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 import { samplePlaces } from "./sample.ts";
 
 const SIZES: [number, number][] = [
@@ -42,10 +42,11 @@ const SIZES: [number, number][] = [
 const hits = (a: Box, b: Box) => a.x1 > b.x0 && a.x0 < b.x1 && a.y1 > b.y0 && a.y0 < b.y1;
 
 describe("Alien", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu, with its own mark and fresh colour", () => {
+  it("is in the Design menu, in one group and not featured, with its own mark and fresh colour (decision 138)", () => {
     const t = THEMES.alien;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("alien");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("alien"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("alien");
     expect(t.dotShape).toBe("trilobe");
     expect(t.fresh).not.toBe(t.dot);
     expect(t.globeScale).toBe(GLOBE_SCALE);

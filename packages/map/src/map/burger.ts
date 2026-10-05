@@ -1,4 +1,4 @@
-// Burger Joint (id burger, experimental): the world as the top of a burger of our own, on a diner tray. Nothing here
+// Burger Joint (id burger): the world as the top of a burger of our own, on a diner tray. Nothing here
 // is any restaurant's, chain's or maker's: no name, mark, lettering, packaging or colour set.
 //
 // The sea is the toasted bun, brown gold with a glaze; the land is lettuce, a bright leaf with pale lobes along every

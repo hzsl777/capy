@@ -1,7 +1,7 @@
 // Bunny (src/map/bunny.ts): every picture sits off the map (outside the globe's opening, outside the window), the same
 // for the same frame, clear of the Key and the zoom buttons; the one bunny that moves hops at a gentle rate, ducks into a
 // hole while the map moves, comes out and sits under the reticle once it rests, and holds still for reduced motion; the
-// land is never red; the design is experimental only.
+// land is never red; the design is in the menu.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -236,10 +236,10 @@ describe("bunny: the world and the design", () => {
     return n >> 16 > ((n >> 8) & 255) + 20;
   };
 
-  it("is experimental only", () => {
-    expect(t.experimental).toBe(true);
+  it("is in the Design menu, in one group and not featured (decision 138)", () => {
     expect(t.surface).toBe("bunny");
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("bunny");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("bunny"))).toHaveLength(1);
     expect(FEATURED).not.toContain("bunny");
   });
 

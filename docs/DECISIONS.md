@@ -1207,3 +1207,7 @@ Davis asked for alien, burger, lobster and bunny designs. Each is experimental (
 2. **Burger Joint** (`burger`): the globe is the top bun with lettuce for land, ringed by tomato, cheese and patty on a diner tray; Map view is the stack cut square. Sesame seed markers. The Topics menu builds a small burger of the topics that are on, and the panel prints in like an order ticket. Land is never red; the condiment bottles are the only red and yellow, small and off the map.
 3. **Lobster** (`lobster`): a seaside shack round a nautical chart, the globe in a coil of rope on dock boards, our own lobster, traps and boat at tested open-sea spots. Toggle buoy markers. The panel hangs on a rope and rises like a hauled trap when a place is tuned. Lobster red stays on the lobster and the chrome, never on land.
 4. **Bunny** (`bunny`): the globe in a burrow's round opening in a green hill with ears peeking over it, a lawn with holes, carrots and hay. A bunny ducks into a hole while the map moves and hops out to sit under the tuned place once it rests. Carrot markers. No holiday imagery.
+
+## 138. Alien, Burger Joint, Lobster and Bunny join the Design menu (October 5, 2026)
+
+Davis asked for the four designs of decision 137 to go live. They leave the experiments (decision 105) and join the menu's groups: Alien and Bunny under Nature and sky, Burger Joint and Lobster under Places and moods. None is featured. The site now has sixty-nine designs.
