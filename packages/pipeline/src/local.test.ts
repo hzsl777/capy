@@ -137,6 +137,8 @@ describe("local stories for towns no outlet reached", () => {
     const fromFile = splitLocal(withLocalStories(published, keep.stories!, now), localBase(date));
     expect(fromFile.main).toEqual(fromDb.main);
     expect([...fromFile.tiles]).toEqual([...fromDb.tiles]);
+    expect(fromFile.names).toEqual(fromDb.names);
+    expect(fromDb.names!.places.map((r) => r[0])).toEqual(["Nakuru", "Njoro", "Trento"]);
     // The old local stories are gone, and the ids come from the links, so they match the database's export.
     expect(fromFile.main.local?.tiles).toEqual(fromDb.main.local?.tiles);
     expect([...fromFile.tiles.values()].flatMap((t) => t.items.map((i) => i[2]))).not.toContain("Nakuru county assembly story number 1");

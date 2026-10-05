@@ -1,6 +1,6 @@
 // What the daily run and the refresh check before a day's file replaces the site's latest.json, and which day they
 // publish. No network: files in a temporary folder and a real Postgres engine in memory.
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -25,12 +25,50 @@ describe("the check before a day's file is published", () => {
   it("passes a day with outlet stories and its tiles on disk, with or without a word", () => {
     const out = join(dir, "ok.json");
     const { tiles } = writeMapFiles(day({ items: [outlet, local] }), out, "local/2026-09-29/");
-    expect(tiles).toHaveLength(1);
+    // The tile, and the names index beside it.
+    expect(tiles.map((t) => t.key)).toEqual(["local/2026-09-29/20S_80W.json", "local/2026-09-29/names.json"]);
     expect(checkMapFile(out)).toContain("1 listed tiles are not on disk, for example local/2026-09-29/20S_80W.json");
     expect(mapFileProblems(JSON.stringify(day()), [])).toEqual([]);
     const manifest = join(dir, "tiles.json");
     writeFileSync(manifest, JSON.stringify(tiles));
     expect(checkMapFile(out, manifest)).toEqual([]);
+  });
+
+  it("writes the names index beside the tiles, small, and refuses a day whose index is not stored with it", () => {
+    const out = join(dir, "names.json-day.json");
+    const towns: MapFile["places"] = [place, { id: "ll:-12.46,-76.78", name: "Cañete", lat: -12.4601, lon: -76.7799 }, { id: "ll:-12.46,-76.78", name: "Cañete", lat: -12.4601, lon: -76.7799 }];
+    const day2 = day({
+      places: towns,
+      items: [outlet, local, { ...local, id: "g2", url: "https://b.example/2", place: 1 }, { ...local, id: "g3", url: "https://b.example/3", place: 1 }],
+    });
+    const written = writeMapFiles(day2, out, "local/2026-09-29/");
+    expect(written.main.local).toMatchObject({ names: true });
+    const file = written.tiles.find((t) => t.key === "local/2026-09-29/names.json")!;
+    const names = JSON.parse(readFileSync(file.file, "utf8"));
+    // One row a place: name, latitude and longitude to two decimals, and its local stories; no id, no country.
+    expect(names).toEqual({
+      version: 2,
+      runDate: "2026-09-29",
+      places: [
+        ["Cañete", -12.46, -76.78, 2],
+        ["Lima", -12.05, -77.04, 1],
+      ],
+    });
+    expect(written.bytes.names).toBe(Buffer.byteLength(JSON.stringify(names)));
+    expect(checkMapFile(out)).toContain("the names index local/2026-09-29/names.json is not on disk");
+    const manifest = join(dir, "names-tiles.json");
+    writeFileSync(manifest, JSON.stringify(written.tiles));
+    expect(checkMapFile(out, manifest)).toEqual([]);
+    // A manifest with the tiles but not the index is refused: search would find nothing for the day's towns.
+    writeFileSync(manifest, JSON.stringify(written.tiles.filter((t) => !t.key.endsWith("names.json"))));
+    expect(checkMapFile(out, manifest)).toEqual(["the names index local/2026-09-29/names.json is not on disk"]);
+  });
+
+  it("writes no names index for a day with no local stories", () => {
+    const written = writeMapFiles(day(), join(dir, "none.json"), "local/2026-09-29/");
+    expect(written.tiles).toEqual([]);
+    expect(written.main.local).toEqual({ deg: 10, base: "local/2026-09-29/", tiles: {} });
+    expect(written.bytes.names).toBe(0);
   });
 
   it("refuses a file that is not JSON or not a day's map", () => {

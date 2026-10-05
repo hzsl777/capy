@@ -27,6 +27,8 @@
   <body>
     <a class="skip" href="#panel">Skip to stories</a>
     <header class="masthead" id="masthead">
+      <!-- A phone's toolbar row is full, so search sits in the masthead's corner there, opposite About (style.css, "Find a place"). -->
+      <button class="tool" id="search-icon" type="button" aria-label="Find a place" title="Find a place (press /)"></button>
       <div class="brand">
         <h1 class="mast-title" id="mast-title">GlobalGist</h1>
         <p class="mast-tag" id="mast-tag"></p>
@@ -47,6 +49,7 @@
         <summary>Pinned <span id="pins-count"></span></summary>
         <div class="menu-body" id="pins"></div>
       </details>
+      <button class="tool" id="search-btn" type="button" aria-label="Find a place" title="Find a place (press /)"><span class="search-label">Find a place</span></button>
       <button class="tool quiet" id="about-btn" type="button" aria-label="About"><span class="wide">About</span><span class="narrow" aria-hidden="true">?</span></button>
     </nav>
 
@@ -93,7 +96,7 @@
     <dialog id="about">
       <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
       <h2>How this works</h2>
-      <p><span data-site-name>GlobalGist</span> puts the day's news on a map, where it happened. The map turns until a place lands under the cross. Drag to pick another. The panel lists that place's reports, newest first.</p>
+      <p><span data-site-name>GlobalGist</span> puts the day's news on a map, where it happened. The map turns until a place lands under the cross. Drag to pick another, or use Find a place (or press /) to go to a place by name. It lists only places with reports today. The panel lists that place's reports, newest first.</p>
       <h3>The marks</h3>
       <p>An AI model rates each story's importance from 1 to 5. A place's mark shows its top story: empty for 1, filled for 2 or 3, ringed for 4 or 5. A bigger mark means more reports. The Key on the map shows the marks in your design.</p>
       <p>Zoomed out, you see only places with a story rated 4 or 5, or reported from four or more cities. Each step in shows more. Places close together share a mark until you zoom in.</p>

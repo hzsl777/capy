@@ -47,6 +47,10 @@ import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountDesignPicker } from "./ui/designs.ts";
 import type { Channel } from "./ui/channels.ts";
 import { isLoaded, loadDesign, prefetchDesign, ui, type UiKits } from "./registry.ts";
+// Find a place and the first-visit hint (src/search.ts, src/ui/search.ts, src/hint.ts, src/ui/hint.ts).
+import type { PlaceEntry } from "./search.ts";
+import { mountSearch } from "./ui/search.ts";
+import { mountHint } from "./ui/hint.ts";
 // Tiramisu's coffee bean crease and Lobster's buoy band, in the Key.
 import { beanCrease, buoyBand } from "./map/marks.ts";
 
@@ -391,6 +395,43 @@ function flyToPlace(index: number) {
   const p = state.file?.places[index];
   if (p) map.flyTo(p.lon, p.lat);
 }
+
+// ---- find a place, and the first-visit hint ------------------------------------------------------------------------
+
+/**
+ * The reader picked a place in search: out of whatever the panel showed, to a zoom where the place shows, and tuned
+ * there with its panel. A town in a tile not loaded yet is flown to the same way; its tile loads as the map lands, as
+ * for a pin (`flyToId`).
+ */
+function pickFound(p: PlaceEntry) {
+  hint.dismiss();
+  setKey(false);
+  closeMenus();
+  if (state.reader || state.telegram || state.event) {
+    closeReader();
+    closeTelegram();
+    renderPanel();
+  }
+  // Reports the topics on or the replay's moment hide would leave nothing under the reticle: back to all topics, live.
+  const index = p.index ?? state.placeIds.get(p.id);
+  if (index !== undefined && !state.byPlace.has(index)) {
+    stopReplay();
+    state.topics = new Set(FILTERS);
+    setSlot(SLOTS, true);
+  }
+  map.stopSpin();
+  map.flyTo(p.lon, p.lat, p.tier > 0 ? Math.max(map.zoom, map.levelZoom(p.tier)) : undefined);
+  armIdleSpin();
+}
+
+// Desktop 95 on a phone shows one window at a time, and the Reports window is not the one the reader opens on, so the
+// line sits in the map's window there, over the map.
+const hintInMap = () => state.theme === "desktop" && phone.matches;
+const hint = mountHint({
+  map: () => $("map"),
+  mount: (line) => (hintInMap() ? $("map").before(line) : $("panel").prepend(line)),
+  wanted: () => hintInMap() || (!state.reader && !state.telegram && !state.event),
+});
 
 // ---- masthead ---------------------------------------------------------------
 
@@ -845,6 +886,7 @@ function storyButton(it: Item, now: number, showPlace = false, showPublisher = t
 
 function renderPanel() {
   renderPanelView();
+  hint.attach();
   renderCard();
 }
 
@@ -1806,6 +1848,14 @@ async function start() {
   mountKits();
   // The design is dressed and in place: show the page (index.html's boot script held it back for a saved design).
   document.documentElement.removeAttribute("data-boot");
+  mountSearch({
+    file: () => state.file,
+    tiered: () => state.tiered,
+    known: () => state.placeIds,
+    phone: () => phone.matches,
+    dataBase: BASE,
+    pick: pickFound,
+  });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
   let landDrawn = false;
@@ -1868,6 +1918,8 @@ async function start() {
   // A shared link lands on its place, even one whose local stories load only when zoomed in.
   const start = params.get("place");
   const landed = !!start && flyToId(start);
+  // A first-time reader gets one line about how the page works, unless a shared link brought them to a place.
+  hint.start(landed);
   // Like a radio dial: the map turns on its own until a place lands under the cross.
   if (!landed && !reducedMotion) {
     // A different stretch of the world each visit, a little north of the equator where most places are.

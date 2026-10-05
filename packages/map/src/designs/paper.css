@@ -833,3 +833,18 @@
     font-size: 17px;
   }
 }
+
+/* ---- the first-visit hint in Notebook: the rules are 28 pixels apart and the text sits on them, so the hint is exactly
+   two rules high with a highlighter mark ---- */
+:root[data-theme="paper"] .hint {
+  margin: 0;
+  padding: 0;
+  height: 56px;
+  border: 0;
+  font: inherit;
+  font-size: 17px;
+  line-height: 28px;
+}
+:root[data-theme="paper"] .hint .hint-text {
+  background: linear-gradient(transparent 60%, rgba(255, 235, 59, 0.55) 60%);
+}

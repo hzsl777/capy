@@ -3,13 +3,16 @@
 // write them; the daily run stores the same files in R2.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { splitLocal, type MapFile } from "@2dayai/core";
+import { LOCAL_NAMES_FILE, splitLocal, type MapFile } from "@2dayai/core";
 
 export type WrittenMap = {
   main: MapFile;
-  /** Bytes of the day's file, of all tiles together, and of the largest tile. */
-  bytes: { main: number; tiles: number; largestTile: number };
-  /** Every tile written: its R2 key (`<base><key>.json`, e.g. local/2026-09-30/40_-80.json) and its path on disk. */
+  /** Bytes of the day's file, of all tiles together, of the largest tile, and of the names index (0 with no tile). */
+  bytes: { main: number; tiles: number; largestTile: number; names: number };
+  /**
+   * Every file written beside the day's file: each tile's R2 key (`<base><key>.json`, e.g. local/2026-09-30/40N_80W.json)
+   * and its path on disk, and the names index (`<base>names.json`) when there is any tile.
+   */
   tiles: { key: string; file: string }[];
 };
 
@@ -19,7 +22,7 @@ export type WrittenMap = {
  */
 export function writeMapFiles(full: MapFile, out: string, base: string): WrittenMap {
   if (!/^local\/[\w-]+\/$/.test(base)) throw new Error(`tile folder "${base}" must be local/<name>/`);
-  const { main, tiles } = splitLocal(full, base);
+  const { main, tiles, names } = splitLocal(full, base);
   const dir = join(dirname(out), base);
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
@@ -37,7 +40,16 @@ export function writeMapFiles(full: MapFile, out: string, base: string): Written
     total += bytes;
     largest = Math.max(largest, bytes);
   }
-  return { main, bytes: { main: Buffer.byteLength(text), tiles: total, largestTile: largest }, tiles: written };
+  // The names index goes beside the tiles, so the same upload stores it (decision 78: the site fetches it when search opens).
+  let namesBytes = 0;
+  if (names) {
+    const body = JSON.stringify(names);
+    const file = join(dir, LOCAL_NAMES_FILE);
+    writeFileSync(file, body);
+    written.push({ key: `${base}${LOCAL_NAMES_FILE}`, file });
+    namesBytes = Buffer.byteLength(body);
+  }
+  return { main, bytes: { main: Buffer.byteLength(text), tiles: total, largestTile: largest, names: namesBytes }, tiles: written };
 }
 
 /**
@@ -72,6 +84,10 @@ export function mapFileProblems(text: string, tiles: { key: string; file: string
     return !f || !existsSync(f);
   });
   if (missing.length) problems.push(`${missing.length} listed tiles are not on disk, for example ${base}${missing[0]}.json`);
+  if (file.local?.names) {
+    const f = onDisk.get(`${base}${LOCAL_NAMES_FILE}`);
+    if (!f || !existsSync(f)) problems.push(`the names index ${base}${LOCAL_NAMES_FILE} is not on disk`);
+  }
   return problems;
 }
 

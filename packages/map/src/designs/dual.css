@@ -1100,3 +1100,64 @@
 :root[data-theme="dual"] .map canvas {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M1 1h3l18 18v4h-4L1 4z' fill='%2316203a'/%3E%3Cpath d='M4 4l16 16v1h-1L3 5z' fill='%23c9d3df'/%3E%3C/svg%3E") 1 1, grab;
 }
+
+/* ---- Find a place and the first-visit hint in Dual Screen ---- */
+@media (min-width: 761px) and (max-width: 1100px) {
+  :root[data-theme="dual"] #search-btn .search-label {
+    display: inline;
+  }
+}
+@media (max-width: 760px) {
+  /* Dual Screen has no masthead corner: its own controls hold it. */
+  :root[data-theme="dual"] #search-btn {
+    display: inline-flex;
+  }
+  :root[data-theme="dual"] #search-icon {
+    display: none;
+  }
+}
+/* A pill of the shell, like Map and Design, above Map on the left. */
+:root[data-theme="dual"] #search-btn {
+  grid-column: 2;
+  grid-row: 10 / 13;
+  align-self: end;
+  justify-self: center;
+  margin-bottom: 130px;
+  min-height: 26px;
+  padding: 5px 14px;
+  border: 0;
+  border-radius: 13px;
+  font: 400 11px/16px var(--font-ui);
+  letter-spacing: 0.04em;
+  color: #f2f5f8;
+  background: linear-gradient(to bottom, #5d6570, #3d434c);
+  box-shadow: 0 2px 0 #23272e, 0 3px 4px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+:root[data-theme="dual"] #search-btn:hover {
+  background: linear-gradient(to bottom, #6b7480, #474e58);
+}
+:root[data-theme="dual"] #search-btn:active,
+:root[data-theme="dual"] #search-btn[aria-expanded="true"] {
+  background: linear-gradient(to bottom, #2f6ad0, #234f9e);
+  box-shadow: 0 1px 0 #23272e;
+}
+@media (max-width: 760px) {
+  /* On the phone's shell the pills run along one row under the pad and the round buttons; an icon beside Design. */
+  :root[data-theme="dual"] #search-btn {
+    grid-row: 16;
+    align-self: start;
+    justify-self: end;
+    margin: 2px 114px 0 0;
+    padding: 5px 9px;
+  }
+  :root[data-theme="dual"] #search-btn .search-label {
+    display: none;
+  }
+}
+/* The hint on the small top screen: one short line, so the place's name stays in view. */
+:root[data-theme="dual"] .hint {
+  margin: 0 0 4px;
+  padding: 3px 6px;
+  font-size: 11px;
+}

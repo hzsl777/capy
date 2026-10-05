@@ -911,3 +911,21 @@
     max-height: calc(100dvh - 8px);
   }
 }
+
+/* ---- Find a place in Desktop 95: the button sits in the map window's menu bar ---- */
+@media (min-width: 761px) and (max-width: 1100px) {
+  :root[data-theme="desktop"] #search-btn .search-label {
+    display: inline;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="desktop"] #search-btn {
+    display: inline-flex;
+  }
+  :root[data-theme="desktop"] #search-icon {
+    display: none;
+  }
+  :root[data-theme="desktop"] #search-btn .search-label {
+    display: none;
+  }
+}

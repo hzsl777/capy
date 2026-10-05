@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { and, eq, lt, notInArray } from "drizzle-orm";
 import { allowedWords, dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, withTodayStories, WORD_REPEAT_DAYS, wordProblems } from "@2dayai/core";
-import { articles, events, loadLocalTile, loadMapView, latestMapDate, localBase, sources, telegrams, type Db } from "@2dayai/db";
+import { articles, events, loadLocalNames, loadLocalTile, loadMapView, latestMapDate, localBase, sources, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
 import { worldGdeltFor } from "./fixtures/gdelt.js";
 import { worldAnswers, worldFeedFor, worldSourcesYaml } from "./fixtures/world.js";
@@ -120,7 +120,7 @@ describe("the world desk on a real Postgres engine", () => {
     expect(map.items.filter((i) => i.via !== "gdelt")).toHaveLength(16);
 
     // Decision 78: the site's file keeps the outlets' stories and lists the tiles; each tile has its own places.
-    const { main, tiles } = splitLocal(map, localBase(date));
+    const { main, tiles, names } = splitLocal(map, localBase(date));
     expect(main.items.every((i) => i.via !== "gdelt" && main.places[i.place])).toBe(true);
     expect(main.places).toHaveLength(13);
     expect(Object.values(main.events).every((e) => e.places.every((p) => main.places[p]))).toBe(true);
@@ -129,6 +129,11 @@ describe("the world desk on a real Postgres engine", () => {
     expect(kisumu.items.filter(([, , , , , , p]) => kisumu.places[p]!.name === "Kisumu")).toHaveLength(2);
     // The Worker builds the same tiles and index from the database when no file is stored.
     for (const [key, tile] of tiles) expect(await loadLocalTile(db, date, key)).toEqual(tile);
+    // The names index: every town of the tiles once, with its story count, and the same from the database.
+    expect(names!.places).toHaveLength(27);
+    expect(names!.places.reduce((n, r) => n + r[3], 0)).toBe(28);
+    expect(names!.places.find((r) => r[0] === "Kisumu")).toEqual(["Kisumu", expect.any(Number), expect.any(Number), 2]);
+    expect(await loadLocalNames(db, date)).toEqual(names);
     const indexed = await loadMapView(db, date, new Date("2026-09-27T12:00:00Z"), { local: "index" });
     expect(indexed).toEqual(main);
   });

@@ -194,7 +194,7 @@ switch (command) {
       mkdirSync(dirname(values.out), { recursive: true });
       const { main, tiles } = writeMapFiles(full, values.out, localBase(latest));
       if (values.manifest) writeFileSync(values.manifest, JSON.stringify(tiles));
-      console.log(`${values.out}: ${fromBase ? "the published file with new local stories" : "exported from the database"}${outlets ? " and today's outlet stories" : ""}, ${main.items.length} items, ${tiles.length} tiles of local stories`);
+      console.log(`${values.out}: ${fromBase ? "the published file with new local stories" : "exported from the database"}${outlets ? " and today's outlet stories" : ""}, ${main.items.length} items, ${Object.keys(main.local?.tiles ?? {}).length} tiles of local stories`);
     }
     break;
   }
@@ -266,7 +266,7 @@ switch (command) {
     if (values.manifest) writeFileSync(values.manifest, JSON.stringify(tiles));
     const kb = (n: number) => `${Math.round(n / 1024)} KB`;
     console.log(`${out}: ${main.items.length} items, ${main.places.length} places, ${Object.keys(main.events).length} explained events, telegram ${main.telegram ? `"${main.telegram.word}"` : "none"}, ${kb(bytes.main)}`);
-    console.log(`${tiles.length} tiles of local stories in ${join(dirname(out), localBase(day))}: ${Object.values(main.local?.tiles ?? {}).reduce((a, b) => a + b, 0)} stories, ${kb(bytes.tiles)}, the largest ${kb(bytes.largestTile)}`);
+    console.log(`${Object.keys(main.local?.tiles ?? {}).length} tiles of local stories in ${join(dirname(out), localBase(day))}: ${Object.values(main.local?.tiles ?? {}).reduce((a, b) => a + b, 0)} stories, ${kb(bytes.tiles)}, the largest ${kb(bytes.largestTile)}; names index ${kb(bytes.names)}`);
     break;
   }
   case "map check": {
@@ -317,9 +317,9 @@ switch (command) {
     const out = values.out ?? "packages/map/public/data/sample.json";
     mkdirSync(dirname(out), { recursive: true });
     // The sample's tiles sit in local/sample/, so regenerating it on another day leaves no stale folder behind.
-    const { main, tiles } = writeMapFiles(full, out, "local/sample/");
+    const { main } = writeMapFiles(full, out, "local/sample/");
     console.log(JSON.stringify({ clusterWorld: report["clusterWorld"], explain: report["explain"], telegram: report["telegram"], local: report["local"] }));
-    console.log(`${out}: ${main.items.length} items, ${main.places.length} places, telegram ${main.telegram ? `"${main.telegram.word}"` : "none"}, and ${tiles.length} tiles of local stories`);
+    console.log(`${out}: ${main.items.length} items, ${main.places.length} places, telegram ${main.telegram ? `"${main.telegram.word}"` : "none"}, and ${Object.keys(main.local?.tiles ?? {}).length} tiles of local stories`);
     break;
   }
   case "eval": {

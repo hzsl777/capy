@@ -142,6 +142,11 @@ export type MapLocalIndex = {
   base: string;
   /** Every tile with a story, by key (tileKey: "40N_80W"), and how many stories it has. */
   tiles: Record<string, number>;
+  /**
+   * Set when `${base}names.json` (MapNames) lists every place the tiles hold, so the site's place search can find a town
+   * in a tile it has not loaded. Absent in files made before the index existed, and when there are no tiles.
+   */
+  names?: true;
 };
 
 /** One tile's places and stories. A story's `place` indexes the tile's own places; the site joins them by id. */
@@ -153,6 +158,25 @@ export type MapTile = {
   /** Every story here is a GDELT local story (via "gdelt", importance 1, reach 1, no topic). Newest first. */
   items: MapTileItem[];
 };
+
+/**
+ * The names index beside the tiles (`local/<date>/names.json`): every place a local story is at, in a few bytes each,
+ * so a reader can search for a town whose tile is not loaded. The site fetches it the first time the search opens,
+ * never before the first paint. It may list a place the day's file already has; the site joins by id. A place's id is
+ * placeIdFor of its row's latitude and longitude, so the row does not carry it.
+ */
+export type MapNames = {
+  version: 2;
+  runDate: string;
+  /** Sorted by name, then latitude and longitude, so the same day always writes the same file. */
+  places: MapNameRow[];
+};
+
+/** A place in the names index: its name, latitude and longitude to two decimals (what its id is made of), and its local stories. */
+export type MapNameRow = [name: string, lat: number, lon: number, reports: number];
+
+/** The names index's file, in the tiles' folder. */
+export const LOCAL_NAMES_FILE = "names.json";
 
 /** A local story in a tile, as a row: its id, unix seconds, headline, URL, the outlet's site, language, place. */
 export type MapTileItem = [id: string, t: number, title: string, url: string, domain: string, lang: string, place: number];
@@ -187,7 +211,7 @@ export function tileBounds(key: string, deg = LOCAL_TILE_DEG): { south: number; 
  * file keeps the outlets' stories, the events, the word and an index of the tiles; places only local stories use
  * go to their tiles. Places keep their ids, so a tile's place that the file already has is the same place.
  */
-export function splitLocal(full: MapFile, base: string, deg = LOCAL_TILE_DEG): { main: MapFile; tiles: Map<string, MapTile> } {
+export function splitLocal(full: MapFile, base: string, deg = LOCAL_TILE_DEG): { main: MapFile; tiles: Map<string, MapTile>; names: MapNames | null } {
   // The places the file still needs, in their order, so the file is the one the database gives with only an index.
   const used = new Set<number>();
   for (const it of full.items) if (it.via !== "gdelt") used.add(it.place);
@@ -221,8 +245,35 @@ export function splitLocal(full: MapFile, base: string, deg = LOCAL_TILE_DEG): {
     tile.items.sort((a, b) => b[1] - a[1]);
     out.set(key, tile);
   }
-  const main: MapFile = { ...full, places, items, events, local: { deg, base, tiles: Object.fromEntries([...out].map(([k, t]) => [k, t.items.length])) } };
-  return { main, tiles: out };
+  const main: MapFile = { ...full, places, items, events, local: localIndex(deg, base, Object.fromEntries([...out].map(([k, t]) => [k, t.items.length]))) };
+  const found: (readonly [MapPlace, number])[] = [];
+  for (const tile of out.values()) {
+    const stories = new Array<number>(tile.places.length).fill(0);
+    for (const it of tile.items) stories[it[6]]! += 1;
+    tile.places.forEach((p, i) => found.push([p, stories[i]!]));
+  }
+  return { main, tiles: out, names: out.size ? namesOf(full.runDate, found) : null };
+}
+
+/** The day's index of tiles: with the names index whenever there is a tile, as the export and the database's view both say. */
+export function localIndex(deg: number, base: string, tiles: Record<string, number>): MapLocalIndex {
+  return Object.keys(tiles).length ? { deg, base, tiles, names: true } : { deg, base, tiles };
+}
+
+/**
+ * The names index from places with their local story counts. A place is one id however many tiles list it; names are
+ * kept as the tile has them, coordinates cut to the two decimals the id is made of.
+ */
+export function namesOf(runDate: string, found: Iterable<readonly [MapPlace, number]>): MapNames {
+  const byId = new Map<string, MapNameRow>();
+  for (const [p, reports] of found) {
+    const id = placeIdFor(p.lat, p.lon);
+    const row = byId.get(id);
+    if (row) row[3] += reports;
+    else byId.set(id, [p.name, Number(p.lat.toFixed(2)), Number(p.lon.toFixed(2)), reports]);
+  }
+  const places = [...byId.values()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1] || a[2] - b[2]));
+  return { version: 2, runDate, places };
 }
 
 /** A local story from the GDELT index as stored: what the map shows of it. */
