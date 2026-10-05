@@ -15811,13 +15811,15 @@ button.x-ch:focus-visible {
 }
 
 /* ==========================================================================
-   Machine Music (machine, experimental): after the feel of 1970s and 80s German electronic music and constructivist
-   posters, copying none of their names, figures, sleeves, posters or lettering (src/map/machine.ts). A black stage,
-   signal red, warm greys and white, nothing else. Wide-tracked pixel capitals (Silkscreen) for the name and the word,
-   Barlow and IBM Plex Mono for reading. Red wedges, black bars and thin rules in the masthead and the page's edges,
-   never over the map. Panels and dialogs are a rack's grey face plates with a screw in each corner and engraved
-   white-on-black labels; buttons are hardware keys that light red when on. Under the map, a synth rack (extras.ts):
-   a sequencer, a scope, two meters and knobs, decoration only.
+   Machine Music (machine, experimental): after the feel of 1970s and 80s German electronic music stage shows and the
+   constructivist posters they borrowed from, copying none of their names, figures, sleeves, posters or lettering
+   (src/map/machine.ts). A black stage, signal red, warm greys and white, nothing else. Wide-tracked pixel capitals
+   (Silkscreen) for the name and the word, Barlow and IBM Plex Mono for reading. The page is one poster: a diagonal
+   ruling and a red wedge across the masthead, black bars with chasers (a lit cell stepping along a row), slanted
+   red labels, never over the map. Panels and dialogs are a rack's grey face plates with a hazard strip, a screw in
+   each corner and engraved labels; buttons are hardware keys that light red when on. Under the map, a rack
+   (src/ui/machine.ts): real transport, view, zoom and tuning keys, a display of the reticle's position, and the
+   decoration of a sequencer, a scope, two meters and knobs.
    ========================================================================== */
 .x-rack {
   display: none;
@@ -15838,24 +15840,30 @@ button.x-ch:focus-visible {
   --grain-opacity: 0.04;
   --grain-blend: screen;
   --signal: #d71920;
+  --glow: #ff3a2f;
   --warm: #9a9a94;
   --key: linear-gradient(to bottom, #d4d4cd, #b1b1aa);
   --key-hover: linear-gradient(to bottom, #e2e2db, #c1c1ba);
   --key-lit: linear-gradient(to bottom, #f0362d, #c3141b);
   /* A screw in each corner of a face plate: a slot over a domed head. */
   --screws:
-    radial-gradient(3.2px 0.9px at 10px 10px, #141413 75%, transparent 100%),
-    radial-gradient(circle 4.6px at 10px 10px, #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px),
-    radial-gradient(3.2px 0.9px at calc(100% - 10px) 10px, #141413 75%, transparent 100%),
-    radial-gradient(circle 4.6px at calc(100% - 10px) 10px, #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px),
-    radial-gradient(3.2px 0.9px at 10px calc(100% - 10px), #141413 75%, transparent 100%),
-    radial-gradient(circle 4.6px at 10px calc(100% - 10px), #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px),
-    radial-gradient(3.2px 0.9px at calc(100% - 10px) calc(100% - 10px), #141413 75%, transparent 100%),
-    radial-gradient(circle 4.6px at calc(100% - 10px) calc(100% - 10px), #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px);
+    radial-gradient(3.2px 0.9px at 14px 16px, #141413 75%, transparent 100%),
+    radial-gradient(circle 4.6px at 14px 16px, #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px),
+    radial-gradient(3.2px 0.9px at calc(100% - 14px) 16px, #141413 75%, transparent 100%),
+    radial-gradient(circle 4.6px at calc(100% - 14px) 16px, #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px),
+    radial-gradient(3.2px 0.9px at 14px calc(100% - 14px), #141413 75%, transparent 100%),
+    radial-gradient(circle 4.6px at 14px calc(100% - 14px), #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px),
+    radial-gradient(3.2px 0.9px at calc(100% - 14px) calc(100% - 14px), #141413 75%, transparent 100%),
+    radial-gradient(circle 4.6px at calc(100% - 14px) calc(100% - 14px), #d6d6ce 0, #9a9a94 2.6px, #4a4a46 3.8px, #121211 4.3px, transparent 4.7px);
+  /* The hazard strip along a plate's top: red and black ruled at the poster's angle. */
+  --hazard: repeating-linear-gradient(-63deg, #d71920 0 5px, #0a0a0a 5px 10px) top left / 100% 7px no-repeat;
   /* Brushed metal: fine light and dark lines over a warm grey that darkens a little toward the foot. */
   --brushed:
     repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0 1px, rgba(0, 0, 0, 0.05) 1px 2px, transparent 2px 3px),
     linear-gradient(to bottom, #2c2c2a, #222220);
+  /* A row of sixteen cells of 20px, 14px lit, for the chasers. */
+  --cells: repeating-linear-gradient(90deg, #2e2e2c 0 14px, transparent 14px 20px);
+  --cell-lit: linear-gradient(90deg, #ff4d42 0 14px, transparent 14px) 0 0 / 320px 100% repeat-x;
   --font-mast: "Silkscreen", "Courier New", monospace;
   --font-head: "Barlow", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
@@ -15865,14 +15873,28 @@ button.x-ch:focus-visible {
   background: var(--page);
 }
 
+/* The one diagonal across the page, behind everything: two red rules and a dark band between them, rising to the
+   right. The map, the panel and the rack are opaque and cover it; it shows through the bars and the gaps. */
+:root[data-theme="machine"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(153deg, transparent 0 45%, var(--signal) 45% 45.5%, #1a1514 45.5% 56%, #3a3a37 56% 56.4%, transparent 56.4% 58%, rgba(215, 25, 32, 0.7) 58% 58.3%, transparent 58.3%);
+}
+
 /* The masthead: a red slab leaning in at the left, the name in wide white pixel capitals with the tagline in red under
-   it, and a long red wedge along the foot over a thin grey rule. */
+   it, a long red wedge along the foot, and the poster's diagonal ruling across the whole strip. */
 :root[data-theme="machine"] .masthead {
   position: relative;
   padding-left: calc(var(--gutter) + 40px);
   padding-bottom: 16px;
   border-bottom: 1px solid #3a3a37;
-  background: #000;
+  background:
+    repeating-linear-gradient(-27deg, transparent 0 21px, rgba(215, 25, 32, 0.2) 21px 22px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.85));
 }
 :root[data-theme="machine"] .masthead::before {
   content: "";
@@ -15883,14 +15905,15 @@ button.x-ch:focus-visible {
   width: 16px;
   background: var(--signal);
   transform: skewX(-16deg);
+  box-shadow: 22px 0 0 -9px #3a3a37, 34px 0 0 -13px #f2f2ec;
 }
 :root[data-theme="machine"] .masthead::after {
   content: "";
   position: absolute;
   left: 0;
   bottom: 3px;
-  width: min(52vw, 700px);
-  height: 8px;
+  width: min(62vw, 880px);
+  height: 9px;
   background: var(--signal);
   clip-path: polygon(0 0, 100% 100%, 0 100%);
 }
@@ -15924,7 +15947,7 @@ button.x-ch:focus-visible {
   font-style: normal;
   color: var(--ink-2);
 }
-/* The word: white pixel capitals, widely spaced, on a thick red bar. */
+/* The word: white pixel capitals, widely spaced, over a neon tube. */
 :root[data-theme="machine"] .telegram-word,
 :root[data-theme="machine"] .telegram-big {
   font-family: var(--font-mast);
@@ -15935,7 +15958,9 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .telegram-word {
   font-size: min(64px, calc(27vw / var(--len, 8)));
   padding: 2px 0 4px 0.16em;
-  border-bottom: 5px solid var(--signal);
+  border-bottom: 4px solid #ff5a4a;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
+  box-shadow: 0 5px 0 -1px rgba(255, 58, 47, 0.28), 0 9px 18px -6px rgba(255, 58, 47, 0.85);
 }
 :root[data-theme="machine"] .telegram-word:hover,
 :root[data-theme="machine"] .telegram-word:focus-visible {
@@ -15948,23 +15973,94 @@ button.x-ch:focus-visible {
   overflow-wrap: normal;
 }
 
-/* Bars and rules: the toolbar and the time bar are black bars ruled in grey and red. */
+/* Bars and rules: the toolbar and the time bar are black bars ruled in grey and red, each with a chaser. */
 :root[data-theme="machine"] .toolbar {
-  background: #000;
+  background:
+    repeating-linear-gradient(-27deg, transparent 0 21px, rgba(215, 25, 32, 0.16) 21px 22px),
+    rgba(0, 0, 0, 0.82);
   border-bottom: 1px solid #3a3a37;
+  padding-bottom: 9px;
 }
 :root[data-theme="machine"] .timebar {
-  background: #000;
+  position: relative;
+  background:
+    repeating-linear-gradient(-27deg, transparent 0 21px, rgba(215, 25, 32, 0.16) 21px 22px),
+    rgba(0, 0, 0, 0.85);
   border-top: 2px solid var(--signal);
+  padding-top: 11px;
   color: var(--ink-2);
+}
+/* The chaser: a row of cells with one lit, stepping along at the sequencer's pace (src/map/machine.ts, CHASE_*), a
+   few pixels tall. Still at its first cell for reduced motion. */
+:root[data-theme="machine"] .toolbar::after,
+:root[data-theme="machine"] .timebar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  pointer-events: none;
+  background: var(--cell-lit), var(--cells);
+  animation: machine-chase 8s steps(16) infinite;
+}
+:root[data-theme="machine"] .toolbar::after {
+  bottom: 2px;
+}
+:root[data-theme="machine"] .timebar::before {
+  top: 3px;
+  animation-direction: reverse;
+}
+@keyframes machine-chase {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 320px 0, 0 0;
+  }
 }
 :root[data-theme="machine"] .time-label {
   font-family: var(--font-ui);
   font-size: 13px;
   letter-spacing: 0.04em;
 }
+/* The time slider: a ruled track and a square red thumb with a white edge. */
 :root[data-theme="machine"] .slider input {
   accent-color: var(--signal);
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 24px;
+  cursor: pointer;
+}
+:root[data-theme="machine"] .slider input::-webkit-slider-runnable-track {
+  height: 8px;
+  background: repeating-linear-gradient(90deg, #6b6b66 0 2px, transparent 2px 8px), linear-gradient(to bottom, transparent 3px, #3a3a37 3px 5px, transparent 5px);
+}
+:root[data-theme="machine"] .slider input::-moz-range-track {
+  height: 8px;
+  background: repeating-linear-gradient(90deg, #6b6b66 0 2px, transparent 2px 8px), linear-gradient(to bottom, transparent 3px, #3a3a37 3px 5px, transparent 5px);
+}
+:root[data-theme="machine"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 22px;
+  margin-top: -7px;
+  background: var(--signal);
+  border: 2px solid #f4f4ee;
+  border-radius: 0;
+  box-shadow: 0 0 10px rgba(255, 58, 47, 0.7);
+}
+:root[data-theme="machine"] .slider input::-moz-range-thumb {
+  width: 8px;
+  height: 18px;
+  background: var(--signal);
+  border: 2px solid #f4f4ee;
+  border-radius: 0;
+  box-shadow: 0 0 10px rgba(255, 58, 47, 0.7);
+}
+:root[data-theme="machine"] .slider input:focus-visible {
+  outline: 2px solid #f4f4ee;
+  outline-offset: 2px;
 }
 :root[data-theme="machine"] .banner {
   background: #000;
@@ -15981,7 +16077,8 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .chip,
 :root[data-theme="machine"] .key-btn,
 :root[data-theme="machine"] .key-close,
-:root[data-theme="machine"] dialog .close {
+:root[data-theme="machine"] dialog .close,
+:root[data-theme="machine"] .x-key {
   border: 1px solid #000;
   border-radius: 2px;
   background: var(--key);
@@ -16007,20 +16104,39 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .chip:hover,
 :root[data-theme="machine"] .key-btn:hover,
 :root[data-theme="machine"] .key-close:hover,
-:root[data-theme="machine"] dialog .close:hover {
+:root[data-theme="machine"] dialog .close:hover,
+:root[data-theme="machine"] .x-key:hover {
   background: var(--key-hover);
   border-color: #000;
+}
+/* A key goes down when pressed: it moves a pixel and loses the shadow under its lip. */
+:root[data-theme="machine"] .tool:active,
+:root[data-theme="machine"] .key-btn:active,
+:root[data-theme="machine"] .zoom button:active,
+:root[data-theme="machine"] .x-key:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 :root[data-theme="machine"] .tool[aria-pressed="true"],
 :root[data-theme="machine"] .menu[open] > summary,
 :root[data-theme="machine"] .chip[aria-pressed="true"],
-:root[data-theme="machine"] .key-btn[aria-expanded="true"] {
+:root[data-theme="machine"] .key-btn[aria-expanded="true"],
+:root[data-theme="machine"] .x-key[aria-pressed="true"] {
   background: var(--key-lit);
   color: #ffffff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 58, 47, 0.45);
 }
 :root[data-theme="machine"] .tool[disabled] {
   opacity: 0.55;
+}
+:root[data-theme="machine"] .x-key:focus-visible,
+:root[data-theme="machine"] .tool:focus-visible,
+:root[data-theme="machine"] .pick select:focus-visible,
+:root[data-theme="machine"] .menu > summary:focus-visible,
+:root[data-theme="machine"] .key-btn:focus-visible,
+:root[data-theme="machine"] .zoom button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 :root[data-theme="machine"] .scale {
   border: 1px solid #000;
@@ -16060,38 +16176,43 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .zoom button:hover {
   background: var(--key-hover);
 }
+
+/* The map is the stage screen: set in a neon tube, a thin red frame with a glow outside it, never over the picture. */
 :root[data-theme="machine"] .map {
   background: #050505;
+  margin: 10px 10px 0 10px;
+  border: 2px solid var(--glow);
+  box-shadow: 0 0 0 1px #000, 0 0 18px rgba(255, 58, 47, 0.35);
 }
 
-/* Face plates: the panel, the menus, the Key, the notes and the dialogs. */
+/* Face plates: the panel, the menus, the Key, the notes and the dialogs. A hazard strip along the top edge. */
 :root[data-theme="machine"] .panel,
 :root[data-theme="machine"] .menu-body,
 :root[data-theme="machine"] .key-pop,
 :root[data-theme="machine"] .map-note,
 :root[data-theme="machine"] dialog {
-  background: var(--screws), var(--brushed);
+  background: var(--hazard), var(--screws), var(--brushed);
   border: 1px solid #000;
   border-radius: 2px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.5), 0 0 0 2px #3c3c39, 0 0 0 3px #000;
 }
 :root[data-theme="machine"] .panel {
-  margin: 10px 10px 10px 8px;
-  padding: 20px 24px 26px;
+  margin: 12px 12px 12px 8px;
+  padding: 28px 24px 26px;
 }
 :root[data-theme="machine"] .panel.framed {
-  padding: 0;
+  padding: 7px 0 0;
 }
 :root[data-theme="machine"] .menu-body,
 :root[data-theme="machine"] .key-pop {
-  padding: 16px 20px 18px;
+  padding: 24px 20px 18px;
 }
 /* Room for the capitals of the longest topic on one key. */
 :root[data-theme="machine"] .menu-body {
   min-width: 280px;
 }
 :root[data-theme="machine"] dialog {
-  padding: 26px 30px 28px;
+  padding: 32px 30px 28px;
 }
 :root[data-theme="machine"] dialog::backdrop {
   background: rgba(0, 0, 0, 0.7);
@@ -16107,6 +16228,16 @@ button.x-ch:focus-visible {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #ffffff;
+}
+/* The place's name sits on a slanted red label, as on a poster, its right edge cut at the poster's angle. */
+:root[data-theme="machine"] .dateline .place-name {
+  justify-self: start;
+  max-width: 100%;
+  padding: 5px 30px 5px 12px;
+  margin-bottom: 4px;
+  background: var(--signal);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
+  overflow-wrap: anywhere;
 }
 :root[data-theme="machine"] .key-head h2 {
   font-size: 15px;
@@ -16174,7 +16305,7 @@ button.x-ch:focus-visible {
   color: var(--accent);
 }
 
-/* The rack under the map: its own row of the stage, so the map keeps its whole frame. */
+/* ---- the rack under the map: its own row of the stage, so the map keeps its whole frame ---------------------------- */
 :root[data-theme="machine"] .stage {
   grid-template-rows: minmax(0, 1fr) auto;
 }
@@ -16189,19 +16320,21 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .x-rack {
   grid-column: 1;
   grid-row: 2;
+  container-type: inline-size;
   display: flex;
   align-items: stretch;
   gap: 6px;
-  height: 60px;
+  margin: 8px 10px 8px;
   padding: 6px 8px;
   overflow: hidden;
   background: #0b0b0a;
+  border: 1px solid #000;
   border-top: 2px solid var(--signal);
-  pointer-events: none;
+  box-shadow: 0 0 0 1px #3c3c39;
 }
 :root[data-theme="machine"] .x-rack-ear {
   flex: none;
-  width: 18px;
+  width: 16px;
   border: 1px solid #000;
   background:
     radial-gradient(ellipse 3px 4.5px at 50% 22%, #000 90%, transparent 100%),
@@ -16210,25 +16343,141 @@ button.x-ch:focus-visible {
 }
 :root[data-theme="machine"] .x-rack-mod {
   display: flex;
-  align-items: stretch;
-  gap: 6px;
-  padding: 5px 8px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 8px 4px;
   border: 1px solid #000;
   border-radius: 2px;
   background: var(--brushed);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
 }
-:root[data-theme="machine"] .x-seq {
+:root[data-theme="machine"] .x-mod-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 0;
+}
+/* The engraved legend under a module: small wide-set capitals. */
+:root[data-theme="machine"] .x-legend {
+  font-family: var(--font-mast);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--muted);
+  white-space: nowrap;
+}
+:root[data-theme="machine"] .x-key {
+  height: 30px;
+  min-width: 30px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+:root[data-theme="machine"] .x-glyph {
+  width: 12px;
+  height: 12px;
+}
+:root[data-theme="machine"] .x-play {
+  position: relative;
+  min-width: 52px;
+  gap: 6px;
+}
+/* The transport key has a lamp in its corner: dark, and red while the replay runs. */
+:root[data-theme="machine"] .x-play-lamp {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  background: #4a4a46;
+}
+:root[data-theme="machine"] .x-play[aria-pressed="true"] .x-play-lamp {
+  background: #ffffff;
+  box-shadow: 0 0 6px #ffffff;
+}
+/* The rocker: Map and Globe as two keys joined, the one that is on lit. */
+:root[data-theme="machine"] .x-rocker {
+  display: flex;
+}
+:root[data-theme="machine"] .x-view {
+  min-width: 48px;
+}
+:root[data-theme="machine"] .x-view + .x-view {
+  border-left: 0;
+  border-radius: 0 2px 2px 0;
+}
+:root[data-theme="machine"] .x-view:first-child {
+  border-radius: 2px 0 0 2px;
+}
+/* Zoom's lamps: five bars climbing, as many lit as the map has levels showing. */
+:root[data-theme="machine"] .x-lamps {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 26px;
+}
+:root[data-theme="machine"] .x-lamp {
+  width: 6px;
+  background: #3a3a37;
+  border: 1px solid #000;
+}
+:root[data-theme="machine"] .x-lamp:nth-child(1) { height: 6px; }
+:root[data-theme="machine"] .x-lamp:nth-child(2) { height: 10px; }
+:root[data-theme="machine"] .x-lamp:nth-child(3) { height: 14px; }
+:root[data-theme="machine"] .x-lamp:nth-child(4) { height: 19px; }
+:root[data-theme="machine"] .x-lamp:nth-child(5) { height: 25px; }
+:root[data-theme="machine"] .x-lamp.on {
+  background: #ff4d42;
+  box-shadow: 0 0 6px rgba(255, 58, 47, 0.8);
+}
+:root[data-theme="machine"] .x-arrow {
+  min-width: 26px;
+  padding: 0;
+}
+/* The display: the reticle's longitude and latitude in lit red capitals on black. */
+:root[data-theme="machine"] .x-read {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 92px;
+  height: 30px;
+  padding: 0 6px;
+  background: #030303;
+  border: 1px solid #000;
+  box-shadow: inset 0 0 8px rgba(215, 25, 32, 0.3);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: #ff4d42;
+  text-shadow: 0 0 6px rgba(255, 58, 47, 0.7);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme="machine"] .x-m-seq {
   flex: 1 1 auto;
-  min-width: 0;
+  min-width: 140px;
   max-width: 560px;
+}
+:root[data-theme="machine"] .x-seq {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(16, minmax(0, 1fr));
   gap: 4px;
 }
-/* A step: a dark key, every fourth a lighter grey; its light comes up and goes down over the same short fade. */
+/* A step: a dark key, every fourth a lighter grey, the programmed ones glowing a dull red; the walking light comes up
+   and goes down over the same short fade. */
 :root[data-theme="machine"] .x-step {
   position: relative;
+  min-height: 28px;
   border: 1px solid #000;
   border-radius: 1px;
   background: #3a3a37;
@@ -16237,11 +16486,15 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .x-step.x-beat {
   background: #66665f;
 }
+:root[data-theme="machine"] .x-step.x-prog {
+  background: #7a1c1a;
+  box-shadow: inset 0 1px 0 rgba(255, 120, 100, 0.3);
+}
 :root[data-theme="machine"] .x-step::after {
   content: "";
   position: absolute;
   inset: 2px;
-  background: radial-gradient(circle at 50% 40%, #ff6a5c, #e3221f 70%);
+  background: radial-gradient(circle at 50% 40%, #fff3f0, #ff5a4a 50%, #e3221f 90%);
   box-shadow: 0 0 8px rgba(255, 58, 47, 0.6);
   opacity: 0;
   transition: opacity var(--seq-fade, 0.24s) linear;
@@ -16250,8 +16503,9 @@ button.x-ch:focus-visible {
   opacity: 1;
 }
 :root[data-theme="machine"] .x-scope-mod {
-  flex: 0 1 160px;
+  flex: 0 1 130px;
   min-width: 70px;
+  padding: 5px;
 }
 :root[data-theme="machine"] .x-scope {
   width: 100%;
@@ -16263,8 +16517,12 @@ button.x-ch:focus-visible {
 :root[data-theme="machine"] .x-scope-run {
   animation: machine-scope var(--scope-pass, 5s) linear infinite;
 }
-:root[data-theme="machine"] .x-meters {
-  flex: none;
+:root[data-theme="machine"] .x-meters,
+:root[data-theme="machine"] .x-knob-mod {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 6px;
+  padding: 5px 8px;
 }
 :root[data-theme="machine"] .x-meter {
   height: 100%;
@@ -16276,9 +16534,6 @@ button.x-ch:focus-visible {
   transform-origin: 30px 33px;
   transform: rotate(-20deg);
   animation: machine-needle 3.2s ease-in-out infinite alternate;
-}
-:root[data-theme="machine"] .x-knob-mod {
-  flex: none;
 }
 :root[data-theme="machine"] .x-knobs {
   height: 100%;
@@ -16300,20 +16555,42 @@ button.x-ch:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme="machine"] .x-scope-run,
-  :root[data-theme="machine"] .x-needle {
+  :root[data-theme="machine"] .x-needle,
+  :root[data-theme="machine"] .toolbar::after,
+  :root[data-theme="machine"] .timebar::before {
     animation: none;
   }
   :root[data-theme="machine"] .x-step::after {
     transition: none;
   }
 }
-@media (max-width: 1100px) {
-  :root[data-theme="machine"] .x-knob-mod,
-  :root[data-theme="machine"] .x-meter + .x-meter {
+/* What the rack keeps depends on its own width: the scope from 900px, the meters from 1080px, the knobs from 1260px. */
+@container (max-width: 1260px) {
+  :root[data-theme="machine"] .x-knob-mod {
     display: none;
   }
+}
+@container (max-width: 1080px) {
+  :root[data-theme="machine"] .x-meters {
+    display: none;
+  }
+}
+@container (max-width: 900px) {
   :root[data-theme="machine"] .x-scope-mod {
-    flex-basis: 110px;
+    display: none;
+  }
+}
+@container (max-width: 760px) {
+  :root[data-theme="machine"] .x-rack-ear {
+    display: none;
+  }
+  :root[data-theme="machine"] .x-m-seq {
+    min-width: 100px;
+  }
+}
+@media (max-width: 1100px) {
+  :root[data-theme="machine"] .panel {
+    margin: 12px 10px 12px 6px;
   }
 }
 /* Between a phone and a wide screen the name shares its row with the word: tighter, so it keeps to its column. */
@@ -16383,35 +16660,95 @@ button.x-ch:focus-visible {
   :root[data-theme="machine"] .stage:has(.panel.framed) {
     grid-template-rows: 0 0 minmax(0, 1fr);
   }
+  /* With a story open the map and the rack give the whole stage to the reader. */
   :root[data-theme="machine"] .stage:has(.panel.framed) .x-rack {
     display: none;
+  }
+  :root[data-theme="machine"] .stage:has(.panel.framed) .map {
+    margin: 0;
+    border-width: 0;
+    box-shadow: none;
+  }
+  :root[data-theme="machine"] .map {
+    margin: 6px 6px 0;
   }
   :root[data-theme="machine"] .panel {
     grid-column: 1;
     grid-row: 3;
-    margin: 8px;
-    padding: 18px 18px 22px;
+    margin: 8px 6px;
+    padding: 26px 18px 22px;
   }
+  :root[data-theme="machine"] .panel.framed {
+    margin: 0;
+    padding: 7px 0 0;
+  }
+  /* On a phone the rack is two rows: the sequencer as a thin strip over the keys, no legends. */
   :root[data-theme="machine"] .x-rack {
-    height: 42px;
+    flex-wrap: wrap;
+    margin: 6px 6px 6px;
     padding: 5px 6px;
     gap: 4px;
   }
   :root[data-theme="machine"] .x-rack-ear,
-  :root[data-theme="machine"] .x-meter + .x-meter {
+  :root[data-theme="machine"] .x-legend,
+  :root[data-theme="machine"] .x-lamps,
+  :root[data-theme="machine"] .x-read,
+  :root[data-theme="machine"] .x-scope-mod,
+  :root[data-theme="machine"] .x-meters,
+  :root[data-theme="machine"] .x-knob-mod {
     display: none;
   }
-  :root[data-theme="machine"] .x-rack-mod {
-    padding: 4px 5px;
+  :root[data-theme="machine"] .x-m-seq {
+    order: -1;
+    flex: 0 0 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
   }
   :root[data-theme="machine"] .x-seq {
     gap: 2px;
   }
-  :root[data-theme="machine"] .x-scope-mod {
-    flex-basis: 76px;
+  :root[data-theme="machine"] .x-step {
+    min-height: 8px;
+  }
+  :root[data-theme="machine"] .x-step::after {
+    inset: 1px;
+  }
+  /* Flat on a phone: no plate behind each module, and the map's own zoom keys stand in for the rack's. */
+  :root[data-theme="machine"] .x-rack-mod {
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+  :root[data-theme="machine"] .x-m-zoom {
+    display: none;
+  }
+  :root[data-theme="machine"] .x-rack {
+    justify-content: space-between;
+  }
+  :root[data-theme="machine"] .x-mod-body {
+    gap: 3px;
+  }
+  :root[data-theme="machine"] .x-key {
+    height: 32px;
+    padding: 0 5px;
+    font-size: 11px;
+  }
+  :root[data-theme="machine"] .x-play {
+    min-width: 48px;
+  }
+  :root[data-theme="machine"] .x-view {
+    min-width: 56px;
+  }
+  :root[data-theme="machine"] .x-arrow {
+    min-width: 36px;
   }
   :root[data-theme="machine"] dialog {
-    padding: 22px 20px 22px;
+    padding: 30px 20px 22px;
   }
 }
 

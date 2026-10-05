@@ -1790,6 +1790,7 @@ async function start() {
         .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
     builtAt: () => state.file?.generatedAt ?? null,
     kmPerPixel: () => map.kmPerPixel(),
+    level: () => map.level(),
   });
   // Paper Screen's pages for the panel and the About dialog (experimental); idle in every other design.
   mountPaper();

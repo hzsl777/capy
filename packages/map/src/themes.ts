@@ -2192,10 +2192,10 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Machine Music, experimental: after the feel of 1970s and 80s German electronic music and constructivist posters
-  // (src/map/machine.ts). The world on a black screen under a fine red grid, or a red wireframe sphere on a dark stage
-  // under two spotlights; grey land with a thin glowing red coast. Square red pads with a dark edge, white for fresh
-  // reports. Black, signal red, warm grey and white only.
+  // Machine Music, experimental: after the feel of 1970s and 80s German electronic music stage shows and constructivist
+  // posters (src/map/machine.ts). The world as a vector display: a black screen under a fine red grid, or a red
+  // wireframe sphere on a stage of lit grid panels with one red diagonal; land ruled in grey scan lines, coasts as neon
+  // tubes. Square red pads with a dark edge, white for fresh reports. Black, signal red, warm grey and white only.
   machine: {
     id: "machine",
     label: "Machine Music",
@@ -2203,7 +2203,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "machine",
-    globeScale: 0.38,
+    globeScale: 0.36,
     ocean: "#0b0b0a",
     land: "#4b4b47",
     landTexture: "none",
