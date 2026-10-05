@@ -218,13 +218,16 @@ import "@fontsource/shippori-mincho/latin-700.css";
 // Desktop 95: the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
+// Lobster (experimental): the panel hauled up like a pot when a place is tuned.
+import { haul } from "./ui/lobster.ts";
 import { mountPaper } from "./ui/paper.ts";
 import { mountDial, moveDial } from "./ui/dial.ts";
 import { renderPostcard } from "./ui/postcard.ts";
 // Zine: chunky display capitals for the off-register name and word.
 import "@fontsource/bowlby-one/400.css";
-// Tiramisu: the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card.
-import { beanCrease } from "./map/marks.ts";
+// Tiramisu: the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card. Lobster's
+// buoy band, too.
+import { beanCrease, buoyBand } from "./map/marks.ts";
 import "@fontsource/playfair-display/400-italic.css";
 import "@fontsource/playfair-display/600-italic.css";
 // Alien (experimental): Zen Dots for the name and the word, Lexend for reading.
@@ -336,6 +339,8 @@ const map = new MapView($("map"), THEMES[state.theme], {
     if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
     refreshExtras();
+    // Lobster (experimental): the panel is a pot, hauled up when a place is tuned.
+    haul(state.theme, $("panel"), indices);
   },
   onMove: moveExtras,
   onLevel(level) {
@@ -811,6 +816,15 @@ function markSvg(draw: MarkDraw, size = 22): SVGSVGElement {
       crease.setAttribute("stroke-linecap", "round");
       crease.setAttribute("opacity", "0.85");
       svg.append(crease);
+    }
+    // Lobster: the toggle buoy's painted band, as the map draws it (view.ts).
+    if (t.dotShape === "buoy" && of === undefined && fill !== "none" && r >= 3) {
+      const band = document.createElementNS(NS, "path");
+      band.setAttribute("d", buoyBand(r));
+      band.setAttribute("fill", "none");
+      band.setAttribute("stroke", fill === t.dotStroke ? stroke : t.dotStroke);
+      band.setAttribute("stroke-width", String(Math.max(1, r * 0.3)));
+      svg.append(band);
     }
   });
   return svg;

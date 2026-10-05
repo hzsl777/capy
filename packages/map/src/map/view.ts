@@ -81,6 +81,9 @@ import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
 import { beanCrease2D } from "./marks.ts";
 import { BRAKE_DEG, CAP, dragRecord, drawVinyl, NEEDLE_LAT, needleAt, recordBase, recordProjection, recordSpin, turnToNeedle, VinylCache } from "./vinyl.ts";
 import { drawWoodblock } from "./woodblock.ts";
+// Lobster (experimental): the chart and the dock, and the buoy mark's painted band.
+import { drawLobster, LobsterCache } from "./lobster.ts";
+import { buoyBand2D } from "./marks.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
 import { drawStijl } from "./stijl.ts";
@@ -346,6 +349,7 @@ export class MapView {
   private herbarium = new HerbariumCache();
   /** Tiramisu: the dish or the bowl on its table, kept while the view holds still. */
   private tiramisu = new TiramisuCache();
+  private lobster = new LobsterCache();
   /** Record Player: the tonearm and sleeve layers, and where the finger last was on the record (src/map/vinyl.ts). */
   private vinyl = new VinylCache();
   private recordAt: [number, number] | null = null;
@@ -2059,6 +2063,7 @@ export class MapView {
     if (t.surface === "tiramisu") return drawTiramisu(f, this.tiramisu);
     if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
     if (t.surface === "woodblock") return drawWoodblock(f);
+    if (t.surface === "lobster") return drawLobster(f, this.lobster);
     if (t.surface === "core") return drawCore(f, this.core);
     if (t.surface === "render") return drawRender(f, this.firstRender);
     if (t.surface === "paper") return drawPaper(f, this.paper);
@@ -2778,6 +2783,16 @@ export class MapView {
           ctx.globalAlpha = hollow ? 0.85 : 0.8;
           ctx.stroke(beanCrease2D(r));
         }
+        ctx.restore();
+      }
+      if (t.dotShape === "buoy" && r >= 3) {
+        // Lobster's toggle buoy: the painted band across the float, pale on a filled one and in the ink on a hollow one.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.translate(x, y);
+        ctx.lineWidth = Math.max(1, r * 0.3);
+        ctx.strokeStyle = hollow ? ink : t.dotStroke;
+        ctx.stroke(buoyBand2D(r));
         ctx.restore();
       }
       if (t.dotShape === "diamond" && !hollow) {

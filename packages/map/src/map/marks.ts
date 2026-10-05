@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe" | "buoy";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -63,6 +63,20 @@ function beanAt(u: number, v: number): string {
 export function beanCrease(r: number): string {
   const a = r * BEAN_A, b = r * BEAN_B;
   return `M${beanAt(-0.8 * a, 0.06 * b)}C${beanAt(-0.3 * a, 0.44 * b)} ${beanAt(0.3 * a, -0.44 * b)} ${beanAt(0.8 * a, -0.06 * b)}`;
+}
+
+// Lobster (experimental): a toggle buoy, a round float with a short neck on top, with a painted band across its belly
+// (buoyBand, over a filled mark only). The outline alone is the mark, so hollow, filled and ringed read as in every shape.
+/** The float's radius and centre height, and the neck's half width and top, as shares of r. */
+const BUOY_R = 0.95;
+const BUOY_CY = 0.22;
+const BUOY_NECK = 0.2;
+const BUOY_TOP = -1.3;
+
+/** The painted band across a buoy's belly, as SVG path data centred on 0,0 (an open line inside the float). */
+export function buoyBand(r: number): string {
+  const y = r * BUOY_CY, x = r * BUOY_R * 0.78;
+  return `M${f(-x)} ${f(y)}H${f(x)}`;
 }
 
 /** The outline of a marker of radius r, as SVG path data. */
@@ -292,6 +306,12 @@ export function markPath(shape: MarkShape, r: number): string {
       }
       return `${path}Z`;
     }
+    case "buoy": {
+      // The float is a circle; the neck is a short post up from it, so the whole mark is one closed outline.
+      const R = r * BUOY_R, cy = r * BUOY_CY, nx = r * BUOY_NECK;
+      const ny = cy - Math.sqrt(R * R - nx * nx);
+      return `M${f(-nx)} ${f(r * BUOY_TOP)}H${f(nx)}V${f(ny)}A${f(R)} ${f(R)} 0 1 1 ${f(-nx)} ${f(ny)}Z`;
+    }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
       // (markRing), since an X drawn larger would sit too close to read as a ring.
@@ -353,6 +373,20 @@ export function beanCrease2D(r: number): Path2D {
     p = new Path2D(beanCrease(q));
     if (creaseCache.size > 400) creaseCache.clear();
     creaseCache.set(q, p);
+  }
+  return p;
+}
+
+const bandCache = new Map<number, Path2D>();
+
+/** buoyBand as a Path2D centred on 0,0, cached by size (to a quarter pixel). */
+export function buoyBand2D(r: number): Path2D {
+  const q = Math.round(r * 4) / 4;
+  let p = bandCache.get(q);
+  if (!p) {
+    p = new Path2D(buoyBand(q));
+    if (bandCache.size > 400) bandCache.clear();
+    bandCache.set(q, p);
   }
   return p;
 }

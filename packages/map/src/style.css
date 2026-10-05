@@ -25062,3 +25062,619 @@ button.x-ch:focus-visible {
     bottom: 40px;
   }
 }
+
+/* >>> lobster (experimental design, fenced so parallel designs merge) */
+/* ==========================================================================
+   Lobster (lobster, experimental): a seaside lobster shack and a lobster boat of our own, with no restaurant's, brand's,
+   fishery's or state's name, logo or lettering. The page is the shack's weathered grey shingle wall; the masthead is a
+   sea-green painted board under a rope, with a small lobster of our own by the name; the toolbar and the time bar are
+   wooden rails; the map is a chart in a driftwood frame; the panel hangs from the rail on a rope, whitewashed, and is
+   hauled up when a place is tuned (src/ui/lobster.ts). The word is painted on a toggle buoy, and pinned places are buoys
+   in a painted stripe of their own. Lobster red is the lobster's and the chrome's alone (the lit step of the scale, a
+   pressed key), never the land's. Alfa Slab One for the name and the word, Arvo for headings, Source Sans 3 for reading,
+   Barlow Condensed for the keys. The canvas side is src/map/lobster.ts.
+   ========================================================================== */
+:root[data-theme="lobster"] {
+  color-scheme: light;
+  --page: #6d7579;
+  --panel: #efebdd;
+  --ink: #15262c;
+  --ink-2: #2b4249;
+  --muted: #55676d;
+  --rule: #33434a;
+  --accent: #b82d1b;
+  --on-accent: #fff3ea;
+  --hover: rgba(21, 38, 44, 0.08);
+  --reticle: #15262c;
+  --grain-opacity: 0.22;
+  --grain-blend: multiply;
+  --font-mast: "Alfa Slab One", Rockwell, Georgia, serif;
+  --font-head: "Arvo", Georgia, serif;
+  --font-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --lb-board: #1d4a55;
+  --lb-board-2: #153b45;
+  --lb-wood: #6a5a46;
+  --lb-wood-2: #55473a;
+  --lb-wood-dark: #35291d;
+  --lb-cream: #f3efe2;
+  --lb-yellow: #f5c400;
+  --lb-green: #2f6a4f;
+  --lb-blue: #234f8f;
+  --lb-rope-dark: #8a7a55;
+  /* Twisted manila rope, laid along a slant, for runs in either direction. */
+  --lb-rope-h: repeating-linear-gradient(115deg, #7f6f4b 0 2px, #d6c395 2px 5px, #b9a574 5px 7px);
+  --lb-rope-v: repeating-linear-gradient(25deg, #7f6f4b 0 2px, #d6c395 2px 5px, #b9a574 5px 7px);
+  /* Boards: seams every forty pixels and a faint grain between them. */
+  --lb-planks: repeating-linear-gradient(to bottom, transparent 0 38px, rgba(0, 0, 0, 0.3) 38px 40px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 3px, transparent 3px 13px);
+  --lb-shingles: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='96'%3E%3Crect x='0' y='0' width='30' height='24' fill='%237f8a8c'/%3E%3Crect x='0' y='21' width='30' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='0' y='0' width='30' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='0' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='3.7' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='9.8' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='5.1' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='30' y='0' width='19' height='24' fill='%23737c80'/%3E%3Crect x='30' y='21' width='19' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='30' y='0' width='19' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='30' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='39.6' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='37.5' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='44.3' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.13'/%3E%3Crect x='49' y='0' width='25' height='24' fill='%237c8589'/%3E%3Crect x='49' y='21' width='25' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='49' y='1' width='25' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='49' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='52.7' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='64.2' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='53.4' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.16'/%3E%3Crect x='74' y='0' width='25' height='24' fill='%23889094'/%3E%3Crect x='74' y='21' width='25' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='74' y='1' width='25' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='74' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='82.5' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='93.8' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.07'/%3E%3Crect x='83.1' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='76' y='7.603045744636583' width='21' height='5.743643816906793' fill='%23394a42' fill-opacity='0.12'/%3E%3Crect x='99' y='0' width='22' height='24' fill='%236d7578'/%3E%3Crect x='99' y='21' width='22' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='99' y='0' width='22' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='99' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='117.3' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='107.3' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.14'/%3E%3Crect x='106.6' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='121' y='0' width='23' height='24' fill='%23868e8f'/%3E%3Crect x='121' y='21' width='23' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='121' y='1' width='23' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='121' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='139.4' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='134.6' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.13'/%3E%3Crect x='130.6' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.16'/%3E%3Crect x='144' y='0' width='25' height='24' fill='%23757e82'/%3E%3Crect x='144' y='21' width='25' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='144' y='1' width='25' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='144' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='160.3' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.06'/%3E%3Crect x='153.9' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.07'/%3E%3Crect x='153.9' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.13'/%3E%3Crect x='169' y='0' width='23' height='24' fill='%236d7578'/%3E%3Crect x='169' y='21' width='23' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='169' y='0' width='23' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='169' y='0' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='173.4' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.06'/%3E%3Crect x='176.3' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='182.8' y='1' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='0' y='24' width='27' height='24' fill='%237f8a8c'/%3E%3Crect x='0' y='45' width='27' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='0' y='24' width='27' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='0' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='7.4' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.16'/%3E%3Crect x='5.3' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='18.4' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='27' y='24' width='29' height='24' fill='%23757e82'/%3E%3Crect x='27' y='45' width='29' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='27' y='25' width='29' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='27' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='39.9' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='36.4' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='50.4' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='56' y='24' width='21' height='24' fill='%237c8589'/%3E%3Crect x='56' y='45' width='21' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='56' y='25' width='21' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='56' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='60.2' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='68.5' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='62.6' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.07'/%3E%3Crect x='58' y='33.076889014373016' width='17' height='7.5460403545508346' fill='%23394a42' fill-opacity='0.12'/%3E%3Crect x='77' y='24' width='29' height='24' fill='%237c8589'/%3E%3Crect x='77' y='45' width='29' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='77' y='24' width='29' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='77' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='94.6' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='83.6' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='88.9' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='106' y='24' width='28' height='24' fill='%23889094'/%3E%3Crect x='106' y='45' width='28' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='106' y='25' width='28' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='106' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='113.8' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='130.9' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='121.5' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='134' y='24' width='31' height='24' fill='%23757e82'/%3E%3Crect x='134' y='45' width='31' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='134' y='24' width='31' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='134' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='142.4' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='143.3' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='158.0' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.07'/%3E%3Crect x='165' y='24' width='27' height='24' fill='%237f8a8c'/%3E%3Crect x='165' y='45' width='27' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='165' y='24' width='27' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='165' y='24' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='183.1' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.14'/%3E%3Crect x='187.5' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.16'/%3E%3Crect x='172.6' y='25' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='0' y='48' width='19' height='24' fill='%23737c80'/%3E%3Crect x='0' y='69' width='19' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='0' y='48' width='19' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='0' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='14.5' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='3.4' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.13'/%3E%3Crect x='14.8' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='2' y='55.285859105776' width='15' height='3.8962442357541267' fill='%23394a42' fill-opacity='0.12'/%3E%3Crect x='19' y='48' width='26' height='24' fill='%23757e82'/%3E%3Crect x='19' y='69' width='26' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='19' y='49' width='26' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='19' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='40.3' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='36.3' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='37.8' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='45' y='48' width='25' height='24' fill='%23889094'/%3E%3Crect x='45' y='69' width='25' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='45' y='48' width='25' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='45' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='50.7' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='61.1' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='53.1' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='70' y='48' width='20' height='24' fill='%23868e8f'/%3E%3Crect x='70' y='69' width='20' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='70' y='49' width='20' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='70' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='83.3' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='75.7' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='83.6' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='90' y='48' width='19' height='24' fill='%236a7276'/%3E%3Crect x='90' y='69' width='19' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='90' y='48' width='19' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='90' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='104.0' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='103.6' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='100.8' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='92' y='53.97431741001751' width='15' height='6.970443852697706' fill='%23394a42' fill-opacity='0.12'/%3E%3Crect x='109' y='48' width='29' height='24' fill='%23737c80'/%3E%3Crect x='109' y='69' width='29' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='109' y='48' width='29' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='109' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='123.1' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='125.5' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='116.7' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='138' y='48' width='31' height='24' fill='%237f8a8c'/%3E%3Crect x='138' y='69' width='31' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='138' y='49' width='31' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='138' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='142.4' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='164.6' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='162.7' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.06'/%3E%3Crect x='169' y='48' width='23' height='24' fill='%23757e82'/%3E%3Crect x='169' y='69' width='23' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='169' y='48' width='23' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='169' y='48' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='177.2' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='180.4' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.14'/%3E%3Crect x='175.6' y='49' width='0.7' height='19' fill='%23000' fill-opacity='0.16'/%3E%3Crect x='171' y='55.59956051949391' width='19' height='4.133531958858264' fill='%23394a42' fill-opacity='0.12'/%3E%3Crect x='0' y='72' width='22' height='24' fill='%23889094'/%3E%3Crect x='0' y='93' width='22' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='0' y='72' width='22' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='0' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='10.0' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='13.1' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='5.7' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='22' y='72' width='25' height='24' fill='%236a7276'/%3E%3Crect x='22' y='93' width='25' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='22' y='73' width='25' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='22' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='41.7' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='43.9' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.08'/%3E%3Crect x='26.1' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.15'/%3E%3Crect x='47' y='72' width='20' height='24' fill='%23889094'/%3E%3Crect x='47' y='93' width='20' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='47' y='73' width='20' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='47' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='62.1' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.14'/%3E%3Crect x='52.0' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='53.6' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.13'/%3E%3Crect x='67' y='72' width='31' height='24' fill='%23889094'/%3E%3Crect x='67' y='93' width='31' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='67' y='73' width='31' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='67' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='87.0' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.13'/%3E%3Crect x='86.5' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='90.8' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.06'/%3E%3Crect x='69' y='77.62377110199247' width='27' height='4.700569492159676' fill='%23394a42' fill-opacity='0.12'/%3E%3Crect x='98' y='72' width='23' height='24' fill='%23889094'/%3E%3Crect x='98' y='93' width='23' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='98' y='72' width='23' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='98' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='103.0' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='108.0' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.14'/%3E%3Crect x='115.3' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3Crect x='121' y='72' width='32' height='24' fill='%23889094'/%3E%3Crect x='121' y='93' width='32' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='121' y='72' width='32' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='121' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='143.7' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.09'/%3E%3Crect x='135.6' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.06'/%3E%3Crect x='125.3' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.16'/%3E%3Crect x='153' y='72' width='39' height='24' fill='%23737c80'/%3E%3Crect x='153' y='93' width='39' height='3' fill='%23000' fill-opacity='0.3'/%3E%3Crect x='153' y='72' width='39' height='2' fill='%23fff' fill-opacity='0.07'/%3E%3Crect x='153' y='72' width='1' height='24' fill='%23000' fill-opacity='0.34'/%3E%3Crect x='156.3' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.12'/%3E%3Crect x='182.9' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.11'/%3E%3Crect x='176.0' y='73' width='0.7' height='19' fill='%23000' fill-opacity='0.10'/%3E%3C/svg%3E");
+  /* A small lobster of our own, seen from above, for beside the name. */
+  --lb-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-1.1 -1.1 2.2 2.2'%3E%3Cg transform='rotate(38)'%3E%3Cpath d='M-0.05 -0.58L-0.067 -0.625L-0.086 -0.666L-0.109 -0.703L-0.135 -0.736L-0.163 -0.766L-0.194 -0.792L-0.226 -0.815L-0.261 -0.835L-0.297 -0.852L-0.336 -0.866L-0.375 -0.878L-0.416 -0.888L-0.457 -0.895L-0.5 -0.9' fill='none' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.03 -0.58L-0.035 -0.601L-0.04 -0.62L-0.045 -0.639L-0.052 -0.656L-0.058 -0.673L-0.065 -0.688L-0.073 -0.702L-0.08 -0.716L-0.088 -0.729L-0.096 -0.74L-0.104 -0.751L-0.113 -0.762L-0.121 -0.771L-0.13 -0.78' fill='none' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.05 -0.58L0.067 -0.625L0.086 -0.666L0.109 -0.703L0.135 -0.736L0.163 -0.766L0.194 -0.792L0.226 -0.815L0.261 -0.835L0.297 -0.852L0.336 -0.866L0.375 -0.878L0.416 -0.888L0.457 -0.895L0.5 -0.9' fill='none' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.03 -0.58L0.035 -0.601L0.04 -0.62L0.045 -0.639L0.052 -0.656L0.058 -0.673L0.065 -0.688L0.073 -0.702L0.08 -0.716L0.088 -0.729L0.096 -0.74L0.104 -0.751L0.113 -0.762L0.121 -0.771L0.13 -0.78' fill='none' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.16 -0.26L-0.36 -0.29L-0.5 -0.17M-0.16 -0.195L-0.38 -0.205L-0.5 -0.055M-0.16 -0.13L-0.4 -0.12L-0.5 0.06M-0.16 -0.065L-0.42 -0.035L-0.5 0.175M0.16 -0.26L0.36 -0.29L0.5 -0.17M0.16 -0.195L0.38 -0.205L0.5 -0.055M0.16 -0.13L0.4 -0.12L0.5 0.06M0.16 -0.065L0.42 -0.035L0.5 0.175' fill='none' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.075 0.85L0.07 0.898L0.057 0.94L0.038 0.971L0.013 0.988L-0.013 0.988L-0.037 0.971L-0.057 0.94L-0.07 0.898L-0.075 0.85L-0.07 0.802L-0.057 0.76L-0.038 0.729L-0.013 0.712L0.013 0.712L0.038 0.729L0.057 0.76L0.07 0.802Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.064 0.863L-0.084 0.907L-0.109 0.943L-0.137 0.966L-0.165 0.974L-0.187 0.966L-0.203 0.943L-0.211 0.907L-0.208 0.863L-0.196 0.817L-0.176 0.773L-0.151 0.737L-0.123 0.714L-0.095 0.706L-0.073 0.714L-0.057 0.737L-0.049 0.773L-0.052 0.817Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.196 0.817L0.208 0.863L0.211 0.907L0.203 0.943L0.187 0.966L0.165 0.974L0.137 0.966L0.109 0.943L0.084 0.907L0.064 0.863L0.052 0.817L0.049 0.773L0.057 0.737L0.073 0.714L0.095 0.706L0.123 0.714L0.151 0.737L0.176 0.773Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.163 0.827L-0.191 0.857L-0.221 0.879L-0.25 0.89L-0.274 0.89L-0.291 0.877L-0.297 0.854L-0.294 0.823L-0.28 0.788L-0.257 0.753L-0.229 0.723L-0.199 0.701L-0.17 0.69L-0.146 0.69L-0.129 0.703L-0.123 0.726L-0.126 0.757L-0.14 0.792Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.257 0.753L0.28 0.788L0.294 0.823L0.297 0.854L0.291 0.877L0.274 0.89L0.25 0.89L0.221 0.879L0.191 0.857L0.163 0.827L0.14 0.792L0.126 0.757L0.123 0.726L0.129 0.703L0.146 0.69L0.17 0.69L0.199 0.701L0.229 0.723Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.19 0.16L0.182 0.179L0.16 0.197L0.124 0.211L0.079 0.222L0.027 0.227L-0.027 0.227L-0.079 0.222L-0.124 0.211L-0.16 0.197L-0.182 0.179L-0.19 0.16L-0.182 0.141L-0.16 0.123L-0.124 0.109L-0.079 0.098L-0.027 0.093L0.027 0.093L0.079 0.098L0.124 0.109L0.16 0.123L0.182 0.141Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.178 0.26L0.171 0.279L0.15 0.297L0.117 0.311L0.074 0.322L0.025 0.327L-0.025 0.327L-0.074 0.322L-0.117 0.311L-0.15 0.297L-0.171 0.279L-0.178 0.26L-0.171 0.241L-0.15 0.223L-0.117 0.209L-0.074 0.198L-0.025 0.193L0.025 0.193L0.074 0.198L0.117 0.209L0.15 0.223L0.171 0.241Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.166 0.36L0.159 0.379L0.14 0.397L0.109 0.411L0.069 0.422L0.024 0.427L-0.024 0.427L-0.069 0.422L-0.109 0.411L-0.14 0.397L-0.159 0.379L-0.166 0.36L-0.159 0.341L-0.14 0.323L-0.109 0.309L-0.069 0.298L-0.024 0.293L0.024 0.293L0.069 0.298L0.109 0.309L0.14 0.323L0.159 0.341Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.154 0.46L0.148 0.479L0.13 0.497L0.101 0.511L0.064 0.522L0.022 0.527L-0.022 0.527L-0.064 0.522L-0.101 0.511L-0.13 0.497L-0.148 0.479L-0.154 0.46L-0.148 0.441L-0.13 0.423L-0.101 0.409L-0.064 0.398L-0.022 0.393L0.022 0.393L0.064 0.398L0.101 0.409L0.13 0.423L0.148 0.441Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.142 0.56L0.136 0.579L0.119 0.597L0.093 0.611L0.059 0.622L0.02 0.627L-0.02 0.627L-0.059 0.622L-0.093 0.611L-0.119 0.597L-0.136 0.579L-0.142 0.56L-0.136 0.541L-0.119 0.523L-0.093 0.509L-0.059 0.498L-0.02 0.493L0.02 0.493L0.059 0.498L0.093 0.509L0.119 0.523L0.136 0.541Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.13 0.66L0.125 0.679L0.109 0.697L0.085 0.711L0.054 0.722L0.019 0.727L-0.019 0.727L-0.054 0.722L-0.085 0.711L-0.109 0.697L-0.125 0.679L-0.13 0.66L-0.125 0.641L-0.109 0.623L-0.085 0.609L-0.054 0.598L-0.019 0.593L0.019 0.593L0.054 0.598L0.085 0.609L0.109 0.623L0.125 0.641Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0 -0.64L0.023 -0.614L0.048 -0.585L0.074 -0.551L0.101 -0.514L0.126 -0.473L0.15 -0.427L0.17 -0.377L0.186 -0.323L0.196 -0.264L0.2 -0.2L0.199 -0.146L0.195 -0.095L0.188 -0.049L0.179 -0.006L0.167 0.032L0.154 0.066L0.138 0.095L0.12 0.12L0.091 0.14L0.065 0.151L0.041 0.157L0.019 0.16L-0.019 0.16L-0.041 0.157L-0.065 0.151L-0.091 0.14L-0.12 0.12L-0.138 0.095L-0.154 0.066L-0.167 0.032L-0.179 -0.006L-0.188 -0.049L-0.195 -0.095L-0.199 -0.146L-0.2 -0.2L-0.196 -0.264L-0.186 -0.323L-0.17 -0.377L-0.15 -0.427L-0.126 -0.473L-0.101 -0.514L-0.074 -0.551L-0.048 -0.585L-0.023 -0.614L0 -0.64Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.19 -0.14L-0.156 -0.129L-0.119 -0.121L-0.08 -0.115L-0.04 -0.111L0 -0.11L0.04 -0.111L0.08 -0.115L0.119 -0.121L0.156 -0.129L0.19 -0.14' fill='none' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.001 -0.292L-0.014 -0.232L-0.033 -0.183L-0.055 -0.151L-0.075 -0.142L-0.092 -0.157L-0.103 -0.194L-0.105 -0.247L-0.099 -0.308L-0.086 -0.368L-0.067 -0.417L-0.045 -0.449L-0.025 -0.458L-0.008 -0.443L0.003 -0.406L0.005 -0.353Z' fill='rgba(255,255,255,0.2)'/%3E%3Cpath d='M-0.14 -0.34L-0.162 -0.376L-0.185 -0.407L-0.206 -0.435L-0.227 -0.457L-0.248 -0.476L-0.267 -0.489L-0.284 -0.497L-0.3 -0.5' fill='none' stroke='%238d2214' stroke-width='0.09' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.14 -0.34L-0.162 -0.376L-0.185 -0.407L-0.206 -0.435L-0.227 -0.457L-0.248 -0.476L-0.267 -0.489L-0.284 -0.497L-0.3 -0.5' fill='none' stroke='%23c8321e' stroke-width='0.062' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.14 -0.34L0.162 -0.376L0.185 -0.407L0.206 -0.435L0.228 -0.457L0.248 -0.476L0.267 -0.489L0.284 -0.497L0.3 -0.5' fill='none' stroke='%238d2214' stroke-width='0.09' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.14 -0.34L0.162 -0.376L0.185 -0.407L0.206 -0.435L0.228 -0.457L0.248 -0.476L0.267 -0.489L0.284 -0.497L0.3 -0.5' fill='none' stroke='%23c8321e' stroke-width='0.062' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.465 -0.615L-0.536 -0.713L-0.572 -0.83L-0.553 -0.932L-0.509 -0.819L-0.451 -0.725L-0.396 -0.676Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.304 -0.681L-0.323 -0.801L-0.38 -0.909L-0.464 -0.968L-0.417 -0.857L-0.391 -0.75L-0.396 -0.676Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.27 -0.653L-0.252 -0.61L-0.244 -0.567L-0.248 -0.527L-0.262 -0.495L-0.286 -0.474L-0.316 -0.465L-0.351 -0.471L-0.386 -0.489L-0.419 -0.519L-0.445 -0.557L-0.463 -0.6L-0.471 -0.644L-0.467 -0.684L-0.453 -0.716L-0.429 -0.737L-0.399 -0.745L-0.364 -0.74L-0.329 -0.721L-0.296 -0.692Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M-0.35 -0.63L-0.348 -0.599L-0.354 -0.573L-0.367 -0.557L-0.385 -0.553L-0.403 -0.563L-0.419 -0.585L-0.429 -0.614L-0.431 -0.645L-0.425 -0.671L-0.412 -0.687L-0.394 -0.691L-0.376 -0.681L-0.36 -0.659Z' fill='rgba(255,255,255,0.22)'/%3E%3Cpath d='M0.306 -0.677L0.345 -0.776L0.415 -0.858L0.499 -0.892L0.437 -0.806L0.395 -0.719L0.384 -0.654Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.432 -0.589L0.512 -0.66L0.565 -0.754L0.568 -0.844L0.509 -0.756L0.442 -0.686L0.384 -0.654Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.428 -0.55L0.405 -0.517L0.376 -0.49L0.345 -0.474L0.314 -0.469L0.287 -0.477L0.267 -0.496L0.254 -0.524L0.251 -0.559L0.258 -0.597L0.273 -0.635L0.297 -0.669L0.325 -0.695L0.356 -0.711L0.387 -0.716L0.414 -0.709L0.435 -0.69L0.447 -0.662L0.45 -0.627L0.444 -0.588Z' fill='%23c8321e' stroke='%238d2214' stroke-width='0.045' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0.372 -0.599L0.351 -0.583L0.329 -0.575L0.31 -0.577L0.299 -0.588L0.298 -0.606L0.307 -0.628L0.323 -0.65L0.345 -0.666L0.367 -0.674L0.385 -0.672L0.396 -0.661L0.398 -0.642L0.389 -0.62Z' fill='rgba(255,255,255,0.22)'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-theme="lobster"] body {
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, 0.28)),
+    var(--lb-shingles) 0 0 / 192px 96px,
+    var(--page);
+}
+
+/* ---- masthead: the sea-green board under a rope ---- */
+:root[data-theme="lobster"] .masthead {
+  position: relative;
+  z-index: 21;
+  color: var(--lb-cream);
+  background: var(--lb-planks), linear-gradient(to bottom, var(--lb-board), var(--lb-board-2));
+  border-bottom: 0;
+  padding-bottom: 16px;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="lobster"] .masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 8px;
+  background: var(--lb-rope-h);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+:root[data-theme="lobster"] .brand {
+  position: relative;
+}
+:root[data-theme="lobster"] .mast-title {
+  display: flex;
+  align-items: center;
+  gap: 0.32em;
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(26px, 2.9vw, 40px);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--lb-cream);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .mast-title::before {
+  content: "";
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  background: var(--lb-icon) center / contain no-repeat;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.4));
+}
+/* A pinstripe of lobster red under the name, as a boat's boot-top is painted. */
+:root[data-theme="lobster"] .mast-tag {
+  display: block;
+  font: 500 13px/1.3 var(--font-ui);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #cfe0dd;
+}
+:root[data-theme="lobster"] .mast-tag::before {
+  content: "";
+  display: block;
+  height: 3px;
+  margin: 3px 0 5px;
+  background: var(--accent);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .telegram-kicker,
+:root[data-theme="lobster"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: #cfe0dd;
+}
+:root[data-theme="lobster"] .telegram-note,
+:root[data-theme="lobster"] .telegram-none,
+:root[data-theme="lobster"] .telegram-status {
+  color: #c4d6d3;
+}
+:root[data-theme="lobster"] .telegram-note .note-link {
+  color: var(--lb-cream);
+}
+/* The word, painted on a toggle buoy: yellow ends, a cream belly, a rope eye on top. */
+:root[data-theme="lobster"] .telegram-word {
+  position: relative;
+  margin-top: 14px;
+  font: 400 min(54px, calc(36vw / var(--len, 8))) / 1.05 var(--font-mast);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #14262c;
+  padding: 5px 40px 7px;
+  border: 3px solid #14262c;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--lb-yellow) 0 34px, var(--lb-cream) 34px calc(100% - 34px), var(--lb-yellow) calc(100% - 34px));
+  box-shadow: inset 0 -7px 9px rgba(0, 0, 0, 0.14), inset 0 5px 6px rgba(255, 255, 255, 0.35), 0 4px 7px rgba(0, 0, 0, 0.4);
+  text-decoration: none;
+}
+:root[data-theme="lobster"] .telegram-word::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -17px;
+  width: 17px;
+  height: 17px;
+  margin-left: -8.5px;
+  border: 4px solid var(--lb-rope-dark);
+  border-bottom-width: 0;
+  border-radius: 9px 9px 0 0;
+  pointer-events: none;
+}
+:root[data-theme="lobster"] .telegram-word:hover,
+:root[data-theme="lobster"] .telegram-word:focus-visible {
+  text-decoration: none;
+  filter: brightness(1.05);
+  outline: none;
+}
+:root[data-theme="lobster"] .telegram-word:focus-visible {
+  box-shadow: inset 0 -7px 9px rgba(0, 0, 0, 0.14), 0 0 0 3px var(--lb-cream), 0 0 0 5px var(--accent);
+}
+:root[data-theme="lobster"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+/* The scale: five painted tiles in a row, the day's step lit in lobster red. */
+:root[data-theme="lobster"] .scale {
+  border: 2px solid var(--lb-cream);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="lobster"] .scale .step {
+  color: #d5e3e0;
+}
+:root[data-theme="lobster"] .scale .step + .step {
+  border-left: 1px solid rgba(243, 239, 226, 0.4);
+}
+:root[data-theme="lobster"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="lobster"] .importance,
+:root[data-theme="lobster"] .imp-label,
+:root[data-theme="lobster"] .importance .imp-step span {
+  color: #cfe0dd;
+  font-family: var(--font-ui);
+  letter-spacing: 0.1em;
+}
+:root[data-theme="lobster"] .telegram-view .scale {
+  border-color: var(--rule);
+  background: transparent;
+}
+:root[data-theme="lobster"] .telegram-view .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="lobster"] .telegram-view .scale .step + .step {
+  border-left-color: var(--rule);
+}
+:root[data-theme="lobster"] .telegram-view .scale .step.on {
+  color: var(--on-accent);
+}
+:root[data-theme="lobster"] .score-chip {
+  border-color: var(--rule);
+}
+
+/* ---- the rail: a plank of driftwood the keys are set on ---- */
+:root[data-theme="lobster"] .toolbar {
+  position: relative;
+  padding-top: 14px;
+  padding-bottom: 10px;
+  background: var(--lb-planks), linear-gradient(to bottom, var(--lb-wood), var(--lb-wood-2));
+  border-bottom: 3px solid var(--lb-wood-dark);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .banner {
+  background: var(--lb-cream);
+  color: var(--ink);
+  border-bottom: 2px solid var(--lb-wood-dark);
+}
+:root[data-theme="lobster"] .tool,
+:root[data-theme="lobster"] .pick select,
+:root[data-theme="lobster"] .menu > summary,
+:root[data-theme="lobster"] .chip,
+:root[data-theme="lobster"] .key-btn,
+:root[data-theme="lobster"] .key-close,
+:root[data-theme="lobster"] dialog .close {
+  border: 2px solid #2b3a40;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #fbf8ec, #e7e1cd);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 0 #1b272c, 0 3px 5px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .pick::after {
+  color: var(--ink);
+  opacity: 0.85;
+}
+:root[data-theme="lobster"] .tool:hover,
+:root[data-theme="lobster"] .pick select:hover,
+:root[data-theme="lobster"] .menu > summary:hover,
+:root[data-theme="lobster"] .chip:hover,
+:root[data-theme="lobster"] .key-btn:hover,
+:root[data-theme="lobster"] .key-close:hover,
+:root[data-theme="lobster"] dialog .close:hover {
+  background: linear-gradient(to bottom, #fffdf3, #efe9d4);
+}
+:root[data-theme="lobster"] .tool[aria-pressed="true"],
+:root[data-theme="lobster"] .menu[open] > summary,
+:root[data-theme="lobster"] .key-btn[aria-expanded="true"] {
+  background: var(--accent);
+  border-color: #6e170b;
+  color: var(--on-accent);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .chip[aria-pressed="true"] {
+  background: var(--lb-board);
+  border-color: #0f2b32;
+  color: var(--lb-cream);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .menu[open] > summary::after,
+:root[data-theme="lobster"] .chip[aria-pressed="true"] * {
+  color: inherit;
+}
+:root[data-theme="lobster"] .chip-all {
+  border-style: dashed;
+}
+:root[data-theme="lobster"] .pick select {
+  line-height: 1.35;
+}
+:root[data-theme="lobster"] .pick option {
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+/* ---- the map: a chart in a driftwood frame (the canvas draws the chart and the dock) ---- */
+:root[data-theme="lobster"] .stage {
+  position: relative;
+}
+:root[data-theme="lobster"] .map {
+  margin: 12px 4px 12px var(--gutter);
+  border: 10px solid var(--lb-wood);
+  border-radius: 5px;
+  background: #dbeaea;
+  box-shadow:
+    inset 0 0 0 2px var(--lb-wood-dark),
+    0 0 0 2px var(--lb-wood-dark),
+    0 6px 12px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="lobster"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #f7f3e6) drop-shadow(0 0 1px #f7f3e6);
+}
+:root[data-theme="lobster"] .key-btn {
+  font-size: 15px;
+}
+:root[data-theme="lobster"] .zoom {
+  border: 2px solid #2b3a40;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #fbf8ec, #e7e1cd);
+  box-shadow: 0 2px 0 #1b272c, 0 3px 5px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="lobster"] .zoom button {
+  color: var(--ink);
+  font-weight: 700;
+}
+:root[data-theme="lobster"] .zoom button + button {
+  border-top: 2px solid #2b3a40;
+}
+:root[data-theme="lobster"] .zoom button:hover {
+  background: rgba(21, 38, 44, 0.08);
+}
+
+/* ---- the panel: whitewashed boards in a driftwood frame, hung from the rail on a rope ---- */
+:root[data-theme="lobster"] .panel {
+  margin: 34px var(--gutter) 12px 6px;
+  border: 8px solid var(--lb-wood);
+  border-radius: 5px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 30px, rgba(60, 75, 80, 0.1) 30px 31px),
+    var(--panel);
+  box-shadow: inset 0 0 0 2px var(--lb-wood-dark), 0 0 0 2px var(--lb-wood-dark), 0 6px 12px rgba(0, 0, 0, 0.45);
+}
+/* The rope the panel hangs on, from the rail to the panel's top, tied in a bridle; the panel's own column is its length. */
+:root[data-theme="lobster"] .stage::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: calc(var(--gutter) + (var(--panel-w) - 6px - var(--gutter)) / 2 - 18px);
+  width: 36px;
+  height: 52px;
+  z-index: 6;
+  pointer-events: none;
+  background:
+    linear-gradient(33deg, transparent 47%, #7f6f4b 47% 53%, transparent 53%) 0 100% / 50% 100% no-repeat,
+    linear-gradient(-33deg, transparent 47%, #7f6f4b 47% 53%, transparent 53%) 100% 100% / 50% 100% no-repeat,
+    var(--lb-rope-v) 50% 0 / 7px 30px no-repeat;
+  filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.4));
+}
+:root[data-theme="lobster"] .menu-body,
+:root[data-theme="lobster"] .key-pop,
+:root[data-theme="lobster"] .map-note,
+:root[data-theme="lobster"] dialog {
+  border: 7px solid var(--lb-wood);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--lb-wood-dark), 0 0 0 2px var(--lb-wood-dark), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="lobster"] dialog::backdrop {
+  background: rgba(14, 26, 30, 0.55);
+}
+:root[data-theme="lobster"] .panel-title,
+:root[data-theme="lobster"] .place-name,
+:root[data-theme="lobster"] .key-head h2,
+:root[data-theme="lobster"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="lobster"] .panel-title,
+:root[data-theme="lobster"] .place-name {
+  font-size: 25px;
+  line-height: 1.1;
+}
+:root[data-theme="lobster"] .key-head h2,
+:root[data-theme="lobster"] dialog h2 {
+  font-size: 21px;
+}
+:root[data-theme="lobster"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+/* Rules between the parts are a length of rope, laid along. */
+:root[data-theme="lobster"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 14px;
+  background: var(--lb-rope-h) 0 100% / auto 5px repeat-x;
+}
+:root[data-theme="lobster"] .dateline .coords,
+:root[data-theme="lobster"] .count,
+:root[data-theme="lobster"] .meta {
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="lobster"] .rule-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[data-theme="lobster"] .rule-head::before,
+:root[data-theme="lobster"] .rule-head::after {
+  content: "";
+  flex: 1 1 12px;
+  min-width: 12px;
+  height: 4px;
+  background: var(--lb-rope-h);
+  border-radius: 2px;
+}
+:root[data-theme="lobster"] .stories-group {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[data-theme="lobster"] .stories li + li {
+  border-top: 1px dashed rgba(51, 67, 74, 0.45);
+}
+:root[data-theme="lobster"] .story:hover,
+:root[data-theme="lobster"] .story:focus-visible {
+  outline: none;
+  background: rgba(29, 74, 85, 0.1);
+}
+:root[data-theme="lobster"] .headline {
+  font-weight: 600;
+  color: var(--ink);
+}
+:root[data-theme="lobster"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.25;
+}
+:root[data-theme="lobster"] .cite,
+:root[data-theme="lobster"] .source-num {
+  border-color: var(--lb-board);
+  color: var(--lb-board);
+}
+:root[data-theme="lobster"] .excerpt-quote {
+  border-left: 4px solid var(--lb-rope-dark);
+}
+:root[data-theme="lobster"] .pin-new {
+  color: var(--accent);
+}
+/* Pinned places are buoys: each in a painted stripe of its own, by its place in the list. */
+:root[data-theme="lobster"] .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px dashed rgba(51, 67, 74, 0.45);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+:root[data-theme="lobster"] .menu-item:hover {
+  background: rgba(29, 74, 85, 0.1);
+}
+:root[data-theme="lobster"] .menu-item::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 20px;
+  border: 2px solid #14262c;
+  border-radius: 7px 7px 8px 8px / 6px 6px 9px 9px;
+  background: linear-gradient(to bottom, var(--b1, var(--lb-yellow)) 0 36%, var(--b2, var(--lb-cream)) 36% 64%, var(--b1, var(--lb-yellow)) 64%);
+}
+:root[data-theme="lobster"] #pins .menu-item:nth-child(4n + 2)::before {
+  --b1: var(--lb-green);
+  --b2: var(--lb-cream);
+}
+:root[data-theme="lobster"] #pins .menu-item:nth-child(4n + 3)::before {
+  --b1: var(--lb-cream);
+  --b2: var(--lb-blue);
+}
+:root[data-theme="lobster"] #pins .menu-item:nth-child(4n)::before {
+  --b1: #14262c;
+  --b2: var(--lb-yellow);
+}
+:root[data-theme="lobster"] .menu-item .pin-new {
+  margin-left: auto;
+}
+
+/* ---- the Key's marks sit on the chart's pale water, as the buoys do on the map ---- */
+:root[data-theme="lobster"] .key-body svg {
+  box-shadow: inset 0 0 0 1px rgba(51, 67, 74, 0.5);
+}
+
+/* ---- the time bar: a second rail, the slider a rope with a buoy for its handle ---- */
+:root[data-theme="lobster"] .timebar {
+  background: var(--lb-planks), linear-gradient(to bottom, var(--lb-wood), var(--lb-wood-2));
+  border-top: 3px solid var(--lb-wood-dark);
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3);
+  padding-block: 9px;
+}
+:root[data-theme="lobster"] .time-label {
+  color: var(--lb-cream);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="lobster"] .slider input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+:root[data-theme="lobster"] .slider input::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--lb-rope-h);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="lobster"] .slider input::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--lb-rope-h);
+}
+:root[data-theme="lobster"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 26px;
+  margin-top: -9px;
+  border: 2px solid #14262c;
+  border-radius: 9px 9px 10px 10px / 8px 8px 11px 11px;
+  background: linear-gradient(to bottom, var(--lb-yellow) 0 34%, var(--lb-cream) 34% 66%, var(--lb-yellow) 66%);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="lobster"] .slider input::-moz-range-thumb {
+  width: 14px;
+  height: 22px;
+  border: 2px solid #14262c;
+  border-radius: 9px;
+  background: linear-gradient(to bottom, var(--lb-yellow) 0 34%, var(--lb-cream) 34% 66%, var(--lb-yellow) 66%);
+}
+:root[data-theme="lobster"] .slider input:focus-visible {
+  outline: 2px solid var(--lb-cream);
+  outline-offset: 2px;
+}
+
+/* ---- hauling a trap: the panel comes up from the water when a place is tuned (src/ui/lobster.ts) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="lobster"] .panel.x-haul {
+    animation: lb-haul 0.85s cubic-bezier(0.22, 0.8, 0.3, 1) both;
+  }
+  @keyframes lb-haul {
+    0% {
+      transform: translateY(46px);
+    }
+    72% {
+      transform: translateY(-4px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="lobster"] .mast-title {
+    font-size: 27px;
+  }
+  :root[data-theme="lobster"] .mast-tag {
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+  }
+  :root[data-theme="lobster"] .telegram-word {
+    padding: 4px 32px 6px;
+    background: linear-gradient(to right, var(--lb-yellow) 0 26px, var(--lb-cream) 26px calc(100% - 26px), var(--lb-yellow) calc(100% - 26px));
+  }
+  :root[data-theme="lobster"] .map {
+    margin: 8px 8px 6px;
+    border-width: 7px;
+  }
+  /* The panel sits under the map on a phone, so no rope hangs above it. */
+  :root[data-theme="lobster"] .panel {
+    margin: 4px 8px 10px;
+    border-width: 6px;
+  }
+  :root[data-theme="lobster"] .stage::before {
+    display: none;
+  }
+  :root[data-theme="lobster"] .toolbar {
+    padding-top: 9px;
+    padding-bottom: 8px;
+  }
+}
+@media (max-width: 400px) {
+  :root[data-theme="lobster"] .pick select,
+  :root[data-theme="lobster"] .menu > summary,
+  :root[data-theme="lobster"] .tool {
+    letter-spacing: 0.02em;
+  }
+}
+/* <<< lobster */
