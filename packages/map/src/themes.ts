@@ -2579,40 +2579,40 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Herbarium (experimental): after the feel of a botanist's herbarium, pressed plants on heavy cream mounting paper
-  // (src/map/herbarium.ts). Land as pressed foliage in faded greens and browns, coloured by latitude and relief, a fine
-  // ink coast, the sea as the sheet with pencil water lines and pressed specimens at tested open-sea spots; the globe a
-  // pressed-paper ball on a round card mount. Ink specimen-pin markers with a short shadow, rust for fresh reports.
+  // Garden (id herbarium, experimental; formerly Herbarium): a very detailed, whimsical flower garden
+  // (src/map/herbarium.ts). Land as a meadow of flower beds, bushes in bloom and ferns in greens set by latitude, relief
+  // and ice, a pale sandy rim and a deep green coast; the sea calm sky-water with shallows, glints and ripples, small
+  // floating islets with animals of our own drawing at tested open-sea spots, and in Globe view a small garden planet in
+  // a soft sky with giant flowers round it. Plum flower markers with a cream edge, a bright berry pink for fresh reports.
   herbarium: {
     id: "herbarium",
-    label: "Herbarium",
-    experimental: true,
+    label: "Garden",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     surface: "herbarium",
-    globeScale: 0.38,
-    ocean: "#f3ecdc",
-    land: "#bdb690",
+    globeScale: 0.4,
+    ocean: "#9fd8ec",
+    land: "#86c65f",
     landTexture: "none",
     pixel: 1,
-    dotShape: "bevel",
+    dotShape: "flower",
     textureInk: "rgba(0,0,0,0)",
-    coast: "#2f2a24",
-    coastWidth: 0.85,
+    coast: "#3f8a4a",
+    coastWidth: 1,
     waterlines: 0,
-    waterline: "rgba(84,84,90,0.34)",
+    waterline: "rgba(255,255,255,0.5)",
     oceanHatch: null,
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "rgba(78,92,112,0.4)",
-    lake: "#f3ecdc",
-    ice: "#e8e1ce",
+    river: "rgba(120,200,225,0.85)",
+    lake: "#b4e4f2",
+    ice: "#f0f8f4",
     relief: "rgba(0,0,0,0)",
-    dot: "#2b2520",
-    dotStroke: "#f7f1e2",
-    fresh: "#b24a28",
-    tuned: "#2b2520",
-    arc: "#6f5a88",
+    dot: "#3b2158",
+    dotStroke: "#fffbee",
+    fresh: "#d81b73",
+    tuned: "#3b2158",
+    arc: "#7a4fb0",
     glow: false,
     atmosphere: null,
     shade: null,
@@ -2828,7 +2828,7 @@ export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[]
   { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl", "paper"] },
   { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop", "machine", "flap", "shortwave"] },
   { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "crunch", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
-  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
+  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space", "herbarium"] },
   { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard", "vinyl", "tiramisu", "soup"] },
 ];
 
