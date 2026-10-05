@@ -2,21 +2,16 @@
 // circle must be clear of land and far from every place.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { geoContains, geoDistance } from "d3-geo";
-import type { FeatureCollection } from "geojson";
-import { feature } from "topojson-client";
-import type { GeometryCollection, Topology } from "topojson-specification";
+import { geoDistance } from "d3-geo";
 import { describe, expect, it } from "vitest";
 import { FISH } from "../src/map/aquarium.ts";
 import { samplePlaces } from "./sample.ts";
+import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
 
-function land(file: string): FeatureCollection {
-  const topo = JSON.parse(readFileSync(here(`../public/basemap/${file}`), "utf8")) as Topology;
-  return feature(topo, topo.objects.land as GeometryCollection) as FeatureCollection;
-}
+const land = landOf;
 
 function places(): [number, number][] {
   const yaml = readFileSync(here("../../../config/sources.yaml"), "utf8");
@@ -38,11 +33,11 @@ function ring(lon: number, lat: number, deg: number): [number, number][] {
 }
 
 describe("aquarium fish", () => {
-  for (const file of ["world-110m.json", "world-50m.json"]) {
+  for (const file of BASEMAPS) {
     it(`keeps every fish's whole circle off land (${file})`, () => {
       const l = land(file);
       for (const s of FISH) {
-        for (const p of ring(s.lon, s.lat, s.r)) expect(geoContains(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
+        for (const p of ring(s.lon, s.lat, s.r)) expect(inLand(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
       }
     }, 30_000);
   }

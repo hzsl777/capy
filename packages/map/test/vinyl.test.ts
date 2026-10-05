@@ -72,11 +72,12 @@ function allPlaces(): { lat: number; lon: number }[] {
 }
 
 describe("Record Player", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
-    expect(THEMES.vinyl.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("vinyl");
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
+    const t = THEMES.vinyl;
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("vinyl"))).toHaveLength(1);
     expect(FEATURED).not.toContain("vinyl");
-    expect(THEMES.vinyl.fresh).not.toBe(THEMES.vinyl.dot);
+    expect(t.fresh).not.toBe(t.dot);
   });
 
   it("lays the turntable out inside every frame: the platter whole, the arm's pivot, base and counterweight clear of the edges", () => {

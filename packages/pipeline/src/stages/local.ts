@@ -1,7 +1,7 @@
 // Local stories from the towns no outlet reached (decisions 54, 67 and 78). GDELT reads news sites worldwide in 65
 // languages and publishes, every 15 minutes, each article's URL, title and the places it names. This stage takes
 // the newest few articles about every town GDELT tags that day, never in a town an outlet's story already sits in.
-// The place comes from GDELT's city tag, checked against the city list and GeoNames' places of 1,000 people or more.
+// The place comes from GDELT's city tag, checked against the city list and GeoNames' places of 500 people or more.
 // No model reads these stories: they cost nothing, never join an event and sit at the lowest zoom tier.
 import { Unzip, UnzipInflate } from "fflate";
 import { eq } from "drizzle-orm";

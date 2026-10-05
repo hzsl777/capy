@@ -1,4 +1,4 @@
-// Tiramisu (id tiramisu, experimental): the world as a tiramisu, our own drawing of the dessert and nothing from any
+// Tiramisu (id tiramisu): the world as a tiramisu, our own drawing of the dessert and nothing from any
 // shop, brand or product.
 //
 // The land is the mascarpone cream: soft ivory with spoon-swirled ridges, each swirl at a fixed point of a jittered

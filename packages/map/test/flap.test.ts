@@ -38,10 +38,11 @@ function luminance(hex: string): number {
 }
 
 describe("Departures", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
     const t = THEMES.flap;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("flap");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("flap"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("flap");
     expect(FEATURED).not.toContain("flap");
     expect(t.fresh).not.toBe(t.dot);
     expect(t.dotShape).toBe("square");

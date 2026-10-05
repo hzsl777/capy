@@ -6,7 +6,7 @@ import type { MapFile } from "@2dayai/core";
 import type { Gazetteer } from "./places.js";
 
 export type Coverage = {
-  /** Towns and cities on the lists (the city list and GeoNames' places of 1,000 or more) with a story. */
+  /** Towns and cities on the lists (the city list and GeoNames' places of 500 or more) with a story. */
   towns: number;
   townsTotal: number;
   /**

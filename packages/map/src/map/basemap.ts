@@ -17,12 +17,12 @@ export interface Relief {
 }
 
 /** An edge the data adds to close a polygon, not a real coast: along the 180th meridian, or along the pole. */
-function isCut(a: Position, b: Position): boolean {
+export function isCut(a: Position, b: Position): boolean {
   return (Math.abs(a[0]!) > 179.99 && Math.abs(b[0]!) > 179.99) || (a[1]! < -89.99 && b[1]! < -89.99);
 }
 
-/** Every ring of the land split wherever it runs along a cut, so a stroke draws coastline only. */
-export function coastOf(land: FeatureCollection): MultiLineString {
+/** Every ring of the land split wherever it runs along a cut, so a stroke draws coastline only. `cut` says which edges are cuts. */
+export function coastOf(land: FeatureCollection, cut: (a: Position, b: Position) => boolean = isCut): MultiLineString {
   const lines: Position[][] = [];
   const rings = land.features.flatMap((f) => {
     const g = f.geometry;
@@ -34,7 +34,7 @@ export function coastOf(land: FeatureCollection): MultiLineString {
     let line: Position[] = [];
     for (let i = 0; i < ring.length; i++) {
       const p = ring[i]!;
-      if (i > 0 && isCut(ring[i - 1]!, p)) {
+      if (i > 0 && cut(ring[i - 1]!, p)) {
         if (line.length > 1) lines.push(line);
         line = [];
       }

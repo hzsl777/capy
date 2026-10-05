@@ -230,7 +230,7 @@ export function drawStadium(f: SurfaceFrame, cache: StadiumCache): SurfaceResult
   const { quad, crowdTop } = cache.back;
   ctx.drawImage(cache.back.canvas, 0, 0, w, h);
 
-  const pk = `${key}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.map === f.low ? "l" : "h"}`;
+  const pk = `${key}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.mapId}`;
   cachedPicture(cache.picture, f, pk, (g) => {
     g.clip(quad);
     const path = (o: object) => {

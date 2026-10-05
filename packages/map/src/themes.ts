@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup" | "alien" | "lobster" | "burger" | "bunny";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -74,6 +74,8 @@ export interface Theme {
   tiltFar?: number;
   /** With `tilt`: the furthest out Map view may zoom (default 1.8). */
   tiltMinZoom?: number;
+  /** `false` keeps the 50m basemap at the closest zooms, for a design that cannot draw the 10m cells (src/map/detail.ts). */
+  detail?: false;
   /** The globe's radius at the widest zoom, as a share of the frame's shorter side (default 0.46). */
   globeScale?: number;
   /**
@@ -87,7 +89,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup" | "alien" | "lobster" | "burger" | "bunny";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2199,7 +2201,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   machine: {
     id: "machine",
     label: "Machine Music",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "machine",
@@ -2279,7 +2280,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   flap: {
     id: "flap",
     label: "Departures",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEqualEarth,
     surface: "flap",
@@ -2356,7 +2356,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   vinyl: {
     id: "vinyl",
     label: "Record Player",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoNaturalEarth1,
     surface: "vinyl",
@@ -2395,7 +2394,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   paper: {
     id: "paper",
     label: "Notebook",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     surface: "paper",
@@ -2434,7 +2432,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   shortwave: {
     id: "shortwave",
     label: "Shortwave",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     ocean: "#a3ab86",
@@ -2584,40 +2581,40 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Herbarium (experimental): after the feel of a botanist's herbarium, pressed plants on heavy cream mounting paper
-  // (src/map/herbarium.ts). Land as pressed foliage in faded greens and browns, coloured by latitude and relief, a fine
-  // ink coast, the sea as the sheet with pencil water lines and pressed specimens at tested open-sea spots; the globe a
-  // pressed-paper ball on a round card mount. Ink specimen-pin markers with a short shadow, rust for fresh reports.
+  // Garden (id herbarium, experimental; formerly Herbarium): a very detailed, whimsical flower garden
+  // (src/map/herbarium.ts). Land as a meadow of flower beds, bushes in bloom and ferns in greens set by latitude, relief
+  // and ice, a pale sandy rim and a deep green coast; the sea calm sky-water with shallows, glints and ripples, small
+  // floating islets with animals of our own drawing at tested open-sea spots, and in Globe view a small garden planet in
+  // a soft sky with giant flowers round it. Plum flower markers with a cream edge, a bright berry pink for fresh reports.
   herbarium: {
     id: "herbarium",
-    label: "Herbarium",
-    experimental: true,
+    label: "Garden",
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     surface: "herbarium",
-    globeScale: 0.38,
-    ocean: "#f3ecdc",
-    land: "#bdb690",
+    globeScale: 0.4,
+    ocean: "#9fd8ec",
+    land: "#86c65f",
     landTexture: "none",
     pixel: 1,
-    dotShape: "bevel",
+    dotShape: "flower",
     textureInk: "rgba(0,0,0,0)",
-    coast: "#2f2a24",
-    coastWidth: 0.85,
+    coast: "#3f8a4a",
+    coastWidth: 1,
     waterlines: 0,
-    waterline: "rgba(84,84,90,0.34)",
+    waterline: "rgba(255,255,255,0.5)",
     oceanHatch: null,
     graticule: "rgba(0,0,0,0)",
     graticuleDash: [],
-    river: "rgba(78,92,112,0.4)",
-    lake: "#f3ecdc",
-    ice: "#e8e1ce",
+    river: "rgba(120,200,225,0.85)",
+    lake: "#b4e4f2",
+    ice: "#f0f8f4",
     relief: "rgba(0,0,0,0)",
-    dot: "#2b2520",
-    dotStroke: "#f7f1e2",
-    fresh: "#b24a28",
-    tuned: "#2b2520",
-    arc: "#6f5a88",
+    dot: "#3b2158",
+    dotStroke: "#fffbee",
+    fresh: "#d81b73",
+    tuned: "#3b2158",
+    arc: "#7a4fb0",
     glow: false,
     atmosphere: null,
     shade: null,
@@ -2670,7 +2667,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   tiramisu: {
     id: "tiramisu",
     label: "Tiramisu",
-    experimental: true,
     defaultView: "2d",
     projection2d: geoEquirectangular,
     surface: "tiramisu",
@@ -2710,7 +2706,6 @@ export const THEMES: Record<ThemeId, Theme> = {
   soup: {
     id: "soup",
     label: "Noodle Bowl",
-    experimental: true,
     defaultView: "3d",
     projection2d: geoEqualEarth,
     surface: "soup",
@@ -2744,6 +2739,168 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
+  // Alien, experimental: friendly visitors studying the Earth from their ship (src/map/alien.ts). Globe view is the
+  // world through the ship's round viewport; Map view is its scanner. Coral land on deep indigo in aqua light, a
+  // tractor beam of soft light as the reticle. Pearl three-lobed markers (`trilobe`) with a deep violet edge, lime for
+  // fresh reports; the beam and lights are aqua and lilac, so nothing decorative reads as fresh.
+  alien: {
+    id: "alien",
+    label: "Alien",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    surface: "alien",
+    globeScale: 0.31,
+    ocean: "#0e144c",
+    land: "#f69896",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "trilobe",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#fff4ea",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "rgba(127,247,225,0.1)",
+    oceanHatch: null,
+    graticule: "rgba(127,247,225,0.13)",
+    graticuleDash: [],
+    river: "rgba(255,236,224,0.5)",
+    lake: "#0e144c",
+    ice: "#f7f1ff",
+    relief: "rgba(0,0,0,0)",
+    dot: "#fff3e6",
+    dotStroke: "#1d0f58",
+    fresh: "#c4ff3a",
+    tuned: "#8ffbe6",
+    arc: "rgba(143,251,230,0.85)",
+    glow: true,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Lobster, experimental: a seaside lobster shack and a lobster boat of our own (src/map/lobster.ts). Map view is a
+  // nautical sheet in pale chart water darker toward every coast, with a graticule, soundings that are decoration only,
+  // sage land and, at tested open-sea spots, a boat, a lobster, a pot under the water and a compass rose with no
+  // letters. Globe view is the same chart as a ball on a dock of grey boards inside a coil of rope. Toggle buoy markers
+  // in deep harbour blue, buoy yellow for fresh reports; lobster red is the lobster's and the chrome's alone.
+  lobster: {
+    id: "lobster",
+    label: "Lobster",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "lobster",
+    globeScale: 0.36,
+    ocean: "#dbeaea",
+    land: "#b7c3a6",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "buoy",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#2d464c",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "#6fa5b2",
+    lake: "#aacdd3",
+    ice: "#f4f8f7",
+    relief: "rgba(0,0,0,0)",
+    dot: "#1b3a46",
+    dotStroke: "#f7f3e6",
+    fresh: "#f5c400",
+    tuned: "#1b3a46",
+    arc: "#1f6f86",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Burger Joint (experimental): the world as the top of a burger on a diner tray (src/map/burger.ts). The sea is the
+  // toasted bun and the land lettuce, cut by the coastline alone; round the world lie the rest of the stack's layers,
+  // lettuce, tomato, cheese, patty and the bottom bun. Sesame seed markers, dark with a cream edge, onion violet for
+  // fresh reports. Nothing moves.
+  burger: {
+    id: "burger",
+    label: "Burger Joint",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEquirectangular,
+    surface: "burger",
+    globeScale: 0.34,
+    ocean: "#9a5a24",
+    land: "#82c545",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "seed",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#2c5a14",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(40,86,20,0.5)",
+    lake: "#9a5a24",
+    ice: "#f7f1dc",
+    relief: "rgba(0,0,0,0)",
+    dot: "#2a1608",
+    dotStroke: "#fff3d2",
+    fresh: "#a63fd0",
+    tuned: "#2a1608",
+    arc: "#fff3d2",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Bunny (experimental): a burrow and meadow of our own (src/map/bunny.ts). Globe view sits the globe in the round
+  // opening of a burrow in a green hill, a pair of ears peeking over the top; Map view is the arched window of the
+  // burrow looking out on the world, with a lawn below it. Holes in the lawn are where the bunnies pop out, and one
+  // bunny hops out to sit under the reticle when the map has settled on a place. Sage meadow land on a pale blue sea,
+  // carrot markers, a blueberry colour for fresh reports.
+  bunny: {
+    id: "bunny",
+    label: "Bunny",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoNaturalEarth1,
+    surface: "bunny",
+    globeScale: 0.28,
+    ocean: "#cfe3f1",
+    land: "#b8dca4",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "carrot",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#5f9d6e",
+    coastWidth: 1.1,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(0,0,0,0)",
+    lake: "#cfe3f1",
+    ice: "#fbfdf8",
+    relief: "rgba(0,0,0,0)",
+    dot: "#e8741f",
+    dotStroke: "#fffaf0",
+    fresh: "#5b3fc4",
+    tuned: "#4d3a46",
+    arc: "rgba(86,64,98,0.55)",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
 };
 
 /**
@@ -2751,11 +2908,11 @@ export const THEMES: Record<ThemeId, Theme> = {
  * elsewhere slot in by id, and any design not listed here lands in "Other", so none ever drops out of the menu.
  */
 export const DESIGN_GROUPS: readonly { label: string; ids: readonly string[] }[] = [
-  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl"] },
-  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop"] },
+  { label: "Paper, ink and craft", ids: ["morning", "cabinet", "blueprint", "pirate", "arcadia", "stitch", "glass", "sketch", "chalk", "popup", "zine", "woodblock", "stijl", "paper"] },
+  { label: "Screens and signals", ids: ["wire", "ops", "newsroom", "terminal", "sheet", "radar", "noir", "stadium", "drive", "rave", "render", "desktop", "machine", "flap", "shortwave"] },
   { label: "Games and toys", ids: ["bit8", "bit16", "bit64", "arcade", "trainset", "candy", "crunch", "snow", "cube", "dual", "realm", "tactical", "blocks", "reef", "pindrop"] },
-  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space"] },
-  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard"] },
+  { label: "Nature and sky", ids: ["pond", "honeycomb", "aquarium", "space", "herbarium"] },
+  { label: "Places and moods", ids: ["nightcap", "campus", "lasso", "prep", "rail", "club", "pool", "lava", "realize", "arcana", "deli", "marquee", "postcard", "vinyl", "tiramisu", "soup"] },
 ];
 
 /**

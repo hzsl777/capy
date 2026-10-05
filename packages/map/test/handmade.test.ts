@@ -3,24 +3,19 @@
 // than the open water around its spot, so that whole circle must be clear of land and far from every place.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { geoContains, geoDistance } from "d3-geo";
-import type { FeatureCollection } from "geojson";
-import { feature } from "topojson-client";
-import type { GeometryCollection, Topology } from "topojson-specification";
+import { geoDistance } from "d3-geo";
 import { describe, expect, it } from "vitest";
 import { DOODLES } from "../src/map/handmade.ts";
 import { POPUP_SPOTS } from "../src/map/popup.ts";
 import { TRACKS } from "../src/map/trainset.ts";
 import { THEMES } from "../src/themes.ts";
 import { samplePlaces } from "./sample.ts";
+import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
 
-function land(file: string): FeatureCollection {
-  const topo = JSON.parse(readFileSync(here(`../public/basemap/${file}`), "utf8")) as Topology;
-  return feature(topo, topo.objects.land as GeometryCollection) as FeatureCollection;
-}
+const land = landOf;
 
 /** Every outlet's city on the world and briefing desks, and every place in the sample day. */
 function places(): [number, number][] {
@@ -47,12 +42,12 @@ describe("the handmade designs' things at sea", () => {
   const all = places();
   const lists = { "Pop-up Book": POPUP_SPOTS, "Toy Train Set": TRACKS, doodles: DOODLES };
 
-  for (const file of ["world-110m.json", "world-50m.json"]) {
+  for (const file of BASEMAPS) {
     it(`keeps every spot's whole circle off land (${file})`, () => {
       const l = land(file);
       for (const [name, list] of Object.entries(lists)) {
         for (const s of list) {
-          for (const p of ring(s.lon, s.lat, s.r)) expect(geoContains(l, p), `${name}: ${s.kind} at ${s.lat},${s.lon}`).toBe(false);
+          for (const p of ring(s.lon, s.lat, s.r)) expect(inLand(l, p), `${name}: ${s.kind} at ${s.lat},${s.lon}`).toBe(false);
         }
       }
     }, 60_000);

@@ -227,7 +227,7 @@ export function drawRadar(f: SurfaceFrame, cache: RadarCache): SurfaceResult {
   ctx.drawImage(cache.housing.canvas, 0, 0, w, h);
 
   // The map inside the scope, drawn again only when the view moves: the beam turns over the same picture.
-  const pk = `${hk}:${mode}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.map === f.low ? "l" : "h"}`;
+  const pk = `${hk}:${mode}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.mapId}`;
   cachedPicture(cache.picture, f, pk, (g) => {
     g.beginPath();
     g.arc(cx, cy, S, 0, Math.PI * 2);

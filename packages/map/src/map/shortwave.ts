@@ -1,4 +1,4 @@
-// Shortwave (experimental): after the feel of a mid-century world-band radio receiver, with no maker's name, logo or
+// Shortwave (id shortwave): after the feel of a mid-century world-band radio receiver, with no maker's name, logo or
 // dial printing copied. The map itself is drawn the usual way from the theme; what is the design's own is the radio's
 // front under the map (src/ui/dial.ts). This file lays the dial out and times its moving parts, with no DOM, so the
 // test can check it: where the needle stands for a longitude and back, the printed scale, how the knob turns with the

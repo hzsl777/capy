@@ -35,8 +35,8 @@ describe("the daily coverage count (decisions 46 and 78)", () => {
     const c = coverageOf(map, gaz);
     expect(c).toMatchObject({ towns: 4, offList: 1 });
     expect(c.townsTotal).toBe(gaz.size());
-    expect(c.townsTotal).toBeGreaterThan(150_000);
-    expect(coverageLine(c)).toMatch(/^Coverage: stories in 4 of 1\d\d,\d\d\d listed towns and cities \(and 1 other places\), 2 of 2\d\d countries and territories, and \d of 2,\d\d\d regions\.$/);
+    expect(c.townsTotal).toBeGreaterThan(200_000);
+    expect(coverageLine(c)).toMatch(/^Coverage: stories in 4 of 2\d\d,\d\d\d listed towns and cities \(and 1 other places\), 2 of 2\d\d countries and territories, and \d of 2,\d\d\d regions\.$/);
     expect(coverageReport("2026-09-30", c)).toContain("\nJP (Tokyo)\n");
   });
 

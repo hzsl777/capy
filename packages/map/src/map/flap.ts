@@ -1,4 +1,4 @@
-// Departures (id flap, experimental): after the feel of a split-flap departures board in a big station hall, and
+// Departures (id flap): after the feel of a split-flap departures board in a big station hall, and
 // nothing else from one: no operator's, airline's, railway's or maker's name, logo, colours, lettering or sounds.
 // The map is the hall's wall map: a deep blue-green sheet on a darker wall, land as a field of cream dots fixed to
 // the screen like the lamps of a big board, a little brighter on mountains, and thin pale-blue coasts. The globe sits

@@ -1,4 +1,4 @@
-// Shortwave's radio front under the map (experimental, src/map/shortwave.ts lays it out). It is how a reader moves
+// Shortwave's radio front under the map (src/map/shortwave.ts lays it out). It is how a reader moves
 // round the world in this design, and it is made to feel like tuning a set:
 //  - the big knob is the main way to move. It clicks through fine detents, a little sticky under the finger, and let
 //    go while turning it spins on like a flywheel and falls into the next detent; the world turns as the knob does,

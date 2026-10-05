@@ -156,7 +156,7 @@ import "@fontsource/josefin-sans/600.css";
 import "@fontsource/josefin-sans/700.css";
 // Gummy Cluster (Nunito, above, for reading).
 import "@fontsource/lilita-one/400.css";
-// Shortwave (experimental): the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
+// Shortwave: the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
 import "./style.css";
@@ -205,7 +205,7 @@ import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
 import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
 import { hideChannels, mountChannels, refreshChannels, showChannels, type Channel } from "./ui/channels.ts";
 import { mountDesignPicker } from "./ui/designs.ts";
-// Departures (experimental): the split-flap board's tiles, rows and hall clock.
+// Departures: the split-flap board's tiles, rows and hall clock.
 import "@fontsource-variable/martian-mono/wdth.css";
 import "@fontsource/barlow-condensed/500.css";
 import "@fontsource/barlow-condensed/600.css";
@@ -218,15 +218,27 @@ import "@fontsource/shippori-mincho/latin-700.css";
 // Desktop 95: the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
+// Lobster (experimental): the panel hauled up like a pot when a place is tuned.
+import { haul } from "./ui/lobster.ts";
 import { mountPaper } from "./ui/paper.ts";
 import { mountDial, moveDial } from "./ui/dial.ts";
 import { renderPostcard } from "./ui/postcard.ts";
 // Zine: chunky display capitals for the off-register name and word.
 import "@fontsource/bowlby-one/400.css";
-// Tiramisu (experimental): the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card.
-import { beanCrease } from "./map/marks.ts";
+// Tiramisu: the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card. Lobster's
+// buoy band, too.
+import { beanCrease, buoyBand } from "./map/marks.ts";
 import "@fontsource/playfair-display/400-italic.css";
 import "@fontsource/playfair-display/600-italic.css";
+// Alien (experimental): Zen Dots for the name and the word, Lexend for reading.
+import "@fontsource/zen-dots/latin-400.css";
+import "@fontsource/lexend/400.css";
+import "@fontsource/lexend/600.css";
+// Burger Joint (experimental): the Topics menu's burger, built from the topics that are on.
+import { syncBurger } from "./ui/burger.ts";
+// Bunny (experimental): Fraunces for the name, the word and the heads (Nunito, above, for reading).
+import "@fontsource/fraunces/latin-700.css";
+import "@fontsource/fraunces/latin-800.css";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -332,6 +344,8 @@ const map = new MapView($("map"), THEMES[state.theme], {
     if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
     refreshExtras();
+    // Lobster (experimental): the panel is a pot, hauled up when a place is tuned.
+    haul(state.theme, $("panel"), indices);
   },
   onMove: moveExtras,
   onLevel(level) {
@@ -672,6 +686,7 @@ function renderToolbar() {
     })(),
   );
   $("topics-count").textContent = state.topics.size === FILTERS.length ? "" : `(${state.topics.size})`;
+  syncBurger(chips, state.theme === "burger", FILTERS.map((f) => state.topics.has(f)));
 
   // Translate is a list of languages, the reader's own first (decision 97). "Translate" is the off position.
   const mine = browserLanguages();
@@ -807,6 +822,15 @@ function markSvg(draw: MarkDraw, size = 22): SVGSVGElement {
       crease.setAttribute("stroke-linecap", "round");
       crease.setAttribute("opacity", "0.85");
       svg.append(crease);
+    }
+    // Lobster: the toggle buoy's painted band, as the map draws it (view.ts).
+    if (t.dotShape === "buoy" && of === undefined && fill !== "none" && r >= 3) {
+      const band = document.createElementNS(NS, "path");
+      band.setAttribute("d", buoyBand(r));
+      band.setAttribute("fill", "none");
+      band.setAttribute("stroke", fill === t.dotStroke ? stroke : t.dotStroke);
+      band.setAttribute("stroke-width", String(Math.max(1, r * 0.3)));
+      svg.append(band);
     }
   });
   return svg;
@@ -1792,7 +1816,7 @@ async function start() {
     kmPerPixel: () => map.kmPerPixel(),
     level: () => map.level(),
   });
-  // Notebook's pages for the panel and the About dialog (experimental); idle in every other design.
+  // Notebook's pages for the panel and the About dialog; idle in every other design.
   mountPaper();
   // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
   mountDial({
@@ -1860,7 +1884,7 @@ async function start() {
     },
     about: () => ($("about") as HTMLDialogElement).showModal(),
   });
-  // Record Player (experimental): the record's centre label and its deck.
+  // Record Player: the record's centre label and its deck.
   mountVinyl({
     theme: () => state.theme,
     spinning: () => map.isSpinning,
@@ -1890,6 +1914,7 @@ async function start() {
       landDrawn = true;
       mapNote(null);
       map.setBasemap(undefined, high, relief);
+      map.setDetail(BASE);
     })
     .catch((e) => console.warn("Detailed basemap failed to load", e));
 

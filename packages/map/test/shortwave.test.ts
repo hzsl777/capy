@@ -1,5 +1,5 @@
-// Shortwave (src/map/shortwave.ts, src/ui/dial.ts, src/ui/dialsound.ts): an experimental design that stays off the
-// Design menu; its radio front under the map shows only in this design; the dial's needle and the longitude it stands
+// Shortwave (src/map/shortwave.ts, src/ui/dial.ts, src/ui/dialsound.ts): a design in the menu
+// (decision 134); its radio front under the map shows only in this design; the dial's needle and the longitude it stands
 // for agree both ways; the printed scale fits the window; the tuning knob's detents and flywheel always come to rest
 // in a detent; the eye follows the reticle's nearness to a place the same for every place; the bands and the time knob
 // map to the map's levels and the time bar's slots; and nothing on it flashes (WCAG 2.3.1).
@@ -55,10 +55,11 @@ const dial = readFileSync(here("../src/ui/dial.ts"), "utf8");
 const sound = readFileSync(here("../src/ui/dialsound.ts"), "utf8");
 
 describe("Shortwave", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
     const t = THEMES.shortwave;
-    expect(t.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("shortwave");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("shortwave"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("shortwave");
     expect(FEATURED).not.toContain("shortwave");
   });
 

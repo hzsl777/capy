@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe" | "buoy" | "seed" | "carrot";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -63,6 +63,43 @@ function beanAt(u: number, v: number): string {
 export function beanCrease(r: number): string {
   const a = r * BEAN_A, b = r * BEAN_B;
   return `M${beanAt(-0.8 * a, 0.06 * b)}C${beanAt(-0.3 * a, 0.44 * b)} ${beanAt(0.3 * a, -0.44 * b)} ${beanAt(0.8 * a, -0.06 * b)}`;
+}
+
+// Lobster (experimental): a toggle buoy, a round float with a short neck on top, with a painted band across its belly
+// (buoyBand, over a filled mark only). The outline alone is the mark, so hollow, filled and ringed read as in every shape.
+/** The float's radius and centre height, and the neck's half width and top, as shares of r. */
+const BUOY_R = 0.95;
+const BUOY_CY = 0.22;
+const BUOY_NECK = 0.2;
+const BUOY_TOP = -1.3;
+
+/** The painted band across a buoy's belly, as SVG path data centred on 0,0 (an open line inside the float). */
+export function buoyBand(r: number): string {
+  const y = r * BUOY_CY, x = r * BUOY_R * 0.78;
+  return `M${f(-x)} ${f(y)}H${f(x)}`;
+}
+
+// Burger Joint (experimental): a sesame seed, a teardrop with a sharp tip at one end and a round belly at the other,
+// laid at a slant. The pointed end tells it from the bean's plain oval; the outline alone is the mark.
+const SEED_A = 1.35;
+const SEED_B = 0.86;
+const SEED_TURN = -0.75;
+
+/** A point in the seed's own frame (u along its length, tip at +u; v across it), turned to its slant, as SVG numbers. */
+function seedAt(u: number, v: number): string {
+  const c = Math.cos(SEED_TURN), s = Math.sin(SEED_TURN);
+  return `${f(u * c - v * s)} ${f(u * s + v * c)}`;
+}
+
+// Bunny (experimental): a carrot, our own drawing, turned so its leafy top points to the upper right. One closed outline
+// (a tapered body with a rounded shoulder and three round leaves), so hollow, filled and ringed read as in every shape.
+const CARROT_TURN = -0.8;
+const CARROT_K = 0.8;
+
+/** A point in the carrot's own frame (u along its length toward the leaves, v across it), turned and scaled, as SVG numbers. */
+function carrotAt(u: number, v: number, r: number): string {
+  const c = Math.cos(CARROT_TURN), s = Math.sin(CARROT_TURN);
+  return `${f(r * CARROT_K * (u * c - v * s))} ${f(r * CARROT_K * (u * s + v * c))}`;
 }
 
 /** The outline of a marker of radius r, as SVG path data. */
@@ -257,6 +294,13 @@ export function markPath(shape: MarkShape, r: number): string {
         `C${beanAt(-a, -k * b)} ${beanAt(-k * a, -b)} ${beanAt(0, -b)}C${beanAt(k * a, -b)} ${beanAt(a, -k * b)} ${beanAt(a, 0)}Z`
       );
     }
+    case "seed": {
+      const a = r * SEED_A, b = r * SEED_B;
+      return (
+        `M${seedAt(a, 0)}C${seedAt(0.55 * a, -0.55 * b)} ${seedAt(0.15 * a, -b)} ${seedAt(-0.35 * a, -b)}C${seedAt(-0.8 * a, -b)} ${seedAt(-a, -0.55 * b)} ${seedAt(-a, 0)}` +
+        `C${seedAt(-a, 0.55 * b)} ${seedAt(-0.8 * a, b)} ${seedAt(-0.35 * a, b)}C${seedAt(0.15 * a, b)} ${seedAt(0.55 * a, 0.55 * b)} ${seedAt(a, 0)}Z`
+      );
+    }
     case "slice": {
       // A round slice of garnish (Noodle Bowl): a disc whose rim is nine shallow scallops, the same every time.
       const n = 9;
@@ -271,6 +315,42 @@ export function markPath(shape: MarkShape, r: number): string {
         d += `A${f(br)} ${f(br)} 0 0 1 ${f(x)} ${f(y)}`;
       }
       return `${d}Z`;
+    }
+    case "trilobe": {
+      // Three rounded lobes in one outline, like a small seed pod (Alien): circles of radius 0.58 r whose centres lie
+      // 0.5 r from the middle at 120 degrees, joined along the outer edge where neighbours cross.
+      const d = r * 0.5, rho = r * 0.58;
+      const a = (k: number) => -Math.PI / 2 + (k * 2 * Math.PI) / 3;
+      const half = Math.sqrt(rho * rho - (d * Math.sqrt(3)) ** 2 / 4);
+      // The crossing of lobes k and k+1 that lies farther from the middle, on the bisector between their centres.
+      const cross = (k: number): [number, number] => {
+        const m = a(k) + Math.PI / 3;
+        const o = d / 2 + half;
+        return [o * Math.cos(m), o * Math.sin(m)];
+      };
+      let path = "";
+      for (let k = 0; k < 3; k++) {
+        const [sx, sy] = cross((k + 2) % 3);
+        const [ex, ey] = cross(k);
+        path += `${k ? "" : `M${f(sx)} ${f(sy)}`}A${f(rho)} ${f(rho)} 0 1 1 ${f(ex)} ${f(ey)}`;
+      }
+      return `${path}Z`;
+    }
+    case "buoy": {
+      // The float is a circle; the neck is a short post up from it, so the whole mark is one closed outline.
+      const R = r * BUOY_R, cy = r * BUOY_CY, nx = r * BUOY_NECK;
+      const ny = cy - Math.sqrt(R * R - nx * nx);
+      return `M${f(-nx)} ${f(r * BUOY_TOP)}H${f(nx)}V${f(ny)}A${f(R)} ${f(R)} 0 1 1 ${f(-nx)} ${f(ny)}Z`;
+    }
+    case "carrot": {
+      const a = (u: number, v: number) => carrotAt(u, v, r);
+      return (
+        `M${a(-1.3, 0)}C${a(-0.8, -0.12)} ${a(-0.1, -0.5)} ${a(0.35, -0.5)}C${a(0.5, -0.5)} ${a(0.55, -0.4)} ${a(0.5, -0.32)}` +
+        `Q${a(0.82, -0.7)} ${a(1.05, -0.62)}Q${a(0.95, -0.3)} ${a(0.72, -0.14)}` +
+        `Q${a(1.2, -0.2)} ${a(1.35, 0)}Q${a(1.2, 0.2)} ${a(0.72, 0.14)}` +
+        `Q${a(0.95, 0.3)} ${a(1.05, 0.62)}Q${a(0.82, 0.7)} ${a(0.5, 0.32)}` +
+        `C${a(0.55, 0.4)} ${a(0.5, 0.5)} ${a(0.35, 0.5)}C${a(-0.1, 0.5)} ${a(-0.8, 0.12)} ${a(-1.3, 0)}Z`
+      );
     }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
@@ -333,6 +413,20 @@ export function beanCrease2D(r: number): Path2D {
     p = new Path2D(beanCrease(q));
     if (creaseCache.size > 400) creaseCache.clear();
     creaseCache.set(q, p);
+  }
+  return p;
+}
+
+const bandCache = new Map<number, Path2D>();
+
+/** buoyBand as a Path2D centred on 0,0, cached by size (to a quarter pixel). */
+export function buoyBand2D(r: number): Path2D {
+  const q = Math.round(r * 4) / 4;
+  let p = bandCache.get(q);
+  if (!p) {
+    p = new Path2D(buoyBand(q));
+    if (bandCache.size > 400) bandCache.clear();
+    bandCache.set(q, p);
   }
   return p;
 }

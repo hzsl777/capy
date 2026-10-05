@@ -37,6 +37,8 @@ export interface SurfaceFrame {
   lat: number;
   /** The basemap for this scale: the detailed one once zoomed in. */
   map: Basemap;
+  /** A number for `map` that is new whenever the view hands out another basemap (the 10m cells in view change). Caches key on it. */
+  mapId: number;
   /** The light basemap, for what is drawn coarsely at any scale. */
   low: Basemap;
   relief?: Relief;
@@ -52,6 +54,8 @@ export interface SurfaceFrame {
   trail?: readonly { x: number; y: number; t: number }[];
   /** Every place ever shown, so drawn things keep clear of them (Toy Train Set's trees). Only grows. */
   anchors?: ReadonlyMap<string, [number, number]>;
+  /** Whether a place is under the reticle right now (Alien's tractor beam lowers onto it). */
+  tuned?: boolean;
 }
 
 /** A marker as the view places it this frame, for designs that light markers up (Radar Sweep's glow). */

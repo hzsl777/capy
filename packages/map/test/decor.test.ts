@@ -1,22 +1,18 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { geoContains, geoDistance } from "d3-geo";
-import type { FeatureCollection, Position } from "geojson";
-import { feature } from "topojson-client";
-import type { GeometryCollection, Topology } from "topojson-specification";
+import { geoDistance } from "d3-geo";
+import type { Position } from "geojson";
 import { describe, expect, it } from "vitest";
 import { CANDIES, CREATURES, STARS, WAVE_FIELDS } from "../src/map/decor.ts";
 import { THEMES } from "../src/themes.ts";
 import { samplePlaces } from "./sample.ts";
+import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
-const FILES = ["world-110m.json", "world-50m.json"];
+const FILES = BASEMAPS;
 
-function land(file: string): FeatureCollection {
-  const topo = JSON.parse(readFileSync(here(`../public/basemap/${file}`), "utf8")) as Topology;
-  return feature(topo, topo.objects.land as GeometryCollection) as FeatureCollection;
-}
+const land = landOf;
 
 /** Every coastline of both basemaps as points at most a quarter of a degree apart, so no stretch of coast is missed. */
 function coastPoints(): [number, number][] {
@@ -81,7 +77,7 @@ describe("the Pirate sea", () => {
     expect(all.length).toBeGreaterThan(50);
     expect(coast.length).toBeGreaterThan(10_000);
     // The check itself works: an inland city is on land.
-    for (const l of lands) expect(geoContains(l, [36.82, -1.29])).toBe(true);
+    for (const l of lands) expect(inLand(l, [36.82, -1.29])).toBe(true);
   });
 
   it("has a few large drawings: two or three sea monsters and a ship or two", () => {
@@ -98,7 +94,7 @@ describe("the Pirate sea", () => {
   it("keeps every drawing in open sea: no coast within its radius", () => {
     for (const c of CREATURES) {
       const at = `${c.kind} at ${c.lat},${c.lon}`;
-      for (const l of lands) expect(geoContains(l, [c.lon, c.lat]), at).toBe(false);
+      for (const l of lands) expect(inLand(l, [c.lon, c.lat]), at).toBe(false);
       expect(nearestWithin(coast, c.lon, c.lat, c.r + 1), at).toBeGreaterThan(c.r);
     }
   }, 60_000);
@@ -119,7 +115,7 @@ describe("the Pirate sea", () => {
     expect(WAVE_FIELDS.length).toBeGreaterThan(50);
     for (const [lon, lat, r] of WAVE_FIELDS) {
       const at = `wave area at ${lat},${lon}`;
-      for (const l of lands) expect(geoContains(l, [lon, lat]), at).toBe(false);
+      for (const l of lands) expect(inLand(l, [lon, lat]), at).toBe(false);
       expect(nearestWithin(coast, lon, lat, r + 2), at).toBeGreaterThan(r + 1.5);
       expect(nearest(all, lon, lat), at).toBeGreaterThan(r + 3);
     }
@@ -141,7 +137,7 @@ describe("Candy Shop sweets", () => {
     for (const file of FILES) {
       const l = land(file);
       for (const c of CANDIES) {
-        for (const pt of ring(c.lon, c.lat, 6)) expect(geoContains(l, pt), `${c.kind} at ${c.lat},${c.lon} (${file})`).toBe(false);
+        for (const pt of ring(c.lon, c.lat, 6)) expect(inLand(l, pt), `${c.kind} at ${c.lat},${c.lon} (${file})`).toBe(false);
       }
     }
   }, 30_000);
@@ -158,7 +154,7 @@ describe("star chart", () => {
     const l = land("world-50m.json");
     for (const [lon, lat] of STARS) {
       expect(nearest(all, lon, lat), `star at ${lat},${lon}`).toBeGreaterThan(8);
-      for (const pt of ring(lon, lat, 2)) expect(geoContains(l, pt), `star at ${lat},${lon}`).toBe(false);
+      for (const pt of ring(lon, lat, 2)) expect(inLand(l, pt), `star at ${lat},${lon}`).toBe(false);
     }
   }, 30_000);
 });

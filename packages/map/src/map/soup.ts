@@ -1,4 +1,4 @@
-// Noodle Bowl (id soup, experimental): the world in a bowl of broth, seen from above. Globe view floats the globe in
+// Noodle Bowl (id soup): the world in a bowl of broth, seen from above. Globe view floats the globe in
 // the broth with noodles, a spoon, a soft egg, a sheet of seaweed, scallion rings and herb sprigs of our own drawing
 // laid round it in the bowl, and steam drifting off the top. Map view is the broth's surface in a wide pot with two
 // handles, the land cut from the coastline alone. A drag or a zoom sets the broth moving: the whole picture bends a

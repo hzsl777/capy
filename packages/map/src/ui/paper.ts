@@ -1,4 +1,4 @@
-// Notebook (id paper, experimental): the panel and the About dialog are notebook pages that turn instead of scrolling.
+// Notebook (id paper): the panel and the About dialog are notebook pages that turn instead of scrolling.
 // Whatever the panel shows (a place's stories, a story, the word's view, an event's explanation) is laid out in columns
 // exactly one page wide and as tall as the panel, so text that does not fit one page flows on to the next and nothing
 // is ever cut off; the panel shows one column at a time. A page turns with the Next and Previous buttons at its foot,

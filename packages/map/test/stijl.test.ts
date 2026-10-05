@@ -1,4 +1,4 @@
-// Primary (src/map/stijl.ts): an experimental design that stays off the Design menu. Its coloured rectangles are
+// Primary (src/map/stijl.ts): a design in the menu (decision 126). Its coloured rectangles are
 // chosen by where they are and nothing else, stay sparse and broad, never come as a small piece a marker could be
 // mistaken for, and the composition's rectangles are the same wherever the view starts. Nothing moves.
 import { readFileSync } from "node:fs";

@@ -1,4 +1,4 @@
-// Notebook (src/map/paper.ts, src/ui/paper.ts): an experimental design that stays off the Design menu. Its colours are
+// Notebook (src/map/paper.ts, src/ui/paper.ts): a design in the menu (decision 134). Its colours are
 // the notebook's and are the same on the canvas and in the stylesheet; the pen's wobble is the same for the same place
 // on the world, small, and never folds a shape over; every frame is the whole picture, whether or not the map moves;
 // the page turn swings the page without changing any colour, in under a third of a second; and the pages' parts show
@@ -44,11 +44,12 @@ const contrast = (a: string, b: string) => {
 };
 
 describe("Notebook", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
     const t = THEMES.paper;
-    expect(t.experimental).toBe(true);
     expect(t.label).toBe("Notebook");
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("paper");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("paper"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("paper");
     expect(FEATURED).not.toContain("paper");
     expect(t.surface).toBe("paper");
   });

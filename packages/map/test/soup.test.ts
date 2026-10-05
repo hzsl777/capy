@@ -28,7 +28,7 @@ import {
   wispAlpha,
   zoomBox,
 } from "../src/map/soup.ts";
-import { DESIGN_GROUPS, THEMES } from "../src/themes.ts";
+import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 
 const SIZES: [number, number][] = [
   [1000, 645],
@@ -44,9 +44,11 @@ const ZOOMS = [1, 1.3, 1.6, 2.2, 4];
 const globeR = (w: number, h: number, zoom: number) => Math.min(w, h) * (THEMES.soup.globeScale ?? 0.46) * zoom;
 
 describe("Noodle Bowl", () => {
-  it("is experimental, so it opens only from a link and stays off the Design menu", () => {
-    expect(THEMES.soup.experimental).toBe(true);
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("soup");
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
+    const t = THEMES.soup;
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("soup"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("soup");
     expect(THEMES.soup.fresh).not.toBe(THEMES.soup.dot);
     expect(THEMES.soup.warp).toBe("wobble");
   });

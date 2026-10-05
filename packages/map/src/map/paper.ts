@@ -1,4 +1,4 @@
-// Notebook (id paper, experimental): a ruled school notebook page with the world drawn on it by hand in ballpoint pen.
+// Notebook (id paper): a ruled school notebook page with the world drawn on it by hand in ballpoint pen.
 // The page itself (pale blue rules, the red margin, the punched holes) is the stylesheet's, behind a transparent canvas;
 // the canvas draws only what the pen did: land left white so it hides the rules, its coasts in blue ink with a faint
 // second line beside them, small caret mountains, thin rivers, and the edge of the sheet or the globe. The sea is the

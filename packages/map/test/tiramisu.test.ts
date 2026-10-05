@@ -1,6 +1,6 @@
 // Tiramisu (src/map/tiramisu.ts): the spoon swirls in the cream are tied to the world's longitude and latitude, the
 // dish and the bowl have the shape the drawing assumes, the spoon and the sieve on the table keep clear of the plate,
-// the Key, the zoom buttons and each other, the design is experimental only, and nothing in it moves.
+// the Key, the zoom buttons and each other, the design is in the menu, and nothing in it moves.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -107,10 +107,11 @@ describe("tiramisu: the spoon and the sieve on the table", () => {
 describe("tiramisu: the design", () => {
   const t = THEMES.tiramisu;
 
-  it("is experimental only", () => {
-    expect(t.experimental).toBe(true);
+  it("is in the Design menu, in one group and not featured (decision 134)", () => {
     expect(t.surface).toBe("tiramisu");
-    expect(DESIGN_GROUPS.flatMap((g) => g.ids)).not.toContain("tiramisu");
+    expect(t.experimental).toBeFalsy();
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("tiramisu"))).toHaveLength(1);
+    expect(FEATURED).not.toContain("tiramisu");
     expect(FEATURED).not.toContain("tiramisu");
   });
 

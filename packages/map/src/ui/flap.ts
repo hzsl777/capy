@@ -1,4 +1,4 @@
-// Departures (id flap, experimental): the board's moving parts, after the feel of a split-flap departures board in a
+// Departures (id flap): the board's moving parts, after the feel of a split-flap departures board in a
 // big station hall and nothing else from one: no operator's, airline's, railway's or maker's names, logos, colours,
 // lettering or sounds. All of it is chrome outside the canvas, inert in every other design:
 // - The site's name and the day's word in flap tiles, one letter per tile (main.ts sets the letters with
