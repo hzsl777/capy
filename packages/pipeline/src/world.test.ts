@@ -109,7 +109,7 @@ describe("the world desk on a real Postgres engine", () => {
     // Every town keeps its two newest stories.
     expect(at("Kisumu").map((i) => i.title)).toEqual(["Ferry timetable on the gulf changes next month", "Kisumu market traders get a new covered hall"]);
     expect(at("Mombasa").length + at("Malindi").length).toBe(2);
-    // Small municipalities from GeoNames' places of 1,000 people or more, and towns in regions outlets reached.
+    // Small municipalities from GeoNames' places of 500 people or more, and towns in regions outlets reached.
     expect(at("Stanmore")).toHaveLength(1);
     expect(at("Ikinu")).toHaveLength(1);
     expect(at("Hyderabad")).toHaveLength(1);

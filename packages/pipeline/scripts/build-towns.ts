@@ -1,6 +1,8 @@
 // Builds data/towns.txt, the list of towns that GDELT's local stories are checked against (decisions 67 and 78),
-// from GeoNames (geonames.org, CC BY 4.0): its cities1000 list, every place of 1,000 people or more and every seat of
-// a local government down to the third administrative level, however small. Run with `npm run towns:build`.
+// from GeoNames (geonames.org, CC BY 4.0): its cities500 list, every place of 500 people or more and every seat of
+// a local government down to the fourth administrative level, however small (GeoNames' own definition of the list).
+// The grouping model's towns are placed by it too (rule 2 of packages/map/AGENTS.md), so it is as complete as the
+// free data allows. Run with `npm run towns:build`.
 //
 // GeoNames' own download host changes its files daily, so the build reads the copy packaged in geonamescache 3.0.2
 // on PyPI (July 2026), pinned by its checksum: the same input always gives the same file. Pass a path to a copy of
@@ -25,7 +27,7 @@ import { km, norm } from "../src/places.js";
 
 const WHEEL = "https://files.pythonhosted.org/packages/48/c2/52f1b29de8839b4b55cd2641dfd722a6a94953d74fa82514e26084a92318/geonamescache-3.0.2-py3-none-any.whl";
 const SHA256 = "b830e8942f2d58c7e68782dcf4dff2ffe8c4104a35ee881ed1ad4023cefcdba4";
-const MEMBER = "geonamescache/data/cities1000.json";
+const MEMBER = "geonamescache/data/cities500.json";
 const DATA = join(dirname(fileURLToPath(import.meta.url)), "..", "data");
 /** A town this close to a listed city of the same name and country is that city. */
 const SAME_KM = 30;
@@ -133,7 +135,7 @@ for (const t of towns) {
 }
 // South to north within each block, so the differences between lines stay small.
 const lines = [
-  "# GeoNames' cities1000 (geonames.org, CC BY 4.0), from geonamescache 3.0.2. Built by packages/pipeline/scripts/build-towns.ts; do not edit.",
+  "# GeoNames' cities500 (geonames.org, CC BY 4.0), from geonamescache 3.0.2. Built by packages/pipeline/scripts/build-towns.ts; do not edit.",
   "# \"=CC<tab>Region\" starts a country and its Natural Earth region. Each town: name<tab>latitude<tab>longitude, in hundredths of a degree, each counted from the line before.",
 ];
 for (const key of [...blocks.keys()].sort()) {

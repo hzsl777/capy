@@ -311,12 +311,13 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   // Every model call succeeded, so the date's world events are replaced only now; during the day they are added to.
   if (!opts.onlyNew) await clearWorldDay(db, date);
   const byTopic: Record<string, number> = {};
-  gazetteer ??= Gazetteer.load();
+  gazetteer ??= Gazetteer.loadWithTowns();
   const rowOf = new Map(rows.map((r) => [r.id, r]));
   let placed = 0;
   let abroad = 0;
   for (const ev of final) {
-    // Where it happened, if the model named a city that checks out; otherwise the map shows it at its outlets.
+    // Where it happened, if the model named a city that checks out against the city and town lists (decision 44);
+    // otherwise the map shows it at its outlets.
     const at = gazetteer.locate(ev.where);
     if (at) placed += 1;
     // With no city, an article stays at its outlet's city. When the story happened in another country than the

@@ -313,6 +313,36 @@ describe("cluster world in batches", () => {
     expect(JSON.stringify(file)).not.toContain('"US"');
   });
 
+  it("places the model's towns at the town list's own point, never at a guess in the sea (decision 44)", async () => {
+    const day = toRunDate("2026-09-30");
+    await db.insert(sources).values({ id: "tn1", name: "Coast Herald", url: "https://tn1.example/feed.xml", topic: "world", tier: "general", desk: "world", placeName: "Tunis", lat: 36.81, lon: 10.18 });
+    const rows = await db
+      .insert(articles)
+      .values([0, 1, 2].map((i) => ({ sourceId: "tn1", url: `https://tn1.example/x${i}`, title: `Item ${i}`, lead: "A lead.", publishedAt: new Date(Date.UTC(2026, 8, 30, 10 + i)) })))
+      .returning({ id: articles.id });
+    const [a, b, c] = rows.map((r) => r.id);
+    const llm = new FakeLlm({
+      "cluster-world": () => ({
+        events: [
+          // A coastal town on the town list only, the model's point 22 km out in the Mediterranean.
+          { title: "A fishing boat is towed in at Tabarka", articleIds: [a], importance: 2, importanceReason: "x", topic: "other", where: { city: "Tabarka", country: "TN", lat: 37.15, lon: 8.7 }, country: "TN" },
+          // A name found nowhere with a point in open sea: stays at the outlet.
+          { title: "A buoy breaks loose off Fictional Cove", articleIds: [b], importance: 2, importanceReason: "x", topic: "other", where: { city: "Fictional Cove", country: "TN", lat: 36, lon: 11.7 }, country: "TN" },
+          // A name two Italian towns share, with no point: ambiguous, stays at the outlet.
+          { title: "A bell is restored in Badia", articleIds: [c], importance: 2, importanceReason: "x", topic: "other", where: { city: "Badia", country: "IT" }, country: "IT" },
+        ],
+        skipped: [],
+      }),
+    });
+    const report = await runClusterWorld(db, testConfig(), llm, day);
+    expect(report).toMatchObject({ placed: 1 });
+    const evs = await db.select().from(events).where(eq(events.desk, "world"));
+    const by = (word: string) => evs.find((e) => e.title.includes(word))!;
+    expect(by("Tabarka")).toMatchObject({ placeName: "Tabarka", lat: 36.95, lon: 8.76 });
+    expect(by("buoy").placeName).toBeNull();
+    expect(by("Badia").placeName).toBeNull();
+  });
+
   it("reads merge keys however the model brackets or capitalises them", () => {
     const known = new Set(["b1-e1", "b2-e3"]);
     expect(validMergeGroups({ groups: [{ eventKeys: ["[B1-E1]", " b2-e3 "], title: "t" }] }, known)).toEqual({ groups: [{ eventKeys: ["b1-e1", "b2-e3"], title: "t" }], dropped: 0 });
