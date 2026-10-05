@@ -20207,6 +20207,13 @@ button.x-ch:focus-visible {
 :root[data-theme="shortwave"] .telegram .note-link {
   color: var(--sw-cream);
 }
+/* The marks' legend sits on the walnut, where the card's ink would be lost. */
+:root[data-theme="shortwave"] .telegram .importance {
+  color: var(--sw-brass-hi);
+}
+:root[data-theme="shortwave"] .telegram .importance .imp-step {
+  color: #ecdcb6;
+}
 /* The word on a small backlit plate of dial glass in a brass bezel. */
 :root[data-theme="shortwave"] .telegram-word {
   font-family: var(--font-mast);
