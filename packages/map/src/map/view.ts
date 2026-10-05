@@ -79,6 +79,8 @@ import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
 // Tiramisu: the dish, the bowl and the coffee bean's crease.
 import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
 import { beanCrease2D } from "./marks.ts";
+// Burger Joint (experimental): the stack of layers round the world, on a tray.
+import { BurgerCache, drawBurger } from "./burger.ts";
 import { BRAKE_DEG, CAP, dragRecord, drawVinyl, NEEDLE_LAT, needleAt, recordBase, recordProjection, recordSpin, turnToNeedle, VinylCache } from "./vinyl.ts";
 import { drawWoodblock } from "./woodblock.ts";
 // Lobster (experimental): the chart and the dock, and the buoy mark's painted band.
@@ -350,6 +352,8 @@ export class MapView {
   /** Tiramisu: the dish or the bowl on its table, kept while the view holds still. */
   private tiramisu = new TiramisuCache();
   private lobster = new LobsterCache();
+  /** Burger Joint: the tray and the stack of layers round the world, kept while the view holds still. */
+  private burger = new BurgerCache();
   /** Record Player: the tonearm and sleeve layers, and where the finger last was on the record (src/map/vinyl.ts). */
   private vinyl = new VinylCache();
   private recordAt: [number, number] | null = null;
@@ -2061,6 +2065,7 @@ export class MapView {
     if (t.surface === "desktop") return drawDesktop(f, this.desktop);
     if (t.surface === "herbarium") return drawHerbarium(f, this.herbarium);
     if (t.surface === "tiramisu") return drawTiramisu(f, this.tiramisu);
+    if (t.surface === "burger") return drawBurger(f, this.burger);
     if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
     if (t.surface === "woodblock") return drawWoodblock(f);
     if (t.surface === "lobster") return drawLobster(f, this.lobster);

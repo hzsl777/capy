@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe" | "buoy";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe" | "buoy" | "seed";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -77,6 +77,18 @@ const BUOY_TOP = -1.3;
 export function buoyBand(r: number): string {
   const y = r * BUOY_CY, x = r * BUOY_R * 0.78;
   return `M${f(-x)} ${f(y)}H${f(x)}`;
+}
+
+// Burger Joint (experimental): a sesame seed, a teardrop with a sharp tip at one end and a round belly at the other,
+// laid at a slant. The pointed end tells it from the bean's plain oval; the outline alone is the mark.
+const SEED_A = 1.35;
+const SEED_B = 0.86;
+const SEED_TURN = -0.75;
+
+/** A point in the seed's own frame (u along its length, tip at +u; v across it), turned to its slant, as SVG numbers. */
+function seedAt(u: number, v: number): string {
+  const c = Math.cos(SEED_TURN), s = Math.sin(SEED_TURN);
+  return `${f(u * c - v * s)} ${f(u * s + v * c)}`;
 }
 
 /** The outline of a marker of radius r, as SVG path data. */
@@ -269,6 +281,13 @@ export function markPath(shape: MarkShape, r: number): string {
       return (
         `M${beanAt(a, 0)}C${beanAt(a, k * b)} ${beanAt(k * a, b)} ${beanAt(0, b)}C${beanAt(-k * a, b)} ${beanAt(-a, k * b)} ${beanAt(-a, 0)}` +
         `C${beanAt(-a, -k * b)} ${beanAt(-k * a, -b)} ${beanAt(0, -b)}C${beanAt(k * a, -b)} ${beanAt(a, -k * b)} ${beanAt(a, 0)}Z`
+      );
+    }
+    case "seed": {
+      const a = r * SEED_A, b = r * SEED_B;
+      return (
+        `M${seedAt(a, 0)}C${seedAt(0.55 * a, -0.55 * b)} ${seedAt(0.15 * a, -b)} ${seedAt(-0.35 * a, -b)}C${seedAt(-0.8 * a, -b)} ${seedAt(-a, -0.55 * b)} ${seedAt(-a, 0)}` +
+        `C${seedAt(-a, 0.55 * b)} ${seedAt(-0.8 * a, b)} ${seedAt(-0.35 * a, b)}C${seedAt(0.15 * a, b)} ${seedAt(0.55 * a, 0.55 * b)} ${seedAt(a, 0)}Z`
       );
     }
     case "slice": {

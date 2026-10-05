@@ -234,6 +234,8 @@ import "@fontsource/playfair-display/600-italic.css";
 import "@fontsource/zen-dots/latin-400.css";
 import "@fontsource/lexend/400.css";
 import "@fontsource/lexend/600.css";
+// Burger Joint (experimental): the Topics menu's burger, built from the topics that are on.
+import { syncBurger } from "./ui/burger.ts";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -681,6 +683,7 @@ function renderToolbar() {
     })(),
   );
   $("topics-count").textContent = state.topics.size === FILTERS.length ? "" : `(${state.topics.size})`;
+  syncBurger(chips, state.theme === "burger", FILTERS.map((f) => state.topics.has(f)));
 
   // Translate is a list of languages, the reader's own first (decision 97). "Translate" is the off position.
   const mine = browserLanguages();
