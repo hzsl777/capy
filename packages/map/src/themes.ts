@@ -2272,10 +2272,10 @@ export const THEMES: Record<ThemeId, Theme> = {
     decor: null,
   },
   // Departures (experimental): after the feel of a split-flap departures board in a big station hall, with no
-  // operator's, airline's, railway's or maker's names, logos or colours. The map is the hall's wall map, a charcoal
-  // sheet with land as warm off-white dots and thin yellow coasts; the globe sits in a round hall clock's ring of
+  // operator's, airline's, railway's or maker's names, logos or colours. The map is the hall's wall map, a deep
+  // blue-green sheet with land as cream dots and thin pale-blue coasts; the globe sits in a round hall clock's ring of
   // ticks (src/map/flap.ts). Small square lamps for markers, warm white with an orange lamp for fresh reports, so
-  // neither reads as the yellow of the coasts or the amber of the board's times.
+  // neither reads as the blue of the coasts. No amber or yellow anywhere: that is Market Terminal's.
   flap: {
     id: "flap",
     label: "Departures",
@@ -2284,28 +2284,28 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoEqualEarth,
     surface: "flap",
     globeScale: 0.4,
-    ocean: "#1c1d1f",
-    land: "#262628",
+    ocean: "#15252c",
+    land: "#1e3139",
     landTexture: "none",
     pixel: 1,
     dotShape: "square",
-    textureInk: "rgba(238,226,200,0.6)",
-    coast: "#e9bf2e",
+    textureInk: "rgba(246,240,221,0.62)",
+    coast: "#6fa8cf",
     coastWidth: 0.8,
     waterlines: 0,
-    waterline: "rgba(233,191,46,0.1)",
+    waterline: "rgba(111,168,207,0.1)",
     oceanHatch: null,
-    graticule: "rgba(238,226,200,0.06)",
+    graticule: "rgba(246,240,221,0.06)",
     graticuleDash: [],
-    river: "rgba(28,29,31,0.8)",
-    lake: "#1c1d1f",
-    ice: "rgba(238,226,200,0.3)",
-    relief: "rgba(255,244,214,0.85)",
+    river: "rgba(21,37,44,0.8)",
+    lake: "#15252c",
+    ice: "rgba(246,240,221,0.3)",
+    relief: "rgba(255,248,226,0.88)",
     dot: "#fff6df",
-    dotStroke: "#0d0d0e",
+    dotStroke: "#0a1519",
     fresh: "#ff7a1a",
     tuned: "#ffffff",
-    arc: "rgba(233,191,46,0.85)",
+    arc: "rgba(143,196,238,0.85)",
     glow: true,
     atmosphere: null,
     shade: null,
