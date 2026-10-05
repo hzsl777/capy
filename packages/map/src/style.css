@@ -1110,16 +1110,77 @@ summary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font: 11px/1 var(--font-ui);
+  /* The reading face, a size up from the scale and in full ink: display, pixel and engraved faces made the rating's
+     numbers hard to read, and the muted colour was lost on many mastheads. Lining figures, so 4-5 never reads as a
+     word. */
+  font: 12px/1 var(--font-body);
+  font-variant-numeric: lining-nums;
+  white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
+  letter-spacing: 0.05em;
+  color: var(--ink);
 }
 .importance .imp-step {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* Pixel faces have no bold of their own, and a made-up one closes up their figures (2-3 read as 8-8). */
+:root[data-theme="bit8"] .telegram .importance .imp-step,
+:root[data-theme="blocks"] .telegram .importance .imp-step,
+:root[data-theme="desktop"] .telegram .importance .imp-step,
+:root[data-theme="dual"] .telegram .importance .imp-step,
+:root[data-theme="bit16"] .telegram .importance .imp-step {
+  font-weight: 400;
+}
+/* Pixelify Sans draws 5 like an S: the blocky designs take Press Start 2P's figures, Desktop 95 its reading face. */
+:root[data-theme="bit8"] .telegram .importance,
+:root[data-theme="blocks"] .telegram .importance {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+}
+:root[data-theme="desktop"] .telegram .importance {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
+/* Mastheads whose ground is not the panel's: the legend takes the colour of the "Chosen by AI" line beside it, which
+   each of these designs set for its masthead (each at least 4.5 to 1, checked against the masthead). */
+:root[data-theme="campus"] .telegram .importance {
+  color: #f6e9e9;
+}
+:root[data-theme="pool"] .telegram .importance {
+  color: #ffe6f0;
+}
+:root[data-theme="snow"] .telegram .importance {
+  color: #e3ecf6;
+}
+:root[data-theme="prep"] .telegram .importance {
+  color: #d8cfb6;
+}
+:root[data-theme="lava"] .telegram .importance {
+  color: #ffe6b8;
+}
+:root[data-theme="noir"] .telegram .importance {
+  color: #d9d7cf;
+}
+:root[data-theme="pindrop"] .telegram .importance {
+  color: #d6d0ff;
+}
+:root[data-theme="deli"] .telegram .importance {
+  color: #ece6d2;
+}
+:root[data-theme="crunch"] .telegram .importance {
+  color: #fbe9ff;
+}
+:root[data-theme="render"] .telegram .importance {
+  color: #e8f4ee;
+}
+/* Old-style figures in IM Fell made "4-5" look like a word; these three take a classical face with lining figures. */
+:root[data-theme="cabinet"] .telegram .importance,
+:root[data-theme="pirate"] .telegram .importance,
+:root[data-theme="arcadia"] .telegram .importance {
+  font-family: "Old Standard TT", Georgia, serif;
 }
 .importance svg {
   flex: none;
@@ -20209,9 +20270,6 @@ button.x-ch:focus-visible {
 }
 /* The marks' legend sits on the walnut, where the card's ink would be lost. */
 :root[data-theme="shortwave"] .telegram .importance {
-  color: var(--sw-brass-hi);
-}
-:root[data-theme="shortwave"] .telegram .importance .imp-step {
   color: #ecdcb6;
 }
 /* The word on a small backlit plate of dial glass in a brass bezel. */
