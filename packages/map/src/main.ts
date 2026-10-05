@@ -1799,8 +1799,12 @@ async function start() {
     theme: () => state.theme,
     center: () => map.center(),
     tuned: () => state.tuned !== null,
+    nearest: () => map.nearestPx(),
+    level: () => map.level(),
     turnTo: (lon) => map.turnTo(lon),
     turnBy: (px) => map.turnBy(px),
+    snap: () => map.snapSoon(),
+    band: (level) => map.bandTo(level),
   });
   mountChannels({
     theme: () => state.theme,

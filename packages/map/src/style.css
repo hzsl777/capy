@@ -20415,30 +20415,45 @@ button.x-ch:focus-visible {
   color: var(--accent);
 }
 
-/* ---- The radio's front: grille, lamp, dial and knob on a walnut ledge with a brass strip along its top. ---- */
+/* ---- The radio's front: a walnut cabinet face with a brass strip along its top and a screw at each corner, the dial's
+   glass lit from a lamp behind it, the eye, and the controls: band keys, a Sound key, a small time knob and the big
+   tuning knob in a ring of detent marks. The grid has the grille and the eye on the left, the dial over the band keys,
+   and the two knobs on the right, each as tall as the front. ---- */
 :root[data-theme="shortwave"] .sw-radio {
+  --sw-inset: 22px;
+  position: relative;
   grid-column: 1;
   grid-row: 2;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(80px, 150px) auto minmax(0, 1fr) auto auto;
+  grid-template-rows: 62px 34px;
+  grid-template-areas:
+    "grille eye dial time tune"
+    "grille eye strip time tune";
   align-items: center;
-  gap: 14px;
-  height: 104px;
+  column-gap: 14px;
+  row-gap: 8px;
   margin: 14px 6px 10px 12px;
-  padding: 10px 14px;
+  padding: 14px 18px 12px;
   border-radius: 10px;
   background:
-    linear-gradient(to bottom, rgba(255, 220, 170, 0.08), rgba(0, 0, 0, 0.18)),
+    radial-gradient(circle at 50% 50%, #e8cd8a 0 1.4px, #8a6828 2.6px, #2a160a 3.6px, transparent 4.4px) 7px 7px / 10px 10px no-repeat,
+    radial-gradient(circle at 50% 50%, #e8cd8a 0 1.4px, #8a6828 2.6px, #2a160a 3.6px, transparent 4.4px) right 7px top 7px / 10px 10px no-repeat,
+    radial-gradient(circle at 50% 50%, #e8cd8a 0 1.4px, #8a6828 2.6px, #2a160a 3.6px, transparent 4.4px) 7px bottom 7px / 10px 10px no-repeat,
+    radial-gradient(circle at 50% 50%, #e8cd8a 0 1.4px, #8a6828 2.6px, #2a160a 3.6px, transparent 4.4px) right 7px bottom 7px / 10px 10px no-repeat,
+    linear-gradient(to right, transparent 12px, var(--sw-brass-hi) 12px, var(--sw-brass) calc(100% - 12px), transparent calc(100% - 12px)) 0 0 / 100% 3px no-repeat,
+    radial-gradient(ellipse 55% 90% at 45% 38%, rgba(255, 176, 84, 0.2), transparent 72%),
+    linear-gradient(to bottom, rgba(255, 220, 170, 0.1), rgba(0, 0, 0, 0.2)),
     var(--sw-grain) 0 0 / 1600px 420px,
     #4b2a14;
-  box-shadow: inset 0 1px 0 rgba(255, 220, 170, 0.18), inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px #1d0f05, 0 3px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 170, 0.22), inset 0 -2px 4px rgba(0, 0, 0, 0.45), 0 0 0 1px #1d0f05, 0 3px 8px rgba(0, 0, 0, 0.45);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
 }
 /* The speaker grille: gold-threaded cloth in a woven diamond, behind three thin wooden bars. */
 :root[data-theme="shortwave"] .sw-grille {
-  flex: 0 1 170px;
-  min-width: 90px;
+  grid-area: grille;
   align-self: stretch;
   border-radius: 6px;
   background:
@@ -20449,15 +20464,16 @@ button.x-ch:focus-visible {
     linear-gradient(to bottom, #c6a466, #a8844a);
   box-shadow: inset 0 0 0 1px #2a160a, inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--sw-brass-lo);
 }
-/* The tuning lamp in a small brass cup. */
+/* The tuning eye in a small brass cup. Its two wings turn in as the reticle nears a place (--sw-lock, 0 to 1, set by
+   src/ui/dial.ts, eased there), and it glows as it closes. */
 :root[data-theme="shortwave"] .sw-eye {
-  flex: none;
+  grid-area: eye;
   width: 46px;
   height: 46px;
   padding: 3px;
   border-radius: 50%;
   background: radial-gradient(circle, #1a0f06 60%, var(--sw-brass-lo) 62%, var(--sw-brass-hi) 80%, var(--sw-brass) 100%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 calc(14px * var(--sw-lock, 0)) rgba(120, 230, 120, calc(0.45 * var(--sw-lock, 0)));
 }
 :root[data-theme="shortwave"] .sw-eye-tube {
   display: block;
@@ -20465,39 +20481,29 @@ button.x-ch:focus-visible {
   height: 100%;
 }
 :root[data-theme="shortwave"] .sw-eye-lit {
-  opacity: 0.42;
-  transition: opacity var(--sw-lamp-fade, 0.5s) linear;
+  opacity: var(--sw-glow, 0.42);
 }
 :root[data-theme="shortwave"] .sw-eye-wing {
-  opacity: 0.42;
+  opacity: var(--sw-glow, 0.42);
   transform-box: view-box;
   transform-origin: 20px 20px;
-  transition:
-    transform var(--sw-lamp-fade, 0.5s) ease-in-out,
-    opacity var(--sw-lamp-fade, 0.5s) linear;
 }
-:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-lit,
-:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-wing {
-  opacity: 1;
+:root[data-theme="shortwave"] .sw-eye-left {
+  transform: rotate(calc(var(--sw-lock, 0) * var(--sw-wing, 38deg)));
 }
-:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-left {
-  transform: rotate(var(--sw-wing, 38deg));
+:root[data-theme="shortwave"] .sw-eye-right {
+  transform: rotate(calc(var(--sw-lock, 0) * var(--sw-wing, 38deg) * -1));
 }
-:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye-right {
-  transform: rotate(calc(-1 * var(--sw-wing, 38deg)));
-}
-:root[data-theme="shortwave"] .sw-radio.tuned .sw-eye {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px rgba(120, 230, 120, 0.35);
-}
-/* The dial: a long window of cream glass, lit from behind, in a brass bezel. */
+/* The dial: a long window of amber glass, lit from a lamp behind it that rides with the needle, in a brass bezel, and
+   spilling its light onto the cabinet round it. */
 :root[data-theme="shortwave"] .sw-dial {
-  flex: 1 1 auto;
-  min-width: 0;
+  grid-area: dial;
   align-self: stretch;
+  min-width: 0;
   padding: 4px;
   border-radius: 8px;
   background: linear-gradient(to bottom, var(--sw-brass-hi), var(--sw-brass) 40%, var(--sw-brass-lo));
-  box-shadow: 0 0 0 1px #1d0f05, 0 2px 4px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 0 1px #1d0f05, 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 26px 3px rgba(255, 184, 96, 0.3);
   cursor: ew-resize;
 }
 :root[data-theme="shortwave"] .sw-glass {
@@ -20505,16 +20511,38 @@ button.x-ch:focus-visible {
   height: 100%;
   overflow: hidden;
   border-radius: 5px;
-  background: radial-gradient(ellipse 70% 140% at 50% 50%, #fff7dc 0%, #f6e6b6 52%, #dcc184 100%);
-  box-shadow: inset 0 0 0 1px rgba(90, 60, 20, 0.55), inset 0 3px 8px rgba(110, 70, 20, 0.35), inset 0 0 22px rgba(255, 190, 90, 0.35);
+  background: linear-gradient(to bottom, #e6c98a, #efd9a0 46%, #dcbb78);
+  box-shadow: inset 0 0 0 1px rgba(90, 60, 20, 0.55), inset 0 3px 8px rgba(110, 70, 20, 0.4), inset 0 0 26px rgba(150, 90, 20, 0.35);
+}
+/* The dial lamp: a warm white glow behind the printing, standing at the needle. */
+:root[data-theme="shortwave"] .sw-lamp {
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  left: calc(var(--sw-inset) + var(--sw-at, 0.5) * (100% - 2 * var(--sw-inset)));
+  width: 300px;
+  margin-left: -150px;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 252, 232, 0.95), rgba(255, 238, 176, 0.55) 40%, transparent 74%);
+  transition: left var(--sw-needle-ease, 140ms) ease-out;
+  pointer-events: none;
+}
+/* The glass's own sheen: a still reflection of a window across it, a thin bright edge along the top and a shade along
+   the foot. It never changes. */
+:root[data-theme="shortwave"] .sw-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.34) 0 14%, rgba(255, 255, 255, 0) 14.4% 36%, rgba(255, 255, 255, 0.13) 36.4% 41%, rgba(255, 255, 255, 0) 41.4%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 12%, rgba(60, 30, 0, 0) 80%, rgba(60, 30, 0, 0.18));
 }
 /* The printed scale, inset so the numbers at its two ends stay on the glass. */
 :root[data-theme="shortwave"] .sw-scale {
   position: absolute;
-  left: 22px;
-  right: 22px;
-  top: 8px;
-  bottom: 8px;
+  left: var(--sw-inset);
+  right: var(--sw-inset);
+  top: 6px;
+  bottom: 6px;
 }
 :root[data-theme="shortwave"] .sw-ticks {
   position: absolute;
@@ -20549,7 +20577,7 @@ button.x-ch:focus-visible {
 }
 :root[data-theme="shortwave"] .sw-num {
   position: absolute;
-  bottom: 6px;
+  bottom: 5px;
   transform: translateX(-50%);
   font: 600 17px/1 var(--font-ui);
   letter-spacing: 0.02em;
@@ -20562,17 +20590,23 @@ button.x-ch:focus-visible {
   font-weight: 500;
   letter-spacing: 0.06em;
 }
-/* The needle: a thin red line the height of the scale with a small dark cap, standing at the reticle's longitude. */
+/* The needle: a thin red line the height of the scale with a small dark cap, standing at the reticle's longitude and
+   riding a cord a little behind it (--sw-at, 0 to 1). */
 :root[data-theme="shortwave"] .sw-needle {
   position: absolute;
   top: -6px;
   bottom: -6px;
-  left: 50%;
+  left: calc(var(--sw-at, 0.5) * 100%);
   width: 2px;
   margin-left: -1px;
   background: var(--sw-red);
   box-shadow: 0 0 3px rgba(198, 42, 28, 0.45), 1px 0 0 rgba(255, 255, 255, 0.35);
+  transition: left var(--sw-needle-ease, 140ms) ease-out;
   pointer-events: none;
+}
+:root[data-theme="shortwave"] .sw-radio.jump .sw-needle,
+:root[data-theme="shortwave"] .sw-radio.jump .sw-lamp {
+  transition: none;
 }
 :root[data-theme="shortwave"] .sw-needle::before {
   content: "";
@@ -20584,15 +20618,45 @@ button.x-ch:focus-visible {
   border-radius: 1px;
   background: #3a2614;
 }
-/* Static: a faint grain over the glass between places, drifting slowly; it fades out once a place is tuned. */
+/* Locking in: the needle thickens for a moment and the eye gives a small thump, a mechanical clack that moves things
+   and never changes how bright they are. */
+:root[data-theme="shortwave"] .sw-radio.clack .sw-needle {
+  animation: sw-clack 300ms ease-out;
+}
+:root[data-theme="shortwave"] .sw-radio.clack .sw-eye {
+  animation: sw-thump 280ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@keyframes sw-clack {
+  0% {
+    transform: scaleX(1);
+  }
+  30% {
+    transform: scaleX(2.8);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes sw-thump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Static: a faint grain over the glass, drifting slowly. Its strength is the share of the eye still open (--sw-lock), so
+   it thins as a place comes near and is gone once one is tuned; the glass clips it, so it never reaches the map. */
 :root[data-theme="shortwave"] .sw-static {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  opacity: var(--sw-static, 0.32);
+  opacity: calc(var(--sw-static, 0.42) * (1 - var(--sw-lock, 0)));
   mix-blend-mode: multiply;
-  transition: opacity var(--sw-static-fade, 0.6s) linear;
 }
 :root[data-theme="shortwave"] .sw-static::before {
   content: "";
@@ -20604,9 +20668,6 @@ button.x-ch:focus-visible {
   background-image: var(--grain);
   animation: sw-drift var(--sw-drift, 16s) linear infinite;
 }
-:root[data-theme="shortwave"] .sw-radio.tuned .sw-static {
-  opacity: 0;
-}
 :root[data-theme="shortwave"] .sw-radio.tuned .sw-static::before {
   animation-play-state: paused;
 }
@@ -20615,14 +20676,24 @@ button.x-ch:focus-visible {
     transform: translateX(220px);
   }
 }
-/* The tuning knob: big, round and ridged; it turns with the world, and dragging round it turns the world. */
-:root[data-theme="shortwave"] .sw-tune {
-  flex: none;
+/* The controls strip under the dial: band keys in a dark tray, and the Sound key. */
+:root[data-theme="shortwave"] .sw-strip {
+  grid-area: strip;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 12px;
+  min-width: 0;
 }
+:root[data-theme="shortwave"] .sw-bands {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: #2a160a;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 220, 170, 0.16);
+}
+:root[data-theme="shortwave"] .sw-label,
 :root[data-theme="shortwave"] .sw-tune-label {
   font: 600 11px/1 var(--font-ui);
   letter-spacing: 0.22em;
@@ -20630,15 +20701,153 @@ button.x-ch:focus-visible {
   color: var(--sw-brass-hi);
   white-space: nowrap;
 }
+:root[data-theme="shortwave"] .sw-label {
+  margin-right: 4px;
+}
+/* A band key: a cream piano key that stands up, and goes down, with a red bar on its face, for the band the map is at. */
+:root[data-theme="shortwave"] .sw-bandkey {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px 3px 5px 5px;
+  font: 700 15px/1 var(--font-ui);
+  color: var(--ink);
+  background: var(--sw-cap);
+  box-shadow: 0 3px 0 #8a6a3a, 0 4px 3px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 90ms ease-out, box-shadow 90ms ease-out;
+}
+:root[data-theme="shortwave"] .sw-bandkey:hover {
+  background: var(--sw-cap-hover);
+}
+:root[data-theme="shortwave"] .sw-bandkey.on {
+  transform: translateY(3px);
+  background: var(--sw-cap-down);
+  box-shadow: inset 0 2px 3px rgba(90, 60, 20, 0.45), 0 0 0 0 #8a6a3a;
+}
+:root[data-theme="shortwave"] .sw-bandkey.on::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 14px;
+  height: 2px;
+  margin-left: -7px;
+  background: var(--sw-red);
+}
+:root[data-theme="shortwave"] .sw-sound {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 4px 11px;
+  border: 0;
+  border-radius: 5px;
+  font: 600 13px/1.2 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--sw-cap);
+  box-shadow: var(--sw-rim);
+  cursor: pointer;
+}
+:root[data-theme="shortwave"] .sw-sound b {
+  min-width: 2.2em;
+  text-align: left;
+  font-weight: 700;
+}
+:root[data-theme="shortwave"] .sw-sound::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6a5236;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="shortwave"] .sw-sound[aria-pressed="true"] {
+  background: var(--sw-cap-down);
+  box-shadow: var(--sw-rim-down);
+}
+:root[data-theme="shortwave"] .sw-sound[aria-pressed="true"]::before {
+  background: #ffcf5c;
+  box-shadow: 0 0 6px rgba(255, 190, 70, 0.8);
+}
+:root[data-theme="shortwave"] .sw-bandkey:focus-visible,
+:root[data-theme="shortwave"] .sw-sound:focus-visible {
+  outline: 3px solid #ffe08a;
+  outline-offset: 2px;
+}
+/* The knobs: each stands in a ring of printed detent marks with a small label under it. The tuning knob is the big one;
+   a pawl taps its rim as each detent goes by. */
+:root[data-theme="shortwave"] .sw-tune,
+:root[data-theme="shortwave"] .sw-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+:root[data-theme="shortwave"] .sw-time {
+  grid-area: time;
+}
+:root[data-theme="shortwave"] .sw-tune {
+  grid-area: tune;
+}
+:root[data-theme="shortwave"] .sw-knobwrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+}
+:root[data-theme="shortwave"] .sw-time .sw-knobwrap {
+  width: 60px;
+  height: 60px;
+}
+:root[data-theme="shortwave"] .sw-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+:root[data-theme="shortwave"] .sw-ring-tick {
+  stroke: var(--sw-brass);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+:root[data-theme="shortwave"] .sw-ring-major {
+  stroke: var(--sw-brass-hi);
+  stroke-width: 2.2;
+}
+:root[data-theme="shortwave"] .sw-pawl {
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(var(--sw-brass-hi), var(--sw-brass-lo));
+  pointer-events: none;
+}
 :root[data-theme="shortwave"] .sw-knob {
   position: relative;
   flex: none;
-  width: 70px;
-  height: 70px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
   cursor: grab;
   touch-action: none;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
+}
+:root[data-theme="shortwave"] .sw-time .sw-knob {
+  width: 44px;
+  height: 44px;
 }
 :root[data-theme="shortwave"] .sw-knob:active {
   cursor: grabbing;
@@ -20663,15 +20872,20 @@ button.x-ch:focus-visible {
   :root[data-theme="shortwave"] .sw-static::before {
     animation: none;
   }
-  :root[data-theme="shortwave"] .sw-static,
-  :root[data-theme="shortwave"] .sw-eye-lit,
-  :root[data-theme="shortwave"] .sw-eye-wing {
+  :root[data-theme="shortwave"] .sw-needle,
+  :root[data-theme="shortwave"] .sw-lamp,
+  :root[data-theme="shortwave"] .sw-bandkey {
     transition: none;
+  }
+  :root[data-theme="shortwave"] .sw-radio.clack .sw-needle,
+  :root[data-theme="shortwave"] .sw-radio.clack .sw-eye {
+    animation: none;
   }
 }
 @media (max-width: 1100px) {
-  :root[data-theme="shortwave"] .sw-grille {
-    flex-basis: 96px;
+  :root[data-theme="shortwave"] .sw-radio {
+    grid-template-columns: 70px auto minmax(0, 1fr) auto auto;
+    column-gap: 12px;
   }
 }
 /* Between a phone and a wide screen the name shares its row with the word. */
@@ -20739,10 +20953,17 @@ button.x-ch:focus-visible {
     padding: 16px 16px 22px;
   }
   :root[data-theme="shortwave"] .sw-radio {
-    height: 62px;
-    gap: 8px;
+    --sw-inset: 14px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: 50px 36px;
+    grid-template-areas:
+      "eye dial tune"
+      "strip strip time";
+    column-gap: 8px;
+    row-gap: 5px;
     margin: 12px 10px 2px;
-    padding: 6px 8px;
+    padding: 10px 8px 7px;
+    border-radius: 8px;
   }
   :root[data-theme="shortwave"] .sw-grille {
     display: none;
@@ -20752,11 +20973,16 @@ button.x-ch:focus-visible {
     height: 34px;
     padding: 2px;
   }
+  :root[data-theme="shortwave"] .sw-dial {
+    padding: 3px;
+  }
+  :root[data-theme="shortwave"] .sw-lamp {
+    width: 200px;
+    margin-left: -100px;
+  }
   :root[data-theme="shortwave"] .sw-scale {
-    left: 14px;
-    right: 14px;
-    top: 4px;
-    bottom: 5px;
+    top: 3px;
+    bottom: 4px;
   }
   :root[data-theme="shortwave"] .sw-num {
     bottom: 3px;
@@ -20766,12 +20992,40 @@ button.x-ch:focus-visible {
     height: 16px;
     margin-top: -2px;
   }
-  :root[data-theme="shortwave"] .sw-knob {
-    width: 52px;
-    height: 52px;
+  :root[data-theme="shortwave"] .sw-tune .sw-knobwrap {
+    width: 54px;
+    height: 54px;
+  }
+  :root[data-theme="shortwave"] .sw-tune .sw-knob {
+    width: 44px;
+    height: 44px;
+  }
+  :root[data-theme="shortwave"] .sw-time .sw-knobwrap {
+    width: 38px;
+    height: 38px;
+  }
+  :root[data-theme="shortwave"] .sw-time .sw-knob {
+    width: 28px;
+    height: 28px;
   }
   :root[data-theme="shortwave"] .sw-tune-label {
     display: none;
+  }
+  :root[data-theme="shortwave"] .sw-strip {
+    gap: 8px;
+  }
+  :root[data-theme="shortwave"] .sw-bands {
+    gap: 4px;
+    padding: 3px 6px;
+  }
+  :root[data-theme="shortwave"] .sw-bandkey {
+    width: 27px;
+    height: 22px;
+  }
+  :root[data-theme="shortwave"] .sw-sound {
+    padding: 3px 8px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
   }
   :root[data-theme="shortwave"] .zoom button {
     width: 36px;

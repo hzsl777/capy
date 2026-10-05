@@ -732,6 +732,32 @@ export class MapView {
     this.moved();
   }
 
+  /**
+   * More for Shortwave's radio front (src/ui/dial.ts). `snapSoon` is what letting go of a drag does: the next drawn
+   * frame glides the nearest place under the reticle. `nearestPx` is how far, in screen pixels, the nearest place
+   * drawn is from the reticle (null when none is drawn), measured the same for every place so that it says only how
+   * near, never which. `bandTo` zooms to the start of a zoom level, level 0 being the whole world, like a band switch.
+   */
+  snapSoon() {
+    this.snapNext = true;
+    this.request();
+  }
+
+  nearestPx(): number | null {
+    let best: number | null = null;
+    for (const s of this.screen) {
+      const d = Math.hypot((s.gx ?? s.x) - this.w / 2, (s.gy ?? s.y) - this.h / 2);
+      if (best === null || d < best) best = d;
+    }
+    return best;
+  }
+
+  bandTo(level: number) {
+    // A snap still waiting for the next frame would fly to its place at the zoom this one is leaving.
+    this.snapNext = false;
+    this.zoomBy((level <= 0 ? this.minZoom() : this.levelZoom(level)) / this.zoom);
+  }
+
   // ---- geometry ---------------------------------------------------------
 
   private projection(): GeoProjection {
