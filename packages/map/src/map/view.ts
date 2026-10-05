@@ -77,7 +77,7 @@ import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
 // Tiramisu (experimental): the dish, the bowl and the coffee bean's crease.
 import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
 import { beanCrease2D } from "./marks.ts";
-import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, VinylCache } from "./vinyl.ts";
+import { BRAKE_DEG, CAP, dragRecord, drawVinyl, NEEDLE_LAT, needleAt, recordBase, recordProjection, recordSpin, turnToNeedle, VinylCache } from "./vinyl.ts";
 import { drawWoodblock } from "./woodblock.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
@@ -581,7 +581,7 @@ export class MapView {
       if (!this.spinning) return;
       const dt = Math.min(64, now - last) / 1000;
       last = now;
-      this.lon = wrap(this.lon + SPIN_SPEED * dt);
+      this.lon = wrap(this.lon + (this.isRecord() ? recordSpin() : SPIN_SPEED) * dt);
       this.request();
       this.spinFrame = requestAnimationFrame(tick);
     };
@@ -620,6 +620,10 @@ export class MapView {
       if (net) {
         const [[x0, y0], [x1, y1]] = net as [[number, number], [number, number]];
         [this.lon, this.lat] = t >= 1 ? [lon, lat] : netInvert(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k);
+      } else if (this.isRecord()) {
+        // The record turns the short way and the arm swings across: straight in longitude and latitude, not over the pole.
+        this.lon = wrap(from[0] + dlon * k);
+        this.lat = from[1] + (lat - from[1]) * k;
       } else if (this.mode === "3d") {
         const [x, y] = interp(k);
         this.lon = x;
@@ -730,7 +734,7 @@ export class MapView {
   private projection(): GeoProjection {
     // Record Player's Globe view: the record seen from the tonearm, the needle on the frame's centre.
     if (this.isRecord())
-      return recordProjection(this.lon, this.lat, this.baseScale, this.zoom, this.w, this.h, [
+      return recordProjection(this.lon, this.lat, this.zoom, this.w, this.h, [
         [-CLIP_MARGIN, -CLIP_MARGIN],
         [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
       ]);
@@ -794,6 +798,9 @@ export class MapView {
     if (this.isFold()) {
       // Pixels per cube face half-width: the whole net in Map view, a cube about the globe's size in Globe view.
       this.baseScale = foldBase(this.mode, this.w, this.h);
+    } else if (this.isRecord()) {
+      // Record Player: the record's radius, on a turntable laid out to fit the frame (src/map/vinyl.ts).
+      this.baseScale = recordBase(this.w, this.h);
     } else if (this.mode === "3d") {
       this.baseScale = Math.min(this.w, this.h) * (this.theme.globeScale ?? 0.46);
     } else {
@@ -869,11 +876,18 @@ export class MapView {
 
   private pan(dx: number, dy: number, at?: [number, number]) {
     if (this.isRecord()) {
-      // Record Player: the point under the finger stays under it, the record turning round its spindle and sliding
-      // under the needle (src/map/vinyl.ts). Without a finger (a glide, the arrow keys), as if dragged at the needle.
-      const to: [number, number] = at ?? (this.recordAt ? [this.recordAt[0] + dx, this.recordAt[1] + dy] : [this.w / 2 + dx, this.h / 2 + dy]);
+      // Record Player: the record turns with the finger round its spindle and the arm swings by as far as the finger goes
+      // in or out (src/map/vinyl.ts). Without a finger (a glide, the arrow keys), as if dragged at the needle.
+      const [nx, ny] = this.reticle();
+      if (!at && !this.recordAt) {
+        // The arrow keys: left and right turn the record, up and down swing the arm.
+        if (dx) [this.lon, this.lat] = dragRecord(this.lon, this.lat, this.zoom, this.w, this.h, [nx, ny], [nx + dx, ny], "turn");
+        if (dy) [this.lon, this.lat] = dragRecord(this.lon, this.lat, this.zoom, this.w, this.h, [nx, ny], [nx, ny + dy], "swing");
+        return;
+      }
+      const to: [number, number] = at ?? [this.recordAt![0] + dx, this.recordAt![1] + dy];
       if (this.recordAt || at) this.recordAt = to;
-      [this.lon, this.lat] = dragRecord(this.lon, this.lat, recordScale(this.baseScale, this.zoom), this.w, this.h, [to[0] - dx, to[1] - dy], to);
+      [this.lon, this.lat] = dragRecord(this.lon, this.lat, this.zoom, this.w, this.h, [to[0] - dx, to[1] - dy], to);
       return;
     }
     // Under a warp a drag moves the flat picture under the centre by as much as it moves on screen (decision 75).
@@ -1156,8 +1170,7 @@ export class MapView {
    */
   private snapToNearest() {
     if (this.spinning || this.anim || this.pointers.size > 0) return;
-    const cx = this.w / 2;
-    const cy = this.h / 2;
+    const [cx, cy] = this.reticle();
     let best: Spot | null = null;
     let bestD = SNAP_RADIUS;
     for (const s of this.screen) {
@@ -1177,8 +1190,7 @@ export class MapView {
       this.lastLevel = level;
       this.events.onLevel?.(level);
     }
-    const cx = this.w / 2;
-    const cy = this.h / 2;
+    const [cx, cy] = this.reticle();
     let best: Spot | null = null;
     let bestD = TUNE_RADIUS;
     for (const s of this.screen) {
@@ -1188,9 +1200,16 @@ export class MapView {
         bestD = d;
       }
     }
-    const next = best ? best.indices : null;
+    let next = best ? best.indices : null;
+    // Record Player: while the record plays, no place is tuned as the needle skims over it, so the panel holds still; a
+    // place coming round to the needle brakes the record to rest under it.
+    const playing = this.isRecord() && this.spinning;
+    if (playing) {
+      next = null;
+      if (performance.now() - this.spinStarted > SPIN_MIN_MS && this.brakeOnPlace()) return;
+    }
     const nextKey = next ? key(next) : null;
-    if (this.spinning) {
+    if (this.spinning && !playing) {
       if (nextKey === null) this.spinSkip = null;
       else if (nextKey !== this.spinSkip && best && performance.now() - this.spinStarted > SPIN_MIN_MS) {
         // Landed: stop and settle the dot under the reticle.
@@ -1204,6 +1223,45 @@ export class MapView {
       this.events.onTune(next);
       this.request();
     }
+  }
+
+  /** Where the reticle is on screen: the frame's centre, or Record Player's needle, which the arm swings over the record. */
+  private reticle(): [number, number] {
+    return this.isRecord() ? needleAt(this.w, this.h, this.lat, this.zoom) : [this.w / 2, this.h / 2];
+  }
+
+  /**
+   * Record Player: when a place on the needle's ring is within BRAKE_DEG of coming round to it, the record slows at an even
+   * rate to rest with that place under the needle, the arm swinging the little way that ring is off. True when it braked.
+   */
+  private brakeOnPlace(): boolean {
+    let at: Spot | null = null;
+    let least = Infinity;
+    for (const s of this.screen) {
+      const turn = turnToNeedle(this.w, this.h, this.lat, this.zoom, s.gx ?? s.x, s.gy ?? s.y, TUNE_RADIUS * 0.6);
+      if (turn === null) continue;
+      const ahead = turn > 358 ? 0 : turn;
+      if (ahead <= BRAKE_DEG && ahead < least) {
+        at = s;
+        least = ahead;
+      }
+    }
+    if (!at) return false;
+    this.stopSpin();
+    const lon0 = this.lon;
+    const lat0 = this.lat;
+    const dl = wrap(at.lon - lon0);
+    const { lon, lat } = at;
+    // Slowing evenly from the record's speed to rest takes twice the distance over the speed.
+    this.startAnim(Math.max(300, ((2 * Math.abs(dl)) / recordSpin()) * 1000), (t) => {
+      const k = 1 - (1 - t) * (1 - t);
+      this.lon = t >= 1 ? lon : wrap(lon0 + dl * k);
+      this.lat = lat0 + (lat - lat0) * k;
+      this.clampLat();
+    });
+    this.landing = [lon, lat];
+    this.events.onLand?.();
+    return true;
   }
 
   private pattern(kind: PatternKind, ink: string, ink2 = ink): CanvasPattern {

@@ -18749,7 +18749,6 @@ button.x-ch:focus-visible {
    tuned place's stories listed like its tracks (a time where a track's number would be, never a rank), and the word
    printed like an album's title on the front. Michroma for the faceplate's lettering, Jost for reading.
    ========================================================================== */
-.x-vinyl-label,
 .x-deck {
   display: none;
 }
@@ -18972,64 +18971,6 @@ button.x-ch:focus-visible {
   transform: translateY(1px);
   box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6a6e73;
 }
-/* The centre label, under the canvas, which leaves a hole for it; the canvas moves it with the record. */
-:root[data-theme="vinyl"] .x-vinyl-label {
-  display: block;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100px;
-  height: 100px;
-  transform-origin: 50px 50px;
-  pointer-events: none;
-}
-:root[data-theme="vinyl"] .x-vinyl-label[hidden] {
-  display: none;
-}
-.x-vinyl-label svg {
-  display: block;
-}
-.x-vinyl-paper {
-  fill: #f2e4c2;
-}
-.x-vinyl-band {
-  fill: #c9561c;
-}
-.x-vinyl-rule {
-  fill: none;
-  stroke: #8f3a14;
-  stroke-width: 0.8;
-}
-.x-vinyl-rule.thin {
-  stroke-width: 0.4;
-}
-.x-vinyl-name {
-  font-family: "Michroma", sans-serif;
-  font-size: 6.6px;
-  letter-spacing: 0.6px;
-  fill: #2a1d14;
-}
-.x-vinyl-date {
-  font-family: "Jost", sans-serif;
-  font-weight: 600;
-  font-size: 5px;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  fill: #6b3a1c;
-}
-.x-vinyl-speed {
-  font-family: "Michroma", sans-serif;
-  font-size: 7px;
-  fill: #c24e17;
-}
-.x-vinyl-spindle {
-  fill: #a7abaf;
-  stroke: #4a4d50;
-  stroke-width: 0.5;
-}
-.x-vinyl-spindle-top {
-  fill: #eef0f2;
-}
 /* The deck's own keys on the plinth: the platter's start and stop, and the speed switch. */
 :root[data-theme="vinyl"] .x-deck {
   display: flex;
@@ -19073,6 +19014,11 @@ button.x-ch:focus-visible {
   box-shadow: inset 0 1px 0 #fff, 0 2px 0 #6a6e73, 0 3px 5px rgba(0, 0, 0, 0.45);
   background: var(--vy-key);
   transform: none;
+}
+/* With reduced motion the record never turns, so the start key is switched off. */
+:root[data-theme="vinyl"] .x-deck-power:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 :root[data-theme="vinyl"] .key-btn {
   padding: 7px 10px 6px;

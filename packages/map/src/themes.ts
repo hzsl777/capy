@@ -2349,9 +2349,9 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Record Player, experimental: after the feel of a 1970s home turntable (src/map/vinyl.ts). Globe view is the
-  // record seen from above, the world on it round the North Pole at the spindle, turning under the tonearm whose
-  // needle is the reticle; Map view is the sleeve's back, printed in brown ink. Cream land on black vinyl, orange
+  // Record Player, experimental: after the feel of a 1970s home turntable (src/map/vinyl.ts). Globe view is the deck
+  // seen from above with the record turning on its platter, the world on it round the North Pole at the spindle, read
+  // by the tonearm whose needle is the reticle; Map view is the sleeve's back, printed in brown ink. Cream land on black vinyl, orange
   // label-like dots that read on the vinyl, the cream land and the sleeve's ink alike, sky blue for fresh reports.
   vinyl: {
     id: "vinyl",

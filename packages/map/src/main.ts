@@ -1866,6 +1866,7 @@ async function start() {
       armIdleSpin();
     },
     date: () => (state.file ? formatRunDate(editionDate(wordStatus(state.file).date)) : ""),
+    redraw: () => map.request(),
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
