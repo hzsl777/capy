@@ -1,0 +1,350 @@
+:root[data-theme="tactical"] {
+  color-scheme: dark;
+  --page: #1c1e1d;
+  --panel: #1f2220;
+  --ink: #ecece4;
+  --ink-2: #cfd1c7;
+  --muted: #a5a99e;
+  --rule: #414540;
+  --accent: #ff9d1e;
+  --on-accent: #1a1004;
+  --hover: rgba(255, 157, 30, 0.1);
+  --reticle: #f4f4ec;
+  --grain-opacity: 0.06;
+  --grain-blend: overlay;
+  --font-mast: "Teko", "Oswald", sans-serif;
+  --font-head: "Teko", "Oswald", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+
+/* ---- Tactical: an overhead radar in a HUD: greys and olive, orange accents, condensed capitals ---------------- */
+:root[data-theme="tactical"] body {
+  background: linear-gradient(to bottom, #202321, #161817);
+}
+:root[data-theme="tactical"] .masthead {
+  border-bottom: 2px solid #ff9d1e;
+  background: linear-gradient(to bottom, #242725, #1b1d1c);
+  box-shadow: 0 2px 0 #0c0d0c;
+}
+:root[data-theme="tactical"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  font-size: clamp(34px, 3.8vw, 50px);
+  line-height: 0.85;
+  letter-spacing: 0.06em;
+  color: #f4f4ec;
+  padding-top: 4px;
+}
+:root[data-theme="tactical"] .mast-title::before {
+  /* A slanted orange bar before the name, a HUD's accent. */
+  content: "";
+  display: inline-block;
+  width: 0.24em;
+  height: 0.62em;
+  margin-right: 0.28em;
+  background: #ff9d1e;
+  transform: skewX(-18deg);
+  vertical-align: 0.02em;
+}
+:root[data-theme="tactical"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b9bcb2;
+}
+:root[data-theme="tactical"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffb445;
+  background: linear-gradient(to right, rgba(255, 157, 30, 0.14), rgba(255, 157, 30, 0.02));
+  border: 0;
+  border-left: 4px solid #ff9d1e;
+  padding: 4px 14px 0;
+  line-height: 0.95;
+}
+:root[data-theme="tactical"] .telegram-word:hover,
+:root[data-theme="tactical"] .telegram-word:focus-visible {
+  background: linear-gradient(to right, rgba(255, 157, 30, 0.26), rgba(255, 157, 30, 0.06));
+  text-decoration: none;
+}
+:root[data-theme="tactical"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #ffb445;
+}
+:root[data-theme="tactical"] .telegram-kicker,
+:root[data-theme="tactical"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: #cfd1c7;
+}
+:root[data-theme="tactical"] .toolbar,
+:root[data-theme="tactical"] .timebar {
+  border-color: #0c0d0c;
+  background: #1d201e;
+}
+:root[data-theme="tactical"] .tool,
+:root[data-theme="tactical"] .pick select,
+:root[data-theme="tactical"] .menu > summary,
+:root[data-theme="tactical"] .chip,
+:root[data-theme="tactical"] .key-btn,
+:root[data-theme="tactical"] .key-close {
+  border: 1px solid #4a4f48;
+  border-radius: 0;
+  background: rgba(40, 44, 41, 0.92);
+  color: #ecece4;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="tactical"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+}
+:root[data-theme="tactical"] .tool[aria-pressed="true"],
+:root[data-theme="tactical"] .menu[open] > summary,
+:root[data-theme="tactical"] .chip[aria-pressed="true"],
+:root[data-theme="tactical"] .key-btn[aria-expanded="true"] {
+  background: #ff9d1e;
+  border-color: #ff9d1e;
+  color: #1a1004;
+}
+:root[data-theme="tactical"] .scale .step.on {
+  background: #ff9d1e;
+  color: #1a1004;
+}
+/* Behind the globe: dark glass with a faint grid, like the rest of the radar. */
+:root[data-theme="tactical"] .map {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45)),
+    repeating-linear-gradient(0deg, rgba(205, 210, 195, 0.05) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(205, 210, 195, 0.05) 0 1px, transparent 1px 40px),
+    #181a19;
+}
+:root[data-theme="tactical"] .zoom {
+  border: 1px solid #4a4f48;
+  background: rgba(24, 26, 25, 0.9);
+}
+:root[data-theme="tactical"] .zoom button {
+  color: #ecece4;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+:root[data-theme="tactical"] .zoom button + button {
+  border-top-color: #4a4f48;
+}
+/* A HUD's centre mark: four thin arms around a gap, outlined dark so it reads on land and sea. */
+:root[data-theme="tactical"] .crosshair {
+  --arm: 8px;
+  --weight: 2px;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+}
+/* Corner brackets around the map, and the clock at the top: time since the day's map was built. */
+:root[data-theme="tactical"] .x-hud {
+  display: block;
+  position: absolute;
+  inset: 8px;
+  z-index: 2;
+  pointer-events: none;
+  --c: rgba(236, 236, 228, 0.55);
+  background:
+    linear-gradient(var(--c), var(--c)) left top / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left top / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 2px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 22px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 2px 22px no-repeat;
+}
+:root[data-theme="tactical"] .x-round {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 26px 5px;
+  background: rgba(18, 20, 19, 0.86);
+  border-bottom: 2px solid #ff9d1e;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 14px 100%);
+}
+:root[data-theme="tactical"] .x-round-time {
+  font: 600 32px/0.9 var(--font-mast);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4ec;
+  min-width: 4.6em;
+  text-align: center;
+  padding-top: 3px;
+}
+:root[data-theme="tactical"] .x-round-note {
+  font: 600 10px/1.2 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffb445;
+}
+/* The feed: the newest headlines in the corner, newest on top, text only. */
+:root[data-theme="tactical"] .x-feed {
+  display: block;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: min(430px, calc(50% - 110px));
+}
+:root[data-theme="tactical"] .x-feed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+:root[data-theme="tactical"] .x-feed-list li {
+  max-width: 100%;
+}
+:root[data-theme="tactical"] .x-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 3px 9px 2px;
+  border: 0;
+  border-right: 3px solid #ff9d1e;
+  background: rgba(16, 18, 17, 0.8);
+  color: #ecece4;
+  font: 500 14px/1.25 var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+:root[data-theme="tactical"] .x-feed-item:hover {
+  background: rgba(40, 36, 28, 0.92);
+}
+:root[data-theme="tactical"] .x-feed-item b {
+  flex: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffb445;
+}
+:root[data-theme="tactical"] .x-feed-sep {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 5px solid #8e9388;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+:root[data-theme="tactical"] .x-feed-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-theme="tactical"] .key-btn {
+  top: 18px;
+  left: 18px;
+}
+:root[data-theme="tactical"] .panel,
+:root[data-theme="tactical"] .menu-body,
+:root[data-theme="tactical"] .key-pop,
+:root[data-theme="tactical"] dialog {
+  background: #1f2220;
+  border: 1px solid #3a3e39;
+  box-shadow: none;
+}
+:root[data-theme="tactical"] .panel {
+  border-top: 0;
+  border-left: 1px solid #0c0d0c;
+}
+:root[data-theme="tactical"] .key-pop {
+  --key-bg: #262927;
+}
+:root[data-theme="tactical"] .panel-title,
+:root[data-theme="tactical"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: #f4f4ec;
+  padding-top: 4px;
+}
+:root[data-theme="tactical"] .dateline {
+  border-bottom: 2px solid #ff9d1e;
+}
+:root[data-theme="tactical"] .rule-head {
+  font-family: var(--font-ui);
+  color: #ffb445;
+  border-color: #3a3e39;
+  text-align: left;
+}
+:root[data-theme="tactical"] .headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+}
+:root[data-theme="tactical"] .meta,
+:root[data-theme="tactical"] .dateline .coords,
+:root[data-theme="tactical"] .count {
+  font-family: var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="tactical"] .story:hover {
+  background: rgba(255, 157, 30, 0.07);
+}
+@media (max-width: 760px) {
+  :root[data-theme="tactical"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.62)));
+  }
+  :root[data-theme="tactical"] .panel {
+    border-left: 0;
+    border-top: 2px solid #0c0d0c;
+  }
+  :root[data-theme="tactical"] .x-round {
+    padding: 3px 18px 4px;
+  }
+  :root[data-theme="tactical"] .x-round-time {
+    font-size: 24px;
+  }
+  :root[data-theme="tactical"] .x-round-note {
+    font-size: 9px;
+  }
+  /* On a phone the feed moves to the lower left, three lines, clear of the clock and the zoom. */
+  :root[data-theme="tactical"] .x-feed {
+    top: auto;
+    right: auto;
+    left: 12px;
+    bottom: 12px;
+    width: calc(100% - 76px);
+  }
+  :root[data-theme="tactical"] .x-feed-list {
+    align-items: flex-start;
+  }
+  :root[data-theme="tactical"] .x-feed-list li:nth-child(n + 4) {
+    display: none;
+  }
+  :root[data-theme="tactical"] .x-feed-list.short li:nth-child(n + 2) {
+    display: none;
+  }
+  :root[data-theme="tactical"] .x-feed-item {
+    font-size: 12px;
+    border-right: 0;
+    border-left: 3px solid #ff9d1e;
+  }
+}

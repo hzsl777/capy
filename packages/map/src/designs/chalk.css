@@ -1,0 +1,200 @@
+:root[data-theme="chalk"] {
+  color-scheme: dark;
+  --page: #1f2c25;
+  --panel: #24332b;
+  --ink: #f2efe6;
+  --ink-2: #dcd8cc;
+  --muted: #b9b6aa;
+  --rule: rgba(242, 239, 230, 0.55);
+  --accent: #ffd84d;
+  --on-accent: #1f2c25;
+  --hover: rgba(242, 239, 230, 0.07);
+  --reticle: #ff9ec4;
+  --grain-opacity: 0.16;
+  --grain-blend: screen;
+  --font-mast: "Fredericka the Great", "Chalkduster", cursive;
+  --font-head: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-body: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-ui: "Patrick Hand", "Comic Sans MS", cursive;
+}
+
+/* ---- Chalkboard: a classroom board in a wooden frame, a chalk tray, chalk lettering, boxes drawn by hand ---- */
+:root[data-theme="chalk"] {
+  /* Grain that lets the board show through chalk: speckled holes, more solid than not. */
+  --chalk-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -2.2 2.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* A box drawn by hand: each corner rounds a different amount. */
+  --hand-box: 255px 14px 225px 14px / 14px 225px 14px 255px;
+}
+:root[data-theme="chalk"] body {
+  background:
+    radial-gradient(ellipse 40% 30% at 20% 10%, rgba(230, 236, 226, 0.06), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(230, 236, 226, 0.05), transparent 70%),
+    var(--page);
+}
+:root[data-theme="chalk"] .masthead {
+  border-bottom: 0;
+  background:
+    linear-gradient(to right, transparent 2%, rgba(242, 239, 230, 0.35) 2% 98%, transparent 98%) left bottom 4px / 100% 1.5px no-repeat;
+}
+:root[data-theme="chalk"] .toolbar,
+:root[data-theme="chalk"] .timebar {
+  border-color: rgba(242, 239, 230, 0.25);
+}
+/* Chalk lettering: dusty white, the board's grain showing through. */
+:root[data-theme="chalk"] .mast-title,
+:root[data-theme="chalk"] .telegram-word,
+:root[data-theme="chalk"] .telegram-big,
+:root[data-theme="chalk"] .panel-title,
+:root[data-theme="chalk"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #f4f1e8;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.55), 0 0 8px rgba(255, 255, 255, 0.12);
+  -webkit-mask-image: var(--chalk-mask);
+  mask-image: var(--chalk-mask);
+}
+:root[data-theme="chalk"] .mast-title {
+  font-size: clamp(30px, 3.6vw, 44px);
+}
+:root[data-theme="chalk"] .mast-tag {
+  font-style: normal;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+/* The teacher boxes the day's word. */
+:root[data-theme="chalk"] .telegram-word {
+  font-size: min(84px, calc(36vw / var(--len, 8)));
+  padding: 4px 18px 2px;
+  border: 2.5px solid rgba(244, 241, 232, 0.85);
+  border-radius: var(--hand-box);
+  color: #ffe98a;
+}
+:root[data-theme="chalk"] .telegram-word:hover,
+:root[data-theme="chalk"] .telegram-word:focus-visible {
+  background: rgba(244, 241, 232, 0.06);
+  text-decoration: none;
+}
+:root[data-theme="chalk"] .telegram-kicker,
+:root[data-theme="chalk"] .telegram-date {
+  font-size: 14px;
+  color: #ffd84d;
+  letter-spacing: 0.12em;
+}
+:root[data-theme="chalk"] .telegram-note,
+:root[data-theme="chalk"] .meta,
+:root[data-theme="chalk"] .count {
+  font-style: normal;
+}
+:root[data-theme="chalk"] .telegram-side .telegram-note {
+  font-size: 14px;
+}
+/* Buttons are boxes drawn in chalk. */
+:root[data-theme="chalk"] .tool,
+:root[data-theme="chalk"] .pick select,
+:root[data-theme="chalk"] .menu > summary,
+:root[data-theme="chalk"] .chip,
+:root[data-theme="chalk"] .key-btn,
+:root[data-theme="chalk"] .key-close,
+:root[data-theme="chalk"] .zoom {
+  border: 2px solid rgba(244, 241, 232, 0.8);
+  border-radius: var(--hand-box);
+  background: rgba(36, 51, 43, 0.9);
+  color: #f4f1e8;
+  font-size: 16px;
+}
+:root[data-theme="chalk"] .pick select option {
+  background: #24332b;
+}
+:root[data-theme="chalk"] .zoom button {
+  color: #f4f1e8;
+}
+:root[data-theme="chalk"] .zoom button + button {
+  border-top: 2px dashed rgba(244, 241, 232, 0.5);
+}
+:root[data-theme="chalk"] .tool.quiet {
+  border-color: transparent;
+  background: transparent;
+}
+:root[data-theme="chalk"] .tool[aria-pressed="true"],
+:root[data-theme="chalk"] .menu[open] > summary,
+:root[data-theme="chalk"] .chip[aria-pressed="true"],
+:root[data-theme="chalk"] .key-btn[aria-expanded="true"],
+:root[data-theme="chalk"] .scale .step.on {
+  background: repeating-linear-gradient(-45deg, rgba(255, 216, 77, 0.35) 0 2px, transparent 2px 5px), rgba(36, 51, 43, 0.9);
+  border-color: #ffd84d;
+  color: #ffe98a;
+}
+:root[data-theme="chalk"] .scale {
+  border-color: rgba(244, 241, 232, 0.6);
+  border-radius: var(--hand-box);
+}
+/* A wooden frame round the board, with a chalk tray along its bottom holding three sticks of chalk and an eraser. */
+:root[data-theme="chalk"] .map {
+  margin: 8px 10px 6px;
+  border: 12px solid transparent;
+  border-bottom-width: 30px;
+  border-radius: 4px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='26'%3E%3Crect x='6' y='13' width='62' height='8' rx='4' fill='%23f4f1e8'/%3E%3Crect x='6' y='13' width='62' height='3' rx='1.5' fill='%23ffffff' opacity='.6'/%3E%3Crect x='78' y='14' width='36' height='7' rx='3.5' fill='%23ffd84d'/%3E%3Crect x='122' y='14.5' width='22' height='6.5' rx='3.2' fill='%23ff9ec4'/%3E%3Crect x='160' y='3' width='80' height='11' rx='2.5' fill='%238a5530'/%3E%3Crect x='160' y='3' width='80' height='3' rx='1.5' fill='%23b27842'/%3E%3Crect x='161' y='13' width='78' height='9' rx='1.5' fill='%239aa3a8'/%3E%3Cpath d='M164 16H236M164 19H236' stroke='%23788287' stroke-width='1'/%3E%3C/svg%3E") right 36px bottom 1px / 250px 26px no-repeat border-box,
+    linear-gradient(to bottom, #5a3418 0 2px, #b27842 2px 5px, #8a5530 5px 100%) left bottom / 100% 30px no-repeat border-box,
+    repeating-linear-gradient(90deg, rgba(60, 30, 10, 0.15) 0 1px, transparent 1px 11px) border-box,
+    linear-gradient(135deg, #9a6236, #6f4222) border-box;
+  box-shadow: inset 0 0 0 2px rgba(20, 10, 0, 0.5), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+/* Panels are a smaller board with a line of chalk round them. */
+:root[data-theme="chalk"] .panel,
+:root[data-theme="chalk"] .menu-body,
+:root[data-theme="chalk"] .key-pop,
+:root[data-theme="chalk"] dialog {
+  background: var(--panel);
+  border: 2px solid rgba(244, 241, 232, 0.7);
+  border-radius: var(--hand-box);
+  color: var(--ink);
+}
+:root[data-theme="chalk"] .panel {
+  margin: 10px 10px 10px 0;
+}
+:root[data-theme="chalk"] .place-name,
+:root[data-theme="chalk"] .panel-title {
+  font-size: 30px;
+  color: #ffd84d;
+}
+:root[data-theme="chalk"] .dateline {
+  border-bottom: 2px dashed rgba(244, 241, 232, 0.5);
+}
+:root[data-theme="chalk"] .rule-head {
+  color: #ff9ec4;
+  border-color: rgba(244, 241, 232, 0.4);
+}
+:root[data-theme="chalk"] .headline {
+  font-size: 19px;
+  font-weight: 400;
+}
+:root[data-theme="chalk"] .related {
+  color: #ffd84d;
+}
+:root[data-theme="chalk"] input[type="range"] {
+  accent-color: #f4f1e8;
+}
+@media (max-width: 760px) {
+  :root[data-theme="chalk"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.7)));
+  }
+  :root[data-theme="chalk"] .map {
+    margin: 6px 6px 4px;
+    border-width: 8px;
+  }
+  :root[data-theme="chalk"] .map {
+    border-bottom-width: 26px;
+  }
+  :root[data-theme="chalk"] .panel {
+    margin: 4px 6px 6px;
+  }
+  :root[data-theme="chalk"] .tool,
+  :root[data-theme="chalk"] .pick select,
+  :root[data-theme="chalk"] .menu > summary {
+    font-size: 15px;
+  }
+}

@@ -733,6 +733,8 @@ function activate() {
   const bar = h("div", { class: "dk-menubar" });
   map.body.append(bar);
   adopt($("view-select")?.closest(".pick") ?? null, bar);
+  // Find a place sits in the map window's menu bar with Map or Globe.
+  adopt($("search-btn"), bar);
   bar.append(reportsBtn);
   adopt($("banner"), map.body);
   adopt($("map"), map.body);

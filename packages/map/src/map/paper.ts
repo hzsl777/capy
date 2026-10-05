@@ -12,7 +12,7 @@
 import { geoDistance, geoPath, type GeoProjection, type GeoStream } from "d3-geo";
 import { pathContext, type SurfaceFrame } from "./surface.ts";
 
-/** The notebook's colours. style.css repeats them as --nb-* custom properties, and a test checks it does. */
+/** The notebook's colours. src/designs/paper.css repeats them as --nb-* custom properties, and a test checks it does. */
 export const PAPER = "#fcfcf8";
 export const RULE = "#bdd5ef";
 export const MARGIN = "#ec8b9c";

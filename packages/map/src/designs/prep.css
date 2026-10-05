@@ -1,0 +1,252 @@
+:root[data-theme="prep"] .telegram .importance {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] {
+  color-scheme: light;
+  --page: #f4efe2;
+  --panel: #fbf8f0;
+  --ink: #1d2b4d;
+  --ink-2: #34405f;
+  --muted: #555c6c;
+  --rule: #1d2b4d;
+  --accent: #2f5b3f;
+  --on-accent: #fbf8f0;
+  --hover: rgba(29, 43, 77, 0.07);
+  --reticle: #1d2b4d;
+  --grain-opacity: 0.25;
+  --grain-blend: multiply;
+  --navy: #1d2b4d;
+  --club-red: #b3262e;
+  --hunter: #2f5b3f;
+  --gold: #c9a043;
+  /* A tartan: navy and green blocks crossed by a red and a cream line. */
+  --tartan:
+    repeating-linear-gradient(90deg, transparent 0 17px, rgba(179, 38, 46, 0.9) 17px 19px, transparent 19px 22px, rgba(244, 239, 226, 0.7) 22px 23px, transparent 23px 28px),
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(179, 38, 46, 0.6) 7px 8px, transparent 8px 16px),
+    repeating-linear-gradient(0deg, rgba(47, 91, 63, 0.55) 0 5px, transparent 5px 10px, rgba(244, 239, 226, 0.25) 10px 11px, transparent 11px 16px),
+    repeating-linear-gradient(90deg, #1d2b4d 0 8px, #2f5b3f 8px 16px, #1d2b4d 16px 28px),
+    #1d2b4d;
+  --font-mast: "Playfair Display", "Didot", Georgia, serif;
+  --font-head: "Playfair Display", "Didot", Georgia, serif;
+  --font-body: "Libre Baskerville", Georgia, serif;
+  --font-ui: "Libre Baskerville", Georgia, serif;
+}
+
+/* ---- Country Club: navy, cream and hunter green, a tartan band, a crest, pennants, a desk globe ---------- */
+:root[data-theme="prep"] body {
+  background:
+    repeating-linear-gradient(0deg, rgba(29, 43, 77, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(29, 43, 77, 0.035) 0 1px, transparent 1px 3px),
+    var(--page);
+}
+/* A navy masthead over a band of tartan. */
+:root[data-theme="prep"] .masthead {
+  background: linear-gradient(var(--navy), var(--navy)) top / 100% calc(100% - 16px) no-repeat, var(--tartan);
+  border-bottom: 0;
+  padding-bottom: 26px;
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  align-items: center;
+}
+:root[data-theme="prep"] .x-crest {
+  display: block;
+  grid-row: 1 / 3;
+  width: 48px;
+  height: 56px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4));
+}
+:root[data-theme="prep"] .mast-title {
+  font-weight: 700;
+  color: #f4efe2;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="prep"] .mast-tag {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .telegram-word,
+:root[data-theme="prep"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="prep"] .telegram-word {
+  color: #f4efe2;
+  border-bottom: 3px double var(--club-red);
+}
+:root[data-theme="prep"] .telegram-word:hover,
+:root[data-theme="prep"] .telegram-word:focus-visible {
+  background: rgba(244, 239, 226, 0.08);
+}
+:root[data-theme="prep"] .telegram-big {
+  color: var(--navy);
+}
+:root[data-theme="prep"] .telegram-kicker {
+  color: var(--gold);
+}
+:root[data-theme="prep"] .telegram-date {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .masthead .telegram-note {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .masthead .scale {
+  border-color: rgba(244, 239, 226, 0.5);
+}
+:root[data-theme="prep"] .masthead .scale .step {
+  color: #d8cfb6;
+}
+:root[data-theme="prep"] .masthead .scale .step + .step {
+  border-left-color: rgba(244, 239, 226, 0.35);
+}
+:root[data-theme="prep"] .scale .step.on {
+  background: var(--hunter);
+  color: #f4efe2;
+}
+:root[data-theme="prep"] #about-btn {
+  color: inherit;
+}
+/* Buttons in navy with a gold inner line, like a blazer's patch; the one that is on turns hunter green. */
+/* The toolbar is a cream cable knit: two twisted cables and a rib of purl stitches between. */
+:root[data-theme="prep"] .toolbar {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='24'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M4 0C4 6 12 6 12 12S4 18 4 24' stroke='%23b9ad8f' stroke-width='3.2'/%3E%3Cpath d='M12 0C12 6 4 6 4 12S12 18 12 24' stroke='%23fbf6ea' stroke-width='3.2'/%3E%3Cpath d='M12 0C12 6 4 6 4 12S12 18 12 24' stroke='%23cfc3a5' stroke-width='1' stroke-dasharray='1 3'/%3E%3Cpath d='M20 1V23M24 3V21' stroke='%23d3c8ab' stroke-width='1.6' stroke-dasharray='2 2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 28px 24px repeat,
+    #efe8d6;
+  border-bottom: 1px solid var(--navy);
+}
+:root[data-theme="prep"] .tool,
+:root[data-theme="prep"] .pick select,
+:root[data-theme="prep"] .menu > summary,
+:root[data-theme="prep"] .chip,
+:root[data-theme="prep"] .key-btn,
+:root[data-theme="prep"] .key-close {
+  border: 1px solid var(--navy);
+  border-radius: 2px;
+  background: var(--navy);
+  color: #f4efe2;
+  box-shadow: inset 0 0 0 2px var(--navy), inset 0 0 0 3px rgba(201, 160, 67, 0.7);
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="prep"] .pick::after {
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .tool:hover,
+:root[data-theme="prep"] .pick select:hover,
+:root[data-theme="prep"] .menu > summary:hover,
+:root[data-theme="prep"] .chip:hover {
+  background: #2a3b63;
+}
+:root[data-theme="prep"] .tool.quiet {
+  background: transparent;
+  color: var(--navy);
+  box-shadow: none;
+  border-color: transparent;
+}
+:root[data-theme="prep"] .masthead .tool.quiet {
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .tool[aria-pressed="true"],
+:root[data-theme="prep"] .menu[open] > summary,
+:root[data-theme="prep"] .chip[aria-pressed="true"],
+:root[data-theme="prep"] .key-btn[aria-expanded="true"],
+:root[data-theme="prep"] .tool.primary {
+  background: var(--hunter);
+  border-color: var(--hunter);
+  box-shadow: inset 0 0 0 2px var(--hunter), inset 0 0 0 3px rgba(201, 160, 67, 0.7);
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .zoom {
+  border: 1px solid var(--navy);
+  background: var(--navy);
+}
+:root[data-theme="prep"] .zoom button {
+  color: #f4efe2;
+}
+:root[data-theme="prep"] .zoom button + button {
+  border-top-color: var(--gold);
+}
+/* The map sits in a grosgrain ribbon of navy with a red line; behind the desk globe, a green library wall. */
+:root[data-theme="prep"] .map {
+  margin: 10px;
+  box-shadow: 0 0 0 3px var(--navy), 0 0 0 5px var(--club-red), 0 0 0 8px var(--navy);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 16px),
+    radial-gradient(ellipse at 50% 35%, #33624a, #1b3827 75%);
+}
+/* The panel is oxford cloth, with plain pennants on a cord across its top. */
+:root[data-theme="prep"] .panel {
+  margin: 10px 10px 10px 4px;
+  border: 1px solid var(--navy);
+  padding-top: 34px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='24'%3E%3Cpath d='M0 3Q42 9 84 3' fill='none' stroke='%237a6a4a' stroke-width='1.2'/%3E%3Cpath d='M4 4.2L18 5.6L11 21Z' fill='%231d2b4d'/%3E%3Cpath d='M25 6.2L39 6.9L32 22Z' fill='%23b3262e'/%3E%3Cpath d='M46 6.9L60 6.2L53 22Z' fill='%232f5b3f'/%3E%3Cpath d='M67 5.6L81 4.2L74 21Z' fill='%23f4efe2' stroke='%23c9a043' stroke-width='0.8'/%3E%3C/svg%3E") left top 4px / 84px 24px repeat-x,
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 150, 190, 0.1) 0 1px, transparent 1px 3px),
+    #eef3f9;
+}
+:root[data-theme="prep"] .panel.framed {
+  padding-top: 0;
+}
+:root[data-theme="prep"] .panel-title,
+:root[data-theme="prep"] .place-name {
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 30px;
+  color: var(--navy);
+}
+:root[data-theme="prep"] .dateline {
+  border-bottom: 3px double var(--navy);
+}
+:root[data-theme="prep"] .rule-head {
+  font-variant: small-caps;
+  text-transform: none;
+  letter-spacing: 0.08em;
+  border-top: 2px solid var(--club-red);
+  border-bottom: 2px solid var(--hunter);
+}
+:root[data-theme="prep"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+}
+:root[data-theme="prep"] .related,
+:root[data-theme="prep"] .cite {
+  color: var(--club-red);
+}
+:root[data-theme="prep"] .menu-body,
+:root[data-theme="prep"] .key-pop,
+:root[data-theme="prep"] dialog {
+  border: 1px solid var(--navy);
+  box-shadow: 0 0 0 3px var(--panel), 0 0 0 4px var(--navy), 4px 6px 14px rgba(29, 43, 77, 0.25);
+}
+:root[data-theme="prep"] .timebar {
+  border-top: 0;
+  padding-top: 13px;
+  background: linear-gradient(#efe8d6, #efe8d6) bottom / 100% calc(100% - 6px) no-repeat, var(--tartan);
+}
+:root[data-theme="prep"] .slider input {
+  accent-color: var(--hunter);
+}
+@media (max-width: 760px) {
+  :root[data-theme="prep"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="prep"] .map {
+    margin: 9px;
+  }
+  :root[data-theme="prep"] .brand {
+    justify-content: center;
+  }
+  :root[data-theme="prep"] .x-crest {
+    width: 32px;
+    height: 38px;
+  }
+}

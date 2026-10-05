@@ -1,5 +1,5 @@
 // Lobster's one change of how the site is used: hauling a trap. The panel is the pot, and when a place is tuned it comes
-// up from the water (a short rise in CSS, `.panel.x-haul` in style.css). Only the panel's position moves, for under a
+// up from the water (a short rise in CSS, `.panel.x-haul` in src/designs/lobster.css). Only the panel's position moves, for under a
 // second, and never for readers who ask for reduced motion. Tuning, dragging and the snap to the nearest place are the
 // map's own and are not touched; this module only watches which place is tuned.
 

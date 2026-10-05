@@ -60,7 +60,7 @@ class PagerBar {
 }
 
 /**
- * One paged box: the element laid out in columns one page wide (style.css gives it the columns, with a gap as wide
+ * One paged box: the element laid out in columns one page wide (src/designs/paper.css gives it the columns, with a gap as wide
  * as its left and right padding together, so a page is exactly the box's own width), shown a page at a time by
  * scrolling it sideways. It can't be scrolled by hand; only a turn, a link inside it or focus moves it, and the page
  * always snaps whole.

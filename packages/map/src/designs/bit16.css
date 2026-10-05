@@ -1,0 +1,76 @@
+:root[data-theme="bit16"] {
+  color-scheme: dark;
+  --page: #0c1236;
+  --panel: #1a2a78;
+  --ink: #f8f8f8;
+  --ink-2: #dce2ff;
+  --muted: #b4bff0;
+  --rule: #dfe5ff;
+  --accent: #f8d030;
+  --on-accent: #0c1236;
+  --hover: rgba(248, 248, 248, 0.12);
+  --reticle: #f8f8f8;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Trebuchet MS", sans-serif;
+  --font-head: "DotGothic16", "Trebuchet MS", sans-serif;
+  --font-body: "DotGothic16", "Trebuchet MS", sans-serif;
+  --font-ui: "DotGothic16", "Trebuchet MS", sans-serif;
+}
+:root[data-theme="bit16"] .telegram .importance .imp-step {
+  font-weight: 400;
+}
+
+/* ---- Overworld: blue windows with white frames, a pointer on the open choice ------ */
+:root[data-theme="bit16"] body {
+  background: linear-gradient(to bottom, #0c1236, #18206a);
+}
+:root[data-theme="bit16"] .mast-title {
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #0c1236;
+}
+:root[data-theme="bit16"] .telegram-word,
+:root[data-theme="bit16"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 3px 3px 0 #0c1236, 0 0 14px rgba(120, 184, 248, 0.6);
+  border-bottom: 0;
+}
+:root[data-theme="bit16"] .panel,
+:root[data-theme="bit16"] .menu-body,
+:root[data-theme="bit16"] .key-pop {
+  background: linear-gradient(to bottom, #3050c8 0%, #1a2a88 45%, #0e1860 100%);
+  border: 3px solid #eef1ff;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px #0c1236, 0 0 0 2px #0c1236;
+}
+:root[data-theme="bit16"] .panel {
+  margin: 6px;
+}
+:root[data-theme="bit16"] .tool,
+:root[data-theme="bit16"] .pick select,
+:root[data-theme="bit16"] .menu > summary,
+:root[data-theme="bit16"] .chip,
+:root[data-theme="bit16"] .zoom button,
+:root[data-theme="bit16"] .key-btn,
+:root[data-theme="bit16"] .key-close {
+  background: linear-gradient(to bottom, #3050c8, #0e1860);
+  border: 2px solid #eef1ff;
+  border-radius: 6px;
+  color: var(--ink);
+}
+/* The menu pointer: a small white hand-cursor triangle beside whatever is open or pressed. */
+:root[data-theme="bit16"] .menu[open] > summary::before,
+:root[data-theme="bit16"] .key-btn[aria-expanded="true"]::before,
+:root[data-theme="bit16"] .tool[aria-pressed="true"]::before {
+  content: "";
+  display: inline-block;
+  margin-right: 6px;
+  border: 5px solid transparent;
+  border-left: 7px solid #ffffff;
+  border-right: 0;
+  vertical-align: 0;
+}

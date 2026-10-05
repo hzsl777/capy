@@ -41,11 +41,12 @@ import {
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 import { samplePlaces } from "./sample.ts";
 import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
+import { cssFor } from "./css.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
 const FILES = BASEMAPS;
-const css = readFileSync(here("../src/style.css"), "utf8");
+const css = cssFor("herbarium");
 const start = css.indexOf("---- Garden (id herbarium");
 const next = css.indexOf("\n/* ---- ", start + 10);
 const gardenCss = css.slice(start, next < 0 ? undefined : next);

@@ -25,7 +25,7 @@ export const LAND_MS = 900;
 export const STAGGER_MS = 45;
 
 /**
- * A tile's upper half and its falling flap (style.css, kept in step by test/flap.test.ts): nearly the same dark grey,
+ * A tile's upper half and its falling flap (src/designs/flap.css, kept in step by test/flap.test.ts): nearly the same dark grey,
  * so a flip is a fold over the letter and never a change of light.
  */
 export const TILE_TOP = "#2d383b";

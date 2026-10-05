@@ -1,0 +1,249 @@
+:root[data-theme="realm"] {
+  color-scheme: dark;
+  --page: #2e2a26;
+  --panel: #2a1c10;
+  --ink: #f3e5b8;
+  --ink-2: #e8d7a2;
+  --muted: #c7b68a;
+  --rule: #6e5634;
+  --accent: #f2c94c;
+  --on-accent: #2a1a08;
+  --hover: rgba(242, 201, 76, 0.1);
+  --reticle: #fff1c0;
+  --grain-opacity: 0.18;
+  --grain-blend: overlay;
+  --font-mast: "MedievalSharp", "Palatino Linotype", serif;
+  --font-head: "MedievalSharp", "Palatino Linotype", serif;
+  --font-body: "Alegreya", Georgia, serif;
+  --font-ui: "Alegreya", Georgia, serif;
+  /* Carved stone blocks in two courses with offset joints, drawn here, no pictures borrowed. */
+  --realm-stone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='64'%3E%3Crect width='96' height='64' fill='%234a4640'/%3E%3Crect x='1' y='1' width='46' height='30' fill='%23524d46'/%3E%3Crect x='49' y='1' width='46' height='30' fill='%2346423c'/%3E%3Crect x='-23' y='33' width='46' height='30' fill='%234e4a43'/%3E%3Crect x='25' y='33' width='46' height='30' fill='%2355504a'/%3E%3Crect x='73' y='33' width='46' height='30' fill='%234e4a43'/%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.28'%3E%3Cpath d='M0 32.5H96M0 .5H96M48.5 0V32M24.5 32V64M72.5 32V64'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.08'%3E%3Cpath d='M1 1.5H47M49 1.5H95M25 33.5H71M73 33.5H96M0 33.5H23'/%3E%3C/g%3E%3C/svg%3E");
+  /* Dark planks with a grain line and a seam. */
+  --realm-wood: repeating-linear-gradient(90deg, #4c3019 0 140px, #2e1d0e 140px 142px, #563720 142px 300px, #2e1d0e 300px 302px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 5px);
+  /* Four brass rivets, one in each corner. */
+  --realm-rivets:
+    radial-gradient(circle at 9px 9px, #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at 9px calc(100% - 9px), #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #fff0b8 0 1.5px, #c99a3c 2.2px 3.4px, #3a2608 3.8px, transparent 4.6px);
+}
+
+/* ---- Old Realm: carved stone, dark wood and brass rivets; a quest log for the panel -------------------- */
+:root[data-theme="realm"] body {
+  background: radial-gradient(ellipse 90% 70% at 50% 30%, rgba(80, 74, 66, 0.55), transparent 75%), var(--realm-stone) 0 0 / 96px 64px, #3a3631;
+}
+/* The masthead is a slab of carved stone on a wooden beam, held by brass rivets. */
+:root[data-theme="realm"] .masthead {
+  border-bottom: 0;
+  background:
+    var(--realm-rivets),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.18)),
+    var(--realm-stone) 0 0 / 96px 64px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 6px 0 #3a2413, 0 7px 0 #1c1108, 0 9px 8px rgba(0, 0, 0, 0.45);
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="realm"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(30px, 3.6vw, 46px);
+  letter-spacing: 0.02em;
+  color: #f6d772;
+  /* Gilded letters cut into the stone. */
+  text-shadow: 0 -1px 0 #fff3bf, 0 2px 0 #5a3a10, 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+:root[data-theme="realm"] .mast-tag {
+  font-style: italic;
+  font-size: 14px;
+  color: #f3e7c6;
+  text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.8);
+}
+/* The word is a gilded plaque on a dark board. */
+:root[data-theme="realm"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #ffd65c;
+  text-shadow: 0 2px 0 #3a2208, 0 0 10px rgba(255, 200, 80, 0.35);
+  background: linear-gradient(to bottom, rgba(40, 25, 12, 0.92), rgba(26, 16, 8, 0.92));
+  border: 2px solid #b08a3e;
+  border-radius: 4px;
+  padding: 4px 16px 2px;
+  box-shadow: inset 0 0 0 1px #3a2608, 0 0 0 2px #2a1a0b, 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="realm"] .telegram-word:hover,
+:root[data-theme="realm"] .telegram-word:focus-visible {
+  background: linear-gradient(to bottom, rgba(64, 40, 18, 0.95), rgba(36, 22, 10, 0.95));
+  text-decoration: none;
+}
+:root[data-theme="realm"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffd65c;
+}
+:root[data-theme="realm"] .telegram-kicker,
+:root[data-theme="realm"] .telegram-date {
+  color: #f3e7c6;
+  text-shadow: 0 1px 2px #000;
+}
+:root[data-theme="realm"] .telegram-side .telegram-note,
+:root[data-theme="realm"] .telegram-status {
+  color: #bff3f8;
+  text-shadow: 0 1px 2px #000;
+}
+:root[data-theme="realm"] .toolbar,
+:root[data-theme="realm"] .timebar {
+  border: 0;
+  background: var(--realm-wood);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+  color: #fff4cf;
+}
+:root[data-theme="realm"] .timebar {
+  border-top: 2px solid #1c1108;
+}
+:root[data-theme="realm"] .toolbar {
+  border-bottom: 2px solid #1c1108;
+}
+/* Buttons are small carved stones; pressed, they turn to brass. */
+:root[data-theme="realm"] .tool,
+:root[data-theme="realm"] .pick select,
+:root[data-theme="realm"] .menu > summary,
+:root[data-theme="realm"] .chip,
+:root[data-theme="realm"] .key-btn,
+:root[data-theme="realm"] .key-close {
+  border: 1px solid #1f1c19;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #8a857b, #5c5850);
+  color: #fff6d8;
+  font-weight: 700;
+  text-shadow: 0 1px 1px #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="realm"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+:root[data-theme="realm"] .tool[aria-pressed="true"],
+:root[data-theme="realm"] .menu[open] > summary,
+:root[data-theme="realm"] .chip[aria-pressed="true"],
+:root[data-theme="realm"] .key-btn[aria-expanded="true"] {
+  background: linear-gradient(to bottom, #f5d878, #b88a30);
+  color: #2a1a08;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+/* Behind the minimap and the globe: the same stone wall, lit in the middle. */
+:root[data-theme="realm"] .map {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 230, 170, 0.1), transparent 60%), var(--realm-stone) 0 0 / 96px 64px, #3a3631;
+}
+:root[data-theme="realm"] .map[data-view="2d"] .x-ring {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+:root[data-theme="realm"] .x-ring svg {
+  display: block;
+}
+/* Two round stone buttons for the zoom. */
+:root[data-theme="realm"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="realm"] .zoom button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #b08a3e;
+  color: #fff6d8;
+  font-weight: 700;
+  text-shadow: 0 1px 1px #000;
+  background: radial-gradient(circle at 40% 35%, #8f8a80, #4d4943 75%);
+  box-shadow: 0 0 0 1px #1f1c19, 0 2px 4px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="realm"] .zoom button + button {
+  border-top: 2px solid #b08a3e;
+}
+:root[data-theme="realm"] .crosshair {
+  filter: drop-shadow(0 0 1px #2a1a08) drop-shadow(0 0 1px #2a1a08) drop-shadow(0 1px 1px #000);
+}
+/* The panel is a quest log: dark translucent brown in a wooden frame with a brass line and rivets, yellow and cyan
+   text. */
+:root[data-theme="realm"] .panel,
+:root[data-theme="realm"] .menu-body,
+:root[data-theme="realm"] .key-pop,
+:root[data-theme="realm"] dialog {
+  background: var(--realm-rivets), linear-gradient(rgba(42, 28, 16, 0.9), rgba(30, 19, 10, 0.93));
+  border: 3px solid #5a3b1e;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #1c1108, inset 0 0 0 1px #c9a049, inset 0 0 26px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: var(--ink);
+}
+:root[data-theme="realm"] .panel {
+  margin: 0 8px 8px 0;
+}
+/* The About dialog is the same log made solid, so the word and the panel behind it don't read through its text. */
+:root[data-theme="realm"] dialog {
+  background: var(--realm-rivets), linear-gradient(#2a1c10, #1e130a);
+}
+:root[data-theme="realm"] .key-pop {
+  --key-bg: #35647d;
+}
+:root[data-theme="realm"] .panel-title,
+:root[data-theme="realm"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #ffd65c;
+  text-shadow: 0 1px 0 #000, 0 0 8px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="realm"] .dateline {
+  border-bottom: 2px solid #6e5634;
+}
+:root[data-theme="realm"] .dateline .coords,
+:root[data-theme="realm"] .meta {
+  font-style: normal;
+  color: #86e4ee;
+}
+:root[data-theme="realm"] .rule-head {
+  color: #86e4ee;
+  border-color: #6e5634;
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="realm"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #ffdf73;
+  text-shadow: 0 1px 1px #000;
+}
+:root[data-theme="realm"] .story:hover {
+  background: rgba(134, 228, 238, 0.08);
+}
+
+/* ---- Phones: both keep the toolbar one row, and the word fits ------------------------------------------- */
+@media (max-width: 760px) {
+  :root[data-theme="realm"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.78)));
+    padding: 3px 12px 1px;
+  }
+  :root[data-theme="realm"] .masthead {
+    margin-bottom: 6px;
+  }
+  :root[data-theme="realm"] .panel {
+    margin: 0 6px 6px;
+  }
+}
+@media (max-width: 420px) {
+  :root[data-theme="realm"] .tool,
+  :root[data-theme="realm"] .pick select,
+  :root[data-theme="realm"] .menu > summary {
+    font-size: 13px;
+  }
+}

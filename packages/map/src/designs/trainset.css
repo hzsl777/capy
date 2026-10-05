@@ -1,0 +1,240 @@
+:root[data-theme="trainset"] {
+  color-scheme: light;
+  --page: #f6ecd6;
+  --panel: #fffaf0;
+  --ink: #2a1d12;
+  --ink-2: #4a3522;
+  --muted: #6a5238;
+  --rule: #3a2a1c;
+  --accent: #c3262c;
+  --on-accent: #fff8ec;
+  --hover: rgba(195, 38, 44, 0.08);
+  --reticle: #fbf4e4;
+  --grain-opacity: 0.25;
+  --grain-blend: multiply;
+  --font-mast: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --font-head: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Toy Train Set: a toy box lid, wooden blocks, a station sign and the table's wooden edge ---------------- */
+:root[data-theme="trainset"] body {
+  background:
+    repeating-linear-gradient(90deg, rgba(195, 38, 44, 0.07) 0 14px, transparent 14px 44px),
+    var(--page);
+}
+/* The lid: cream card between red bands, with a length of track along its bottom edge. */
+:root[data-theme="trainset"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 26px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14'%3E%3Crect y='5' width='20' height='6' fill='%23a89478'/%3E%3Cpath d='M4 3V13M14 3V13' stroke='%236b4a2e' stroke-width='3'/%3E%3Cpath d='M0 5.5H20M0 10.5H20' stroke='%23c9ced4' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x left bottom 3px / 20px 14px,
+    linear-gradient(to bottom, #c3262c 0 6px, #f6ecd6 6px);
+  box-shadow: inset 0 -2px 0 #3a2a1c;
+}
+:root[data-theme="trainset"] .toolbar {
+  border-bottom: 3px solid #c3262c;
+  background: #1d3f7a;
+}
+:root[data-theme="trainset"] .timebar {
+  border-top: 3px solid #c3262c;
+  background: #1d3f7a;
+  color: #fff8ec;
+}
+:root[data-theme="trainset"] .time-label {
+  color: #fff8ec;
+}
+/* Slab lettering printed on the lid: red with a cream edge and a navy shadow. */
+:root[data-theme="trainset"] .mast-title,
+:root[data-theme="trainset"] .telegram-word,
+:root[data-theme="trainset"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #c3262c;
+  -webkit-text-stroke: 4px #fff8ec;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #1d3f7a;
+}
+:root[data-theme="trainset"] .mast-title {
+  font-size: clamp(30px, 3.6vw, 44px);
+}
+:root[data-theme="trainset"] .telegram-word {
+  color: #1d3f7a;
+  text-shadow: 3px 3px 0 #c3262c;
+  border-bottom: 0;
+  padding: 2px 8px;
+  font-size: min(90px, calc(38vw / var(--len, 8)));
+}
+:root[data-theme="trainset"] .telegram-word:hover,
+:root[data-theme="trainset"] .telegram-word:focus-visible {
+  background: none;
+  text-decoration: none;
+  text-shadow: 4px 4px 0 #c3262c;
+}
+:root[data-theme="trainset"] .telegram-big {
+  color: #1d3f7a;
+  text-shadow: 3px 3px 0 #c3262c;
+}
+:root[data-theme="trainset"] .mast-tag,
+:root[data-theme="trainset"] .telegram-note {
+  font-style: normal;
+  font-weight: 600;
+}
+:root[data-theme="trainset"] .telegram-kicker,
+:root[data-theme="trainset"] .telegram-date {
+  font-weight: 700;
+  color: #1d3f7a;
+  letter-spacing: 0.14em;
+}
+/* Buttons are painted wooden blocks in the toy box's four colours. */
+:root[data-theme="trainset"] .tool,
+:root[data-theme="trainset"] .pick select,
+:root[data-theme="trainset"] .menu > summary,
+:root[data-theme="trainset"] .chip,
+:root[data-theme="trainset"] .key-close {
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #e0473f, #c3262c);
+  color: #fff8ec;
+  font-weight: 700;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.25), 0 2px 0 #3a2a1c;
+}
+:root[data-theme="trainset"] .toolbar > :nth-child(2) select,
+:root[data-theme="trainset"] .chip:nth-child(3n + 2) {
+  background: linear-gradient(to bottom, #f7c64a, #e0a21c);
+  color: #2a1d12;
+}
+:root[data-theme="trainset"] .toolbar > :nth-child(3) > summary,
+:root[data-theme="trainset"] .chip:nth-child(3n) {
+  background: linear-gradient(to bottom, #3fa35a, #2f8a4a);
+}
+:root[data-theme="trainset"] .toolbar > :nth-child(4),
+:root[data-theme="trainset"] .timebar .tool {
+  background: linear-gradient(to bottom, #fff8ec, #e9dcc0);
+  color: #2a1d12;
+}
+:root[data-theme="trainset"] .pick::after {
+  color: inherit;
+}
+:root[data-theme="trainset"] .tool.quiet {
+  background: transparent;
+  box-shadow: none;
+  color: #fff8ec;
+}
+:root[data-theme="trainset"] .masthead .tool.quiet {
+  color: var(--ink);
+}
+:root[data-theme="trainset"] .tool[aria-pressed="true"],
+:root[data-theme="trainset"] .menu[open] > summary,
+:root[data-theme="trainset"] .chip[aria-pressed="true"] {
+  translate: 0 2px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 #3a2a1c;
+  outline: 2px solid #fff8ec;
+  outline-offset: -4px;
+}
+:root[data-theme="trainset"] .scale {
+  border: 2px solid #1d3f7a;
+  border-radius: 4px;
+  background: #fffaf0;
+}
+:root[data-theme="trainset"] .scale .step.on {
+  background: #c3262c;
+  color: #fff8ec;
+}
+/* The Key is a station sign: a green board with a cream border. */
+:root[data-theme="trainset"] .key-btn {
+  border: 2px solid #fff8ec;
+  outline: 2px solid #1f4a2c;
+  border-radius: 3px;
+  background: #2c6a3e;
+  color: #fff8ec;
+  font-family: var(--font-mast);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  box-shadow: 0 4px 0 -1px #6b4426, 3px 6px 6px rgba(0, 0, 0, 0.3);
+}
+:root[data-theme="trainset"] .key-btn[aria-expanded="true"] {
+  background: #c3262c;
+}
+:root[data-theme="trainset"] .zoom {
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #f7c64a, #e0a21c);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), 0 3px 0 #3a2a1c;
+}
+:root[data-theme="trainset"] .zoom button {
+  color: #2a1d12;
+  font-weight: 700;
+}
+:root[data-theme="trainset"] .zoom button + button {
+  border-top: 2px solid #b98415;
+}
+/* The table's wooden edge round the board. */
+:root[data-theme="trainset"] .map {
+  margin: 8px 10px;
+  border: 12px solid transparent;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(88deg, rgba(60, 30, 10, 0.18) 0 1px, transparent 1px 9px),
+    linear-gradient(to bottom, #c08f5c, #8a5530) border-box;
+  box-shadow: inset 0 0 0 2px rgba(40, 20, 5, 0.45), 0 5px 0 #5a3418, 0 10px 18px rgba(40, 20, 5, 0.3);
+}
+/* Panels are the side of the toy box: cream card, a red band and a navy rule. */
+:root[data-theme="trainset"] .panel,
+:root[data-theme="trainset"] .menu-body,
+:root[data-theme="trainset"] .key-pop,
+:root[data-theme="trainset"] dialog {
+  background: var(--panel);
+  border: 4px solid #c3262c;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px #fffaf0, inset 0 0 0 5px #1d3f7a, 0 6px 14px rgba(40, 20, 5, 0.25);
+}
+:root[data-theme="trainset"] .panel {
+  margin: 8px 10px 8px 0;
+  padding-top: 18px;
+}
+:root[data-theme="trainset"] .panel-title,
+:root[data-theme="trainset"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #c3262c;
+  font-size: 28px;
+}
+:root[data-theme="trainset"] .dateline {
+  border-bottom: 3px double #1d3f7a;
+}
+:root[data-theme="trainset"] .rule-head {
+  color: #1d3f7a;
+  border-color: #1d3f7a;
+  font-weight: 700;
+}
+:root[data-theme="trainset"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 18px;
+}
+:root[data-theme="trainset"] .meta,
+:root[data-theme="trainset"] .count {
+  font-style: normal;
+}
+:root[data-theme="trainset"] input[type="range"] {
+  accent-color: #f7c64a;
+}
+@media (max-width: 760px) {
+  :root[data-theme="trainset"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.86)));
+  }
+  :root[data-theme="trainset"] .map {
+    margin: 6px 6px 4px;
+    border-width: 8px;
+  }
+  :root[data-theme="trainset"] .panel {
+    margin: 4px 6px 6px;
+  }
+}

@@ -27,11 +27,12 @@ import { markPath } from "../src/map/marks.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 import { heightOf, stackOf, TOPPINGS } from "../src/ui/burger.ts";
 import { FILTERS as WORLD_TOPICS } from "../src/data.ts";
+import { cssFor } from "./css.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const source = readFileSync(here("../src/map/burger.ts"), "utf8");
 const ui = readFileSync(here("../src/ui/burger.ts"), "utf8");
-const css = readFileSync(here("../src/style.css"), "utf8");
+const css = cssFor("burger");
 
 describe("burger: the lettuce's veins", () => {
   it("gives the same vein to the same cell, always", () => {

@@ -14,8 +14,10 @@ export type DesignPickerHost = {
   current: () => ThemeId;
   /** The designs the menu lists, the one on included even when it is an experiment. */
   ids: () => ThemeId[];
-  /** Applies a design, as choosing it from the select did. */
-  pick: (id: ThemeId) => void;
+  /** Applies a design, as choosing it from the select did; a design's code loads first, so it may take a moment. */
+  pick: (id: ThemeId) => void | Promise<void>;
+  /** Starts fetching a design's code, for a card the reader points at or tabs to. */
+  prefetch?: (id: ThemeId) => void;
   /** Whether the page is laid out for a phone. */
   phone: () => boolean;
 };
@@ -117,12 +119,17 @@ export function mountDesignPicker(select: HTMLSelectElement, host: DesignPickerH
   const card = (id: ThemeId): HTMLElement => {
     const on = id === host.current();
     const pickBtn = h("button", { type: "button", class: "dcard-pick", "aria-pressed": String(on), "data-id": id }, picture(id), h("span", { class: "dcard-name" }, THEMES[id].label, on ? h("span", { class: "dcard-on" }, "On") : null));
+    // A design's code loads when it is first shown, so a card the reader points at or tabs to starts it on its way.
+    pickBtn.addEventListener("pointerenter", () => host.prefetch?.(id));
+    pickBtn.addEventListener("focus", () => host.prefetch?.(id));
     pickBtn.addEventListener("click", () => {
       recent = withRecent(recent, id);
       setPref(RECENT, recent.join(","));
-      host.pick(id);
-      render();
-      grid?.querySelector<HTMLElement>(`[data-id="${id}"]`)?.focus();
+      // The card shows the design on once it has arrived, so the popover is drawn again then.
+      void Promise.resolve(host.pick(id)).then(() => {
+        render();
+        grid?.querySelector<HTMLElement>(`[data-id="${id}"]`)?.focus();
+      });
     });
     // The star is its own wide button under the picture, never on it, so picking a design and starring it can't be
     // mistaken for each other.

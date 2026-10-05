@@ -1,0 +1,239 @@
+:root[data-theme="snow"] .telegram .importance {
+  color: #e3ecf6;
+}
+
+/* ---- Snow Globe: a wintry shop window in warm wood ------------------------------------------------ */
+:root[data-theme="snow"] {
+  color-scheme: light;
+  --page: #5a3620;
+  --panel: #f4f8fb;
+  --ink: #1d2a3b;
+  --ink-2: #33455c;
+  --muted: #4e5f74;
+  --rule: #a9bccf;
+  --accent: #a3322a;
+  --on-accent: #ffffff;
+  --hover: rgba(163, 50, 42, 0.08);
+  --reticle: #1d3557;
+  --grain-opacity: 0.18;
+  --grain-blend: multiply;
+  --wood: #7a4b2b;
+  --wood-dark: #4a2a14;
+  --wood-light: #a8703f;
+  --font-mast: "Fraunces", Georgia, serif;
+  --font-head: "Fraunces", Georgia, serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+/* Wooden boards behind everything. */
+:root[data-theme="snow"] body {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 58px, rgba(30, 12, 2, 0.35) 58px 60px),
+    repeating-linear-gradient(94deg, rgba(255, 220, 170, 0.05) 0 3px, transparent 3px 11px),
+    linear-gradient(to right, #5a3620, #6d4427 40%, #5a3620);
+}
+/* The masthead is a painted shop sign with snow along its top edge. */
+:root[data-theme="snow"] .masthead {
+  position: relative;
+  margin: 12px 10px 0;
+  padding-top: 14px;
+  border-radius: 12px;
+  background:
+    radial-gradient(1.6px 1.6px at 20% 30%, rgba(255, 255, 255, 0.85), transparent) 0 0 / 70px 60px,
+    radial-gradient(1.2px 1.2px at 70% 70%, rgba(255, 255, 255, 0.7), transparent) 0 0 / 90px 50px,
+    linear-gradient(to bottom, #2b3f5c, #1c2b43);
+  border: 6px solid var(--wood);
+  box-shadow: inset 0 0 0 2px var(--wood-dark), 0 4px 10px rgba(0, 0, 0, 0.35);
+  color: #f7f1e6;
+}
+:root[data-theme="snow"] .masthead::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: -12px;
+  height: 16px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 22px 10px at 22px 12px, #ffffff 97%, transparent) 0 0 / 44px 16px repeat-x,
+    radial-gradient(ellipse 16px 8px at 8px 12px, #ffffff 97%, transparent) 0 0 / 30px 16px repeat-x,
+    linear-gradient(#ffffff, #ffffff) 0 10px / 100% 6px no-repeat;
+  filter: drop-shadow(0 2px 1px rgba(60, 90, 130, 0.35));
+}
+:root[data-theme="snow"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  color: #fdf6ea;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="snow"] .mast-tag,
+:root[data-theme="snow"] .telegram-date,
+:root[data-theme="snow"] .telegram-kicker,
+:root[data-theme="snow"] .telegram-note {
+  color: #e3ecf6;
+}
+:root[data-theme="snow"] .mast-tag {
+  font-family: var(--font-mast);
+}
+:root[data-theme="snow"] .masthead .note-link {
+  color: #ffffff;
+}
+:root[data-theme="snow"] .telegram-word,
+:root[data-theme="snow"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: #fffaf0;
+  border-bottom: 0;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 0 18px rgba(255, 236, 200, 0.45);
+}
+:root[data-theme="snow"] .telegram-big {
+  color: #1d3557;
+  text-shadow: none;
+}
+:root[data-theme="snow"] .telegram-word:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="snow"] .masthead .scale {
+  border-color: rgba(227, 236, 246, 0.55);
+}
+:root[data-theme="snow"] .masthead .scale .step {
+  color: #e3ecf6;
+}
+:root[data-theme="snow"] .masthead .scale .step + .step {
+  border-left-color: rgba(227, 236, 246, 0.4);
+}
+:root[data-theme="snow"] .masthead .scale .step.on {
+  background: #fdf6ea;
+  color: #1d2a3b;
+}
+:root[data-theme="snow"] .toolbar,
+:root[data-theme="snow"] .timebar {
+  border: 0;
+  color: #fdf6ea;
+}
+/* Buttons are small cream signs in a wooden edge, with snow lying on top. */
+:root[data-theme="snow"] .tool,
+:root[data-theme="snow"] .pick select,
+:root[data-theme="snow"] .menu > summary,
+:root[data-theme="snow"] .chip,
+:root[data-theme="snow"] .key-btn,
+:root[data-theme="snow"] .key-close {
+  background: #fdf6ea;
+  color: #3a2212;
+  border: 2px solid var(--wood-dark);
+  border-top: 4px solid #ffffff;
+  border-radius: 10px 10px 6px 6px;
+  box-shadow: 0 2px 0 var(--wood-dark), 0 -1px 0 rgba(120, 150, 190, 0.5);
+  font-weight: 700;
+}
+:root[data-theme="snow"] .pick::after {
+  color: #3a2212;
+}
+:root[data-theme="snow"] .tool:hover,
+:root[data-theme="snow"] .pick select:hover,
+:root[data-theme="snow"] .menu > summary:hover,
+:root[data-theme="snow"] .chip:hover,
+:root[data-theme="snow"] .key-btn:hover {
+  background: #fff3d9;
+}
+:root[data-theme="snow"] .menu[open] > summary,
+:root[data-theme="snow"] .tool[aria-pressed="true"],
+:root[data-theme="snow"] .chip[aria-pressed="true"],
+:root[data-theme="snow"] .key-btn[aria-expanded="true"] {
+  background: var(--accent);
+  color: #ffffff;
+}
+:root[data-theme="snow"] .zoom {
+  border: 2px solid var(--wood-dark);
+  border-top: 4px solid #ffffff;
+  border-radius: 10px 10px 6px 6px;
+  overflow: hidden;
+  background: #fdf6ea;
+}
+:root[data-theme="snow"] .zoom button {
+  color: #3a2212;
+}
+/* Panels are frosted panes in a wooden frame, with snow along the top of the frame. */
+:root[data-theme="snow"] .panel,
+:root[data-theme="snow"] .menu-body,
+:root[data-theme="snow"] .key-pop,
+:root[data-theme="snow"] dialog {
+  background: linear-gradient(to bottom, #f7fafc, #e9f1f8);
+  border: 8px solid var(--wood);
+  border-top: 10px solid #ffffff;
+  border-radius: 12px 12px 6px 6px;
+  box-shadow:
+    inset 0 0 22px rgba(150, 185, 215, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+    0 0 0 2px var(--wood-dark),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="snow"] .panel {
+  margin: 10px;
+}
+/* The page is wood, but inside the frosted panels and the window, "the page colour" must be light. */
+:root[data-theme="snow"] .panel,
+:root[data-theme="snow"] .menu-body,
+:root[data-theme="snow"] .key-pop,
+:root[data-theme="snow"] dialog,
+:root[data-theme="snow"] .map {
+  --page: #f4f8fb;
+}
+:root[data-theme="snow"] .panel-title,
+:root[data-theme="snow"] .place-name,
+:root[data-theme="snow"] .panel h2,
+:root[data-theme="snow"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #1d3557;
+}
+:root[data-theme="snow"] .headline {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+:root[data-theme="snow"] .kicker {
+  color: var(--accent);
+  font-weight: 700;
+}
+/* The shop window: the map area is framed in wood, with the warm lights of the shop behind the snow globe. */
+:root[data-theme="snow"] .map {
+  margin: 10px 10px 0;
+  background:
+    radial-gradient(2px 2px at 30% 40%, rgba(255, 255, 255, 0.75), transparent) 0 0 / 73px 61px,
+    radial-gradient(1.5px 1.5px at 70% 20%, rgba(255, 255, 255, 0.6), transparent) 0 0 / 97px 83px,
+    radial-gradient(2.5px 2.5px at 50% 80%, rgba(255, 255, 255, 0.5), transparent) 0 0 / 131px 109px,
+    radial-gradient(circle at 12% 22%, rgba(255, 214, 140, 0.55), rgba(255, 214, 140, 0.25) 16px, transparent 30px),
+    radial-gradient(circle at 86% 30%, rgba(255, 190, 110, 0.45), rgba(255, 190, 110, 0.2) 22px, transparent 40px),
+    radial-gradient(circle at 74% 12%, rgba(255, 236, 180, 0.55), rgba(255, 236, 180, 0.2) 10px, transparent 22px),
+    radial-gradient(circle at 20% 70%, rgba(255, 200, 130, 0.35), rgba(255, 200, 130, 0.14) 26px, transparent 48px),
+    radial-gradient(circle at 92% 76%, rgba(255, 220, 150, 0.45), rgba(255, 220, 150, 0.18) 14px, transparent 28px),
+    radial-gradient(ellipse at 50% 30%, #2b3a5c, #141d33 75%);
+}
+:root[data-theme="snow"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border: 10px solid var(--wood);
+  border-top-color: var(--wood-light);
+  border-bottom-color: var(--wood-dark);
+  box-shadow: inset 0 0 0 2px rgba(40, 18, 4, 0.6), inset 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+@media (max-width: 760px) {
+  :root[data-theme="snow"] .masthead {
+    margin: 12px 8px 0;
+  }
+  :root[data-theme="snow"] .map {
+    margin: 8px 8px 0;
+  }
+  :root[data-theme="snow"] .panel {
+    margin: 8px;
+  }
+}

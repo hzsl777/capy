@@ -3,8 +3,6 @@
 // on the world, small, and never folds a shape over; every frame is the whole picture, whether or not the map moves;
 // the page turn swings the page without changing any colour, in under a third of a second; and the pages' parts show
 // in this design only.
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { geoNaturalEarth1 } from "d3-geo";
 import { describe, expect, it } from "vitest";
 import {
@@ -32,9 +30,9 @@ import {
 } from "../src/map/paper.ts";
 import type { SurfaceFrame } from "../src/map/surface.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
-const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
-const css = readFileSync(here("../src/style.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+const css = cssFor("paper").replace(/\/\*[\s\S]*?\*\//g, "");
 /** Every rule of the stylesheet that names this design, with its body. */
 const paperRules = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1]!.trim(), body: m[2]! })).filter((r) => r.sel.includes('data-theme="paper"'));
 

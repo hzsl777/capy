@@ -30,10 +30,11 @@ import {
   type Circle,
 } from "../src/map/bunny.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const source = readFileSync(here("../src/map/bunny.ts"), "utf8");
-const css = readFileSync(here("../src/style.css"), "utf8");
+const css = cssFor("bunny");
 
 /** Frame sizes the map area takes on a desktop, a laptop, a tablet and a phone (with and without the word's panel). */
 const FRAMES: [number, number][] = [

@@ -1,0 +1,98 @@
+/* ---- Blueprint: cobalt drafting sheet, white linework ------------------- */
+:root[data-theme="blueprint"] {
+  color-scheme: dark;
+  --page: #15356f;
+  --panel: #183b7a;
+  --ink: #f1f5fc;
+  --ink-2: #d3def3;
+  --muted: #a9bee2;
+  --rule: #7f9ccf;
+  --accent: #ff8a52;
+  --on-accent: #15356f;
+  --hover: rgba(241, 245, 252, 0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0.12;
+  --grain-blend: overlay;
+  --font-mast: "Architects Daughter", "Comic Sans MS", cursive;
+  --font-head: "Architects Daughter", "Comic Sans MS", cursive;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+:root[data-theme="blueprint"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ---- Blueprint ----------------------------------------------------------- */
+:root[data-theme="blueprint"] body {
+  background:
+    linear-gradient(rgba(241, 245, 252, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(241, 245, 252, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--page);
+}
+:root[data-theme="blueprint"] .mast-title {
+  font: 400 clamp(30px, 4vw, 46px) / 1 var(--font-mast);
+  letter-spacing: 0.04em;
+}
+:root[data-theme="blueprint"] .mast-tag {
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+:root[data-theme="blueprint"] .masthead {
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 3px 0 -1px var(--page), 0 4px 0 -1px var(--rule);
+}
+:root[data-theme="blueprint"] .toolbar,
+:root[data-theme="blueprint"] .timebar {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+:root[data-theme="blueprint"] .map {
+  margin: 10px;
+  border: 1px solid var(--rule);
+}
+:root[data-theme="blueprint"] .panel {
+  margin: 10px 10px 10px 0;
+  border: 1px solid var(--rule);
+}
+:root[data-theme="blueprint"] .panel-title,
+:root[data-theme="blueprint"] .place-name,
+:root[data-theme="blueprint"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+}
+:root[data-theme="blueprint"] .headline {
+  font: 600 16px/1.25 var(--font-body);
+}
+:root[data-theme="blueprint"] .meta,
+:root[data-theme="blueprint"] .byline {
+  font-style: normal;
+}
+:root[data-theme="blueprint"] .excerpt::first-letter {
+  font-family: var(--font-head);
+  font-weight: 400;
+}
+:root[data-theme="blueprint"] .telegram-word,
+:root[data-theme="blueprint"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  color: var(--accent);
+}
+:root[data-theme="blueprint"] .lead img {
+  filter: grayscale(1) contrast(1.1) brightness(1.05);
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="blueprint"] .map {
+    margin: 8px;
+  }
+  :root[data-theme="blueprint"] .panel {
+    margin: 0 8px 8px;
+  }
+}

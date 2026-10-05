@@ -1,0 +1,684 @@
+/* ---- Garden (id herbarium, formerly Herbarium): a very detailed, whimsical garden. The whole page is the
+   garden: a sky of soft light over a meadow with tiny daisies, a wooden name sign, seed-packet cards for the word, the
+   panel, the Key and the About dialog (each in a border of vine and flowers, drawn as background layers in a clear
+   margin so the text scrolls inside it), leaf-tag buttons, the map in a raised bed of boards, a time bar with a flower
+   for its handle and grass along the foot of the page. All the drawings here and on the canvas (src/map/herbarium.ts) are
+   our own. Nothing on the page moves. ------------------------------------------------------------------------------ */
+:root[data-theme="herbarium"] {
+  color-scheme: light;
+  --page: #e4f3d6;
+  --panel: #fffdf2;
+  --ink: #25331f;
+  --ink-2: #3a4d31;
+  --muted: #556a4b;
+  --rule: #4f7a40;
+  --accent: #2e7d3c;
+  --on-accent: #fffdf2;
+  --hover: rgba(46, 125, 60, 0.12);
+  --reticle: #3b2158;
+  --grain-opacity: 0;
+  --grain-blend: multiply;
+  --font-mast: "Chewy", "Sniglet", "Comic Sans MS", cursive;
+  --font-head: "Chewy", "Sniglet", "Comic Sans MS", cursive;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --font-ui: "Fredoka", "Nunito", system-ui, sans-serif;
+  --gd-wood: #7a4a22;
+  --gd-wood-dark: #4a2c12;
+  --gd-moss: #5b8a47;
+  --gd-leaf: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M2 14C2 6 7 2 14 2C14 9 10 14 2 14Z' fill='%237cc86a' stroke='%232f7a40' stroke-width='1' stroke-linejoin='round'/%3E%3Cpath d='M3 13L11 5' stroke='%232f7a40' stroke-width='.9' stroke-linecap='round'/%3E%3C/svg%3E");
+  --gd-leaf-on: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M2 14C2 6 7 2 14 2C14 9 10 14 2 14Z' fill='%23d9f3c2' stroke='%23fffdf2' stroke-width='1' stroke-linejoin='round'/%3E%3Cpath d='M3 13L11 5' stroke='%23fffdf2' stroke-width='.9' stroke-linecap='round'/%3E%3C/svg%3E");
+  --gd-garland-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='22' viewBox='0 0 96 22'%3E%3Cpath d='M0 11C16 3 32 3 48 11S80 19 96 11' stroke='%234f9a4f' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath transform='translate(10 8) rotate(-40)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(21 5.5) rotate(30)' d='M0 0C2.4 -2.7 6 -2.4 8 0C6 2.4 2.4 2.7 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(35 6) rotate(-30)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(58 15) rotate(35)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(68 17.5) rotate(-25)' d='M0 0C2.4 -2.7 6 -2.4 8 0C6 2.4 2.4 2.7 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(82 14) rotate(40)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(26 5)'%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.2' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(48 11.5)'%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(20)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(92)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(164)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(236)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(308)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(72 17)'%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(10)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(70)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(130)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(190)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(250)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(310)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.2' fill='%23f5b72e'/%3E%3C/g%3E%3Cg transform='translate(90 12.5)'%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(0)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(72)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(144)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(216)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(288)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='0.8' fill='%23e0902a'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-garland-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='96' viewBox='0 0 22 96'%3E%3Cg transform='translate(22 0) rotate(90)'%3E%3Cpath d='M0 11C16 3 32 3 48 11S80 19 96 11' stroke='%234f9a4f' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath transform='translate(10 8) rotate(-40)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(21 5.5) rotate(30)' d='M0 0C2.4 -2.7 6 -2.4 8 0C6 2.4 2.4 2.7 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(35 6) rotate(-30)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(58 15) rotate(35)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(68 17.5) rotate(-25)' d='M0 0C2.4 -2.7 6 -2.4 8 0C6 2.4 2.4 2.7 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(82 14) rotate(40)' d='M0 0C2.7 -3.1 6.8 -2.7 9 0C6.8 2.7 2.7 3.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(26 5)'%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.2' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(48 11.5)'%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(20)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(92)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(164)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(236)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(308)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(72 17)'%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(10)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(70)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(130)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(190)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(250)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.7' rx='2.1' ry='1.4' transform='rotate(310)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.2' fill='%23f5b72e'/%3E%3C/g%3E%3Cg transform='translate(90 12.5)'%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(0)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(72)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(144)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(216)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.6' rx='1.3' ry='0.8' transform='rotate(288)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='0.8' fill='%23e0902a'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --gd-c1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath transform='translate(14 22) rotate(130)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(18 24) rotate(50)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(16 14)'%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(60)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(120)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(180)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(240)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(300)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='3.5' fill='%23f7d34a'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-c2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath transform='translate(14 22) rotate(130)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%237cc86a' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(18 24) rotate(50)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%237cc86a' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(16 14)'%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(15)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(75)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(135)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(195)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(255)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(315)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='3.5' fill='%23b9731f'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-c3: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath transform='translate(14 22) rotate(130)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%235fae62' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(18 24) rotate(50)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%235fae62' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(16 14)'%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(8)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(68)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(128)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(188)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(248)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(308)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='3.5' fill='%23f5b72e'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-c4: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath transform='translate(14 22) rotate(130)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(18 24) rotate(50)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(16 14)'%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(25)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(85)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(145)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(205)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(265)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='7.5' rx='6' ry='3.9' transform='rotate(325)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='3.5' fill='%23f7d34a'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-thumb: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cpath transform='translate(17 24) rotate(150)' d='M0 0C3.9 -4.4 9.8 -3.9 13 0C9.8 3.9 3.9 4.4 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(17 24) rotate(30)' d='M0 0C3.9 -4.4 9.8 -3.9 13 0C9.8 3.9 3.9 4.4 0 0Z' fill='%235fae62' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(17 16)'%3E%3Cellipse cx='9.3' rx='7.4' ry='4.8' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.55)' stroke-width='.5'/%3E%3Cellipse cx='9.3' rx='7.4' ry='4.8' transform='rotate(60)' fill='%23f6a8c9' stroke='rgba(120,60,90,.55)' stroke-width='.5'/%3E%3Cellipse cx='9.3' rx='7.4' ry='4.8' transform='rotate(120)' fill='%23f6a8c9' stroke='rgba(120,60,90,.55)' stroke-width='.5'/%3E%3Cellipse cx='9.3' rx='7.4' ry='4.8' transform='rotate(180)' fill='%23f6a8c9' stroke='rgba(120,60,90,.55)' stroke-width='.5'/%3E%3Cellipse cx='9.3' rx='7.4' ry='4.8' transform='rotate(240)' fill='%23f6a8c9' stroke='rgba(120,60,90,.55)' stroke-width='.5'/%3E%3Cellipse cx='9.3' rx='7.4' ry='4.8' transform='rotate(300)' fill='%23f6a8c9' stroke='rgba(120,60,90,.55)' stroke-width='.5'/%3E%3Ccircle r='4.3' fill='%23f7d34a'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cpath d='M0 24Q-1.2000000000000002 18.6 -3 15Q0.7000000000000002 19.5 3.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M8 24Q8.8 16.2 10 11Q11.2 17.5 11.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M16 24Q16 13.8 16 7Q18.2 15.5 19.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M19 24Q18.2 16.8 17 12Q20.2 18 22.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M27 24Q28.2 14.4 30 8Q30.7 16 30.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M30 24Q30.4 17.4 31 13Q32.7 18.5 33.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M38 24Q37.6 15 37 9Q39.7 16.5 41.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M46 24Q44.8 18 43 14Q46.7 19 49.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M49 24Q49.8 15.6 51 10Q52.2 17 52.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M57 24Q57 18.6 57 15Q59.2 19.5 60.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M60 24Q59.2 16.2 58 11Q61.2 17.5 63.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M68 24Q69.2 13.8 71 7Q71.7 15.5 71.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M76 24Q76.4 16.8 77 12Q78.7 18 79.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M79 24Q78.6 14.4 78 8Q80.7 16 82.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M87 24Q85.8 17.4 84 13Q87.7 18.5 90.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M90 24Q90.8 15 92 9Q93.2 16.5 93.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M98 24Q98 18 98 14Q100.2 19 101.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M106 24Q105.2 15.6 104 10Q107.2 17 109.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M109 24Q110.2 18.6 112 15Q112.7 19.5 112.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M117 24Q117.4 16.2 118 11Q119.7 17.5 120.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M120 24Q119.6 13.8 119 7Q121.7 15.5 123.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M128 24Q126.8 16.8 125 12Q128.7 18 131.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M136 24Q136.8 14.4 138 8Q139.2 16 139.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M139 24Q139 17.4 139 13Q141.2 18.5 142.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M147 24Q146.2 15 145 9Q148.2 16.5 150.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M150 24Q151.2 18 153 14Q153.7 19 153.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M158 24Q158.4 15.6 159 10Q160.7 17 161.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M166 24Q165.6 18.6 165 15Q167.7 19.5 169.4 24Z' fill='%234f9a4f'/%3E%3Cpath d='M169 24Q167.8 16.2 166 11Q169.7 17.5 172.4 24Z' fill='%236bbd5e'/%3E%3Cpath d='M177 24Q177.8 13.8 179 7Q180.2 15.5 180.4 24Z' fill='%238fd36c'/%3E%3Cpath d='M14 24V7' stroke='%234f9a4f' stroke-width='1.2'/%3E%3Cg transform='translate(14 7)'%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(0)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(72)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(144)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(216)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(288)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='0.9' fill='%23f5b72e'/%3E%3C/g%3E%3Cpath d='M52 24V5' stroke='%234f9a4f' stroke-width='1.2'/%3E%3Cg transform='translate(52 5)'%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.1' rx='1.7' ry='1.1' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1' fill='%23f7d34a'/%3E%3C/g%3E%3Cpath d='M96 24V8' stroke='%234f9a4f' stroke-width='1.2'/%3E%3Cg transform='translate(96 8)'%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(0)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(72)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(144)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(216)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(288)' fill='%23ffe27a' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='0.9' fill='%23b9731f'/%3E%3C/g%3E%3Cpath d='M128 24V5' stroke='%234f9a4f' stroke-width='1.2'/%3E%3Cg transform='translate(128 5)'%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(0)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(72)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(144)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(216)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2' rx='1.6' ry='1' transform='rotate(288)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='0.9' fill='%23f7d34a'/%3E%3C/g%3E%3Cpath d='M160 24V8' stroke='%234f9a4f' stroke-width='1.2'/%3E%3Cg transform='translate(160 8)'%3E%3Cellipse cx='1.9' rx='1.5' ry='1' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.9' rx='1.5' ry='1' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.9' rx='1.5' ry='1' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.9' rx='1.5' ry='1' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='1.9' rx='1.5' ry='1' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='0.9' fill='%23f7d34a'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-boards: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.3' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .17 0 0 0 0 .07 1.5 0 0 0 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%238d5a2c'/%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3Cpath d='M0 53H240M0 107H240' stroke='%234a2c12' stroke-opacity='.35' stroke-width='1.2'/%3E%3C/svg%3E");
+  --gd-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cg transform='translate(22 30)'%3E%3Cellipse cx='2.9' rx='2.3' ry='1.5' transform='rotate(0)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.9' rx='2.3' ry='1.5' transform='rotate(60)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.9' rx='2.3' ry='1.5' transform='rotate(120)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.9' rx='2.3' ry='1.5' transform='rotate(180)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.9' rx='2.3' ry='1.5' transform='rotate(240)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.9' rx='2.3' ry='1.5' transform='rotate(300)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Ccircle r='1.4' fill='%23f5d56a'/%3E%3C/g%3E%3Cg transform='translate(100 74)'%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(20)' fill='%23ffe8f2' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(92)' fill='%23ffe8f2' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(164)' fill='%23ffe8f2' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(236)' fill='%23ffe8f2' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.6' rx='2' ry='1.3' transform='rotate(308)' fill='%23ffe8f2' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Ccircle r='1.2' fill='%23f2b3cf'/%3E%3C/g%3E%3Cg transform='translate(60 126)'%3E%3Cellipse cx='2.8' rx='2.2' ry='1.4' transform='rotate(10)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.8' rx='2.2' ry='1.4' transform='rotate(70)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.8' rx='2.2' ry='1.4' transform='rotate(130)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.8' rx='2.2' ry='1.4' transform='rotate(190)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.8' rx='2.2' ry='1.4' transform='rotate(250)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Cellipse cx='2.8' rx='2.2' ry='1.4' transform='rotate(310)' fill='%23ffffff' stroke='rgba(90,130,70,.25)' stroke-width='.5'/%3E%3Ccircle r='1.3' fill='%23f5d56a'/%3E%3C/g%3E%3Cpath transform='translate(120 22) rotate(-30)' d='M0 0C2.1 -2.4 5.3 -2.1 7 0C5.3 2.1 2.1 2.4 0 0Z' fill='rgba(110,185,100,.45)' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(40 80) rotate(40)' d='M0 0C2.1 -2.4 5.3 -2.1 7 0C5.3 2.1 2.1 2.4 0 0Z' fill='rgba(110,185,100,.45)' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(130 130) rotate(200)' d='M0 0C2.1 -2.4 5.3 -2.1 7 0C5.3 2.1 2.1 2.4 0 0Z' fill='rgba(110,185,100,.45)' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(8 120) rotate(-60)' d='M0 0C1.8 -2 4.5 -1.8 6 0C4.5 1.8 1.8 2 0 0Z' fill='rgba(110,185,100,.4)' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3C/svg%3E");
+  --gd-sprig-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='46' viewBox='0 0 56 46'%3E%3Cpath d='M2 40C14 34 28 26 44 12' stroke='%234f9a4f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cpath transform='translate(10 37) rotate(-50)' d='M0 0C4.2 -4.8 10.5 -4.2 14 0C10.5 4.2 4.2 4.8 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(20 32) rotate(20)' d='M0 0C4.2 -4.8 10.5 -4.2 14 0C10.5 4.2 4.2 4.8 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(28 26) rotate(-60)' d='M0 0C3.9 -4.4 9.8 -3.9 13 0C9.8 3.9 3.9 4.4 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(36 19) rotate(10)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(46 10)'%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.9' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(32 11)'%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(12)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(84)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(156)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(228)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(300)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.1' fill='%23f5b72e'/%3E%3C/g%3E%3C/svg%3E");
+  --gd-sprig-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='46' viewBox='0 0 56 46'%3E%3Cg transform='translate(56 0) scale(-1 1)'%3E%3Cpath d='M2 40C14 34 28 26 44 12' stroke='%234f9a4f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cpath transform='translate(10 37) rotate(-50)' d='M0 0C4.2 -4.8 10.5 -4.2 14 0C10.5 4.2 4.2 4.8 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(20 32) rotate(20)' d='M0 0C4.2 -4.8 10.5 -4.2 14 0C10.5 4.2 4.2 4.8 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(28 26) rotate(-60)' d='M0 0C3.9 -4.4 9.8 -3.9 13 0C9.8 3.9 3.9 4.4 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(36 19) rotate(10)' d='M0 0C3.6 -4.1 9 -3.6 12 0C9 3.6 3.6 4.1 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(46 10)'%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.9' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(32 11)'%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(12)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(84)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(156)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(228)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='2.4' rx='1.9' ry='1.3' transform='rotate(300)' fill='%23ffffff' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.1' fill='%23f5b72e'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --gd-bouquet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Cg stroke='%234f9a4f' stroke-width='3' fill='none' stroke-linecap='round'%3E%3Cpath d='M96 296C94 240 88 190 90 130'/%3E%3Cpath d='M60 296C58 250 52 220 50 190'/%3E%3Cpath d='M132 296C134 250 142 222 146 196'/%3E%3Cpath d='M110 296C112 230 120 180 128 120'/%3E%3Cpath d='M80 296C84 250 76 210 66 150'/%3E%3C/g%3E%3Cpath transform='translate(94 268) rotate(-150)' d='M0 0C10.2 -11.6 25.5 -10.2 34 0C25.5 10.2 10.2 11.6 0 0Z' fill='%235fae62' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(96 250) rotate(-35)' d='M0 0C9 -10.2 22.5 -9 30 0C22.5 9 9 10.2 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(62 262) rotate(-140)' d='M0 0C8.4 -9.5 21 -8.4 28 0C21 8.4 8.4 9.5 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(132 266) rotate(-35)' d='M0 0C9 -10.2 22.5 -9 30 0C22.5 9 9 10.2 0 0Z' fill='%235fae62' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cpath transform='translate(88 205) rotate(-150)' d='M0 0C7.2 -8.2 18 -7.2 24 0C18 7.2 7.2 8.2 0 0Z' fill='%236bbd5e' stroke='%232f7a40' stroke-opacity='.55' stroke-width='.6'/%3E%3Cg transform='translate(90 112)'%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(0)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(22.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(45)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(67.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(90)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(112.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(135)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(157.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(180)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(202.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(225)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(247.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(270)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(292.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(315)' fill='%23f9c825' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Cellipse cx='28' rx='16' ry='5.4' transform='rotate(337.5)' fill='%23f7b52c' stroke='%23b9731f' stroke-opacity='.45' stroke-width='.6'/%3E%3Ccircle r='19' fill='%238d5a2b'/%3E%3Ccircle r='12' fill='%23a8702f'/%3E%3Ccircle r='5' fill='%23c58a3a'/%3E%3C/g%3E%3Cg transform='translate(50 188) scale(2.4)'%3E%3Cpath d='M-6 0C-8 -9 -5 -15 -3 -17L0 -11L3 -17C5 -15 8 -9 6 0C3 3 -3 3 -6 0Z' fill='%23f4a6c6' stroke='rgba(120,60,90,.4)' stroke-width='.7'/%3E%3Cpath d='M0 -11C-1 -7 -1 -3 0 1' stroke='rgba(120,60,90,.4)' stroke-width='.5' fill='none'/%3E%3C/g%3E%3Cg transform='translate(146 196) scale(2.2)'%3E%3Cpath d='M-6 0C-8 -9 -5 -15 -3 -17L0 -11L3 -17C5 -15 8 -9 6 0C3 3 -3 3 -6 0Z' fill='%23f8d24a' stroke='rgba(120,60,90,.4)' stroke-width='.7'/%3E%3Cpath d='M0 -11C-1 -7 -1 -3 0 1' stroke='rgba(120,60,90,.4)' stroke-width='.5' fill='none'/%3E%3C/g%3E%3Cg transform='translate(128 116)'%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(0)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(30)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(60)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(90)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(120)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(150)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(180)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(210)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(240)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(270)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(300)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Cellipse cx='11.6' rx='9.2' ry='6' transform='rotate(330)' fill='%23ffffff' stroke='rgba(90,130,70,.45)' stroke-width='.5'/%3E%3Ccircle r='5.4' fill='%23f5c02e'/%3E%3C/g%3E%3Cg fill='%237a8be8' stroke='rgba(60,60,140,.5)' stroke-width='.6'%3E%3Cpath d='M66 150C62 144 60 138 62 130C70 134 74 142 66 150Z' transform='translate(-6 8)'/%3E%3Cpath d='M62 168C58 162 56 156 58 148C66 152 70 160 62 168Z' transform='translate(2 4)'/%3E%3Cpath d='M56 134C52 128 50 122 52 114C60 118 64 126 56 134Z' transform='translate(2 8)'/%3E%3C/g%3E%3Cg transform='translate(72 224)'%3E%3Cellipse cx='4.6' rx='3.7' ry='2.4' transform='rotate(0)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.6' rx='3.7' ry='2.4' transform='rotate(72)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.6' rx='3.7' ry='2.4' transform='rotate(144)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.6' rx='3.7' ry='2.4' transform='rotate(216)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.6' rx='3.7' ry='2.4' transform='rotate(288)' fill='%23f6a8c9' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='2.2' fill='%23f7d34a'/%3E%3C/g%3E%3Cg transform='translate(150 232)'%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(10)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(82)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(154)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(226)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Cellipse cx='4.1' rx='3.2' ry='2.1' transform='rotate(298)' fill='%23c9b3f0' stroke='rgba(120,60,90,.4)' stroke-width='.5'/%3E%3Ccircle r='1.9' fill='%23f7d34a'/%3E%3C/g%3E%3C/svg%3E");
+  /* A seed-packet card in a clear margin of --gd-m: a border of vine and flowers round a cream card with a soft shadow,
+     a flower at each corner. Background layers keep still while the card's text scrolls. */
+  --gd-m: 18px;
+  --gd-card:
+    var(--gd-c1) left -3px top -3px / 32px 32px no-repeat,
+    var(--gd-c2) right -3px top -3px / 32px 32px no-repeat,
+    var(--gd-c3) left -3px bottom -3px / 32px 32px no-repeat,
+    var(--gd-c4) right -3px bottom -3px / 32px 32px no-repeat,
+    var(--gd-garland-h) left 14px top 0 / auto var(--gd-m) repeat-x,
+    var(--gd-garland-h) left 14px bottom 0 / auto var(--gd-m) repeat-x,
+    var(--gd-garland-v) left 0 top 14px / var(--gd-m) auto repeat-y,
+    var(--gd-garland-v) right 0 top 14px / var(--gd-m) auto repeat-y,
+    linear-gradient(var(--panel), var(--panel)) left calc(var(--gd-m) - 3px) top calc(var(--gd-m) - 3px) / calc(100% - 2 * var(--gd-m) + 6px) calc(100% - 2 * var(--gd-m) + 6px) no-repeat,
+    linear-gradient(var(--gd-moss), var(--gd-moss)) left calc(var(--gd-m) - 5px) top calc(var(--gd-m) - 5px) / calc(100% - 2 * var(--gd-m) + 10px) calc(100% - 2 * var(--gd-m) + 10px) no-repeat,
+    linear-gradient(rgba(50, 90, 40, 0.22), rgba(50, 90, 40, 0.22)) left calc(var(--gd-m) - 1px) top calc(var(--gd-m) + 1px) / calc(100% - 2 * var(--gd-m) + 10px) calc(100% - 2 * var(--gd-m) + 10px) no-repeat;
+}
+/* The page: a sky of soft light over a meadow, with tiny daisies and clover, and grass along the foot. */
+:root[data-theme="herbarium"] body {
+  background:
+    var(--gd-dots) 0 0 / 150px 150px,
+    linear-gradient(to bottom, #cde8f8 0, #e1f2e0 170px, #dcefc4 100%);
+}
+:root[data-theme="herbarium"] body::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  background: var(--gd-grass) left bottom / 180px 24px repeat-x;
+  pointer-events: none;
+  z-index: 49;
+}
+/* The masthead: the name on a wooden garden sign, and a vine of flowers along its foot. */
+:root[data-theme="herbarium"] .masthead {
+  border-bottom: 0;
+  padding-block: 24px 28px;
+  background: var(--gd-garland-h) left bottom / auto 22px repeat-x;
+}
+:root[data-theme="herbarium"] .brand {
+  align-items: flex-start;
+  gap: 6px;
+}
+:root[data-theme="herbarium"] .mast-title {
+  position: relative;
+  display: inline-block;
+  padding: 3px 26px 8px;
+  font: 400 clamp(26px, 2.6vw, 36px) / 1.12 var(--font-mast);
+  letter-spacing: 0.03em;
+  color: #fff4d6;
+  text-shadow: 0 2px 0 var(--gd-wood-dark), 0 0 6px rgba(40, 20, 5, 0.3);
+  white-space: nowrap;
+  border: 3px solid var(--gd-wood-dark);
+  border-radius: 12px;
+  background: var(--gd-boards) 0 0 / 240px 160px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.2),
+    0 3px 0 var(--gd-wood-dark),
+    0 6px 10px rgba(50, 30, 10, 0.25);
+}
+:root[data-theme="herbarium"] .mast-title::before,
+:root[data-theme="herbarium"] .mast-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d9d2c0, #7b7466 70%);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="herbarium"] .mast-title::before {
+  left: 8px;
+}
+:root[data-theme="herbarium"] .mast-title::after {
+  right: 8px;
+}
+:root[data-theme="herbarium"] .mast-tag {
+  font: italic 700 14px/1.3 var(--font-body);
+  color: var(--ink-2);
+  padding-left: 6px;
+}
+/* The word is a seed packet: a cream card in a moss border with a sprig over each top corner. */
+:root[data-theme="herbarium"] .telegram {
+  padding: 16px 22px 10px;
+  background: var(--panel);
+  border: 3px solid var(--gd-moss);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 4.5px rgba(91, 138, 71, 0.55),
+    0 4px 0 rgba(50, 90, 40, 0.28);
+}
+:root[data-theme="herbarium"] .telegram::before,
+:root[data-theme="herbarium"] .telegram::after {
+  content: "";
+  position: absolute;
+  top: -22px;
+  width: 56px;
+  height: 46px;
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="herbarium"] .telegram::before {
+  left: -16px;
+  background: var(--gd-sprig-l) 0 0 / 56px 46px no-repeat;
+}
+:root[data-theme="herbarium"] .telegram::after {
+  right: -12px;
+  background: var(--gd-sprig-r) 0 0 / 56px 46px no-repeat;
+}
+:root[data-theme="herbarium"] .telegram-kicker,
+:root[data-theme="herbarium"] .telegram-date {
+  font: 600 13px/1.2 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .telegram-note,
+:root[data-theme="herbarium"] .telegram-none {
+  font: italic 700 14px/1.3 var(--font-body);
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: #1f6b34;
+  text-shadow: 0 2px 0 #fbd6e6, 0 3px 0 rgba(214, 90, 140, 0.35);
+  border-bottom: 3px dotted var(--gd-moss);
+  padding: 2px 10px 4px;
+}
+:root[data-theme="herbarium"] .telegram-word:hover,
+:root[data-theme="herbarium"] .telegram-word:focus-visible {
+  background: var(--hover);
+  border-radius: 12px;
+}
+:root[data-theme="herbarium"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #1f6b34;
+}
+:root[data-theme="herbarium"] .scale {
+  border: 0;
+  gap: 4px;
+  font: 600 13px/1.2 var(--font-ui);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+:root[data-theme="herbarium"] .telegram-side .scale {
+  justify-content: flex-end;
+}
+:root[data-theme="herbarium"] .scale .step {
+  padding: 2px 8px;
+  color: var(--muted);
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+}
+:root[data-theme="herbarium"] .scale .step + .step {
+  border-left: 1.5px solid transparent;
+}
+:root[data-theme="herbarium"] .scale .step.on {
+  background: #fde7f0;
+  color: var(--ink);
+  border-color: #e68ab0;
+}
+/* The toolbar: leaf-tag buttons, round and cream with a small leaf, the one that is on filled in green. */
+:root[data-theme="herbarium"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px 6px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .tool,
+:root[data-theme="herbarium"] .pick select,
+:root[data-theme="herbarium"] .menu > summary,
+:root[data-theme="herbarium"] .key-btn,
+:root[data-theme="herbarium"] .key-close,
+:root[data-theme="herbarium"] dialog .close {
+  border: 2px solid var(--gd-moss);
+  border-radius: 999px;
+  padding: 5px 14px 5px 31px;
+  font: 500 15px/1.15 var(--font-ui);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  background: var(--gd-leaf) left var(--gd-lx, 11px) center / var(--gd-ls, 15px) var(--gd-ls, 15px) no-repeat, linear-gradient(#fffef6, #eaf5d6);
+  box-shadow: 0 2px 0 rgba(50, 90, 40, 0.3);
+}
+:root[data-theme="herbarium"] .pick select {
+  padding-right: 28px;
+}
+:root[data-theme="herbarium"] .pick::after {
+  opacity: 0.8;
+  color: var(--ink-2);
+}
+:root[data-theme="herbarium"] .tool:hover,
+:root[data-theme="herbarium"] .pick select:hover,
+:root[data-theme="herbarium"] .menu > summary:hover,
+:root[data-theme="herbarium"] .key-btn:hover,
+:root[data-theme="herbarium"] .key-close:hover,
+:root[data-theme="herbarium"] dialog .close:hover {
+  background: var(--gd-leaf) left var(--gd-lx, 11px) center / var(--gd-ls, 15px) var(--gd-ls, 15px) no-repeat, linear-gradient(#f4fbe6, #d9edba);
+}
+:root[data-theme="herbarium"] .tool[aria-pressed="true"],
+:root[data-theme="herbarium"] .menu[open] > summary,
+:root[data-theme="herbarium"] .key-btn[aria-expanded="true"],
+:root[data-theme="herbarium"] .tool.primary {
+  background: var(--gd-leaf-on) left var(--gd-lx, 11px) center / var(--gd-ls, 15px) var(--gd-ls, 15px) no-repeat, linear-gradient(#3f9a52, #2e7d3c);
+  color: var(--on-accent);
+}
+:root[data-theme="herbarium"] .key-close,
+:root[data-theme="herbarium"] dialog .close {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  background: linear-gradient(#fffef6, #eaf5d6);
+  float: right;
+}
+:root[data-theme="herbarium"] .key-btn {
+  font-size: 14px;
+  padding: 4px 12px 4px 28px;
+  background: var(--gd-leaf) left 9px center / 14px 14px no-repeat, linear-gradient(#fffef6, #eaf5d6);
+}
+:root[data-theme="herbarium"] .key-btn:hover {
+  background: var(--gd-leaf) left 9px center / 14px 14px no-repeat, linear-gradient(#f4fbe6, #d9edba);
+}
+:root[data-theme="herbarium"] .key-btn[aria-expanded="true"] {
+  background: var(--gd-leaf-on) left 9px center / 14px 14px no-repeat, linear-gradient(#3f9a52, #2e7d3c);
+}
+:root[data-theme="herbarium"] .pick option {
+  font-family: var(--font-body);
+}
+/* Topics are little pills, ticked in green when shown. */
+:root[data-theme="herbarium"] .chip {
+  border: 2px solid var(--gd-moss);
+  border-radius: 999px;
+  background: var(--panel);
+  font: 500 15px/1.2 var(--font-ui);
+  padding: 3px 12px;
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .chip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="herbarium"] .chip:hover {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .chip[aria-pressed="true"]:hover {
+  background: #266a33;
+}
+:root[data-theme="herbarium"] .banner {
+  border-bottom: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 700 13px/1.3 var(--font-body);
+}
+/* The map sits in a raised bed of boards. */
+:root[data-theme="herbarium"] .map {
+  margin: 12px 6px 14px var(--gutter);
+  border: 9px solid transparent;
+  border-radius: 18px;
+  background: var(--gd-boards) 0 0 / 240px 160px border-box;
+  box-shadow:
+    0 0 0 2px var(--gd-wood-dark),
+    0 5px 0 2px var(--gd-wood-dark),
+    0 9px 12px rgba(50, 30, 10, 0.28);
+}
+:root[data-theme="herbarium"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9px;
+  box-shadow:
+    inset 0 0 0 2px rgba(60, 35, 15, 0.6),
+    inset 0 5px 9px rgba(40, 20, 5, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="herbarium"] .crosshair {
+  --weight: 1.8px;
+  --arm: 8px;
+  filter: drop-shadow(0 0 1px #fffdf2) drop-shadow(0 0 1px #fffdf2);
+}
+:root[data-theme="herbarium"] .zoom {
+  border: 2px solid var(--gd-moss);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: 0 3px 0 rgba(50, 90, 40, 0.3);
+}
+:root[data-theme="herbarium"] .zoom button {
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+:root[data-theme="herbarium"] .zoom button:hover {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .zoom button + button {
+  border-top: 2px solid var(--gd-moss);
+}
+:root[data-theme="herbarium"] .map-note {
+  border: 3px solid var(--gd-moss);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 4px 0 rgba(50, 90, 40, 0.28);
+  font: 700 14px/1.35 var(--font-body);
+}
+/* The panel is a seed packet in a border of vine and flowers. It sits at the foot of its column and grows upward as the
+   list gets longer, scrolling inside its border once it fills the column. */
+:root[data-theme="herbarium"] .panel {
+  margin: 4px var(--gutter) 8px 4px;
+  border: var(--gd-m) solid transparent;
+  padding: 14px 14px 18px;
+  background: var(--gd-card);
+  background-origin: border-box;
+  background-clip: border-box;
+  scrollbar-color: #8dbb70 transparent;
+}
+:root[data-theme="herbarium"] .panel:not(.framed) {
+  align-self: end;
+  max-height: calc(100% - 10px);
+  min-height: min(260px, calc(100% - 10px));
+}
+:root[data-theme="herbarium"] .panel.framed {
+  padding: 6px;
+}
+:root[data-theme="herbarium"] .panel-title,
+:root[data-theme="herbarium"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.12;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #1f6b34;
+  overflow-wrap: anywhere;
+}
+:root[data-theme="herbarium"] .dateline {
+  border-bottom: 3px dotted var(--gd-moss);
+  padding-bottom: 9px;
+  align-items: end;
+}
+:root[data-theme="herbarium"] .dateline .coords,
+:root[data-theme="herbarium"] .count {
+  font: italic 700 14px/1.35 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .rule-head,
+:root[data-theme="herbarium"] .stories-group,
+:root[data-theme="herbarium"] dialog h3,
+:root[data-theme="herbarium"] .key-head h2 {
+  font: 600 14px/1.2 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+  opacity: 1;
+}
+:root[data-theme="herbarium"] .rule-head {
+  text-align: left;
+  padding: 6px 0 5px;
+  border-top: 2px solid var(--gd-moss);
+  border-bottom: 0;
+}
+:root[data-theme="herbarium"] .stories li + li {
+  border-top: 2px dotted rgba(91, 138, 71, 0.55);
+}
+:root[data-theme="herbarium"] .stories + .stories-group {
+  border-top: 2px solid var(--gd-moss);
+}
+:root[data-theme="herbarium"] .story {
+  padding: 10px 4px 9px;
+  border-radius: 10px;
+}
+:root[data-theme="herbarium"] .story:hover,
+:root[data-theme="herbarium"] .story:focus-visible {
+  background: var(--hover);
+}
+:root[data-theme="herbarium"] .headline,
+:root[data-theme="herbarium"] .earlier-word {
+  font: 800 16px/1.35 var(--font-body);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .meta {
+  font: 600 14px/1.3 var(--font-body);
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .kicker {
+  font: 600 12.5px/1.2 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+:root[data-theme="herbarium"] .related {
+  font: italic 700 14px/1.3 var(--font-body);
+  color: var(--accent);
+}
+:root[data-theme="herbarium"] .new-mark {
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .reader-headline {
+  font: 800 22px/1.3 var(--font-body);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .excerpt,
+:root[data-theme="herbarium"] .explain-text {
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+:root[data-theme="herbarium"] .excerpt-quote {
+  border-left: 4px solid #a9d08f;
+  font-style: italic;
+  font-size: 14.5px;
+}
+:root[data-theme="herbarium"] .excerpt::first-letter {
+  font: 400 2.9em/0.8 var(--font-head);
+  color: #1f6b34;
+  margin: 4px 7px 0 0;
+}
+:root[data-theme="herbarium"] .fine {
+  font-size: 13.5px;
+}
+:root[data-theme="herbarium"] .score-chip {
+  font-size: 13px;
+}
+:root[data-theme="herbarium"] .source-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+:root[data-theme="herbarium"] .cite,
+:root[data-theme="herbarium"] .source-num,
+:root[data-theme="herbarium"] .score-chip {
+  border-color: var(--gd-moss);
+  font-family: var(--font-ui);
+}
+/* The Key is a small seed packet of its own. */
+:root[data-theme="herbarium"] .key-pop {
+  border: var(--gd-m) solid transparent;
+  padding: 12px 14px 14px;
+  background: var(--gd-card);
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: none;
+  font: 600 14px/1.35 var(--font-body);
+}
+:root[data-theme="herbarium"] .key-note {
+  font-style: italic;
+  font-size: 13px;
+}
+/* Topics and Pinned open as cards. */
+:root[data-theme="herbarium"] .menu-body {
+  border: 3px solid var(--gd-moss);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    inset 0 0 0 4.5px rgba(91, 138, 71, 0.5),
+    0 5px 0 rgba(50, 90, 40, 0.28);
+  padding: 12px;
+  font-family: var(--font-body);
+}
+:root[data-theme="herbarium"] .menu-item {
+  font: 700 15px/1.3 var(--font-body);
+  border-bottom: 2px dotted rgba(91, 138, 71, 0.5);
+}
+/* About is a seed packet too, larger: the same border, the text scrolling inside it. */
+:root[data-theme="herbarium"] dialog {
+  border: var(--gd-m) solid transparent;
+  border-radius: 0;
+  padding: 18px 24px 22px;
+  background: var(--gd-card);
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: none;
+  color: var(--ink);
+  font: 600 16.5px/1.5 var(--font-body);
+}
+:root[data-theme="herbarium"] dialog::backdrop {
+  background: rgba(34, 70, 40, 0.38);
+}
+:root[data-theme="herbarium"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 30px;
+  color: #1f6b34;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="herbarium"] dialog .fine {
+  font-size: 14px;
+}
+:root[data-theme="herbarium"] dialog a {
+  color: var(--accent);
+}
+/* The time bar: a vine for the track, a flower for the handle, above the grass. */
+:root[data-theme="herbarium"] .timebar {
+  border-top: 0;
+  padding-block: 4px 30px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="herbarium"] .time-label {
+  font: 600 14px/1.2 var(--font-ui);
+  color: var(--ink);
+}
+:root[data-theme="herbarium"] .slider input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 34px;
+  background: linear-gradient(var(--gd-moss), var(--gd-moss)) center / 100% 4px no-repeat;
+  border-radius: 4px;
+  cursor: pointer;
+}
+:root[data-theme="herbarium"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: var(--gd-thumb) center / 34px 34px no-repeat;
+}
+:root[data-theme="herbarium"] .slider input::-moz-range-thumb {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: var(--gd-thumb) center / 34px 34px no-repeat;
+}
+:root[data-theme="herbarium"] .slider input::-moz-range-track {
+  background: transparent;
+}
+/* The bouquet on the page's right, above the card; decoration only, outside the map. */
+@media (min-width: 1100px) and (min-height: 800px) {
+  :root[data-theme="herbarium"] .stage {
+    background: var(--gd-bouquet) right calc(var(--gutter) + 60px) top 16px / 150px 225px no-repeat;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="herbarium"] {
+    --gd-m: 16px;
+  }
+  :root[data-theme="herbarium"] .masthead {
+    padding-block: 10px 26px;
+  }
+  :root[data-theme="herbarium"] .brand {
+    align-items: center;
+  }
+  :root[data-theme="herbarium"] .mast-title {
+    font-size: 27px;
+    padding: 2px 22px 6px;
+  }
+  :root[data-theme="herbarium"] .mast-tag {
+    padding-left: 0;
+  }
+  :root[data-theme="herbarium"] .telegram {
+    width: calc(100% - 14px);
+    padding: 12px 10px 8px;
+  }
+  :root[data-theme="herbarium"] .telegram::before {
+    left: -10px;
+    top: -26px;
+  }
+  :root[data-theme="herbarium"] .telegram::after {
+    right: -10px;
+    top: -26px;
+  }
+  :root[data-theme="herbarium"] .telegram-date {
+    border-color: rgba(91, 138, 71, 0.5);
+    border-top-style: dotted;
+    border-bottom-style: dotted;
+  }
+  :root[data-theme="herbarium"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 56px) / (var(--len, 8) * 0.74)));
+  }
+  :root[data-theme="herbarium"] .tool,
+  :root[data-theme="herbarium"] .pick select,
+  :root[data-theme="herbarium"] .menu > summary {
+    --gd-lx: 5px;
+    --gd-ls: 11px;
+    font-size: 13px;
+    padding: 4px 6px 4px 19px;
+    letter-spacing: 0;
+  }
+  :root[data-theme="herbarium"] .toolbar {
+    gap: 5px;
+  }
+  :root[data-theme="herbarium"] .pick select {
+    padding-right: 16px;
+  }
+  :root[data-theme="herbarium"] .pick::after {
+    right: 5px;
+  }
+  :root[data-theme="herbarium"] #about-btn {
+    padding: 4px 7px 4px 19px;
+  }
+  :root[data-theme="herbarium"] .map {
+    margin: 8px 12px 10px;
+    border-width: 7px;
+    border-radius: 14px;
+  }
+  :root[data-theme="herbarium"] .map::after {
+    border-radius: 7px;
+  }
+  :root[data-theme="herbarium"] .panel {
+    margin: 0 6px 6px;
+    padding: 10px 8px 14px;
+  }
+  :root[data-theme="herbarium"] .panel:not(.framed) {
+    align-self: stretch;
+    max-height: none;
+    min-height: 0;
+  }
+  :root[data-theme="herbarium"] .panel-title,
+  :root[data-theme="herbarium"] .place-name {
+    font-size: 24px;
+  }
+  :root[data-theme="herbarium"] dialog {
+    padding: 14px 14px 18px;
+  }
+}
+@media (max-width: 380px) {
+  :root[data-theme="herbarium"] .tool,
+  :root[data-theme="herbarium"] .pick select,
+  :root[data-theme="herbarium"] .menu > summary {
+    --gd-lx: 4px;
+    font-size: 12px;
+    padding: 4px 5px 4px 17px;
+  }
+  :root[data-theme="herbarium"] .pick select {
+    padding-right: 14px;
+  }
+  :root[data-theme="herbarium"] .pick::after {
+    right: 4px;
+  }
+}

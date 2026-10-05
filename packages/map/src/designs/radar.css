@@ -1,0 +1,231 @@
+/* ==========================================================================
+   Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron (decision 75): screens and cameras
+   (src/map/radar.ts, noir.ts, arcade.ts, stadium.ts, warp.ts). Tokens first, then each design's chrome.
+   ========================================================================== */
+:root[data-theme="radar"] {
+  color-scheme: dark;
+  --page: #262e29;
+  --panel: #1a211d;
+  --ink: #e2efe6;
+  --ink-2: #c3d6c9;
+  --muted: #9db3a4;
+  --rule: #4c5a51;
+  --accent: #78ffaa;
+  --on-accent: #04170c;
+  --hover: rgba(120, 255, 170, 0.08);
+  --reticle: #eafff2;
+  --grain-opacity: 0.1;
+  --grain-blend: overlay;
+  --font-mast: "Michroma", "Eurostile", sans-serif;
+  --font-head: "B612 Mono", "IBM Plex Mono", monospace;
+  --font-body: "B612 Mono", "IBM Plex Mono", monospace;
+  --font-ui: "B612 Mono", "IBM Plex Mono", monospace;
+}
+
+/* ---- Radar Sweep: an instrument console, engraved plates, lit push buttons, a phosphor readout ---------- */
+:root[data-theme="radar"] body {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 40%, #303a34, transparent 75%),
+    linear-gradient(to bottom, #2c3530, #1f2622);
+}
+/* The masthead is an engraved plate held by four screws. */
+:root[data-theme="radar"] .masthead {
+  border-bottom: 0;
+  margin: 8px 8px 0;
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 10px 10px, #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 10px) 10px, #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), #b9c2bc 0 2.5px, #3a423d 3px 4px, transparent 4.5px),
+    linear-gradient(to bottom, #3d4741, #2d3631);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="radar"] .mast-title {
+  font-family: var(--font-mast);
+  font-size: clamp(22px, 2.5vw, 32px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #dfe8e2;
+  /* Engraved: a dark cut with light catching its lower lip. */
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+:root[data-theme="radar"] .mast-tag {
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b4c7ba;
+}
+/* The word is a phosphor readout behind glass, in a small bezel. */
+:root[data-theme="radar"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #9dffc4;
+  text-shadow: 0 0 6px rgba(120, 255, 170, 0.75), 0 0 18px rgba(120, 255, 170, 0.3);
+  background: radial-gradient(ellipse at 50% 40%, #0b3321, #031a0f 70%);
+  border: 0;
+  border-radius: 14px;
+  padding: 6px 18px 4px;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.8), 0 0 0 3px #1a201c, 0 0 0 5px #7d877f, 0 2px 0 5px #2a302c;
+}
+:root[data-theme="radar"] .telegram-word:hover,
+:root[data-theme="radar"] .telegram-word:focus-visible {
+  background: radial-gradient(ellipse at 50% 40%, #0f4a2f, #052414 70%);
+  text-decoration: none;
+}
+:root[data-theme="radar"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #9dffc4;
+  text-shadow: 0 0 6px rgba(120, 255, 170, 0.6);
+}
+:root[data-theme="radar"] .telegram-kicker,
+:root[data-theme="radar"] .telegram-date {
+  color: #c3d6c9;
+  letter-spacing: 0.16em;
+}
+:root[data-theme="radar"] .telegram-center {
+  gap: 8px;
+}
+:root[data-theme="radar"] .toolbar,
+:root[data-theme="radar"] .timebar {
+  border-color: #141a16;
+  background: linear-gradient(to bottom, #2f3833, #262e29);
+}
+:root[data-theme="radar"] .map {
+  background: #262e29;
+}
+/* Square push buttons with a lit cap: dark until on, then green. */
+:root[data-theme="radar"] .tool,
+:root[data-theme="radar"] .pick select,
+:root[data-theme="radar"] .menu > summary,
+:root[data-theme="radar"] .chip,
+:root[data-theme="radar"] .key-btn,
+:root[data-theme="radar"] .key-close {
+  border: 1px solid #0e120f;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #48534c, #333c36);
+  color: #e2efe6;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 0 #121714, 0 3px 4px rgba(0, 0, 0, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+}
+:root[data-theme="radar"] .tool.quiet {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+}
+:root[data-theme="radar"] .tool[aria-pressed="true"],
+:root[data-theme="radar"] .menu[open] > summary,
+:root[data-theme="radar"] .chip[aria-pressed="true"],
+:root[data-theme="radar"] .key-btn[aria-expanded="true"] {
+  background: radial-gradient(ellipse at 50% 35%, #b8ffd4, #58d98c 70%);
+  color: #04170c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 #121714, 0 0 12px rgba(120, 255, 170, 0.55);
+  transform: translateY(1px);
+}
+:root[data-theme="radar"] .scale {
+  border-color: #121714;
+  background: #111612;
+}
+:root[data-theme="radar"] .scale .step + .step {
+  border-left-color: #2b332e;
+}
+:root[data-theme="radar"] .scale .step.on {
+  background: #78ffaa;
+  color: #04170c;
+  box-shadow: 0 0 10px rgba(120, 255, 170, 0.6);
+}
+/* The zoom is a pair of knurled knobs. */
+:root[data-theme="radar"] .zoom {
+  border: 0;
+  background: none;
+  gap: 8px;
+}
+:root[data-theme="radar"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #e8f2eb;
+  background:
+    radial-gradient(circle at 40% 35%, #79847d 0 30%, #353d38 62%, transparent 63%),
+    repeating-conic-gradient(#1a1f1c 0 5deg, #4a544e 5deg 10deg);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 0 #000;
+}
+:root[data-theme="radar"] .zoom button + button {
+  border-top: 0;
+}
+/* The reticle is the station at the centre of the rings. */
+:root[data-theme="radar"] .crosshair {
+  border: 1.5px solid #eafff2;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 3px rgba(120, 255, 170, 0.8));
+}
+/* Panels are a dark console bay with a green phosphor rule. */
+:root[data-theme="radar"] .panel,
+:root[data-theme="radar"] .menu-body,
+:root[data-theme="radar"] .key-pop,
+:root[data-theme="radar"] dialog {
+  background: linear-gradient(to bottom, #1e2621, #171d19);
+  border: 1px solid #0e120f;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="radar"] .panel {
+  margin: 8px 8px 8px 0;
+  border-radius: 6px;
+  border-top: 2px solid #78ffaa;
+}
+:root[data-theme="radar"] .key-pop {
+  --key-bg: #03140b;
+}
+:root[data-theme="radar"] .panel-title,
+:root[data-theme="radar"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #9dffc4;
+  text-shadow: 0 0 8px rgba(120, 255, 170, 0.35);
+}
+:root[data-theme="radar"] .dateline {
+  border-bottom: 1px solid #4c5a51;
+}
+:root[data-theme="radar"] .rule-head {
+  color: #9dffc4;
+  border-color: #4c5a51;
+}
+:root[data-theme="radar"] .headline {
+  font-weight: 700;
+}
+:root[data-theme="radar"] .meta,
+:root[data-theme="radar"] .telegram-note {
+  font-style: normal;
+}
+
+/* ---- Phones: the four designs keep the toolbar one row, and the word fits ------------------------------ */
+@media (max-width: 760px) {
+  :root[data-theme="radar"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter) - 48px) / (var(--len, 8) * 1.08)));
+    padding: 5px 12px 3px;
+  }
+  :root[data-theme="radar"] .masthead {
+    margin: 6px 6px 0;
+  }
+  :root[data-theme="radar"] .panel {
+    margin: 6px;
+  }
+}
+
+/* Radar Sweep on a phone: tighter capitals, so the toolbar stays one row at 360 pixels. */
+@media (max-width: 420px) {
+  :root[data-theme="radar"] .tool,
+  :root[data-theme="radar"] .pick select,
+  :root[data-theme="radar"] .menu > summary {
+    letter-spacing: 0.02em;
+    font-size: 11px;
+  }
+}

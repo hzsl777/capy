@@ -1,0 +1,1347 @@
+/* ==========================================================================
+   Couch Potato (id cube) and Dual Screen (id dual): two console eras. Couch Potato is the clean, glossy home menu
+   of early-2000s consoles (src/map/gloss.ts); Dual Screen is a two-screen handheld, the word and the stories on one
+   screen and the map on the touch screen. No console maker's names, logos, menus or characters.
+   ========================================================================== */
+:root[data-theme="cube"] {
+  color-scheme: light;
+  --page: #eef1f4;
+  --panel: #f9fbfc;
+  --ink: #37414b;
+  --ink-2: #4b5764;
+  --muted: #63707d;
+  --rule: #c5cdd5;
+  --accent: #1476b4;
+  --on-accent: #ffffff;
+  --hover: rgba(52, 187, 232, 0.12);
+  --reticle: #1476b4;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --glow: #34bbe8;
+  --font-mast: "M PLUS Rounded 1c", "Arial Rounded MT Bold", "Nunito", sans-serif;
+  --font-head: "M PLUS Rounded 1c", "Arial Rounded MT Bold", "Nunito", sans-serif;
+  --font-body: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "M PLUS Rounded 1c", "Nunito", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Couch Potato: white plastic, pale blue light, glossy bubble buttons, slow wavy lines ------------------ */
+:root[data-theme="cube"] body {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+    linear-gradient(to bottom, #f5f7f9, #e3e8ec);
+}
+:root[data-theme="cube"] .masthead {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, #ffffff, #f2f5f8);
+  box-shadow: 0 1px 0 #d6dde3, 0 4px 12px rgba(40, 80, 120, 0.08);
+  position: relative;
+  z-index: 21;
+}
+:root[data-theme="cube"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #5b6875;
+}
+:root[data-theme="cube"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .telegram-word,
+:root[data-theme="cube"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #1a82c2;
+  text-shadow: 0 1px 0 #ffffff, 0 2px 6px rgba(52, 187, 232, 0.3);
+  border-bottom: 0;
+}
+:root[data-theme="cube"] .telegram-word {
+  border-radius: 14px;
+  padding: 2px 10px 4px;
+}
+:root[data-theme="cube"] .telegram-word:hover,
+:root[data-theme="cube"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  background: rgba(52, 187, 232, 0.08);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.35);
+}
+:root[data-theme="cube"] .telegram-kicker,
+:root[data-theme="cube"] .telegram-date {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .telegram-note,
+:root[data-theme="cube"] .meta,
+:root[data-theme="cube"] .count,
+:root[data-theme="cube"] .dateline .coords {
+  font-style: normal;
+}
+:root[data-theme="cube"] .toolbar {
+  border-bottom: 0;
+  padding-block: 8px;
+}
+/* Bubble buttons: white plastic with a glossy top half, a light-blue glow when pointed at, blue when on. */
+:root[data-theme="cube"] .tool,
+:root[data-theme="cube"] .pick select,
+:root[data-theme="cube"] .menu > summary,
+:root[data-theme="cube"] .chip,
+:root[data-theme="cube"] .zoom button,
+:root[data-theme="cube"] .key-btn,
+:root[data-theme="cube"] .key-close {
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e7ecf0 52%, #f1f4f7 100%);
+  border: 1.5px solid #c3ccd4;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 4px rgba(40, 80, 120, 0.14);
+  color: var(--ink);
+  font-weight: 500;
+}
+:root[data-theme="cube"] .tool,
+:root[data-theme="cube"] .menu > summary,
+:root[data-theme="cube"] .key-btn {
+  padding-inline: 14px;
+}
+:root[data-theme="cube"] .pick select {
+  padding-left: 14px;
+}
+:root[data-theme="cube"] .tool.quiet {
+  border-color: #c3ccd4;
+}
+:root[data-theme="cube"] .tool:hover,
+:root[data-theme="cube"] .pick select:hover,
+:root[data-theme="cube"] .menu > summary:hover,
+:root[data-theme="cube"] .chip:hover,
+:root[data-theme="cube"] .zoom button:hover,
+:root[data-theme="cube"] .key-btn:hover,
+:root[data-theme="cube"] .key-close:hover {
+  border-color: var(--glow);
+  box-shadow: inset 0 1px 0 #ffffff, 0 0 0 3px rgba(52, 187, 232, 0.28), 0 2px 4px rgba(40, 80, 120, 0.14);
+}
+:root[data-theme="cube"] .tool[aria-pressed="true"],
+:root[data-theme="cube"] .menu[open] > summary,
+:root[data-theme="cube"] .key-btn[aria-expanded="true"],
+:root[data-theme="cube"] .chip[aria-pressed="true"] {
+  background: linear-gradient(to bottom, #6fd3f6 0%, #3db4e6 48%, #1f98d2 52%, #37aee3 100%);
+  border-color: #1682bb;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 60, 110, 0.45);
+}
+:root[data-theme="cube"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="cube"] .zoom button {
+  width: 38px;
+  height: 38px;
+  color: #1476b4;
+  font-weight: 800;
+}
+:root[data-theme="cube"] .zoom button + button {
+  border-top: 1.5px solid #c3ccd4;
+}
+:root[data-theme="cube"] .zoom,
+:root[data-theme="cube"] .key-btn {
+  margin: 10px;
+}
+/* Outside the channel tile or the ball: the news channel's soft blue, with two layers of thin white wavy lines
+   drifting slowly sideways. */
+:root[data-theme="cube"] .map {
+  isolation: isolate;
+  /* A size container, so the headline card above the reticle can measure the map (decision 100). */
+  container-type: size;
+  /* Inside the map, the old news channel: its Earth in dark blue space with still stars (decision 104). */
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='320'%20height='320'%3E%3Cg%20fill='%23fff'%3E%3Ccircle%20cx='104'%20cy='48'%20r='0.9'%20fill-opacity='0.39'/%3E%3Ccircle%20cx='171'%20cy='117'%20r='0.4'%20fill-opacity='0.63'/%3E%3Ccircle%20cx='12'%20cy='139'%20r='0.4'%20fill-opacity='0.40'/%3E%3Ccircle%20cx='136'%20cy='265'%20r='0.5'%20fill-opacity='0.47'/%3E%3Ccircle%20cx='201'%20cy='303'%20r='0.8'%20fill-opacity='0.57'/%3E%3Ccircle%20cx='312'%20cy='15'%20r='1.0'%20fill-opacity='0.51'/%3E%3Ccircle%20cx='46'%20cy='38'%20r='0.6'%20fill-opacity='0.80'/%3E%3Ccircle%20cx='58'%20cy='186'%20r='0.8'%20fill-opacity='0.55'/%3E%3Ccircle%20cx='175'%20cy='20'%20r='0.4'%20fill-opacity='0.46'/%3E%3Ccircle%20cx='218'%20cy='137'%20r='0.6'%20fill-opacity='0.67'/%3E%3Ccircle%20cx='145'%20cy='96'%20r='1.0'%20fill-opacity='0.73'/%3E%3Ccircle%20cx='78'%20cy='184'%20r='0.8'%20fill-opacity='0.83'/%3E%3Ccircle%20cx='233'%20cy='92'%20r='1.1'%20fill-opacity='0.41'/%3E%3Ccircle%20cx='134'%20cy='242'%20r='0.5'%20fill-opacity='0.62'/%3E%3Ccircle%20cx='13'%20cy='214'%20r='0.9'%20fill-opacity='0.67'/%3E%3Ccircle%20cx='280'%20cy='100'%20r='0.9'%20fill-opacity='0.68'/%3E%3Ccircle%20cx='186'%20cy='146'%20r='1.0'%20fill-opacity='0.87'/%3E%3Ccircle%20cx='152'%20cy='213'%20r='0.4'%20fill-opacity='0.74'/%3E%3Ccircle%20cx='207'%20cy='318'%20r='1.0'%20fill-opacity='0.51'/%3E%3Ccircle%20cx='123'%20cy='214'%20r='0.4'%20fill-opacity='0.60'/%3E%3Ccircle%20cx='54'%20cy='37'%20r='0.4'%20fill-opacity='0.77'/%3E%3Ccircle%20cx='41'%20cy='79'%20r='0.7'%20fill-opacity='0.83'/%3E%3Ccircle%20cx='26'%20cy='144'%20r='0.8'%20fill-opacity='0.84'/%3E%3Ccircle%20cx='262'%20cy='276'%20r='0.6'%20fill-opacity='0.58'/%3E%3Ccircle%20cx='115'%20cy='283'%20r='1.1'%20fill-opacity='0.43'/%3E%3Ccircle%20cx='56'%20cy='74'%20r='0.6'%20fill-opacity='0.62'/%3E%3Ccircle%20cx='189'%20cy='84'%20r='0.4'%20fill-opacity='0.58'/%3E%3Ccircle%20cx='118'%20cy='181'%20r='1.1'%20fill-opacity='0.73'/%3E%3Ccircle%20cx='165'%20cy='198'%20r='0.9'%20fill-opacity='0.38'/%3E%3Ccircle%20cx='288'%20cy='250'%20r='1.0'%20fill-opacity='0.79'/%3E%3Ccircle%20cx='126'%20cy='128'%20r='0.5'%20fill-opacity='0.70'/%3E%3Ccircle%20cx='20'%20cy='22'%20r='0.5'%20fill-opacity='0.44'/%3E%3Ccircle%20cx='109'%20cy='17'%20r='0.4'%20fill-opacity='0.43'/%3E%3Ccircle%20cx='32'%20cy='116'%20r='0.4'%20fill-opacity='0.83'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 320px 320px,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='520'%20height='520'%3E%3Cg%20fill='%23fff'%3E%3Ccircle%20cx='319'%20cy='77'%20r='0.7'%20fill-opacity='0.54'/%3E%3Ccircle%20cx='189'%20cy='64'%20r='1.4'%20fill-opacity='0.90'/%3E%3Ccircle%20cx='242'%20cy='252'%20r='0.5'%20fill-opacity='0.41'/%3E%3Ccircle%20cx='178'%20cy='138'%20r='1.4'%20fill-opacity='0.44'/%3E%3Ccircle%20cx='12'%20cy='495'%20r='1.0'%20fill-opacity='0.43'/%3E%3Ccircle%20cx='282'%20cy='14'%20r='1.0'%20fill-opacity='0.89'/%3E%3Ccircle%20cx='449'%20cy='362'%20r='0.7'%20fill-opacity='0.55'/%3E%3Ccircle%20cx='87'%20cy='401'%20r='1.0'%20fill-opacity='0.78'/%3E%3Ccircle%20cx='171'%20cy='116'%20r='1.4'%20fill-opacity='0.89'/%3E%3Ccircle%20cx='443'%20cy='419'%20r='1.4'%20fill-opacity='0.76'/%3E%3C/g%3E%3C/svg%3E") 140px 90px / 520px 520px,
+    radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
+}
+/* The panel is a channel tile of its own: a white card with a rim, the stories in rounded slots. */
+:root[data-theme="cube"] .panel {
+  margin: 12px 14px 12px 4px;
+  border: 1.5px solid #cdd5dc;
+  border-radius: 22px;
+  background: linear-gradient(to bottom, #ffffff, #f3f6f8);
+  box-shadow: inset 0 0 0 4px #ffffff, 0 4px 14px rgba(40, 80, 120, 0.12);
+}
+:root[data-theme="cube"] .panel.framed {
+  overflow: hidden;
+}
+:root[data-theme="cube"] .menu-body,
+:root[data-theme="cube"] .key-pop {
+  border: 1.5px solid #cdd5dc;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(40, 80, 120, 0.18);
+}
+:root[data-theme="cube"] .place-name,
+:root[data-theme="cube"] .panel-title {
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #3f4a55;
+}
+:root[data-theme="cube"] .dateline {
+  border-bottom: 2px solid #d7dee4;
+}
+:root[data-theme="cube"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #f4f7f9, #e4eaef);
+  color: var(--muted);
+}
+:root[data-theme="cube"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="cube"] .story {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border: 1.5px solid #d3dae1;
+  border-radius: 16px;
+  background: linear-gradient(to bottom, #ffffff, #f4f7f9);
+  box-shadow: 0 2px 5px rgba(40, 80, 120, 0.08);
+}
+:root[data-theme="cube"] .story:hover,
+:root[data-theme="cube"] .story:focus-visible {
+  outline: none;
+  background: linear-gradient(to bottom, #ffffff, #eef8fd);
+  border-color: var(--glow);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.3), 0 2px 6px rgba(40, 80, 120, 0.1);
+}
+:root[data-theme="cube"] .headline {
+  font-weight: 800;
+}
+:root[data-theme="cube"] .scale {
+  border-radius: 999px;
+  overflow: hidden;
+}
+/* The bottom bar: grey plastic with a rounded top, bubble buttons at its ends. */
+:root[data-theme="cube"] .timebar {
+  border-top: 0;
+  margin: 0 10px;
+  padding: 9px 18px;
+  border-radius: 26px 26px 0 0;
+  background: linear-gradient(to bottom, #ffffff, #e2e8ed);
+  box-shadow: inset 0 1.5px 0 #ffffff, 0 -1px 0 #cdd5dc, 0 -4px 12px rgba(40, 80, 120, 0.08);
+}
+:root[data-theme="cube"] .slider input {
+  accent-color: var(--glow);
+}
+:root[data-theme="cube"] .time-label {
+  color: var(--muted);
+  font-weight: 800;
+}
+@media (max-width: 760px) {
+  :root[data-theme="cube"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 20px) / (var(--len, 8) * 0.84)));
+  }
+  :root[data-theme="cube"] .panel {
+    margin: 6px 8px 8px;
+  }
+  :root[data-theme="cube"] .tool,
+  :root[data-theme="cube"] .menu > summary {
+    padding-inline: 10px;
+  }
+  :root[data-theme="cube"] .pick select {
+    padding-left: 10px;
+  }
+  :root[data-theme="cube"] .zoom,
+  :root[data-theme="cube"] .key-btn {
+    margin: 4px;
+  }
+  :root[data-theme="cube"] .timebar {
+    margin: 0;
+  }
+}
+:root[data-theme="cube"] {
+  /* A pointing hand of our own: white with a blue edge, over the home screen and its tiles. */
+  --x-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='%231476b4' stroke='%231476b4' stroke-width='2.6' stroke-linejoin='round'%3E%3Crect x='9' y='2' width='5.6' height='17' rx='2.8'/%3E%3Crect x='14' y='9.5' width='5' height='10' rx='2.5'/%3E%3Crect x='18.6' y='11' width='4.6' height='9' rx='2.3'/%3E%3Crect x='22.6' y='12.6' width='4.2' height='8' rx='2.1'/%3E%3Crect x='9' y='15' width='17.8' height='13' rx='5.5'/%3E%3Crect x='3' y='14.5' width='10' height='5' rx='2.5' transform='rotate(38 8 17)'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Crect x='9' y='2' width='5.6' height='17' rx='2.8'/%3E%3Crect x='14' y='9.5' width='5' height='10' rx='2.5'/%3E%3Crect x='18.6' y='11' width='4.6' height='9' rx='2.3'/%3E%3Crect x='22.6' y='12.6' width='4.2' height='8' rx='2.1'/%3E%3Crect x='9' y='15' width='17.8' height='13' rx='5.5'/%3E%3Crect x='3' y='14.5' width='10' height='5' rx='2.5' transform='rotate(38 8 17)'/%3E%3C/g%3E%3C/svg%3E") 12 3, pointer;
+}
+/* Menu, bottom left, and the Key beside it, so the card above the reticle never sits on a control. */
+:root[data-theme="cube"] .x-menu {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 98px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1.5px solid #c3ccd4;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e7ecf0 52%, #f1f4f7 100%);
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 4px rgba(40, 80, 120, 0.14);
+  color: #1476b4;
+  font: 800 14px/1 var(--font-ui);
+  cursor: pointer;
+}
+:root[data-theme="cube"] .x-menu .x-ico {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+:root[data-theme="cube"] .x-menu:hover,
+:root[data-theme="cube"] .x-menu:focus-visible {
+  outline: none;
+  border-color: var(--glow);
+  box-shadow: inset 0 1px 0 #ffffff, 0 0 0 3px rgba(52, 187, 232, 0.35), 0 2px 4px rgba(40, 80, 120, 0.14);
+}
+:root[data-theme="cube"] .key-btn {
+  top: auto;
+  left: 116px;
+  bottom: 10px;
+  height: 38px;
+  margin: 0;
+  font-size: 14px;
+}
+:root[data-theme="cube"] .zoom {
+  margin: 0;
+  right: 10px;
+  bottom: 10px;
+}
+/* In Map view the buttons sit inside the channel tile's rim (src/map/gloss.ts insets it 16 pixels, 8 on a phone). */
+:root[data-theme="cube"] .map[data-view="2d"] .x-menu {
+  left: 24px;
+  bottom: 24px;
+}
+:root[data-theme="cube"] .map[data-view="2d"] .key-btn {
+  left: 130px;
+  bottom: 24px;
+}
+:root[data-theme="cube"] .map[data-view="2d"] .zoom {
+  right: 24px;
+  bottom: 24px;
+}
+/* The Key opens above the crawl of headlines. */
+:root[data-theme="cube"] .key-pop {
+  bottom: 112px;
+}
+/* The headline card: white, rounded, a soft shadow, a little tail pointing down at the reticle. */
+:root[data-theme="cube"] .x-card:not([hidden]) {
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: calc(50% + 26px);
+  z-index: 4;
+  width: min(380px, calc(100% - 28px));
+  padding: 8px 14px 12px;
+  border: 1.5px solid #cfd8df;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 3px #ffffff, 0 10px 24px rgba(30, 80, 130, 0.22), 0 2px 5px rgba(30, 80, 130, 0.12);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  transform: translateX(-50%);
+  opacity: 0;
+}
+:root[data-theme="cube"] .x-card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: #ffffff;
+  border-right: 1.5px solid #cfd8df;
+  border-bottom: 1.5px solid #cfd8df;
+  border-bottom-right-radius: 3px;
+  transform: rotate(45deg);
+}
+:root[data-theme="cube"] .x-card.in {
+  animation: x-card-in 280ms ease-out 220ms forwards;
+}
+@keyframes x-card-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+:root[data-theme="cube"] .x-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+  margin-bottom: 2px;
+}
+:root[data-theme="cube"] .x-card-from {
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+:root[data-theme="cube"] .x-card-pager {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme="cube"] .x-card-prev,
+:root[data-theme="cube"] .x-card-next {
+  width: 28px;
+  height: 28px;
+  padding: 0 0 2px;
+  border: 1.5px solid #c3ccd4;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e7ecf0 52%, #f1f4f7 100%);
+  color: #1476b4;
+  font: 800 18px/1 var(--font-ui);
+  cursor: pointer;
+}
+:root[data-theme="cube"] .x-card-prev:hover,
+:root[data-theme="cube"] .x-card-next:hover,
+:root[data-theme="cube"] .x-card-prev:focus-visible,
+:root[data-theme="cube"] .x-card-next:focus-visible {
+  outline: none;
+  border-color: var(--glow);
+  box-shadow: 0 0 0 3px rgba(52, 187, 232, 0.35);
+}
+:root[data-theme="cube"] .x-card-story {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-height: calc(50cqh - 84px);
+  overflow-y: auto;
+  padding: 4px 6px;
+  margin: 0 -6px;
+  width: calc(100% + 12px);
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+:root[data-theme="cube"] .x-card-story:hover,
+:root[data-theme="cube"] .x-card-story:focus-visible {
+  outline: none;
+  background: #eef8fd;
+  box-shadow: inset 0 0 0 2px rgba(52, 187, 232, 0.45);
+}
+:root[data-theme="cube"] .x-card-story .headline {
+  font: 800 16px/1.3 var(--font-head);
+  color: #2f3a45;
+}
+:root[data-theme="cube"] .x-card-story .meta {
+  font-size: 12px;
+}
+:root[data-theme="cube"] .x-card-story.turn-next {
+  animation: x-turn-next 240ms ease-out;
+}
+:root[data-theme="cube"] .x-card-story.turn-prev {
+  animation: x-turn-prev 240ms ease-out;
+}
+@keyframes x-turn-next {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+}
+@keyframes x-turn-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+}
+/* The crawl of the newest headlines: a white rounded band over the bottom bar. */
+:root[data-theme="cube"] .ticker {
+  display: block;
+  flex: none;
+  height: 32px;
+  margin: 0 12px 8px;
+  border: 1.5px solid #cdd5dc;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff, #f1f4f7);
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 6px rgba(40, 80, 120, 0.1);
+}
+:root[data-theme="cube"] .timebar {
+  order: 1;
+}
+:root[data-theme="cube"] .tick {
+  color: var(--ink-2);
+  font: 500 13px/29px var(--font-body);
+  padding: 0 26px 0 0;
+}
+:root[data-theme="cube"] .tick b {
+  color: #1476b4;
+  font-weight: 800;
+}
+:root[data-theme="cube"] .tick::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 4px;
+  margin: 0 10px 3px 14px;
+  border-radius: 2px;
+  background: #9fd9f1;
+}
+:root[data-theme="cube"] .tick:hover b,
+:root[data-theme="cube"] .tick:focus-visible b {
+  text-decoration: underline;
+}
+
+/* About, over the map or the home screen: a rounded white card with a soft shadow. */
+:root[data-theme="cube"] #about {
+  border: 1.5px solid #cdd5dc;
+  border-radius: 22px;
+  background: linear-gradient(to bottom, #ffffff, #f5f7f9);
+  box-shadow: inset 0 0 0 4px #ffffff, 0 14px 34px rgba(30, 80, 130, 0.24);
+}
+:root[data-theme="cube"] #about::backdrop {
+  background: rgba(210, 222, 232, 0.55);
+}
+:root[data-theme="cube"] #about .close {
+  border: 1.5px solid #c3ccd4;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e7ecf0 52%, #f1f4f7 100%);
+  color: #1476b4;
+}
+
+/* The home screen. */
+dialog.x-home {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  cursor: var(--x-hand);
+}
+dialog.x-home[open] {
+  display: flex;
+  flex-direction: column;
+}
+dialog.x-home::backdrop {
+  background: transparent;
+}
+.x-home button {
+  cursor: var(--x-hand);
+}
+.x-home-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 38%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%),
+    repeating-linear-gradient(to bottom, #eef0f2 0 3px, #e2e5e8 3px 4px);
+}
+.x-home-scroll {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  overflow-y: auto;
+  padding: 34px 48px 30px;
+}
+/* Twelve channels of one size, four by three (decision 114). The grid is as wide as three rows of 16:10 tiles can be
+   and still fit above the bar; a tile whose text needs more room grows, and every row with it, so all stay one size. */
+.x-home-grid {
+  container-type: inline-size;
+  width: 100%;
+  max-width: min(1240px, calc((100dvh - 112px - 64px - 44px) * 16 / 10 * 4 / 3 + 66px));
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 22px;
+}
+.x-home.leaving .x-home-bg,
+.x-home.leaving .x-home-scroll,
+.x-home.leaving .x-pv,
+.x-home.leaving .x-home-bar {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+/* A channel tile: white plastic, a thin grey rim, soft blue light and a gentle zoom when pointed at. */
+.x-ch {
+  position: relative;
+  min-width: 0;
+  /* 16:10 from the grid's width (four tiles, three gaps), as a minimum rather than an aspect-ratio, which kept a
+     tile from stretching to its row and let one tile outgrow the rest. */
+  min-height: calc((100cqw - 66px) / 4 * 10 / 16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 2px solid #c6ccd2;
+  border-radius: 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 55%, #eceff1 100%);
+  box-shadow: inset 0 0 0 3px #ffffff, inset 0 -8px 14px rgba(150, 165, 180, 0.16), 0 2px 6px rgba(60, 80, 100, 0.12);
+  color: var(--ink);
+  font: 500 14px/1.3 var(--font-ui);
+  text-align: center;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+button.x-ch:hover,
+button.x-ch:focus-visible {
+  z-index: 1;
+  outline: none;
+  border-color: #35b7ea;
+  box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 8px 18px rgba(30, 110, 170, 0.22);
+  transform: scale(1.04);
+}
+/* The map channel: the map's live picture fills the tile, its name in a corner. */
+.x-ch-map {
+  justify-content: stretch;
+  padding: 6px;
+}
+.x-ch-map .x-ch-cap {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  align-items: center;
+  gap: 6px;
+  font: 800 15px/1 var(--font-mast);
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 10, 30, 0.8);
+}
+.x-ch-map .x-ch-cap .x-ico {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 1px 3px rgba(0, 10, 30, 0.8));
+}
+.x-ch-screen {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 13px;
+  background: radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(90, 130, 160, 0.35);
+}
+.x-ch-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.x-ch-cap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--muted);
+}
+.x-ch-cap b {
+  font: 800 20px/1.1 var(--font-mast);
+  color: #4d5965;
+}
+.x-ch-body {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+.x-ch-kicker,
+.x-ch-place {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.x-ch-word {
+  container-type: inline-size;
+  gap: 4px;
+}
+/* The word tile holds the most, so its icon is a little smaller and the tile keeps the grid's shape. */
+.x-ch-word .x-ch-art .x-ico {
+  width: 32px;
+  height: 32px;
+}
+.x-ch-word-text {
+  max-width: 100%;
+  font: 800 min(44px, calc(88cqi / (var(--len, 8) * 0.74))) / 1.05 var(--font-mast);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #1a82c2;
+  text-shadow: 0 1px 0 #ffffff, 0 2px 6px rgba(52, 187, 232, 0.3);
+}
+/* The tile's date and "Chosen by AI" break between the two, never inside the date. */
+.x-ch-date > span {
+  white-space: nowrap;
+}
+@media (max-width: 380px) {
+  .x-ch-date > span {
+    white-space: normal;
+  }
+}
+.x-ch-date {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-2);
+}
+.x-ch-title {
+  font: 800 18px/1.2 var(--font-head);
+  color: #3f4a55;
+}
+.x-ch-note {
+  max-width: 100%;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.x-ch-latest .x-ch-place {
+  letter-spacing: 0.04em;
+  color: #1476b4;
+}
+.x-ch-latest .headline {
+  font: 800 15px/1.3 var(--font-head);
+  color: #2f3a45;
+}
+.x-ch-latest .meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+/* Short laptop screens: smaller tiles, so a little less around the text. */
+@media (max-height: 700px) and (min-width: 761px) {
+  .x-home-scroll {
+    padding: 16px 40px;
+  }
+  .x-home-grid {
+    max-width: min(1240px, calc((100dvh - 112px - 32px - 28px) * 16 / 10 * 4 / 3 + 42px));
+    gap: 14px;
+  }
+  .x-ch {
+    min-height: calc((100cqw - 42px) / 4 * 10 / 16);
+    gap: 4px;
+    padding: 10px 14px;
+  }
+  .x-ch .x-ch-art .x-ico {
+    width: 30px;
+    height: 30px;
+  }
+  .x-ch-title {
+    font-size: 16px;
+  }
+}
+.x-ch-art {
+  display: flex;
+  justify-content: center;
+  color: #1a8fd0;
+}
+.x-ico {
+  width: 40px;
+  height: 40px;
+}
+/* The bottom bar: light grey plastic rising to a gentle hump in the middle, where the clock sits. */
+.x-home-bar {
+  position: relative;
+  flex: none;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 44px 0;
+  background: linear-gradient(to bottom, #fbfcfd, #dde2e6);
+  box-shadow: 0 -1px 0 #c3cbd2, 0 -6px 16px rgba(60, 80, 100, 0.1);
+}
+.x-home-bar::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -24px;
+  width: min(460px, 62%);
+  height: 25px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: #fbfcfd;
+  box-shadow: 0 -1px 0 #c3cbd2;
+}
+.x-clock {
+  position: relative;
+  margin: -22px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #8a949e;
+}
+.x-clock-time {
+  font: 800 46px/1 var(--font-mast);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.x-clock-date {
+  font: 800 16px/1 var(--font-ui);
+  color: #7d8a97;
+}
+.x-round .x-ico {
+  width: 34px;
+  height: 34px;
+}
+/* The map channel's own screen (decision 104): its picture large, the newest headlines crawling along its foot,
+   and two wide buttons under it, Menu and Start. The grid and the bar step away while it shows. */
+.x-home.previewing .x-home-scroll,
+.x-home.previewing .x-home-bar {
+  display: none;
+}
+.x-pv {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  padding: 40px 48px 34px;
+}
+.x-pv[hidden] {
+  display: none;
+}
+.x-pv-screen {
+  position: relative;
+  flex: 1 1 auto;
+  width: min(100%, 1100px);
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid #c6ccd2;
+  border-radius: 24px;
+  background: radial-gradient(ellipse 75% 70% at 50% 45%, #123a78 0%, #0a2453 50%, #040f29 100%);
+  box-shadow: inset 0 0 0 4px #ffffff, 0 10px 30px rgba(30, 80, 130, 0.22);
+}
+.x-pv-name {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  right: 22px;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 10, 30, 0.7);
+}
+.x-pv-name b {
+  font: 800 30px/1.1 var(--font-mast);
+}
+.x-pv-name span {
+  font: 600 15px/1.2 var(--font-ui);
+}
+.x-pv-crawl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 10px 0 12px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.94), rgba(236, 241, 245, 0.96));
+  box-shadow: 0 -1px 0 rgba(120, 140, 160, 0.35);
+  color: var(--ink);
+  font: 600 16px/1.35 var(--font-ui);
+  white-space: nowrap;
+}
+.x-pv-crawl:empty {
+  display: none;
+}
+.x-pv-crawl.still {
+  padding: 10px 20px 12px;
+  white-space: normal;
+}
+.x-pv-track {
+  display: inline-flex;
+  animation: x-pv-crawl 60s linear infinite;
+}
+.x-pv-row {
+  display: inline-flex;
+}
+.x-pv-item {
+  padding: 0 28px 0 0;
+}
+.x-pv-item b {
+  color: #1476b4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.x-pv-item b::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 4px;
+  margin: 0 10px 3px 0;
+  border-radius: 2px;
+  background: #9fd9f1;
+}
+@keyframes x-pv-crawl {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.x-pv-buttons {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  gap: clamp(24px, 10vw, 160px);
+  width: 100%;
+}
+.x-pv-btn {
+  min-width: min(300px, 40vw);
+  padding: 18px 30px;
+  border: 2px solid #c3cbd2;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e9edf0 52%, #f4f6f8 100%);
+  box-shadow: inset 0 0 0 3px #ffffff, 0 3px 8px rgba(60, 80, 100, 0.18);
+  color: #3f4a55;
+  font: 800 24px/1.1 var(--font-head);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.x-pv-btn:hover,
+.x-pv-btn:focus-visible {
+  outline: none;
+  border-color: #35b7ea;
+  color: #1476b4;
+  box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 3px 8px rgba(60, 80, 100, 0.18);
+  transform: scale(1.05);
+}
+@media (max-width: 760px) {
+  .x-pv {
+    gap: 16px;
+    padding: 16px 14px 22px;
+  }
+  .x-pv-name b {
+    font-size: 22px;
+  }
+  .x-pv-crawl {
+    font-size: 14px;
+  }
+  .x-pv-btn {
+    min-width: 0;
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 20px;
+  }
+  .x-pv-buttons {
+    gap: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .x-pv-track {
+    animation: none;
+  }
+}
+/* Every channel's own screen (decision 114): arrows at its sides step to the channel before or after. */
+.x-pv-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(100%, 1240px);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.x-pv-stage .x-pv-screen {
+  flex: 1 1 auto;
+  width: auto;
+  height: 100%;
+  container-type: inline-size;
+}
+.x-pv-screen:not([data-channel="map"]) {
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 60%, #e9eef2 100%);
+}
+.x-pv-map,
+.x-pv-body {
+  position: absolute;
+  inset: 0;
+}
+.x-pv-map[hidden],
+.x-pv-body[hidden] {
+  display: none;
+}
+.x-pv-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 56px;
+  color: var(--ink);
+  text-align: center;
+}
+.x-pv-body .x-ch-art .x-ico {
+  width: 76px;
+  height: 76px;
+}
+.x-pv-kicker {
+  margin: 0;
+  font: 800 14px/1.2 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.x-pv-word {
+  max-width: 100%;
+  font: 800 min(140px, calc(80cqi / (var(--len, 8) * 0.72))) / 1 var(--font-mast);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #1a82c2;
+  text-shadow: 0 2px 0 #ffffff, 0 4px 14px rgba(52, 187, 232, 0.3);
+}
+.x-pv-body .x-ch-date {
+  font-size: 18px;
+}
+.x-pv-body .x-ch-note,
+.x-pv-note {
+  margin: 0;
+  max-width: 40em;
+  font: 500 15px/1.4 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-title {
+  margin: 0;
+  font: 800 36px/1.1 var(--font-head);
+  color: #3f4a55;
+}
+.x-pv-text {
+  margin: 0;
+  max-width: 34em;
+  font: 600 21px/1.4 var(--font-ui);
+  color: var(--ink-2);
+}
+.x-pv-scale {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.x-pv-scale span {
+  padding: 5px 12px;
+  border: 1.5px solid #c6ccd2;
+  border-radius: 999px;
+  font: 700 13px/1.2 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-scale span.on {
+  border-color: #1a82c2;
+  background: #1a82c2;
+  color: #ffffff;
+}
+.x-pv-list,
+.x-pv-rows,
+.x-pv-chips,
+.x-pv-key {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: min(100%, 44em);
+  text-align: left;
+}
+.x-pv-list {
+  counter-reset: line;
+}
+.x-pv-list li {
+  position: relative;
+  padding: 10px 0 10px 40px;
+  border-bottom: 1px solid #dde3e8;
+  font: 600 18px/1.4 var(--font-ui);
+}
+.x-pv-list li::before {
+  counter-increment: line;
+  content: counter(line);
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1a82c2;
+  color: #ffffff;
+  font: 800 14px/26px var(--font-ui);
+  text-align: center;
+}
+.x-pv-rows li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 10px 4px;
+  border-bottom: 1px solid #dde3e8;
+}
+.x-pv-rows b {
+  flex: 1 1 auto;
+  font: 800 22px/1.2 var(--font-head);
+  color: #2f3a45;
+}
+.x-pv-date,
+.x-pv-step {
+  font: 600 15px/1.2 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-date {
+  min-width: 4.5em;
+}
+.x-pv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.x-pv-chips li {
+  padding: 8px 18px;
+  border: 2px solid #c6ccd2;
+  border-radius: 999px;
+  font: 700 17px/1.2 var(--font-ui);
+  color: var(--muted);
+}
+.x-pv-chips li.on {
+  border-color: #1a82c2;
+  color: #1476b4;
+  background: rgba(53, 183, 234, 0.12);
+}
+.x-pv-key li {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 4px;
+  font: 600 19px/1.3 var(--font-ui);
+}
+.x-pv-key .x-ch-mark {
+  flex: none;
+}
+.x-pv-latest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 40em);
+}
+.x-pv-latest .x-ch-place {
+  font: 800 15px/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1476b4;
+}
+.x-pv-latest .headline {
+  font: 800 32px/1.2 var(--font-head);
+  color: #2f3a45;
+}
+.x-pv-latest .meta {
+  font-size: 16px;
+  color: var(--muted);
+}
+.x-pv-arrow {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid #c3cbd2;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffffff 0%, #f6f8fa 48%, #e9edf0 52%, #f4f6f8 100%);
+  box-shadow: inset 0 0 0 3px #ffffff, 0 3px 8px rgba(60, 80, 100, 0.18);
+  color: #1a8fd0;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.x-pv-arrow:hover,
+.x-pv-arrow:focus-visible {
+  outline: none;
+  border-color: #35b7ea;
+  box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px rgba(53, 183, 234, 0.38), 0 3px 8px rgba(60, 80, 100, 0.18);
+  transform: scale(1.08);
+}
+.x-pv-arrow .x-ico {
+  width: 30px;
+  height: 30px;
+}
+@media (max-width: 760px) {
+  .x-pv-stage {
+    gap: 6px;
+  }
+  .x-pv-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  .x-pv-arrow .x-ico {
+    width: 20px;
+    height: 20px;
+  }
+  .x-pv-body {
+    padding: 24px 16px;
+    gap: 10px;
+  }
+  .x-pv-body .x-ch-art .x-ico {
+    width: 52px;
+    height: 52px;
+  }
+  .x-pv-title {
+    font-size: 26px;
+  }
+  .x-pv-text {
+    font-size: 17px;
+  }
+  .x-pv-list li,
+  .x-pv-key li {
+    font-size: 16px;
+  }
+  .x-pv-rows b {
+    font-size: 18px;
+  }
+  .x-pv-latest .headline {
+    font-size: 22px;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="cube"] .x-menu {
+    left: 6px;
+    bottom: 6px;
+    width: 90px;
+    height: 36px;
+  }
+  :root[data-theme="cube"] .key-btn {
+    left: 102px;
+    bottom: 6px;
+    height: 36px;
+  }
+  :root[data-theme="cube"] .zoom {
+    right: 6px;
+    bottom: 6px;
+  }
+  :root[data-theme="cube"] .zoom button {
+    width: 36px;
+    height: 36px;
+  }
+  :root[data-theme="cube"] .map[data-view="2d"] .x-menu {
+    left: 14px;
+    bottom: 14px;
+  }
+  :root[data-theme="cube"] .map[data-view="2d"] .key-btn {
+    left: 110px;
+    bottom: 14px;
+  }
+  :root[data-theme="cube"] .map[data-view="2d"] .zoom {
+    right: 14px;
+    bottom: 14px;
+  }
+  :root[data-theme="cube"] .x-card:not([hidden]) {
+    bottom: calc(50% + 22px);
+    padding: 6px 12px 10px;
+  }
+  :root[data-theme="cube"] .x-card-top {
+    min-height: 26px;
+  }
+  :root[data-theme="cube"] .x-card-story {
+    max-height: calc(50cqh - 66px);
+  }
+  :root[data-theme="cube"] .x-card-story .headline {
+    font-size: 14px;
+  }
+  :root[data-theme="cube"] .x-card-story .meta {
+    font-size: 11px;
+  }
+  :root[data-theme="cube"] .ticker {
+    display: none;
+  }
+  .x-home-scroll {
+    padding: 16px 14px 34px;
+  }
+  .x-home-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    gap: 12px;
+    /* As tall as its tiles, not the screen: a grid held to the screen's height kept rows at the tiles' minimum, which cut off a note on its third line. */
+    align-self: flex-start;
+  }
+  .x-ch {
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+  .x-home-grid {
+    max-width: none;
+  }
+  /* Every tile in a row as tall as the tallest, and none shorter than 16:11; a fixed ratio let a row's tiles differ. */
+  .x-ch {
+    min-height: calc((100cqw - 12px) / 2 * 11 / 16);
+  }
+  .x-ch-title {
+    font-size: 16px;
+  }
+  .x-ico {
+    width: 30px;
+    height: 30px;
+  }
+  .x-home-bar {
+    height: 86px;
+    padding: 10px 14px 0;
+  }
+  .x-home-bar::before {
+    width: 58%;
+    height: 19px;
+    top: -18px;
+  }
+  .x-clock {
+    margin-top: -16px;
+  }
+  .x-clock-time {
+    font-size: 32px;
+  }
+  .x-clock-date {
+    font-size: 13px;
+  }
+  .x-round .x-ico {
+    width: 28px;
+    height: 28px;
+  }
+}
+/* A short map (a phone with the reader open): Menu keeps its icon only, so the buttons stay off the globe. */
+@container (max-height: 220px) {
+  :root[data-theme="cube"] .x-menu {
+    width: 38px;
+    padding: 0;
+  }
+  :root[data-theme="cube"] .x-menu span {
+    display: none;
+  }
+  :root[data-theme="cube"] .key-btn {
+    left: 52px;
+  }
+  :root[data-theme="cube"] .map[data-view="2d"] .key-btn {
+    left: 60px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .x-ch {
+    transition: none;
+  }
+  button.x-ch:hover,
+  button.x-ch:focus-visible {
+    transform: none;
+  }
+  :root[data-theme="cube"] .x-card.in {
+    animation: none;
+    opacity: 1;
+  }
+  :root[data-theme="cube"] .x-card-story.turn-next,
+  :root[data-theme="cube"] .x-card-story.turn-prev {
+    animation: none;
+  }
+}

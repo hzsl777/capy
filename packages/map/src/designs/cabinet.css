@@ -1,0 +1,97 @@
+/* ---- Cabinet Map: parchment, sepia ink, one red ------------------------- */
+:root[data-theme="cabinet"] {
+  color-scheme: light;
+  --page: #e8d9b5;
+  --panel: #efe3c6;
+  --ink: #3a2a18;
+  --ink-2: #5a4429;
+  --muted: #7c6545;
+  --rule: #3a2a18;
+  --accent: #8e2a1c;
+  --on-accent: #f4ead2;
+  --hover: rgba(58, 42, 24, 0.07);
+  --grain-opacity: 0.45;
+  --grain-blend: multiply;
+  --font-mast: "IM Fell English SC", Georgia, serif;
+  --font-head: "IM Fell English SC", Georgia, serif;
+  --font-body: "IM Fell English", Georgia, serif;
+  --font-ui: "IM Fell English", Georgia, serif;
+}
+:root[data-theme="cabinet"] body {
+  background: radial-gradient(ellipse at center, #efe2c2 0%, #e8d9b5 55%, #d6c192 100%);
+}
+:root[data-theme="cabinet"] .mast-title::before,
+:root[data-theme="cabinet"] .mast-title::after {
+  content: " \2766 ";
+  font-size: 0.5em;
+  vertical-align: middle;
+  color: var(--accent);
+}
+:root[data-theme="cabinet"] .masthead {
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 3px 0 -1px var(--page), 0 4px 0 -1px var(--rule);
+}
+:root[data-theme="cabinet"] .toolbar {
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="cabinet"] .telegram-word {
+  font-weight: 400;
+  color: var(--accent);
+}
+:root[data-theme="cabinet"] .telegram-big {
+  font-weight: 400;
+  color: var(--accent);
+}
+:root[data-theme="cabinet"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+/* Old-style figures in IM Fell made "4-5" look like a word; these three take a classical face with lining figures. */
+:root[data-theme="cabinet"] .telegram .importance {
+  font-family: "Old Standard TT", Georgia, serif;
+}
+:root[data-theme="cabinet"] .map {
+  margin: 10px;
+  border: 1px solid var(--rule);
+  outline: 4px double var(--rule);
+  outline-offset: 4px;
+}
+:root[data-theme="cabinet"] .compass {
+  display: block;
+}
+:root[data-theme="cabinet"] .panel {
+  margin: 10px 10px 10px 0;
+  border: 1px solid var(--rule);
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 27px, rgba(58, 42, 24, 0.12) 27px 28px),
+    var(--panel);
+}
+:root[data-theme="cabinet"] .panel-title,
+:root[data-theme="cabinet"] .place-name {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 30px;
+}
+:root[data-theme="cabinet"] .headline {
+  font: 400 18px/1.2 var(--font-body);
+}
+:root[data-theme="cabinet"] .reader-headline {
+  font: 400 32px/1.1 var(--font-body);
+}
+:root[data-theme="cabinet"] .lead img {
+  filter: sepia(0.75) contrast(1.05);
+}
+@media (max-width: 760px) {
+  :root[data-theme="cabinet"] .map {
+    margin: 8px;
+  }
+  :root[data-theme="cabinet"] .panel {
+    margin: 0 8px 8px;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="cabinet"] .toolbar {
+    letter-spacing: 0.01em;
+  }
+}

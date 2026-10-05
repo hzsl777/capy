@@ -9,7 +9,7 @@ export type ViewMode = "2d" | "3d";
 
 /**
  * Everything the canvas needs to draw one look. UI chrome (fonts, panel colours)
- * lives in style.css under [data-theme=...]; keep the two in step.
+ * lives in src/designs/<id>.css under [data-theme=...] (Morning Edition's in style.css); keep the two in step.
  */
 export interface Theme {
   id: ThemeId;
@@ -1733,7 +1733,7 @@ export const THEMES: Record<ThemeId, Theme> = {
   // Undersea Town: after the feel of a bright cartoon sea floor, with no characters, dwellings or names. Turquoise
   // water lit from above, sandy seabed land with a pale lagoon along the coasts, and in tested open sea flower-shaped
   // clouds, jellyfish and little reef gardens, all drawn for this site (src/map/scenery.ts). Bubbles, the seabed and
-  // the wooden sign are chrome (style.css).
+  // the wooden sign are chrome (src/designs/reef.css).
   reef: {
     id: "reef",
     label: "Undersea Town",
@@ -1964,7 +1964,7 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   // Deli Counter: a sandwich shop's counter, after no shop in particular. Cream deli paper for land on brown butcher
   // paper for the sea, inked like a stamp; tomato-red order tickets for markers, pickle green for fresh reports. The
-  // chrome is a chalkboard menu board, a striped awning, white wall tiles and order pads (style.css).
+  // chrome is a chalkboard menu board, a striped awning, white wall tiles and order pads (src/designs/deli.css).
   deli: {
     id: "deli",
     label: "Deli Counter",
@@ -1999,7 +1999,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     decor: null,
   },
   // Marquee: a picture house, after no cinema chain or studio. The map is the silver screen in a dark auditorium,
-  // framed by red velvet curtains (style.css): silver land on a black sea, like a black-and-white picture, with
+  // framed by red velvet curtains (src/designs/marquee.css): silver land on a black sea, like a black-and-white picture, with
   // butter-yellow ticket stubs for markers and a warm projector glow round the globe. Bulb-lit marquee lettering, a
   // letter board for the word and a film strip for the time bar.
   marquee: {

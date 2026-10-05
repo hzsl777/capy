@@ -1,165 +1,6 @@
-import "@fontsource/unifrakturmaguntia";
-import "@fontsource/old-standard-tt/400.css";
-import "@fontsource/old-standard-tt/400-italic.css";
-import "@fontsource/old-standard-tt/700.css";
-import "@fontsource/im-fell-english/400.css";
-import "@fontsource/im-fell-english/400-italic.css";
-import "@fontsource/im-fell-english-sc/400.css";
-import "@fontsource/ibm-plex-mono/400.css";
-import "@fontsource/ibm-plex-mono/500.css";
-import "@fontsource/special-elite/400.css";
-import "@fontsource/vt323/400.css";
-import "@fontsource/ibm-plex-sans/400.css";
-import "@fontsource/ibm-plex-sans/600.css";
-import "@fontsource/ibm-plex-sans-condensed/500.css";
-import "@fontsource/ibm-plex-sans-condensed/600.css";
-import "@fontsource/architects-daughter/400.css";
-import "@fontsource/barlow/400.css";
-import "@fontsource/barlow/600.css";
-import "@fontsource/pirata-one/400.css";
-import "@fontsource/space-grotesk/500.css";
-import "@fontsource/space-grotesk/700.css";
-import "@fontsource/fredoka/500.css";
-import "@fontsource/fredoka/600.css";
-import "@fontsource/nunito/400.css";
-import "@fontsource/nunito/400-italic.css";
-import "@fontsource/nunito/700.css";
-import "@fontsource/press-start-2p/400.css";
-import "@fontsource/pixelify-sans/400.css";
-import "@fontsource/pixelify-sans/700.css";
-import "@fontsource/permanent-marker/400.css";
-import "@fontsource/patrick-hand/400.css";
-import "@fontsource/anton/400.css";
-import "@fontsource/titan-one/400.css";
-import "@fontsource/nunito/800.css";
-import "@fontsource/chewy/400.css";
-import "@fontsource/baloo-2/500.css";
-import "@fontsource/baloo-2/800.css";
-import "@fontsource/cinzel-decorative/700.css";
-import "@fontsource/lora/400.css";
-import "@fontsource/lora/400-italic.css";
-import "@fontsource/lora/600.css";
-import "@fontsource/graduate/400.css";
-import "@fontsource/rye/400.css";
-import "@fontsource/oswald/500.css";
-import "@fontsource/oswald/600.css";
-import "@fontsource/dotgothic16/latin-400.css";
-import "@fontsource/dotgothic16/latin-ext-400.css";
-// Night Drive, Cross Stitch and Rose Window (decision 70).
-import "@fontsource/kanit/400.css";
-import "@fontsource/kanit/600.css";
-import "@fontsource/kanit/400-italic.css";
-import "@fontsource/kanit/900-italic.css";
-import "@fontsource/mr-dafoe/400.css";
-import "@fontsource/dancing-script/700.css";
-import "@fontsource/silkscreen/400.css";
-import "@fontsource/silkscreen/700.css";
-import "@fontsource/grenze-gotisch/700.css";
-import "@fontsource/eb-garamond/400.css";
-import "@fontsource/eb-garamond/400-italic.css";
-import "@fontsource/eb-garamond/600.css";
-// Decision 71: Nightclub, Poolside and Snow Globe.
-import "@fontsource/monoton/400.css";
-import "@fontsource/tilt-neon/400.css";
-import "@fontsource/outfit/200.css";
-import "@fontsource/outfit/300.css";
-import "@fontsource/outfit/400.css";
-import "@fontsource/outfit/500.css";
-import "@fontsource/outfit/600.css";
-import "@fontsource/outfit/700.css";
-import "@fontsource/shrikhand/400.css";
-import "@fontsource/jost/400.css";
-import "@fontsource/jost/500.css";
-import "@fontsource/jost/600.css";
-// Primary (stijl): its name and word.
-import "@fontsource/jost/700.css";
-import "@fontsource/fraunces/400.css";
-import "@fontsource/fraunces/600.css";
-import "@fontsource/fraunces/700.css";
-import "@fontsource/fraunces/600-italic.css";
-// Spreadsheet, Market Terminal, Country Club and Sleeper Car (decision 74).
-import "@fontsource/source-sans-3/400.css";
-import "@fontsource/source-sans-3/600.css";
-import "@fontsource/source-sans-3/700.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/700.css";
-import "@fontsource/playfair-display/700.css";
-import "@fontsource/playfair-display/700-italic.css";
-import "@fontsource/libre-baskerville/400.css";
-import "@fontsource/libre-baskerville/400-italic.css";
-import "@fontsource/libre-baskerville/700.css";
-import "@fontsource/limelight/400.css";
-// Aquarium and Lava Lamp (decision 77).
-import "@fontsource/sniglet/400.css";
-import "@fontsource/sniglet/800.css";
-import "@fontsource/shrikhand/latin-400.css";
-import "@fontsource/shrikhand/latin-ext-400.css";
-import "@fontsource/righteous/400.css";
-// Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron (decision 75).
-import "@fontsource/michroma/400.css";
-import "@fontsource/b612-mono/400.css";
-import "@fontsource/b612-mono/700.css";
-import "@fontsource/limelight/400.css";
-import "@fontsource/poiret-one/400.css";
-import "@fontsource/courier-prime/400.css";
-import "@fontsource/courier-prime/700.css";
-import "@fontsource/bungee/400.css";
-import "@fontsource/share-tech-mono/400.css";
-import "@fontsource/jersey-10/400.css";
-import "@fontsource/big-shoulders-display/600";
-import "@fontsource/big-shoulders-display/800";
-// Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76).
-import "@fontsource/sniglet/800.css";
-import "@fontsource/alfa-slab-one/400.css";
-import "@fontsource/fredericka-the-great/400.css";
-import "@fontsource/cabin-sketch/700.css";
-import "@fontsource/kalam/latin-400.css";
-import "@fontsource/kalam/latin-ext-400.css";
-import "@fontsource/kalam/latin-700.css";
-import "@fontsource/kalam/latin-ext-700.css";
-// Rave.
-import "@fontsource/unbounded/700.css";
-import "@fontsource/unbounded/900.css";
-// Couch Potato and Dual Screen.
-import "@fontsource/m-plus-rounded-1c/latin-500.css";
-import "@fontsource/m-plus-rounded-1c/latin-800.css";
-import "@fontsource/m-plus-rounded-1c/latin-ext-500.css";
-import "@fontsource/m-plus-rounded-1c/latin-ext-800.css";
-import "@fontsource/tiny5/latin-400.css";
-import "@fontsource/tiny5/latin-ext-400.css";
-// Old Realm and Tactical.
-import "@fontsource/medievalsharp/400.css";
-import "@fontsource/alegreya/400.css";
-import "@fontsource/alegreya/700.css";
-import "@fontsource/teko/500.css";
-import "@fontsource/teko/600.css";
-// Undersea Town (Block World uses Pixelify Sans, above).
-import "@fontsource/spicy-rice/400.css";
-// Pin Drop, Deli Counter and Marquee.
-import "@fontsource/rubik/500.css";
-import "@fontsource/rubik/700.css";
-import "@fontsource/rubik/800-italic.css";
-import "@fontsource/rubik/900-italic.css";
-import "@fontsource/rubik/400.css";
-import "@fontsource/rubik-mono-one/400.css";
-import "@fontsource/literata/400.css";
-import "@fontsource/literata/400-italic.css";
-import "@fontsource/literata/600.css";
-import "@fontsource/literata/700.css";
-import "@fontsource/amatic-sc/700.css";
-import "@fontsource/arvo/400.css";
-import "@fontsource/arvo/700.css";
-import "@fontsource/arvo/400-italic.css";
-import "@fontsource/bebas-neue/400.css";
-import "@fontsource/josefin-sans/400.css";
-import "@fontsource/josefin-sans/600.css";
-import "@fontsource/josefin-sans/700.css";
-// Gummy Cluster (Nunito, above, for reading).
-import "@fontsource/lilita-one/400.css";
-// Shortwave: the dial's printing (Limelight and Courier Prime, above, for the name and the log card).
-import "@fontsource/barlow-condensed/500.css";
-import "@fontsource/barlow-condensed/600.css";
 import "./style.css";
+// The default design: its fonts. Every other design's CSS, fonts and code arrive with its entry (src/registry.ts).
+import "./designs/morning.ts";
 
 import type { MapEvent, MapFile, MapItem, MapTile } from "./types.ts";
 
@@ -172,6 +13,7 @@ import {
   TOPIC_LABEL,
   formatCoords,
   editionDate,
+  REPLAY_MS,
   formatRunDate,
   formatShortDate,
   formatWeekday,
@@ -202,43 +44,29 @@ import { browserLanguages, LANGUAGES, lastFailure, needsTranslation, normalizeLa
 import { isNew, loadPins, markSeen, newCounts, prefs, rawPref, savePins, setPref, startClocks } from "./pins.ts";
 import { h, safeUrl } from "./ui/dom.ts";
 import { SITE_NAME, SITE_TAGLINE } from "./brand.ts";
-import { mountExtras, moveExtras, refreshExtras } from "./ui/extras.ts";
-import { hideChannels, mountChannels, refreshChannels, showChannels, type Channel } from "./ui/channels.ts";
 import { mountDesignPicker } from "./ui/designs.ts";
-// Departures: the split-flap board's tiles, rows and hall clock.
-import "@fontsource-variable/martian-mono/wdth.css";
-import "@fontsource/barlow-condensed/500.css";
-import "@fontsource/barlow-condensed/600.css";
-import { boardHead, boardTurn, flipIn, mountBoard } from "./ui/flap.ts";
-// Woodblock: a brush-like face for the name and the word, and a mincho serif's Latin for reading.
-import "@fontsource/kaushan-script/latin-400.css";
-import "@fontsource/shippori-mincho/latin-400.css";
-import "@fontsource/shippori-mincho/latin-600.css";
-import "@fontsource/shippori-mincho/latin-700.css";
-// Desktop 95: the site as a desktop of windows.
-import { mountDesktop } from "./ui/desktop.ts";
-import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
-// Lobster: the panel hauled up like a pot when a place is tuned.
-import { haul } from "./ui/lobster.ts";
-import { mountPaper } from "./ui/paper.ts";
-import { mountDial, moveDial } from "./ui/dial.ts";
-import { renderPostcard } from "./ui/postcard.ts";
-// Zine: chunky display capitals for the off-register name and word.
-import "@fontsource/bowlby-one/400.css";
-// Tiramisu: the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card. Lobster's
-// buoy band, too.
+import type { Channel } from "./ui/channels.ts";
+import { isLoaded, loadDesign, prefetchDesign, ui, type UiKits } from "./registry.ts";
+// Find a place and the first-visit hint (src/search.ts, src/ui/search.ts, src/hint.ts, src/ui/hint.ts).
+import type { PlaceEntry } from "./search.ts";
+import { mountSearch } from "./ui/search.ts";
+import { mountHint } from "./ui/hint.ts";
+// Tiramisu's coffee bean crease and Lobster's buoy band, in the Key.
 import { beanCrease, buoyBand } from "./map/marks.ts";
-import "@fontsource/playfair-display/400-italic.css";
-import "@fontsource/playfair-display/600-italic.css";
-// Alien: Zen Dots for the name and the word, Lexend for reading.
-import "@fontsource/zen-dots/latin-400.css";
-import "@fontsource/lexend/400.css";
-import "@fontsource/lexend/600.css";
-// Burger Joint: the Topics menu's burger, built from the topics that are on.
-import { syncBurger } from "./ui/burger.ts";
-// Bunny: Fraunces for the name, the word and the heads (Nunito, above, for reading).
-import "@fontsource/fraunces/latin-700.css";
-import "@fontsource/fraunces/latin-800.css";
+
+// The chrome a design adds to the page (src/ui) is loaded with the design (src/registry.ts). Until a design that brings
+// one is shown these do nothing, so the page is the same in every other design.
+const refreshExtras = () => ui.extras?.refreshExtras();
+const moveExtras = () => ui.extras?.moveExtras();
+const refreshChannels = () => ui.channels?.refreshChannels();
+const showChannels = (wide: boolean) => ui.channels?.showChannels(wide);
+const hideChannels = () => ui.channels?.hideChannels();
+const syncVinyl = () => ui.vinyl?.syncVinyl();
+const deckStopped = () => ui.vinyl?.deckStopped() ?? false;
+const replayStepMs = () => ui.vinyl?.replayStepMs() ?? REPLAY_MS;
+const moveDial = () => ui.dial?.moveDial();
+const haul = (...args: Parameters<NonNullable<UiKits["lobster"]>["haul"]>) => ui.lobster?.haul(...args);
+const syncBurger = (...args: Parameters<NonNullable<UiKits["burger"]>["syncBurger"]>) => ui.burger?.syncBurger(...args);
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -337,36 +165,54 @@ function armIdleSpin() {
   }, IDLE_SPIN_MS);
 }
 
-const map = new MapView($("map"), THEMES[state.theme], {
-  onTune(indices) {
-    state.tuned = indices;
-    state.showAll = false;
-    if (!state.reader && !state.telegram && !state.event) renderPanel();
-    syncUrl();
-    refreshExtras();
-    // Lobster: the panel is a pot, hauled up when a place is tuned.
-    haul(state.theme, $("panel"), indices);
-  },
-  onMove: moveExtras,
-  onLevel(level) {
-    state.level = level;
-    if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
-  },
-  onInteract: armIdleSpin,
-  onLand() {
-    armIdleSpin();
-    renderCard();
-  },
-  onDraw() {
-    tilesSoon();
-    syncVinyl();
-    // Shortwave's needle follows the reticle on every frame, the idle spin's included (src/ui/dial.ts).
-    moveDial();
-  },
-});// The dev server only: browser checks read the map's centre (the snap on release, decision 125). Not in the build.
-if (import.meta.env.DEV) (window as unknown as { __map: MapView }).__map = map;
+// The map is made in start(), once the design the page opens in has loaded (src/registry.ts): its CSS, fonts and drawing
+// code come as one chunk, and a map handed a design before it arrives would draw another. It must not wait at the top
+// of this module: a design's chunk imports the page's own, which would then be waiting for the chunk.
+let map: MapView;
 
-map.setMode(viewOf());
+/** The design the page opens in: a returning reader's saved one, or the link's. A chunk that cannot load leaves Morning Edition on, and the saved choice alone. */
+async function openingDesign() {
+  if (isLoaded(state.theme)) return;
+  try {
+    await loadDesign(state.theme);
+  } catch (err) {
+    console.warn("Design failed to load", state.theme, err);
+    state.theme = "morning";
+  }
+}
+
+function createMap() {
+  map = new MapView($("map"), THEMES[state.theme], {
+    onTune(indices) {
+      state.tuned = indices;
+      state.showAll = false;
+      if (!state.reader && !state.telegram && !state.event) renderPanel();
+      syncUrl();
+      refreshExtras();
+      // Lobster: the panel is a pot, hauled up when a place is tuned.
+      haul(state.theme, $("panel"), indices);
+    },
+    onMove: moveExtras,
+    onLevel(level) {
+      state.level = level;
+      if (state.tuned && !state.reader && !state.telegram && !state.event) renderPanel();
+    },
+    onInteract: armIdleSpin,
+    onLand() {
+      armIdleSpin();
+      renderCard();
+    },
+    onDraw() {
+      tilesSoon();
+      syncVinyl();
+      // Shortwave's needle follows the reticle on every frame, the idle spin's included (src/ui/dial.ts).
+      moveDial();
+    },
+  });
+  // The dev server only: browser checks read the map's centre (the snap on release, decision 125). Not in the build.
+  if (import.meta.env.DEV) (window as unknown as { __map: MapView }).__map = map;
+  map.setMode(viewOf());
+}
 
 function refreshDots() {
   if (!state.file) return;
@@ -550,6 +396,43 @@ function flyToPlace(index: number) {
   if (p) map.flyTo(p.lon, p.lat);
 }
 
+// ---- find a place, and the first-visit hint ------------------------------------------------------------------------
+
+/**
+ * The reader picked a place in search: out of whatever the panel showed, to a zoom where the place shows, and tuned
+ * there with its panel. A town in a tile not loaded yet is flown to the same way; its tile loads as the map lands, as
+ * for a pin (`flyToId`).
+ */
+function pickFound(p: PlaceEntry) {
+  hint.dismiss();
+  setKey(false);
+  closeMenus();
+  if (state.reader || state.telegram || state.event) {
+    closeReader();
+    closeTelegram();
+    renderPanel();
+  }
+  // Reports the topics on or the replay's moment hide would leave nothing under the reticle: back to all topics, live.
+  const index = p.index ?? state.placeIds.get(p.id);
+  if (index !== undefined && !state.byPlace.has(index)) {
+    stopReplay();
+    state.topics = new Set(FILTERS);
+    setSlot(SLOTS, true);
+  }
+  map.stopSpin();
+  map.flyTo(p.lon, p.lat, p.tier > 0 ? Math.max(map.zoom, map.levelZoom(p.tier)) : undefined);
+  armIdleSpin();
+}
+
+// Desktop 95 on a phone shows one window at a time, and the Reports window is not the one the reader opens on, so the
+// line sits in the map's window there, over the map.
+const hintInMap = () => state.theme === "desktop" && phone.matches;
+const hint = mountHint({
+  map: () => $("map"),
+  mount: (line) => (hintInMap() ? $("map").before(line) : $("panel").prepend(line)),
+  wanted: () => hintInMap() || (!state.reader && !state.telegram && !state.event),
+});
+
 // ---- masthead ---------------------------------------------------------------
 
 /** Designs whose big lettering is set one letter at a time, so each letter can tilt and bob like cartoon type. */
@@ -584,7 +467,7 @@ function lettered(el: HTMLElement, text: string) {
       return span;
     }),
   );
-  if (state.theme === "flap") flipIn(el, el.id || el.className);
+  if (state.theme === "flap") ui.flap?.flipIn(el, el.id || el.className);
   return el;
 }
 
@@ -620,8 +503,34 @@ function groupDesigns(el: HTMLSelectElement) {
   el.value = state.theme;
 }
 
-function chooseDesign(id: ThemeId) {
+/** The newest choice wins: a design still loading when another is picked is dropped on arrival. */
+let designAsked = 0;
+
+/**
+ * Picks a design: its chunk (CSS, fonts and code, src/registry.ts) loads first and the page changes in one step when
+ * it is here, so a design never shows half dressed. A failed load leaves the design as it was and says so.
+ */
+async function chooseDesign(id: ThemeId) {
   closeMenus();
+  const ask = ++designAsked;
+  if (!isLoaded(id)) {
+    document.documentElement.dataset.loading = id;
+    try {
+      await loadDesign(id);
+    } catch (err) {
+      console.warn("Design failed to load", id, err);
+      if (ask === designAsked) {
+        delete document.documentElement.dataset.loading;
+        ($("design-select") as HTMLSelectElement).value = state.theme;
+        mapNote("That design couldn't load. Check the connection and try again.");
+        window.setTimeout(() => mapNote(null), 4000);
+      }
+      return;
+    }
+    if (ask !== designAsked) return;
+    delete document.documentElement.dataset.loading;
+  }
+  mountKits();
   state.theme = id;
   setPref("theme", id);
   applyTheme();
@@ -635,6 +544,7 @@ const designPicker = mountDesignPicker($("design-select") as HTMLSelectElement, 
   current: () => state.theme,
   ids: menuIds,
   pick: chooseDesign,
+  prefetch: prefetchDesign,
   phone: () => phone.matches,
 });
 
@@ -958,7 +868,7 @@ function storyButton(it: Item, now: number, showPlace = false, showPublisher = t
   const others = it.story ? new Set((state.stories.get(it.story) ?? []).map((s) => s.publisher)).size - 1 : 0;
   // Departures: a board's row starts with the report's time and its outlet, so the line under the headline keeps the
   // rest (how long ago, GDELT, the language, the topic) and names the outlet only once.
-  const board = state.theme === "flap" ? boardHead(it.t, showPublisher ? (it.from ? `${it.publisher}, ${it.from}` : it.publisher) : null) : null;
+  const board = state.theme === "flap" ? ui.flap?.boardHead(it.t, showPublisher ? (it.from ? `${it.publisher}, ${it.from}` : it.publisher) : null) : null;
   const b = h(
     "button",
     { type: "button", class: "story" },
@@ -976,6 +886,7 @@ function storyButton(it: Item, now: number, showPlace = false, showPublisher = t
 
 function renderPanel() {
   renderPanelView();
+  hint.attach();
   renderCard();
 }
 
@@ -1134,7 +1045,7 @@ function renderIdle(panel: HTMLElement) {
       tileNote(),
     ),
   );
-  if (state.theme === "flap") boardTurn(panel, "latest");
+  if (state.theme === "flap") ui.flap?.boardTurn(panel, "latest");
 }
 
 /** One place, or nearby places merged at this zoom: their own outlets' reports first, then the rest, each newest first. */
@@ -1201,13 +1112,13 @@ function renderPlaces(panel: HTMLElement, indices: number[]) {
     ...(note ? [note] : []),
   );
   // Departures: the rows turn over to the new place's reports, in the panel's own order.
-  if (state.theme === "flap") boardTurn(panel, indices.join(","));
+  if (state.theme === "flap") ui.flap?.boardTurn(panel, indices.join(","));
   const body = [...lists, ...(more ? [more] : []), ...(note ? [note] : [])];
   // Postcards: the same dateline and lists, on the back of a postcard that turns over (src/ui/postcard.ts).
   if (state.theme === "postcard") {
     const names = indices.map((i) => file.places[i].name);
     const key = indices.map((i) => file.places[i].id).join(",");
-    return renderPostcard(panel, { key, title: names.length > 1 ? `${names.length} places` : place.name, names, head, body, when: all[0]?.t ?? lookTime() });
+    if (ui.postcard) return ui.postcard.renderPostcard(panel, { key, title: names.length > 1 ? `${names.length} places` : place.name, names, head, body, when: all[0]?.t ?? lookTime() });
   }
   panel.replaceChildren(head, ...body);
 }
@@ -1782,7 +1693,139 @@ function bindGlobal() {
   });
 }
 
+/** Each page kit a design brings is mounted once, when its design is first dressed (`mountKits`). */
+const mountedKits = new Set<string>();
+const MOUNTS: { [K in keyof UiKits]-?: (kit: NonNullable<UiKits[K]>) => void } = {
+  flap: (kit) => {
+    kit.mountBoard($("toolbar"), $("masthead"));
+  },
+  extras: (kit) => {
+    kit.mountExtras({
+      theme: () => state.theme,
+      tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
+      center: () => map.center(),
+      latest: () =>
+        [...state.byPlace.values()]
+          .flat()
+          .sort((a, b) => b.t - a.t)
+          .slice(0, 5)
+          .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
+      builtAt: () => state.file?.generatedAt ?? null,
+      kmPerPixel: () => map.kmPerPixel(),
+      level: () => map.level(),
+    });
+  },
+  paper: (kit) => {
+    // Notebook's pages for the panel and the About dialog; idle in every other design.
+    kit.mountPaper();
+  },
+  dial: (kit) => {
+    // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
+    kit.mountDial({
+      theme: () => state.theme,
+      center: () => map.center(),
+      tuned: () => state.tuned !== null,
+      nearest: () => map.nearestPx(),
+      level: () => map.level(),
+      turnTo: (lon) => map.turnTo(lon),
+      turnBy: (px) => map.turnBy(px),
+      snap: () => map.snapSoon(),
+      band: (level) => map.bandTo(level),
+    });
+  },
+  channels: (kit) => {
+    kit.mountChannels({
+      theme: () => state.theme,
+      word: () => {
+        const file = state.file;
+        if (!file) return null;
+        const status = wordStatus(file);
+        const date = formatRunDate(editionDate(status.date));
+        return file.telegram ? { kicker: status.note ? "Latest Word" : "Today's Word", word: file.telegram.word, date } : { none: "No word for this day", date };
+      },
+      scale: () => {
+        const band = state.file?.telegram?.band;
+        return band === undefined ? null : { steps: [-2, -1, 0, 1, 2].map((b) => BAND_LABEL[b]!), on: band + 2 };
+      },
+      events: () => state.file?.telegram?.items.map((i) => i.line) ?? [],
+      recent: () => (state.file?.recent ?? []).map((r) => ({ date: formatShortDate(editionDate(r.date)), word: r.word, step: BAND_LABEL[r.band] ?? "" })),
+      topicList: () => FILTERS.map((f) => ({ label: TOPIC_LABEL[f], on: state.topics.has(f) })),
+      design: () => THEMES[state.theme].label,
+      latest: () => {
+        const it = newest();
+        return it && state.file ? [h("span", { class: "x-ch-place" }, state.file.places[it.place]!.name), headline(it), metaLine(it, state.file.generatedAt)] : null;
+      },
+      topics: () => (state.topics.size === FILTERS.length ? "All topics" : `${state.topics.size} of ${FILTERS.length} topics`),
+      pins: () => {
+        const news = pinNews();
+        return { names: state.pins.map((p) => p.name), news: [...news.values()].reduce((a, b) => a + b, 0), each: state.pins.map((p) => ({ name: p.name, news: news.get(p.id) ?? 0 })) };
+      },
+      language: () => (state.translateTo ? `Into ${nativeName(state.translateTo)}` : "Headlines as published"),
+      headlines: () => {
+        const file = state.file;
+        if (!file) return [];
+        return [...state.byPlace.values()]
+          .map((list) => list[0]!)
+          .sort((a, b) => b.t - a.t)
+          .slice(0, 8)
+          .map((it) => ({ place: file.places[it.place]!.name, title: it.title }));
+      },
+      open: openChannel,
+      about: () => ($("about") as HTMLDialogElement).showModal(),
+    });
+  },
+  desktop: (kit) => {
+    // Desktop 95: moves the page's own parts into windows while it shows, and back after.
+    kit.mountDesktop({
+      theme: () => state.theme,
+      wordView: () => state.telegram,
+      openWord: openTelegram,
+      closeWord: () => {
+        closeTelegram();
+        renderPanel();
+      },
+      setKey,
+      replay: () => {
+        if (!state.playing) $("play").click();
+      },
+      about: () => ($("about") as HTMLDialogElement).showModal(),
+    });
+  },
+  vinyl: (kit) => {
+    // Record Player: the record's centre label and its deck.
+    kit.mountVinyl({
+      theme: () => state.theme,
+      spinning: () => map.isSpinning,
+      start: () => map.startSpin(),
+      stop: () => {
+        map.stopSpin();
+        armIdleSpin();
+      },
+      date: () => (state.file ? formatRunDate(editionDate(wordStatus(state.file).date)) : ""),
+      redraw: () => map.request(),
+    });
+  },
+  // Kits with nothing to mount: the page calls their functions as it changes.
+  lobster: () => {},
+  postcard: () => {},
+  burger: () => {},
+};
+
+/** Mounts the page kits that loaded designs have brought and the page has not mounted yet. */
+function mountKits() {
+  for (const name of Object.keys(MOUNTS) as (keyof UiKits)[]) {
+    const kit = ui[name];
+    if (!kit || mountedKits.has(name)) continue;
+    mountedKits.add(name);
+    (MOUNTS[name] as (kit: unknown) => void)(kit);
+  }
+}
+
 async function start() {
+  // A returning reader whose design is not Morning Edition waits here for its files, which index.html's boot script
+  // started loading and has held the page back for, rather than seeing Morning Edition's chrome first.
+  await openingDesign();
+  createMap();
   // Kept in step with index.html's <title>, which is what link previews and search results read.
   document.title = `${SITE_NAME}: ${SITE_TAGLINE}`;
   for (const el of document.querySelectorAll("[data-site-name]")) el.textContent = SITE_NAME;
@@ -1801,100 +1844,17 @@ async function start() {
   renderPanel();
   bindTimebar();
   bindGlobal();
-  mountBoard($("toolbar"), $("masthead"));
-  mountExtras({
-    theme: () => state.theme,
-    tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
-    center: () => map.center(),
-    latest: () =>
-      [...state.byPlace.values()]
-        .flat()
-        .sort((a, b) => b.t - a.t)
-        .slice(0, 5)
-        .map((it) => ({ place: state.file!.places[it.place]?.name ?? "", title: it.title, open: () => openReader(it) })),
-    builtAt: () => state.file?.generatedAt ?? null,
-    kmPerPixel: () => map.kmPerPixel(),
-    level: () => map.level(),
-  });
-  // Notebook's pages for the panel and the About dialog; idle in every other design.
-  mountPaper();
-  // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
-  mountDial({
-    theme: () => state.theme,
-    center: () => map.center(),
-    tuned: () => state.tuned !== null,
-    nearest: () => map.nearestPx(),
-    level: () => map.level(),
-    turnTo: (lon) => map.turnTo(lon),
-    turnBy: (px) => map.turnBy(px),
-    snap: () => map.snapSoon(),
-    band: (level) => map.bandTo(level),
-  });
-  mountChannels({
-    theme: () => state.theme,
-    word: () => {
-      const file = state.file;
-      if (!file) return null;
-      const status = wordStatus(file);
-      const date = formatRunDate(editionDate(status.date));
-      return file.telegram ? { kicker: status.note ? "Latest Word" : "Today's Word", word: file.telegram.word, date } : { none: "No word for this day", date };
-    },
-    scale: () => {
-      const band = state.file?.telegram?.band;
-      return band === undefined ? null : { steps: [-2, -1, 0, 1, 2].map((b) => BAND_LABEL[b]!), on: band + 2 };
-    },
-    events: () => state.file?.telegram?.items.map((i) => i.line) ?? [],
-    recent: () => (state.file?.recent ?? []).map((r) => ({ date: formatShortDate(editionDate(r.date)), word: r.word, step: BAND_LABEL[r.band] ?? "" })),
-    topicList: () => FILTERS.map((f) => ({ label: TOPIC_LABEL[f], on: state.topics.has(f) })),
-    design: () => THEMES[state.theme].label,
-    latest: () => {
-      const it = newest();
-      return it && state.file ? [h("span", { class: "x-ch-place" }, state.file.places[it.place]!.name), headline(it), metaLine(it, state.file.generatedAt)] : null;
-    },
-    topics: () => (state.topics.size === FILTERS.length ? "All topics" : `${state.topics.size} of ${FILTERS.length} topics`),
-    pins: () => {
-      const news = pinNews();
-      return { names: state.pins.map((p) => p.name), news: [...news.values()].reduce((a, b) => a + b, 0), each: state.pins.map((p) => ({ name: p.name, news: news.get(p.id) ?? 0 })) };
-    },
-    language: () => (state.translateTo ? `Into ${nativeName(state.translateTo)}` : "Headlines as published"),
-    headlines: () => {
-      const file = state.file;
-      if (!file) return [];
-      return [...state.byPlace.values()]
-        .map((list) => list[0]!)
-        .sort((a, b) => b.t - a.t)
-        .slice(0, 8)
-        .map((it) => ({ place: file.places[it.place]!.name, title: it.title }));
-    },
-    open: openChannel,
-    about: () => ($("about") as HTMLDialogElement).showModal(),
-  });
-  // Desktop 95: moves the page's own parts into windows while it shows, and back after.
-  mountDesktop({
-    theme: () => state.theme,
-    wordView: () => state.telegram,
-    openWord: openTelegram,
-    closeWord: () => {
-      closeTelegram();
-      renderPanel();
-    },
-    setKey,
-    replay: () => {
-      if (!state.playing) $("play").click();
-    },
-    about: () => ($("about") as HTMLDialogElement).showModal(),
-  });
-  // Record Player: the record's centre label and its deck.
-  mountVinyl({
-    theme: () => state.theme,
-    spinning: () => map.isSpinning,
-    start: () => map.startSpin(),
-    stop: () => {
-      map.stopSpin();
-      armIdleSpin();
-    },
-    date: () => (state.file ? formatRunDate(editionDate(wordStatus(state.file).date)) : ""),
-    redraw: () => map.request(),
+  // The page chrome of the design the page opens in (and of any later one, as it is picked).
+  mountKits();
+  // The design is dressed and in place: show the page (index.html's boot script held it back for a saved design).
+  document.documentElement.removeAttribute("data-boot");
+  mountSearch({
+    file: () => state.file,
+    tiered: () => state.tiered,
+    known: () => state.placeIds,
+    phone: () => phone.matches,
+    dataBase: BASE,
+    pick: pickFound,
   });
 
   // Either basemap draws the land; only when neither has does the map say so, rather than show an empty sea.
@@ -1958,6 +1918,8 @@ async function start() {
   // A shared link lands on its place, even one whose local stories load only when zoomed in.
   const start = params.get("place");
   const landed = !!start && flyToId(start);
+  // A first-time reader gets one line about how the page works, unless a shared link brought them to a place.
+  hint.start(landed);
   // Like a radio dial: the map turns on its own until a place lands under the cross.
   if (!landed && !reducedMotion) {
     // A different stretch of the world each visit, a little north of the equator where most places are.

@@ -1,0 +1,148 @@
+:root[data-theme="newsroom"] {
+  color-scheme: dark;
+  --page: #050d24;
+  --panel: #0a1838;
+  --ink: #f2f6ff;
+  --ink-2: #d4def5;
+  --muted: #9fb0d6;
+  --rule: #23407a;
+  --accent: #e4002b;
+  --on-accent: #ffffff;
+  --hover: rgba(108, 196, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Oswald", "Arial Narrow", sans-serif;
+  --font-head: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Barlow", "Arial", sans-serif;
+  --font-ui: "Barlow", "Arial", sans-serif;
+}
+
+/* ---- Newsroom: a studio set, an LED wall, captions across the lower third -------------- */
+:root[data-theme="newsroom"] body {
+  background: linear-gradient(to bottom, #050d24, #0a1a44);
+}
+/* Studio lights behind the wall. */
+:root[data-theme="newsroom"] .map {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(40, 110, 220, 0.35), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(108, 196, 255, 0.05) 0 1px, transparent 1px 64px),
+    linear-gradient(to bottom, #040b20, #0b2152 70%, #06112c);
+}
+:root[data-theme="newsroom"] .masthead {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, #0b1c46, #050d24);
+  box-shadow: inset 0 -3px 0 #e4002b;
+}
+:root[data-theme="newsroom"] .mast-title {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+:root[data-theme="newsroom"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+/* The word as a caption: a red tab with the label, then the word on a white bar. */
+:root[data-theme="newsroom"] .telegram-kicker {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #e4002b;
+  color: #ffffff;
+  font: 600 12px/1.2 var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="newsroom"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #081a44;
+  background: linear-gradient(to bottom, #ffffff, #dfe7f5);
+  padding: 0 0.3em;
+  border-bottom: 4px solid #e4002b;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="newsroom"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+:root[data-theme="newsroom"] .telegram-date {
+  font-family: var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="newsroom"] .panel,
+:root[data-theme="newsroom"] .menu-body,
+:root[data-theme="newsroom"] .key-pop {
+  background: linear-gradient(to bottom, rgba(18, 40, 92, 0.96), rgba(8, 20, 52, 0.96));
+  border: 1px solid #2d57a8;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="newsroom"] .panel {
+  margin: 8px;
+}
+:root[data-theme="newsroom"] .panel h2 {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+:root[data-theme="newsroom"] .tool,
+:root[data-theme="newsroom"] .pick select,
+:root[data-theme="newsroom"] .menu > summary,
+:root[data-theme="newsroom"] .chip,
+:root[data-theme="newsroom"] .zoom button,
+:root[data-theme="newsroom"] .key-btn,
+:root[data-theme="newsroom"] .key-close {
+  background: linear-gradient(to bottom, #1c3d86, #0d2256);
+  border: 1px solid #3a67c0;
+  border-radius: 4px;
+  color: #ffffff;
+}
+:root[data-theme="newsroom"] .menu[open] > summary,
+:root[data-theme="newsroom"] .key-btn[aria-expanded="true"],
+:root[data-theme="newsroom"] .tool[aria-pressed="true"] {
+  background: #e4002b;
+  border-color: #e4002b;
+}
+/* The crawl along the bottom of the screen. */
+:root[data-theme="newsroom"] .ticker {
+  display: block;
+  height: 34px;
+  border-top: 0;
+  background: linear-gradient(to right, #e4002b 0 118px, #ffffff 118px);
+  padding-left: 126px;
+  position: relative;
+}
+:root[data-theme="newsroom"] .ticker::before {
+  content: "Headlines";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 118px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: #e4002b;
+  font: 600 13px/1 var(--font-mast);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 1;
+}
+:root[data-theme="newsroom"] .tick {
+  color: #081a44;
+  font: 500 14px/34px var(--font-body);
+}
+:root[data-theme="newsroom"] .tick b {
+  color: #c8001f;
+  font-weight: 700;
+}
+:root[data-theme="newsroom"] .tick::before {
+  content: "\25A0  ";
+  color: #e4002b;
+}

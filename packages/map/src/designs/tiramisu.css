@@ -1,0 +1,428 @@
+/* ---- Tiramisu (id tiramisu): a cream and cocoa pasticceria of our own, no cafe's or brand's name, mark
+   or packaging. The page is cream dusted with cocoa; the name and the word in Playfair Display's italic like a pastry
+   label; the panel, the menus, the Key and the About dialog are menu cards in a fine double cocoa rule; buttons are
+   cocoa-dusted tiles, the zoom buttons piped cream rosettes. Reading text is Lora in espresso brown on cream. Nothing
+   moves. The canvas side is src/map/tiramisu.ts. ---- */
+:root[data-theme="tiramisu"] {
+  color-scheme: light;
+  --page: #f6eedf;
+  --panel: #fffaf0;
+  --ink: #2b1a10;
+  --ink-2: #4a2f1e;
+  --muted: #6b4c38;
+  --rule: #5a3a24;
+  --accent: #6b3f22;
+  --on-accent: #fff8ec;
+  --hover: rgba(107, 63, 34, 0.08);
+  --reticle: #2b1a10;
+  --grain-opacity: 0;
+  --grain-blend: multiply;
+  --font-mast: "Playfair Display", Georgia, serif;
+  --font-head: "Playfair Display", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
+  --font-ui: "Josefin Sans", "Helvetica Neue", Arial, sans-serif;
+  --tm-espresso: #2b1a10;
+  --tm-cocoa: #6b3f22;
+  --tm-cocoa-dark: #4a2a16;
+  --tm-cocoa-pale: #b08a64;
+  --tm-cream: #f4e9d0;
+  --tm-cream-2: #fbf3e2;
+  --tm-sponge: #a2734a;
+  --tm-table: #ebe6de;
+  /* Cocoa sifted over the page, faint, and thick along the masthead's foot. */
+  --tm-dust-faint: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cg fill='%235c3822'%3E%3Ccircle cx='0.0' cy='62.6' r='0.52' fill-opacity='0.13'/%3E%3Ccircle cx='120.5' cy='57.2' r='0.63' fill-opacity='0.23'/%3E%3Ccircle cx='66.1' cy='39.4' r='0.47' fill-opacity='0.28'/%3E%3Ccircle cx='19.7' cy='53.2' r='0.67' fill-opacity='0.31'/%3E%3Ccircle cx='53.6' cy='11.9' r='0.47' fill-opacity='0.29'/%3E%3Ccircle cx='82.9' cy='77.6' r='0.61' fill-opacity='0.17'/%3E%3Ccircle cx='43.1' cy='111.5' r='0.36' fill-opacity='0.16'/%3E%3Ccircle cx='80.6' cy='99.8' r='0.36' fill-opacity='0.21'/%3E%3Ccircle cx='124.2' cy='73.1' r='0.40' fill-opacity='0.26'/%3E%3Ccircle cx='134.3' cy='44.9' r='0.85' fill-opacity='0.12'/%3E%3Ccircle cx='100.4' cy='113.1' r='0.87' fill-opacity='0.19'/%3E%3Ccircle cx='23.3' cy='111.9' r='0.87' fill-opacity='0.29'/%3E%3Ccircle cx='140.0' cy='112.1' r='0.59' fill-opacity='0.18'/%3E%3Ccircle cx='86.2' cy='3.4' r='0.87' fill-opacity='0.31'/%3E%3Ccircle cx='49.2' cy='122.4' r='0.35' fill-opacity='0.27'/%3E%3Ccircle cx='133.2' cy='77.0' r='0.72' fill-opacity='0.24'/%3E%3Ccircle cx='119.4' cy='60.7' r='0.86' fill-opacity='0.35'/%3E%3Ccircle cx='59.6' cy='113.6' r='0.63' fill-opacity='0.17'/%3E%3Ccircle cx='6.7' cy='7.3' r='0.80' fill-opacity='0.15'/%3E%3Ccircle cx='49.1' cy='77.1' r='0.56' fill-opacity='0.23'/%3E%3Ccircle cx='14.8' cy='53.1' r='0.45' fill-opacity='0.25'/%3E%3Ccircle cx='77.1' cy='129.5' r='0.40' fill-opacity='0.35'/%3E%3Ccircle cx='139.2' cy='108.4' r='0.66' fill-opacity='0.20'/%3E%3Ccircle cx='120.6' cy='90.4' r='0.63' fill-opacity='0.19'/%3E%3Ccircle cx='74.6' cy='35.9' r='0.88' fill-opacity='0.25'/%3E%3Ccircle cx='127.4' cy='20.6' r='0.44' fill-opacity='0.34'/%3E%3Ccircle cx='96.7' cy='40.3' r='0.80' fill-opacity='0.20'/%3E%3Ccircle cx='123.1' cy='67.7' r='0.63' fill-opacity='0.17'/%3E%3Ccircle cx='14.1' cy='111.7' r='0.83' fill-opacity='0.18'/%3E%3Ccircle cx='106.0' cy='47.6' r='0.82' fill-opacity='0.22'/%3E%3Ccircle cx='0.1' cy='2.9' r='0.37' fill-opacity='0.25'/%3E%3Ccircle cx='41.4' cy='113.1' r='0.52' fill-opacity='0.27'/%3E%3Ccircle cx='138.6' cy='69.0' r='0.77' fill-opacity='0.16'/%3E%3Ccircle cx='91.5' cy='69.3' r='0.48' fill-opacity='0.18'/%3E%3Ccircle cx='69.6' cy='87.2' r='0.60' fill-opacity='0.19'/%3E%3Ccircle cx='68.8' cy='71.3' r='0.41' fill-opacity='0.26'/%3E%3Ccircle cx='114.3' cy='69.5' r='0.66' fill-opacity='0.17'/%3E%3Ccircle cx='108.3' cy='52.3' r='0.41' fill-opacity='0.25'/%3E%3Ccircle cx='54.1' cy='27.6' r='0.63' fill-opacity='0.33'/%3E%3Ccircle cx='55.1' cy='22.9' r='0.81' fill-opacity='0.31'/%3E%3Ccircle cx='101.7' cy='33.7' r='0.51' fill-opacity='0.17'/%3E%3Ccircle cx='43.7' cy='128.6' r='0.73' fill-opacity='0.25'/%3E%3Ccircle cx='59.1' cy='71.9' r='0.59' fill-opacity='0.29'/%3E%3Ccircle cx='1.9' cy='109.8' r='0.78' fill-opacity='0.12'/%3E%3Ccircle cx='109.7' cy='68.1' r='0.69' fill-opacity='0.12'/%3E%3Ccircle cx='118.3' cy='136.5' r='0.84' fill-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
+  --tm-dust: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg fill='%235c3822'%3E%3Ccircle cx='0.0' cy='21.3' r='0.90' fill-opacity='0.61'/%3E%3Ccircle cx='5.1' cy='65.0' r='0.87' fill-opacity='0.49'/%3E%3Ccircle cx='49.3' cy='80.1' r='0.69' fill-opacity='0.62'/%3E%3Ccircle cx='11.4' cy='52.9' r='0.94' fill-opacity='0.25'/%3E%3Ccircle cx='36.9' cy='11.8' r='0.69' fill-opacity='0.31'/%3E%3Ccircle cx='8.8' cy='60.8' r='0.36' fill-opacity='0.62'/%3E%3Ccircle cx='34.6' cy='86.2' r='0.72' fill-opacity='0.30'/%3E%3Ccircle cx='6.5' cy='82.8' r='0.66' fill-opacity='0.68'/%3E%3Ccircle cx='41.6' cy='72.6' r='0.68' fill-opacity='0.51'/%3E%3Ccircle cx='67.9' cy='77.3' r='0.90' fill-opacity='0.34'/%3E%3Ccircle cx='18.0' cy='63.3' r='0.54' fill-opacity='0.61'/%3E%3Ccircle cx='6.8' cy='21.2' r='0.83' fill-opacity='0.27'/%3E%3Ccircle cx='57.2' cy='37.7' r='0.37' fill-opacity='0.30'/%3E%3Ccircle cx='3.8' cy='60.6' r='0.42' fill-opacity='0.62'/%3E%3Ccircle cx='24.4' cy='23.4' r='0.65' fill-opacity='0.26'/%3E%3Ccircle cx='34.1' cy='51.9' r='0.86' fill-opacity='0.44'/%3E%3Ccircle cx='69.6' cy='35.8' r='0.69' fill-opacity='0.49'/%3E%3Ccircle cx='10.1' cy='22.8' r='0.68' fill-opacity='0.49'/%3E%3Ccircle cx='63.9' cy='48.1' r='0.35' fill-opacity='0.65'/%3E%3Ccircle cx='89.7' cy='76.6' r='0.96' fill-opacity='0.29'/%3E%3Ccircle cx='6.6' cy='11.8' r='0.53' fill-opacity='0.57'/%3E%3Ccircle cx='68.4' cy='63.2' r='0.69' fill-opacity='0.40'/%3E%3Ccircle cx='89.2' cy='9.5' r='0.98' fill-opacity='0.34'/%3E%3Ccircle cx='87.1' cy='65.3' r='0.38' fill-opacity='0.42'/%3E%3Ccircle cx='0.5' cy='27.5' r='0.73' fill-opacity='0.28'/%3E%3Ccircle cx='12.1' cy='85.9' r='0.92' fill-opacity='0.26'/%3E%3Ccircle cx='55.2' cy='64.6' r='0.77' fill-opacity='0.50'/%3E%3Ccircle cx='7.7' cy='42.7' r='0.51' fill-opacity='0.57'/%3E%3Ccircle cx='38.5' cy='12.8' r='0.75' fill-opacity='0.39'/%3E%3Ccircle cx='64.4' cy='55.5' r='0.45' fill-opacity='0.35'/%3E%3Ccircle cx='49.2' cy='60.1' r='0.38' fill-opacity='0.27'/%3E%3Ccircle cx='41.1' cy='6.0' r='0.96' fill-opacity='0.29'/%3E%3Ccircle cx='6.8' cy='35.8' r='0.40' fill-opacity='0.29'/%3E%3Ccircle cx='50.0' cy='52.5' r='0.71' fill-opacity='0.52'/%3E%3Ccircle cx='44.6' cy='45.7' r='0.99' fill-opacity='0.42'/%3E%3Ccircle cx='2.9' cy='21.8' r='0.65' fill-opacity='0.48'/%3E%3Ccircle cx='64.5' cy='85.4' r='0.62' fill-opacity='0.52'/%3E%3Ccircle cx='25.8' cy='27.4' r='0.93' fill-opacity='0.40'/%3E%3Ccircle cx='12.8' cy='35.6' r='0.63' fill-opacity='0.56'/%3E%3Ccircle cx='13.9' cy='6.4' r='0.72' fill-opacity='0.54'/%3E%3Ccircle cx='19.2' cy='8.9' r='0.75' fill-opacity='0.45'/%3E%3Ccircle cx='43.4' cy='29.6' r='0.51' fill-opacity='0.44'/%3E%3Ccircle cx='9.7' cy='87.8' r='0.50' fill-opacity='0.28'/%3E%3Ccircle cx='51.0' cy='68.2' r='0.49' fill-opacity='0.34'/%3E%3Ccircle cx='27.2' cy='26.7' r='0.55' fill-opacity='0.58'/%3E%3Ccircle cx='84.8' cy='62.0' r='0.84' fill-opacity='0.63'/%3E%3Ccircle cx='7.0' cy='59.3' r='0.71' fill-opacity='0.45'/%3E%3Ccircle cx='22.7' cy='57.1' r='0.36' fill-opacity='0.52'/%3E%3Ccircle cx='18.6' cy='80.9' r='0.90' fill-opacity='0.64'/%3E%3Ccircle cx='15.6' cy='68.1' r='0.65' fill-opacity='0.26'/%3E%3Ccircle cx='64.1' cy='84.4' r='0.86' fill-opacity='0.35'/%3E%3Ccircle cx='42.4' cy='82.7' r='0.44' fill-opacity='0.59'/%3E%3Ccircle cx='68.3' cy='3.5' r='0.87' fill-opacity='0.66'/%3E%3Ccircle cx='43.3' cy='36.5' r='0.86' fill-opacity='0.32'/%3E%3Ccircle cx='55.1' cy='1.0' r='0.75' fill-opacity='0.40'/%3E%3Ccircle cx='5.6' cy='83.2' r='0.92' fill-opacity='0.30'/%3E%3Ccircle cx='11.5' cy='28.1' r='0.58' fill-opacity='0.52'/%3E%3Ccircle cx='35.3' cy='52.4' r='0.82' fill-opacity='0.31'/%3E%3Ccircle cx='22.2' cy='33.0' r='0.78' fill-opacity='0.62'/%3E%3Ccircle cx='59.8' cy='52.4' r='0.59' fill-opacity='0.59'/%3E%3Ccircle cx='88.7' cy='42.8' r='0.97' fill-opacity='0.57'/%3E%3Ccircle cx='18.7' cy='53.6' r='0.99' fill-opacity='0.53'/%3E%3Ccircle cx='64.6' cy='43.0' r='0.36' fill-opacity='0.26'/%3E%3Ccircle cx='13.2' cy='32.8' r='0.63' fill-opacity='0.30'/%3E%3Ccircle cx='54.2' cy='51.3' r='0.67' fill-opacity='0.35'/%3E%3Ccircle cx='4.6' cy='7.9' r='0.74' fill-opacity='0.43'/%3E%3Ccircle cx='88.9' cy='63.2' r='0.76' fill-opacity='0.53'/%3E%3Ccircle cx='34.0' cy='54.9' r='0.47' fill-opacity='0.30'/%3E%3Ccircle cx='56.5' cy='51.9' r='0.85' fill-opacity='0.62'/%3E%3Ccircle cx='18.6' cy='29.3' r='0.47' fill-opacity='0.61'/%3E%3Ccircle cx='26.8' cy='17.3' r='0.52' fill-opacity='0.57'/%3E%3Ccircle cx='13.4' cy='84.2' r='0.56' fill-opacity='0.60'/%3E%3Ccircle cx='19.5' cy='0.6' r='0.40' fill-opacity='0.56'/%3E%3Ccircle cx='71.5' cy='33.5' r='0.98' fill-opacity='0.58'/%3E%3Ccircle cx='65.7' cy='71.1' r='0.89' fill-opacity='0.48'/%3E%3Ccircle cx='75.3' cy='72.0' r='0.60' fill-opacity='0.60'/%3E%3Ccircle cx='86.4' cy='15.3' r='0.91' fill-opacity='0.44'/%3E%3Ccircle cx='80.7' cy='89.7' r='0.98' fill-opacity='0.67'/%3E%3Ccircle cx='37.5' cy='89.6' r='0.74' fill-opacity='0.68'/%3E%3Ccircle cx='38.9' cy='67.4' r='0.51' fill-opacity='0.53'/%3E%3Ccircle cx='74.3' cy='42.0' r='0.72' fill-opacity='0.42'/%3E%3Ccircle cx='27.1' cy='88.7' r='0.53' fill-opacity='0.70'/%3E%3Ccircle cx='72.7' cy='29.2' r='0.61' fill-opacity='0.38'/%3E%3Ccircle cx='61.3' cy='53.7' r='0.41' fill-opacity='0.52'/%3E%3Ccircle cx='67.3' cy='29.7' r='0.54' fill-opacity='0.39'/%3E%3Ccircle cx='37.8' cy='44.6' r='0.83' fill-opacity='0.42'/%3E%3Ccircle cx='22.8' cy='5.5' r='0.89' fill-opacity='0.69'/%3E%3Ccircle cx='42.0' cy='74.5' r='0.86' fill-opacity='0.36'/%3E%3Ccircle cx='74.8' cy='26.6' r='0.85' fill-opacity='0.50'/%3E%3Ccircle cx='35.3' cy='76.0' r='0.49' fill-opacity='0.65'/%3E%3Ccircle cx='8.7' cy='22.9' r='0.78' fill-opacity='0.67'/%3E%3Ccircle cx='25.6' cy='54.3' r='0.70' fill-opacity='0.47'/%3E%3Ccircle cx='17.5' cy='31.3' r='0.87' fill-opacity='0.59'/%3E%3Ccircle cx='80.2' cy='33.8' r='0.83' fill-opacity='0.26'/%3E%3Ccircle cx='3.0' cy='38.1' r='0.94' fill-opacity='0.60'/%3E%3Ccircle cx='77.0' cy='74.4' r='0.84' fill-opacity='0.62'/%3E%3Ccircle cx='81.9' cy='6.5' r='0.63' fill-opacity='0.41'/%3E%3Ccircle cx='69.5' cy='32.1' r='0.55' fill-opacity='0.56'/%3E%3Ccircle cx='37.7' cy='9.7' r='0.96' fill-opacity='0.62'/%3E%3Ccircle cx='12.3' cy='22.4' r='0.76' fill-opacity='0.55'/%3E%3Ccircle cx='50.2' cy='59.1' r='0.48' fill-opacity='0.28'/%3E%3Ccircle cx='14.2' cy='68.8' r='0.92' fill-opacity='0.40'/%3E%3Ccircle cx='59.7' cy='24.6' r='0.45' fill-opacity='0.59'/%3E%3Ccircle cx='77.1' cy='17.1' r='0.84' fill-opacity='0.67'/%3E%3Ccircle cx='18.1' cy='65.2' r='0.55' fill-opacity='0.27'/%3E%3Ccircle cx='77.4' cy='11.0' r='0.85' fill-opacity='0.63'/%3E%3Ccircle cx='53.1' cy='50.0' r='0.91' fill-opacity='0.33'/%3E%3Ccircle cx='74.3' cy='74.0' r='0.73' fill-opacity='0.53'/%3E%3Ccircle cx='87.9' cy='69.9' r='0.49' fill-opacity='0.26'/%3E%3Ccircle cx='50.0' cy='44.9' r='0.62' fill-opacity='0.40'/%3E%3Ccircle cx='71.5' cy='50.6' r='0.71' fill-opacity='0.30'/%3E%3Ccircle cx='54.4' cy='7.4' r='0.71' fill-opacity='0.34'/%3E%3Ccircle cx='87.5' cy='39.6' r='0.56' fill-opacity='0.31'/%3E%3Ccircle cx='35.9' cy='19.7' r='0.39' fill-opacity='0.36'/%3E%3Ccircle cx='50.6' cy='36.3' r='0.53' fill-opacity='0.35'/%3E%3Ccircle cx='74.0' cy='23.8' r='0.45' fill-opacity='0.67'/%3E%3Ccircle cx='73.1' cy='61.3' r='0.66' fill-opacity='0.39'/%3E%3Ccircle cx='88.4' cy='50.6' r='0.96' fill-opacity='0.38'/%3E%3Ccircle cx='9.3' cy='89.2' r='0.47' fill-opacity='0.40'/%3E%3Ccircle cx='36.2' cy='61.7' r='0.60' fill-opacity='0.35'/%3E%3Ccircle cx='9.2' cy='49.2' r='0.68' fill-opacity='0.41'/%3E%3Ccircle cx='36.2' cy='7.2' r='0.92' fill-opacity='0.36'/%3E%3Ccircle cx='10.3' cy='6.7' r='0.67' fill-opacity='0.58'/%3E%3Ccircle cx='38.0' cy='52.9' r='0.91' fill-opacity='0.53'/%3E%3Ccircle cx='82.8' cy='69.2' r='0.72' fill-opacity='0.29'/%3E%3Ccircle cx='43.4' cy='28.3' r='0.88' fill-opacity='0.69'/%3E%3Ccircle cx='9.1' cy='73.9' r='0.77' fill-opacity='0.57'/%3E%3Ccircle cx='72.9' cy='22.9' r='0.43' fill-opacity='0.31'/%3E%3Ccircle cx='20.8' cy='50.2' r='0.70' fill-opacity='0.39'/%3E%3Ccircle cx='8.1' cy='24.5' r='0.64' fill-opacity='0.66'/%3E%3Ccircle cx='45.7' cy='74.3' r='0.43' fill-opacity='0.30'/%3E%3Ccircle cx='47.5' cy='55.1' r='0.97' fill-opacity='0.52'/%3E%3Ccircle cx='52.3' cy='57.2' r='0.67' fill-opacity='0.66'/%3E%3Ccircle cx='30.0' cy='87.8' r='0.61' fill-opacity='0.40'/%3E%3Ccircle cx='17.6' cy='9.5' r='0.97' fill-opacity='0.57'/%3E%3Ccircle cx='72.1' cy='70.9' r='0.55' fill-opacity='0.37'/%3E%3Ccircle cx='18.6' cy='50.7' r='0.43' fill-opacity='0.61'/%3E%3Ccircle cx='74.0' cy='80.1' r='0.49' fill-opacity='0.65'/%3E%3Ccircle cx='55.3' cy='80.9' r='0.54' fill-opacity='0.32'/%3E%3Ccircle cx='15.4' cy='66.3' r='0.89' fill-opacity='0.29'/%3E%3Ccircle cx='37.1' cy='15.0' r='0.37' fill-opacity='0.67'/%3E%3Ccircle cx='70.6' cy='61.1' r='0.76' fill-opacity='0.68'/%3E%3Ccircle cx='33.3' cy='61.4' r='0.44' fill-opacity='0.29'/%3E%3Ccircle cx='43.4' cy='45.7' r='0.60' fill-opacity='0.62'/%3E%3Ccircle cx='86.3' cy='46.9' r='0.58' fill-opacity='0.27'/%3E%3Ccircle cx='47.2' cy='27.0' r='0.50' fill-opacity='0.33'/%3E%3Ccircle cx='34.1' cy='25.1' r='0.69' fill-opacity='0.29'/%3E%3Ccircle cx='81.9' cy='27.2' r='0.41' fill-opacity='0.66'/%3E%3Ccircle cx='87.5' cy='59.8' r='0.38' fill-opacity='0.33'/%3E%3Ccircle cx='31.5' cy='54.0' r='0.76' fill-opacity='0.58'/%3E%3C/g%3E%3C/svg%3E");
+  /* A coffee bean of our own: an oval at a slant with its crease, for ornaments beside the name and the heads. */
+  --tm-bean: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 24 24'%3E%3Cg transform='rotate(-26)'%3E%3Cellipse rx='10.5' ry='7.4' fill='%234a2a16'/%3E%3Cellipse rx='10.5' ry='7.4' fill='none' stroke='%23fbf3e2' stroke-opacity='0.35' stroke-width='0.8'/%3E%3Cpath d='M-8.4 0.5C-3.2 3.9 3.2 -3.9 8.4 -0.5' fill='none' stroke='%23e9d4b2' stroke-width='1.6' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
+  /* A piped rosette: a ring of soft ridges round a smooth middle, for the zoom buttons. */
+  --tm-rosette: radial-gradient(circle at 42% 38%, #fffdf6 0 30%, rgba(255, 253, 246, 0) 58%),
+    repeating-conic-gradient(from 8deg, #fbf3e2 0deg 11deg, #e6d3b2 15deg 19deg, #fbf3e2 23deg 30deg);
+}
+:root[data-theme="tiramisu"] body {
+  background: var(--tm-dust-faint) 0 0 / 140px 140px, var(--page);
+}
+
+/* ---- masthead: a pastry box's label, cocoa sifted along its foot ---- */
+:root[data-theme="tiramisu"] .masthead {
+  position: relative;
+  border-bottom: 1px solid var(--tm-cocoa);
+  box-shadow: 0 3px 0 -1px var(--page), 0 4px 0 -1px var(--tm-cocoa-pale);
+  background: linear-gradient(to bottom, #fffaf0, var(--page));
+  padding-bottom: 18px;
+}
+:root[data-theme="tiramisu"] .masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  height: 16px;
+  pointer-events: none;
+  background: var(--tm-dust) 0 0 / 90px 90px, var(--tm-dust) 41px 23px / 90px 90px, var(--tm-dust) 17px 61px / 70px 70px;
+  -webkit-mask-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0.55) 45%, transparent);
+  mask-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0.55) 45%, transparent);
+}
+:root[data-theme="tiramisu"] .brand {
+  position: relative;
+}
+:root[data-theme="tiramisu"] .mast-title {
+  font-family: var(--font-mast);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  color: var(--tm-espresso);
+}
+:root[data-theme="tiramisu"] .mast-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font: 600 11.5px/1.3 var(--font-ui);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[data-theme="tiramisu"] .mast-tag::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  background: var(--tm-bean) center / contain no-repeat;
+}
+:root[data-theme="tiramisu"] .telegram-kicker,
+:root[data-theme="tiramisu"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--ink-2);
+}
+:root[data-theme="tiramisu"] .telegram-note,
+:root[data-theme="tiramisu"] .telegram-none {
+  font: italic 400 13px/1.35 var(--font-body);
+  color: var(--muted);
+}
+/* The word on an oval label of cream, in a double cocoa rule, as a pastry box is sealed. */
+:root[data-theme="tiramisu"] .telegram-word {
+  font-family: var(--font-mast);
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--tm-espresso);
+  border: 3px double var(--tm-cocoa);
+  border-radius: 999px;
+  padding: 2px 34px 8px;
+  margin-top: 4px;
+  background: radial-gradient(ellipse at 50% 30%, #fffdf6, var(--tm-cream-2) 70%, #f1e3c7);
+  box-shadow: 0 0 0 4px var(--tm-cream-2), 0 0 0 5px var(--tm-cocoa-pale), 0 4px 10px rgba(74, 42, 22, 0.16);
+}
+:root[data-theme="tiramisu"] .telegram-word:hover,
+:root[data-theme="tiramisu"] .telegram-word:focus-visible {
+  outline: none;
+  text-decoration: none;
+  background: radial-gradient(ellipse at 50% 30%, #fffdf6, #f3e3c4 70%, #e8d3ad);
+  box-shadow: 0 0 0 4px var(--tm-cream-2), 0 0 0 6px var(--tm-cocoa), 0 4px 10px rgba(74, 42, 22, 0.2);
+}
+:root[data-theme="tiramisu"] .telegram-big {
+  font-family: var(--font-mast);
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--tm-espresso);
+}
+/* The scale: a row of small cream tiles, the day's step dusted dark with cocoa. */
+:root[data-theme="tiramisu"] .scale {
+  border: 1px solid var(--tm-cocoa);
+  border-radius: 6px;
+  background: var(--tm-cream-2);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  overflow: hidden;
+}
+:root[data-theme="tiramisu"] .scale .step {
+  color: var(--ink-2);
+}
+:root[data-theme="tiramisu"] .scale .step + .step {
+  border-left: 1px solid var(--tm-cocoa-pale);
+}
+:root[data-theme="tiramisu"] .scale .step.on {
+  background: var(--tm-dust) 0 0 / 90px 90px, var(--tm-cocoa);
+  color: var(--on-accent);
+}
+:root[data-theme="tiramisu"] .score-chip {
+  border-color: var(--tm-cocoa);
+}
+:root[data-theme="tiramisu"] .score-chip.s0,
+:root[data-theme="tiramisu"] .score-chip.s1 {
+  background: var(--tm-cocoa);
+  color: var(--on-accent);
+}
+
+/* ---- toolbar: cocoa-dusted tiles on a strip of cream ---- */
+:root[data-theme="tiramisu"] .toolbar {
+  border-bottom: 1px solid var(--tm-cocoa-pale);
+  background: transparent;
+}
+:root[data-theme="tiramisu"] .banner {
+  border-bottom: 1px solid var(--tm-cocoa-pale);
+  background: var(--tm-cream);
+  color: var(--tm-espresso);
+}
+:root[data-theme="tiramisu"] .tool,
+:root[data-theme="tiramisu"] .pick select,
+:root[data-theme="tiramisu"] .menu > summary,
+:root[data-theme="tiramisu"] .chip,
+:root[data-theme="tiramisu"] .key-btn,
+:root[data-theme="tiramisu"] .key-close,
+:root[data-theme="tiramisu"] dialog .close {
+  border: 1px solid var(--tm-cocoa);
+  border-radius: 7px;
+  background: var(--tm-dust-faint) 0 0 / 140px 140px, linear-gradient(to bottom, #fffaf0, #f1e4ca);
+  color: var(--tm-espresso);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 0 rgba(74, 42, 22, 0.35), 0 2px 4px rgba(74, 42, 22, 0.12);
+}
+:root[data-theme="tiramisu"] .pick::after {
+  opacity: 0.85;
+  color: var(--tm-espresso);
+}
+:root[data-theme="tiramisu"] .tool:hover,
+:root[data-theme="tiramisu"] .pick select:hover,
+:root[data-theme="tiramisu"] .menu > summary:hover,
+:root[data-theme="tiramisu"] .chip:hover,
+:root[data-theme="tiramisu"] .key-btn:hover,
+:root[data-theme="tiramisu"] .key-close:hover,
+:root[data-theme="tiramisu"] dialog .close:hover {
+  background: var(--tm-dust) 0 0 / 90px 90px, linear-gradient(to bottom, #fbf1dd, #ead8b6);
+}
+:root[data-theme="tiramisu"] .tool[aria-pressed="true"],
+:root[data-theme="tiramisu"] .menu[open] > summary,
+:root[data-theme="tiramisu"] .chip[aria-pressed="true"],
+:root[data-theme="tiramisu"] .key-btn[aria-expanded="true"] {
+  border-color: var(--tm-cocoa-dark);
+  background: var(--tm-dust) 0 0 / 90px 90px, linear-gradient(to bottom, #7a4a2a, var(--tm-cocoa-dark));
+  color: var(--on-accent);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="tiramisu"] .menu[open] > summary::after,
+:root[data-theme="tiramisu"] .chip[aria-pressed="true"] * {
+  color: inherit;
+}
+:root[data-theme="tiramisu"] .pick select {
+  line-height: 1.35;
+}
+:root[data-theme="tiramisu"] .pick option {
+  font-weight: 400;
+}
+:root[data-theme="tiramisu"] .chip-all {
+  border-style: dashed;
+}
+
+/* ---- the map: the dish on a marble table (the canvas draws them); the reticle in espresso with a cream halo ---- */
+:root[data-theme="tiramisu"] .map {
+  background: var(--tm-table);
+}
+:root[data-theme="tiramisu"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #fffaf0) drop-shadow(0 0 1px #fffaf0);
+}
+:root[data-theme="tiramisu"] .key-btn {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+/* The Key's marks on the cream, where the beans sit on the map, rather than on the sponge (the script sets the sea). */
+:root[data-theme="tiramisu"] .key-body svg {
+  background: var(--tm-cream) !important;
+  box-shadow: inset 0 0 0 1px var(--tm-cocoa-pale);
+}
+/* The zoom buttons are two piped cream rosettes, the sign in espresso at their heart. */
+:root[data-theme="tiramisu"] .zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+:root[data-theme="tiramisu"] .zoom button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(107, 63, 34, 0.55);
+  border-radius: 50%;
+  background: var(--tm-rosette);
+  color: var(--tm-espresso);
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(74, 42, 22, 0.28);
+}
+:root[data-theme="tiramisu"] .zoom button + button {
+  border-top: 1px solid rgba(107, 63, 34, 0.55);
+}
+:root[data-theme="tiramisu"] .zoom button:hover {
+  background: radial-gradient(circle at 42% 38%, #fffdf6 0 30%, rgba(255, 253, 246, 0) 58%),
+    repeating-conic-gradient(from 8deg, #f6e8cc 0deg 11deg, #d9c19a 15deg 19deg, #f6e8cc 23deg 30deg);
+}
+
+/* ---- panels: menu cards, cream in a fine double cocoa rule ---- */
+:root[data-theme="tiramisu"] .panel {
+  margin: 14px 16px 16px 14px;
+  border: 1px solid var(--tm-cocoa);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px var(--tm-cocoa-pale), 0 3px 10px rgba(74, 42, 22, 0.1);
+}
+:root[data-theme="tiramisu"] .menu-body,
+:root[data-theme="tiramisu"] .key-pop,
+:root[data-theme="tiramisu"] .map-note,
+:root[data-theme="tiramisu"] dialog {
+  border: 1px solid var(--tm-cocoa);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px var(--tm-cocoa-pale), 0 6px 18px rgba(74, 42, 22, 0.2);
+}
+/* The About card's top edge dusted with cocoa, as the masthead's foot is. */
+:root[data-theme="tiramisu"] dialog {
+  background: var(--tm-dust) 0 0 / 90px 90px, var(--panel);
+  background-size: 90px 90px, auto;
+  background-repeat: repeat-x, no-repeat;
+  background-position: 0 -72px, 0 0;
+}
+:root[data-theme="tiramisu"] dialog::backdrop {
+  background: rgba(43, 26, 16, 0.42);
+}
+:root[data-theme="tiramisu"] .panel-title,
+:root[data-theme="tiramisu"] .place-name,
+:root[data-theme="tiramisu"] .key-head h2,
+:root[data-theme="tiramisu"] dialog h2 {
+  font-family: var(--font-head);
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  line-height: 1.15;
+  text-transform: none;
+  color: var(--tm-espresso);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="tiramisu"] .panel-title,
+:root[data-theme="tiramisu"] .place-name {
+  font-size: 27px;
+}
+:root[data-theme="tiramisu"] .key-head h2,
+:root[data-theme="tiramisu"] dialog h2 {
+  font-size: 22px;
+}
+:root[data-theme="tiramisu"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tm-cocoa);
+}
+:root[data-theme="tiramisu"] .dateline {
+  border-bottom: 1px solid var(--tm-cocoa);
+  box-shadow: 0 3px 0 -2px var(--tm-cocoa-pale);
+  padding-bottom: 8px;
+}
+:root[data-theme="tiramisu"] .dateline .coords,
+:root[data-theme="tiramisu"] .count,
+:root[data-theme="tiramisu"] .meta {
+  font-style: italic;
+  color: var(--muted);
+}
+/* Section heads as a menu card's: spaced capitals between dotted leaders. */
+:root[data-theme="tiramisu"] .rule-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tm-cocoa);
+}
+:root[data-theme="tiramisu"] .rule-head::before,
+:root[data-theme="tiramisu"] .rule-head::after {
+  content: "";
+  flex: 1 1 12px;
+  min-width: 12px;
+  border-top: 2px dotted var(--tm-cocoa-pale);
+}
+:root[data-theme="tiramisu"] .stories li + li {
+  border-top: 1px dotted var(--tm-cocoa-pale);
+}
+:root[data-theme="tiramisu"] .story:hover,
+:root[data-theme="tiramisu"] .story:focus-visible {
+  outline: none;
+  background: rgba(244, 233, 208, 0.7);
+}
+:root[data-theme="tiramisu"] .headline {
+  font-weight: 600;
+  color: var(--ink);
+}
+:root[data-theme="tiramisu"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.25;
+}
+:root[data-theme="tiramisu"] .cite,
+:root[data-theme="tiramisu"] .source-num {
+  border-color: var(--tm-cocoa);
+  color: var(--tm-cocoa);
+}
+:root[data-theme="tiramisu"] .excerpt-quote {
+  font-style: italic;
+  border-left: 3px solid var(--tm-sponge);
+}
+
+/* ---- time bar: the layers seen in a slice along its top, cream under them, a cocoa slider ---- */
+:root[data-theme="tiramisu"] .timebar {
+  border-top: none;
+  padding-top: 13px;
+  background:
+    linear-gradient(to bottom, #5c3822 0 3px, var(--tm-cream) 3px 6px, #8a5a36 6px 8px, var(--tm-cream) 8px 10px, #8a5a36 10px 12px, transparent 12px) top / 100% 12px no-repeat,
+    var(--tm-dust-faint) 0 0 / 140px 140px,
+    var(--page);
+}
+:root[data-theme="tiramisu"] .time-label {
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="tiramisu"] .slider input {
+  accent-color: var(--tm-cocoa);
+}
+@media (max-width: 760px) {
+  :root[data-theme="tiramisu"] .mast-title {
+    font-size: 27px;
+  }
+  :root[data-theme="tiramisu"] .mast-tag {
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+  }
+  :root[data-theme="tiramisu"] .telegram-word {
+    padding: 2px 20px 6px;
+  }
+  :root[data-theme="tiramisu"] .panel {
+    margin: 10px 10px 10px;
+  }
+  :root[data-theme="tiramisu"] .zoom button {
+    width: 36px;
+    height: 36px;
+  }
+}
+/* Josefin's spaced capitals are wide: a little closer on a narrow phone, so the controls keep to one row. */
+@media (max-width: 400px) {
+  :root[data-theme="tiramisu"] .pick select,
+  :root[data-theme="tiramisu"] .menu > summary,
+  :root[data-theme="tiramisu"] .tool {
+    letter-spacing: 0;
+  }
+}

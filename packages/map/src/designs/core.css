@@ -1,0 +1,322 @@
+/* ==========================================================================
+   Green Core (experimental): after the feel of an early-2000s black and green console dashboard, with no maker's
+   or console's name, logo, shapes, sounds, menus or art. A dark green room with lit tubes curving through it,
+   glowing green capsule buttons, dark green glass panes, a rounded wide sans. The orb, the panel and their tubes
+   are drawn on the canvas (src/map/core.ts).
+   ========================================================================== */
+:root[data-theme="core"] {
+  color-scheme: dark;
+  --page: #020a05;
+  --panel: #061a0d;
+  --ink: #e2ffe8;
+  --ink-2: #bdf3cb;
+  --muted: #8fcfa1;
+  --rule: #2a7a44;
+  --accent: #7dff6a;
+  --on-accent: #03200b;
+  --hover: rgba(125, 255, 106, 0.1);
+  --reticle: #f2fff5;
+  --grain-opacity: 0.05;
+  --grain-blend: screen;
+  --font-mast: "Unbounded", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-head: "Unbounded", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+  /* A lit capsule: a gloss across the top of bright green, deeper green at the foot. */
+  --gc-capsule: radial-gradient(ellipse 78% 52% at 50% 14%, rgba(240, 255, 230, 0.7), rgba(240, 255, 230, 0) 72%),
+    linear-gradient(to bottom, #9dff70, #45dc3a 55%, #22a52a);
+  --gc-glow: 0 0 10px rgba(110, 255, 90, 0.45), 0 0 2px rgba(190, 255, 170, 0.9);
+  /* Two lit tubes curving across a band, for the masthead: a wide soft glow, a bright wall, the darker inside and a
+     lit filament. Stretched to the band's size. */
+  --gc-tubes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 160' preserveAspectRatio='none'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%2346ff78' stroke-opacity='.08' stroke-width='40'/%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%2378ff9c' stroke-opacity='.34' stroke-width='15'/%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%23052812' stroke-opacity='.85' stroke-width='11'/%3E%3Cpath d='M-30 128C190 40 430 176 650 92S1010 18 1230 74' stroke='%23a8ffbe' stroke-opacity='.5' stroke-width='2.5'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%2346ff78' stroke-opacity='.06' stroke-width='28'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%2378ff9c' stroke-opacity='.26' stroke-width='9'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%23052812' stroke-opacity='.85' stroke-width='6'/%3E%3Cpath d='M-30 26C250 6 400 150 760 140S1080 104 1230 150' stroke='%23a8ffbe' stroke-opacity='.4' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* The dark green room. */
+:root[data-theme="core"] body {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, #0b2e16, transparent 75%),
+    linear-gradient(to bottom, #03110a, #010603);
+}
+:root[data-theme="core"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 14px;
+  background:
+    linear-gradient(to bottom, transparent calc(100% - 4px), rgba(125, 255, 106, 0.85) calc(100% - 3px), transparent),
+    var(--gc-tubes) 0 0 / 100% 100% no-repeat,
+    linear-gradient(to bottom, #04150a, #020b05);
+  box-shadow: 0 2px 14px rgba(70, 255, 110, 0.22);
+}
+:root[data-theme="core"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(24px, 2.7vw, 36px);
+  letter-spacing: 0;
+  color: #a4ff8e;
+  text-shadow: 0 0 6px rgba(90, 255, 110, 0.75), 0 0 20px rgba(60, 255, 100, 0.4);
+}
+:root[data-theme="core"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #bdf3cb;
+}
+:root[data-theme="core"] .masthead .telegram-kicker,
+:root[data-theme="core"] .masthead .telegram-date,
+:root[data-theme="core"] .masthead .telegram-note,
+:root[data-theme="core"] .masthead .telegram-none,
+:root[data-theme="core"] .masthead .telegram-status {
+  color: #c8f7d3;
+}
+:root[data-theme="core"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #c4ffae;
+  border-bottom: 0;
+  text-shadow: 0 0 8px rgba(110, 255, 100, 0.85), 0 0 24px rgba(60, 255, 100, 0.5);
+}
+:root[data-theme="core"] .telegram-word:hover,
+:root[data-theme="core"] .telegram-word:focus-visible {
+  background: rgba(125, 255, 106, 0.08);
+  border-radius: 999px;
+}
+:root[data-theme="core"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #b4ff9c;
+  text-shadow: 0 0 8px rgba(110, 255, 100, 0.6);
+}
+/* The scale is a capsule of dim segments; the day's step is lit white, not green, so it never reads as good. */
+:root[data-theme="core"] .scale {
+  border: 1px solid rgba(125, 255, 106, 0.6);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(4, 30, 14, 0.7);
+  box-shadow: 0 0 8px rgba(70, 255, 110, 0.25);
+}
+:root[data-theme="core"] .scale .step {
+  color: #b4e8c0;
+}
+:root[data-theme="core"] .scale .step + .step {
+  border-left-color: rgba(125, 255, 106, 0.35);
+}
+:root[data-theme="core"] .scale .step.on {
+  background: #f2fff5;
+  color: #03200b;
+}
+:root[data-theme="core"] .score-chip {
+  border-radius: 999px;
+  border-color: rgba(125, 255, 106, 0.5);
+}
+:root[data-theme="core"] .toolbar {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, rgba(4, 22, 10, 0.9), rgba(2, 12, 6, 0.6));
+}
+/* Bright green capsule buttons with glowing edges and dark green lettering. */
+:root[data-theme="core"] .tool,
+:root[data-theme="core"] .pick select,
+:root[data-theme="core"] .menu > summary,
+:root[data-theme="core"] .chip,
+:root[data-theme="core"] .key-btn,
+:root[data-theme="core"] .key-close,
+:root[data-theme="core"] dialog .close {
+  border: 1px solid #d4ffbe;
+  border-radius: 999px;
+  background: var(--gc-capsule);
+  color: #03200b;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  box-shadow: var(--gc-glow), inset 0 -2px 3px rgba(0, 70, 12, 0.35);
+}
+:root[data-theme="core"] .tool,
+:root[data-theme="core"] .menu > summary {
+  padding-inline: 14px;
+}
+:root[data-theme="core"] .pick select {
+  padding-left: 14px;
+  padding-right: 26px;
+}
+:root[data-theme="core"] .pick::after {
+  right: 11px;
+  color: #03200b;
+}
+:root[data-theme="core"] .tool:hover,
+:root[data-theme="core"] .pick select:hover,
+:root[data-theme="core"] .menu > summary:hover,
+:root[data-theme="core"] .chip:hover,
+:root[data-theme="core"] .key-btn:hover {
+  box-shadow: 0 0 16px rgba(130, 255, 100, 0.75), 0 0 2px #e6ffd8, inset 0 -2px 3px rgba(0, 70, 12, 0.35);
+}
+/* A capsule that is on goes dark with a lit rim and bright lettering, like a chosen item on the dashboard. */
+:root[data-theme="core"] .tool[aria-pressed="true"],
+:root[data-theme="core"] .menu[open] > summary,
+:root[data-theme="core"] .chip[aria-pressed="true"],
+:root[data-theme="core"] .key-btn[aria-expanded="true"] {
+  border-color: #7dff6a;
+  background: radial-gradient(ellipse 78% 52% at 50% 14%, rgba(125, 255, 106, 0.22), rgba(125, 255, 106, 0) 72%), #062a12;
+  color: #b4ff9c;
+  box-shadow: 0 0 12px rgba(110, 255, 90, 0.6), inset 0 0 8px rgba(110, 255, 90, 0.3);
+}
+:root[data-theme="core"] .chip-all {
+  border-style: dashed;
+}
+:root[data-theme="core"] .zoom {
+  border: 0;
+  background: none;
+  gap: 8px;
+}
+:root[data-theme="core"] .zoom button {
+  border: 1px solid #d4ffbe;
+  border-radius: 999px;
+  background: var(--gc-capsule);
+  color: #03200b;
+  font-weight: 800;
+  box-shadow: var(--gc-glow), inset 0 -2px 3px rgba(0, 70, 12, 0.35);
+}
+:root[data-theme="core"] .zoom button + button {
+  border-top: 1px solid #d4ffbe;
+}
+/* The room behind the orb (the canvas draws the tubes and the orb's light over it). */
+:root[data-theme="core"] .map {
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, #0a2814, #03110a 60%, #010603);
+}
+:root[data-theme="core"] .crosshair {
+  filter: drop-shadow(0 0 1px #02160a) drop-shadow(0 0 3px rgba(110, 255, 120, 0.8));
+}
+/* The panel, the Key, the menus, the notes and the About dialog are panes of dark green glass with a lit edge. */
+:root[data-theme="core"] .panel,
+:root[data-theme="core"] .menu-body,
+:root[data-theme="core"] .key-pop,
+:root[data-theme="core"] .map-note,
+:root[data-theme="core"] dialog {
+  border: 1px solid rgba(140, 255, 160, 0.6);
+  border-radius: 22px;
+  background:
+    linear-gradient(170deg, rgba(150, 255, 175, 0.1), rgba(150, 255, 175, 0) 30%),
+    linear-gradient(to bottom, rgba(10, 46, 22, 0.94), rgba(4, 22, 11, 0.96));
+  box-shadow: 0 0 0 3px rgba(40, 140, 70, 0.22), 0 0 22px rgba(60, 255, 110, 0.22), inset 0 0 26px rgba(60, 255, 110, 0.07);
+  color: var(--ink);
+}
+:root[data-theme="core"] .panel {
+  margin: 12px 12px 12px 0;
+}
+:root[data-theme="core"] .panel.framed {
+  background: linear-gradient(to bottom, rgba(10, 46, 22, 0.97), rgba(4, 22, 11, 0.98));
+}
+/* The About dialog's pane is solid too, so the word and the panel behind it don't show through its text. */
+:root[data-theme="core"] dialog {
+  background:
+    linear-gradient(170deg, rgba(150, 255, 175, 0.1), rgba(150, 255, 175, 0) 30%),
+    linear-gradient(to bottom, #0a2e16, #04160b);
+}
+:root[data-theme="core"] .panel-title,
+:root[data-theme="core"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #b4ff9c;
+  text-shadow: 0 0 10px rgba(110, 255, 100, 0.45);
+}
+:root[data-theme="core"] .key-head h2,
+:root[data-theme="core"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: #b4ff9c;
+  text-shadow: 0 0 8px rgba(110, 255, 100, 0.4);
+}
+:root[data-theme="core"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background: linear-gradient(to right, rgba(125, 255, 106, 0), #7dff6a 20%, #7dff6a 80%, rgba(125, 255, 106, 0)) left bottom / 100% 2px no-repeat;
+}
+:root[data-theme="core"] .rule-head {
+  border: 1px solid rgba(125, 255, 106, 0.55);
+  border-radius: 999px;
+  padding-inline: 10px;
+  background: rgba(20, 90, 40, 0.55);
+  color: #d6ffdf;
+}
+:root[data-theme="core"] .headline {
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+:root[data-theme="core"] .reader-headline {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.2;
+}
+:root[data-theme="core"] .story:hover {
+  background: rgba(125, 255, 106, 0.07);
+}
+:root[data-theme="core"] .lead img {
+  border-radius: 14px;
+}
+:root[data-theme="core"] .cite,
+:root[data-theme="core"] .source-num {
+  border-radius: 999px;
+}
+:root[data-theme="core"] .excerpt-quote {
+  border-left-color: #7dff6a;
+}
+:root[data-theme="core"] .timebar {
+  border-top: 0;
+  font-weight: 800;
+  background:
+    linear-gradient(to bottom, rgba(125, 255, 106, 0.8), transparent 2px),
+    linear-gradient(to bottom, #04150a, #020b05);
+  box-shadow: 0 -2px 14px rgba(70, 255, 110, 0.18);
+}
+:root[data-theme="core"] .slider input {
+  accent-color: #45dc3a;
+}
+:root[data-theme="core"] .banner {
+  border-bottom: 0;
+  background: rgba(4, 24, 12, 0.85);
+  color: #c8f7d3;
+}
+
+/* The Key and zoom sit inside Map view's lit bezel (src/map/core.ts), so they never cover the tube. */
+:root[data-theme="core"] .key-btn {
+  left: 30px;
+  top: 30px;
+}
+:root[data-theme="core"] .zoom {
+  right: 30px;
+  bottom: 30px;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="core"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter) - 8px) / (var(--len, 8) * 1)));
+  }
+  :root[data-theme="core"] .panel {
+    margin: 4px 8px 8px;
+  }
+  :root[data-theme="core"] .tool,
+  :root[data-theme="core"] .menu > summary {
+    padding-inline: 10px;
+  }
+  :root[data-theme="core"] .pick select {
+    padding-left: 10px;
+    padding-right: 20px;
+  }
+  :root[data-theme="core"] .pick::after {
+    right: 8px;
+  }
+  :root[data-theme="core"] .zoom button {
+    width: 32px;
+    height: 32px;
+  }
+  :root[data-theme="core"] .key-btn {
+    left: 22px;
+    top: 22px;
+  }
+  :root[data-theme="core"] .zoom {
+    right: 22px;
+    bottom: 22px;
+  }
+}

@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { toRunDate, type MapFile, type MapTile } from "@2dayai/core";
+import { toRunDate, type MapFile, type MapNames, type MapTile } from "@2dayai/core";
 import type { Db } from "@2dayai/db";
 // Test-only reach into the pipeline package: its PGlite helper and the fictional world fixture.
 import { createTestDb } from "../../pipeline/src/test/db.js";
@@ -167,6 +167,19 @@ describe("the Worker's map data", () => {
     expect(tile.items).toHaveLength(map.local!.tiles["10S_30E"]!);
     expect(tile.places.map((p) => p.name).sort()).toEqual(["Ikinu", "Kisumu", "Mombasa"]);
     expect(tile.items.every(([, t], i) => i === 0 || t <= tile.items[i - 1]![1])).toBe(true);
+    // The names index of the day's towns, built from the database when no file is stored: sorted, every town once.
+    const names = await app.request(`/data/local/${date}/names.json`, {}, env);
+    expect(names.status).toBe(200);
+    expect(names.headers.get("cache-control")).toContain("max-age=300");
+    const index = (await names.json()) as MapNames;
+    expect(index).toMatchObject({ version: 2, runDate: date });
+    expect(index.places).toHaveLength(27);
+    expect(index.places.reduce((n, r) => n + r[3], 0)).toBe(28);
+    expect(index.places.map((r) => r[0])).toEqual(index.places.map((r) => r[0]).sort());
+    expect(map.local!.names).toBe(true);
+    // A day with no local stories has none, and a bad date is not found.
+    expect((await app.request("/data/local/2026-01-02/names.json", {}, env)).status).toBe(404);
+    expect((await app.request("/data/local/2026-13-40/names.json", {}, env)).status).toBe(404);
     // A cell with no stories, a key off the grid, and a bad date.
     expect((await app.request(`/data/local/${date}/80N_170E.json`, {}, env)).status).toBe(404);
     expect((await app.request(`/data/local/${date}/15N_30E.json`, {}, env)).status).toBe(404);
@@ -195,6 +208,10 @@ describe("the Worker's stored map files", () => {
     const tile = await app.request("/data/local/2026-09-20/40N_80W.json", {}, { ...env, MAPS });
     expect(tile.headers.get("etag")).toBe('"local/2026-09-20/40N_80W.json"');
     expect(await tile.json()).toEqual({ stored: "tile" });
+    // The names index is a stored file like a tile.
+    const stored = (key: string) => (key === "local/2026-09-20/names.json" ? { body: new Response('{"stored":"names"}').body!, httpEtag: '"n"' } : null);
+    const names = await app.request("/data/local/2026-09-20/names.json", {}, { ...env, MAPS: { get: async (key: string) => stored(key) } });
+    expect(await names.json()).toEqual({ stored: "names" });
   });
 
   it("serves the day's share image from R2, and the timeless one until there is one (decision 92)", async () => {

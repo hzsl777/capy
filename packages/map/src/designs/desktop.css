@@ -1,0 +1,931 @@
+:root[data-theme="desktop"] .telegram .importance .imp-step {
+  font-weight: 400;
+}
+:root[data-theme="desktop"] .telegram .importance {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
+
+/* ---- Desktop 95 (id desktop): after the feel of a mid-1990s desktop operating system, with no maker's
+   or product's name, logo, sounds, icons or menu wording. A teal desktop of grey bevelled windows with navy title bars
+   (src/ui/desktop.ts), a taskbar along the bottom, our own pixel icons, Pixelify Sans for the chrome and IBM Plex Sans
+   for reading. The map is drawn in sixteen colours at half resolution (src/map/desktop.ts). Nothing animates. ---- */
+:root[data-theme="desktop"] {
+  color-scheme: light;
+  --page: #008080;
+  --panel: #ffffff;
+  --ink: #000000;
+  --ink-2: #1a1a1a;
+  --muted: #4a4a4a;
+  --rule: #808080;
+  --accent: #000080;
+  --on-accent: #ffffff;
+  --hover: #dcdcf0;
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Tahoma", sans-serif;
+  --font-head: "IBM Plex Sans", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", Arial, sans-serif;
+  --font-ui: "Pixelify Sans", "Tahoma", sans-serif;
+  --dk-bar: 36px;
+  /* The bevels: a raised control lit from the upper left, a sunken field, and a pressed control. */
+  --dk-raised: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  --dk-sunken: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000, inset -2px -2px #dfdfdf;
+  --dk-pressed: inset 1px 1px #000, inset -1px -1px #fff, inset 2px 2px #808080, inset -2px -2px #dfdfdf;
+}
+:root[data-theme="desktop"] body {
+  background: #008080;
+}
+/* The page's own rows step aside: their parts live in the windows now. */
+:root[data-theme="desktop"] body > .masthead,
+:root[data-theme="desktop"] body > .toolbar,
+:root[data-theme="desktop"] body > .stage,
+:root[data-theme="desktop"] body > .ticker,
+:root[data-theme="desktop"] body > .timebar {
+  display: none;
+}
+.dk-desk,
+.dk-taskbar {
+  display: none;
+}
+:root[data-theme="desktop"] .dk-desk {
+  display: block;
+  position: fixed;
+  inset: 0 0 var(--dk-bar) 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #008080;
+  font: 15px/1.2 var(--font-ui);
+}
+
+/* ---- desktop icons ---- */
+:root[data-theme="desktop"] .dk-icons {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  bottom: 6px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 76px);
+  grid-auto-columns: 84px;
+  gap: 2px 4px;
+}
+.dk-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  background: none;
+  border: 1px dotted transparent;
+  color: #fff;
+  font: 14px/1.1 var(--font-ui);
+  cursor: default;
+  text-align: center;
+}
+.dk-icon-label {
+  padding: 1px 3px;
+  overflow-wrap: anywhere;
+}
+.dk-icon.dk-picked .dk-icon-label,
+.dk-icon:focus-visible .dk-icon-label {
+  background: #000080;
+}
+.dk-icon:focus-visible {
+  outline: 0;
+  border-color: #fff;
+}
+.dk-icon.dk-picked .dk-ico-big {
+  opacity: 0.7;
+}
+.dk-ico {
+  display: block;
+  flex: none;
+}
+.dk-ico-big {
+  width: 32px;
+  height: 32px;
+}
+.dk-ico-small {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- windows ---- */
+.dk-win {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  min-height: 96px;
+  padding: 4px;
+  background: #c0c0c0;
+  color: #000;
+  box-shadow: var(--dk-raised);
+}
+.dk-win[hidden] {
+  display: none;
+}
+.dk-win:focus {
+  outline: 0;
+}
+.dk-title {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 3px 2px 4px;
+  background: linear-gradient(90deg, #808080, #b8b8b8);
+  color: #d8d8d8;
+  font: 700 15px/1.1 var(--font-ui);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: default;
+}
+.dk-active > .dk-title,
+.dk-strip > .dk-title,
+.dk-about-title {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+}
+.dk-title-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dk-tbtns {
+  flex: none;
+  display: flex;
+  gap: 2px;
+}
+.dk-tbtn {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: #c0c0c0;
+  color: #000;
+  box-shadow: var(--dk-raised);
+  cursor: pointer;
+}
+.dk-tbtn.dk-close {
+  margin-left: 2px;
+}
+.dk-tbtn:active {
+  box-shadow: var(--dk-pressed);
+}
+.dk-tbtn:active .dk-glyph {
+  transform: translate(1px, 1px);
+}
+.dk-glyph {
+  width: 8px;
+  height: 7px;
+}
+.dk-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 3px;
+}
+:root[data-theme="desktop"] .dk-win.dk-maxed {
+  left: 0 !important;
+  top: var(--dk-top, 0px) !important;
+  width: 100% !important;
+  height: calc(100% - var(--dk-top, 0px)) !important;
+}
+
+/* A plain grey button, raised, pressed while held. */
+.dk-button,
+:root[data-theme="desktop"] .tool,
+:root[data-theme="desktop"] .zoom button,
+:root[data-theme="desktop"] .key-btn,
+:root[data-theme="desktop"] .chip,
+:root[data-theme="desktop"] .dk-task,
+:root[data-theme="desktop"] .dk-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 0;
+  background: #c0c0c0;
+  color: #000;
+  box-shadow: var(--dk-raised);
+  font: 15px/1.1 var(--font-ui);
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+.dk-button:active,
+:root[data-theme="desktop"] .tool:active,
+:root[data-theme="desktop"] .zoom button:active,
+:root[data-theme="desktop"] .key-btn:active,
+:root[data-theme="desktop"] .chip:active,
+:root[data-theme="desktop"] .chip[aria-pressed="true"],
+:root[data-theme="desktop"] .tool[aria-pressed="true"],
+:root[data-theme="desktop"] .dk-task[aria-pressed="true"],
+:root[data-theme="desktop"] .dk-menu-btn[aria-expanded="true"] {
+  box-shadow: var(--dk-pressed);
+  background: #c0c0c0;
+  color: #000;
+}
+:root[data-theme="desktop"] .chip[aria-pressed="true"],
+:root[data-theme="desktop"] .dk-task[aria-pressed="true"] {
+  /* A control that stays pressed shows the old checked grey: a fine light dither. */
+  background: repeating-conic-gradient(#ffffff 0 25%, #c0c0c0 0 50%) 0 0 / 2px 2px;
+  font-weight: 700;
+}
+:root[data-theme="desktop"] .tool:hover,
+:root[data-theme="desktop"] .chip:hover {
+  background-color: #c0c0c0;
+}
+:root[data-theme="desktop"] .tool.primary {
+  outline: 1px solid #000;
+  outline-offset: -1px;
+  background: #c0c0c0;
+  color: #000;
+  font-weight: 700;
+}
+:root[data-theme="desktop"] :focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -5px;
+}
+:root[data-theme="desktop"] .dk-title :focus-visible {
+  outline-offset: -3px;
+}
+
+/* ---- the word's window, fixed at the top of the desktop ---- */
+.dk-strip {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(700px, calc(100% - 200px));
+  min-height: 0;
+  z-index: 5;
+}
+:root[data-theme="desktop"] .dk-strip .telegram {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 12px;
+  padding: 6px 10px 8px;
+  margin: 0;
+  background: #c0c0c0;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-date {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  justify-self: start;
+  align-self: center;
+  padding: 3px 6px;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  font: 14px/1.2 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+  color: #000;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-center {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  margin: 0;
+}
+/* The window's title says the label, so it is said once. */
+:root[data-theme="desktop"] .dk-strip .telegram-center .telegram-kicker {
+  display: none;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-side {
+  display: contents;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-note {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  justify-self: end;
+  text-align: right;
+}
+:root[data-theme="desktop"] .dk-strip .telegram-status {
+  grid-column: 1 / 4;
+  grid-row: 3;
+  justify-self: center;
+  text-align: center;
+}
+/* The five steps under the word, across the window. */
+:root[data-theme="desktop"] .dk-strip .scale {
+  grid-column: 1 / 4;
+  grid-row: 4;
+  justify-self: center;
+}
+:root[data-theme="desktop"] .dk-strip .telegram > .telegram-kicker:only-child {
+  grid-column: 1 / 4;
+  justify-self: center;
+}
+:root[data-theme="desktop"] .telegram-kicker {
+  font: 14px/1.2 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+  color: #000;
+}
+:root[data-theme="desktop"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #000080;
+  font-size: min(44px, calc(30vw / var(--len, 8)));
+  padding: 4px 10px;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+}
+:root[data-theme="desktop"] .telegram-word:hover {
+  background: #fff;
+}
+:root[data-theme="desktop"] .telegram-note,
+:root[data-theme="desktop"] .telegram-status {
+  font: 13px/1.25 var(--font-ui);
+  font-style: normal;
+  color: #000;
+}
+:root[data-theme="desktop"] .note-link {
+  color: #000080;
+}
+:root[data-theme="desktop"] .scale {
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  padding: 2px;
+  font: 12px/1 var(--font-ui);
+  letter-spacing: 0;
+}
+:root[data-theme="desktop"] .scale .step {
+  color: #404040;
+  padding: 3px 5px;
+}
+:root[data-theme="desktop"] .scale .step + .step {
+  border-left: 1px solid #c0c0c0;
+}
+:root[data-theme="desktop"] .scale .step.on {
+  background: #000080;
+  color: #fff;
+}
+
+/* ---- the map's window ---- */
+.dk-menubar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 2px 5px;
+}
+:root[data-theme="desktop"] .pick select {
+  min-height: 28px;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  font: 15px/1.1 var(--font-ui);
+  padding: 4px 28px 4px 8px;
+  color: #000;
+}
+/* A long place name wraps inside the button rather than running out of the window. */
+.dk-reports-btn {
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+}
+.dk-reports-btn span {
+  overflow-wrap: anywhere;
+}
+/* The dropdown's arrow on a raised grey square, as the old lists had. */
+:root[data-theme="desktop"] .pick::after {
+  content: "";
+  right: 2px;
+  width: 18px;
+  height: calc(100% - 4px);
+  opacity: 1;
+  background:
+    linear-gradient(45deg, transparent 50%, #000 50%) calc(50% - 2px) 55% / 4px 4px no-repeat,
+    linear-gradient(-45deg, transparent 50%, #000 50%) calc(50% + 2px) 55% / 4px 4px no-repeat,
+    #c0c0c0;
+  box-shadow: var(--dk-raised);
+}
+:root[data-theme="desktop"] .dk-win-map .banner {
+  margin: 0 0 4px;
+  padding: 3px 8px;
+  background: #ffffe1;
+  color: #000;
+  border: 1px solid #000;
+  font: 14px/1.25 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-win-map .map {
+  flex: 1 1 auto;
+  min-height: 120px;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  background: #808080;
+}
+:root[data-theme="desktop"] .map canvas {
+  cursor: crosshair;
+}
+:root[data-theme="desktop"] .map canvas:focus-visible {
+  outline: 2px dotted #ffff00;
+  outline-offset: -4px;
+}
+:root[data-theme="desktop"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
+}
+:root[data-theme="desktop"] .key-btn {
+  left: 8px;
+  top: 8px;
+  min-height: 26px;
+  padding: 2px 10px;
+}
+:root[data-theme="desktop"] .zoom {
+  right: 8px;
+  bottom: 8px;
+  gap: 2px;
+  border: 0;
+  background: none;
+}
+:root[data-theme="desktop"] .zoom button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font: 700 20px/1 var(--font-ui);
+}
+:root[data-theme="desktop"] .zoom button + button {
+  border-top: 0;
+}
+/* The time bar as the window's status bar: Replay, the slider in a sunken field, the time, Live. */
+:root[data-theme="desktop"] .dk-win-map .timebar {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  font: 14px/1.1 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-win-map .slider {
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+}
+:root[data-theme="desktop"] .slider input {
+  accent-color: #000080;
+}
+:root[data-theme="desktop"] .time-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+}
+
+/* ---- the panel, in the reports window or the word's ---- */
+:root[data-theme="desktop"] .dk-body > .panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--dk-sunken);
+  padding: 12px 14px 20px;
+  font-size: 15px;
+}
+:root[data-theme="desktop"] .dk-body > .panel.framed {
+  padding: 2px;
+}
+:root[data-theme="desktop"] .panel-title,
+:root[data-theme="desktop"] .place-name {
+  font: 700 24px/1.1 var(--font-mast);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #000080;
+}
+:root[data-theme="desktop"] .dateline {
+  border-bottom: 2px groove #fff;
+}
+:root[data-theme="desktop"] .count,
+:root[data-theme="desktop"] .dateline .coords,
+:root[data-theme="desktop"] .meta,
+:root[data-theme="desktop"] .byline {
+  font-style: normal;
+}
+:root[data-theme="desktop"] .headline {
+  font: 600 16px/1.25 var(--font-body);
+}
+:root[data-theme="desktop"] .story:hover {
+  background: #dcdcf0;
+}
+:root[data-theme="desktop"] .story:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -2px;
+}
+:root[data-theme="desktop"] .stories-group,
+:root[data-theme="desktop"] .rule-head,
+:root[data-theme="desktop"] .kicker {
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+:root[data-theme="desktop"] .rule-head {
+  text-align: left;
+  border: 0;
+  padding: 4px 8px;
+  background: #000080;
+  color: #fff;
+  text-transform: none;
+  font-size: 15px;
+}
+:root[data-theme="desktop"] .reader-headline {
+  font: 700 clamp(21px, 2.2vw, 26px) / 1.2 var(--font-body);
+}
+:root[data-theme="desktop"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="desktop"] .lead img {
+  filter: none;
+  border: 0;
+  box-shadow: var(--dk-sunken);
+  padding: 2px;
+}
+:root[data-theme="desktop"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #000080;
+}
+:root[data-theme="desktop"] .score-chip {
+  border: 0;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+  background: #c0c0c0;
+  color: #000;
+}
+:root[data-theme="desktop"] .score-chip.s0,
+:root[data-theme="desktop"] .score-chip.s1 {
+  background: #000;
+  color: #fff;
+}
+
+/* ---- the Key, Topics and Pinned windows ---- */
+:root[data-theme="desktop"] .dk-body > .key-pop,
+:root[data-theme="desktop"] .dk-body > .key-pop[hidden] {
+  display: block;
+  position: static;
+  width: auto;
+  max-height: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 10px 12px;
+  border: 0;
+  box-shadow: var(--dk-sunken);
+  background: #fff;
+  font: 14px/1.3 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-body > .key-pop .key-head {
+  display: none;
+}
+:root[data-theme="desktop"] .key-note {
+  font-size: 13px;
+  color: #000;
+}
+:root[data-theme="desktop"] .key-body svg {
+  border-radius: 0 !important;
+}
+:root[data-theme="desktop"] .dk-body > #topics,
+:root[data-theme="desktop"] .dk-body > #pins {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 10px;
+  border: 0;
+  max-width: none;
+  min-width: 0;
+  box-shadow: var(--dk-sunken);
+  background: #fff;
+}
+:root[data-theme="desktop"] .dk-body > #pins {
+  display: block;
+  padding: 4px;
+}
+:root[data-theme="desktop"] #pins .menu-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0;
+  padding: 6px 8px;
+  font: 15px/1.2 var(--font-ui);
+  cursor: pointer;
+}
+:root[data-theme="desktop"] #pins .menu-item:hover,
+:root[data-theme="desktop"] #pins .menu-item:focus-visible {
+  background: #000080;
+  color: #fff;
+  outline: 0;
+}
+
+/* ---- dialog boxes: Designs and Translate ---- */
+.dk-dialog {
+  min-height: 0;
+}
+.dk-dialog-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 8px 6px;
+}
+.dk-dialog-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+.dk-dialog-text p {
+  margin: 0;
+  font: 14px/1.3 var(--font-ui);
+}
+.dk-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px 4px;
+}
+.dk-ok {
+  min-width: 80px;
+}
+.dk-none {
+  display: none;
+}
+:root[data-theme="desktop"] #translate-pick[hidden] {
+  display: none;
+}
+:root[data-theme="desktop"] #translate-pick[hidden] ~ .dk-none {
+  display: block;
+}
+:root[data-theme="desktop"] .dk-dialog .pick {
+  max-width: 100%;
+}
+
+/* ---- About, as a help window ---- */
+:root[data-theme="desktop"] dialog#about {
+  padding: 0 0 6px;
+  border: 0;
+  background: #c0c0c0;
+  box-shadow: var(--dk-raised);
+  font: 15px/1.5 var(--font-body);
+}
+:root[data-theme="desktop"] dialog#about::backdrop {
+  background: transparent;
+}
+:root[data-theme="desktop"] dialog#about > :not(.dk-about-title, form) {
+  margin-left: 14px;
+  margin-right: 14px;
+}
+:root[data-theme="desktop"] dialog#about > form {
+  display: none;
+}
+:root[data-theme="desktop"] .dk-about-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0 0 8px;
+  box-shadow: 0 0 0 4px #c0c0c0;
+}
+:root[data-theme="desktop"] dialog#about h2 {
+  font: 700 22px/1.2 var(--font-mast);
+  color: #000080;
+}
+:root[data-theme="desktop"] dialog#about h3 {
+  font: 700 15px/1.2 var(--font-ui);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  padding: 3px 8px;
+  background: #000080;
+  color: #fff;
+}
+:root[data-theme="desktop"] dialog#about .fine {
+  font: 13px/1.35 var(--font-body);
+  color: #000;
+}
+
+/* ---- the taskbar ---- */
+:root[data-theme="desktop"] .dk-taskbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dk-bar);
+  padding: 4px 3px 3px;
+  background: #c0c0c0;
+  box-shadow: inset 0 1px #dfdfdf, inset 0 2px #fff;
+  z-index: 2;
+  font: 15px/1.1 var(--font-ui);
+}
+:root[data-theme="desktop"] .dk-menu-btn {
+  flex: none;
+  font-weight: 700;
+  padding: 2px 8px;
+  height: 100%;
+  min-height: 0;
+}
+.dk-tasks {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 3px;
+  height: 100%;
+  /* Many windows scroll sideways rather than cut a name short. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+:root[data-theme="desktop"] .dk-task {
+  flex: none;
+  justify-content: flex-start;
+  height: 100%;
+  min-height: 0;
+  padding: 2px 10px 2px 6px;
+}
+.dk-tray {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 10px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+  font: 14px/1 var(--font-ui);
+  white-space: nowrap;
+}
+.dk-menu {
+  position: absolute;
+  left: 2px;
+  bottom: calc(100% - 2px);
+  min-width: 220px;
+  padding: 3px;
+  background: #c0c0c0;
+  box-shadow: var(--dk-raised);
+  display: flex;
+  flex-direction: column;
+}
+.dk-menu[hidden] {
+  display: none;
+}
+.dk-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 18px 5px 8px;
+  border: 0;
+  background: none;
+  color: #000;
+  font: 15px/1.2 var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+.dk-menu-item .dk-ico {
+  width: 24px;
+  height: 24px;
+}
+.dk-menu-item:hover,
+.dk-menu-item:focus-visible {
+  background: #000080;
+  color: #fff;
+  outline: 0;
+}
+
+/* ---- phones: one window at a time, full screen under the word; nothing to drag ---- */
+@media (max-width: 760px) {
+  :root[data-theme="desktop"] {
+    --dk-bar: 44px;
+  }
+  :root[data-theme="desktop"] .dk-strip {
+    left: 4px;
+    right: 4px;
+    top: 4px;
+    width: auto;
+    transform: none;
+  }
+  :root[data-theme="desktop"] .dk-strip .telegram {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 4px 6px 6px;
+  }
+  :root[data-theme="desktop"] .dk-strip .telegram-date,
+  :root[data-theme="desktop"] .dk-strip .telegram-center,
+  :root[data-theme="desktop"] .dk-strip .telegram-note,
+  :root[data-theme="desktop"] .dk-strip .telegram-status {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: center;
+    align-items: center;
+    text-align: center;
+  }
+  :root[data-theme="desktop"] .dk-strip .telegram-date {
+    font-size: 13px;
+    padding: 2px 6px;
+  }
+  :root[data-theme="desktop"] .telegram-word {
+    font-size: min(34px, calc((100vw - 48px) / (var(--len, 8) * 0.78)));
+  }
+  :root[data-theme="desktop"] .dk-strip .scale {
+    display: none;
+  }
+  :root[data-theme="desktop"] .dk-icons {
+    top: var(--dk-top, 120px);
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    grid-auto-rows: 80px;
+  }
+  :root[data-theme="desktop"] .dk-win:not(.dk-strip) {
+    left: 0 !important;
+    top: var(--dk-top, 0px) !important;
+    width: 100% !important;
+    height: calc(100% - var(--dk-top, 0px)) !important;
+    min-width: 0;
+  }
+  /* A dialog box keeps the height its text needs. */
+  :root[data-theme="desktop"] .dk-win.dk-dialog {
+    height: auto !important;
+    max-height: calc(100% - var(--dk-top, 0px));
+  }
+  :root[data-theme="desktop"] .dk-tbtn {
+    width: 32px;
+    height: 28px;
+  }
+  :root[data-theme="desktop"] .dk-tbtn.dk-max {
+    display: none;
+  }
+  /* The taskbar's buttons show their icons; the name stays their label for screen readers. */
+  :root[data-theme="desktop"] .dk-task .dk-task-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  :root[data-theme="desktop"] .dk-task {
+    padding: 2px 10px;
+  }
+  :root[data-theme="desktop"] .dk-task .dk-ico-small {
+    width: 24px;
+    height: 24px;
+  }
+  .dk-tray {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
+  :root[data-theme="desktop"] dialog#about {
+    max-width: calc(100vw - 8px);
+    max-height: calc(100dvh - 8px);
+  }
+}
+
+/* ---- Find a place in Desktop 95: the button sits in the map window's menu bar ---- */
+@media (min-width: 761px) and (max-width: 1100px) {
+  :root[data-theme="desktop"] #search-btn .search-label {
+    display: inline;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="desktop"] #search-btn {
+    display: inline-flex;
+  }
+  :root[data-theme="desktop"] #search-icon {
+    display: none;
+  }
+  :root[data-theme="desktop"] #search-btn .search-label {
+    display: none;
+  }
+}

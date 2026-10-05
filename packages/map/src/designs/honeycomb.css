@@ -1,0 +1,76 @@
+:root[data-theme="honeycomb"] {
+  color-scheme: dark;
+  --page: #1d1205;
+  --panel: #2a1a07;
+  --ink: #fff4d6;
+  --ink-2: #f6e3b0;
+  --muted: #d6bf8a;
+  --rule: #6b4a14;
+  --accent: #f2b632;
+  --on-accent: #1a1004;
+  --hover: rgba(242,182,50,0.12);
+  --reticle: #ffd84a;
+  --grain-opacity: 0.15;
+  --grain-blend: overlay;
+  --font-mast: "Baloo 2", "Arial Black", sans-serif;
+  --font-head: "Baloo 2", "Arial Black", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Baloo 2", "Trebuchet MS", sans-serif;
+}
+
+/* ---- Honeycomb: honey, hexagons, black and yellow stripes ----------------------------------- */
+:root[data-theme="honeycomb"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48'%3E%3Cpath d='M14 0 L28 8 L28 24 L14 32 L0 24 L0 8 Z M14 32 L14 48' fill='none' stroke='%23f2b632' stroke-opacity='.08' stroke-width='1.5'/%3E%3C/svg%3E"),
+    var(--page);
+}
+:root[data-theme="honeycomb"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 18px;
+  background: repeating-linear-gradient(-45deg, #1a1004 0 12px, #f2b632 12px 24px) bottom / 100% 8px no-repeat, var(--page);
+}
+:root[data-theme="honeycomb"] .mast-title {
+  font-weight: 800;
+  color: #f2b632;
+}
+:root[data-theme="honeycomb"] .telegram-word,
+:root[data-theme="honeycomb"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  color: #ffd84a;
+  text-shadow: 3px 3px 0 #8a5a08;
+  border-bottom: 0;
+}
+:root[data-theme="honeycomb"] .panel,
+:root[data-theme="honeycomb"] .menu-body,
+:root[data-theme="honeycomb"] .key-pop {
+  border: 2px solid #f2b632;
+  border-radius: 10px;
+  background: linear-gradient(to bottom, #3a2408, #241605);
+}
+:root[data-theme="honeycomb"] .panel {
+  margin: 8px;
+}
+:root[data-theme="honeycomb"] .panel h2 {
+  color: #f2b632;
+  font-weight: 800;
+}
+:root[data-theme="honeycomb"] .tool,
+:root[data-theme="honeycomb"] .pick select,
+:root[data-theme="honeycomb"] .menu > summary,
+:root[data-theme="honeycomb"] .chip,
+:root[data-theme="honeycomb"] .zoom button,
+:root[data-theme="honeycomb"] .key-btn,
+:root[data-theme="honeycomb"] .key-close {
+  border: 2px solid #f2b632;
+  border-radius: 8px;
+  background: #2a1a07;
+  color: #fff4d6;
+  font-weight: 600;
+}
+:root[data-theme="honeycomb"] .menu[open] > summary,
+:root[data-theme="honeycomb"] .key-btn[aria-expanded="true"],
+:root[data-theme="honeycomb"] .tool[aria-pressed="true"] {
+  background: #f2b632;
+  color: #1a1004;
+}

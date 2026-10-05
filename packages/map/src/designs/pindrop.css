@@ -1,0 +1,410 @@
+:root[data-theme="pindrop"] .telegram .importance {
+  color: #d6d0ff;
+}
+:root[data-theme="pindrop"] {
+  color-scheme: light;
+  --page: #ecebf6;
+  --panel: #ffffff;
+  --ink: #1c1050;
+  --ink-2: #352a6a;
+  --muted: #5a5388;
+  --rule: #cfcae6;
+  --accent: #4a2ab8;
+  --on-accent: #ffffff;
+  --hover: rgba(74, 42, 184, 0.07);
+  --reticle: #1c1050;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Rubik", "Arial Black", sans-serif;
+  --font-head: "Rubik", Arial, sans-serif;
+  --font-body: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  /* The HUD's deep indigo, and the lime of a game's main button. */
+  --pd-hud: linear-gradient(to bottom, #301f80, #1c1050);
+  --pd-lime: linear-gradient(to bottom, #8be85e, #4fb82c);
+}
+
+/* ---- Pin Drop: a guessing game's bold HUD in indigo and lime, a road-map palette, map pins ----------------- */
+:root[data-theme="pindrop"] body {
+  background: radial-gradient(ellipse 80% 60% at 15% 0%, #3a2a96, transparent 70%), #170c45;
+}
+:root[data-theme="pindrop"] .masthead {
+  border-bottom: 0;
+  background: var(--pd-hud);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12), 0 3px 0 #0d0630;
+  color: #ffffff;
+  position: relative;
+  z-index: 11;
+}
+:root[data-theme="pindrop"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(30px, 3.4vw, 44px);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 3px 0 #0d0630;
+}
+/* A dropped pin before the name: a round head with its point, drawn with a rotated square. */
+:root[data-theme="pindrop"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin: 0 0.32em 0 0.06em;
+  border-radius: 50% 50% 50% 0;
+  background: radial-gradient(circle at 50% 50%, #ffffff 0 22%, #f2384f 26%);
+  transform: rotate(-45deg);
+  vertical-align: 0.12em;
+  box-shadow: -2px 2px 0 #0d0630;
+}
+:root[data-theme="pindrop"] .mast-tag {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  color: #d6d0ff;
+}
+:root[data-theme="pindrop"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow: 0 3px 0 #0d0630;
+  border-bottom: 4px solid #8be85e;
+  padding: 0 6px 4px;
+}
+:root[data-theme="pindrop"] .telegram-word:hover,
+:root[data-theme="pindrop"] .telegram-word:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+}
+:root[data-theme="pindrop"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: #4a2ab8;
+}
+:root[data-theme="pindrop"] .masthead .telegram-kicker,
+:root[data-theme="pindrop"] .masthead .telegram-date,
+:root[data-theme="pindrop"] .masthead .telegram-note,
+:root[data-theme="pindrop"] .masthead .telegram-none,
+:root[data-theme="pindrop"] .masthead .telegram-status {
+  color: #d6d0ff;
+  font-weight: 500;
+}
+:root[data-theme="pindrop"] .masthead .telegram-date {
+  border-color: rgba(214, 208, 255, 0.35);
+}
+:root[data-theme="pindrop"] .masthead .scale {
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+  font-weight: 700;
+}
+:root[data-theme="pindrop"] .masthead .scale .step {
+  color: #d6d0ff;
+}
+:root[data-theme="pindrop"] .masthead .scale .step + .step {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+:root[data-theme="pindrop"] .scale .step.on {
+  background: var(--pd-lime);
+  color: #11300a;
+}
+:root[data-theme="pindrop"] .toolbar,
+:root[data-theme="pindrop"] .timebar {
+  border: 0;
+  background: #24166a;
+  color: #ffffff;
+}
+:root[data-theme="pindrop"] .time-label {
+  font-weight: 700;
+  font-style: italic;
+}
+:root[data-theme="pindrop"] .slider input {
+  accent-color: #8be85e;
+}
+/* Buttons are a game's chunky pills: white with an indigo drop, lime when on. */
+:root[data-theme="pindrop"] .tool,
+:root[data-theme="pindrop"] .pick select,
+:root[data-theme="pindrop"] .menu > summary,
+:root[data-theme="pindrop"] .chip,
+:root[data-theme="pindrop"] .key-btn,
+:root[data-theme="pindrop"] .key-close,
+:root[data-theme="pindrop"] dialog .close {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff, #e4e0f7);
+  color: #1c1050;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 0 #0d0630;
+}
+:root[data-theme="pindrop"] .pick::after {
+  color: #1c1050;
+  opacity: 0.9;
+}
+:root[data-theme="pindrop"] .tool.quiet {
+  background: transparent;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+:root[data-theme="pindrop"] .tool:hover,
+:root[data-theme="pindrop"] .pick select:hover,
+:root[data-theme="pindrop"] .menu > summary:hover,
+:root[data-theme="pindrop"] .chip:hover {
+  background: linear-gradient(to bottom, #ffffff, #f1eefc);
+}
+:root[data-theme="pindrop"] .tool[aria-pressed="true"],
+:root[data-theme="pindrop"] .menu[open] > summary,
+:root[data-theme="pindrop"] .chip[aria-pressed="true"],
+:root[data-theme="pindrop"] .key-btn[aria-expanded="true"] {
+  background: var(--pd-lime);
+  color: #11300a;
+  box-shadow: 0 3px 0 #2c6b16;
+}
+/* The map is the game's guess map: a rounded card in a white rim, floating over the indigo. */
+:root[data-theme="pindrop"] .map {
+  margin: 12px;
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #1c1050, 0 10px 26px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at 50% 45%, #42339e, #1e1252 72%);
+}
+:root[data-theme="pindrop"] .map canvas {
+  border-radius: 16px;
+}
+:root[data-theme="pindrop"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+:root[data-theme="pindrop"] .zoom {
+  border: 0;
+  background: none;
+  gap: 8px;
+}
+:root[data-theme="pindrop"] .zoom button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffffff, #e4e0f7);
+  color: #1c1050;
+  font-weight: 800;
+  box-shadow: 0 3px 0 #0d0630;
+}
+:root[data-theme="pindrop"] .zoom button + button {
+  border-top: 0;
+}
+/* A compass on a white dial, its needle's north half red. */
+:root[data-theme="pindrop"] .compass {
+  display: block;
+  width: 70px;
+  height: 70px;
+  left: 14px;
+  bottom: 14px;
+  color: #1c1050;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 54%, #e4e0f7 62%, rgba(255, 255, 255, 0) 63%);
+  filter: drop-shadow(0 3px 0 rgba(13, 6, 48, 0.85));
+}
+:root[data-theme="pindrop"] .compass path:nth-of-type(3) {
+  fill: #f2384f;
+}
+:root[data-theme="pindrop"] .compass text {
+  font: 800 10px var(--font-ui);
+  fill: #1c1050;
+}
+/* The HUD strip: the reticle's position and a scale bar, in the indigo of a game's score strip. */
+:root[data-theme="pindrop"] .x-guess {
+  display: flex;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--pd-hud);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 4px 0 rgba(13, 6, 48, 0.6);
+  color: #ffffff;
+  font-family: var(--font-ui);
+}
+:root[data-theme="pindrop"] .x-guess-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 14px 7px;
+  min-width: 5.5em;
+}
+:root[data-theme="pindrop"] .x-guess-cell + .x-guess-cell {
+  border-left: 2px solid rgba(255, 255, 255, 0.16);
+}
+:root[data-theme="pindrop"] .x-guess-cap {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9c1ff;
+}
+:root[data-theme="pindrop"] .x-guess-val {
+  font-size: 16px;
+  font-weight: 800;
+  font-style: italic;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+:root[data-theme="pindrop"] .x-guess-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+/* A scale bar: a lime line with end ticks, as long as the distance beside it. */
+:root[data-theme="pindrop"] .x-guess-bar {
+  display: block;
+  height: 8px;
+  margin-bottom: 4px;
+  border: 3px solid #8be85e;
+  border-top: 0;
+  border-radius: 0 0 2px 2px;
+  transition: width 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="pindrop"] .x-guess-bar {
+    transition: none;
+  }
+}
+:root[data-theme="pindrop"] .key-btn {
+  top: 14px;
+  left: 14px;
+}
+:root[data-theme="pindrop"] .panel,
+:root[data-theme="pindrop"] .menu-body,
+:root[data-theme="pindrop"] .key-pop,
+:root[data-theme="pindrop"] dialog {
+  background: var(--panel);
+  color: var(--ink);
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #1c1050, 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="pindrop"] .menu-body,
+:root[data-theme="pindrop"] .key-pop {
+  border-top: 6px solid #4a2ab8;
+}
+:root[data-theme="pindrop"] .panel {
+  margin: 12px 12px 12px 4px;
+}
+:root[data-theme="pindrop"] .key-pop {
+  --key-bg: #9ccfe6;
+}
+:root[data-theme="pindrop"] .panel-title,
+:root[data-theme="pindrop"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: #1c1050;
+}
+:root[data-theme="pindrop"] .dateline {
+  border-bottom: 3px solid #ecebf6;
+}
+:root[data-theme="pindrop"] .dateline .coords,
+:root[data-theme="pindrop"] .count,
+:root[data-theme="pindrop"] .meta {
+  font-style: normal;
+}
+:root[data-theme="pindrop"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: var(--pd-hud);
+  color: #ffffff;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.1em;
+}
+:root[data-theme="pindrop"] .headline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+}
+:root[data-theme="pindrop"] .reader-headline {
+  font-weight: 800;
+}
+:root[data-theme="pindrop"] .story:hover {
+  background: #f3f1fc;
+}
+:root[data-theme="pindrop"] .lead img {
+  border-radius: 12px;
+}
+
+/* ---- Phones: the three keep the toolbar one row, and the word fits ------------------------------------------ */
+@media (max-width: 760px) {
+  :root[data-theme="pindrop"] .telegram-word {
+    font-size: min(60px, calc((100vw - 2 * var(--gutter) - 40px) / (var(--len, 8) * 0.74)));
+  }
+  :root[data-theme="pindrop"] .map {
+    margin: 8px;
+    border-radius: 12px;
+  }
+  :root[data-theme="pindrop"] .map canvas {
+    border-radius: 12px;
+  }
+  :root[data-theme="pindrop"] .panel {
+    margin: 6px 8px 8px;
+  }
+  :root[data-theme="pindrop"] .compass {
+    width: 54px;
+    height: 54px;
+    left: 10px;
+    bottom: 10px;
+  }
+  /* A short map, with an article or the word open, keeps the zoom and the HUD only. */
+  :root[data-theme="pindrop"] .stage:has(.panel.reading) .compass,
+  :root[data-theme="pindrop"] .stage:has(.panel.framed) .compass {
+    display: none;
+  }
+  :root[data-theme="pindrop"] .zoom {
+    gap: 6px;
+  }
+  :root[data-theme="pindrop"] .zoom button {
+    width: 32px;
+    height: 32px;
+  }
+  :root[data-theme="pindrop"] .x-guess {
+    top: 10px;
+    right: 10px;
+    border-radius: 10px;
+  }
+  :root[data-theme="pindrop"] .x-guess-cell {
+    padding: 4px 9px 5px;
+    min-width: 0;
+  }
+  :root[data-theme="pindrop"] .x-guess-val {
+    font-size: 13px;
+  }
+  :root[data-theme="pindrop"] .x-guess-cap {
+    font-size: 9px;
+  }
+  :root[data-theme="pindrop"] .key-btn {
+    top: 10px;
+    left: 10px;
+  }
+  :root[data-theme="pindrop"] .tool,
+  :root[data-theme="pindrop"] .pick select,
+  :root[data-theme="pindrop"] .menu > summary {
+    font-size: 12px;
+  }
+  :root[data-theme="pindrop"] #about-btn {
+    color: #fbf8ee;
+    background: rgba(0, 0, 0, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(251, 248, 238, 0.6);
+    border: 0;
+  }
+}

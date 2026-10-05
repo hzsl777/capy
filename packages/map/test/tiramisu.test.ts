@@ -7,10 +7,11 @@ import { describe, expect, it } from "vitest";
 import { beanCrease, markPath } from "../src/map/marks.ts";
 import { bowlOf, dishOf, KEY_BOX, LAYERS, placeTools, swirlAt, swirlStep, ZOOM_BOX } from "../src/map/tiramisu.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const source = readFileSync(here("../src/map/tiramisu.ts"), "utf8");
-const css = readFileSync(here("../src/style.css"), "utf8");
+const css = cssFor("tiramisu");
 
 describe("tiramisu: the cream's swirls", () => {
   it("gives the same swirl to the same cell, always", () => {

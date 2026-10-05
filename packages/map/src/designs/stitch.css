@@ -1,0 +1,167 @@
+:root[data-theme="stitch"] {
+  color-scheme: light;
+  --page: #efe6d2;
+  --panel: #f8f2e4;
+  --ink: #3a2a20;
+  --ink-2: #553f30;
+  --muted: #6c5645;
+  --rule: #8a6a4a;
+  --accent: #a82a44;
+  --on-accent: #fff8ec;
+  --hover: rgba(168, 42, 68, 0.08);
+  --reticle: #3a2a20;
+  --grain-opacity: 0.3;
+  --grain-blend: multiply;
+  --font-mast: "Dancing Script", "Brush Script MT", cursive;
+  --font-head: "Lora", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
+  --font-ui: "Lora", Georgia, serif;
+}
+
+/* ---- Cross Stitch: linen, stitched edges, a sampler's border of X stitches --------------------- */
+:root[data-theme="stitch"] body {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.07) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(120, 96, 60, 0.07) 0 1px, transparent 1px 4px),
+    var(--page);
+}
+/* A band of cross stitches under the masthead, raspberry and green in turn. */
+:root[data-theme="stitch"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12'%3E%3Cg stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M2.5 9.5L9.5 2.5' stroke='%237a1c30'/%3E%3Cpath d='M2.5 2.5L9.5 9.5' stroke='%23b83250'/%3E%3Cpath d='M14.5 9.5L21.5 2.5' stroke='%232c5236'/%3E%3Cpath d='M14.5 2.5L21.5 9.5' stroke='%234a8052'/%3E%3C/g%3E%3C/svg%3E") repeat-x left bottom 6px / 24px 12px;
+}
+:root[data-theme="stitch"] .toolbar {
+  border-bottom: 2px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .timebar {
+  border-top: 2px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .map {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.09) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 96, 60, 0.09) 0 1px, transparent 1px 3px),
+    #e6dcc4;
+}
+/* Running stitch around the sampler's edge. */
+:root[data-theme="stitch"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 2px dashed rgba(168, 42, 68, 0.7);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="stitch"] .mast-title {
+  font-weight: 700;
+  color: #a82a44;
+  font-size: clamp(32px, 3.8vw, 48px);
+  letter-spacing: 0;
+}
+:root[data-theme="stitch"] .mast-tag {
+  font-style: italic;
+  color: #3f6a44;
+}
+/* The word in stitched block letters: a pixel face filled with X stitches. */
+:root[data-theme="stitch"] .telegram-word,
+:root[data-theme="stitch"] .telegram-big {
+  font-family: "Silkscreen", "Press Start 2P", monospace;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%23a82a44'/%3E%3Cpath d='M1.2 6.8L6.8 1.2' stroke='%236a1428' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M1.2 1.2L6.8 6.8' stroke='%23d0506c' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 0.125em 0.125em;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(1px 1px 0 rgba(90, 20, 36, 0.35));
+}
+:root[data-theme="stitch"] .telegram-word {
+  font-size: min(80px, calc(38vw / var(--len, 8) / 1.15));
+  border-bottom: 2px dashed #3f6a44;
+  padding-bottom: 6px;
+}
+:root[data-theme="stitch"] .telegram-word:hover,
+:root[data-theme="stitch"] .telegram-word:focus-visible {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%233f6a44'/%3E%3Cpath d='M1.2 6.8L6.8 1.2' stroke='%23284a2e' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M1.2 1.2L6.8 6.8' stroke='%235f9a64' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  text-decoration: none;
+}
+:root[data-theme="stitch"] .telegram-kicker,
+:root[data-theme="stitch"] .telegram-date {
+  color: #3f6a44;
+}
+/* Buttons are felt patches stitched on with a dashed thread. */
+:root[data-theme="stitch"] .tool,
+:root[data-theme="stitch"] .pick select,
+:root[data-theme="stitch"] .menu > summary,
+:root[data-theme="stitch"] .chip,
+:root[data-theme="stitch"] .key-btn,
+:root[data-theme="stitch"] .key-close {
+  border: 1.5px dashed #8a6a4a;
+  border-radius: 7px;
+  background: #fbf6ea;
+  box-shadow: 0 0 0 2px #fbf6ea, 0 0 0 3px #cdb892, 1px 2px 0 3px rgba(120, 96, 60, 0.18);
+}
+:root[data-theme="stitch"] .zoom {
+  border: 1.5px dashed #8a6a4a;
+  border-radius: 7px;
+  background: #fbf6ea;
+  box-shadow: 0 0 0 2px #fbf6ea, 0 0 0 3px #cdb892;
+}
+:root[data-theme="stitch"] .zoom button + button {
+  border-top: 1.5px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .tool.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="stitch"] .tool[aria-pressed="true"],
+:root[data-theme="stitch"] .menu[open] > summary,
+:root[data-theme="stitch"] .chip[aria-pressed="true"],
+:root[data-theme="stitch"] .key-btn[aria-expanded="true"],
+:root[data-theme="stitch"] .scale .step.on {
+  background: #a82a44;
+  color: #fff8ec;
+  border-color: #f3d9c9;
+}
+/* Panels are a stitched square of linen. */
+:root[data-theme="stitch"] .panel,
+:root[data-theme="stitch"] .menu-body,
+:root[data-theme="stitch"] .key-pop {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.06) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(120, 96, 60, 0.06) 0 1px, transparent 1px 4px),
+    var(--panel);
+  border: 2px dashed #a82a44;
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px var(--panel), 0 0 0 5px #cdb892, 2px 4px 10px 4px rgba(80, 56, 30, 0.18);
+}
+:root[data-theme="stitch"] .panel {
+  margin: 12px;
+}
+:root[data-theme="stitch"] .panel-title,
+:root[data-theme="stitch"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 32px;
+  color: #a82a44;
+}
+:root[data-theme="stitch"] .dateline {
+  border-bottom: 2px dashed #8a6a4a;
+}
+:root[data-theme="stitch"] .rule-head {
+  border-top-style: dashed;
+  border-bottom-style: dashed;
+  border-color: #8a6a4a;
+}
+@media (max-width: 760px) {
+  :root[data-theme="stitch"] .telegram-word {
+    font-size: min(48px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.86)));
+  }
+  :root[data-theme="stitch"] .panel {
+    margin: 6px;
+  }
+}

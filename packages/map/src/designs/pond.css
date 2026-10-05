@@ -1,0 +1,93 @@
+/* ---- Frog Pond, Honeycomb, Tarot, Arcadia, Bedtime Tea, Campus, Lasso -------------------- */
+:root[data-theme="pond"] {
+  color-scheme: light;
+  --page: #e3efd9;
+  --panel: #f4f9ee;
+  --ink: #17321a;
+  --ink-2: #27472a;
+  --muted: #4c6a4d;
+  --rule: #5f8f55;
+  --accent: #c23a78;
+  --on-accent: #ffffff;
+  --hover: rgba(47,107,95,0.1);
+  --reticle: var(--ink);
+  --grain-opacity: 0.2;
+  --grain-blend: multiply;
+  --font-mast: "Chewy", "Trebuchet MS", sans-serif;
+  --font-head: "Chewy", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+}
+
+/* ---- Frog Pond: a frog by the name, reeds at the edges, lily-pad controls ------------------- */
+:root[data-theme="pond"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 200'%3E%3Cg stroke='%234f7d3a' stroke-width='3' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 200C22 150 18 110 26 60'/%3E%3Cpath d='M44 200C44 160 50 120 48 90'/%3E%3Cpath d='M70 200C66 150 74 120 70 40'/%3E%3Cpath d='M92 200C96 170 100 140 110 110'/%3E%3Cpath d='M10 200C4 170 2 150 0 130'/%3E%3Cpath d='M58 200C62 180 80 160 96 150'/%3E%3C/g%3E%3Cg fill='%237a4a24' stroke='%234a2a12' stroke-width='1.5'%3E%3Crect x='21' y='58' width='10' height='34' rx='5' transform='rotate(4 26 75)'/%3E%3Crect x='65' y='36' width='10' height='38' rx='5'/%3E%3Crect x='43' y='86' width='9' height='28' rx='4.5'/%3E%3C/g%3E%3C/svg%3E") left bottom / 120px 200px no-repeat fixed,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 200'%3E%3Cg stroke='%234f7d3a' stroke-width='3' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 200C22 150 18 110 26 60'/%3E%3Cpath d='M44 200C44 160 50 120 48 90'/%3E%3Cpath d='M70 200C66 150 74 120 70 40'/%3E%3Cpath d='M92 200C96 170 100 140 110 110'/%3E%3Cpath d='M10 200C4 170 2 150 0 130'/%3E%3Cpath d='M58 200C62 180 80 160 96 150'/%3E%3C/g%3E%3Cg fill='%237a4a24' stroke='%234a2a12' stroke-width='1.5'%3E%3Crect x='21' y='58' width='10' height='34' rx='5' transform='rotate(4 26 75)'/%3E%3Crect x='65' y='36' width='10' height='38' rx='5'/%3E%3Crect x='43' y='86' width='9' height='28' rx='4.5'/%3E%3C/g%3E%3C/svg%3E") right -30px bottom / 110px 190px no-repeat fixed,
+    radial-gradient(ellipse 30% 20% at 10% 10%, rgba(118, 179, 71, 0.25), transparent 70%),
+    radial-gradient(ellipse 30% 20% at 90% 90%, rgba(47, 107, 95, 0.2), transparent 70%),
+    var(--page);
+}
+:root[data-theme="pond"] .masthead {
+  border-bottom: 0;
+  background:
+    radial-gradient(ellipse 14px 7px at 14px 4px, #5aa640 96%, transparent) 0 100% / 56px 10px repeat-x,
+    var(--page);
+  padding-bottom: 16px;
+}
+:root[data-theme="pond"] .mast-title {
+  color: #2f6b2a;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="pond"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 1.15em;
+  height: 0.98em;
+  margin-right: 0.18em;
+  vertical-align: -0.12em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cpath d='M2 22C2 14 10 11 20 11C30 11 38 14 38 22C38 28 30 32 20 32C10 32 2 28 2 22z' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Cpath d='M3 21.5Q20 30 37 21.5' stroke='%23173a10' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M17.5 17.5l1.4 1M22.5 17.5l-1.4 1' stroke='%23173a10' stroke-width='1.3' stroke-linecap='round'/%3E%3Ccircle cx='10.5' cy='10.5' r='7' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Ccircle cx='29.5' cy='10.5' r='7' fill='%235aa634' stroke='%23173a10' stroke-width='1.6'/%3E%3Ccircle cx='10.5' cy='11' r='4.6' fill='%23e7bb3c' stroke='%236b4a10' stroke-width='.8'/%3E%3Ccircle cx='29.5' cy='11' r='4.6' fill='%23e7bb3c' stroke='%236b4a10' stroke-width='.8'/%3E%3Cellipse cx='10.5' cy='11' rx='3.3' ry='1.5' fill='%23111'/%3E%3Cellipse cx='29.5' cy='11' rx='3.3' ry='1.5' fill='%23111'/%3E%3Cpath d='M4.5 9.5Q10.5 2.5 16.5 9.5M23.5 9.5Q29.5 2.5 35.5 9.5' stroke='%233f8a25' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root[data-theme="pond"] .telegram-word,
+:root[data-theme="pond"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  color: #2f6b2a;
+  text-shadow: 2px 2px 0 #cfe6b5;
+  border-bottom: 0;
+}
+/* A lily pad: round, veined, with a notch cut toward its middle. */
+:root[data-theme="pond"] .panel,
+:root[data-theme="pond"] .menu-body,
+:root[data-theme="pond"] .key-pop {
+  border: 3px solid #4f9a3a;
+  border-radius: 26px 26px 26px 4px;
+  background:
+    repeating-conic-gradient(from 10deg at 100% 0%, rgba(79, 154, 58, 0.07) 0 3deg, transparent 3deg 18deg),
+    radial-gradient(ellipse at 20% 0%, rgba(118, 179, 71, 0.2), transparent 60%),
+    var(--panel);
+}
+:root[data-theme="pond"] .panel {
+  margin: 8px;
+}
+:root[data-theme="pond"] .panel h2 {
+  color: #2f6b2a;
+}
+:root[data-theme="pond"] .tool,
+:root[data-theme="pond"] .pick select,
+:root[data-theme="pond"] .menu > summary,
+:root[data-theme="pond"] .chip,
+:root[data-theme="pond"] .zoom button,
+:root[data-theme="pond"] .key-btn,
+:root[data-theme="pond"] .key-close {
+  border: 2px solid #3f7f2e;
+  border-radius: 999px 999px 999px 3px;
+  background: radial-gradient(ellipse at 30% 20%, #eaf7dc, #cfe9b6);
+  color: #17321a;
+}
+:root[data-theme="pond"] .menu[open] > summary,
+:root[data-theme="pond"] .key-btn[aria-expanded="true"],
+:root[data-theme="pond"] .tool[aria-pressed="true"] {
+  background: #4f9a3a;
+  color: #ffffff;
+}

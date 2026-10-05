@@ -3,7 +3,7 @@
 // and at its publisher's city otherwise. Reach still counts publisher cities: it measures how widely a story was
 // reported.
 import { and, desc, eq, exists, gte, inArray, lt, lte, sql } from "drizzle-orm";
-import { ingestWindow, localMapItem, LOCAL_TILE_DEG, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
+import { ingestWindow, localIndex, localMapItem, LOCAL_TILE_DEG, namesOf, placeIdFor, tileBounds, tileKey, toRunDate, WORLD_TOPICS, type MapEvent, type MapFile, type MapItem, type MapNames, type MapPlace, type MapRecentWord, type MapSentence, type MapTile, type VerifiedSentence, type WorldTopic } from "@2dayai/core";
 import * as t from "./schema.js";
 import type { Db } from "./types.js";
 
@@ -181,7 +181,7 @@ export async function loadMapView(db: Db, runDate: string, now: Date = new Date(
   // Local stories from the GDELT index for towns no outlet reached (decisions 54, 67 and 78): the lowest rank, placed
   // by GDELT's checked city tag, published by the outlet's site.
   let local: MapFile["local"];
-  if (opts.local === "index") local = { deg: LOCAL_TILE_DEG, base: localBase(date), tiles: await localTileCounts(db, date) };
+  if (opts.local === "index") local = localIndex(LOCAL_TILE_DEG, localBase(date), await localTileCounts(db, date));
   else for (const s of await db.select().from(t.localStories).where(eq(t.localStories.runDate, date)).orderBy(...LOCAL_ORDER)) items.push(localItem(s, pin(s.placeName, s.lat, s.lon, false)));
   items.sort((a, b) => b.t - a.t);
 
@@ -344,4 +344,27 @@ export async function loadLocalTile(db: Db, runDate: string, key: string): Promi
   });
   items.sort((a, b) => b[1] - a[1]);
   return { version: 2, runDate: date, key, places, items };
+}
+
+/**
+ * The day's names index from the database, or null when it has no local story: what the Worker serves when the daily
+ * run stored no names.json (decision 78). The same places and counts splitLocal writes, read as the tiles are, newest
+ * story first, so a place keeps the name its newest story gave it.
+ */
+export async function loadLocalNames(db: Db, runDate: string): Promise<MapNames | null> {
+  const date = toRunDate(runDate);
+  const rows = await db
+    .select({ name: t.localStories.placeName, lat: t.localStories.lat, lon: t.localStories.lon })
+    .from(t.localStories)
+    .where(eq(t.localStories.runDate, date))
+    .orderBy(...LOCAL_ORDER);
+  if (rows.length === 0) return null;
+  const places = new Map<string, readonly [MapPlace, number]>();
+  const counts = new Map<string, number>();
+  for (const r of rows) {
+    const id = placeIdFor(r.lat, r.lon);
+    if (!places.has(id)) places.set(id, [{ id, name: r.name, lat: r.lat, lon: r.lon }, 0]);
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return namesOf(date, [...places].map(([id, [p]]) => [p, counts.get(id)!] as const));
 }

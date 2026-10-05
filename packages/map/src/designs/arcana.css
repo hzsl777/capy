@@ -1,0 +1,187 @@
+:root[data-theme="arcana"] {
+  color-scheme: dark;
+  --page: #120a2c;
+  --panel: #1c1042;
+  --ink: #f5e6c0;
+  --ink-2: #e8d6a8;
+  --muted: #bcaa88;
+  --rule: #7a5f2a;
+  --accent: #e3bd62;
+  --on-accent: #1c1042;
+  --gold: #e3bd62;
+  --suits:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M7 5H21C21 12 17 15 14 15C11 15 7 12 7 5ZM14 15V21M9 23H19M10 8H18' fill='none' stroke='%23e3bd62' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") left 9px top 9px / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M6 22L21 7M17 5L23 11M10 16L7 13M14 12L12 8M18 10L21 9' fill='none' stroke='%23e3bd62' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") right 9px top 9px / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%23e3bd62' stroke-width='1.5'/%3E%3Cpath d='M14 8Q14 14 20 14Q14 14 14 20Q14 14 8 14Q14 14 14 8Z' fill='none' stroke='%23e3bd62' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E") left 9px bottom 9px / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M14 3L16 11L24 8L18 14L24 20L16 17L14 25L12 17L4 20L10 14L4 8L12 11Z' fill='none' stroke='%23e3bd62' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") right 9px bottom 9px / 22px 22px no-repeat;
+  --starfield:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(245, 230, 192, 0.85), transparent) 0 0 / 150px 150px,
+    radial-gradient(1px 1px at 70% 65%, rgba(245, 230, 192, 0.65), transparent) 0 0 / 210px 210px,
+    radial-gradient(1px 1px at 40% 80%, rgba(227, 189, 98, 0.7), transparent) 0 0 / 97px 97px,
+    radial-gradient(2px 2px at 85% 15%, rgba(255, 244, 214, 0.8), transparent) 0 0 / 260px 260px;
+  --hover: rgba(227,189,98,0.12);
+  --reticle: #f5e6c0;
+  --grain-opacity: 0.18;
+  --grain-blend: overlay;
+  --font-mast: "Cinzel Decorative", Georgia, serif;
+  --font-head: "Lora", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
+  --font-ui: "Lora", Georgia, serif;
+}
+
+/* ---- Tarot (id arcana): cards in gold on deep violet -------------------------------------------------------- */
+:root[data-theme="arcana"] body {
+  background:
+    var(--starfield),
+    radial-gradient(ellipse at 50% 0%, rgba(120, 70, 190, 0.35), transparent 60%),
+    var(--page);
+}
+/* The map is the face of a card too: a rounded gold double frame round a starry violet sky. */
+:root[data-theme="arcana"] .map {
+  margin: 8px;
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 5px var(--page), inset 0 0 0 6px rgba(227, 189, 98, 0.65), 0 0 18px rgba(227, 189, 98, 0.18);
+  background:
+    var(--starfield),
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(140, 90, 210, 0.3), transparent 70%),
+    linear-gradient(to bottom, #1a0e3c, #0e0724);
+}
+:root[data-theme="arcana"] .masthead {
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 #e3bd62, inset 0 -5px 0 var(--page), inset 0 -6px 0 #e3bd62;
+}
+:root[data-theme="arcana"] .mast-title {
+  font-weight: 700;
+  color: #e3bd62;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="arcana"] .telegram-word,
+:root[data-theme="arcana"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  color: #f5e6c0;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 14px rgba(227, 189, 98, 0.45);
+  border-bottom: 0;
+}
+/*
+ * Cards: the panel, the Key, the menus, the notes and the About dialog are card faces, a rounded gold double frame
+ * with a suit in each corner (a cup, a wand, a coin and a star) over a soft violet glow.
+ */
+:root[data-theme="arcana"] .panel,
+:root[data-theme="arcana"] .menu-body,
+:root[data-theme="arcana"] .key-pop,
+:root[data-theme="arcana"] .map-note,
+:root[data-theme="arcana"] dialog {
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(227, 189, 98, 0.75), 0 6px 22px rgba(4, 0, 18, 0.6), 0 0 14px rgba(227, 189, 98, 0.15);
+  background:
+    var(--suits),
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(140, 90, 210, 0.28), transparent 70%),
+    var(--panel);
+}
+:root[data-theme="arcana"] .panel {
+  margin: 8px;
+  padding-top: 10px;
+  padding-bottom: 36px;
+  /* The suits ride with the text, so the lower two close the card's end instead of sitting over a story. */
+  background-attachment: local;
+}
+:root[data-theme="arcana"] .menu-body {
+  padding: 36px 16px 36px;
+}
+:root[data-theme="arcana"] .key-pop {
+  padding: 10px 16px 34px;
+}
+/* As in the panel, the suits ride with the text and the card leaves room for them above the title and below the end. */
+:root[data-theme="arcana"] dialog {
+  padding-top: 36px;
+  padding-bottom: 36px;
+  background-attachment: local;
+}
+:root[data-theme="arcana"] .map-note {
+  padding: 16px 38px;
+}
+/* A card's number heads it between two gold rules: the panel is The World (XXI) and the Key The Star (XVII). */
+:root[data-theme="arcana"] .panel:not(.framed)::before,
+:root[data-theme="arcana"] .key-pop::before {
+  content: "XXI" / "";
+  display: block;
+  margin: 2px 26px 10px;
+  text-align: center;
+  font: 700 13px/1.2 var(--font-mast);
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  background:
+    linear-gradient(var(--gold), var(--gold)) left center / calc(50% - 34px) 1px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) right center / calc(50% - 34px) 1px no-repeat;
+}
+:root[data-theme="arcana"] .key-pop::before {
+  content: "XVII" / "";
+  margin-bottom: 4px;
+}
+:root[data-theme="arcana"] .panel h2,
+:root[data-theme="arcana"] .key-head h2,
+:root[data-theme="arcana"] dialog h2 {
+  font-family: var(--font-mast);
+  color: var(--gold);
+}
+:root[data-theme="arcana"] .panel-title,
+:root[data-theme="arcana"] .place-name {
+  font-family: var(--font-mast);
+  color: var(--gold);
+  text-transform: none;
+  text-shadow: 0 0 10px rgba(227, 189, 98, 0.35);
+}
+:root[data-theme="arcana"] .dateline {
+  border-bottom: 3px double var(--gold);
+}
+:root[data-theme="arcana"] .headline,
+:root[data-theme="arcana"] .reader-headline {
+  font-weight: 600;
+}
+/* The citation marks are tiny cards. */
+:root[data-theme="arcana"] .cite {
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #2a1a5a, #1c1042);
+  color: var(--gold);
+}
+:root[data-theme="arcana"] .excerpt-quote {
+  border-left-color: var(--gold);
+}
+:root[data-theme="arcana"] .tool,
+:root[data-theme="arcana"] .pick select,
+:root[data-theme="arcana"] .menu > summary,
+:root[data-theme="arcana"] .chip,
+:root[data-theme="arcana"] .zoom button,
+:root[data-theme="arcana"] .key-btn,
+:root[data-theme="arcana"] .key-close {
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #2a1a5a, #1c1042);
+  color: #f5e6c0;
+  box-shadow: inset 0 0 0 2px #1c1042, inset 0 0 0 3px rgba(227, 189, 98, 0.35);
+}
+:root[data-theme="arcana"] .chip {
+  border-radius: 999px;
+}
+:root[data-theme="arcana"] .zoom {
+  border: 0;
+  background: none;
+  gap: 4px;
+}
+:root[data-theme="arcana"] .menu[open] > summary,
+:root[data-theme="arcana"] .key-btn[aria-expanded="true"],
+:root[data-theme="arcana"] .tool[aria-pressed="true"],
+:root[data-theme="arcana"] .chip[aria-pressed="true"],
+:root[data-theme="arcana"] .scale .step.on {
+  background: linear-gradient(to bottom, #f3d58a, #d9a94a);
+  color: #1c1042;
+}
+:root[data-theme="arcana"] .slider input {
+  accent-color: var(--gold);
+}
