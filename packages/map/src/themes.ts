@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2697,6 +2697,47 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#c4691d",
     tuned: "#3b2112",
     arc: "#9a5a2c",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Noodle Bowl, experimental: the world in a bowl of broth (src/map/soup.ts). Globe view floats the globe in the broth
+  // with noodles, a spoon, an egg, seaweed, scallion rings and herbs laid round it; Map view is the broth in a wide pot.
+  // Land is noodle on the globe and tofu on the map, cut by the coastline alone. A drag or a zoom sets the broth
+  // swaying a little (`warp: "wobble"`). Dark green slice markers, chili red for fresh reports.
+  soup: {
+    id: "soup",
+    label: "Noodle Bowl",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    surface: "soup",
+    warp: "wobble",
+    globeScale: 0.32,
+    ocean: "#c47a2a",
+    land: "#f6e0a0",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "slice",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#7a4417",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(255,236,190,0.28)",
+    oceanHatch: null,
+    graticule: "rgba(255,236,190,0.14)",
+    graticuleDash: [],
+    river: "rgba(150,90,30,0.6)",
+    lake: "#d28a30",
+    ice: "#fffaf0",
+    relief: "rgba(0,0,0,0)",
+    dot: "#1c5a2c",
+    dotStroke: "#fff8e4",
+    fresh: "#e5251f",
+    tuned: "#4a1c0c",
+    arc: "rgba(255,244,214,0.9)",
     glow: false,
     atmosphere: null,
     shade: null,

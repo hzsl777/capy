@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -256,6 +256,21 @@ export function markPath(shape: MarkShape, r: number): string {
         `M${beanAt(a, 0)}C${beanAt(a, k * b)} ${beanAt(k * a, b)} ${beanAt(0, b)}C${beanAt(-k * a, b)} ${beanAt(-a, k * b)} ${beanAt(-a, 0)}` +
         `C${beanAt(-a, -k * b)} ${beanAt(-k * a, -b)} ${beanAt(0, -b)}C${beanAt(k * a, -b)} ${beanAt(a, -k * b)} ${beanAt(a, 0)}Z`
       );
+    }
+    case "slice": {
+      // A round slice of garnish (Noodle Bowl): a disc whose rim is nine shallow scallops, the same every time.
+      const n = 9;
+      const R = r * 0.93;
+      const pt = (i: number): [number, number] => [R * Math.cos((i / n) * Math.PI * 2 - Math.PI / 2), R * Math.sin((i / n) * Math.PI * 2 - Math.PI / 2)];
+      const chord = 2 * R * Math.sin(Math.PI / n);
+      const br = (chord / 2) * 1.1;
+      const [x0, y0] = pt(0);
+      let d = `M${f(x0)} ${f(y0)}`;
+      for (let i = 1; i <= n; i++) {
+        const [x, y] = pt(i % n);
+        d += `A${f(br)} ${f(br)} 0 0 1 ${f(x)} ${f(y)}`;
+      }
+      return `${d}Z`;
     }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X

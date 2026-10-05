@@ -70,6 +70,7 @@ import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
+import { drawSoup, SoupCache } from "./soup.ts";
 // Desktop 95.
 import { DesktopCache, drawDesktop } from "./desktop.ts";
 // Herbarium (experimental).
@@ -334,6 +335,8 @@ export class MapView {
   private gloss = new GlossCache();
   /** Crystal Towers: its floor, towers, drifting cubes and the world under them. */
   private towers = new TowersCache();
+  /** Noodle Bowl: the bowl or pot, what is laid round the world, and how stirred the broth is. */
+  private soup = new SoupCache();
   /** Desktop 95: the small canvas it snaps to sixteen colours. */
   private desktop = new DesktopCache();
   /** Herbarium: its pencil water lines, the leaf grid's mountains and what lies round the globe. */
@@ -1780,7 +1783,11 @@ export class MapView {
     this.lastDraw = performance.now();
     // A warp bends the whole picture (decision 75); the picture tube's curve is Map view's only.
     const wk = t.warp && !(t.warp === "barrel" && this.mode === "3d") ? t.warp : null;
-    if (!wk) this.warp = null;
+    if (wk === "wobble") {
+      // Noodle Bowl: the broth sways after a drag or a zoom and settles, so the warp exists only while it does.
+      this.warp = this.soup.wobble.step(performance.now(), this.lon, this.lat, this.zoom, this.baseScale * this.zoom, w, h, this.still());
+      this.warpFor = "";
+    } else if (!wk) this.warp = null;
     else if (this.warp?.kind !== wk || this.warpFor !== `${w}x${h}:${this.mode}`) {
       this.warp = makeWarp(wk, w, h, this.mode === "3d");
       this.warpFor = `${w}x${h}:${this.mode}`;
@@ -2015,6 +2022,7 @@ export class MapView {
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "towers") return drawTowers(f, this.towers);
+    if (t.surface === "soup") return drawSoup(f, this.soup);
     if (t.surface === "desktop") return drawDesktop(f, this.desktop);
     if (t.surface === "herbarium") return drawHerbarium(f, this.herbarium);
     if (t.surface === "tiramisu") return drawTiramisu(f, this.tiramisu);
@@ -2797,6 +2805,18 @@ export class MapView {
         ctx.lineWidth = Math.max(0.7, r * 0.1);
         ctx.lineJoin = "round";
         ctx.globalAlpha = 0.45;
+        ctx.strokeStyle = t.dotStroke;
+        ctx.stroke();
+        ctx.restore();
+      }
+      if (t.dotShape === "slice" && !hollow && r >= 3.5) {
+        // Noodle Bowl: a slice's cut face, a pale ring inside the scalloped rim. Only texture; the symbol is a filled mark.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 0.5, 0, Math.PI * 2);
+        ctx.lineWidth = Math.max(0.8, r * 0.14);
+        ctx.globalAlpha = 0.7;
         ctx.strokeStyle = t.dotStroke;
         ctx.stroke();
         ctx.restore();
