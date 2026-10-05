@@ -1914,6 +1914,7 @@ async function start() {
       landDrawn = true;
       mapNote(null);
       map.setBasemap(undefined, high, relief);
+      map.setDetail(BASE);
     })
     .catch((e) => console.warn("Detailed basemap failed to load", e));
 

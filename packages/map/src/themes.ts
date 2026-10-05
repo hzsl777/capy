@@ -74,6 +74,8 @@ export interface Theme {
   tiltFar?: number;
   /** With `tilt`: the furthest out Map view may zoom (default 1.8). */
   tiltMinZoom?: number;
+  /** `false` keeps the 50m basemap at the closest zooms, for a design that cannot draw the 10m cells (src/map/detail.ts). */
+  detail?: false;
   /** The globe's radius at the widest zoom, as a share of the frame's shorter side (default 0.46). */
   globeScale?: number;
   /**

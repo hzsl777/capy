@@ -868,20 +868,19 @@ export type SpotKind = "rabbit" | "hedgehog" | "snail" | "songbird" | "ladybird"
  * drawn, and everything on it moves, inside a circle a little smaller than its open water, so none reaches land.
  */
 export const SPOTS: readonly SeaSpot[] = [
-  { kind: "ladybird", lon: -160, lat: -58, r: 16 },
+  { kind: "ladybird", lon: -150, lat: -57, r: 16 },
   { kind: "rabbit", lon: -44, lat: 28, r: 14 },
   { kind: "butterflies", lon: 168, lat: 38, r: 13, flip: true },
-  { kind: "hedgehog", lon: 86, lat: -10, r: 12 },
-  { kind: "songbird", lon: 0, lat: -40, r: 12, flip: true },
-  { kind: "bees", lon: -118, lat: 8, r: 11 },
-  { kind: "pond", lon: -94, lat: -32, r: 11 },
+  { kind: "hedgehog", lon: 82, lat: -20, r: 12 },
+  { kind: "bees", lon: -130, lat: 8, r: 11 },
+  { kind: "pond", lon: -100, lat: -42, r: 11 },
   { kind: "snail", lon: 102, lat: -54, r: 10, flip: true },
   { kind: "rabbit", lon: -140, lat: 40, r: 10, flip: true },
   { kind: "songbird", lon: 52, lat: -36, r: 9 },
-  { kind: "butterflies", lon: -170, lat: 8, r: 9 },
-  { kind: "pond", lon: -22, lat: -2, r: 8 },
+  { kind: "butterflies", lon: -176, lat: 12, r: 9 },
+  { kind: "pond", lon: -24, lat: -12, r: 8 },
   { kind: "hedgehog", lon: -44, lat: -42, r: 8, flip: true },
-  { kind: "snail", lon: -84, lat: -62, r: 7 },
+  { kind: "snail", lon: -100, lat: -62, r: 7 },
 ];
 /** How much of a spot's open water the drawing spans, from its centre: the drawing and its motion stay inside this circle. */
 export const SPOT_FILL = 0.8;

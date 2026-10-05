@@ -107,7 +107,7 @@ export function drawGloss(f: SurfaceFrame, cache: GlossCache): SurfaceResult | v
   cache.bump ??= bumpSprite(t.relief, "rgba(236,226,204,0.55)");
   const bump = cache.bump;
 
-  const pk = `${w}:${h}:${dpr}:${mode}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.map === f.low ? "l" : "h"}:${f.relief ? 1 : 0}`;
+  const pk = `${w}:${h}:${dpr}:${mode}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.mapId}:${f.relief ? 1 : 0}`;
   cachedPicture(cache.picture, f, pk, (g) => {
     const path = (o: object) => {
       const p = new Path2D();

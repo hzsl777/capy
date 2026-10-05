@@ -122,7 +122,7 @@ export function drawArcade(f: SurfaceFrame, cache: ArcadeCache): SurfaceResult {
   ctx.drawImage(cache.bezel.canvas, 0, 0, w, h);
 
   // The picture changes only when the view moves; the rolling band passes over the same picture.
-  const pk = `${key}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.map === f.low ? "l" : "h"}`;
+  const pk = `${key}:${f.lon.toFixed(5)}:${f.lat.toFixed(5)}:${f.zoom.toFixed(5)}:${f.mapId}`;
   cachedPicture(cache.picture, f, pk, (g) => {
     g.clip(screen);
     const path = (o: object) => {

@@ -37,7 +37,9 @@ src/
   data.ts                load + filter + formatting helpers, and the tiles of local stories (key, address, merging; unit tested)
   themes.ts              canvas colours per design; CSS tokens live in style.css
   map/view.ts            canvas map: projections, drag/zoom/pinch, tuning, highlights, drawing
-  map/basemap.ts         loads the TopoJSON basemap
+  map/basemap.ts         loads the TopoJSON basemap (110m and 50m), and finds a coast from land's rings, less the edges a cut makes
+  map/cells.ts           the 10 degree grid of the detailed basemap: cell names, clipping polygons and lines to a cell (the build and the site share it; unit tested)
+  map/detail.ts          the 10m cells: loads the ones in view, thins them to the screen, puts them together as one `Basemap`, and lets go of far ones (unit tested)
   map/terrain.ts         Polygon Kingdom's triangle terrain, built once per basemap
   map/surface.ts         what the designs that draw land and sea their own way share (the frame they are handed)
   map/neon.ts            Night Drive: the ruled sea, wire land, sunset and wire planet
@@ -103,7 +105,8 @@ src/
   ui/designs.ts          the Design picker: a popover of cards with each design's own colours, search, filters, stars and recent ones, the phone's swipe (tested)
   style.css              sixty-five designs over one layout
 public/
-  basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed)
+  basemap/               Natural Earth physical layers (built by scripts/build-basemap.ts, committed): world-110m.json, world-50m.json,
+                         relief.json, and 10m/<cell>.json (466 cells of 10 degrees with index.json, about 4.8 MB, for the closest zooms)
   data/sample.json       fictional sample made by `npm run map:sample` (committed)
   data/local/sample/     its fictional GDELT local stories in tiles, one file per 10-degree cell (committed)
   thumbs/                one small picture per design for the Design picker, made by scripts/thumbs.ts (committed)
@@ -116,7 +119,7 @@ public/
                          manifest and headers; the canonical tag, og:url and og:image carry globalgist.io, or SITE_DOMAIN
                          when the build sets it (vite.config.ts)
 scripts/
-  build-basemap.ts       Natural Earth -> public/basemap/*.json
+  build-basemap.ts       Natural Earth -> public/basemap/*.json and public/basemap/10m/*.json
   screenshots.ts         every design x view, the reader, the telegram and an explanation into docs/map/screenshots
   thumbs.ts              the Design picker's previews: every design's whole page, 320 by 200, into public/thumbs (decision 132)
 test/                    vitest; test/sample.ts reads every sample place, tiles included, for the decoration tests
@@ -132,7 +135,7 @@ npm run map:sample       fictional world day through the real stages, in memory,
 npm run map:dev          dev server on the sample (http://localhost:5173)
 npm run check            boundaries, typecheck and tests for every package, including the map
 npm run map:build        typecheck + production build into packages/map/dist/
-npm run map:basemap      rebuild the basemap (needs raw.githubusercontent.com)
+npm run map:basemap      rebuild the basemap (needs raw.githubusercontent.com); `-- 10m` only the detailed cells, `-- world` only the rest
 npm run map:build && npm run map:screenshots
 npm run web:deploy       build and deploy with the Worker (needs Cloudflare credentials)
 ```
@@ -243,6 +246,8 @@ Radar Sweep, Film Noir, Arcade Cabinet and Stadium Jumbotron also set `surface` 
 Pop-up Book, Toy Train Set, Chalkboard and Sketchbook (decision 76) set `surface` too, sharing `src/map/handmade.ts`. Their land colours follow only the basemap's land and ice and the relief layer. What they put at sea (paper pieces on sticks, oval tracks and trains, chalk and pencil doodles) sits only at fixed spots whose whole circle of open water is clear of land and 3 degrees from every place (`test/handmade.test.ts`), and a standing piece is never taller than that water reaches behind it on screen. A surface may ask for its next frame (the moving trains, the line boil, the fading smudge); the view never asks while the tab is hidden or for readers who ask for reduced motion, and a static layer is kept offscreen while the view holds still.
 
 The globe is shaded as a lit sphere (`shade`, `atmosphere` in the theme). The printed designs frame the map with a double neatline (`neatline`). A theme may set `decor` for drawings under the dots (`src/map/decor.ts`) and `scenery` for pictures that say what the design is (`src/map/scenery.ts`). Decorations have no text and no small filled circles, so nothing reads as a place or a dot (a large drawing may be filled with the paper colour, as Pirate's are). They sit only at fixed open-ocean spots or areas far from every outlet's city (checked against both basemaps' coasts and `config/sources.yaml` by `test/decor.test.ts`), and never change a dot. Pirate's drawings are built once as `Path2D` in local units and drawn with a transform, and its wave marks go into one path per frame. Adding an outlet on a remote island can fail that test: move the decoration, not the outlet. A scenery picture is drawn exactly as wide as the open water around its spot (`r`), and `test/scenery.test.ts` checks that whole circle is off land and at least 3 degrees from every place.
+
+**The detailed coast** (`src/map/detail.ts`, `src/map/cells.ts`, `public/basemap/10m/`). The 50m basemap is several kilometres off at a coast and has no small islands, so at the closest zooms a town on a shore or an island sat in the sea: 495 of the 7,342 listed cities and 119 of the 818 outlet cities were not on 50m's land, and 376 and 99 of them more than a kilometre from its coast. On the 10m detail it is 45 and 28, and 9 and 8 (`test/detail.test.ts`; the rest are towns the data itself puts a little out). From a pixel of about 3.5 km (`DETAIL10_SCALE`, a projection scale of 1800) the view draws Natural Earth's 10m land, lakes, rivers and ice in place of 50m. The data is cut into cells of 10 degrees on a fixed grid of longitude and latitude, named like the local-story tiles ("30N_10E", `index.json` lists the 466 that hold land), TopoJSON quantized to a grid whose step is a binary fraction of a degree so neighbouring cells meet exactly, about 4.8 MB (1.4 MB gzipped) in all, built by `npm run map:basemap -- 10m`. The outlines are thinned once for the whole world before the cut (`thin`, so the points along a cell's border are never taken out), a ring round a pole gets its points on the pole back (`withPoles`), and a cell's polygons are cut with the cell's border walked from where a ring leaves to where the next enters, never closed on themselves (`clipPolygon`): Sutherland-Hodgman's back-and-forth edges along a border make d3's own clipping fill the whole screen at some zooms. Edges along a border are not coast: `coastOf` leaves them out of the coast (`isGridCut`), in Map and Globe, and coasts that meet at a border are joined into one line (`joinLines`). A lake goes whole into every cell it touches and is drawn once by its number; rivers are clipped lines. The view asks for the cells in view and a ring round them from 0.8 of that scale, after the 50m basemap has loaded and never before the first paint, and draws 50m until every cell in view is here, then hands every design one `Basemap` (`compose`) of the cells in view, which is a new object whenever a cell enters or leaves the view (a cell still on its way is filled from the 50m basemap cut to the same grid); a design that keeps a picture keys it on `f.mapId`. Cells are kept per view (the view's and a ring round it, at most 72 and more only when the view needs more, the least recently in view going first), let go altogether below 0.7 of the scale, and thinned to about a pixel once per octave of zoom (`thinPiece`, also leaving out islands under a pixel and a half). The ripples and shallows `drawMap` strokes along the coast take a copy of it with points 2 pixels apart (`sparseContext`): a stroke costs by its segments. The decoration tests (`test/decor.test.ts`, `scenery`, `handmade`, `woodblock`, `aquarium`, `herbarium`) read the 10m cells too, so no drawing stands over an island only the detail has (Pirate's creatures and wave marks were moved and made smaller for that). Designs that keep 50m, because their picture is not one the cells can improve or the camera shows more than the cells in view: those under the tilted camera (Night Drive, Polygon Kingdom, Pop-up Book and Toy Train Set in Map view, Nightclub, and any design while the reader tilts it, `cam`), the Folding Cube and First Render's Globe (a ball of facets 30 to 60 pixels across).
 
 A theme is two things kept in step: a `Theme` in `src/themes.ts` (canvas) and a `:root[data-theme=...]` block in `src/style.css` (chrome and fonts). Fonts are self-hosted through `@fontsource`. See the `design-themes` skill. The word is the page's headline: centred in the masthead in every design, with its size set by its length so every word on the lists fits a phone, and always next to its date and the "Chosen by AI" label (decision 40). Anything decorative around the word must not change how it reads (a "STOP" suffix was removed because "Ceasefire stop" reads as a statement).
 

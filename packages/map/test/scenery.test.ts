@@ -2,21 +2,16 @@
 // as the open water around its spot, so the whole circle must be clear of land and far from every place.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { geoContains, geoDistance } from "d3-geo";
-import type { FeatureCollection } from "geojson";
-import { feature } from "topojson-client";
-import type { GeometryCollection, Topology } from "topojson-specification";
+import { geoDistance } from "d3-geo";
 import { describe, expect, it } from "vitest";
 import { PICTURES, POND, REEF, ROPE, TEA } from "../src/map/scenery.ts";
 import { samplePlaces } from "./sample.ts";
+import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
 
-function land(file: string): FeatureCollection {
-  const topo = JSON.parse(readFileSync(here(`../public/basemap/${file}`), "utf8")) as Topology;
-  return feature(topo, topo.objects.land as GeometryCollection) as FeatureCollection;
-}
+const land = landOf;
 
 function places(): [number, number][] {
   const yaml = readFileSync(here("../../../config/sources.yaml"), "utf8");
@@ -41,11 +36,11 @@ describe("scenery", () => {
   const all = places();
   const spots = [...POND, ...ROPE, ...TEA, ...REEF];
 
-  for (const file of ["world-110m.json", "world-50m.json"]) {
+  for (const file of BASEMAPS) {
     it(`keeps every picture's whole circle off land (${file})`, () => {
       const l = land(file);
       for (const s of spots) {
-        for (const p of ring(s.lon, s.lat, s.r)) expect(geoContains(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
+        for (const p of ring(s.lon, s.lat, s.r)) expect(inLand(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
       }
       // The detailed coastline takes a few seconds, more when every package's tests run at once.
     }, 60_000);

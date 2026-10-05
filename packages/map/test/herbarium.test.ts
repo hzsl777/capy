@@ -42,20 +42,18 @@ import {
 } from "../src/map/herbarium.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 import { samplePlaces } from "./sample.ts";
+import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
-const FILES = ["world-110m.json", "world-50m.json"];
+const FILES = BASEMAPS;
 const css = readFileSync(here("../src/style.css"), "utf8");
 const start = css.indexOf("---- Garden (id herbarium");
 const next = css.indexOf("\n/* ---- ", start + 10);
 const gardenCss = css.slice(start, next < 0 ? undefined : next);
 const source = readFileSync(here("../src/map/herbarium.ts"), "utf8");
 
-function land(file: string): FeatureCollection {
-  const topo = JSON.parse(readFileSync(here(`../public/basemap/${file}`), "utf8")) as Topology;
-  return feature(topo, topo.objects.land as GeometryCollection) as FeatureCollection;
-}
+const land = landOf;
 
 /** Every coastline of both basemaps as points at most a quarter of a degree apart, so no stretch of coast is missed. */
 function coastPoints(): [number, number][] {
@@ -164,7 +162,7 @@ describe("the spots at sea", () => {
   it("reads the outlet list and the coasts", () => {
     expect(all.length).toBeGreaterThan(50);
     expect(coast.length).toBeGreaterThan(10_000);
-    for (const l of lands) expect(geoContains(l, [36.82, -1.29])).toBe(true);
+    for (const l of lands) expect(inLand(l, [36.82, -1.29])).toBe(true);
   });
 
   it("has a dozen or more spots, each a known kind, the ladybird's among the largest", () => {
@@ -178,7 +176,7 @@ describe("the spots at sea", () => {
   it("keeps every spot's whole circle off land and off every coast, in both basemaps", () => {
     for (const s of SPOTS) {
       const at = `${s.kind} at ${s.lat},${s.lon}`;
-      for (const l of lands) expect(geoContains(l, [s.lon, s.lat]), at).toBe(false);
+      for (const l of lands) expect(inLand(l, [s.lon, s.lat]), at).toBe(false);
       expect(nearestWithin(coast, s.lon, s.lat, s.r + 1), at).toBeGreaterThan(s.r);
     }
   }, 60_000);

@@ -9,6 +9,7 @@ import type { FeatureCollection } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import { describe, expect, it } from "vitest";
+import { BASEMAPS, inLand, landOf } from "./basemaps.ts";
 import { ambientDelay } from "../src/map/ambient.ts";
 import { buoyBand, markPath } from "../src/map/marks.ts";
 import { coilOf, GAP, graticuleStep, KEY_BOX, pathPoints, placeDock, REACH, SEA, SEA_FILL, seaUnit, shapeParts, soundClear, soundings, soundStep, ZOOM_BOX, type Kind } from "../src/map/lobster.ts";
@@ -103,11 +104,11 @@ describe("Lobster", () => {
     expect(Math.abs(x0!)).toBeLessThan(6 * 0.95);
   });
 
-  for (const file of ["world-110m.json", "world-50m.json"]) {
+  for (const file of BASEMAPS) {
     it(`keeps every drawing's whole circle of open water off land (${file})`, () => {
-      const l = land(file);
+      const l = landOf(file);
       for (const s of SEA) {
-        for (const p of ring(s.lon, s.lat, s.r)) expect(geoContains(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
+        for (const p of ring(s.lon, s.lat, s.r)) expect(inLand(l, p), `${s.kind} at ${s.lat},${s.lon}`).toBe(false);
       }
     }, 60_000);
   }

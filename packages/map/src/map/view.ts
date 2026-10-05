@@ -22,6 +22,8 @@ import { AquariumCache, drawAquarium } from "./aquarium.ts";
 import { drawLava, LavaCache } from "./lava.ts";
 import { minimapFrame } from "./minimap.ts";
 import { ambientDelay } from "./ambient.ts";
+import { Detail, cellsInView, grown, ringFor, tolFor } from "./detail.ts";
+import { CELL } from "./cells.ts";
 import {
   ballGlints,
   buildBall,
@@ -266,11 +268,60 @@ function pathContext(p: Path2D) {
   return { beginPath() {}, moveTo: p.moveTo.bind(p), lineTo: p.lineTo.bind(p), arc: p.arc.bind(p), closePath: p.closePath.bind(p) };
 }
 
+/**
+ * Like `pathContext`, but a point within `min` pixels of the last one drawn is skipped, so a long, finely sampled line
+ * costs the canvas fewer segments. A short line (an islet of a few pixels) is kept whole, so it still strokes as a
+ * round blob and not as a bar. Each line's last point is always drawn; call `end` after the last line.
+ */
+function sparseContext(p: Path2D, min: number) {
+  let line: number[] = [];
+  const flush = () => {
+    if (!line.length) return;
+    p.moveTo(line[0]!, line[1]!);
+    if (line.length <= 24) for (let i = 2; i < line.length; i += 2) p.lineTo(line[i]!, line[i + 1]!);
+    else {
+      let lx = line[0]!, ly = line[1]!;
+      const end = line.length - 2;
+      for (let i = 2; i < end; i += 2) {
+        const x = line[i]!, y = line[i + 1]!;
+        if ((x - lx) * (x - lx) + (y - ly) * (y - ly) < min * min) continue;
+        p.lineTo(x, y);
+        lx = x;
+        ly = y;
+      }
+      p.lineTo(line[end]!, line[end + 1]!);
+    }
+    line = [];
+  };
+  return {
+    beginPath() {},
+    moveTo(x: number, y: number) {
+      flush();
+      line.push(x, y);
+    },
+    lineTo(x: number, y: number) {
+      line.push(x, y);
+    },
+    arc: p.arc.bind(p),
+    closePath() {
+      flush();
+      p.closePath();
+    },
+    end: flush,
+  };
+}
+
 /** Pixels drawn beyond the frame on the flat map: more than the widest coast ripple line. */
 const CLIP_MARGIN = 48;
 
 /** Projection scale (about the globe's radius in pixels) from which the detailed basemap is drawn. */
 const DETAIL_SCALE = 520;
+/**
+ * From this scale the 10m cells in view are drawn instead of 50m (src/map/detail.ts): a pixel is about 3.5 kilometres,
+ * where 50m's coast, several kilometres out, starts to show against a town's dot. They are asked for from 0.8 of it, so
+ * they are here when it is reached, and let go below 0.7 of it.
+ */
+const DETAIL10_SCALE = 1800;
 
 /** Resampling precision in pixels. One value for every frame, so outlines never shift between frames. */
 const PRECISION = 0.5;
@@ -312,6 +363,12 @@ export class MapView {
 
   private low?: Basemap;
   private high?: Basemap;
+  private detail?: Detail;
+  private detailCells?: { key: string; cells: ReturnType<typeof cellsInView>; ring: ReturnType<typeof cellsInView> };
+  private mapIds = new WeakMap<Basemap, number>();
+  private mapSeq = 0;
+  /** True while the frame being drawn uses the 10m cells. */
+  private detailing = false;
   private relief?: Relief;
   private cam: Cam | null = null;
   private rasters?: { base: Basemap; isLand: (lon: number, lat: number) => boolean; isIce: (lon: number, lat: number) => boolean };
@@ -479,6 +536,47 @@ export class MapView {
     if (high) this.high = high;
     if (relief) this.relief = relief;
     this.request();
+  }
+
+  /** The 10m cells live under `base`: the view asks for the ones it shows once zoomed in far enough. */
+  setDetail(base: string) {
+    this.detail = new Detail(base, () => this.request());
+  }
+
+  /**
+   * The basemap to draw: the 10m cells in view once a pixel is a few kilometres, else `map` as it is. Not under a tilted
+   * camera, whose far reaches would need more cells than the near ones, nor for a design that keeps 50m (`detail`).
+   */
+  private detailMap(proj: GeoProjection, map: Basemap | undefined, cam: Cam | null, t: Theme): Basemap | undefined {
+    this.detailing = false;
+    const d = this.detail;
+    const high = this.high;
+    if (!d || !high || !map) return map;
+    const k = proj.scale();
+    if (k < DETAIL10_SCALE * 0.7 || t.detail === false) {
+      if (d.size) d.clear();
+      return map;
+    }
+    if (cam || k < DETAIL10_SCALE * 0.8) return map;
+    const ext = this.warpExtent() ?? [[-CLIP_MARGIN, -CLIP_MARGIN], [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN]];
+    const pad = 24;
+    const key = `${this.mode}:${this.lon.toFixed(4)}:${this.lat.toFixed(4)}:${k.toFixed(2)}:${this.w}:${this.h}:${ext[0]!.join()}:${ext[1]!.join()}`;
+    if (this.detailCells?.key !== key) {
+      const mid = proj.invert?.([this.w / 2, this.h / 2]);
+      const cells = cellsInView((p) => proj(p), { x0: ext[0]![0] - pad, y0: ext[0]![1] - pad, x1: ext[1]![0] + pad, y1: ext[1]![1] + pad }, mid && Number.isFinite(mid[0]) && Number.isFinite(mid[1]) ? mid : null);
+      this.detailCells = { key, cells, ring: grown(cells, ringFor(((k * CELL) / DEG) * Math.cos(Math.min(70, Math.abs(this.lat)) / DEG))) };
+    }
+    const { cells, ring } = this.detailCells;
+    const got = d.update(high, cells, ring, k >= DETAIL10_SCALE, tolFor(k));
+    this.detailing = !!got;
+    return got ?? map;
+  }
+
+  /** A number for each basemap the view hands out, so a design that keeps a picture can tell when the basemap changed. */
+  private mapId(map: Basemap): number {
+    let id = this.mapIds.get(map);
+    if (!id) this.mapIds.set(map, (id = ++this.mapSeq));
+    return id;
   }
 
   setTheme(theme: Theme) {
@@ -1851,7 +1949,7 @@ export class MapView {
     // Detail follows the map's size on screen, never whether it is being dragged, so coasts, lakes and rivers
     // don't change shape when the map is touched or let go (decision 42). The whole world at once gets the light
     // file, where the finer one adds nothing visible and drags slowly; zooming in switches to the fine one.
-    const map = (proj.scale() >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high;
+    const map = this.detailMap(proj, (proj.scale() >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high, cam, t);
 
     if (t.surface && map) {
       // Couch Potato sets its buttons inside the channel tile in Map view, so the page needs to know which is showing.
@@ -2042,6 +2140,7 @@ export class MapView {
       lon: this.lon,
       lat: this.lat,
       map,
+      mapId: this.mapId(map),
       low: base,
       relief: this.relief,
       isLand: this.rasters.isLand,
@@ -2161,6 +2260,15 @@ export class MapView {
     const coast = new Path2D();
     geoPath(seen, pathContext(coast))(map.coast);
     this.landPath = land;
+    // The 10m coast has a segment every pixel or two. The wide bands along it (ripples, shallows) can't show that, and a
+    // stroke costs by its segments, so they take a copy with a point at least 2 pixels apart.
+    let wide = coast;
+    if (this.detailing) {
+      wide = new Path2D();
+      const sparse = sparseContext(wide, 2);
+      geoPath(seen, sparse)(map.coast);
+      sparse.end();
+    }
     const lines = t.waterlines;
     if (lines > 0) {
       ctx.lineJoin = "round";
@@ -2168,10 +2276,10 @@ export class MapView {
       for (let i = lines; i >= 1; i--) {
         ctx.lineWidth = i * gap * 2;
         ctx.strokeStyle = t.waterline;
-        ctx.stroke(coast);
+        ctx.stroke(wide);
         ctx.lineWidth = i * gap * 2 - 1.3;
         ctx.strokeStyle = t.ocean;
-        ctx.stroke(coast);
+        ctx.stroke(wide);
       }
     }
 
@@ -2179,7 +2287,7 @@ export class MapView {
       ctx.lineJoin = "round";
       ctx.lineWidth = 12;
       ctx.strokeStyle = t.shallows;
-      ctx.stroke(coast);
+      ctx.stroke(wide);
     }
 
     ctx.fillStyle = t.land;
@@ -3098,7 +3206,8 @@ export class MapView {
     this.sceneWarp = kind === "pool" ? (globe ? (x, y) => [x, y + bob, 1] : still ? null : (x, y) => [x + ripple(y), y, 1]) : fixed;
 
     // Nightclub cuts its land to the finer coast at every zoom, so narrow seas and straits stay open (clubLand).
-    const map = kind === "club" ? (this.high ?? this.low) : ((R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high);
+    // The 10m cells too, for the other scenes; Nightclub's floor of tiles and mirrors is cut once from the 50m coast.
+    const map = kind === "club" ? (this.high ?? this.low) : this.detailMap(proj, (R >= DETAIL_SCALE ? this.high : this.low) ?? this.low ?? this.high, cam, t);
     const backKey = [kind, this.mode, w, h, this.dpr, cam?.sin.toFixed(5)].join("|");
     let c = this.sceneCache;
     if (!c || c.backKey !== backKey) {

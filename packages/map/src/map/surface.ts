@@ -37,6 +37,8 @@ export interface SurfaceFrame {
   lat: number;
   /** The basemap for this scale: the detailed one once zoomed in. */
   map: Basemap;
+  /** A number for `map` that is new whenever the view hands out another basemap (the 10m cells in view change). Caches key on it. */
+  mapId: number;
   /** The light basemap, for what is drawn coarsely at any scale. */
   low: Basemap;
   relief?: Relief;

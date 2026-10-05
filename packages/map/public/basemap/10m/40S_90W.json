@@ -1,0 +1,1 @@
+{"type":"Topology","bbox":[-80.777333,-33.773533,-80.703603,-33.685154],"transform":{"scale":[0.00244140625,0.00244140625],"translate":[-90,-40]},"objects":{"land":{"type":"GeometryCollection","geometries":[{"type":"MultiPolygon","arcs":[[[0]]]}]}},"arcs":[[[3785,2553],[-7,13],[4,14],[11,7],[12,-9],[3,-12],[-1,-13],[-18,-3],[-4,3]]]}
