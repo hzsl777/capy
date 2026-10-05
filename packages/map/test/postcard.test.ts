@@ -2,14 +2,12 @@
 // folded sheet's creases never run through the reticle; and the postcard's slide and turn stay under the no-flash
 // limit (WCAG 2.3.1): short, still for reduced motion, never more than once a second on their own, and between two
 // faces close enough in brightness that the turn swings the panel's light less than 10%.
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { FACES, faceLuminance, FLIP_MS, HOLD_MS, luminance, sheetFolds, SLIDE_MS } from "../src/map/postcard.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
-const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
-const css = readFileSync(here("../src/style.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+const css = cssFor("postcard").replace(/\/\*[\s\S]*?\*\//g, "");
 const ours = css.slice(css.indexOf(':root[data-theme="postcard"] {'));
 
 describe("Postcards", () => {

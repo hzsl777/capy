@@ -1,0 +1,94 @@
+/* ---- Ops Room: a situation display, slate and one cyan ------------------ */
+:root[data-theme="ops"] {
+  color-scheme: dark;
+  --page: #0b0e12;
+  --panel: #11151b;
+  --ink: #d8dee6;
+  --ink-2: #aeb8c4;
+  --muted: #818c9b;
+  --rule: #2a323d;
+  --accent: #43c1d3;
+  --on-accent: #071217;
+  --hover: rgba(67, 193, 211, 0.08);
+  --reticle: var(--accent);
+  --grain-opacity: 0.05;
+  --grain-blend: screen;
+  --font-mast: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-head: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+}
+
+/* ---- Ops Room ------------------------------------------------------------ */
+:root[data-theme="ops"] .mast-title {
+  grid-area: title;
+  font: 600 clamp(24px, 3vw, 34px) / 1 var(--font-mast);
+  letter-spacing: 0.14em;
+}
+:root[data-theme="ops"] .toolbar,
+:root[data-theme="ops"] .timebar,
+:root[data-theme="ops"] .kicker,
+:root[data-theme="ops"] .rule-head {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+}
+:root[data-theme="ops"] .rule-head {
+  text-align: left;
+  color: var(--accent);
+  border-top: 0;
+}
+:root[data-theme="ops"] .panel {
+  border-left: 1px solid var(--rule);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+:root[data-theme="ops"] .panel-title,
+:root[data-theme="ops"] .place-name {
+  font: 600 22px/1.05 var(--font-head);
+  letter-spacing: 0.08em;
+}
+:root[data-theme="ops"] .dateline {
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="ops"] .headline {
+  font: 600 15px/1.3 var(--font-body);
+}
+:root[data-theme="ops"] .reader-headline {
+  font: 600 24px/1.2 var(--font-body);
+}
+:root[data-theme="ops"] .meta,
+:root[data-theme="ops"] .byline {
+  font-style: normal;
+  font-size: 12px;
+}
+:root[data-theme="ops"] .excerpt {
+  font-size: 15px;
+}
+:root[data-theme="ops"] .excerpt::first-letter {
+  font: inherit;
+  float: none;
+  margin: 0;
+}
+:root[data-theme="ops"] .telegram-word {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-bottom-width: 1px;
+  padding: 3px 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+:root[data-theme="ops"] .telegram-big {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+:root[data-theme="ops"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="ops"] .map {
+  /* A fine plotting grid behind the sheet. */
+  background:
+    linear-gradient(rgba(170, 186, 204, 0.05) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(170, 186, 204, 0.05) 1px, transparent 1px) 0 0 / 32px 32px;
+}

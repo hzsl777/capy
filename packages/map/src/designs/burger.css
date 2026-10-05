@@ -1,0 +1,572 @@
+/* <<< lobster */
+
+/* ==========================================================================
+   Burger Joint (burger): a diner of our own, no restaurant's, chain's or maker's name, mark, lettering,
+   packaging or colour set. The masthead is a charcoal menu board with sign letters (Bungee) over a checkered trim; the
+   toolbar is a steel counter with chunky cream buttons; the panel, the menus, the Key and the About dialog are order
+   tickets in torn paper with a dashed rule; the zoom buttons are two bun halves round a patty; the time bar is a steel
+   rail over a checkered floor. Ink is charcoal brown, the accent a diner teal. The canvas side is src/map/burger.ts.
+   ========================================================================== */
+:root[data-theme="burger"] {
+  color-scheme: light;
+  --page: #f2ead6;
+  --panel: #fffaf0;
+  --ink: #2a1d14;
+  --ink-2: #4b3a2c;
+  --muted: #65554a;
+  --rule: #2a1d14;
+  --accent: #0f7478;
+  --on-accent: #fff8e6;
+  --hover: rgba(15, 116, 120, 0.12);
+  --reticle: #1d1008;
+  --grain-opacity: 0.12;
+  --grain-blend: multiply;
+  --font-mast: "Bungee", "Arial Black", Impact, sans-serif;
+  --font-head: "Bungee", "Arial Black", Impact, sans-serif;
+  --font-body: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --font-ticket: "Courier Prime", "Courier New", monospace;
+  --bg-board: #26231f;
+  --bg-steel: linear-gradient(to bottom, #f6f9f9, #d2dadb 48%, #b1bdc0);
+  --bg-steel-line: #7b898c;
+  --bg-teal: #0f7478;
+  --bg-bun: linear-gradient(to bottom, #f0b85a, #d58f33);
+  --bg-bun-edge: #7a4312;
+  --bg-checks: repeating-conic-gradient(#1f1c18 0 25%, #f6efd9 0 50%);
+}
+:root[data-theme="burger"] body {
+  background:
+    radial-gradient(ellipse 60% 40% at 18% 8%, rgba(214, 168, 80, 0.12), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(214, 168, 80, 0.1), transparent 70%),
+    var(--page);
+}
+
+/* ---- masthead: the menu board. Its own colours are set here, so everything inside it reads on charcoal ---- */
+:root[data-theme="burger"] .masthead {
+  --page: #26231f;
+  --ink: #fbf3de;
+  --ink-2: #e8dfc7;
+  --muted: #c4b99f;
+  --rule: #fbf3de;
+  --accent: #4fcfd0;
+  --on-accent: #1b1815;
+  --hover: rgba(255, 255, 255, 0.12);
+  position: relative;
+  color: var(--ink);
+  background: linear-gradient(to bottom, #302c26, #1f1c18);
+  border-bottom: 0;
+  padding-bottom: 26px;
+}
+:root[data-theme="burger"] .masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  pointer-events: none;
+  border-top: 2px solid #b4bfc1;
+  background: var(--bg-checks) 0 0 / 14px 14px;
+}
+:root[data-theme="burger"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(24px, 2.8vw, 36px);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: #fbf3de;
+  text-shadow: 2px 2px 0 #0b5559;
+}
+/* A small burger of our own before the name: bun, lettuce, patty, bun. */
+:root[data-theme="burger"] .mast-title::before {
+  content: "";
+  display: inline-block;
+  width: 1.05em;
+  height: 0.85em;
+  margin-right: 0.3em;
+  vertical-align: -0.04em;
+  background:
+    radial-gradient(ellipse 50% 100% at 50% 100%, #e4a444 0 100%, transparent 101%) 0 0 / 100% 40% no-repeat,
+    linear-gradient(#7cc243, #7cc243) 0 44% / 100% 10% no-repeat,
+    linear-gradient(#46281a, #46281a) 0 58% / 100% 14% no-repeat,
+    linear-gradient(#d58f33, #d58f33) 0 78% / 100% 18% no-repeat;
+  border-radius: 0.1em 0.1em 0.25em 0.25em;
+  text-shadow: none;
+}
+:root[data-theme="burger"] .mast-tag {
+  font: 500 11.5px/1.3 var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[data-theme="burger"] .telegram-kicker,
+:root[data-theme="burger"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+}
+:root[data-theme="burger"] .telegram-note,
+:root[data-theme="burger"] .telegram-none {
+  font: 400 13px/1.35 var(--font-ui);
+  font-style: normal;
+  color: var(--muted);
+}
+:root[data-theme="burger"] .telegram-word,
+:root[data-theme="burger"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fbf3de;
+  text-shadow: 2px 2px 0 #0b5559;
+}
+:root[data-theme="burger"] .telegram-word {
+  border-bottom: 4px solid #4fcfd0;
+}
+:root[data-theme="burger"] .telegram-word:hover,
+:root[data-theme="burger"] .telegram-word:focus-visible {
+  text-decoration: none;
+  background: rgba(79, 207, 208, 0.16);
+}
+:root[data-theme="burger"] .scale {
+  border: 2px solid #fbf3de;
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-weight: 500;
+}
+:root[data-theme="burger"] .scale .step.on {
+  background: #4fcfd0;
+  color: #1b1815;
+}
+:root[data-theme="burger"] .score-chip {
+  border-color: var(--ink);
+}
+
+/* ---- the reading views: the word's page is the panel's ticket, so it takes the ticket's colours back ---- */
+:root[data-theme="burger"] .telegram-view .telegram-big {
+  color: var(--ink);
+  text-shadow: 2px 2px 0 #bfe3e0;
+}
+:root[data-theme="burger"] .telegram-view .scale {
+  border-color: var(--ink);
+}
+:root[data-theme="burger"] .telegram-view .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ---- toolbar: a steel counter with chunky cream buttons ---- */
+:root[data-theme="burger"] .toolbar {
+  background: var(--bg-steel);
+  border-bottom: 2px solid var(--bg-steel-line);
+  box-shadow: inset 0 1px 0 #fff;
+  padding-block: 7px;
+}
+:root[data-theme="burger"] .banner {
+  background: #f6efd9;
+  color: var(--ink-2);
+  border-bottom: 1px dashed rgba(42, 29, 20, 0.45);
+  font-family: var(--font-ticket);
+}
+:root[data-theme="burger"] .tool,
+:root[data-theme="burger"] .pick select,
+:root[data-theme="burger"] .menu > summary,
+:root[data-theme="burger"] .chip,
+:root[data-theme="burger"] .key-btn,
+:root[data-theme="burger"] .key-close,
+:root[data-theme="burger"] dialog .close {
+  border: 2px solid var(--ink);
+  border-radius: 9px;
+  background: linear-gradient(to bottom, #fffaf0, #f0e3c6);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  box-shadow: 0 2px 0 var(--ink);
+}
+:root[data-theme="burger"] .pick option {
+  font-weight: 400;
+}
+:root[data-theme="burger"] .tool:hover,
+:root[data-theme="burger"] .pick select:hover,
+:root[data-theme="burger"] .menu > summary:hover,
+:root[data-theme="burger"] .chip:hover,
+:root[data-theme="burger"] .key-btn:hover,
+:root[data-theme="burger"] .key-close:hover,
+:root[data-theme="burger"] dialog .close:hover {
+  background: linear-gradient(to bottom, #f2fbfa, #cfe9e6);
+}
+:root[data-theme="burger"] .tool:active,
+:root[data-theme="burger"] .chip:active,
+:root[data-theme="burger"] .key-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--ink);
+}
+:root[data-theme="burger"] .tool[aria-pressed="true"],
+:root[data-theme="burger"] .menu[open] > summary,
+:root[data-theme="burger"] .chip[aria-pressed="true"],
+:root[data-theme="burger"] .key-btn[aria-expanded="true"] {
+  background: linear-gradient(to bottom, #138a8f, #0c6165);
+  color: var(--on-accent);
+}
+:root[data-theme="burger"] .tool.quiet {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+}
+:root[data-theme="burger"] .tool.quiet:hover {
+  border-color: var(--ink);
+}
+:root[data-theme="burger"] .chip-all {
+  border-style: dashed;
+}
+
+/* ---- the map: the tray is on the canvas; the reticle in dark brown with a cream halo ---- */
+:root[data-theme="burger"] .map {
+  background: #b9c4c6;
+}
+:root[data-theme="burger"] .crosshair {
+  --weight: 2px;
+  filter: drop-shadow(0 0 1px #fff3d2) drop-shadow(0 0 1px #fff3d2);
+}
+:root[data-theme="burger"] .key-btn {
+  font-size: 13px;
+}
+:root[data-theme="burger"] .key-body svg {
+  box-shadow: inset 0 0 0 1px rgba(255, 243, 210, 0.5);
+}
+/* The zoom buttons are two bun halves with a lettuce leaf and a patty between them. */
+:root[data-theme="burger"] .zoom {
+  gap: 12px;
+  border: 0;
+  background: linear-gradient(to bottom, transparent calc(50% - 6px), #7cc243 calc(50% - 6px) calc(50% - 3px), #46281a calc(50% - 3px) calc(50% + 6px), transparent calc(50% + 6px));
+  box-shadow: none;
+}
+:root[data-theme="burger"] .zoom button {
+  width: 42px;
+  height: 30px;
+  border: 2px solid var(--bg-bun-edge);
+  background: var(--bg-bun);
+  color: #3a1d08;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(42, 20, 4, 0.35);
+}
+:root[data-theme="burger"] .zoom button:first-child {
+  border-radius: 21px 21px 5px 5px / 18px 18px 5px 5px;
+}
+:root[data-theme="burger"] .zoom button + button {
+  border-top: 2px solid var(--bg-bun-edge);
+  border-radius: 5px 5px 15px 15px;
+}
+:root[data-theme="burger"] .zoom button:hover {
+  background: linear-gradient(to bottom, #f7c874, #e0a044);
+}
+
+/* ---- tickets: the panel, the menus, the Key, the About dialog and the notes ---- */
+:root[data-theme="burger"] .panel {
+  margin: 12px 14px 12px 8px;
+  border: 0;
+  padding-top: 24px;
+  padding-bottom: 30px;
+  background:
+    linear-gradient(135deg, var(--page) 25%, transparent 25%) -8px 0 / 16px 16px repeat-x,
+    linear-gradient(225deg, var(--page) 25%, transparent 25%) -8px 0 / 16px 16px repeat-x,
+    linear-gradient(315deg, var(--page) 25%, transparent 25%) -8px 100% / 16px 16px repeat-x,
+    linear-gradient(45deg, var(--page) 25%, transparent 25%) -8px 100% / 16px 16px repeat-x,
+    var(--panel);
+  background-repeat: repeat-x;
+  font-family: var(--font-body);
+  filter: none;
+}
+:root[data-theme="burger"] .menu-body,
+:root[data-theme="burger"] .key-pop,
+:root[data-theme="burger"] .map-note,
+:root[data-theme="burger"] dialog {
+  background: var(--panel);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 rgba(42, 29, 20, 0.85);
+  outline: 1.5px dashed rgba(42, 29, 20, 0.4);
+  outline-offset: -7px;
+}
+:root[data-theme="burger"] dialog::backdrop {
+  background: rgba(32, 24, 18, 0.5);
+}
+:root[data-theme="burger"] .panel-title,
+:root[data-theme="burger"] .place-name,
+:root[data-theme="burger"] .key-head h2,
+:root[data-theme="burger"] dialog h2 {
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.12;
+  text-transform: uppercase;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+:root[data-theme="burger"] .panel-title,
+:root[data-theme="burger"] .place-name {
+  font-size: 22px;
+}
+:root[data-theme="burger"] .key-head h2,
+:root[data-theme="burger"] dialog h2 {
+  font-size: 19px;
+}
+:root[data-theme="burger"] dialog h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+:root[data-theme="burger"] .dateline {
+  border-bottom: 2px dashed var(--ink);
+}
+:root[data-theme="burger"] .dateline .coords,
+:root[data-theme="burger"] .count,
+:root[data-theme="burger"] .meta {
+  font-family: var(--font-ticket);
+  font-style: normal;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+:root[data-theme="burger"] .rule-head {
+  font-family: var(--font-ticket);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border-top: 2px dashed var(--ink);
+  border-bottom: 2px dashed var(--ink);
+}
+:root[data-theme="burger"] .stories li + li {
+  border-top: 2px dashed rgba(42, 29, 20, 0.3);
+}
+:root[data-theme="burger"] .stories-group {
+  font-family: var(--font-ticket);
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+:root[data-theme="burger"] .story:hover,
+:root[data-theme="burger"] .story:focus-visible {
+  outline: none;
+  background: rgba(15, 116, 120, 0.1);
+}
+:root[data-theme="burger"] .headline {
+  font: 500 16px/1.27 var(--font-body);
+  color: var(--ink);
+}
+:root[data-theme="burger"] .reader-headline {
+  font: 700 clamp(20px, 2vw, 25px) / 1.2 var(--font-body);
+  text-transform: none;
+}
+:root[data-theme="burger"] .related {
+  font-family: var(--font-ticket);
+  color: var(--accent);
+}
+:root[data-theme="burger"] .cite,
+:root[data-theme="burger"] .source-num {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+:root[data-theme="burger"] .excerpt-quote {
+  font-style: normal;
+  border-left: 4px solid #d58f33;
+}
+:root[data-theme="burger"] .menu-item {
+  font-family: var(--font-ticket);
+  border-bottom: 2px dashed rgba(42, 29, 20, 0.35);
+}
+
+/* The panel's ticket prints out line by line when a place is tuned: a short reveal from the top, none for reduced
+   motion. It changes no brightness, only how much of the paper shows. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="burger"] .panel > .dateline,
+  :root[data-theme="burger"] .panel > .stories > li {
+    animation: burger-print 0.36s steps(7, end) backwards;
+  }
+  :root[data-theme="burger"] .panel > .stories > li:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  :root[data-theme="burger"] .panel > .stories > li:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  :root[data-theme="burger"] .panel > .stories > li:nth-child(n + 4) {
+    animation-delay: 0.24s;
+  }
+}
+@keyframes burger-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ---- Topics: toppings. The burger beside the chips is built from the topics that are on (src/ui/burger.ts) ---- */
+:root[data-theme="burger"] #topics {
+  padding-right: 88px;
+  min-height: 150px;
+}
+/* The burger stands at the menu's right edge, out of the chips' flow. */
+:root[data-theme="burger"] .bg-stack {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 64px;
+  height: auto;
+}
+:root[data-theme="burger"] #topics .chip::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--swatch, #ccc);
+  vertical-align: -1px;
+}
+:root[data-theme="burger"] #topics .chip-all::before {
+  display: none;
+}
+:root[data-theme="burger"] #topics .chip[aria-pressed="false"] {
+  opacity: 0.7;
+  border-style: dashed;
+}
+:root[data-theme="burger"] #topics .chip:nth-child(2) { --swatch: #7cc243; }
+:root[data-theme="burger"] #topics .chip:nth-child(3) { --swatch: #df4c30; }
+:root[data-theme="burger"] #topics .chip:nth-child(4) { --swatch: #f1b23a; }
+:root[data-theme="burger"] #topics .chip:nth-child(5) { --swatch: #5f7f23; }
+:root[data-theme="burger"] #topics .chip:nth-child(6) { --swatch: #a25ec0; }
+:root[data-theme="burger"] #topics .chip:nth-child(7) { --swatch: #46281a; }
+:root[data-theme="burger"] #topics .chip:nth-child(8) { --swatch: #e08a3a; }
+:root[data-theme="burger"] #topics .chip:nth-child(9) { --swatch: #ece2c0; }
+:root[data-theme="burger"] #topics .chip:nth-child(10) { --swatch: #3fa7ab; }
+:root[data-theme="burger"] #topics .chip:nth-child(11) { --swatch: #d9b46a; }
+:root[data-theme="burger"] #topics .chip[aria-pressed="true"] {
+  color: var(--on-accent);
+}
+
+/* ---- Pinned: the order rail. Each pinned place is a ticket hanging from a steel clip ---- */
+:root[data-theme="burger"] #pins {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 6px;
+}
+:root[data-theme="burger"] #pins .menu-item {
+  position: relative;
+  width: 100%;
+  padding: 10px 10px 7px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px 2px 0 0;
+  background: #fffdf6;
+  box-shadow: 0 2px 0 rgba(42, 29, 20, 0.5);
+}
+:root[data-theme="burger"] #pins .menu-item::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 26px;
+  height: 8px;
+  margin-left: -13px;
+  border: 1.5px solid #5e6c6f;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #f6f9f9, #b1bdc0);
+}
+:root[data-theme="burger"] #pins .menu-item:hover {
+  background: #e7f4f2;
+}
+
+/* ---- time bar: a steel rail over a checkered floor, the slider's handle a ticket ---- */
+:root[data-theme="burger"] .timebar {
+  position: relative;
+  padding-bottom: 18px;
+  border-top: 2px solid var(--bg-steel-line);
+  background: var(--bg-steel);
+  box-shadow: inset 0 1px 0 #fff;
+}
+:root[data-theme="burger"] .timebar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 9px;
+  pointer-events: none;
+  background: var(--bg-checks) 0 0 / 18px 18px;
+}
+:root[data-theme="burger"] .time-label {
+  font-family: var(--font-ticket);
+  font-weight: 700;
+  color: var(--ink);
+}
+:root[data-theme="burger"] .slider input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  accent-color: var(--accent);
+}
+:root[data-theme="burger"] .slider input::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1px solid #56646a;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #7e8c90, #d6dedf 55%, #ffffff);
+}
+:root[data-theme="burger"] .slider input::-moz-range-track {
+  height: 8px;
+  border: 1px solid #56646a;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #7e8c90, #d6dedf 55%, #ffffff);
+}
+:root[data-theme="burger"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 26px;
+  margin-top: -10px;
+  border: 2px solid var(--ink);
+  border-radius: 3px 3px 8px 8px;
+  background: linear-gradient(to bottom, #fffaf0, #efe0c0);
+  box-shadow: 0 2px 0 var(--ink);
+}
+:root[data-theme="burger"] .slider input::-moz-range-thumb {
+  width: 12px;
+  height: 22px;
+  border: 2px solid var(--ink);
+  border-radius: 3px 3px 8px 8px;
+  background: linear-gradient(to bottom, #fffaf0, #efe0c0);
+  box-shadow: 0 2px 0 var(--ink);
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="burger"] .mast-title {
+    font-size: 28px;
+  }
+  :root[data-theme="burger"] .mast-tag {
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+  }
+  :root[data-theme="burger"] .panel {
+    margin: 10px 10px 12px;
+  }
+  :root[data-theme="burger"] .zoom button {
+    width: 38px;
+    height: 28px;
+  }
+}
+@media (max-width: 400px) {
+  :root[data-theme="burger"] .pick select,
+  :root[data-theme="burger"] .menu > summary,
+  :root[data-theme="burger"] .tool {
+    letter-spacing: 0;
+    padding-inline: 8px;
+  }
+}

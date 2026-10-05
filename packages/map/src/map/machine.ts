@@ -13,7 +13,7 @@
 // globe's resting size, not its zoom, so zooming never redraws it.
 //
 // Nothing on the canvas moves on its own. The machinery that does (the sequencer, the scope, the meters, the chasers)
-// is chrome around the map (src/ui/machine.ts, style.css), and its timing lives here so the test can check it.
+// is chrome around the map (src/ui/machine.ts, src/designs/machine.css), and its timing lives here so the test can check it.
 
 import { geoGraticule, geoOrthographic, geoPath } from "d3-geo";
 import { hash2, offscreen, pathContext, type SurfaceFrame } from "./surface.ts";
@@ -83,7 +83,7 @@ export const CHASE_CELLS = SEQ_STEPS;
 export const CHASE_PERIOD_S = SEQ_STEPS / SEQ_HZ;
 
 /**
- * The meters' needles and the scope's trace, as CSS animations (style.css): seconds per swing and per pass. All are
+ * The meters' needles and the scope's trace, as CSS animations (src/designs/machine.css): seconds per swing and per pass. All are
  * slow, thin and small, and none changes the light of a large area.
  */
 export const METER_SWING_S: readonly number[] = [3.2, 4.1];

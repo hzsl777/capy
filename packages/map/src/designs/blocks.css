@@ -1,0 +1,217 @@
+:root[data-theme="blocks"] .telegram .importance .imp-step {
+  font-weight: 400;
+}
+:root[data-theme="blocks"] .telegram .importance {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+}
+
+/* ---- Block World: a dirt backdrop, a grass-block edge, a hotbar of slots, grey inventory panels ------------ */
+:root[data-theme="blocks"] {
+  color-scheme: dark;
+  --page: #3b2615;
+  --panel: #c6c6c6;
+  --ink: #ffffff;
+  --ink-2: #e6e6e6;
+  --muted: #d0d0d0;
+  --rule: #8b8b8b;
+  --accent: #2f6e1c;
+  --on-accent: #ffffff;
+  --hover: rgba(255, 255, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Pixelify Sans", "Courier New", monospace;
+  --font-head: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "Pixelify Sans", "Courier New", monospace;
+  --font-ui: "Pixelify Sans", "Courier New", monospace;
+}
+:root[data-theme="blocks"] body {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%235a3b1f'/%3E%3Crect x='8' y='0' width='4' height='4' fill='%236b4726'/%3E%3Crect x='16' y='0' width='4' height='4' fill='%236b4726'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%233f2814'/%3E%3Crect x='12' y='4' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='4' width='4' height='4' fill='%236b4726'/%3E%3Crect x='12' y='8' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='16' y='8' width='4' height='4' fill='%236b4726'/%3E%3Crect x='0' y='12' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='4' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='8' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='12' y='12' width='4' height='4' fill='%233f2814'/%3E%3Crect x='16' y='12' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='12' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='16' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='12' y='16' width='4' height='4' fill='%233f2814'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%236b4726'/%3E%3Crect x='20' y='16' width='4' height='4' fill='%236b4726'/%3E%3Crect x='24' y='16' width='4' height='4' fill='%233f2814'/%3E%3Crect x='4' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='20' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='12' y='20' width='4' height='4' fill='%236b4726'/%3E%3Crect x='16' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='24' y='20' width='4' height='4' fill='%236b4726'/%3E%3Crect x='28' y='20' width='4' height='4' fill='%233f2814'/%3E%3Crect x='4' y='24' width='4' height='4' fill='%233f2814'/%3E%3Crect x='8' y='24' width='4' height='4' fill='%233f2814'/%3E%3Crect x='12' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='20' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='24' y='28' width='4' height='4' fill='%234a2f18'/%3E%3Crect x='28' y='28' width='4' height='4' fill='%233f2814'/%3E%3C/svg%3E") 0 0 / 64px 64px;
+  -webkit-font-smoothing: none;
+}
+/* The masthead stands on a row of grass blocks seen from the side. */
+:root[data-theme="blocks"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 34px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%2386562a'/%3E%3Crect x='0' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='0' width='4' height='4' fill='%239a6636'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='24' y='0' width='4' height='4' fill='%236f4522'/%3E%3Crect x='28' y='0' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='4' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='4' width='4' height='4' fill='%236f4522'/%3E%3Crect x='24' y='4' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='8' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='8' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='8' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='12' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='12' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='12' width='4' height='4' fill='%236f4522'/%3E%3Crect x='0' y='16' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='16' width='4' height='4' fill='%236f4522'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%236f4522'/%3E%3Crect x='0' y='20' width='4' height='4' fill='%236f4522'/%3E%3Crect x='16' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='24' y='20' width='4' height='4' fill='%236f4522'/%3E%3Crect x='28' y='20' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='4' y='24' width='4' height='4' fill='%236f4522'/%3E%3Crect x='12' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='16' y='24' width='4' height='4' fill='%236f4522'/%3E%3Crect x='20' y='24' width='4' height='4' fill='%239a6636'/%3E%3Crect x='0' y='28' width='4' height='4' fill='%239a6636'/%3E%3Crect x='12' y='28' width='4' height='4' fill='%239a6636'/%3E%3Crect width='32' height='8' fill='%235b9c33'/%3E%3Crect x='8' y='8' width='4' height='4' fill='%235b9c33'/%3E%3Crect x='20' y='8' width='4' height='4' fill='%235b9c33'/%3E%3Crect x='12' y='0' width='4' height='4' fill='%2374ba47'/%3E%3Crect x='20' y='0' width='4' height='4' fill='%2374ba47'/%3E%3C/svg%3E") left bottom / 24px 24px repeat-x;
+}
+:root[data-theme="blocks"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 40px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #dcdcdc;
+  text-shadow: 0 3px 0 #7a7a7a, 0 6px 0 #4a4a4a, 0 8px 6px rgba(0, 0, 0, 0.5);
+}
+/* The tagline in the bright yellow games use for a pop-up line. */
+:root[data-theme="blocks"] .mast-tag {
+  color: #ffff55;
+  font-style: normal;
+  text-shadow: 2px 2px 0 #3f3f15;
+}
+:root[data-theme="blocks"] .telegram-word,
+:root[data-theme="blocks"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 3px 3px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="blocks"] .telegram-word:hover,
+:root[data-theme="blocks"] .telegram-word:focus-visible {
+  background: none;
+  color: #ffff55;
+  text-shadow: 3px 3px 0 #3f3f15;
+  text-decoration: none;
+}
+:root[data-theme="blocks"] .telegram-kicker,
+:root[data-theme="blocks"] .telegram-date,
+:root[data-theme="blocks"] .telegram-note,
+:root[data-theme="blocks"] .time-label {
+  color: #e6e6e6;
+  font-style: normal;
+  text-shadow: 2px 2px 0 #2a2a2a;
+}
+/* The sample's note reads dark on the grey of the panels. */
+:root[data-theme="blocks"] .banner {
+  background: #c6c6c6;
+  color: #3f3f3f;
+  border-bottom: 2px solid #555555;
+}
+/* The toolbar and the time bar are hotbars: a dark strip of square slots. */
+:root[data-theme="blocks"] .toolbar,
+:root[data-theme="blocks"] .timebar {
+  background: rgba(0, 0, 0, 0.55);
+  border: 0;
+  border-top: 2px solid #1b1b1b;
+  border-bottom: 2px solid #1b1b1b;
+}
+:root[data-theme="blocks"] .tool,
+:root[data-theme="blocks"] .pick select,
+:root[data-theme="blocks"] .menu > summary,
+:root[data-theme="blocks"] .chip,
+:root[data-theme="blocks"] .key-btn,
+:root[data-theme="blocks"] .key-close {
+  border: 3px solid #8b8b8b;
+  border-radius: 0;
+  background: rgba(24, 24, 24, 0.82);
+  box-shadow: inset 2px 2px 0 #2a2a2a, inset -2px -2px 0 #5a5a5a;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .pick::after {
+  color: #ffffff;
+  opacity: 1;
+}
+:root[data-theme="blocks"] .tool.quiet {
+  border-color: #8b8b8b;
+}
+:root[data-theme="blocks"] .tool:hover,
+:root[data-theme="blocks"] .pick select:hover,
+:root[data-theme="blocks"] .menu > summary:hover,
+:root[data-theme="blocks"] .chip:hover {
+  background: rgba(70, 70, 70, 0.9);
+}
+/* The chosen slot gets the white frame. */
+:root[data-theme="blocks"] .tool[aria-pressed="true"],
+:root[data-theme="blocks"] .menu[open] > summary,
+:root[data-theme="blocks"] .chip[aria-pressed="true"],
+:root[data-theme="blocks"] .key-btn[aria-expanded="true"] {
+  border-color: #ffffff;
+  background: rgba(24, 24, 24, 0.82);
+  box-shadow: inset 0 0 0 2px #000000, inset 2px 2px 0 2px #2a2a2a;
+  color: #ffff55;
+  text-shadow: 2px 2px 0 #3f3f15;
+}
+:root[data-theme="blocks"] .zoom {
+  border: 3px solid #8b8b8b;
+  border-radius: 0;
+  background: rgba(24, 24, 24, 0.82);
+}
+:root[data-theme="blocks"] .zoom button {
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .zoom button + button {
+  border-top: 3px solid #8b8b8b;
+}
+:root[data-theme="blocks"] .map {
+  margin: 6px;
+  border: 3px solid #000000;
+}
+/* Panels are the grey inventory window: a light top-left edge, a dark bottom-right edge, a black outline. */
+:root[data-theme="blocks"] .panel,
+:root[data-theme="blocks"] .menu-body,
+:root[data-theme="blocks"] .key-pop,
+:root[data-theme="blocks"] dialog {
+  --ink: #3f3f3f;
+  --ink-2: #373737;
+  --muted: #4a4a4a;
+  --rule: #8b8b8b;
+  --accent: #1f5212;
+  --on-accent: #ffffff;
+  --hover: rgba(255, 255, 255, 0.35);
+  background: #c6c6c6;
+  color: #3f3f3f;
+  border: 3px solid #000000;
+  border-radius: 4px;
+  box-shadow: inset 4px 4px 0 #ffffff, inset -4px -4px 0 #555555;
+}
+:root[data-theme="blocks"] .panel {
+  margin: 6px;
+}
+:root[data-theme="blocks"] .panel-title,
+:root[data-theme="blocks"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 24px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #3f3f3f;
+}
+:root[data-theme="blocks"] .dateline {
+  border-bottom: 2px solid #8b8b8b;
+}
+/* Section heads are inventory slots: sunken grey. */
+:root[data-theme="blocks"] .rule-head {
+  border: 0;
+  background: #8b8b8b;
+  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+:root[data-theme="blocks"] .headline {
+  font-weight: 700;
+}
+:root[data-theme="blocks"] .scale {
+  border: 3px solid #000000;
+  border-radius: 0;
+}
+:root[data-theme="blocks"] .scale .step.on {
+  background: #2f6e1c;
+  color: #ffffff;
+}
+:root[data-theme="blocks"] .lead img {
+  image-rendering: pixelated;
+  border: 3px solid #000000;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="blocks"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="blocks"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.74)));
+  }
+  :root[data-theme="blocks"] .tool,
+  :root[data-theme="blocks"] .menu > summary {
+    padding-inline: 8px;
+  }
+}

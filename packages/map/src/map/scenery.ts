@@ -67,7 +67,7 @@ export const ROPE: readonly Spot[] = [
 
 /**
  * Undersea Town: jellyfish drifting, little reef gardens of coral, kelp and sea grass on patches of sand, and
- * flower-shaped clouds in the water, all drawn for this site. Bubbles rise outside the map, in style.css.
+ * flower-shaped clouds in the water, all drawn for this site. Bubbles rise outside the map, in src/designs/reef.css.
  */
 export const REEF: readonly Spot[] = [
   { kind: "jellypink", lon: -142, lat: 10, r: 14 },
@@ -905,7 +905,7 @@ function teacup(f: SceneryFrame): number {
 
 let steamAt = "";
 /**
- * The steam rising from the cup is the page's (style.css), so it can drift up slowly without redrawing the map, and
+ * The steam rising from the cup is the page's (src/designs/nightcap.css), so it can drift up slowly without redrawing the map, and
  * hold still for reduced motion. This tells it where the cup's rim is, or that there is no cup to steam.
  */
 function steam(f: SceneryFrame, on: boolean) {

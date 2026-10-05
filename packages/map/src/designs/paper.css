@@ -1,0 +1,835 @@
+/* ---- Notebook (id paper): a ruled school notebook page with the world drawn on it by hand in ballpoint
+   pen. The page is the stylesheet's (src/map/paper.ts draws only the pen over a clear sea): white paper ruled in pale
+   blue every 28 pixels, a red double margin line, three punched holes, lying on a desk on wide screens. The site's own
+   writing is in a handwriting face (Patrick Hand for reading, Dancing Script for the name and the word) in blue ballpoint
+   and a black pen. The panel is a loose sheet torn from a spiral notebook (its left edge perforated) and the About
+   dialog a page of its own; both turn pages instead of scrolling (src/ui/paper.ts): each is laid out in columns one
+   page wide, shown a page at a time, with Previous, "Page 2 of 3" and Next at its foot, and a turn swings the page on
+   its binding. The --nb custom properties repeat the colours of src/map/paper.ts (tested). ------------------------- */
+:root[data-theme="paper"] {
+  color-scheme: light;
+  --nb-paper: #fcfcf8;
+  --nb-rule: #bdd5ef;
+  --nb-margin: #ec8b9c;
+  --nb-ink: #1d3a96;
+  --nb-black: #1f2230;
+  --nb-graphite: #4a5276;
+  --nb-highlight: #fff1a0;
+  --nb-wash: #e1ebf8;
+  --nb-red: #d1344a;
+  --nb-desk: #52698a;
+  --nb-hole: #364862;
+  --nb-hole-edge: rgba(20, 30, 50, 0.35);
+  --line: 28px;
+  --page: #fcfcf8;
+  --panel: #fcfcf8;
+  --ink: #1f2230;
+  --ink-2: #1d3a96;
+  --muted: #4a5276;
+  --rule: #1d3a96;
+  --accent: #1d3a96;
+  --on-accent: #fcfcf8;
+  --hover: #fff7c4;
+  --reticle: #1d3a96;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Dancing Script", "Brush Script MT", cursive;
+  --font-head: "Patrick Hand", "Kalam", "Comic Sans MS", cursive;
+  --font-body: "Patrick Hand", "Kalam", "Comic Sans MS", cursive;
+  --font-ui: "Patrick Hand", "Kalam", "Comic Sans MS", cursive;
+  /* The strip left of the margin line, where the holes are; the sheets' side paddings, the margin line inside them. */
+  --nb-strip: 30px;
+  --pp-padl: 56px;
+  --pp-padr: 20px;
+  --pp-top: 14px;
+  /* The sheet laid on the page: a faint pen edge and a soft shadow. */
+  --nb-edge: rgba(29, 58, 150, 0.28);
+  --nb-lift: 2px 3px 7px -1px rgba(20, 40, 90, 0.3);
+  /* A hand-drawn box: corners that are never quite alike, for buttons and slips. */
+  --nb-box: 6px 11px 7px 10px / 10px 6px 11px 7px;
+  --panel-w: clamp(320px, 33vw, 450px);
+  background: var(--nb-desk);
+  --pp-i-globe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.2'/%3E%3Cellipse cx='8' cy='8' rx='2.7' ry='6.2'/%3E%3Cpath d='M1.8 8h12.4'/%3E%3C/svg%3E");
+  --pp-i-page: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 1.8h6l3 3v9.4h-9z'/%3E%3Cpath d='M9.5 1.8v3h3'/%3E%3Cpath d='M5.6 8h4.8M5.6 10.6h4.8'/%3E%3C/svg%3E");
+  --pp-i-topics: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 4h8.5M5.5 8h8.5M5.5 12h8.5'/%3E%3Cpath d='M2.3 4h.1M2.3 8h.1M2.3 12h.1' stroke-width='2'/%3E%3C/svg%3E");
+  --pp-i-translate: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 2.5h8v5.5H6.2L3.8 10V8H2z'/%3E%3Cpath d='M12 6h2v5.5h-1.4v2l-2.4-2H6.5V10'/%3E%3C/svg%3E");
+  --pp-i-pin: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 1.8h8v12.4l-4-3.2-4 3.2z'/%3E%3C/svg%3E");
+  --pp-i-about: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.2'/%3E%3Cpath d='M8 7.2v4.2'/%3E%3Cpath d='M8 4.7v.1' stroke-width='1.8'/%3E%3C/svg%3E");
+  --pp-i-replay: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.2 8.6a4.9 4.9 0 1 0 1.5-4.2'/%3E%3Cpath d='M4.4 1.8v2.8h2.8'/%3E%3C/svg%3E");
+  --pp-i-key: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='2.5' width='12' height='11' rx='1.5'/%3E%3Cpath d='M7 6h4.5M7 10h4.5'/%3E%3Cpath d='M4.4 6h.1M4.4 10h.1' stroke-width='2'/%3E%3C/svg%3E");
+}
+/* The page: holes, the double margin line, the rules, then the paper. The rules run behind everything, so the sea of the
+   map, which the canvas leaves clear, is ruled paper. */
+:root[data-theme="paper"] body {
+  -webkit-font-smoothing: auto;
+  padding-left: var(--nb-strip);
+  background:
+    radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) calc(var(--nb-strip) / 2 - 9px) 16% / 14px 14px no-repeat,
+    radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) calc(var(--nb-strip) / 2 - 9px) 50% / 14px 14px no-repeat,
+    radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) calc(var(--nb-strip) / 2 - 9px) 84% / 14px 14px no-repeat,
+    linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) calc(var(--nb-strip) - 5px) 0 / 4px 100% no-repeat,
+    linear-gradient(to bottom, transparent 0 calc(var(--line) - 1px), var(--nb-rule) calc(var(--line) - 1px) var(--line)) 0 0 / 100% var(--line) repeat-y,
+    var(--nb-paper);
+}
+:root[data-theme="paper"] .masthead,
+:root[data-theme="paper"] .toolbar,
+:root[data-theme="paper"] .banner,
+:root[data-theme="paper"] .timebar {
+  background: transparent;
+  border: 0;
+}
+:root[data-theme="paper"] .masthead {
+  padding-block: 8px 4px;
+}
+:root[data-theme="paper"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(34px, 3.4vw, 46px);
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--nb-ink);
+  transform: rotate(-2deg);
+  transform-origin: left bottom;
+}
+:root[data-theme="paper"] .mast-tag {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 16px;
+  color: var(--nb-graphite);
+}
+:root[data-theme="paper"] .telegram-kicker,
+:root[data-theme="paper"] .telegram-date {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--nb-graphite);
+}
+:root[data-theme="paper"] .telegram-note,
+:root[data-theme="paper"] .telegram-none,
+:root[data-theme="paper"] .telegram-status {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--nb-graphite);
+}
+/* The word in ballpoint, underlined twice in red pen the way a teacher marks a title. */
+:root[data-theme="paper"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--nb-ink);
+  border: 0;
+  padding: 0 8px 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='12' preserveAspectRatio='none' viewBox='0 0 240 12'%3E%3Cpath d='M3 4.5C40 2.5 90 5.5 140 3.5S210 4 237 3' fill='none' stroke='%23d1344a' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M9 9C60 7 100 10 150 8S205 8.5 231 7.5' fill='none' stroke='%23d1344a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center bottom / 100% 12px no-repeat;
+}
+:root[data-theme="paper"] .telegram-word:hover {
+  background-color: var(--hover);
+}
+:root[data-theme="paper"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+:root[data-theme="paper"] .scale {
+  border: 1.5px solid var(--nb-ink);
+  border-radius: var(--nb-box);
+  overflow: hidden;
+  background: var(--nb-paper);
+  font-family: var(--font-ui);
+  font-weight: 400;
+}
+:root[data-theme="paper"] .scale .step {
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .scale .step.on {
+  background: var(--nb-highlight);
+  color: var(--nb-black);
+}
+
+/* Controls: outlined in ballpoint on white paper, a hand-drawn box; marked in yellow highlighter when on. */
+:root[data-theme="paper"] .toolbar {
+  font-family: var(--font-ui);
+  font-weight: 400;
+}
+:root[data-theme="paper"] .tool,
+:root[data-theme="paper"] .pick select,
+:root[data-theme="paper"] .menu > summary,
+:root[data-theme="paper"] .chip,
+:root[data-theme="paper"] .key-btn,
+:root[data-theme="paper"] .key-close,
+:root[data-theme="paper"] dialog .close,
+:root[data-theme="paper"] .pp-turn {
+  border: 1.5px solid var(--nb-ink);
+  border-radius: var(--nb-box);
+  background: var(--nb-paper);
+  color: var(--nb-ink);
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 17px;
+}
+:root[data-theme="paper"] .chip {
+  border-radius: 999px;
+}
+:root[data-theme="paper"] .tool:hover,
+:root[data-theme="paper"] .pick select:hover,
+:root[data-theme="paper"] .menu > summary:hover,
+:root[data-theme="paper"] .chip:hover,
+:root[data-theme="paper"] .key-btn:hover,
+:root[data-theme="paper"] .key-close:hover,
+:root[data-theme="paper"] dialog .close:hover,
+:root[data-theme="paper"] .pp-turn:hover:not(:disabled) {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .tool[aria-pressed="true"],
+:root[data-theme="paper"] .menu[open] > summary,
+:root[data-theme="paper"] .chip[aria-pressed="true"],
+:root[data-theme="paper"] .key-btn[aria-expanded="true"] {
+  background: var(--nb-highlight);
+  color: var(--nb-black);
+}
+:root[data-theme="paper"] .tool.primary {
+  background: var(--nb-ink);
+  color: var(--nb-paper);
+}
+:root[data-theme="paper"] .tool.primary:hover {
+  background: #2a4cb8;
+}
+:root[data-theme="paper"] :focus-visible {
+  outline: 2px solid var(--nb-red);
+  outline-offset: 2px;
+}
+:root[data-theme="paper"] .pick::after {
+  opacity: 1;
+}
+/* Outline icons beside the controls, drawn in the text's own ink. */
+:root[data-theme="paper"] .pick:has(#view-select)::before,
+:root[data-theme="paper"] .pick:has(#design-select)::before,
+:root[data-theme="paper"] #translate-pick::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  margin-top: -7.5px;
+  background: currentColor;
+  color: var(--nb-ink);
+  -webkit-mask: var(--pp-i-globe) center / contain no-repeat;
+  mask: var(--pp-i-globe) center / contain no-repeat;
+  pointer-events: none;
+}
+:root[data-theme="paper"] .pick:has(#design-select)::before {
+  -webkit-mask-image: var(--pp-i-page);
+  mask-image: var(--pp-i-page);
+}
+:root[data-theme="paper"] #translate-pick::before {
+  -webkit-mask-image: var(--pp-i-translate);
+  mask-image: var(--pp-i-translate);
+}
+:root[data-theme="paper"] .pick select {
+  padding-left: 30px;
+}
+:root[data-theme="paper"] .menu > summary::before,
+:root[data-theme="paper"] #about-btn .wide::before,
+:root[data-theme="paper"] #play::before,
+:root[data-theme="paper"] .key-btn::before {
+  content: "";
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  vertical-align: -3px;
+  background: currentColor;
+  -webkit-mask: var(--pp-i-topics) center / contain no-repeat;
+  mask: var(--pp-i-topics) center / contain no-repeat;
+}
+:root[data-theme="paper"] #pins-menu > summary::before {
+  -webkit-mask-image: var(--pp-i-pin);
+  mask-image: var(--pp-i-pin);
+}
+:root[data-theme="paper"] #about-btn .wide::before {
+  -webkit-mask-image: var(--pp-i-about);
+  mask-image: var(--pp-i-about);
+}
+:root[data-theme="paper"] #play::before {
+  -webkit-mask-image: var(--pp-i-replay);
+  mask-image: var(--pp-i-replay);
+}
+:root[data-theme="paper"] .key-btn::before {
+  width: 13px;
+  height: 13px;
+  margin-right: 5px;
+  vertical-align: -2px;
+  -webkit-mask-image: var(--pp-i-key);
+  mask-image: var(--pp-i-key);
+}
+/* Menus and the Key are small slips of paper laid on the page: the menus plain, the Key a yellow sticky note. */
+:root[data-theme="paper"] .menu-body,
+:root[data-theme="paper"] .map-note {
+  background: var(--nb-paper);
+  color: var(--nb-black);
+  border: 1.5px solid var(--nb-ink);
+  border-radius: var(--nb-box);
+  box-shadow: var(--nb-lift);
+}
+:root[data-theme="paper"] .key-pop {
+  background: #fff6b8;
+  color: var(--nb-black);
+  border: 0;
+  border-radius: 2px 2px 14px 2px;
+  box-shadow: var(--nb-lift);
+  font: 400 17px/1.3 var(--font-ui);
+}
+:root[data-theme="paper"] .key-head h2 {
+  font: 400 24px/1.2 var(--font-mast);
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .key-note {
+  font-size: 16px;
+  color: var(--nb-graphite);
+}
+:root[data-theme="paper"] .menu-item {
+  border-bottom-color: var(--nb-rule);
+}
+:root[data-theme="paper"] .banner {
+  color: var(--nb-graphite);
+  font-family: var(--font-ui);
+}
+
+/* The map: the canvas leaves the sea clear, so the page's rules run through it. */
+:root[data-theme="paper"] .stage {
+  background: transparent;
+}
+:root[data-theme="paper"] .map {
+  background: transparent;
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+:root[data-theme="paper"] .key-btn {
+  font-size: 16px;
+  padding: 4px 10px;
+}
+:root[data-theme="paper"] .zoom {
+  border: 1.5px solid var(--nb-ink);
+  border-radius: var(--nb-box);
+  background: var(--nb-paper);
+  overflow: hidden;
+}
+:root[data-theme="paper"] .zoom button {
+  color: var(--nb-ink);
+  font-family: var(--font-ui);
+}
+:root[data-theme="paper"] .zoom button:hover {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .zoom button + button {
+  border-top-color: var(--nb-ink);
+}
+
+/* The sheet: a loose page torn from a spiral notebook, laid on the page. Its left edge is the perforation, half holes
+   with a thin pen edge; a margin line and the rules are its own. The panel is laid out in columns one page wide and one
+   page tall, so it turns rather than scrolls. Text sits at 28 pixels a line, on the rules. */
+:root[data-theme="paper"] .panel {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 8px 12px 0 0;
+  border: 0;
+  border-radius: 0 3px 0 0;
+  box-shadow: var(--nb-lift);
+  clip-path: inset(-12px -14px 0 -2px);
+  padding: var(--pp-top) var(--pp-padr) 0 var(--pp-padl);
+  color: var(--nb-black);
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: var(--line);
+  background:
+    radial-gradient(circle at 0 50%, var(--nb-paper) 0 3.5px, var(--nb-edge) 3.6px 4.4px, transparent 4.6px) 0 0 / 14px 14px repeat-y,
+    linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) calc(var(--pp-padl) - 14px) 0 / 4px 100% no-repeat,
+    linear-gradient(to bottom, transparent 0 calc(var(--line) - 5px), var(--nb-rule) calc(var(--line) - 5px) calc(var(--line) - 4px), transparent calc(var(--line) - 4px)) 0 var(--pp-top) / 100% var(--line) repeat-y,
+    var(--nb-paper);
+}
+:root[data-theme="paper"] .panel:not(.framed) {
+  overflow: hidden;
+  column-count: 1;
+  column-gap: calc(var(--pp-padl) + var(--pp-padr));
+  column-fill: auto;
+  /* Turns by swipe, tap and keys; nothing pans it. */
+  touch-action: pinch-zoom;
+  overscroll-behavior: none;
+}
+:root[data-theme="paper"] .panel.framed {
+  grid-row: 1 / 3;
+  padding: 0;
+  margin: 8px 12px 8px 0;
+  clip-path: none;
+  background: var(--nb-paper);
+}
+/* Keep a story, a source or a heading with what follows it whole on a page where it fits; a longer one still flows on. */
+:root[data-theme="paper"] .stories li,
+:root[data-theme="paper"] .source,
+:root[data-theme="paper"] .dateline,
+:root[data-theme="paper"] .actions,
+:root[data-theme="paper"] .scale,
+:root[data-theme="paper"] .earlier-day,
+:root[data-theme="paper"] .lead,
+:root[data-theme="paper"] .event-score {
+  break-inside: avoid;
+}
+:root[data-theme="paper"] .panel h2,
+:root[data-theme="paper"] .panel h3,
+:root[data-theme="paper"] .kicker,
+:root[data-theme="paper"] .back,
+:root[data-theme="paper"] .pp-pages h2,
+:root[data-theme="paper"] .pp-pages h3 {
+  break-after: avoid;
+}
+:root[data-theme="paper"] .lead img {
+  max-height: min(240px, 34dvh);
+  border: 1.5px solid var(--nb-ink);
+  box-shadow: var(--nb-lift);
+}
+:root[data-theme="paper"] .panel-title,
+:root[data-theme="paper"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: 40px;
+  line-height: calc(var(--line) * 2);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 0;
+  row-gap: 0;
+}
+:root[data-theme="paper"] .dateline .coords,
+:root[data-theme="paper"] .count,
+:root[data-theme="paper"] .meta,
+:root[data-theme="paper"] .byline {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 16px;
+  line-height: var(--line);
+  color: var(--nb-graphite);
+}
+:root[data-theme="paper"] .count {
+  margin: 0;
+}
+:root[data-theme="paper"] .headline {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: var(--line);
+  color: var(--nb-black);
+}
+:root[data-theme="paper"] .story {
+  padding: 0;
+  gap: 0;
+}
+:root[data-theme="paper"] .story:hover {
+  background: var(--hover);
+}
+:root[data-theme="paper"] .stories li + li {
+  border-top: 0;
+}
+:root[data-theme="paper"] .stories-group {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: var(--line);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  opacity: 1;
+  margin: 0;
+  color: var(--nb-red);
+  text-decoration: underline wavy var(--nb-red) 1px;
+  text-underline-offset: 4px;
+}
+:root[data-theme="paper"] .stories + .stories-group {
+  border-top: 0;
+  padding-top: 0;
+}
+:root[data-theme="paper"] .related {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: var(--line);
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .kicker,
+:root[data-theme="paper"] .fine,
+:root[data-theme="paper"] .translated {
+  font-family: var(--font-ui);
+  color: var(--nb-graphite);
+}
+:root[data-theme="paper"] .fine {
+  font-size: 15px;
+  line-height: var(--line);
+}
+:root[data-theme="paper"] .rule-head {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: var(--line);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--nb-ink);
+  border: 0;
+  text-align: left;
+  text-decoration: underline var(--nb-ink) 1px;
+  text-underline-offset: 4px;
+}
+:root[data-theme="paper"] .reader-headline {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: clamp(26px, 2.4vw, 32px);
+  line-height: calc(var(--line) * 2);
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .byline {
+  border-bottom: 0;
+}
+:root[data-theme="paper"] .excerpt,
+:root[data-theme="paper"] .explain-text {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: var(--line);
+}
+:root[data-theme="paper"] .excerpt-quote {
+  border-left: 2px solid var(--nb-ink);
+  font-family: var(--font-body);
+  color: var(--nb-graphite);
+}
+:root[data-theme="paper"] .cite,
+:root[data-theme="paper"] .source-num {
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .source {
+  border-top: 0;
+}
+:root[data-theme="paper"] .source-title {
+  font-family: var(--font-head);
+  font-weight: 400;
+}
+:root[data-theme="paper"] .score-chip {
+  border-radius: 4px;
+  font-family: var(--font-ui);
+}
+:root[data-theme="paper"] .event-score {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 16px;
+  line-height: var(--line);
+  color: var(--nb-graphite);
+}
+
+/* The sheet's foot: Previous, the page count, Next. Hidden in every other design. */
+.pp-pager {
+  display: none;
+}
+:root[data-theme="paper"] .pp-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 12px 10px var(--pp-padl);
+  color: var(--nb-ink);
+  font: 400 17px/1.2 var(--font-ui);
+  background:
+    radial-gradient(circle at 0 50%, var(--nb-paper) 0 3.5px, var(--nb-edge) 3.6px 4.4px, transparent 4.6px) 0 0 / 14px 14px repeat-y,
+    linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) calc(var(--pp-padl) - 14px) 0 / 4px 100% no-repeat,
+    var(--nb-paper);
+}
+:root[data-theme="paper"] .stage > .pp-pager {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0 12px 10px 0;
+  border-radius: 0 0 3px 0;
+  box-shadow: var(--nb-lift);
+  clip-path: inset(0 -14px -12px -2px);
+}
+:root[data-theme="paper"] .panel.framed + .pp-pager {
+  display: none;
+}
+:root[data-theme="paper"] .pp-turn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 9px;
+  line-height: 1.1;
+  cursor: pointer;
+}
+:root[data-theme="paper"] .pp-turn:disabled {
+  border-color: var(--nb-rule);
+  color: var(--nb-rule);
+  cursor: default;
+}
+:root[data-theme="paper"] .pp-icon {
+  flex: none;
+  display: block;
+}
+:root[data-theme="paper"] .pp-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--nb-graphite);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* About is a page of its own, turned the same way: the text in its own columns, a running head with the title and the
+   close button above it, its foot under it. Three holes and the margin line, like the page it lies on. */
+:root[data-theme="paper"] dialog {
+  --pp-padl: 76px;
+  --pp-padr: 28px;
+  width: min(640px, calc(100vw - 32px));
+  height: min(660px, calc(100dvh - 48px));
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  box-shadow: 0 10px 40px rgba(10, 20, 40, 0.5);
+  color: var(--nb-black);
+  overflow: hidden;
+  background:
+    radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) 20px 16% / 14px 14px no-repeat,
+    radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) 20px 50% / 14px 14px no-repeat,
+    radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) 20px 84% / 14px 14px no-repeat,
+    linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) 58px 0 / 4px 100% no-repeat,
+    linear-gradient(to bottom, transparent 0 calc(var(--line) - 5px), var(--nb-rule) calc(var(--line) - 5px) calc(var(--line) - 4px), transparent calc(var(--line) - 4px)) 0 0 / 100% var(--line) repeat-y,
+    var(--nb-paper);
+}
+:root[data-theme="paper"] dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+:root[data-theme="paper"] dialog::backdrop {
+  background: rgba(20, 30, 50, 0.55);
+}
+:root[data-theme="paper"] .pp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: calc(var(--line) * 2);
+  flex: none;
+  padding: 0 14px 0 var(--pp-padl);
+}
+:root[data-theme="paper"] .pp-head h2 {
+  margin: 0;
+  font-family: var(--font-mast);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1.1;
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .pp-head form {
+  flex: none;
+}
+:root[data-theme="paper"] dialog .close {
+  float: none;
+}
+:root[data-theme="paper"] .pp-pages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 var(--pp-padr) 0 var(--pp-padl);
+  column-count: 1;
+  column-gap: calc(var(--pp-padl) + var(--pp-padr));
+  column-fill: auto;
+  touch-action: pinch-zoom;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: var(--line);
+}
+:root[data-theme="paper"] .pp-pages p,
+:root[data-theme="paper"] .pp-pages ul {
+  margin: 0 0 var(--line);
+}
+:root[data-theme="paper"] .pp-pages li {
+  margin: 0;
+}
+:root[data-theme="paper"] dialog h3 {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: var(--line);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--nb-red);
+  text-decoration: underline wavy var(--nb-red) 1px;
+  text-underline-offset: 4px;
+}
+:root[data-theme="paper"] .pp-pages a {
+  color: var(--nb-ink);
+}
+:root[data-theme="paper"] .pp-pages p,
+:root[data-theme="paper"] .pp-pages li {
+  orphans: 2;
+  widows: 2;
+}
+:root[data-theme="paper"] dialog > .pp-pager {
+  background: transparent;
+  box-shadow: none;
+  padding-left: var(--pp-padl);
+}
+
+/* The time bar is the page's last line. */
+:root[data-theme="paper"] .timebar {
+  font-family: var(--font-ui);
+  font-weight: 400;
+}
+:root[data-theme="paper"] .slider input {
+  accent-color: var(--nb-ink);
+}
+:root[data-theme="paper"] .time-label {
+  color: var(--nb-graphite);
+}
+
+/* A wide screen lays the page on a desk, a thin edge of it showing all round. */
+@media (min-width: 761px) {
+  :root[data-theme="paper"] {
+    --nb-strip: 64px;
+    --pp-padl: 58px;
+  }
+  :root[data-theme="paper"] body {
+    margin: 10px 14px;
+    height: calc(100dvh - 20px);
+    border-radius: 4px;
+    box-shadow: 0 8px 30px rgba(10, 20, 40, 0.45);
+  }
+  :root[data-theme="paper"] .stage {
+    grid-template-columns: minmax(0, 1fr) var(--panel-w);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  :root[data-theme="paper"] .stage:has(.panel.framed) {
+    grid-template-columns: minmax(0, 1fr) min(62vw, 920px);
+  }
+  /* The Key opens under its button, on the page and clear of the sheet. */
+  :root[data-theme="paper"] .key-pop {
+    left: calc(var(--nb-strip) + 34px);
+    right: auto;
+    top: 270px;
+    bottom: auto;
+  }
+}
+
+/* A 360 pixel phone keeps the toolbar to one row with a little less in each control. */
+@media (max-width: 400px) {
+  :root[data-theme="paper"] {
+    --gutter: 12px;
+  }
+  :root[data-theme="paper"] .tool,
+  :root[data-theme="paper"] .pick select,
+  :root[data-theme="paper"] .menu > summary {
+    font-size: 15px;
+  }
+}
+
+/* On a phone the page fills the screen: a narrower margin, a shorter masthead, the map over the sheet, whose foot is at
+   the bottom, torn along its top edge. */
+@media (max-width: 760px) {
+  :root[data-theme="paper"] {
+    --pp-padl: 20px;
+    --pp-padr: 14px;
+    --pp-top: 8px;
+  }
+  :root[data-theme="paper"] .masthead {
+    gap: 2px;
+    padding-block: 6px 4px;
+  }
+  :root[data-theme="paper"] .mast-title {
+    font-size: 34px;
+  }
+  :root[data-theme="paper"] .mast-tag {
+    font-size: 13px;
+  }
+  :root[data-theme="paper"] .telegram-date {
+    border: 0;
+    padding: 2px 0;
+    font-size: 13px;
+  }
+  :root[data-theme="paper"] .telegram-center {
+    margin-top: 0;
+  }
+  :root[data-theme="paper"] .telegram-word {
+    font-size: min(52px, calc((100vw - 2 * var(--gutter) - var(--nb-strip)) / (var(--len, 8) * 0.5)));
+  }
+  :root[data-theme="paper"] .telegram-side .telegram-note {
+    font-size: 13px;
+  }
+  :root[data-theme="paper"] .stage,
+  :root[data-theme="paper"] .stage:has(.panel.framed) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr) auto;
+  }
+  :root[data-theme="paper"] .stage:has(.panel.reading) {
+    grid-template-rows: minmax(0, 0.5fr) minmax(0, 1.5fr) auto;
+  }
+  :root[data-theme="paper"] .stage:has(.panel.framed) {
+    grid-template-rows: 0 minmax(0, 1fr) auto;
+  }
+  :root[data-theme="paper"] .map {
+    grid-row: 1;
+  }
+  :root[data-theme="paper"] .panel {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0 8px 0 0;
+    border-radius: 0;
+    clip-path: inset(-12px -10px 0 -10px);
+    font-size: 18px;
+    background:
+      radial-gradient(circle at 50% 0, var(--nb-paper) 0 3.5px, var(--nb-edge) 3.6px 4.4px, transparent 4.6px) 0 0 / 14px 14px repeat-x,
+      linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) calc(var(--pp-padl) - 9px) 0 / 4px 100% no-repeat,
+      linear-gradient(to bottom, transparent 0 calc(var(--line) - 5px), var(--nb-rule) calc(var(--line) - 5px) calc(var(--line) - 4px), transparent calc(var(--line) - 4px)) 0 var(--pp-top) / 100% var(--line) repeat-y,
+      var(--nb-paper);
+  }
+  :root[data-theme="paper"] .panel.framed {
+    grid-row: 2;
+    margin: 0 8px 0 0;
+  }
+  :root[data-theme="paper"] .stage > .pp-pager {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0 8px 0 0;
+    border-radius: 0;
+    clip-path: inset(0 -10px -12px -10px);
+    padding: 6px 10px 8px var(--pp-padl);
+    background:
+      linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) calc(var(--pp-padl) - 9px) 0 / 4px 100% no-repeat,
+      var(--nb-paper);
+  }
+  :root[data-theme="paper"] .place-name,
+  :root[data-theme="paper"] .panel-title {
+    font-size: 34px;
+  }
+  :root[data-theme="paper"] .headline {
+    font-size: 19px;
+  }
+  /* The toolbar keeps to one row on a 360 pixel phone, so its icons step aside there. */
+  :root[data-theme="paper"] .pick select {
+    padding-left: 8px;
+  }
+  :root[data-theme="paper"] .pick:has(#view-select)::before,
+  :root[data-theme="paper"] .pick:has(#design-select)::before,
+  :root[data-theme="paper"] #translate-pick::before,
+  :root[data-theme="paper"] .menu > summary::before {
+    display: none;
+  }
+  :root[data-theme="paper"] dialog {
+    --pp-padl: 62px;
+    --pp-padr: 16px;
+    background:
+      radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) 8px 16% / 14px 14px no-repeat,
+      radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) 8px 50% / 14px 14px no-repeat,
+      radial-gradient(circle, var(--nb-hole) 0 5px, var(--nb-hole-edge) 5.5px 6.5px, transparent 7px) 8px 84% / 14px 14px no-repeat,
+      linear-gradient(90deg, var(--nb-margin) 0 1px, transparent 1px 3px, var(--nb-margin) 3px 4px) 44px 0 / 4px 100% no-repeat,
+      linear-gradient(to bottom, transparent 0 calc(var(--line) - 5px), var(--nb-rule) calc(var(--line) - 5px) calc(var(--line) - 4px), transparent calc(var(--line) - 4px)) 0 0 / 100% var(--line) repeat-y,
+      var(--nb-paper);
+  }
+  :root[data-theme="paper"] .pp-pages {
+    font-size: 17px;
+  }
+}

@@ -1,0 +1,118 @@
+/* ---- Pirate: an old sea chart, sepia ink on sea-green water ------------- */
+:root[data-theme="pirate"] {
+  color-scheme: light;
+  --page: #ead7aa;
+  --panel: #f1e3bf;
+  --ink: #2e1e0f;
+  --ink-2: #4f3720;
+  --muted: #6c5233;
+  --rule: #3b2614;
+  --accent: #b0271d;
+  --on-accent: #f6ecd2;
+  --hover: rgba(59, 38, 20, 0.08);
+  --grain-opacity: 0.5;
+  --grain-blend: multiply;
+  /* A twisted rope: three browns on a slant. */
+  --rope: repeating-linear-gradient(120deg, #3b2614 0 2px, #9c7646 2px 5px, #d6b98a 5px 7px);
+  --font-mast: "Pirata One", "IM Fell English SC", Georgia, serif;
+  --font-head: "IM Fell English SC", Georgia, serif;
+  --font-body: "IM Fell English", Georgia, serif;
+  --font-ui: "IM Fell English", Georgia, serif;
+}
+:root[data-theme="pirate"] .telegram .importance {
+  font-family: "Old Standard TT", Georgia, serif;
+}
+
+/* ---- Pirate: a sea chart with rope and dashed rules ----------------------- */
+:root[data-theme="pirate"] body {
+  background: radial-gradient(ellipse at center, #f1e1b8 0%, #ead7aa 55%, #cfb27a 100%);
+}
+:root[data-theme="pirate"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 16px;
+  background: var(--rope) left bottom / 100% 6px no-repeat;
+}
+:root[data-theme="pirate"] .mast-title {
+  font: 400 clamp(32px, 4vw, 50px) / 1 var(--font-mast);
+  letter-spacing: 0.02em;
+}
+:root[data-theme="pirate"] .toolbar {
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="pirate"] .seg,
+:root[data-theme="pirate"] .pick select,
+:root[data-theme="pirate"] .tool,
+:root[data-theme="pirate"] .menu > summary,
+:root[data-theme="pirate"] .chip,
+:root[data-theme="pirate"] .zoom {
+  border-style: dashed;
+}
+:root[data-theme="pirate"] .seg button + button {
+  border-left-style: dashed;
+}
+:root[data-theme="pirate"] .map {
+  margin: 10px;
+  border: 2px dashed var(--rule);
+  outline: 4px double var(--rule);
+  outline-offset: 4px;
+}
+:root[data-theme="pirate"] .panel {
+  margin: 10px 10px 10px 0;
+  border: 2px dashed var(--rule);
+}
+:root[data-theme="pirate"] .panel-title,
+:root[data-theme="pirate"] .place-name {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 30px;
+}
+:root[data-theme="pirate"] .headline {
+  font: 400 18px/1.2 var(--font-body);
+}
+:root[data-theme="pirate"] .reader-headline {
+  font: 400 32px/1.1 var(--font-body);
+}
+:root[data-theme="pirate"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background: var(--rope) left bottom / 100% 4px no-repeat;
+}
+:root[data-theme="pirate"] .lead img {
+  filter: sepia(0.8) contrast(1.05);
+}
+:root[data-theme="pirate"] .telegram-word {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  border-bottom: 2px dashed var(--accent);
+}
+:root[data-theme="pirate"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="pirate"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="pirate"] dialog {
+  border: 2px dashed var(--rule);
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="pirate"] .map {
+    margin: 8px;
+  }
+  :root[data-theme="pirate"] .panel {
+    margin: 0 8px 8px;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-theme="pirate"] .toolbar {
+    letter-spacing: 0.01em;
+  }
+}

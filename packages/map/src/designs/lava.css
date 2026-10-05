@@ -1,0 +1,375 @@
+:root[data-theme="lava"] .telegram .importance {
+  color: #ffe6b8;
+}
+
+/* ---- Lava Lamp: 1970s shag, wood grain, groovy lettering ------------------------------------ */
+:root[data-theme="lava"] {
+  color-scheme: light;
+  --page: #f6e2b3;
+  --panel: #fff3d9;
+  --ink: #3a1a08;
+  --ink-2: #5a2e12;
+  --muted: #7a4420;
+  --rule: #a8521c;
+  --accent: #c2410c;
+  --on-accent: #fff6e0;
+  --hover: rgba(194, 65, 12, 0.1);
+  --reticle: #2a0f3a;
+  --grain-opacity: 0.18;
+  --grain-blend: multiply;
+  --wood: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .09' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .22 0 0 0 0 .1 0 0 0 0 .03 0 0 0 1.2 -.35'/%3E%3C/filter%3E%3Crect width='400' height='120' filter='url(%23w)'/%3E%3C/svg%3E");
+  --shag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 .96 0 0 0 0 .55 0 0 0 0 .16 0 0 0 2.2 -.95'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23s)'/%3E%3C/svg%3E");
+  --font-mast: "Shrikhand", "Cooper Black", serif;
+  --font-head: "Righteous", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Righteous", "Trebuchet MS", sans-serif;
+}
+/* Shag carpet round everything. */
+:root[data-theme="lava"] body {
+  background: var(--shag) 0 0 / 160px 160px, var(--shag) 37px 61px / 120px 120px, #8a3a10;
+}
+/* The masthead is a wood-panelled board with three stripes along its foot. */
+:root[data-theme="lava"] .masthead {
+  border-bottom: 0;
+  padding-bottom: 22px;
+  background:
+    linear-gradient(to bottom, transparent calc(100% - 13px), #f0a830 calc(100% - 13px) calc(100% - 9px), #e8581c calc(100% - 9px) calc(100% - 5px), #8a2e0c calc(100% - 5px)),
+    var(--wood) 0 0 / 400px 120px,
+    linear-gradient(to bottom, #6e3c18, #4e2a10);
+  color: #fff3d9;
+}
+:root[data-theme="lava"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(32px, 3.8vw, 48px);
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #e8318a, 4px 4px 0 #6b2fa0;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="lava"] .mast-tag,
+:root[data-theme="lava"] .telegram-kicker,
+:root[data-theme="lava"] .telegram-date,
+:root[data-theme="lava"] .telegram-note,
+:root[data-theme="lava"] .telegram-none {
+  color: #ffe6b8;
+}
+:root[data-theme="lava"] .mast-tag {
+  font-family: var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="lava"] .telegram-word,
+:root[data-theme="lava"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #e8318a, 4px 4px 0 #6b2fa0;
+}
+:root[data-theme="lava"] .telegram-big {
+  color: #c2410c;
+  text-shadow: 2px 2px 0 #f0a830, 4px 4px 0 #e8318a;
+}
+:root[data-theme="lava"] .telegram-word {
+  border-bottom: 0;
+}
+:root[data-theme="lava"] .telegram-word:hover,
+:root[data-theme="lava"] .telegram-word:focus-visible {
+  background: none;
+  color: #fff3d9;
+  text-decoration: none;
+}
+/* Groovy lettering: each letter sits a little high or low and leans, like 1970s display type. */
+:root[data-theme="lava"] .lt {
+  display: inline-block;
+  translate: 0 1px;
+  rotate: -2deg;
+}
+:root[data-theme="lava"] .lt:nth-child(2n) {
+  translate: 0 -2px;
+  rotate: 2deg;
+}
+:root[data-theme="lava"] .lt:nth-child(3n) {
+  translate: 0 -1px;
+}
+/* Buttons are harvest-gold pills with a brown rim. */
+:root[data-theme="lava"] .tool,
+:root[data-theme="lava"] .pick select,
+:root[data-theme="lava"] .menu > summary,
+:root[data-theme="lava"] .chip,
+:root[data-theme="lava"] .key-btn,
+:root[data-theme="lava"] .key-close {
+  border: 2px solid #6e2a0a;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffd88a, #f0a830);
+  color: #3a1a08;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 0 #6e2a0a;
+}
+:root[data-theme="lava"] .pick::after {
+  color: #3a1a08;
+}
+/* The scale in the wood-panelled masthead: cream steps, the day's step in burnt orange. */
+:root[data-theme="lava"] .scale {
+  border: 2px solid #f0a830;
+  border-radius: 999px;
+  overflow: hidden;
+}
+:root[data-theme="lava"] .scale .step {
+  color: #ffe6b8;
+}
+:root[data-theme="lava"] .scale .step + .step {
+  border-left-color: rgba(240, 168, 48, 0.6);
+}
+:root[data-theme="lava"] .zoom {
+  border: 2px solid #6e2a0a;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #ffd88a, #f0a830);
+}
+:root[data-theme="lava"] .zoom button {
+  color: #3a1a08;
+}
+:root[data-theme="lava"] .zoom button + button {
+  border-top: 2px solid #6e2a0a;
+}
+:root[data-theme="lava"] .tool[aria-pressed="true"],
+:root[data-theme="lava"] .menu[open] > summary,
+:root[data-theme="lava"] .chip[aria-pressed="true"],
+:root[data-theme="lava"] .key-btn[aria-expanded="true"],
+:root[data-theme="lava"] .scale .step.on {
+  background: linear-gradient(to bottom, #e0602a, #c2410c);
+  color: #fff6e0;
+  border-color: #5a1a04;
+}
+/* The toolbar is a band of cream over two stripes; the time bar is wood. */
+:root[data-theme="lava"] .toolbar {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background: linear-gradient(to bottom, #f6e2b3 calc(100% - 8px), #e8318a calc(100% - 8px) calc(100% - 4px), #6b2fa0 calc(100% - 4px));
+}
+:root[data-theme="lava"] .timebar {
+  border-top: 0;
+  background: var(--wood) 0 0 / 400px 120px, linear-gradient(to bottom, #6e3c18, #4e2a10);
+  color: #ffe6b8;
+}
+/* Behind the lamp: a wood-panelled wall. */
+:root[data-theme="lava"] .map {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 62px, rgba(30, 12, 2, 0.55) 62px 64px),
+    var(--wood) 0 0 / 400px 120px,
+    linear-gradient(to bottom, #5a3014, #3e1f0a);
+}
+:root[data-theme="lava"] .panel {
+  margin: 16px;
+}
+:root[data-theme="lava"] .panel-title,
+:root[data-theme="lava"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 28px;
+  color: #c2410c;
+  text-shadow: 2px 2px 0 #f0a830;
+}
+:root[data-theme="lava"] .dateline {
+  border-bottom: 0;
+  padding-bottom: 12px;
+  background:
+    linear-gradient(#f0a830, #f0a830) left bottom / 100% 3px no-repeat,
+    linear-gradient(#e8581c, #e8581c) left calc(100% - 4px) / 100% 3px no-repeat;
+}
+:root[data-theme="lava"] .rule-head {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right, #c2410c, #b8266e, #6b2fa0);
+  color: #fff6e0;
+}
+/*
+ * The panel, the Key, the menus, the notes and the About dialog are lamps: dark liquid in glass with a rounded
+ * shoulder, a glossy streak down one side, warm wax pooled at the bottom and soft blobs rising at the edges, in a
+ * brass rim. The tokens are turned over inside them so text stays light on the liquid, and the wax is faint enough
+ * that text over it keeps 4.5:1.
+ */
+:root[data-theme="lava"] .panel,
+:root[data-theme="lava"] .menu-body,
+:root[data-theme="lava"] .key-pop,
+:root[data-theme="lava"] .map-note,
+:root[data-theme="lava"] dialog {
+  --panel: #2a0f3a;
+  --ink: #fff3d9;
+  --ink-2: #ffe6b8;
+  --muted: #eac39a;
+  --rule: #b8763a;
+  --accent: #ffb23e;
+  --on-accent: #2a0f3a;
+  --hover: rgba(255, 178, 62, 0.14);
+  --key-bg: radial-gradient(circle at 40% 35%, #fff0c2, #ffc46a 70%);
+  color: var(--ink);
+  border: 3px solid #3e1f06;
+  border-radius: 44% 44% 24px 24px / 64px 64px 24px 24px;
+  background:
+    radial-gradient(ellipse 32% 8% at 50% 100%, rgba(255, 150, 50, 0.5), transparent 72%),
+    radial-gradient(ellipse 16% 11% at 6% 72%, rgba(255, 128, 48, 0.42), transparent 72%),
+    radial-gradient(ellipse 13% 9% at 95% 40%, rgba(232, 49, 138, 0.42), transparent 72%),
+    radial-gradient(ellipse 10% 7% at 90% 86%, rgba(255, 178, 62, 0.42), transparent 72%),
+    radial-gradient(ellipse 12% 8% at 4% 22%, rgba(186, 80, 220, 0.42), transparent 72%),
+    linear-gradient(90deg, transparent 5%, rgba(255, 255, 255, 0.13) 7%, rgba(255, 255, 255, 0.02) 11%, transparent 13%),
+    linear-gradient(to bottom, #3e1450, #2a0f3a 45%, #4a1646);
+  background-size: 100% 100%, 130% 130%, 130% 130%, 130% 130%, 130% 130%, 100% 100%, 100% 100%;
+  background-position: 0 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0;
+  box-shadow:
+    inset 0 -16px 26px -14px rgba(255, 140, 40, 0.8),
+    0 0 0 3px #c98a3a,
+    0 0 0 6px #5a3010,
+    0 0 26px 6px rgba(255, 120, 40, 0.35),
+    0 8px 18px 6px rgba(40, 14, 2, 0.45);
+}
+:root[data-theme="lava"] .panel {
+  padding-top: 34px;
+}
+:root[data-theme="lava"] .menu-body {
+  padding: 30px 28px 22px;
+  top: calc(100% + 18px);
+}
+:root[data-theme="lava"] .key-pop {
+  padding: 24px 28px 20px;
+}
+:root[data-theme="lava"] .map-note {
+  padding: 26px 26px 18px;
+}
+/*
+ * The Key and the menus are small lamps of their own: the glass tapers to a narrow shoulder (a clipped layer
+ * behind the text, so the text itself is never clipped), under a brass cap and over a flared brass base, with the
+ * brass rim and the warm glow drawn round the whole shape.
+ */
+:root[data-theme="lava"] .menu-body,
+:root[data-theme="lava"] .key-pop {
+  isolation: isolate;
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(2px 0 0 #c98a3a) drop-shadow(-2px 0 0 #c98a3a) drop-shadow(0 2px 0 #c98a3a) drop-shadow(0 -2px 0 #c98a3a)
+    drop-shadow(0 0 1px #3e1f06) drop-shadow(0 0 12px rgba(255, 120, 40, 0.45)) drop-shadow(0 6px 8px rgba(40, 14, 2, 0.45));
+}
+:root[data-theme="lava"] .menu-body::before,
+:root[data-theme="lava"] .key-pop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 32% 8% at 50% 100%, rgba(255, 150, 50, 0.5), transparent 72%),
+    radial-gradient(ellipse 16% 11% at 6% 72%, rgba(255, 128, 48, 0.42), transparent 72%),
+    radial-gradient(ellipse 13% 9% at 95% 40%, rgba(232, 49, 138, 0.42), transparent 72%),
+    radial-gradient(ellipse 10% 7% at 90% 86%, rgba(255, 178, 62, 0.42), transparent 72%),
+    radial-gradient(ellipse 12% 8% at 4% 22%, rgba(186, 80, 220, 0.42), transparent 72%),
+    linear-gradient(90deg, transparent 7%, rgba(255, 255, 255, 0.15) 9%, rgba(255, 255, 255, 0.02) 13%, transparent 15%),
+    linear-gradient(to bottom, #3e1450, #2a0f3a 45%, #4a1646);
+  background-size: 100% 100%, 130% 130%, 130% 130%, 130% 130%, 130% 130%, 100% 100%, 100% 100%;
+  background-position: 0 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0;
+  box-shadow: inset 0 -16px 26px -14px rgba(255, 140, 40, 0.8);
+  clip-path: polygon(
+    40px 0, calc(100% - 40px) 0, calc(100% - 28px) 3px, calc(100% - 23px) 10px, calc(100% - 21px) 22px,
+    calc(100% - 1px) calc(100% - 44px), 100% calc(100% - 28px), calc(100% - 3px) calc(100% - 10px), calc(100% - 14px) 100%,
+    14px 100%, 3px calc(100% - 10px), 0 calc(100% - 28px), 1px calc(100% - 44px),
+    21px 22px, 23px 10px, 28px 3px
+  );
+}
+/* The cap and the base: one brass layer cut to two shapes. */
+:root[data-theme="lava"] .menu-body::after,
+:root[data-theme="lava"] .key-pop::after {
+  content: "";
+  position: absolute;
+  inset: -14px 0 -18px;
+  pointer-events: none;
+  background: linear-gradient(90deg, #5a3010, #c98a3a 18%, #fff0c2 32%, #e0a850 45%, #8a5220 75%, #3e1f06);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M16 0H84L100 10H0Z'/%3E%3C/svg%3E") center top / calc(100% - 84px) 13px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100L90 10H10Z'/%3E%3C/svg%3E") center bottom / 70% 16px no-repeat;
+}
+/* The About text starts below the lamp's domed top, so the curve never cuts the title or the close button. */
+:root[data-theme="lava"] dialog {
+  padding-top: 44px;
+}
+:root[data-theme="lava"] .key-head h2,
+:root[data-theme="lava"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #b8266e;
+}
+:root[data-theme="lava"] .panel-title,
+:root[data-theme="lava"] .place-name {
+  color: #ffb23e;
+  text-shadow: 2px 2px 0 #b8266e, 4px 4px 0 #6b2fa0;
+}
+:root[data-theme="lava"] .key-body svg {
+  border-radius: 50%;
+}
+/* Topics are blobs of wax: pressed ones lit and full, the others a clear bubble in the liquid. */
+:root[data-theme="lava"] .chip {
+  border: 2px solid rgba(255, 196, 106, 0.75);
+  border-radius: 58% 42% 55% 45% / 52% 48% 52% 48%;
+  background: rgba(255, 196, 106, 0.08);
+  color: #fff3d9;
+  box-shadow: none;
+}
+:root[data-theme="lava"] .chip:nth-child(2n) {
+  border-radius: 44% 56% 46% 54% / 56% 44% 56% 44%;
+}
+:root[data-theme="lava"] .chip[aria-pressed="true"] {
+  border-color: #fff0c2;
+  background: radial-gradient(circle at 35% 30%, #fff0c2, #ffb35c 45%, #ff8a3d);
+  color: #2a0f3a;
+  box-shadow: 0 0 10px rgba(255, 150, 50, 0.55);
+}
+/* Citation marks and the tuned-story links glow like small drops of wax. */
+:root[data-theme="lava"] .cite {
+  border: 0;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, #fff0c2, #ffb35c 55%, #ff8a3d);
+  color: #2a0f3a;
+  box-shadow: 0 0 6px rgba(255, 140, 50, 0.6);
+}
+:root[data-theme="lava"] .source-num {
+  border: 0;
+  border-radius: 50% 50% 46% 54% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 35% 30%, #ffd08a, #e8318a);
+  color: #2a0f3a;
+}
+:root[data-theme="lava"] .excerpt-quote {
+  border-left-color: #e8318a;
+}
+/* The Key button carries a small lamp. */
+:root[data-theme="lava"] .key-btn::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  margin: 0 6px -2px 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M2.6 0H5.4L6 2H2Z' fill='%236e2a0a'/%3E%3Cpath d='M2 2H6L7.6 9H0.4Z' fill='%232a0f3a'/%3E%3Cellipse cx='4' cy='7.6' rx='2.4' ry='1.4' fill='%23ff8a3d'/%3E%3Cellipse cx='3.4' cy='4.6' rx='1' ry='1.2' fill='%23e8318a'/%3E%3Cpath d='M0.4 9H7.6L6.4 14H1.6Z' fill='%236e2a0a'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* The wax drifts slowly in the small lamps; with reduced motion it holds still. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="lava"] .menu-body::before,
+  :root[data-theme="lava"] .key-pop::before {
+    animation: lava-wax 18s ease-in-out infinite alternate;
+  }
+}
+@keyframes lava-wax {
+  to {
+    background-position: 0 0, 0 100%, 100% 100%, 100% 0, 0 0, 0 0, 0 0;
+  }
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="lava"] .telegram-word {
+    font-size: min(56px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.76)));
+  }
+  :root[data-theme="lava"] .panel {
+    margin: 8px;
+  }
+}

@@ -1,0 +1,170 @@
+:root[data-theme="glass"] {
+  color-scheme: dark;
+  --page: #15111b;
+  --panel: #1d1824;
+  --ink: #f4eddc;
+  --ink-2: #e2d8c2;
+  --muted: #bcae95;
+  --rule: #8c8374;
+  --accent: #e8b83a;
+  --on-accent: #15111b;
+  --hover: rgba(232, 184, 58, 0.1);
+  --reticle: #fff4d2;
+  --grain-opacity: 0.12;
+  --grain-blend: overlay;
+  --font-mast: "Grenze Gotisch", "UnifrakturMaguntia", serif;
+  --font-head: "EB Garamond", Georgia, serif;
+  --font-body: "EB Garamond", Georgia, serif;
+  --font-ui: "EB Garamond", Georgia, serif;
+}
+
+/* ---- Rose Window: stone, lead and jewel glass, gothic lettering, arched panels ------------------ */
+:root[data-theme="glass"] body {
+  background:
+    radial-gradient(ellipse 45% 35% at 15% 0%, rgba(31, 79, 168, 0.22), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 85% 0%, rgba(176, 40, 63, 0.2), transparent 70%),
+    var(--page);
+}
+:root[data-theme="glass"] .masthead {
+  border-bottom: 3px double #8c8374;
+}
+:root[data-theme="glass"] .toolbar,
+:root[data-theme="glass"] .timebar {
+  border-color: #5e574c;
+}
+/* Ashlar stone behind the window, lit by the colours coming through it. */
+:root[data-theme="glass"] .map {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(232, 184, 58, 0.1), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='48'%3E%3Crect width='96' height='48' fill='%23231d29'/%3E%3Cpath d='M0 1H96M0 25H96M1 1V25M49 1V25M25 25V49M73 25V49' stroke='%23120e16' stroke-width='2' fill='none'/%3E%3Cpath d='M0 3H96M0 27H96' stroke='%23332b3a' stroke-width='1' fill='none'/%3E%3C/svg%3E") 0 0 / 96px 48px,
+    #1d1824;
+}
+:root[data-theme="glass"] .mast-title,
+:root[data-theme="glass"] .panel-title,
+:root[data-theme="glass"] .place-name {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #e8b83a;
+  text-shadow: 0 0 12px rgba(232, 184, 58, 0.35);
+}
+:root[data-theme="glass"] .mast-title {
+  font-size: clamp(32px, 3.8vw, 48px);
+}
+:root[data-theme="glass"] .place-name {
+  font-size: 32px;
+}
+/* The word in amber glass behind a dark lead outline, lit from behind. */
+:root[data-theme="glass"] .telegram-word,
+:root[data-theme="glass"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: transparent;
+  background-image:
+    radial-gradient(ellipse 55% 60% at 50% 40%, rgba(255, 250, 225, 0.75), transparent 70%),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.12) 0 3px, transparent 3px 11px),
+    linear-gradient(to bottom, #f7cf5a, #e0a020 55%, #b87410);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 1.5px #0e0b12;
+  filter: drop-shadow(0 0 10px rgba(232, 184, 58, 0.35));
+}
+:root[data-theme="glass"] .telegram-word {
+  font-size: min(104px, calc(40vw / var(--len, 8)));
+  border-bottom: 2px solid #8c8374;
+}
+:root[data-theme="glass"] .telegram-word:hover,
+:root[data-theme="glass"] .telegram-word:focus-visible {
+  text-decoration: none;
+  filter: drop-shadow(0 0 16px rgba(232, 184, 58, 0.7));
+}
+:root[data-theme="glass"] .telegram-kicker,
+:root[data-theme="glass"] .telegram-date {
+  color: #e8b83a;
+  letter-spacing: 0.16em;
+}
+:root[data-theme="glass"] .mast-tag,
+:root[data-theme="glass"] .telegram-note {
+  color: var(--ink-2);
+}
+/* Buttons are small arched stones; the one that is on is gold glass. */
+:root[data-theme="glass"] .tool,
+:root[data-theme="glass"] .pick select,
+:root[data-theme="glass"] .menu > summary,
+:root[data-theme="glass"] .chip,
+:root[data-theme="glass"] .key-btn,
+:root[data-theme="glass"] .key-close,
+:root[data-theme="glass"] .zoom {
+  border: 1px solid #8c8374;
+  border-radius: 14px 14px 3px 3px;
+  background: linear-gradient(to bottom, #3a333f, #231e29);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 248, 230, 0.2), 0 2px 0 #0e0b12;
+}
+:root[data-theme="glass"] .zoom button + button {
+  border-top-color: #5e574c;
+}
+:root[data-theme="glass"] .tool.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="glass"] .tool[aria-pressed="true"],
+:root[data-theme="glass"] .menu[open] > summary,
+:root[data-theme="glass"] .chip[aria-pressed="true"],
+:root[data-theme="glass"] .key-btn[aria-expanded="true"],
+:root[data-theme="glass"] .scale .step.on {
+  background: radial-gradient(ellipse at 50% 30%, #ffe08a, #e8b83a 55%, #a87a14);
+  color: #15111b;
+  border-color: #0e0b12;
+}
+/* Panels are tall arched windows in a stone frame, a small roundel of glass in the arch. */
+:root[data-theme="glass"] .panel:not(.framed) {
+  margin: 10px;
+  padding-top: 84px;
+  border: 5px solid #6f6758;
+  border-radius: 50% 50% 8px 8px / 76px 76px 8px 8px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-20 -20 40 40'%3E%3Cg stroke='%2316121c' stroke-width='1.6'%3E%3Ccircle r='18.5' fill='%231f4fa8'/%3E%3Cpath d='M0 0L0 -18.5A18.5 18.5 0 0 1 13.1 -13.1Z' fill='%23b0283f'/%3E%3Cpath d='M0 0L13.1 13.1A18.5 18.5 0 0 1 0 18.5Z' fill='%23b0283f'/%3E%3Cpath d='M0 0L-13.1 -13.1A18.5 18.5 0 0 1 0 -18.5Z' fill='%231a9a66'/%3E%3Cpath d='M0 0L0 18.5A18.5 18.5 0 0 1 -13.1 13.1Z' fill='%231a9a66'/%3E%3Cpath d='M0 0L18.5 0A18.5 18.5 0 0 1 13.1 13.1Z' fill='%23d9a21a'/%3E%3Cpath d='M0 0L-18.5 0A18.5 18.5 0 0 1 -13.1 -13.1Z' fill='%23d9a21a'/%3E%3Ccircle r='6' fill='%23e8c050'/%3E%3C/g%3E%3C/svg%3E") no-repeat center 16px / 52px 52px,
+    radial-gradient(ellipse 80% 90px at 50% 0%, rgba(232, 184, 58, 0.12), transparent),
+    var(--panel);
+  box-shadow: inset 0 0 0 2px #16121c, inset 0 0 0 4px rgba(255, 248, 230, 0.12), 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="glass"] .menu-body,
+:root[data-theme="glass"] .key-pop,
+:root[data-theme="glass"] dialog {
+  border: 3px solid #6f6758;
+  border-radius: 50% 50% 6px 6px / 28px 28px 6px 6px;
+  padding-top: 26px;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px #16121c, 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="glass"] .dateline {
+  border-bottom-color: #8c8374;
+}
+:root[data-theme="glass"] .rule-head {
+  color: #e8b83a;
+  border-color: #5e574c;
+}
+:root[data-theme="glass"] .headline {
+  font-weight: 600;
+  font-size: 18px;
+}
+:root[data-theme="glass"] .meta {
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  :root[data-theme="glass"] .telegram-word {
+    font-size: min(72px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.54)));
+  }
+  /* A lower arch without the roundel, so the story list keeps its room. */
+  :root[data-theme="glass"] .panel:not(.framed) {
+    margin: 6px;
+    padding-top: 30px;
+    border-radius: 50% 50% 8px 8px / 26px 26px 8px 8px;
+    background: radial-gradient(ellipse 80% 40px at 50% 0%, rgba(232, 184, 58, 0.12), transparent), var(--panel);
+  }
+}

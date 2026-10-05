@@ -1,0 +1,517 @@
+:root[data-theme="vinyl"] {
+  color-scheme: light;
+  --page: #3a2414;
+  --panel: #efe5cd;
+  --ink: #2a1d14;
+  --ink-2: #4a3626;
+  --muted: #6b5541;
+  --rule: #8a6d4f;
+  --accent: #c24e17;
+  --on-accent: #fff4e2;
+  --hover: rgba(194, 78, 23, 0.08);
+  --reticle: #fff3dc;
+  --grain-opacity: 0.12;
+  --grain-blend: multiply;
+  --font-mast: "Michroma", "Eurostile", "Arial Black", sans-serif;
+  --font-head: "Michroma", "Eurostile", "Arial Black", sans-serif;
+  --font-body: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-ui: "Jost", "Futura", "Century Gothic", sans-serif;
+  /* Walnut: fine grain over long darker streaks over a warm brown. */
+  --vy-wood: repeating-linear-gradient(91deg, rgba(20, 8, 2, 0.16) 0 1px, transparent 1px 5px, rgba(255, 220, 170, 0.04) 5px 6px, transparent 6px 11px),
+    repeating-linear-gradient(89deg, transparent 0 37px, rgba(25, 10, 3, 0.22) 37px 39px, transparent 39px 83px),
+    linear-gradient(90deg, #4b2c17, #5e3820 22%, #4a2b16 41%, #634026 63%, #4f2f19 84%, #5a361e);
+  /* Brushed aluminium: hairlines across a soft vertical light. */
+  --vy-alu: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 1px, rgba(0, 0, 0, 0.03) 1px 2px, transparent 2px 3px),
+    linear-gradient(to bottom, #eef0f1, #d5d8db 48%, #c3c7cb 52%, #dadde0);
+  /* A key's face: lit along its top edge, a little darker toward its foot. */
+  --vy-key: linear-gradient(to bottom, #fbfbfb, #e1e3e5 55%, #cdd0d3);
+  --vy-key-on: linear-gradient(to bottom, #d2d5d8, #c0c4c8 60%, #b4b8bc);
+  --vy-stripes: linear-gradient(to bottom, #e9a032 0 33%, #d86a1f 33% 66%, #8f3a14 66%);
+}
+:root[data-theme="vinyl"] body {
+  background: var(--vy-wood);
+}
+/* The faceplate across the top: brushed aluminium with a dark hairline. */
+:root[data-theme="vinyl"] .masthead {
+  background: var(--vy-alu);
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 #fff, 0 3px 6px rgba(20, 8, 2, 0.45);
+  position: relative;
+  z-index: 21;
+}
+:root[data-theme="vinyl"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(19px, 2vw, 28px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #232323;
+  /* Engraved: a light edge under each letter. */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+:root[data-theme="vinyl"] .mast-tag {
+  font: 500 11px/1.3 var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4a4a4a;
+}
+:root[data-theme="vinyl"] .telegram-kicker,
+:root[data-theme="vinyl"] .telegram-date {
+  font-family: var(--font-head);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: #3b3b3b;
+}
+:root[data-theme="vinyl"] .telegram-note,
+:root[data-theme="vinyl"] .telegram-none,
+:root[data-theme="vinyl"] .telegram-status {
+  font-style: normal;
+  color: #3f3f3f;
+}
+/* The word is an album's front: cream card under three bands of 1970s colour, the title set wide. */
+:root[data-theme="vinyl"] .telegram-center {
+  padding: 12px 22px 8px;
+  background: var(--vy-stripes) left top / 100% 7px no-repeat, #f3e8cf;
+  border: 1px solid #6d5a45;
+  box-shadow: 2px 3px 0 rgba(40, 25, 12, 0.35);
+}
+:root[data-theme="vinyl"] .telegram-center .telegram-kicker {
+  color: #6b5541;
+}
+:root[data-theme="vinyl"] .telegram-word,
+:root[data-theme="vinyl"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: #2a1d14;
+}
+:root[data-theme="vinyl"] .telegram-word {
+  /* Michroma's capitals run about twice the width the size formula assumes. */
+  font-size: min(46px, calc(34vw / var(--len, 8) / 1.75));
+  border-bottom: 0;
+  padding: 2px 0 0;
+}
+:root[data-theme="vinyl"] .telegram-word:hover,
+:root[data-theme="vinyl"] .telegram-word:focus-visible {
+  background: rgba(194, 78, 23, 0.08);
+}
+/* The scale as a row of lit segments, the day's step glowing amber. */
+:root[data-theme="vinyl"] .scale {
+  border: 1px solid #555;
+  border-radius: 2px;
+  background: #1c1916;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="vinyl"] .scale .step {
+  color: #b3a58f;
+}
+:root[data-theme="vinyl"] .scale .step + .step {
+  border-left-color: #3d3833;
+}
+:root[data-theme="vinyl"] .scale .step.on {
+  background: #f0a23a;
+  color: #241405;
+  box-shadow: 0 0 8px rgba(255, 170, 70, 0.7);
+}
+/* The row of keys under the faceplate. */
+:root[data-theme="vinyl"] .toolbar {
+  background: linear-gradient(to bottom, #2b2522, #1c1816);
+  border-bottom: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 5px rgba(20, 8, 2, 0.5);
+  padding-block: 8px;
+}
+:root[data-theme="vinyl"] .tool,
+:root[data-theme="vinyl"] .pick select,
+:root[data-theme="vinyl"] .menu > summary,
+:root[data-theme="vinyl"] .chip,
+:root[data-theme="vinyl"] .key-btn,
+:root[data-theme="vinyl"] .key-close,
+:root[data-theme="vinyl"] dialog .close,
+:root[data-theme="vinyl"] .x-deck-key {
+  border: 1px solid #6c7075;
+  border-radius: 2px 2px 4px 4px;
+  background: var(--vy-key);
+  color: #1f1f1f;
+  font-family: var(--font-head);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 0 #6a6e73, 0 3px 5px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="vinyl"] .pick::after {
+  color: #1f1f1f;
+}
+:root[data-theme="vinyl"] .tool:hover,
+:root[data-theme="vinyl"] .pick select:hover,
+:root[data-theme="vinyl"] .menu > summary:hover,
+:root[data-theme="vinyl"] .chip:hover,
+:root[data-theme="vinyl"] .key-btn:hover,
+:root[data-theme="vinyl"] .x-deck-key:hover {
+  background: linear-gradient(to bottom, #ffffff, #e9ebed 55%, #d6d9dc);
+}
+/* A key that's down sits lower, with an amber pilot light along its top edge. */
+:root[data-theme="vinyl"] .tool[aria-pressed="true"],
+:root[data-theme="vinyl"] .menu[open] > summary,
+:root[data-theme="vinyl"] .chip[aria-pressed="true"],
+:root[data-theme="vinyl"] .key-btn[aria-expanded="true"],
+:root[data-theme="vinyl"] .x-deck-key[aria-pressed="true"],
+:root[data-theme="vinyl"] .x-deck-key[aria-checked="true"] {
+  background: var(--vy-key-on);
+  color: #1f1f1f;
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 0 #ffae45, inset 0 3px 6px rgba(255, 150, 40, 0.35), 0 1px 0 #6a6e73, 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="vinyl"] .tool.primary {
+  background: linear-gradient(to bottom, #e3762e, #c24e17);
+  color: #fff4e2;
+  border-color: #7a2e0c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #7a2e0c, 0 3px 5px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="vinyl"] #about-btn {
+  color: #1f1f1f;
+}
+:root[data-theme="vinyl"] .banner {
+  background: #241d18;
+  color: #e8d7b8;
+  border-bottom-color: #000;
+  font-family: var(--font-ui);
+  letter-spacing: 0.06em;
+}
+/* The plinth: walnut round the turntable and the sleeve. */
+:root[data-theme="vinyl"] .map {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 45%, rgba(255, 220, 170, 0.08), transparent 70%),
+    var(--vy-wood);
+  box-shadow: inset 0 0 40px rgba(15, 6, 1, 0.55);
+}
+/* In Globe view the stylus is the reticle. */
+:root[data-theme="vinyl"] .map[data-view="3d"] .crosshair {
+  display: none;
+}
+:root[data-theme="vinyl"] .zoom {
+  border: 1px solid #1b1b1b;
+  border-radius: 4px;
+  background: var(--vy-alu);
+  padding: 4px;
+  gap: 5px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="vinyl"] .zoom button {
+  width: 32px;
+  height: 30px;
+  font-size: 18px;
+  border: 1px solid #6c7075;
+  border-radius: 2px 2px 4px 4px;
+  background: var(--vy-key);
+  color: #1f1f1f;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 0 #6a6e73;
+}
+:root[data-theme="vinyl"] .zoom button + button {
+  border-top: 1px solid #6c7075;
+}
+:root[data-theme="vinyl"] .zoom button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6a6e73;
+}
+/* The deck's own keys on the plinth: the platter's start and stop, and the speed switch. */
+:root[data-theme="vinyl"] .x-deck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  left: var(--gutter);
+  bottom: var(--gutter);
+  z-index: 3;
+  padding: 6px 8px 8px;
+  border: 1px solid #1b1b1b;
+  border-radius: 4px;
+  background: var(--vy-alu);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="vinyl"] .x-deck-key {
+  padding: 7px 10px 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+:root[data-theme="vinyl"] .x-deck-speeds {
+  display: flex;
+  gap: 4px;
+}
+/* A small oblong pilot lamp on the start/stop key, lit while the record turns on its own. */
+:root[data-theme="vinyl"] .x-deck-lamp {
+  display: inline-block;
+  width: 10px;
+  height: 4px;
+  margin-right: 7px;
+  vertical-align: 2px;
+  border-radius: 1px;
+  background: #5b2a16;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="vinyl"] .x-deck-power[aria-pressed="true"] .x-deck-lamp {
+  background: #ff8a2a;
+  box-shadow: 0 0 6px rgba(255, 140, 40, 0.9);
+}
+:root[data-theme="vinyl"] .x-deck-power[aria-pressed="true"] {
+  box-shadow: inset 0 1px 0 #fff, 0 2px 0 #6a6e73, 0 3px 5px rgba(0, 0, 0, 0.45);
+  background: var(--vy-key);
+  transform: none;
+}
+/* With reduced motion the record never turns, so the start key is switched off. */
+:root[data-theme="vinyl"] .x-deck-power:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+:root[data-theme="vinyl"] .key-btn {
+  padding: 7px 10px 6px;
+}
+/* The panel is a record sleeve's back: cream card with a band of colour, set on the walnut. */
+:root[data-theme="vinyl"] .panel {
+  margin: 12px 12px 12px 0;
+  border: 0;
+  border-radius: 2px;
+  background: var(--vy-stripes) left top / 100% 6px no-repeat, linear-gradient(to bottom, #f3e9d2, #ece1c7);
+  box-shadow: 0 4px 14px rgba(15, 6, 1, 0.55), inset 0 0 30px rgba(120, 90, 50, 0.12);
+  padding-top: 20px;
+  container-type: inline-size;
+}
+:root[data-theme="vinyl"] .panel-title,
+:root[data-theme="vinyl"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+}
+:root[data-theme="vinyl"] .dateline {
+  border-bottom: 2px solid #2a1d14;
+  box-shadow: 0 3px 0 -1px #efe5cd, 0 4px 0 -1px #2a1d14;
+}
+:root[data-theme="vinyl"] .dateline .coords,
+:root[data-theme="vinyl"] .count,
+:root[data-theme="vinyl"] .meta,
+:root[data-theme="vinyl"] .byline {
+  font-style: normal;
+}
+:root[data-theme="vinyl"] .headline {
+  font: 600 16px/1.25 var(--font-body);
+}
+:root[data-theme="vinyl"] .reader-headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+:root[data-theme="vinyl"] .rule-head,
+:root[data-theme="vinyl"] .stories-group,
+:root[data-theme="vinyl"] dialog h3 {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+:root[data-theme="vinyl"] .rule-head {
+  text-align: left;
+  border-top: 0;
+  border-bottom: 1px solid #2a1d14;
+}
+/* A track list: each story's time where a track's number would be, then the headline and its line. Newest first. */
+:root[data-theme="vinyl"] .story:has(> .story-at) {
+  display: grid;
+  grid-template-columns: 4.9em minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 3px;
+  padding: 9px 2px;
+}
+:root[data-theme="vinyl"] .story:has(> .story-at) > * {
+  grid-column: 2;
+}
+:root[data-theme="vinyl"] .story > .story-at {
+  grid-column: 1;
+  grid-row: 1;
+  padding-top: 3px;
+  font: 400 10px/1.2 var(--font-head);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+:root[data-theme="vinyl"] .stories li + li {
+  border-top: 1px dotted rgba(42, 29, 20, 0.35);
+}
+:root[data-theme="vinyl"] .excerpt::first-letter {
+  font-family: var(--font-head);
+  font-weight: 400;
+  color: var(--accent);
+}
+:root[data-theme="vinyl"] .lead img {
+  filter: sepia(0.35) contrast(1.05);
+}
+:root[data-theme="vinyl"] .excerpt-quote {
+  font-style: normal;
+}
+/* The word's own view: the album's front, the title in cream on brown over the three bands, sized to fit the sleeve. */
+:root[data-theme="vinyl"] .telegram-big {
+  margin: 8px 0 12px;
+  padding: 26px 16px 34px;
+  font-size: min(40px, calc((100cqi - 2 * var(--gutter) - 40px) / 13.2));
+  line-height: 1.15;
+  overflow-wrap: normal;
+  color: #f6ead0;
+  background: var(--vy-stripes) left bottom / 100% 18px no-repeat, #2a1d14;
+  box-shadow: 2px 3px 0 rgba(40, 25, 12, 0.35);
+}
+:root[data-theme="vinyl"] .score-chip {
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 10px;
+  border-color: #2a1d14;
+}
+/* Scores below zero in reverse, as in every design: cream on the sleeve's brown ink (the page here is dark wood). */
+:root[data-theme="vinyl"] .score-chip.s0,
+:root[data-theme="vinyl"] .score-chip.s1 {
+  background: #2a1d14;
+  color: #f6ead0;
+}
+:root[data-theme="vinyl"] .skip:focus {
+  background: #f1e7cf;
+}
+:root[data-theme="vinyl"] .key-close,
+:root[data-theme="vinyl"] dialog .close {
+  font-family: var(--font-ui);
+  font-size: 20px;
+  line-height: 1;
+}
+/* Menus, the Key and the About dialog are paper inserts from the sleeve. */
+:root[data-theme="vinyl"] .menu-body,
+:root[data-theme="vinyl"] .key-pop,
+:root[data-theme="vinyl"] .map-note,
+:root[data-theme="vinyl"] dialog {
+  background: var(--vy-stripes) left top / 100% 5px no-repeat, #f1e7cf;
+  color: var(--ink);
+  border: 1px solid #6d5a45;
+  border-radius: 2px;
+  box-shadow: 0 6px 18px rgba(15, 6, 1, 0.5);
+}
+:root[data-theme="vinyl"] .key-pop,
+:root[data-theme="vinyl"] dialog {
+  padding-top: 16px;
+}
+:root[data-theme="vinyl"] dialog::backdrop {
+  background: rgba(30, 15, 5, 0.55);
+}
+:root[data-theme="vinyl"] dialog h2,
+:root[data-theme="vinyl"] .key-head h2 {
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="vinyl"] dialog h2 {
+  font-size: 20px;
+  line-height: 1.3;
+}
+:root[data-theme="vinyl"] .key-head h2 {
+  font-size: 12px;
+}
+:root[data-theme="vinyl"] .chip {
+  font-size: 9.5px;
+}
+/* The time bar is a receiver's tuning dial: a dark glass window with a lit scale and a red pointer. */
+:root[data-theme="vinyl"] .timebar {
+  background: var(--vy-alu);
+  border-top: 0;
+  box-shadow: inset 0 1px 0 #fff, 0 -2px 6px rgba(20, 8, 2, 0.4);
+  padding-block: 8px;
+}
+:root[data-theme="vinyl"] .slider {
+  padding: 4px 10px;
+  border: 1px solid #111;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #0f0d0c, #241e1a);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 0 #fff;
+}
+:root[data-theme="vinyl"] .slider input {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 22px;
+  margin: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 196, 120, 0.85) 0 1px, transparent 1px 48px) left bottom / 100% 9px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 196, 120, 0.45) 0 1px, transparent 1px 8px) left bottom / 100% 5px no-repeat,
+    linear-gradient(rgba(255, 180, 90, 0.18), rgba(255, 180, 90, 0.18)) left 60% / 100% 1px no-repeat;
+  cursor: pointer;
+}
+:root[data-theme="vinyl"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 4px;
+  height: 22px;
+  border: 0;
+  border-radius: 1px;
+  background: #ff3d1f;
+  box-shadow: 0 0 6px rgba(255, 70, 30, 0.9);
+}
+:root[data-theme="vinyl"] .slider input::-moz-range-thumb {
+  width: 4px;
+  height: 22px;
+  border: 0;
+  border-radius: 1px;
+  background: #ff3d1f;
+  box-shadow: 0 0 6px rgba(255, 70, 30, 0.9);
+}
+:root[data-theme="vinyl"] .slider input::-moz-range-track {
+  background: transparent;
+}
+:root[data-theme="vinyl"] .time-label {
+  font-family: var(--font-head);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #232323;
+}
+@media (max-width: 760px) {
+  :root[data-theme="vinyl"] .telegram-center {
+    padding: 10px 14px 6px;
+  }
+  :root[data-theme="vinyl"] .telegram-word {
+    font-size: min(36px, calc((100vw - 2 * var(--gutter) - 36px) / (var(--len, 8) * 1.18)));
+  }
+  :root[data-theme="vinyl"] .mast-title {
+    font-size: 18px;
+  }
+  :root[data-theme="vinyl"] .tool,
+  :root[data-theme="vinyl"] .pick select,
+  :root[data-theme="vinyl"] .menu > summary {
+    font-size: 8.5px;
+    letter-spacing: 0.02em;
+    padding: 7px 6px;
+  }
+  :root[data-theme="vinyl"] .pick select {
+    padding-right: 17px;
+  }
+  :root[data-theme="vinyl"] .pick::after {
+    right: 6px;
+  }
+  :root[data-theme="vinyl"] .time-label {
+    min-width: 0;
+    font-size: 8.5px;
+    letter-spacing: 0.02em;
+  }
+  :root[data-theme="vinyl"] .panel {
+    margin: 0 8px 8px;
+    padding-top: 16px;
+  }
+  :root[data-theme="vinyl"] .x-deck {
+    gap: 5px;
+    padding: 4px 5px 6px;
+  }
+  /* While a story or the word is open the map is a short strip on a phone; the deck would cover most of it. */
+  :root[data-theme="vinyl"] .stage:has(.panel.reading) .x-deck {
+    display: none;
+  }
+  :root[data-theme="vinyl"] .x-deck-key {
+    padding: 6px 7px 5px;
+    font-size: 8.5px;
+  }
+}

@@ -1,0 +1,485 @@
+:root[data-theme="rail"] {
+  color-scheme: dark;
+  --page: #081222;
+  --panel: #0d1a30;
+  --ink: #eef3f9;
+  --ink-2: #cdd7e4;
+  --muted: #a3b4ca;
+  --rule: #2c4266;
+  --accent: #2563d9;
+  --on-accent: #ffffff;
+  --hover: rgba(111, 168, 255, 0.12);
+  --reticle: #ffffff;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --signal: #8cb8ff;
+  --stripe-red: #d8283a;
+  --stripe-blue: #2f6fe0;
+  --steel: linear-gradient(to bottom, #f1f4f7 0%, #d3dae2 46%, #bcc6d1 54%, #cbd3dc 100%);
+  --font-mast: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-head: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Outfit", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Sleeper Car: a modern train's on-board displays. A stainless body with a red and blue stripe, the map as a
+   route display in a steel bezel with a route bar (the time, the line, the next stop), the panel a passenger
+   information screen, the time bar a length of line with a station dot. No railway's name, livery or logo. ---- */
+:root[data-theme="rail"] body {
+  background: var(--page);
+}
+:root[data-theme="rail"] .masthead {
+  --ink: #0b1a33;
+  --ink-2: #22375a;
+  --muted: #34496a;
+  --rule: #7c8ba1;
+  --hover: rgba(11, 26, 51, 0.08);
+  color: var(--ink);
+  border-bottom: 0;
+  padding-bottom: 22px;
+  background:
+    linear-gradient(var(--stripe-red), var(--stripe-red)) left bottom 10px / 100% 4px no-repeat,
+    linear-gradient(var(--stripe-blue), var(--stripe-blue)) left bottom 4px / 100% 4px no-repeat,
+    linear-gradient(#050c18, #050c18) left bottom / 100% 2px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0 1px, rgba(0, 0, 0, 0.02) 1px 3px),
+    var(--steel);
+}
+:root[data-theme="rail"] .mast-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+:root[data-theme="rail"] .mast-tag {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+/* The word on a destination sign set into the steel: white type on a dark screen. */
+:root[data-theme="rail"] .telegram-word,
+:root[data-theme="rail"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+:root[data-theme="rail"] .telegram-big {
+  color: var(--ink);
+}
+:root[data-theme="rail"] .telegram-word {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.06em 0.34em 0.1em;
+  font-size: min(64px, calc(38vw / var(--len, 8) / 1.25));
+  background: linear-gradient(#0a1730, #10244a);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 3px 8px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 -1px 0 rgba(0, 0, 0, 0.25);
+  text-shadow: 0 0 12px rgba(140, 184, 255, 0.5);
+}
+:root[data-theme="rail"] .telegram-word:hover,
+:root[data-theme="rail"] .telegram-word:focus-visible {
+  text-decoration: none;
+  background: linear-gradient(#0e1f3e, #15305e);
+}
+:root[data-theme="rail"] .telegram-kicker,
+:root[data-theme="rail"] .telegram-date {
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+:root[data-theme="rail"] .scale {
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.35);
+}
+:root[data-theme="rail"] .scale .step.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="rail"] .toolbar {
+  background: #0b1629;
+  border-bottom: 1px solid #1c2c48;
+}
+/* Buttons are the car's touch panels: rounded, dark, lit blue when on. */
+:root[data-theme="rail"] .tool,
+:root[data-theme="rail"] .pick select,
+:root[data-theme="rail"] .menu > summary,
+:root[data-theme="rail"] .chip,
+:root[data-theme="rail"] .key-btn {
+  border: 1px solid #304669;
+  border-radius: 7px;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: linear-gradient(#17284a, #0f1d36);
+}
+:root[data-theme="rail"] .pick::after {
+  color: var(--ink);
+}
+:root[data-theme="rail"] .tool:hover,
+:root[data-theme="rail"] .pick select:hover,
+:root[data-theme="rail"] .menu > summary:hover,
+:root[data-theme="rail"] .chip:hover,
+:root[data-theme="rail"] .key-btn:hover {
+  border-color: #5173a6;
+  background: linear-gradient(#1d3259, #132542);
+}
+:root[data-theme="rail"] .tool.quiet {
+  background: transparent;
+  border-color: transparent;
+}
+:root[data-theme="rail"] .tool[aria-pressed="true"],
+:root[data-theme="rail"] .menu[open] > summary,
+:root[data-theme="rail"] .chip[aria-pressed="true"],
+:root[data-theme="rail"] .key-btn[aria-expanded="true"],
+:root[data-theme="rail"] .tool.primary {
+  border-color: #5a8df0;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+:root[data-theme="rail"] .key-close {
+  border: 1px solid #304669;
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+}
+/* The route display in a brushed steel bezel. */
+:root[data-theme="rail"] .map {
+  margin: 10px 4px 10px 10px;
+  background: #060e1c;
+}
+:root[data-theme="rail"] .map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 24px var(--page),
+    inset 0 0 0 5px #c2cbd6,
+    inset 0 0 0 6px #6f7e93,
+    inset 0 0 36px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(118deg, rgba(255, 255, 255, 0.035) 0 34%, transparent 34%);
+}
+/* The route bar: the time, the line with the train's place on it, and the next stop. */
+:root[data-theme="rail"] .x-route {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  height: 48px;
+  z-index: 2;
+  padding: 0 16px 0 10px;
+  border-radius: 9px 9px 0 0;
+  background:
+    linear-gradient(var(--stripe-blue), var(--stripe-blue)) left bottom / 100% 2px no-repeat,
+    rgba(7, 14, 28, 0.94);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  white-space: nowrap;
+}
+:root[data-theme="rail"] .x-rclock {
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: #13233f;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="rail"] .x-line {
+  --at: 50%;
+  position: relative;
+  flex: 1;
+  min-width: 60px;
+  height: 16px;
+  margin: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* The part already travelled is grey, the part ahead is the line's blue. */
+:root[data-theme="rail"] .x-line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4a5a74 0 var(--at), var(--stripe-blue) var(--at) 100%);
+}
+:root[data-theme="rail"] .x-stop {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border: 2.5px solid var(--stripe-blue);
+  border-radius: 50%;
+  background: #ffffff;
+}
+:root[data-theme="rail"] .x-stop.passed {
+  border-color: #4a5a74;
+  background: #16243d;
+}
+/* The train: a red capsule with a pointed nose facing east. */
+:root[data-theme="rail"] .x-train {
+  position: absolute;
+  left: var(--at);
+  top: 50%;
+  z-index: 1;
+  width: 24px;
+  height: 12px;
+  margin: -6px 0 0 -12px;
+  border-radius: 6px 9px 9px 6px / 6px;
+  background: linear-gradient(#ef4050, #c21e2f);
+  box-shadow:
+    0 0 0 2px rgba(7, 14, 28, 0.94),
+    0 0 10px rgba(224, 49, 63, 0.55);
+}
+:root[data-theme="rail"] .x-train::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  width: 7px;
+  height: 3px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.85);
+}
+:root[data-theme="rail"] .x-next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  max-width: 38%;
+  line-height: 1.15;
+}
+:root[data-theme="rail"] .x-next-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--signal);
+}
+:root[data-theme="rail"] .x-next-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 17px;
+  font-weight: 600;
+}
+:root[data-theme="rail"] .key-btn {
+  top: 66px;
+  left: 16px;
+}
+:root[data-theme="rail"] .zoom {
+  right: 18px;
+  bottom: 18px;
+  border: 1px solid #304669;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(15, 29, 54, 0.92);
+}
+:root[data-theme="rail"] .zoom button {
+  color: var(--ink);
+}
+:root[data-theme="rail"] .zoom button + button {
+  border-top-color: #304669;
+}
+/* The panel is a passenger information screen in the same steel, with the line's stripe along its top. */
+:root[data-theme="rail"] .panel {
+  margin: 10px 10px 10px 6px;
+  border: 0;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 5px #c2cbd6,
+    0 0 0 6px #6f7e93,
+    0 8px 20px rgba(0, 0, 0, 0.45);
+  background:
+    linear-gradient(var(--stripe-red), var(--stripe-red)) left top / 100% 3px no-repeat,
+    linear-gradient(var(--stripe-blue), var(--stripe-blue)) left top 3px / 100% 3px no-repeat,
+    linear-gradient(to bottom, #102042, var(--panel) 180px);
+}
+:root[data-theme="rail"] .panel-title,
+:root[data-theme="rail"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  line-height: 1.2;
+}
+:root[data-theme="rail"] .dateline {
+  border-bottom: 1px solid var(--rule);
+}
+:root[data-theme="rail"] .dateline .coords {
+  color: var(--signal);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-style: normal;
+}
+:root[data-theme="rail"] .telegram-note,
+:root[data-theme="rail"] .meta,
+:root[data-theme="rail"] .count,
+:root[data-theme="rail"] .byline {
+  font-style: normal;
+}
+:root[data-theme="rail"] .stories li + li {
+  border-top: 1px solid #1f3050;
+}
+:root[data-theme="rail"] .headline {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.3;
+}
+:root[data-theme="rail"] .meta {
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+:root[data-theme="rail"] .rule-head {
+  color: var(--signal);
+  border-color: var(--rule);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+:root[data-theme="rail"] .related,
+:root[data-theme="rail"] .kicker {
+  color: var(--signal);
+}
+:root[data-theme="rail"] .menu-body,
+:root[data-theme="rail"] .key-pop,
+:root[data-theme="rail"] dialog {
+  border: 1px solid #304669;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+}
+/* A new place slides up into the screen, as the next stop does. */
+:root[data-theme="rail"] .place-name.flip {
+  animation: rail-next 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes rail-next {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="rail"] .place-name.flip {
+    animation: none;
+  }
+}
+/* The time bar: the slider is a length of line with a station dot. */
+:root[data-theme="rail"] .timebar {
+  background: #0b1629;
+  border-top: 1px solid #1c2c48;
+}
+:root[data-theme="rail"] .slider input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 22px;
+}
+:root[data-theme="rail"] .slider input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--stripe-blue);
+}
+:root[data-theme="rail"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border: 4px solid #0b1629;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px var(--stripe-red);
+}
+:root[data-theme="rail"] .slider input::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--stripe-blue);
+}
+:root[data-theme="rail"] .slider input::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 4px solid #0b1629;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px var(--stripe-red);
+}
+@media (max-width: 760px) {
+  :root[data-theme="rail"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="rail"] .brand {
+    justify-content: center;
+  }
+  :root[data-theme="rail"] .masthead {
+    padding-bottom: 20px;
+  }
+  :root[data-theme="rail"] .map {
+    margin: 6px 6px 0;
+  }
+  :root[data-theme="rail"] .telegram-word {
+    font-size: min(48px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.8)));
+  }
+  :root[data-theme="rail"] .map::after {
+    border-radius: 10px;
+    box-shadow:
+      0 0 0 24px var(--page),
+      inset 0 0 0 4px #c2cbd6,
+      inset 0 0 0 5px #6f7e93,
+      inset 0 0 24px rgba(0, 0, 0, 0.45);
+  }
+  :root[data-theme="rail"] .x-route {
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 42px;
+    gap: 8px;
+    padding: 0 10px 0 7px;
+    border-radius: 6px 6px 0 0;
+  }
+  :root[data-theme="rail"] .x-rclock {
+    padding: 2px 6px;
+    font-size: 16px;
+  }
+  :root[data-theme="rail"] .x-line {
+    margin: 0 2px;
+  }
+  :root[data-theme="rail"] .x-stop {
+    width: 9px;
+    height: 9px;
+    border-width: 2px;
+  }
+  :root[data-theme="rail"] .x-next {
+    max-width: 44%;
+  }
+  :root[data-theme="rail"] .x-next-label {
+    font-size: 9px;
+  }
+  :root[data-theme="rail"] .x-next-name {
+    font-size: 14px;
+  }
+  :root[data-theme="rail"] .key-btn {
+    top: 56px;
+    left: 12px;
+  }
+  :root[data-theme="rail"] .zoom {
+    right: 12px;
+    bottom: 12px;
+  }
+  :root[data-theme="rail"] .place-name,
+  :root[data-theme="rail"] .panel-title {
+    font-size: 24px;
+  }
+}

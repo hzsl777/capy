@@ -48,9 +48,10 @@ import {
   wingAt,
 } from "../src/map/shortwave.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
-const css = readFileSync(here("../src/style.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+const css = cssFor("shortwave").replace(/\/\*[\s\S]*?\*\//g, "");
 const dial = readFileSync(here("../src/ui/dial.ts"), "utf8");
 const sound = readFileSync(here("../src/ui/dialsound.ts"), "utf8");
 

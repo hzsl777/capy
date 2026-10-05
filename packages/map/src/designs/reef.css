@@ -1,0 +1,398 @@
+/* ==========================================================================
+   Undersea Town and Block World: two looks after the feel of a cartoon town under the sea and a blocky sandbox
+   game, with none of their characters, names, logos or art (src/map/scenery.ts, src/map/blocks.ts).
+   ========================================================================== */
+
+/* ---- Undersea Town: a bright cartoon sea floor. Flower clouds in the water, a sandy seabed with coral, kelp and
+   sea grass, bubbles rising, the word on a wooden sign, sea-sponge buttons, a starfish and a shell on the panel,
+   an anchor on the Key. Our own drawings; no characters, faces, dwellings or names. ------------------------- */
+:root[data-theme="reef"] {
+  color-scheme: light;
+  --page: #9fe6ee;
+  --panel: #f4fdfd;
+  --ink: #10374f;
+  --ink-2: #1d4a63;
+  --muted: #3d6479;
+  --rule: #1b9fb3;
+  --accent: #c42d5e;
+  --on-accent: #ffffff;
+  --hover: rgba(196, 45, 94, 0.08);
+  --reticle: #10374f;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Spicy Rice", "Chewy", "Comic Sans MS", sans-serif;
+  --font-head: "Spicy Rice", "Nunito", sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", sans-serif;
+  --font-ui: "Nunito", "Trebuchet MS", sans-serif;
+  --reef-sponge-fill: #ffe45c;
+  --reef-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='300'%3E%3Cg transform='translate(56 60)' stroke-linejoin='round'%3E%3Cpath d='M24.4 4.3A15.4 15.4 0 1 1 8.5 23.3A15.4 15.4 0 1 1 -15.9 19.0A15.4 15.4 0 1 1 -24.4 -4.3A15.4 15.4 0 1 1 -8.5 -23.3A15.4 15.4 0 1 1 15.9 -19.0A15.4 15.4 0 1 1 24.4 4.3Z' fill='%238fd0ff' stroke='%232f8fd8' stroke-width='3.6'/%3E%3Cpath d='M10.6 8.9A8.6 8.6 0 1 1 -2.4 13.7A8.6 8.6 0 1 1 -13.1 4.7A8.6 8.6 0 1 1 -10.6 -8.9A8.6 8.6 0 1 1 2.4 -13.7A8.6 8.6 0 1 1 13.1 -4.7A8.6 8.6 0 1 1 10.6 8.9Z' transform='translate(-2.4 -3.2)' fill='%23e4f5ff'/%3E%3C/g%3E%3Cg transform='translate(250 40)' stroke-linejoin='round'%3E%3Cpath d='M15.6 -3.9A11.7 11.7 0 1 1 8.5 13.7A11.7 11.7 0 1 1 -10.4 12.3A11.7 11.7 0 1 1 -14.9 -6.0A11.7 11.7 0 1 1 1.1 -16.1A11.7 11.7 0 1 1 15.6 -3.9Z' fill='%23ffadd0' stroke='%23e0518f' stroke-width='2.3'/%3E%3Cpath d='M8.4 3.4A6.6 6.6 0 1 1 -0.6 9.0A6.6 6.6 0 1 1 -8.8 2.2A6.6 6.6 0 1 1 -4.8 -7.7A6.6 6.6 0 1 1 5.8 -6.9A6.6 6.6 0 1 1 8.4 3.4Z' transform='translate(-1.6 -2.1)' fill='%23fff0f6'/%3E%3C/g%3E%3Cg transform='translate(178 158)' stroke-linejoin='round'%3E%3Cpath d='M24.7 14.3A17.7 17.7 0 1 1 0.0 28.5A17.7 17.7 0 1 1 -24.7 14.3A17.7 17.7 0 1 1 -24.7 -14.3A17.7 17.7 0 1 1 -0.0 -28.5A17.7 17.7 0 1 1 24.7 -14.3A17.7 17.7 0 1 1 24.7 14.3Z' fill='%23cdb3fb' stroke='%238a5fd6' stroke-width='4.1'/%3E%3Cpath d='M8.0 13.8A9.9 9.9 0 1 1 -8.0 13.8A9.9 9.9 0 1 1 -16.0 0.0A9.9 9.9 0 1 1 -8.0 -13.8A9.9 9.9 0 1 1 8.0 -13.8A9.9 9.9 0 1 1 16.0 -0.0A9.9 9.9 0 1 1 8.0 13.8Z' transform='translate(-2.8 -3.7)' fill='%23f5efff'/%3E%3C/g%3E%3Cg transform='translate(320 214)' stroke-linejoin='round'%3E%3Cpath d='M18.6 1.3A13.6 13.6 0 1 1 4.5 18.0A13.6 13.6 0 1 1 -15.8 9.9A13.6 13.6 0 1 1 -14.2 -12.0A13.6 13.6 0 1 1 7.0 -17.2A13.6 13.6 0 1 1 18.6 1.3Z' fill='%2394e6a2' stroke='%232fa85a' stroke-width='2.7'/%3E%3Cpath d='M8.0 6.7A7.6 7.6 0 1 1 -3.9 9.7A7.6 7.6 0 1 1 -10.4 -0.7A7.6 7.6 0 1 1 -2.5 -10.1A7.6 7.6 0 1 1 8.8 -5.5A7.6 7.6 0 1 1 8.0 6.7Z' transform='translate(-1.8 -2.4)' fill='%23eafbe9'/%3E%3C/g%3E%3Cg transform='translate(60 248)' stroke-linejoin='round'%3E%3Cpath d='M15.2 12.8A14.5 14.5 0 1 1 -7.4 18.4A14.5 14.5 0 1 1 -19.8 -1.4A14.5 14.5 0 1 1 -4.8 -19.3A14.5 14.5 0 1 1 16.8 -10.5A14.5 14.5 0 1 1 15.2 12.8Z' fill='%23ffe27a' stroke='%23e0a412' stroke-width='2.9'/%3E%3Cpath d='M2.7 10.8A8.1 8.1 0 1 1 -9.4 5.9A8.1 8.1 0 1 1 -8.5 -7.1A8.1 8.1 0 1 1 4.2 -10.3A8.1 8.1 0 1 1 11.1 0.8A8.1 8.1 0 1 1 2.7 10.8Z' transform='translate(-1.9 -2.6)' fill='%23fffbe2'/%3E%3C/g%3E%3Cg transform='translate(128 120)' stroke-linejoin='round'%3E%3Cpath d='M9.9 0.0A7.2 7.2 0 1 1 3.1 9.4A7.2 7.2 0 1 1 -8.0 5.8A7.2 7.2 0 1 1 -8.0 -5.8A7.2 7.2 0 1 1 3.1 -9.4A7.2 7.2 0 1 1 9.9 -0.0Z' fill='%2394e6a2' stroke='%232fa85a' stroke-width='2.0'/%3E%3Cpath d='M4.5 3.3A4.0 4.0 0 1 1 -1.7 5.3A4.0 4.0 0 1 1 -5.6 0.0A4.0 4.0 0 1 1 -1.7 -5.3A4.0 4.0 0 1 1 4.5 -3.3A4.0 4.0 0 1 1 4.5 3.3Z' transform='translate(-1.0 -1.3)' fill='%23eafbe9'/%3E%3C/g%3E%3Cg transform='translate(300 120)' stroke-linejoin='round'%3E%3Cpath d='M10.9 2.3A6.9 6.9 0 1 1 3.4 10.6A6.9 6.9 0 1 1 -7.5 8.3A6.9 6.9 0 1 1 -10.9 -2.3A6.9 6.9 0 1 1 -3.4 -10.6A6.9 6.9 0 1 1 7.5 -8.3A6.9 6.9 0 1 1 10.9 2.3Z' fill='%238fd0ff' stroke='%232f8fd8' stroke-width='2.0'/%3E%3Cpath d='M4.6 4.2A3.9 3.9 0 1 1 -1.3 6.1A3.9 3.9 0 1 1 -5.9 1.9A3.9 3.9 0 1 1 -4.6 -4.2A3.9 3.9 0 1 1 1.3 -6.1A3.9 3.9 0 1 1 5.9 -1.9A3.9 3.9 0 1 1 4.6 4.2Z' transform='translate(-1.1 -1.4)' fill='%23e4f5ff'/%3E%3C/g%3E%3Cg transform='translate(222 272)' stroke-linejoin='round'%3E%3Cpath d='M10.7 -6.2A9.0 9.0 0 1 1 9.2 8.3A9.0 9.0 0 1 1 -5.0 11.3A9.0 9.0 0 1 1 -12.3 -1.3A9.0 9.0 0 1 1 -2.6 -12.1A9.0 9.0 0 1 1 10.7 -6.2Z' fill='%23ffadd0' stroke='%23e0518f' stroke-width='2.0'/%3E%3Cpath d='M6.9 0.7A5.1 5.1 0 1 1 1.4 6.8A5.1 5.1 0 1 1 -6.0 3.5A5.1 5.1 0 1 1 -5.2 -4.6A5.1 5.1 0 1 1 2.8 -6.3A5.1 5.1 0 1 1 6.9 0.7Z' transform='translate(-1.2 -1.6)' fill='%23fff0f6'/%3E%3C/g%3E%3C/svg%3E");
+  --reef-strip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='110'%3E%3Cg opacity='.42'%3E%3Cg transform='translate(38 30)' stroke-linejoin='round'%3E%3Cpath d='M14.7 2.6A9.2 9.2 0 1 1 5.1 14.0A9.2 9.2 0 1 1 -9.6 11.4A9.2 9.2 0 1 1 -14.7 -2.6A9.2 9.2 0 1 1 -5.1 -14.0A9.2 9.2 0 1 1 9.6 -11.4A9.2 9.2 0 1 1 14.7 2.6Z' fill='%238fd0ff' stroke='%232f8fd8' stroke-width='2.2'/%3E%3Cpath d='M6.4 5.4A5.2 5.2 0 1 1 -1.4 8.2A5.2 5.2 0 1 1 -7.8 2.8A5.2 5.2 0 1 1 -6.4 -5.4A5.2 5.2 0 1 1 1.4 -8.2A5.2 5.2 0 1 1 7.8 -2.8A5.2 5.2 0 1 1 6.4 5.4Z' transform='translate(-1.4 -1.9)' fill='%23e4f5ff'/%3E%3C/g%3E%3Cg transform='translate(140 78)' stroke-linejoin='round'%3E%3Cpath d='M12.0 -3.0A9.0 9.0 0 1 1 6.6 10.5A9.0 9.0 0 1 1 -8.0 9.5A9.0 9.0 0 1 1 -11.5 -4.6A9.0 9.0 0 1 1 0.9 -12.4A9.0 9.0 0 1 1 12.0 -3.0Z' fill='%23ffadd0' stroke='%23e0518f' stroke-width='2.0'/%3E%3Cpath d='M6.4 2.6A5.1 5.1 0 1 1 -0.5 6.9A5.1 5.1 0 1 1 -6.7 1.7A5.1 5.1 0 1 1 -3.7 -5.9A5.1 5.1 0 1 1 4.5 -5.3A5.1 5.1 0 1 1 6.4 2.6Z' transform='translate(-1.2 -1.6)' fill='%23fff0f6'/%3E%3C/g%3E%3Cg transform='translate(232 34)' stroke-linejoin='round'%3E%3Cpath d='M14.0 8.1A10.0 10.0 0 1 1 0.0 16.1A10.0 10.0 0 1 1 -14.0 8.1A10.0 10.0 0 1 1 -14.0 -8.1A10.0 10.0 0 1 1 -0.0 -16.1A10.0 10.0 0 1 1 14.0 -8.1A10.0 10.0 0 1 1 14.0 8.1Z' fill='%23cdb3fb' stroke='%238a5fd6' stroke-width='2.3'/%3E%3Cpath d='M4.5 7.8A5.6 5.6 0 1 1 -4.5 7.8A5.6 5.6 0 1 1 -9.0 0.0A5.6 5.6 0 1 1 -4.5 -7.8A5.6 5.6 0 1 1 4.5 -7.8A5.6 5.6 0 1 1 9.0 -0.0A5.6 5.6 0 1 1 4.5 7.8Z' transform='translate(-1.6 -2.1)' fill='%23f5efff'/%3E%3C/g%3E%3Cg transform='translate(96 92)' stroke-linejoin='round'%3E%3Cpath d='M7.4 0.0A5.4 5.4 0 1 1 2.3 7.1A5.4 5.4 0 1 1 -6.0 4.4A5.4 5.4 0 1 1 -6.0 -4.4A5.4 5.4 0 1 1 2.3 -7.1A5.4 5.4 0 1 1 7.4 -0.0Z' fill='%2394e6a2' stroke='%232fa85a' stroke-width='2.0'/%3E%3Cpath d='M3.4 2.4A3.0 3.0 0 1 1 -1.3 4.0A3.0 3.0 0 1 1 -4.2 0.0A3.0 3.0 0 1 1 -1.3 -4.0A3.0 3.0 0 1 1 3.4 -2.4A3.0 3.0 0 1 1 3.4 2.4Z' transform='translate(-0.7 -1.0)' fill='%23eafbe9'/%3E%3C/g%3E%3Cg transform='translate(286 90)' stroke-linejoin='round'%3E%3Cpath d='M6.6 5.6A6.3 6.3 0 1 1 -3.3 8.0A6.3 6.3 0 1 1 -8.7 -0.6A6.3 6.3 0 1 1 -2.1 -8.4A6.3 6.3 0 1 1 7.4 -4.6A6.3 6.3 0 1 1 6.6 5.6Z' fill='%23ffe27a' stroke='%23e0a412' stroke-width='2.0'/%3E%3Cpath d='M1.2 4.7A3.5 3.5 0 1 1 -4.1 2.6A3.5 3.5 0 1 1 -3.7 -3.1A3.5 3.5 0 1 1 1.8 -4.5A3.5 3.5 0 1 1 4.8 0.3A3.5 3.5 0 1 1 1.2 4.7Z' transform='translate(-0.8 -1.1)' fill='%23fffbe2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --reef-bubbles: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='400'%3E%3Cg fill='rgba(255,255,255,.22)' stroke='rgba(240,253,255,.95)' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='30' cy='380' r='6'/%3E%3Cpath d='M26.7 379.4a3.6 3.6 0 0 1 3.0-3.0' stroke='%23fff'/%3E%3Ccircle cx='40' cy='336' r='4'/%3E%3Cpath d='M37.8 335.6a2.4 2.4 0 0 1 2.0-2.0' stroke='%23fff'/%3E%3Ccircle cx='26' cy='292' r='8'/%3E%3Cpath d='M21.6 291.2a4.8 4.8 0 0 1 4.0-4.0' stroke='%23fff'/%3E%3Ccircle cx='38' cy='240' r='5'/%3E%3Cpath d='M35.3 239.5a3.0 3.0 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='30' cy='196' r='3.5'/%3E%3Cpath d='M28.1 195.7a2.1 2.1 0 0 1 1.8-1.8' stroke='%23fff'/%3E%3Ccircle cx='160' cy='206' r='7'/%3E%3Cpath d='M156.2 205.3a4.2 4.2 0 0 1 3.5-3.5' stroke='%23fff'/%3E%3Ccircle cx='170' cy='160' r='4'/%3E%3Cpath d='M167.8 159.6a2.4 2.4 0 0 1 2.0-2.0' stroke='%23fff'/%3E%3Ccircle cx='156' cy='120' r='9'/%3E%3Cpath d='M151.1 119.1a5.4 5.4 0 0 1 4.5-4.5' stroke='%23fff'/%3E%3Ccircle cx='166' cy='70' r='5'/%3E%3Cpath d='M163.3 69.5a3.0 3.0 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='96' cy='56' r='6'/%3E%3Cpath d='M92.7 55.4a3.6 3.6 0 0 1 3.0-3.0' stroke='%23fff'/%3E%3Ccircle cx='104' cy='20' r='3.5'/%3E%3Cpath d='M102.1 19.6a2.1 2.1 0 0 1 1.8-1.8' stroke='%23fff'/%3E%3Ccircle cx='214' cy='336' r='5'/%3E%3Cpath d='M211.3 335.5a3.0 3.0 0 0 1 2.5-2.5' stroke='%23fff'/%3E%3Ccircle cx='206' cy='290' r='8'/%3E%3Cpath d='M201.6 289.2a4.8 4.8 0 0 1 4.0-4.0' stroke='%23fff'/%3E%3Ccircle cx='220' cy='250' r='4'/%3E%3Cpath d='M217.8 249.6a2.4 2.4 0 0 1 2.0-2.0' stroke='%23fff'/%3E%3C/g%3E%3C/svg%3E");
+  --reef-seabed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='44'%3E%3Cg transform='translate(18 34) scale(1 1)' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 0C-5-7.5 5-13.5 0-19.5S4-25.5 0-30' fill='none' stroke='%23145c2c' stroke-width='5'/%3E%3Cpath d='M0 0C-5-7.5 5-13.5 0-19.5S4-25.5 0-30' fill='none' stroke='%233fb85a' stroke-width='2.6'/%3E%3Cpath d='M-1-9C-8-9.6 -11-12.6 -10-15.600000000000001C-5-14.399999999999999 -2-12 -1-9ZM2-18C9-18.6 12-21.599999999999998 11-24.599999999999998C6-23.400000000000002 3-21 2-18Z' fill='%235ccf6e' stroke='%23145c2c' stroke-width='1.6'/%3E%3C/g%3E%3Cg transform='translate(44 34)' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 0C-1-6-5-10-6-16M2 0C3-8 0-12 3-20M4 0C6-5 9-8 10-13' stroke='%231e7a3c' stroke-width='4'/%3E%3Cpath d='M0 0C-1-6-5-10-6-16M2 0C3-8 0-12 3-20M4 0C6-5 9-8 10-13' stroke='%237ad86a' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(70 34)' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 0V-10M0-5C-5-8-7-12-7-18M0-9C4-12 7-14 7-20M0-10C-1-14 1-17 1-22' stroke='%23a8321c' stroke-width='7'/%3E%3Cpath d='M0 0V-10M0-5C-5-8-7-12-7-18M0-9C4-12 7-14 7-20M0-10C-1-14 1-17 1-22' stroke='%23ff7a59' stroke-width='4'/%3E%3C/g%3E%3Cg transform='translate(104 34)' stroke-linejoin='round'%3E%3Cpath d='M0 0V-4C-11-5-15-14-12-21C-7-26 7-26 12-21C15-14 11-5 0-4' fill='%23c38af0' stroke='%235e2d94' stroke-width='2'/%3E%3Cpath d='M0-4L-8-20M0-4L-3-23M0-4L3-23M0-4L8-20' stroke='%23e9d4ff' stroke-width='1.2' fill='none'/%3E%3C/g%3E%3Cg transform='translate(128 34)' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 0C-1-6-5-10-6-16M2 0C3-8 0-12 3-20M4 0C6-5 9-8 10-13' stroke='%231e7a3c' stroke-width='4'/%3E%3Cpath d='M0 0C-1-6-5-10-6-16M2 0C3-8 0-12 3-20M4 0C6-5 9-8 10-13' stroke='%237ad86a' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(150 34) scale(-1 1)' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 0C-5-6 5-10.8 0-15.600000000000001S4-20.4 0-24' fill='none' stroke='%23145c2c' stroke-width='5'/%3E%3Cpath d='M0 0C-5-6 5-10.8 0-15.600000000000001S4-20.4 0-24' fill='none' stroke='%233fb85a' stroke-width='2.6'/%3E%3Cpath d='M-1-7.199999999999999C-8-7.68 -11-10.08 -10-12.48C-5-11.52 -2-9.600000000000001 -1-7.199999999999999ZM2-14.399999999999999C9-14.879999999999999 12-17.28 11-19.68C6-18.72 3-16.799999999999997 2-14.399999999999999Z' fill='%235ccf6e' stroke='%23145c2c' stroke-width='1.6'/%3E%3C/g%3E%3Cg transform='translate(182 34)' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 0V-10M0-5C-5-8-7-12-7-18M0-9C4-12 7-14 7-20M0-10C-1-14 1-17 1-22' stroke='%23a8741a' stroke-width='7'/%3E%3Cpath d='M0 0V-10M0-5C-5-8-7-12-7-18M0-9C4-12 7-14 7-20M0-10C-1-14 1-17 1-22' stroke='%23ffd23f' stroke-width='4'/%3E%3C/g%3E%3Cg transform='translate(212 34)' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 0C-1-6-5-10-6-16M2 0C3-8 0-12 3-20M4 0C6-5 9-8 10-13' stroke='%231e7a3c' stroke-width='4'/%3E%3Cpath d='M0 0C-1-6-5-10-6-16M2 0C3-8 0-12 3-20M4 0C6-5 9-8 10-13' stroke='%237ad86a' stroke-width='2'/%3E%3C/g%3E%3Cpath d='M0 33C30 28 60 30 90 33S150 28 180 31S220 35 240 33V44H0Z' fill='%23f1d596' stroke='%23b58646' stroke-width='2'/%3E%3C/svg%3E");
+  --reef-sponge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='22'%3E%3Cg fill='%23e6b01c'%3E%3Cellipse cx='5' cy='5' rx='2.6' ry='2.1'/%3E%3Cellipse cx='20' cy='3.5' rx='1.6' ry='1.3'/%3E%3Cellipse cx='27' cy='12' rx='2.8' ry='2.3'/%3E%3Cellipse cx='12' cy='15' rx='1.8' ry='1.5'/%3E%3Cellipse cx='31' cy='20' rx='1.3' ry='1.1'/%3E%3C/g%3E%3C/svg%3E");
+  --reef-starfish: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-26 -26 52 52' width='52' height='52'%3E%3Cg transform='rotate(14)' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M0.0 -22.0Q1.2 -13.6 4.7 -6.5L20.9 -6.8Q13.3 -3.1 7.6 2.5L12.9 17.8Q7.1 11.7 0.0 8.0L-12.9 17.8Q-9.0 10.3 -7.6 2.5L-20.9 -6.8Q-12.6 -5.3 -4.7 -6.5Z' fill='%23ff9a3c' stroke='%2310374f' stroke-width='2.6'/%3E%3Cpath d='M0 0L0.0 -15.0M0 0L14.3 -4.6M0 0L8.8 12.1M0 0L-8.8 12.1M0 0L-14.3 -4.6' stroke='%23ffd29a' stroke-width='2.4' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+  --reef-shell: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-22 -24 44 42' width='44' height='42'%3E%3Cg transform='rotate(-12)' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M-4 10h8l3 4h-14Z' fill='%23f7b6a0' stroke='%2310374f' stroke-width='2.2'/%3E%3Cpath d='M0 10L-18-2C-20-12-12-20 0-20S20-12 18-2Z' fill='%23ffd3c2' stroke='%2310374f' stroke-width='2.4'/%3E%3Cpath d='M0 10L-12-15M0 10L-5-19M0 10L5-19M0 10L12-15M0 10L17-5M0 10L-17-5' stroke='%23e48a72' stroke-width='1.8' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+  --reef-anchor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='%2310374f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='0' cy='-8' r='2.6'/%3E%3Cpath d='M0-5.4V9M-5-2H5M-9 2C-9 7-4 9.5 0 9.5S9 7 9 2M-9 2l-2 2M-9 2l2.4 1.4M9 2l2 2M9 2l-2.4 1.4'/%3E%3C/g%3E%3C/svg%3E");
+  --reef-wheel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 24 24' width='24' height='24'%3E%3Cg stroke='%236b3f1c' stroke-linecap='round' fill='none'%3E%3Cpath d='M3.5 0.0L11.0 0.0M2.5 2.5L7.8 7.8M0.0 3.5L0.0 11.0M-2.5 2.5L-7.8 7.8M-3.5 0.0L-11.0 0.0M-2.5 -2.5L-7.8 -7.8M-0.0 -3.5L-0.0 -11.0M2.5 -2.5L7.8 -7.8' stroke-width='2.6'/%3E%3Ccircle r='7' stroke-width='3' stroke='%236b3f1c'/%3E%3Ccircle r='7' stroke-width='1.4' stroke='%23d79a5a'/%3E%3Ccircle r='2.8' fill='%23d79a5a' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* The water: big flower clouds in every colour all over it, lighter toward the surface. */
+:root[data-theme="reef"] body {
+  background:
+    var(--reef-tile) 0 0 / 360px 300px,
+    linear-gradient(to bottom, #b6f0f4, #7fdce6 55%, #4fc9d9);
+  background-attachment: fixed;
+}
+/* The masthead is the water near the surface, with bubbles rising through it and a sandy wave below. */
+:root[data-theme="reef"] .masthead {
+  position: relative;
+  border-bottom: 0;
+  padding-bottom: 22px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='16'%3E%3Cpath d='M0 8C10 1 20 1 40 8S70 15 80 8V16H0Z' fill='%23f1d596'/%3E%3Cpath d='M0 8C10 1 20 1 40 8S70 15 80 8' fill='none' stroke='%23b58646' stroke-width='2.4'/%3E%3C/svg%3E") repeat-x left bottom / 80px 16px,
+    var(--reef-strip) 0 0 / 300px 110px,
+    linear-gradient(to bottom, #e2fbfb, #b3ecef);
+}
+:root[data-theme="reef"] .masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 14px;
+  pointer-events: none;
+  background: var(--reef-bubbles) 0 0 / 240px 400px;
+  animation: reef-fizz 40s linear infinite;
+}
+@keyframes reef-fizz {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -400px;
+  }
+}
+:root[data-theme="reef"] .masthead > * {
+  position: relative;
+}
+:root[data-theme="reef"] .toolbar {
+  border-bottom: 0;
+  background: #f1d596;
+  box-shadow: inset 0 -3px 0 #d9b872;
+}
+/* The bottom of the page is the seabed: sea grass, kelp and coral growing from the sand, the controls on it. */
+:root[data-theme="reef"] .timebar {
+  border-top: 0;
+  padding-top: 36px;
+  background:
+    var(--reef-seabed) 0 0 / 240px 44px repeat-x,
+    linear-gradient(to bottom, transparent 0 34px, #f1d596 34px);
+  color: var(--ink);
+}
+:root[data-theme="reef"] .time-label {
+  font-weight: 700;
+}
+/* The map is a rounded window onto the water, flower clouds and bubbles behind the world. */
+:root[data-theme="reef"] .map {
+  margin: 10px;
+  border: 3px solid #10374f;
+  border-radius: 28px;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.5);
+  background:
+    var(--reef-tile) 40px 30px / 360px 300px,
+    linear-gradient(to bottom, #9be6ee, #4cc6d6 60%, #2fb4c8);
+}
+:root[data-theme="reef"] .map::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(100% + 400px);
+  pointer-events: none;
+  background: var(--reef-bubbles) 0 0 / 240px 400px;
+  animation: reef-rise 48s linear infinite;
+}
+@keyframes reef-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-400px);
+  }
+}
+/* Chunky, wobbly cartoon lettering: sunny yellow with a thick dark outline, each letter tipped its own way. */
+:root[data-theme="reef"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  font-size: clamp(34px, 4vw, 52px);
+  letter-spacing: 0.02em;
+  color: #ffe14d;
+  -webkit-text-stroke: 6px #10374f;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #10374f;
+}
+:root[data-theme="reef"] .lt {
+  display: inline-block;
+  rotate: -6deg;
+  animation: reef-bob 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.41s);
+}
+:root[data-theme="reef"] .lt:nth-child(2n) {
+  rotate: 5deg;
+  translate: 0 -3px;
+}
+:root[data-theme="reef"] .lt:nth-child(3n) {
+  rotate: -3deg;
+  translate: 0 3px;
+}
+:root[data-theme="reef"] .lt:nth-child(5n) {
+  rotate: 8deg;
+}
+@keyframes reef-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="reef"] .lt,
+  :root[data-theme="reef"] .map::before,
+  :root[data-theme="reef"] .masthead::before {
+    animation: none;
+  }
+}
+:root[data-theme="reef"] .mast-tag {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 800;
+}
+/* The word is painted on a wooden sign: planks with grain, a dark frame and a nail at each end. The sign adds no
+   words, so the word reads the same as in every design. */
+:root[data-theme="reef"] .telegram-word,
+:root[data-theme="reef"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffe14d;
+  -webkit-text-stroke: 6px #10374f;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #10374f;
+}
+:root[data-theme="reef"] .telegram-big {
+  color: #ff5d93;
+}
+:root[data-theme="reef"] .telegram-word {
+  position: relative;
+  white-space: nowrap;
+  margin: 4px 0 2px;
+  padding: 0.1em 0.42em 0.16em;
+  border: 4px solid #5a3214;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 12px 50%, #e8d7b8 0 3px, #5a3214 3.5px 4.5px, transparent 5px),
+    radial-gradient(circle at calc(100% - 12px) 50%, #e8d7b8 0 3px, #5a3214 3.5px 4.5px, transparent 5px),
+    repeating-linear-gradient(to bottom, transparent 0 calc(33.3% - 2px), rgba(70, 36, 10, 0.55) calc(33.3% - 2px) 33.3%),
+    repeating-linear-gradient(100deg, rgba(255, 228, 180, 0.16) 0 3px, transparent 3px 19px, rgba(90, 50, 20, 0.14) 19px 21px, transparent 21px 37px),
+    linear-gradient(to bottom, #c98a4b, #a8693a 55%, #8f5630);
+  box-shadow: inset 0 3px 0 rgba(255, 220, 170, 0.35), inset 0 -3px 0 rgba(60, 30, 8, 0.35), 0 4px 0 rgba(16, 55, 79, 0.45);
+}
+:root[data-theme="reef"] .telegram-word:hover,
+:root[data-theme="reef"] .telegram-word:focus-visible {
+  color: #ffffff;
+  text-decoration: none;
+  border-color: #c42d5e;
+}
+:root[data-theme="reef"] .telegram-kicker,
+:root[data-theme="reef"] .telegram-date {
+  color: var(--ink);
+  font-weight: 800;
+}
+/* A soft halo of water round the small type in the masthead, so the flowers behind it never get in the way. */
+:root[data-theme="reef"] .masthead .telegram-kicker,
+:root[data-theme="reef"] .masthead .telegram-date,
+:root[data-theme="reef"] .masthead .telegram-note,
+:root[data-theme="reef"] .mast-tag {
+  text-shadow: 0 0 2px #e2fbfb, 0 0 4px #e2fbfb, 0 0 8px #e2fbfb;
+}
+/* Buttons are bits of yellow sea sponge, full of little holes, with a dark cartoon outline. */
+:root[data-theme="reef"] .tool,
+:root[data-theme="reef"] .pick select,
+:root[data-theme="reef"] .menu > summary,
+:root[data-theme="reef"] .chip,
+:root[data-theme="reef"] .key-btn,
+:root[data-theme="reef"] .key-close {
+  border: 2.5px solid #10374f;
+  border-radius: 14px;
+  background:
+    var(--reef-sponge) 3px 2px / 34px 22px,
+    radial-gradient(ellipse at 35% 25%, #fff8c8, var(--reef-sponge-fill) 60%, #f7c928);
+  color: #10374f;
+  font-weight: 800;
+  box-shadow: 0 3px 0 #10374f;
+}
+:root[data-theme="reef"] .pick::after {
+  color: #10374f;
+}
+:root[data-theme="reef"] .tool.quiet {
+  border-color: #10374f;
+}
+:root[data-theme="reef"] .tool[aria-pressed="true"],
+:root[data-theme="reef"] .menu[open] > summary,
+:root[data-theme="reef"] .chip[aria-pressed="true"],
+:root[data-theme="reef"] .key-btn[aria-expanded="true"],
+:root[data-theme="reef"] .scale .step.on {
+  background: radial-gradient(ellipse at 35% 25%, #ff8fb4, #d6386c 60%, #b8245a);
+  color: #ffffff;
+  border-color: #10374f;
+}
+/* The Key carries a little anchor; its panel a ship's wheel by the title. */
+:root[data-theme="reef"] .key-btn {
+  padding-left: 28px;
+  background:
+    var(--reef-anchor) 6px 50% / 18px 18px no-repeat,
+    var(--reef-sponge) 3px 2px / 34px 22px,
+    radial-gradient(ellipse at 35% 25%, #fff8c8, var(--reef-sponge-fill) 60%, #f7c928);
+}
+:root[data-theme="reef"] .key-btn[aria-expanded="true"] {
+  background:
+    var(--reef-anchor) 6px 50% / 18px 18px no-repeat,
+    radial-gradient(ellipse at 35% 25%, #ffd0e0, #ff9cbd 60%, #f27aa4);
+  color: #10374f;
+}
+:root[data-theme="reef"] .key-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--accent);
+}
+:root[data-theme="reef"] .key-head h2::before {
+  content: "";
+  flex: none;
+  width: 26px;
+  height: 26px;
+  background: var(--reef-wheel) center / contain no-repeat;
+}
+:root[data-theme="reef"] .zoom {
+  border: 2.5px solid #10374f;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    var(--reef-sponge) 3px 2px / 34px 22px,
+    radial-gradient(ellipse at 35% 25%, #fff8c8, var(--reef-sponge-fill) 60%, #f7c928);
+  box-shadow: 0 3px 0 #10374f;
+}
+:root[data-theme="reef"] .zoom button {
+  color: #10374f;
+  font-weight: 800;
+}
+:root[data-theme="reef"] .zoom button + button {
+  border-top: 2.5px solid #10374f;
+}
+/* The day's scale is a row of bubbles in one pill. */
+:root[data-theme="reef"] .scale {
+  border: 2px solid #10374f;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f4fdfd;
+}
+/* Panels are big soft bubbles: round corners, a dark outline and a glossy rim. */
+:root[data-theme="reef"] .panel,
+:root[data-theme="reef"] .menu-body,
+:root[data-theme="reef"] .key-pop,
+:root[data-theme="reef"] dialog {
+  background: radial-gradient(ellipse 120% 40% at 30% 0%, #ffffff, var(--panel) 60%), var(--panel);
+  border: 3px solid #10374f;
+  border-radius: 26px;
+  box-shadow: inset 0 0 0 4px #c9f3f5, 0 4px 0 rgba(16, 55, 79, 0.3);
+  color: var(--ink);
+}
+:root[data-theme="reef"] .panel {
+  margin: 10px;
+}
+/* A starfish and a scallop shell rest on the panel's lower corners, in the margin round it. */
+:root[data-theme="reef"] .stage {
+  position: relative;
+}
+:root[data-theme="reef"] .stage::before,
+:root[data-theme="reef"] .stage::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  background: center / contain no-repeat;
+}
+:root[data-theme="reef"] .stage::after {
+  right: 0;
+  bottom: -2px;
+  width: 44px;
+  height: 44px;
+  background-image: var(--reef-starfish);
+}
+:root[data-theme="reef"] .stage::before {
+  right: calc(var(--panel-w) - 30px);
+  bottom: -2px;
+  width: 36px;
+  height: 34px;
+  background-image: var(--reef-shell);
+}
+:root[data-theme="reef"] .stage:has(.panel.framed)::before {
+  right: calc(min(62vw, 920px) - 30px);
+}
+:root[data-theme="reef"] .panel-title,
+:root[data-theme="reef"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 30px;
+  color: var(--accent);
+}
+:root[data-theme="reef"] .dateline {
+  border-bottom: 3px dotted var(--rule);
+}
+:root[data-theme="reef"] .rule-head {
+  border: 2px solid #10374f;
+  border-radius: 999px;
+  background: #ffe45c;
+  color: #10374f;
+}
+:root[data-theme="reef"] .headline {
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+:root[data-theme="reef"] .lead img {
+  filter: none;
+  border-radius: 18px;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="reef"] .map {
+    margin: 6px;
+    border-radius: 22px;
+  }
+  :root[data-theme="reef"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="reef"] .telegram-word {
+    font-size: min(54px, calc((100vw - 2 * var(--gutter) - 12px) / (var(--len, 8) * 0.64 + 0.9)));
+  }
+  :root[data-theme="reef"] .timebar {
+    padding-top: 22px;
+    background-size: 160px 29px, auto;
+    background-image: var(--reef-seabed), linear-gradient(to bottom, transparent 0 22px, #f1d596 22px);
+  }
+  :root[data-theme="reef"] .stage::before {
+    display: none;
+  }
+  :root[data-theme="reef"] .stage::after {
+    width: 34px;
+    height: 34px;
+  }
+  :root[data-theme="reef"] .tool,
+  :root[data-theme="reef"] .menu > summary {
+    padding-inline: 8px;
+  }
+}

@@ -1,0 +1,392 @@
+:root[data-theme="sheet"] {
+  color-scheme: light;
+  --page: #f3f4f5;
+  --panel: #ffffff;
+  --ink: #202124;
+  --ink-2: #3c4043;
+  --muted: #5f6368;
+  --rule: #c6c9cc;
+  --accent: #2d8653;
+  --on-accent: #ffffff;
+  --hover: rgba(45, 134, 83, 0.08);
+  --reticle: #2d8653;
+  --grain-opacity: 0;
+  --grain-blend: normal;
+  --font-mast: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-head: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-ui: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+
+/* ---- Spreadsheet: a sheet of cells, a formula bar, sheet tabs, a selected cell for the reticle ---------- */
+:root[data-theme="sheet"] body {
+  background: var(--page);
+}
+:root[data-theme="sheet"] .masthead {
+  background: #ffffff;
+  border-top: 4px solid #2d8653;
+  border-bottom: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .mast-title {
+  font-weight: 700;
+  color: #2d8653;
+  letter-spacing: -0.01em;
+}
+:root[data-theme="sheet"] .mast-tag {
+  font-style: normal;
+  color: var(--muted);
+}
+/* The word sits in a selected cell, with the small square handle at its corner. */
+:root[data-theme="sheet"] .telegram-word,
+:root[data-theme="sheet"] .telegram-big {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #202124;
+}
+:root[data-theme="sheet"] .telegram-word {
+  position: relative;
+  border: 2px solid #2d8653;
+  background: #ffffff;
+  padding: 2px 12px 0;
+  box-shadow: 0 0 0 1px #ffffff, 0 0 0 4px rgba(45, 134, 83, 0.12);
+}
+:root[data-theme="sheet"] .telegram-word::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 7px;
+  height: 7px;
+  background: #2d8653;
+  border: 1px solid #ffffff;
+}
+:root[data-theme="sheet"] .telegram-word:hover,
+:root[data-theme="sheet"] .telegram-word:focus-visible {
+  background: #e6f4ea;
+  text-decoration: none;
+}
+:root[data-theme="sheet"] .telegram-kicker,
+:root[data-theme="sheet"] .telegram-date {
+  color: #2d8653;
+  font-weight: 600;
+}
+:root[data-theme="sheet"] .telegram-note,
+:root[data-theme="sheet"] .meta,
+:root[data-theme="sheet"] .count,
+:root[data-theme="sheet"] .dateline .coords,
+:root[data-theme="sheet"] .byline {
+  font-style: normal;
+}
+/* The scale is a row of cells; the day's cell is selected. */
+:root[data-theme="sheet"] .scale {
+  border-color: #c6c9cc;
+  background: #ffffff;
+}
+:root[data-theme="sheet"] .scale .step + .step {
+  border-left-color: #e1e3e6;
+}
+:root[data-theme="sheet"] .scale .step.on {
+  background: #e6f4ea;
+  color: #0d5c35;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px #2d8653;
+}
+/* The toolbar is a ribbon: flat buttons that show a frame on hover. */
+:root[data-theme="sheet"] .toolbar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .tool,
+:root[data-theme="sheet"] .pick select,
+:root[data-theme="sheet"] .menu > summary,
+:root[data-theme="sheet"] .chip,
+:root[data-theme="sheet"] .key-btn,
+:root[data-theme="sheet"] .key-close {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #202124;
+}
+:root[data-theme="sheet"] .pick select,
+:root[data-theme="sheet"] .menu > summary {
+  border-color: #dadce0;
+  background: #ffffff;
+}
+:root[data-theme="sheet"] .tool:hover,
+:root[data-theme="sheet"] .pick select:hover,
+:root[data-theme="sheet"] .menu > summary:hover,
+:root[data-theme="sheet"] .chip:hover,
+:root[data-theme="sheet"] .key-btn:hover {
+  background: #e8eaed;
+  border-color: #c6c9cc;
+}
+:root[data-theme="sheet"] .tool[aria-pressed="true"],
+:root[data-theme="sheet"] .menu[open] > summary,
+:root[data-theme="sheet"] .chip[aria-pressed="true"],
+:root[data-theme="sheet"] .key-btn[aria-expanded="true"] {
+  background: #e6f4ea;
+  color: #0d5c35;
+  border-color: #2d8653;
+}
+:root[data-theme="sheet"] .tool.primary {
+  background: #2d8653;
+  color: #ffffff;
+}
+:root[data-theme="sheet"] .key-btn {
+  top: 54px;
+  left: 42px;
+  background: #ffffff;
+  border-color: #c6c9cc;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.25);
+}
+:root[data-theme="sheet"] .zoom {
+  border-color: #c6c9cc;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.25);
+}
+:root[data-theme="sheet"] .map {
+  background: #ffffff;
+}
+/* The formula bar: the selected cell's name, fx, and a formula made from the tuned place's name. */
+:root[data-theme="sheet"] .x-formula {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  z-index: 4;
+  background: #ffffff;
+  border-bottom: 1px solid #c6c9cc;
+  font: 14px/1 var(--font-ui);
+  color: #202124;
+}
+:root[data-theme="sheet"] .x-namebox {
+  flex: none;
+  width: 64px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid #dadce0;
+  font-size: 13px;
+}
+:root[data-theme="sheet"] .x-fx {
+  flex: none;
+  padding: 0 10px;
+  color: #80868b;
+  font: italic 600 14px/1 Georgia, serif;
+  border-right: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .x-formula-text {
+  min-width: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Column letters and row numbers, lined up with the canvas's cells by src/ui/extras.ts. */
+:root[data-theme="sheet"] .x-corner {
+  display: block;
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: 34px;
+  height: 18px;
+  z-index: 3;
+  background: linear-gradient(135deg, transparent 0 62%, #babdc1 62% 100%) right 3px bottom 3px / 8px 8px no-repeat, #f1f3f4;
+  border-right: 1px solid #c6c9cc;
+  border-bottom: 1px solid #c6c9cc;
+}
+:root[data-theme="sheet"] .x-cols,
+:root[data-theme="sheet"] .x-rows {
+  display: block;
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  background: #f1f3f4;
+  font: 11px/1 var(--font-ui);
+  color: #5f6368;
+  pointer-events: none;
+}
+:root[data-theme="sheet"] .x-cols {
+  top: 28px;
+  left: 34px;
+  right: 0;
+  height: 18px;
+  border-bottom: 1px solid #c6c9cc;
+}
+:root[data-theme="sheet"] .x-rows {
+  top: 46px;
+  left: 0;
+  bottom: 0;
+  width: 34px;
+  border-right: 1px solid #c6c9cc;
+}
+:root[data-theme="sheet"] .x-cols span,
+:root[data-theme="sheet"] .x-rows span {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+}
+:root[data-theme="sheet"] .x-cols span {
+  top: 0;
+  height: 18px;
+  border-right: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .x-rows span {
+  left: 0;
+  right: 0;
+  font-size: 10px;
+  border-bottom: 1px solid #dadce0;
+}
+:root[data-theme="sheet"] .x-cols span.on,
+:root[data-theme="sheet"] .x-rows span.on {
+  background: #d3eadb;
+  color: #0d5c35;
+  font-weight: 700;
+}
+:root[data-theme="sheet"] .x-cols span.on {
+  box-shadow: inset 0 -2px 0 #2d8653;
+}
+:root[data-theme="sheet"] .x-rows span.on {
+  box-shadow: inset -2px 0 0 #2d8653;
+}
+/* The reticle is the selected cell: a green outline one cell in size, with the fill handle at its corner. */
+:root[data-theme="sheet"] .crosshair {
+  /* One cell in size: src/ui/extras.ts sets the cell size the canvas uses. */
+  width: calc(var(--cell-w, 20px) + 3px);
+  height: calc(var(--cell-h, 13px) + 3px);
+  margin: calc(var(--cell-h, 13px) / -2 - 1.5px) 0 0 calc(var(--cell-w, 20px) / -2 - 1.5px);
+  background: none;
+  border: 2px solid #2d8653;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+  filter: none;
+}
+:root[data-theme="sheet"] .crosshair::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 6px;
+  height: 6px;
+  background: #2d8653;
+  border: 1px solid #ffffff;
+}
+/* The panel is a selected range: a tinted block of rows in a green outline, with its fill handle. */
+:root[data-theme="sheet"] .panel {
+  margin: 8px;
+  border: 2px solid #2d8653;
+  background:
+    linear-gradient(#2d8653, #2d8653) right 0 bottom 0 / 8px 8px no-repeat,
+    linear-gradient(rgba(45, 134, 83, 0.035), rgba(45, 134, 83, 0.035)),
+    #ffffff;
+}
+:root[data-theme="sheet"] .panel-title,
+:root[data-theme="sheet"] .place-name {
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+:root[data-theme="sheet"] .dateline {
+  border-bottom: 2px solid #2d8653;
+}
+:root[data-theme="sheet"] .stories li + li {
+  border-top: 1px solid #e1e3e6;
+}
+:root[data-theme="sheet"] .headline {
+  font-weight: 600;
+}
+:root[data-theme="sheet"] .rule-head {
+  text-align: left;
+  background: #f1f3f4;
+  border: 1px solid #c6c9cc;
+  padding: 5px 8px;
+  color: #3c4043;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="sheet"] .menu-body,
+:root[data-theme="sheet"] .key-pop,
+:root[data-theme="sheet"] dialog {
+  border: 1px solid #c6c9cc;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(60, 64, 67, 0.25);
+}
+/* The time bar is the row of sheet tabs: the time shown is the open tab, the scrollbar beside them. */
+:root[data-theme="sheet"] .timebar {
+  background: #f1f3f4;
+  border-top: 1px solid #c6c9cc;
+  padding-top: 0;
+  padding-bottom: 0;
+  gap: 2px;
+  align-items: stretch;
+}
+:root[data-theme="sheet"] .time-label {
+  order: -1;
+  display: grid;
+  place-items: center;
+  padding: 7px 16px 6px;
+  background: #ffffff;
+  color: #0d5c35;
+  font-weight: 700;
+  border: 1px solid #c6c9cc;
+  border-top: 0;
+  border-bottom: 3px solid #2d8653;
+  border-radius: 0 0 4px 4px;
+}
+:root[data-theme="sheet"] .timebar .tool {
+  border: 1px solid #c6c9cc;
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+  background: #e8eaed;
+  padding: 7px 14px;
+}
+:root[data-theme="sheet"] .slider {
+  align-items: center;
+  margin-left: 10px;
+}
+:root[data-theme="sheet"] .slider input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 16px;
+}
+:root[data-theme="sheet"] .slider input::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #e8eaed;
+  border: 1px solid #d5d7da;
+}
+:root[data-theme="sheet"] .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 48px;
+  height: 8px;
+  border-radius: 4px;
+  background: #a9adb2;
+}
+:root[data-theme="sheet"] .slider input::-moz-range-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #e8eaed;
+  border: 1px solid #d5d7da;
+}
+:root[data-theme="sheet"] .slider input::-moz-range-thumb {
+  width: 48px;
+  height: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: #a9adb2;
+}
+
+/* ---- Phones: the four designs keep the toolbar one row, and the word fits ------------------------------ */
+@media (max-width: 760px) {
+  :root[data-theme="sheet"] .panel {
+    margin: 6px;
+  }
+  :root[data-theme="sheet"] .time-label {
+    padding-inline: 10px;
+  }
+}

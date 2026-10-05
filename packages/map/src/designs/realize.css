@@ -1,0 +1,107 @@
+:root[data-theme="realize"] {
+  color-scheme: dark;
+  --page: #0b090a;
+  --panel: #120e0f;
+  --ink: #ece3d0;
+  --ink-2: #d8ccb2;
+  --muted: #a3978a;
+  --rule: #3a2626;
+  --accent: #d2263b;
+  --on-accent: #ffffff;
+  --hover: rgba(210, 38, 59, 0.16);
+  --reticle: #ece3d0;
+  --grain-opacity: 0.25;
+  --grain-blend: screen;
+  --font-mast: "Anton", "Impact", sans-serif;
+  --font-head: "Anton", "Impact", sans-serif;
+  --font-body: "Barlow", "Arial", sans-serif;
+  --font-ui: "Anton", "Impact", sans-serif;
+}
+
+/* ---- Realize: black ground, stamped white poster type over red marker, striped arcs ---- */
+:root[data-theme="realize"] body {
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 55%, rgba(90, 14, 18, 0.35), transparent 70%),
+    var(--page);
+}
+/* The striped arcs across the top of the covers: rust, night blue, the face's blue and oxblood bands. */
+:root[data-theme="realize"] .masthead {
+  border-bottom: 2px solid #2a1a1a;
+  background:
+    repeating-radial-gradient(ellipse 140% 120% at 50% 190%, #b8481c 0 5px, #15122e 5px 10px, #6e84d8 10px 13px, #6e1a14 13px 18px, #0b090a 18px 23px) top / 100% 26px no-repeat,
+    var(--page);
+  padding-top: 30px;
+}
+/* White poster capitals, worn at the edges: a noise mask knocks small holes out of the letters. */
+:root[data-theme="realize"] .mast-title,
+:root[data-theme="realize"] .panel h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: #f4efe4;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -7 5.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -7 5.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
+}
+:root[data-theme="realize"] .mast-title {
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1;
+}
+:root[data-theme="realize"] .mast-tag,
+:root[data-theme="realize"] .telegram-kicker,
+:root[data-theme="realize"] .telegram-date {
+  font-family: var(--font-ui);
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+}
+/* The word in red marker capitals with a dark offset shadow. */
+:root[data-theme="realize"] .telegram-word,
+:root[data-theme="realize"] .telegram-big {
+  font-family: "Permanent Marker", "Comic Sans MS", cursive;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #c8102e;
+  text-shadow: 3px 4px 0 #1c0a0b, 5px 7px 0 rgba(0, 0, 0, 0.6);
+  border-bottom: 0;
+}
+:root[data-theme="realize"] .panel,
+:root[data-theme="realize"] .menu-body,
+:root[data-theme="realize"] .key-pop {
+  border: 1px solid #3a2626;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(110, 26, 20, 0.28), transparent 70%),
+    var(--panel);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
+}
+:root[data-theme="realize"] .tool,
+:root[data-theme="realize"] .pick select,
+:root[data-theme="realize"] .menu > summary,
+:root[data-theme="realize"] .chip,
+:root[data-theme="realize"] .zoom button,
+:root[data-theme="realize"] .key-btn,
+:root[data-theme="realize"] .key-close {
+  border: 1px solid #d8ccb2;
+  border-radius: 0;
+  background: #0b090a;
+  color: #ece3d0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="realize"] .key-btn[aria-expanded="true"],
+:root[data-theme="realize"] .menu[open] > summary,
+:root[data-theme="realize"] .tool[aria-pressed="true"] {
+  background: #c8102e;
+  border-color: #c8102e;
+  color: #ffffff;
+}
+/* Permanent Marker capitals run wide, so the word gets less room per letter. */
+:root[data-theme="realize"] .telegram-word {
+  font-size: min(64px, calc(36vw / var(--len, 8) / 1.2));
+}
+@media (max-width: 760px) {
+  :root[data-theme="realize"] .telegram-word {
+    font-size: min(44px, calc((100vw - 2 * var(--gutter) - 12px) / (var(--len, 8) * 1.15)));
+  }
+}

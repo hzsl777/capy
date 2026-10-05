@@ -16,6 +16,7 @@ import { coilOf, GAP, graticuleStep, KEY_BOX, pathPoints, placeDock, REACH, SEA,
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
 import { HAUL_MS } from "../src/ui/lobster.ts";
 import { samplePlaces } from "./sample.ts";
+import { cssFor } from "./css.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const RAD = Math.PI / 180;
@@ -229,7 +230,7 @@ describe("Lobster", () => {
   it("hauls the panel for under a second, well inside the flash limit's third-of-a-second rule for light", () => {
     // Only the panel's position moves; no colour or brightness changes, so the flash limit is not in play.
     expect(HAUL_MS).toBeLessThan(1000);
-    const css = readFileSync(here("../src/style.css"), "utf8");
+    const css = cssFor("lobster");
     const block = css.slice(css.indexOf("@keyframes lb-haul"), css.indexOf("@keyframes lb-haul") + 400);
     expect(block).toMatch(/transform/);
     expect(block).not.toMatch(/opacity|filter|background|color/);

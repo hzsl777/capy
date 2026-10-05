@@ -3,8 +3,6 @@
 // one step at a time, slowly, so the row's light holds steady and no step lights more than three times a second, and
 // the chasers are a few pixels tall and step at the same slow pace. The stage's picture is the canvas's and never lies
 // over the globe, and its readouts print the reticle's position as they should.
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   BAND_DEG,
@@ -29,10 +27,10 @@ import {
   zoomLamps,
 } from "../src/map/machine.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
-const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 const sum = (a: number[]) => a.reduce((s, v) => s + v, 0);
-const css = readFileSync(here("../src/style.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+const css = cssFor("machine").replace(/\/\*[\s\S]*?\*\//g, "");
 
 describe("Machine Music", () => {
   it("is in the Design menu, in one group and not featured (decision 134)", () => {

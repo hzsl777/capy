@@ -1,0 +1,229 @@
+:root[data-theme="pool"] .telegram .importance {
+  color: #ffe6f0;
+}
+
+/* ---- Poolside: dusk purple into pool teal, mid-century shapes ------------------------------------ */
+:root[data-theme="pool"] {
+  color-scheme: light;
+  --page: #1d0f33;
+  --panel: #fff4e6;
+  --ink: #2a0f40;
+  --ink-2: #47206a;
+  --muted: #6a4577;
+  --rule: #d9528a;
+  --accent: #b8336d;
+  --on-accent: #ffffff;
+  --hover: rgba(217, 82, 138, 0.1);
+  --reticle: #2a0f40;
+  --grain-opacity: 0.12;
+  --grain-blend: overlay;
+  --pool-teal: #1aa6b4;
+  --pool-gold: #ffc94d;
+  --pool-cream: #fff4e6;
+  --starburst: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'%3E%3Cg stroke='%23ffc94d' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M0-9V9M-9 0H9M-6.4-6.4 6.4 6.4M-6.4 6.4 6.4-6.4'/%3E%3Cpath d='M-3.4-8.3 3.4 8.3M-8.3-3.4 8.3 3.4M-8.3 3.4 8.3-3.4M-3.4 8.3 3.4-8.3' stroke-width='.6'/%3E%3C/g%3E%3Ccircle r='1.6' fill='%23ffc94d'/%3E%3C/svg%3E");
+  --boomerang: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M3 22C14 4 30 2 57 8 36 10 22 16 14 28 10 30 5 27 3 22Z' fill='%231aa6b4'/%3E%3C/svg%3E");
+  --font-mast: "Shrikhand", "Georgia", serif;
+  --font-head: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-body: "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-ui: "Jost", "Futura", "Century Gothic", sans-serif;
+}
+:root[data-theme="pool"] body {
+  background: linear-gradient(to bottom, #1d0f33, #22184a 60%, #0f4f63);
+}
+/* The masthead is a dusk sky over the hills: purple into pink, with a starburst and a boomerang. */
+:root[data-theme="pool"] .masthead {
+  border-bottom: 0;
+  color: var(--pool-cream);
+  background:
+    var(--boomerang) right 22% top 10px / 58px 29px no-repeat,
+    var(--starburst) left 6px top 6px / 26px 26px no-repeat,
+    linear-gradient(to bottom, #231040 0%, #4a1f6c 55%, #8e3a82 100%);
+  box-shadow: inset 0 -4px 0 var(--pool-teal), inset 0 -6px 0 var(--pool-cream);
+  padding-bottom: 14px;
+}
+:root[data-theme="pool"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  color: var(--pool-cream);
+  text-shadow: 3px 3px 0 #d9528a;
+  padding-left: 22px;
+}
+:root[data-theme="pool"] .mast-tag,
+:root[data-theme="pool"] .telegram-date,
+:root[data-theme="pool"] .telegram-kicker,
+:root[data-theme="pool"] .telegram-note {
+  color: #ffe6f0;
+  font-style: normal;
+}
+:root[data-theme="pool"] .mast-tag {
+  padding-left: 22px;
+  letter-spacing: 0.08em;
+}
+:root[data-theme="pool"] .telegram-date {
+  letter-spacing: 0.24em;
+}
+:root[data-theme="pool"] .masthead .note-link {
+  color: var(--pool-gold);
+}
+/* The word like a motel sign at dusk: gold with a pink shadow. */
+:root[data-theme="pool"] .telegram-word,
+:root[data-theme="pool"] .telegram-big {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--pool-gold);
+  border-bottom: 0;
+  text-shadow: 3px 3px 0 #d9528a, 5px 5px 0 rgba(26, 166, 180, 0.8);
+}
+:root[data-theme="pool"] .telegram-big {
+  color: #b8336d;
+  text-shadow: 3px 3px 0 var(--pool-gold);
+}
+:root[data-theme="pool"] .telegram-word:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="pool"] .masthead .scale {
+  border-color: rgba(255, 230, 240, 0.6);
+  color: #ffe6f0;
+}
+:root[data-theme="pool"] .masthead .scale .step {
+  color: #ffe6f0;
+}
+:root[data-theme="pool"] .masthead .scale .step + .step {
+  border-left-color: rgba(255, 230, 240, 0.5);
+}
+:root[data-theme="pool"] .masthead .scale .step.on {
+  background: var(--pool-gold);
+  color: #2a0f40;
+}
+/* The toolbar and timebar are the pool's edge: teal water under a cream coping. */
+:root[data-theme="pool"] .toolbar,
+:root[data-theme="pool"] .timebar {
+  background: linear-gradient(to bottom, #127d8b, #0e6a78);
+  border: 0;
+  color: var(--pool-cream);
+}
+:root[data-theme="pool"] .timebar {
+  box-shadow: inset 0 3px 0 var(--pool-cream);
+}
+/* Buttons with a boomerang's uneven curves, cream on teal with a pink offset shadow. */
+:root[data-theme="pool"] .tool,
+:root[data-theme="pool"] .pick select,
+:root[data-theme="pool"] .menu > summary,
+:root[data-theme="pool"] .chip,
+:root[data-theme="pool"] .key-btn,
+:root[data-theme="pool"] .key-close {
+  background: var(--pool-cream);
+  color: #2a0f40;
+  border: 2px solid #2a0f40;
+  border-radius: 16px 4px 16px 4px;
+  box-shadow: 3px 3px 0 #d9528a;
+  font-weight: 600;
+}
+:root[data-theme="pool"] .pick::after {
+  color: #2a0f40;
+}
+:root[data-theme="pool"] .tool:hover,
+:root[data-theme="pool"] .pick select:hover,
+:root[data-theme="pool"] .menu > summary:hover,
+:root[data-theme="pool"] .chip:hover,
+:root[data-theme="pool"] .key-btn:hover {
+  background: #ffe7b3;
+}
+:root[data-theme="pool"] .menu[open] > summary,
+:root[data-theme="pool"] .tool[aria-pressed="true"],
+:root[data-theme="pool"] .chip[aria-pressed="true"],
+:root[data-theme="pool"] .key-btn[aria-expanded="true"] {
+  background: #b8336d;
+  color: #ffffff;
+  box-shadow: 3px 3px 0 #2a0f40;
+}
+:root[data-theme="pool"] .zoom {
+  border: 2px solid #2a0f40;
+  border-radius: 16px 4px 16px 4px;
+  overflow: hidden;
+  background: var(--pool-cream);
+  box-shadow: 3px 3px 0 #d9528a;
+}
+:root[data-theme="pool"] .zoom button {
+  color: #2a0f40;
+}
+/* Panels like a pool card: cream, one square corner, a teal offset shadow, a starburst in the corner. */
+:root[data-theme="pool"] .panel,
+:root[data-theme="pool"] .menu-body,
+:root[data-theme="pool"] .key-pop,
+:root[data-theme="pool"] dialog {
+  background:
+    var(--starburst) right 10px top 10px / 22px 22px no-repeat,
+    var(--pool-cream);
+  border: 3px solid #2a0f40;
+  border-radius: 28px 28px 28px 6px;
+  box-shadow: 7px 7px 0 var(--pool-teal);
+}
+:root[data-theme="pool"] .panel {
+  margin: 10px 14px 14px 10px;
+}
+/* The page is dusk-dark, but inside the cream panels and over the water, "the page colour" (the text on a filled
+   scale step or score, and the reticle's halo) must be light. */
+:root[data-theme="pool"] .panel,
+:root[data-theme="pool"] .menu-body,
+:root[data-theme="pool"] .key-pop,
+:root[data-theme="pool"] dialog,
+:root[data-theme="pool"] .map {
+  --page: #fff4e6;
+}
+:root[data-theme="pool"] .panel-title,
+:root[data-theme="pool"] .place-name,
+:root[data-theme="pool"] .panel h2,
+:root[data-theme="pool"] dialog h2 {
+  font-family: var(--font-mast);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #b8336d;
+}
+:root[data-theme="pool"] .dateline {
+  border-bottom: 3px solid var(--pool-teal);
+}
+:root[data-theme="pool"] .headline {
+  font-weight: 600;
+  color: #2a0f40;
+}
+:root[data-theme="pool"] .kicker {
+  color: #0d6c78;
+  font-weight: 600;
+}
+:root[data-theme="pool"] .meta,
+:root[data-theme="pool"] .count,
+:root[data-theme="pool"] .coords {
+  font-style: normal;
+}
+:root[data-theme="pool"] .map {
+  background: #0f4f63;
+}
+/* In Map view the frame is the pool's edge: cream coping, a band of tiles, and a lane rope along the top. */
+:root[data-theme="pool"] .map[data-view="2d"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border: 12px solid #efe2cf;
+  box-shadow: inset 0 0 0 1px rgba(60, 30, 20, 0.25);
+}
+:root[data-theme="pool"] .map[data-view="2d"]::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  z-index: 1;
+  pointer-events: none;
+  border: 9px solid transparent;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27' height='27'%3E%3Crect width='27' height='27' fill='%23e8f7f7'/%3E%3Cg fill='%231c93a2'%3E%3Crect x='.5' y='.5' width='8' height='8'/%3E%3Crect x='18.5' y='.5' width='8' height='8'/%3E%3Crect x='.5' y='18.5' width='8' height='8'/%3E%3Crect x='18.5' y='18.5' width='8' height='8'/%3E%3C/g%3E%3Cg fill='%2327b3c1'%3E%3Crect x='9.5' y='.5' width='8' height='8'/%3E%3Crect x='.5' y='9.5' width='8' height='8'/%3E%3Crect x='18.5' y='9.5' width='8' height='8'/%3E%3Crect x='9.5' y='18.5' width='8' height='8'/%3E%3C/g%3E%3C/svg%3E") 9 round;
+  background:
+    radial-gradient(circle at 7px 6px, #ff5d8f 0 4.5px, transparent 5px) 0 4px / 42px 12px repeat-x,
+    radial-gradient(circle at 21px 6px, #ffffff 0 4.5px, transparent 5px) 0 4px / 42px 12px repeat-x,
+    radial-gradient(circle at 35px 6px, #ffc94d 0 4.5px, transparent 5px) 0 4px / 42px 12px repeat-x,
+    linear-gradient(#2a0f40, #2a0f40) 0 9px / 100% 1px no-repeat;
+  box-shadow: inset 0 10px 14px -6px rgba(0, 30, 60, 0.45);
+}

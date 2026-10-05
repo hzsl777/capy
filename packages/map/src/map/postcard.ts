@@ -20,7 +20,7 @@ import { offscreen, pathContext, seeded, type SurfaceFrame } from "./surface.ts"
 const TAU = Math.PI * 2;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-/** The map's paper and inks. Keep in step with the postcard tokens in style.css. */
+/** The map's paper and inks. Keep in step with the postcard tokens in src/designs/postcard.css. */
 export const PAPER = {
   sea: "#c6dfe6",
   seaDeep: "#b4d3dd",
@@ -36,7 +36,7 @@ export const PAPER = {
   seam: "rgba(90,74,54,0.26)",
 };
 
-// ---- the postcard's timing (src/ui/postcard.ts, style.css) -------------------------------------------------------
+// ---- the postcard's timing (src/ui/postcard.ts, src/designs/postcard.css) -------------------------------------------------------
 
 /** The card's slide out of the rack when the tuned place changes, and its turn from picture to stories, in ms. */
 export const SLIDE_MS = 280;
@@ -51,7 +51,7 @@ export const HOLD_MS = 1100;
 /**
  * The card's faces as the eye takes them in, for the no-flash check: each face's main colours and the share of the
  * face each covers. The turn swaps one for the other over a large area, so the two must be close in brightness.
- * Keep in step with the front's band (src/ui/postcard.ts) and the card tokens in style.css.
+ * Keep in step with the front's band (src/ui/postcard.ts) and the card tokens in src/designs/postcard.css.
  */
 export const FACES = {
   front: [

@@ -8,6 +8,7 @@
 import { recordSpeed, setLabelDate, setRecordSpeed } from "../map/vinyl.ts";
 import type { ThemeId } from "../themes.ts";
 import { h } from "./dom.ts";
+import { REPLAY_MS } from "../data.ts";
 
 export interface VinylDeps {
   theme(): ThemeId;
@@ -21,8 +22,7 @@ export interface VinylDeps {
   redraw(): void;
 }
 
-/** Replay's step between moments, in milliseconds, at 33: the pace it has in every design. */
-export const REPLAY_MS = 220;
+export { REPLAY_MS };
 
 let deps: VinylDeps | null = null;
 /** The reader stopped the platter: the idle spin stays off until they start it again. */

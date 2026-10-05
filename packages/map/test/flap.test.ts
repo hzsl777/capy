@@ -1,7 +1,6 @@
 // Departures (src/map/flap.ts, src/ui/flap.ts): the tiles land on their own letters within a second, the board turns
 // over in a short cascade, a flip is a fold over a small area and never a change of light, and the hall clock's ring
 // stays outside the globe and inside the frame.
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { clockRing, clockTicks } from "../src/map/flap.ts";
 import {
@@ -24,8 +23,9 @@ import {
   turnEnd,
 } from "../src/ui/flap.ts";
 import { DESIGN_GROUPS, FEATURED, THEMES } from "../src/themes.ts";
+import { cssFor } from "./css.ts";
 
-const css = readFileSync(new URL("../src/style.css", import.meta.url), "utf8");
+const css = cssFor("flap");
 const flapCss = css.slice(css.indexOf("---- Departures (id flap"));
 
 /** WCAG relative luminance of a #rrggbb colour. */

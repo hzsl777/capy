@@ -49,6 +49,9 @@ export function passes(item: MapItem, f: Filters): boolean {
   return item.topics.some((t) => f.topics.has(t));
 }
 
+/** Replay's step between moments, in milliseconds, at 33: the pace it has in every design (Record Player's 45 is quicker). */
+export const REPLAY_MS = 220;
+
 /**
  * The time bar's stops Replay plays, in order: the slots from `first` to `slots` whose window (`windowSec` ending at the
  * slot's time) holds at least one of `times` (sorted, unix seconds). The outlets' stories come in once a day while the

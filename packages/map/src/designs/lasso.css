@@ -1,0 +1,110 @@
+:root[data-theme="lasso"] {
+  color-scheme: light;
+  --page: #e9dcc0;
+  --panel: #f1e7d2;
+  --ink: #2e1c0c;
+  --ink-2: #4a2e16;
+  --muted: #6e5236;
+  --rule: #4a2e16;
+  --accent: #b3322a;
+  --on-accent: #fbf3df;
+  --hover: rgba(74,46,22,0.08);
+  --reticle: var(--ink);
+  --grain-opacity: 0.5;
+  --grain-blend: multiply;
+  --font-mast: "Rye", Georgia, serif;
+  --font-head: "Rye", Georgia, serif;
+  --font-body: "Special Elite", "Courier New", monospace;
+  --font-ui: "Special Elite", "Courier New", monospace;
+}
+
+/* ---- Lasso: a trick roper's frontier, rope borders, leather and a spinning loop ------------- */
+:root[data-theme="lasso"] {
+  --rope: repeating-linear-gradient(120deg, #3a2410 0 2px, #a07a4a 2px 5px, #e2c08a 5px 8px);
+}
+:root[data-theme="lasso"] .masthead {
+  border-bottom: 0;
+  background: var(--rope) bottom / 100% 7px no-repeat, var(--page);
+  padding-bottom: 16px;
+}
+:root[data-theme="lasso"] .mast-title {
+  color: #2e1c0c;
+  letter-spacing: 0.02em;
+  position: relative;
+}
+/* A hat hung on the name. */
+:root[data-theme="lasso"] .mast-title::before {
+  content: "";
+  position: absolute;
+  left: -0.32em;
+  top: -0.62em;
+  width: 1.5em;
+  height: 0.75em;
+  transform: rotate(-14deg);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M4 22C10 27 50 27 56 22C58 20 55 17 52 19C46 22 14 22 8 19C5 17 2 20 4 22Z' fill='%238a5a2c' stroke='%233a2410' stroke-width='1.6'/%3E%3Cpath d='M16 20C14 12 16 4 22 4C26 4 28 7 30 7C32 7 34 4 38 4C44 4 46 12 44 20C36 22 24 22 16 20Z' fill='%23a8703a' stroke='%233a2410' stroke-width='1.6'/%3E%3Cpath d='M16 17C24 19 36 19 44 17' stroke='%233a2410' stroke-width='3'/%3E%3Cpath d='M30 8C29 12 30 16 30 18' stroke='%237a4a20' stroke-width='1.2' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root[data-theme="lasso"] .telegram-word,
+:root[data-theme="lasso"] .telegram-big {
+  font-family: var(--font-mast);
+  color: #2e1c0c;
+  letter-spacing: 0.03em;
+  text-shadow: 2px 2px 0 #d3b184;
+  border-bottom: 0;
+}
+/* Panels are framed in rope. */
+:root[data-theme="lasso"] .panel,
+:root[data-theme="lasso"] .menu-body,
+:root[data-theme="lasso"] .key-pop {
+  border: 7px solid #a07a4a;
+  border-image: var(--rope) 7;
+  box-shadow: inset 0 0 0 2px #4a2e16;
+}
+:root[data-theme="lasso"] .panel {
+  margin: 8px;
+}
+:root[data-theme="lasso"] .panel h2 {
+  font-family: var(--font-mast);
+}
+/* Buttons are tooled leather with a stitched edge. */
+:root[data-theme="lasso"] .tool,
+:root[data-theme="lasso"] .pick select,
+:root[data-theme="lasso"] .menu > summary,
+:root[data-theme="lasso"] .chip,
+:root[data-theme="lasso"] .zoom button,
+:root[data-theme="lasso"] .key-btn,
+:root[data-theme="lasso"] .key-close {
+  border: 2px solid #4a2e16;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #e8cfa2, #d3ae78);
+  color: #2e1c0c;
+  outline: 1px dashed rgba(74, 46, 22, 0.6);
+  outline-offset: -5px;
+}
+:root[data-theme="lasso"] .menu[open] > summary,
+:root[data-theme="lasso"] .key-btn[aria-expanded="true"],
+:root[data-theme="lasso"] .tool[aria-pressed="true"] {
+  background: #4a2e16;
+  color: #fbf3df;
+  outline-color: rgba(251, 243, 223, 0.6);
+}
+:root[data-theme="lasso"] .compass {
+  display: block;
+}
+/* The reticle is a trick-rope loop, spun flat like a roper's wedding ring. */
+:root[data-theme="lasso"] .crosshair {
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='24' cy='24' r='18' stroke='%233a2410' stroke-width='5'/%3E%3Ccircle cx='24' cy='24' r='18' stroke='%23e2c08a' stroke-width='3'/%3E%3Ccircle cx='24' cy='24' r='18' stroke='%238a5e2c' stroke-width='3' stroke-dasharray='2 3'/%3E%3Cpath d='M40 30L47 36' stroke='%233a2410' stroke-width='5'/%3E%3Cpath d='M40 30L47 36' stroke='%23e2c08a' stroke-width='3'/%3E%3C/g%3E%3Cellipse cx='40' cy='30' rx='3.2' ry='2.4' fill='%23b88a52' stroke='%233a2410' stroke-width='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: perspective(90px) rotateX(58deg);
+  animation: lasso-spin 1.6s linear infinite;
+}
+@keyframes lasso-spin {
+  from { transform: perspective(90px) rotateX(58deg) rotate(0deg); }
+  to { transform: perspective(90px) rotateX(58deg) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="lasso"] .crosshair {
+    animation: none;
+  }
+}

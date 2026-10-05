@@ -1,0 +1,105 @@
+:root[data-theme="campus"] {
+  color-scheme: light;
+  --page: #f3ede1;
+  --panel: #fbf8f1;
+  --ink: #2a0808;
+  --ink-2: #4a1414;
+  --muted: #6e4a4a;
+  --rule: #881c1c;
+  --accent: #881c1c;
+  --on-accent: #ffffff;
+  --hover: rgba(136,28,28,0.07);
+  --reticle: var(--ink);
+  --grain-opacity: 0.2;
+  --grain-blend: multiply;
+  --font-mast: "Graduate", "Georgia", serif;
+  --font-head: "Graduate", "Georgia", serif;
+  --font-body: "Barlow", "Arial", sans-serif;
+  --font-ui: "Barlow", "Arial", sans-serif;
+}
+/* Mastheads whose ground is not the panel's: the legend takes the colour of the "Chosen by AI" line beside it, which
+   each of these designs set for its masthead (each at least 4.5 to 1, checked against the masthead). */
+:root[data-theme="campus"] .telegram .importance {
+  color: #f6e9e9;
+}
+
+/* ---- Campus: maroon and cream, varsity type, pennants ------------------------------------- */
+:root[data-theme="campus"] .masthead {
+  border-bottom: 0;
+  background: #881c1c;
+  color: #ffffff;
+}
+:root[data-theme="campus"] .masthead .mast-tag,
+:root[data-theme="campus"] .masthead .telegram-date,
+:root[data-theme="campus"] .masthead .telegram-kicker,
+:root[data-theme="campus"] .masthead .telegram-note {
+  color: #f6e9e9;
+}
+:root[data-theme="campus"] .masthead .note-link {
+  color: #ffffff;
+}
+:root[data-theme="campus"] .mast-title {
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  text-shadow: 2px 2px 0 #4e0d0d;
+}
+:root[data-theme="campus"] .telegram-word,
+:root[data-theme="campus"] .telegram-big {
+  font-family: var(--font-mast);
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  text-shadow: 3px 3px 0 #4e0d0d;
+  -webkit-text-stroke: 1px #4e0d0d;
+  paint-order: stroke fill;
+  border-bottom: 0;
+}
+:root[data-theme="campus"] .telegram-big {
+  color: #881c1c;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+}
+:root[data-theme="campus"] .masthead .scale .step {
+  color: #f6e9e9;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+:root[data-theme="campus"] .masthead .scale .step.on {
+  background: #ffffff;
+  color: #881c1c;
+}
+:root[data-theme="campus"] .masthead #about-btn {
+  color: #ffffff;
+  border-color: #ffffff;
+  background: transparent;
+}
+:root[data-theme="campus"] .panel,
+:root[data-theme="campus"] .menu-body,
+:root[data-theme="campus"] .key-pop {
+  border: 2px solid #881c1c;
+  border-top-width: 6px;
+}
+:root[data-theme="campus"] .panel {
+  margin: 8px;
+}
+:root[data-theme="campus"] .panel h2 {
+  color: #881c1c;
+}
+/* Pennants: a flag cut to a point on the right. */
+:root[data-theme="campus"] .tool,
+:root[data-theme="campus"] .pick select,
+:root[data-theme="campus"] .menu > summary,
+:root[data-theme="campus"] .chip,
+:root[data-theme="campus"] .zoom button,
+:root[data-theme="campus"] .key-btn,
+:root[data-theme="campus"] .key-close {
+  border: 0;
+  border-radius: 0;
+  background: #881c1c;
+  color: #ffffff;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+  padding-right: 18px;
+}
+:root[data-theme="campus"] .zoom button,
+:root[data-theme="campus"] .key-close {
+  clip-path: none;
+  padding-right: 0;
+}

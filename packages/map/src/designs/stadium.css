@@ -1,0 +1,231 @@
+:root[data-theme="stadium"] {
+  color-scheme: dark;
+  --page: #070c18;
+  --panel: #0e1626;
+  --ink: #f2f5fb;
+  --ink-2: #d2dae8;
+  --muted: #a3b0c6;
+  --rule: #3b4a66;
+  --accent: #ffd23a;
+  --on-accent: #1a1200;
+  --hover: rgba(255, 210, 58, 0.1);
+  --reticle: #ffffff;
+  --grain-opacity: 0.06;
+  --grain-blend: screen;
+  --font-mast: "Big Shoulders Display", "Oswald", sans-serif;
+  --font-head: "Big Shoulders Display", "Oswald", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Big Shoulders Display", "Oswald", sans-serif;
+}
+
+/* ---- Stadium Jumbotron: a scoreboard for the word and the date, stadium signs for buttons, steel and night ---- */
+:root[data-theme="stadium"] body {
+  background:
+    radial-gradient(ellipse 40% 50% at 0% 0%, rgba(190, 210, 255, 0.16), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 100% 0%, rgba(190, 210, 255, 0.16), transparent 70%),
+    linear-gradient(to bottom, #070c18, #0c1428 60%, #070c18);
+}
+/* The masthead is the scoreboard: a black board in a steel frame. */
+:root[data-theme="stadium"] .masthead {
+  border-bottom: 0;
+  margin: 8px 8px 0;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.05) 0.8px, transparent 1.2px) 0 0 / 5px 5px,
+    linear-gradient(to bottom, #0b0d12, #050608);
+  box-shadow: 0 0 0 3px #2a3142, 0 0 0 5px #6b7690, 0 0 0 7px #1b2130, 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="stadium"] .mast-title {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(30px, 3.4vw, 46px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+}
+:root[data-theme="stadium"] .mast-title .lt {
+  display: inline-block;
+}
+:root[data-theme="stadium"] .mast-tag {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffd23a;
+}
+/* The word in LED lettering, each letter on its own dark panel of the board. */
+:root[data-theme="stadium"] .telegram-word {
+  font-family: "Jersey 10", var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #ffc21a;
+  text-shadow: 0 0 6px rgba(255, 194, 26, 0.85), 0 0 16px rgba(255, 150, 0, 0.35);
+  border-bottom: 0;
+  padding: 0;
+  display: inline-flex;
+  gap: 0.06em;
+}
+:root[data-theme="stadium"] .telegram-word .lt {
+  display: inline-block;
+  min-width: 0.62em;
+  text-align: center;
+  padding: 0.02em 0.06em 0;
+  border-radius: 0.04em;
+  background:
+    radial-gradient(circle, rgba(255, 194, 26, 0.12) 0.9px, transparent 1.3px) 0 0 / 4px 4px,
+    linear-gradient(to bottom, #15171d 0 49%, #07080b 51% 100%);
+  box-shadow: inset 0 0 0 1px #2a2e38, 0 2px 0 #000;
+}
+:root[data-theme="stadium"] .telegram-word:hover,
+:root[data-theme="stadium"] .telegram-word:focus-visible {
+  text-decoration: none;
+  color: #ffe27a;
+}
+:root[data-theme="stadium"] .telegram-big {
+  font-family: "Jersey 10", var(--font-mast);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #ffc21a;
+  text-shadow: 0 0 8px rgba(255, 194, 26, 0.6);
+}
+:root[data-theme="stadium"] .telegram-kicker {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  color: #dfe6f3;
+  letter-spacing: 0.2em;
+}
+/* The date sits in its own small board, amber on black, like the board's clock panel but only a date. */
+:root[data-theme="stadium"] .telegram-date {
+  font-family: "Jersey 10", var(--font-ui);
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: #ffc21a;
+  text-shadow: 0 0 6px rgba(255, 194, 26, 0.7);
+  background: #050608;
+  padding: 3px 10px 1px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px #2a2e38;
+}
+:root[data-theme="stadium"] .telegram-note {
+  font-style: normal;
+  color: var(--ink-2);
+}
+:root[data-theme="stadium"] .scale {
+  border-color: #2a2e38;
+  background: #050608;
+}
+:root[data-theme="stadium"] .scale .step.on {
+  background: #ffc21a;
+  color: #1a1200;
+  box-shadow: 0 0 10px rgba(255, 194, 26, 0.6);
+}
+:root[data-theme="stadium"] .toolbar,
+:root[data-theme="stadium"] .timebar {
+  border-color: #1f2940;
+  background: linear-gradient(to bottom, #0f1628, #0a1020);
+}
+:root[data-theme="stadium"] .map {
+  background: #060b18;
+}
+/* Buttons are stadium signs: a dark blue board with a white inner border and bold condensed capitals. */
+:root[data-theme="stadium"] .tool,
+:root[data-theme="stadium"] .pick select,
+:root[data-theme="stadium"] .menu > summary,
+:root[data-theme="stadium"] .chip,
+:root[data-theme="stadium"] .key-btn,
+:root[data-theme="stadium"] .key-close {
+  border: 0;
+  border-radius: 4px;
+  background: #16345e;
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 2px #16345e, inset 0 0 0 3.5px #ffffff, 0 2px 0 #06101f, 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="stadium"] .tool.quiet {
+  background: transparent;
+  box-shadow: none;
+}
+/* The one that is on turns into the yellow sign. */
+:root[data-theme="stadium"] .tool[aria-pressed="true"],
+:root[data-theme="stadium"] .menu[open] > summary,
+:root[data-theme="stadium"] .chip[aria-pressed="true"],
+:root[data-theme="stadium"] .key-btn[aria-expanded="true"] {
+  background: #ffd23a;
+  color: #111;
+  box-shadow: inset 0 0 0 2px #ffd23a, inset 0 0 0 3.5px #111, 0 2px 0 #06101f;
+}
+:root[data-theme="stadium"] .zoom {
+  border: 0;
+  background: none;
+  gap: 6px;
+}
+:root[data-theme="stadium"] .zoom button {
+  border-radius: 4px;
+  background: #16345e;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 2px #16345e, inset 0 0 0 3.5px #ffffff, 0 2px 0 #06101f;
+}
+:root[data-theme="stadium"] .zoom button + button {
+  border-top: 0;
+}
+/* Panels are a concourse board: dark, a steel frame, a yellow band at the top. */
+:root[data-theme="stadium"] .panel,
+:root[data-theme="stadium"] .menu-body,
+:root[data-theme="stadium"] .key-pop,
+:root[data-theme="stadium"] dialog {
+  background: linear-gradient(to bottom, #111b2e, #0b1220);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px #2a3142, 0 0 0 4px #5d6883, 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="stadium"] .panel {
+  margin: 10px 10px 10px 6px;
+  border-top: 5px solid #ffd23a;
+}
+:root[data-theme="stadium"] .key-pop {
+  --key-bg: #0a2a66;
+}
+:root[data-theme="stadium"] .panel-title,
+:root[data-theme="stadium"] .place-name {
+  font-family: var(--font-head);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+:root[data-theme="stadium"] .headline {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+:root[data-theme="stadium"] .dateline {
+  border-bottom: 2px solid #ffd23a;
+}
+:root[data-theme="stadium"] .rule-head {
+  color: #ffd23a;
+  border-color: #3b4a66;
+}
+:root[data-theme="stadium"] .meta {
+  font-style: normal;
+}
+@media (max-width: 760px) {
+  :root[data-theme="stadium"] .telegram-word {
+    font-size: min(64px, calc((100vw - 2 * var(--gutter) - 24px) / (var(--len, 8) * 0.7)));
+  }
+  :root[data-theme="stadium"] .tool,
+  :root[data-theme="stadium"] .pick select,
+  :root[data-theme="stadium"] .menu > summary {
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+  :root[data-theme="stadium"] .panel {
+    margin: 8px 6px 6px;
+  }
+}
