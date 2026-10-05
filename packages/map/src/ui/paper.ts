@@ -1,15 +1,15 @@
-// Paper Screen (id paper, experimental): the panel and the About dialog read like an e-ink reading device's pages
-// instead of scrolling. Whatever the panel shows (a place's stories, a story, the word's view, an event's explanation)
-// is laid out in columns exactly one page wide and as tall as the panel, so text that does not fit one page flows on
-// to the next and nothing is ever cut off; the panel shows one column at a time. A page turns with the Next and
-// Previous buttons at its foot, the small buttons on the device's sides (wide screens), a tap or click on the page's
-// right or left side, a swipe, or the arrow and Page Up and Page Down keys. Each turn is a quick e-ink refresh (a fade
-// toward light grey and back, under the no-flash limit, none for reduced motion), and the foot says "Page 2 of 3".
+// Notebook (id paper, experimental): the panel and the About dialog are notebook pages that turn instead of scrolling.
+// Whatever the panel shows (a place's stories, a story, the word's view, an event's explanation) is laid out in columns
+// exactly one page wide and as tall as the panel, so text that does not fit one page flows on to the next and nothing
+// is ever cut off; the panel shows one column at a time. A page turns with the Next and Previous buttons at its foot,
+// a tap or click on the page's right or left side, a swipe, or the arrow and Page Up and Page Down keys. Each turn
+// swings the page on its binding (the page goes edge-on, the next one swings back in, in a quarter of a second, with
+// no change of colour or opacity, none at all for reduced motion), and the foot says "Page 2 of 3".
 //
 // Every other design never sees any of this: the parts are hidden by the stylesheet and the pages switch themselves
 // off, so the panel scrolls as before. Lists keep their order (newest first); pages only cut them where a page ends.
 
-import { REFRESH_MS, refreshOpacity } from "../map/paper.ts";
+import { FLIP_MS, flipFrames } from "../map/paper.ts";
 import { h } from "./dom.ts";
 
 const on = () => document.documentElement.dataset.theme === "paper";
@@ -17,7 +17,7 @@ const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-r
 
 const SVG = "http://www.w3.org/2000/svg";
 
-/** Our own outline chevron, pointing back (left) or on (right). */
+/** An outline chevron of our own, pointing back (left) or on (right). */
 function chevron(dir: -1 | 1): SVGSVGElement {
   const svg = document.createElementNS(SVG, "svg");
   svg.setAttribute("viewBox", "0 0 16 16");
@@ -78,7 +78,7 @@ class Pages {
   constructor(
     readonly box: () => HTMLElement | null,
     name: string,
-    /** The element that fades during a refresh: the page, over a grey behind it. */
+    /** The element that swings during a page turn. */
     private readonly face: () => HTMLElement | null,
     /** What identifies the view on show, so a redraw of the same view keeps its page and a new view starts at 1. */
     private readonly signature: () => string,
@@ -135,7 +135,7 @@ class Pages {
     requestAnimationFrame(() => (this.turning = false));
   }
 
-  /** Goes to a page, with the refresh unless the reader asked for reduced motion. */
+  /** Goes to a page, with the page's swing unless the reader asked for reduced motion. */
   go(page: number, refresh = true) {
     const target = Math.max(0, Math.min(this.count - 1, page));
     if (target === this.page) return;
@@ -147,16 +147,15 @@ class Pages {
       this.show();
       return;
     }
-    // The new page lands at the refresh's lowest point, so the old one fades out and the new one fades in. The grey
-    // behind the page is the design's own (style.css).
-    const steps = 12;
-    const frames: Keyframe[] = [];
-    for (let i = 0; i <= steps; i++) frames.push({ opacity: refreshOpacity(i / steps), offset: i / steps });
-    this.anim = face.animate(frames, { duration: REFRESH_MS, easing: "linear" });
+    // Forward, the page swings on its left edge, the binding; back, on its right. It is edge-on at the middle, where
+    // the new page takes its place and swings back in.
+    const forward = target > this.page;
+    face.style.transformOrigin = forward ? "0% 50%" : "100% 50%";
+    this.anim = face.animate(flipFrames(forward), { duration: FLIP_MS, easing: "linear" });
     this.timer = window.setTimeout(() => {
       this.page = target;
       this.show();
-    }, REFRESH_MS / 2);
+    }, FLIP_MS / 2);
   }
 
   turn(by: -1 | 1) {
@@ -221,7 +220,7 @@ function bindTouch(pages: Pages, el: HTMLElement) {
         return;
       }
       const target = e.target as Element;
-      // A citation goes to its source's page with the same refresh, instead of the browser sliding the columns.
+      // A citation goes to its source's page with the same page turn, instead of the browser sliding the columns.
       const cite = target.closest<HTMLAnchorElement>("a.cite");
       if (cite) {
         const dest = document.getElementById(decodeURIComponent((cite.getAttribute("href") ?? "").slice(1)));
@@ -302,14 +301,6 @@ export function mountPaper() {
   panel.addEventListener("load", later, true);
   document.fonts?.addEventListener?.("loadingdone", later);
   panel.addEventListener("scroll", () => requestAnimationFrame(() => pp.snap()));
-
-  // The device's own page buttons, one on each side of the bezel (wide screens only, by the stylesheet).
-  const side = (by: -1 | 1) => {
-    const b = h("button", { type: "button", class: `pp-side ${by < 0 ? "pp-side-prev" : "pp-side-next"}`, "aria-label": by < 0 ? "Previous page" : "Next page" }, chevron(by) as unknown as Node);
-    b.addEventListener("click", () => pp.turn(by));
-    return b;
-  };
-  document.body.append(side(-1), side(1));
 
   if (about) {
     aboutPages = new Pages(

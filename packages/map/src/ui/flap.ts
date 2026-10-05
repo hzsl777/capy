@@ -8,7 +8,7 @@
 // - Each report's row on the board: its time in amber flaps, then its outlet, then the headline (CSS sets the
 //   headline in flap cells that wrap to as many rows as it needs, never cut off). Rows stay newest first and are
 //   never numbered. When the tuned place changes, the rows turn over to the new place's reports in a quick cascade.
-// - A hall clock in the toolbar: a plain round face with hour bars and two hands, no second hand, set to the
+// - A hall clock in the toolbar: a plain cream face with hour bars and two hands, no second hand, set to the
 //   reader's own time once a minute.
 // Reduced motion shows everything at once, and nothing runs while the tab is hidden.
 
@@ -28,8 +28,8 @@ export const STAGGER_MS = 45;
  * A tile's upper half and its falling flap (style.css, kept in step by test/flap.test.ts): nearly the same dark grey,
  * so a flip is a fold over the letter and never a change of light.
  */
-export const TILE_TOP = "#2c2c2f";
-export const FLAP_FACE = "#313134";
+export const TILE_TOP = "#2d383b";
+export const FLAP_FACE = "#323e41";
 
 /** The board's rows turning over: how long one row takes, the wait between rows, and how many rows wait at most. */
 export const TURN_MS = 240;
@@ -184,16 +184,16 @@ export function handAngles(hours: number, minutes: number): { hour: number; minu
 }
 
 /**
- * The hall clock in the toolbar: a white face with twelve hour bars and two black hands, set once a minute to the
+ * The hall clock in the toolbar: a cream face with twelve blue hour bars and two dark hands, set once a minute to the
  * reader's time. Hidden by CSS in every other design; it does nothing while the tab is hidden.
  */
 export function mountBoard(toolbar: HTMLElement, masthead: HTMLElement) {
   if (document.querySelector(".fl-clock")) return;
   const face = svg("svg", { viewBox: "-50 -50 100 100", "aria-hidden": "true" });
-  face.append(svg("circle", { r: 46, fill: "#f6f3ea", stroke: "#3b3c3f", "stroke-width": 6 }));
-  for (let i = 0; i < 12; i++) face.append(svg("rect", { x: -3, y: -40, width: 6, height: 12, fill: "#141414", transform: `rotate(${i * 30})` }));
-  const hourHand = svg("rect", { x: -4, y: -24, width: 8, height: 30, fill: "#141414" });
-  const minuteHand = svg("rect", { x: -3, y: -38, width: 6, height: 44, fill: "#141414" });
+  face.append(svg("circle", { r: 46, fill: "#f3ecd6", stroke: "#a58848", "stroke-width": 6 }));
+  for (let i = 0; i < 12; i++) face.append(svg("rect", { x: -3, y: -40, width: 6, height: 12, fill: "#15406b", transform: `rotate(${i * 30})` }));
+  const hourHand = svg("rect", { x: -4, y: -24, width: 8, height: 30, fill: "#1b2a33" });
+  const minuteHand = svg("rect", { x: -3, y: -38, width: 6, height: 44, fill: "#1b2a33" });
   face.append(hourHand, minuteHand);
   const box = h("span", { class: "fl-clock", role: "img" }, face as unknown as Node);
   // On a phone the toolbar's one row holds the four controls, so the clock hangs in the masthead's corner instead,

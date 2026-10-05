@@ -1,9 +1,9 @@
 // Departures (id flap, experimental): after the feel of a split-flap departures board in a big station hall, and
 // nothing else from one: no operator's, airline's, railway's or maker's name, logo, colours, lettering or sounds.
-// The map is the hall's wall map: a charcoal sheet on a darker wall, land as a field of warm off-white dots fixed to
-// the screen like the lamps of a big board, a little brighter on mountains, and thin yellow coasts. The globe sits in
-// a round hall clock's ring: a dark band of sixty ticks, longer and heavier at the hours, with no numbers and no
-// hands, so nothing ever crosses the world. Nothing here moves on its own; the board's flaps are chrome (src/ui/flap.ts).
+// The map is the hall's wall map: a deep blue-green sheet on a darker wall, land as a field of cream dots fixed to
+// the screen like the lamps of a big board, a little brighter on mountains, and thin pale-blue coasts. The globe sits
+// in a round hall clock's ring: a cream clock face's band with a brass rim and sixty dark ticks, longer and heavier at
+// the hours, with no numbers and no hands, so nothing ever crosses the world. Nothing here moves on its own; the board's flaps are chrome (src/ui/flap.ts).
 // No text on the canvas, and nothing is cut from any political unit.
 
 import { geoGraticule, geoPath } from "d3-geo";
@@ -13,11 +13,12 @@ const GRID = geoGraticule().step([15, 15])();
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 /** The wall behind the sheet, the sheet itself, and the clock's band and rim. */
-export const WALL = "#131415";
-export const BAND = "#0c0c0d";
-export const RIM = "#3b3c3f";
-/** The ticks' warm off-white, the same as the land's lamps. */
-export const TICK = "#efe6cf";
+export const WALL = "#0d171c";
+export const BAND = "#e6dfcc";
+export const RIM = "#a58848";
+/** The ticks' deep ink, and the hour bars' signage blue. */
+export const TICK = "#1b2a33";
+export const HOUR = "#15406b";
 
 export class FlapCache {
   dots = new Map<string, CanvasPattern>();
@@ -79,9 +80,9 @@ export function drawFlap(f: SurfaceFrame, cache: FlapCache) {
   geoPath(proj, pathContext(sheet))({ type: "Sphere" });
 
   if (globe) drawRing(f, cache, cx, cy, R);
-  // The sheet: charcoal, a shade lighter toward the middle as if lit from the hall's roof.
+  // The sheet: deep blue-green, a shade lighter toward the middle as if lit from the hall's roof.
   const fill = ctx.createRadialGradient(cx, cy - R * 0.2, R * 0.1, cx, cy, R * (globe ? 1 : 1.6));
-  fill.addColorStop(0, "#222325");
+  fill.addColorStop(0, "#1f343c");
   fill.addColorStop(1, t.ocean);
   ctx.fillStyle = fill;
   ctx.fill(sheet);
@@ -125,7 +126,7 @@ export function drawFlap(f: SurfaceFrame, cache: FlapCache) {
   if (f.map.ice) {
     const ice = new Path2D();
     geoPath(proj, pathContext(ice))(f.map.ice);
-    ctx.fillStyle = "#1f1f21";
+    ctx.fillStyle = "#1a2b32";
     ctx.fill(ice);
     ctx.fillStyle = lamps(f, cache, pitch, pitch * 0.42, t.ice);
     ctx.fill(ice);
@@ -146,7 +147,7 @@ export function drawFlap(f: SurfaceFrame, cache: FlapCache) {
   ctx.restore();
 
   // The sheet's edge: a thin dim line, like the frame of a printed wall map.
-  ctx.strokeStyle = globe ? "rgba(239,230,207,0.35)" : "rgba(233,191,46,0.35)";
+  ctx.strokeStyle = globe ? "rgba(246,240,221,0.35)" : "rgba(111,168,207,0.45)";
   ctx.lineWidth = 1;
   ctx.stroke(sheet);
 }
@@ -158,9 +159,9 @@ function drawRing(f: SurfaceFrame, cache: FlapCache, cx: number, cy: number, R: 
   if (cache.ring?.key !== key) {
     const [canvas, g] = offscreen(w, h, dpr);
     const { outer, rim } = clockRing(R);
-    // A soft shadow on the wall, then the dark band and its metal rim.
+    // A soft shadow on the wall, then the clock face's band and its brass rim.
     const shadow = g.createRadialGradient(cx, cy + outer * 0.04, outer * 0.96, cx, cy + outer * 0.04, outer * 1.12);
-    shadow.addColorStop(0, "rgba(0,0,0,0.5)");
+    shadow.addColorStop(0, "rgba(0,0,0,0.55)");
     shadow.addColorStop(1, "rgba(0,0,0,0)");
     g.fillStyle = shadow;
     g.fillRect(0, 0, w, h);
@@ -169,17 +170,17 @@ function drawRing(f: SurfaceFrame, cache: FlapCache, cx: number, cy: number, R: 
     g.fillStyle = BAND;
     g.fill();
     const metal = g.createLinearGradient(cx - outer, cy - outer, cx + outer, cy + outer);
-    metal.addColorStop(0, "#5a5b5f");
+    metal.addColorStop(0, "#d4b978");
     metal.addColorStop(0.5, RIM);
-    metal.addColorStop(1, "#232426");
+    metal.addColorStop(1, "#5e4a22");
     g.beginPath();
     g.arc(cx, cy, outer - rim / 2, 0, Math.PI * 2);
     g.lineWidth = rim;
     g.strokeStyle = metal;
     g.stroke();
     g.lineCap = "butt";
-    g.strokeStyle = TICK;
     for (const k of clockTicks(R)) {
+      g.strokeStyle = k.hour ? HOUR : TICK;
       const c = Math.cos(k.a), s = Math.sin(k.a);
       g.beginPath();
       g.moveTo(cx + c * k.r0, cy + s * k.r0);

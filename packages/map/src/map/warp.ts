@@ -5,7 +5,7 @@
 
 import type { GeoStream } from "d3-geo";
 
-export type WarpKind = "barrel" | "stadium" | "desk";
+export type WarpKind = "barrel" | "stadium" | "desk" | "wobble";
 
 export interface Warp {
   kind: WarpKind;
@@ -93,6 +93,7 @@ export function plane(kind: WarpKind, w: number, h: number, o: { yaw: number; pi
  * round, while the flat map lies back on the desk.
  */
 export function makeWarp(kind: WarpKind, w: number, h: number, globe = false): Warp {
+  // "wobble" (Noodle Bowl) is made frame by frame from how far the view has moved (src/map/soup.ts), never here.
   if (kind === "barrel") return barrel(w, h);
   if (kind === "stadium") return plane(kind, w, h, { yaw: 13, pitch: -8, eye: 1.5, scale: 0.76, roll: 0 });
   return plane(kind, w, h, globe ? { yaw: 0, pitch: 0, eye: 1.6, scale: 1, roll: -5 } : { yaw: 0, pitch: -24, eye: 1.6, scale: 1.02, roll: -5 });

@@ -70,11 +70,15 @@ import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
+import { drawSoup, SoupCache } from "./soup.ts";
 // Desktop 95.
 import { DesktopCache, drawDesktop } from "./desktop.ts";
 // Herbarium (experimental).
 import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
-import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, VinylCache } from "./vinyl.ts";
+// Tiramisu (experimental): the dish, the bowl and the coffee bean's crease.
+import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
+import { beanCrease2D } from "./marks.ts";
+import { BRAKE_DEG, CAP, dragRecord, drawVinyl, NEEDLE_LAT, needleAt, recordBase, recordProjection, recordSpin, turnToNeedle, VinylCache } from "./vinyl.ts";
 import { drawWoodblock } from "./woodblock.ts";
 import { CoreCache, drawCore } from "./core.ts";
 import { drawMachine, MachineCache } from "./machine.ts";
@@ -331,10 +335,14 @@ export class MapView {
   private gloss = new GlossCache();
   /** Crystal Towers: its floor, towers, drifting cubes and the world under them. */
   private towers = new TowersCache();
+  /** Noodle Bowl: the bowl or pot, what is laid round the world, and how stirred the broth is. */
+  private soup = new SoupCache();
   /** Desktop 95: the small canvas it snaps to sixteen colours. */
   private desktop = new DesktopCache();
   /** Herbarium: its pencil water lines, the leaf grid's mountains and what lies round the globe. */
   private herbarium = new HerbariumCache();
+  /** Tiramisu: the dish or the bowl on its table, kept while the view holds still. */
+  private tiramisu = new TiramisuCache();
   /** Record Player: the tonearm and sleeve layers, and where the finger last was on the record (src/map/vinyl.ts). */
   private vinyl = new VinylCache();
   private recordAt: [number, number] | null = null;
@@ -346,7 +354,7 @@ export class MapView {
   private firstRender = new RenderCache();
   /** Departures: its lamp patterns and the clock's ring. */
   private flap = new FlapCache();
-  /** Paper Screen: the full drawing of the last still view, and the stipple tile. */
+  /** Notebook: the pen strokes of the last view drawn, so a redraw for a marker costs fills only. */
   private paper = new PaperCache();
   /** Postcards: the folded sheet's paper and the paper globe's light and shadow. */
   private postcard = new PostcardCache();
@@ -576,7 +584,7 @@ export class MapView {
       if (!this.spinning) return;
       const dt = Math.min(64, now - last) / 1000;
       last = now;
-      this.lon = wrap(this.lon + SPIN_SPEED * dt);
+      this.lon = wrap(this.lon + (this.isRecord() ? recordSpin() : SPIN_SPEED) * dt);
       this.request();
       this.spinFrame = requestAnimationFrame(tick);
     };
@@ -615,6 +623,10 @@ export class MapView {
       if (net) {
         const [[x0, y0], [x1, y1]] = net as [[number, number], [number, number]];
         [this.lon, this.lat] = t >= 1 ? [lon, lat] : netInvert(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k);
+      } else if (this.isRecord()) {
+        // The record turns the short way and the arm swings across: straight in longitude and latitude, not over the pole.
+        this.lon = wrap(from[0] + dlon * k);
+        this.lat = from[1] + (lat - from[1]) * k;
       } else if (this.mode === "3d") {
         const [x, y] = interp(k);
         this.lon = x;
@@ -720,12 +732,38 @@ export class MapView {
     this.moved();
   }
 
+  /**
+   * More for Shortwave's radio front (src/ui/dial.ts). `snapSoon` is what letting go of a drag does: the next drawn
+   * frame glides the nearest place under the reticle. `nearestPx` is how far, in screen pixels, the nearest place
+   * drawn is from the reticle (null when none is drawn), measured the same for every place so that it says only how
+   * near, never which. `bandTo` zooms to the start of a zoom level, level 0 being the whole world, like a band switch.
+   */
+  snapSoon() {
+    this.snapNext = true;
+    this.request();
+  }
+
+  nearestPx(): number | null {
+    let best: number | null = null;
+    for (const s of this.screen) {
+      const d = Math.hypot((s.gx ?? s.x) - this.w / 2, (s.gy ?? s.y) - this.h / 2);
+      if (best === null || d < best) best = d;
+    }
+    return best;
+  }
+
+  bandTo(level: number) {
+    // A snap still waiting for the next frame would fly to its place at the zoom this one is leaving.
+    this.snapNext = false;
+    this.zoomBy((level <= 0 ? this.minZoom() : this.levelZoom(level)) / this.zoom);
+  }
+
   // ---- geometry ---------------------------------------------------------
 
   private projection(): GeoProjection {
     // Record Player's Globe view: the record seen from the tonearm, the needle on the frame's centre.
     if (this.isRecord())
-      return recordProjection(this.lon, this.lat, this.baseScale, this.zoom, this.w, this.h, [
+      return recordProjection(this.lon, this.lat, this.zoom, this.w, this.h, [
         [-CLIP_MARGIN, -CLIP_MARGIN],
         [this.w + CLIP_MARGIN, this.h + CLIP_MARGIN],
       ]);
@@ -789,6 +827,9 @@ export class MapView {
     if (this.isFold()) {
       // Pixels per cube face half-width: the whole net in Map view, a cube about the globe's size in Globe view.
       this.baseScale = foldBase(this.mode, this.w, this.h);
+    } else if (this.isRecord()) {
+      // Record Player: the record's radius, on a turntable laid out to fit the frame (src/map/vinyl.ts).
+      this.baseScale = recordBase(this.w, this.h);
     } else if (this.mode === "3d") {
       this.baseScale = Math.min(this.w, this.h) * (this.theme.globeScale ?? 0.46);
     } else {
@@ -864,11 +905,18 @@ export class MapView {
 
   private pan(dx: number, dy: number, at?: [number, number]) {
     if (this.isRecord()) {
-      // Record Player: the point under the finger stays under it, the record turning round its spindle and sliding
-      // under the needle (src/map/vinyl.ts). Without a finger (a glide, the arrow keys), as if dragged at the needle.
-      const to: [number, number] = at ?? (this.recordAt ? [this.recordAt[0] + dx, this.recordAt[1] + dy] : [this.w / 2 + dx, this.h / 2 + dy]);
+      // Record Player: the record turns with the finger round its spindle and the arm swings by as far as the finger goes
+      // in or out (src/map/vinyl.ts). Without a finger (a glide, the arrow keys), as if dragged at the needle.
+      const [nx, ny] = this.reticle();
+      if (!at && !this.recordAt) {
+        // The arrow keys: left and right turn the record, up and down swing the arm.
+        if (dx) [this.lon, this.lat] = dragRecord(this.lon, this.lat, this.zoom, this.w, this.h, [nx, ny], [nx + dx, ny], "turn");
+        if (dy) [this.lon, this.lat] = dragRecord(this.lon, this.lat, this.zoom, this.w, this.h, [nx, ny], [nx, ny + dy], "swing");
+        return;
+      }
+      const to: [number, number] = at ?? [this.recordAt![0] + dx, this.recordAt![1] + dy];
       if (this.recordAt || at) this.recordAt = to;
-      [this.lon, this.lat] = dragRecord(this.lon, this.lat, recordScale(this.baseScale, this.zoom), this.w, this.h, [to[0] - dx, to[1] - dy], to);
+      [this.lon, this.lat] = dragRecord(this.lon, this.lat, this.zoom, this.w, this.h, [to[0] - dx, to[1] - dy], to);
       return;
     }
     // Under a warp a drag moves the flat picture under the centre by as much as it moves on screen (decision 75).
@@ -1151,8 +1199,7 @@ export class MapView {
    */
   private snapToNearest() {
     if (this.spinning || this.anim || this.pointers.size > 0) return;
-    const cx = this.w / 2;
-    const cy = this.h / 2;
+    const [cx, cy] = this.reticle();
     let best: Spot | null = null;
     let bestD = SNAP_RADIUS;
     for (const s of this.screen) {
@@ -1172,8 +1219,7 @@ export class MapView {
       this.lastLevel = level;
       this.events.onLevel?.(level);
     }
-    const cx = this.w / 2;
-    const cy = this.h / 2;
+    const [cx, cy] = this.reticle();
     let best: Spot | null = null;
     let bestD = TUNE_RADIUS;
     for (const s of this.screen) {
@@ -1183,9 +1229,16 @@ export class MapView {
         bestD = d;
       }
     }
-    const next = best ? best.indices : null;
+    let next = best ? best.indices : null;
+    // Record Player: while the record plays, no place is tuned as the needle skims over it, so the panel holds still; a
+    // place coming round to the needle brakes the record to rest under it.
+    const playing = this.isRecord() && this.spinning;
+    if (playing) {
+      next = null;
+      if (performance.now() - this.spinStarted > SPIN_MIN_MS && this.brakeOnPlace()) return;
+    }
     const nextKey = next ? key(next) : null;
-    if (this.spinning) {
+    if (this.spinning && !playing) {
       if (nextKey === null) this.spinSkip = null;
       else if (nextKey !== this.spinSkip && best && performance.now() - this.spinStarted > SPIN_MIN_MS) {
         // Landed: stop and settle the dot under the reticle.
@@ -1199,6 +1252,45 @@ export class MapView {
       this.events.onTune(next);
       this.request();
     }
+  }
+
+  /** Where the reticle is on screen: the frame's centre, or Record Player's needle, which the arm swings over the record. */
+  private reticle(): [number, number] {
+    return this.isRecord() ? needleAt(this.w, this.h, this.lat, this.zoom) : [this.w / 2, this.h / 2];
+  }
+
+  /**
+   * Record Player: when a place on the needle's ring is within BRAKE_DEG of coming round to it, the record slows at an even
+   * rate to rest with that place under the needle, the arm swinging the little way that ring is off. True when it braked.
+   */
+  private brakeOnPlace(): boolean {
+    let at: Spot | null = null;
+    let least = Infinity;
+    for (const s of this.screen) {
+      const turn = turnToNeedle(this.w, this.h, this.lat, this.zoom, s.gx ?? s.x, s.gy ?? s.y, TUNE_RADIUS * 0.6);
+      if (turn === null) continue;
+      const ahead = turn > 358 ? 0 : turn;
+      if (ahead <= BRAKE_DEG && ahead < least) {
+        at = s;
+        least = ahead;
+      }
+    }
+    if (!at) return false;
+    this.stopSpin();
+    const lon0 = this.lon;
+    const lat0 = this.lat;
+    const dl = wrap(at.lon - lon0);
+    const { lon, lat } = at;
+    // Slowing evenly from the record's speed to rest takes twice the distance over the speed.
+    this.startAnim(Math.max(300, ((2 * Math.abs(dl)) / recordSpin()) * 1000), (t) => {
+      const k = 1 - (1 - t) * (1 - t);
+      this.lon = t >= 1 ? lon : wrap(lon0 + dl * k);
+      this.lat = lat0 + (lat - lat0) * k;
+      this.clampLat();
+    });
+    this.landing = [lon, lat];
+    this.events.onLand?.();
+    return true;
   }
 
   private pattern(kind: PatternKind, ink: string, ink2 = ink): CanvasPattern {
@@ -1717,7 +1809,11 @@ export class MapView {
     this.lastDraw = performance.now();
     // A warp bends the whole picture (decision 75); the picture tube's curve is Map view's only.
     const wk = t.warp && !(t.warp === "barrel" && this.mode === "3d") ? t.warp : null;
-    if (!wk) this.warp = null;
+    if (wk === "wobble") {
+      // Noodle Bowl: the broth sways after a drag or a zoom and settles, so the warp exists only while it does.
+      this.warp = this.soup.wobble.step(performance.now(), this.lon, this.lat, this.zoom, this.baseScale * this.zoom, w, h, this.still());
+      this.warpFor = "";
+    } else if (!wk) this.warp = null;
     else if (this.warp?.kind !== wk || this.warpFor !== `${w}x${h}:${this.mode}`) {
       this.warp = makeWarp(wk, w, h, this.mode === "3d");
       this.warpFor = `${w}x${h}:${this.mode}`;
@@ -1952,8 +2048,10 @@ export class MapView {
     if (t.surface === "sketch") return drawSketch(f, this.handmade.sketch);
     if (t.surface === "gloss") return drawGloss(f, this.gloss);
     if (t.surface === "towers") return drawTowers(f, this.towers);
+    if (t.surface === "soup") return drawSoup(f, this.soup);
     if (t.surface === "desktop") return drawDesktop(f, this.desktop);
     if (t.surface === "herbarium") return drawHerbarium(f, this.herbarium);
+    if (t.surface === "tiramisu") return drawTiramisu(f, this.tiramisu);
     if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
     if (t.surface === "woodblock") return drawWoodblock(f);
     if (t.surface === "core") return drawCore(f, this.core);
@@ -2661,6 +2759,22 @@ export class MapView {
         ctx.stroke(c.edges);
         ctx.restore();
       }
+      if (t.dotShape === "bean") {
+        // Tiramisu's coffee bean: a roasted sheen on a filled bean, and the crease down its middle on every bean, pale
+        // on a filled one and in the ink on a hollow one, so the hollow outline still reads as a bean.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        if (!hollow) shadeShape(x, y, r, [[0, "rgba(255,240,220,0.5)"], [0.4, "rgba(255,240,220,0)"], [1, "rgba(0,0,0,0.22)"]]);
+        if (r >= 2.5) {
+          ctx.translate(x, y);
+          ctx.lineWidth = Math.max(0.7, r * (hollow ? 0.13 : 0.17));
+          ctx.lineCap = "round";
+          ctx.strokeStyle = hollow ? ink : t.dotStroke;
+          ctx.globalAlpha = hollow ? 0.85 : 0.8;
+          ctx.stroke(beanCrease2D(r));
+        }
+        ctx.restore();
+      }
       if (t.dotShape === "diamond" && !hollow) {
         // Cut like a gem: the right half in shadow and a glint on the upper left facet.
         const d = r * 1.3;
@@ -2717,6 +2831,18 @@ export class MapView {
         ctx.lineWidth = Math.max(0.7, r * 0.1);
         ctx.lineJoin = "round";
         ctx.globalAlpha = 0.45;
+        ctx.strokeStyle = t.dotStroke;
+        ctx.stroke();
+        ctx.restore();
+      }
+      if (t.dotShape === "slice" && !hollow && r >= 3.5) {
+        // Noodle Bowl: a slice's cut face, a pale ring inside the scalloped rim. Only texture; the symbol is a filled mark.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 0.5, 0, Math.PI * 2);
+        ctx.lineWidth = Math.max(0.8, r * 0.14);
+        ctx.globalAlpha = 0.7;
         ctx.strokeStyle = t.dotStroke;
         ctx.stroke();
         ctx.restore();

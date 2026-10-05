@@ -4,7 +4,7 @@ import type { RGB } from "./map/terrain.ts";
 import type { WarpKind } from "./map/warp.ts";
 import { geoEqualEarth, geoEquirectangular, geoNaturalEarth1, type GeoProjection } from "d3-geo";
 
-export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock";
+export type ThemeId = "morning" | "cabinet" | "wire" | "ops" | "blueprint" | "pirate" | "space" | "candy" | "bit8" | "bit16" | "bit64" | "realize" | "newsroom" | "pond" | "honeycomb" | "arcana" | "arcadia" | "nightcap" | "campus" | "lasso" | "drive" | "stitch" | "glass" | "club" | "pool" | "snow" | "sheet" | "terminal" | "prep" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "rave" | "cube" | "dual" | "realm" | "tactical" | "reef" | "blocks" | "pindrop" | "deli" | "marquee" | "crunch" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "shortwave" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup";
 export type ViewMode = "2d" | "3d";
 
 /**
@@ -87,7 +87,7 @@ export interface Theme {
    * "fold" is Folding Cube's world on a cube, laid flat as the cube's net in Map view (src/map/fold.ts): it sets its
    * own camera, so places are placed and tuned through it rather than through `proj`.
    */
-  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock";
+  surface?: "neon" | "stitch" | "glass" | "sheet" | "terminal" | "club" | "rail" | "aquarium" | "lava" | "radar" | "noir" | "arcade" | "stadium" | "popup" | "trainset" | "chalk" | "sketch" | "gloss" | "blocks" | "towers" | "core" | "fold" | "machine" | "render" | "flap" | "desktop" | "vinyl" | "paper" | "postcard" | "zine" | "stijl" | "herbarium" | "woodblock" | "tiramisu" | "soup";
   /**
    * Decision 75: a camera that bends the whole picture after it is projected (src/map/warp.ts): "barrel" is a picture
    * tube's curve (Map view only), "stadium" a big screen seen at an angle from the stands, "desk" a map lying on a
@@ -2192,10 +2192,10 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Machine Music, experimental: after the feel of 1970s and 80s German electronic music and constructivist posters
-  // (src/map/machine.ts). The world on a black screen under a fine red grid, or a red wireframe sphere on a dark stage
-  // under two spotlights; grey land with a thin glowing red coast. Square red pads with a dark edge, white for fresh
-  // reports. Black, signal red, warm grey and white only.
+  // Machine Music, experimental: after the feel of 1970s and 80s German electronic music stage shows and constructivist
+  // posters (src/map/machine.ts). The world as a vector display: a black screen under a fine red grid, or a red
+  // wireframe sphere on a stage of lit grid panels with one red diagonal; land ruled in grey scan lines, coasts as neon
+  // tubes. Square red pads with a dark edge, white for fresh reports. Black, signal red, warm grey and white only.
   machine: {
     id: "machine",
     label: "Machine Music",
@@ -2203,7 +2203,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     defaultView: "3d",
     projection2d: geoEquirectangular,
     surface: "machine",
-    globeScale: 0.38,
+    globeScale: 0.36,
     ocean: "#0b0b0a",
     land: "#4b4b47",
     landTexture: "none",
@@ -2272,10 +2272,10 @@ export const THEMES: Record<ThemeId, Theme> = {
     decor: null,
   },
   // Departures (experimental): after the feel of a split-flap departures board in a big station hall, with no
-  // operator's, airline's, railway's or maker's names, logos or colours. The map is the hall's wall map, a charcoal
-  // sheet with land as warm off-white dots and thin yellow coasts; the globe sits in a round hall clock's ring of
+  // operator's, airline's, railway's or maker's names, logos or colours. The map is the hall's wall map, a deep
+  // blue-green sheet with land as cream dots and thin pale-blue coasts; the globe sits in a round hall clock's ring of
   // ticks (src/map/flap.ts). Small square lamps for markers, warm white with an orange lamp for fresh reports, so
-  // neither reads as the yellow of the coasts or the amber of the board's times.
+  // neither reads as the blue of the coasts. No amber or yellow anywhere: that is Market Terminal's.
   flap: {
     id: "flap",
     label: "Departures",
@@ -2284,28 +2284,28 @@ export const THEMES: Record<ThemeId, Theme> = {
     projection2d: geoEqualEarth,
     surface: "flap",
     globeScale: 0.4,
-    ocean: "#1c1d1f",
-    land: "#262628",
+    ocean: "#15252c",
+    land: "#1e3139",
     landTexture: "none",
     pixel: 1,
     dotShape: "square",
-    textureInk: "rgba(238,226,200,0.6)",
-    coast: "#e9bf2e",
+    textureInk: "rgba(246,240,221,0.62)",
+    coast: "#6fa8cf",
     coastWidth: 0.8,
     waterlines: 0,
-    waterline: "rgba(233,191,46,0.1)",
+    waterline: "rgba(111,168,207,0.1)",
     oceanHatch: null,
-    graticule: "rgba(238,226,200,0.06)",
+    graticule: "rgba(246,240,221,0.06)",
     graticuleDash: [],
-    river: "rgba(28,29,31,0.8)",
-    lake: "#1c1d1f",
-    ice: "rgba(238,226,200,0.3)",
-    relief: "rgba(255,244,214,0.85)",
+    river: "rgba(21,37,44,0.8)",
+    lake: "#15252c",
+    ice: "rgba(246,240,221,0.3)",
+    relief: "rgba(255,248,226,0.88)",
     dot: "#fff6df",
-    dotStroke: "#0d0d0e",
+    dotStroke: "#0a1519",
     fresh: "#ff7a1a",
     tuned: "#ffffff",
-    arc: "rgba(233,191,46,0.85)",
+    arc: "rgba(143,196,238,0.85)",
     glow: true,
     atmosphere: null,
     shade: null,
@@ -2349,9 +2349,9 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Record Player, experimental: after the feel of a 1970s home turntable (src/map/vinyl.ts). Globe view is the
-  // record seen from above, the world on it round the North Pole at the spindle, turning under the tonearm whose
-  // needle is the reticle; Map view is the sleeve's back, printed in brown ink. Cream land on black vinyl, orange
+  // Record Player, experimental: after the feel of a 1970s home turntable (src/map/vinyl.ts). Globe view is the deck
+  // seen from above with the record turning on its platter, the world on it round the North Pole at the spindle, read
+  // by the tonearm whose needle is the reticle; Map view is the sleeve's back, printed in brown ink. Cream land on black vinyl, orange
   // label-like dots that read on the vinyl, the cream land and the sleeve's ink alike, sky blue for fresh reports.
   vinyl: {
     id: "vinyl",
@@ -2389,38 +2389,38 @@ export const THEMES: Record<ThemeId, Theme> = {
     neatline: false,
     decor: null,
   },
-  // Paper Screen, experimental: after the feel of an e-ink reading device (src/map/paper.ts, src/ui/paper.ts). Greys only
-  // from one sixteen-step ramp, ink to a warm paper white: white sea with fine water lines, stippled mid-grey land,
-  // black coasts. Black circle markers; fresh reports get the dotted ring, so nothing needs a colour.
+  // Notebook (id paper), experimental: a ruled school notebook page with the world drawn on it in ballpoint pen
+  // (src/map/paper.ts, src/ui/paper.ts). The page's rules and margin are CSS behind a clear sea; land is page white,
+  // coasts are blue ink, markers are a black pen and fresh reports are red pen.
   paper: {
     id: "paper",
-    label: "Paper Screen",
+    label: "Notebook",
     experimental: true,
     defaultView: "2d",
     projection2d: geoNaturalEarth1,
     surface: "paper",
-    ocean: "#f5f3ee",
-    land: "#acaba7",
+    ocean: "#fcfcf8",
+    land: "#fcfcf8",
     landTexture: "none",
     pixel: 1,
     dotShape: "circle",
-    textureInk: "#474543",
-    coast: "#1b1a18",
-    coastWidth: 0.9,
+    textureInk: "#1d3a96",
+    coast: "#1d3a96",
+    coastWidth: 1.5,
     waterlines: 0,
-    waterline: "#acaba7",
+    waterline: "#bdd5ef",
     oceanHatch: null,
-    graticule: "#c9c8c3",
-    graticuleDash: [1, 3],
-    river: "#8f8e8a",
-    lake: "#f5f3ee",
-    ice: "#e6e5e0",
-    relief: "#474543",
-    dot: "#1b1a18",
-    dotStroke: "#f5f3ee",
-    fresh: "#1b1a18",
-    tuned: "#1b1a18",
-    arc: "#474543",
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "#1d3a96",
+    lake: "#e1ebf8",
+    ice: "#e1ebf8",
+    relief: "#1d3a96",
+    dot: "#1f2230",
+    dotStroke: "#fcfcf8",
+    fresh: "#d1344a",
+    tuned: "#1d3a96",
+    arc: "#1d3a96",
     glow: false,
     atmosphere: null,
     shade: null,
@@ -2657,6 +2657,87 @@ export const THEMES: Record<ThemeId, Theme> = {
     fresh: "#faf3e2",
     tuned: "#1d1b18",
     arc: "#faf3e2",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Tiramisu (experimental): the world as a tiramisu (src/map/tiramisu.ts). The land is the mascarpone cream, spoon
+  // swirled and dusted with cocoa toward its edges and on high relief; the sea is the coffee-soaked sponge under it.
+  // The map is the top of a glass dish whose side shows the layers; the globe sits in a round glass bowl on a plate.
+  // Coffee bean markers in dark roast, a light-roast caramel bean for fresh reports.
+  tiramisu: {
+    id: "tiramisu",
+    label: "Tiramisu",
+    experimental: true,
+    defaultView: "2d",
+    projection2d: geoEquirectangular,
+    surface: "tiramisu",
+    globeScale: 0.34,
+    ocean: "#3a2416",
+    land: "#f4e9d0",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "bean",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#5a3a24",
+    coastWidth: 0.9,
+    waterlines: 0,
+    waterline: "rgba(0,0,0,0)",
+    oceanHatch: null,
+    graticule: "rgba(0,0,0,0)",
+    graticuleDash: [],
+    river: "rgba(122,78,46,0.5)",
+    lake: "#3a2416",
+    ice: "#fbf5e8",
+    relief: "rgba(0,0,0,0)",
+    dot: "#3b2112",
+    dotStroke: "#fbf3e2",
+    fresh: "#c4691d",
+    tuned: "#3b2112",
+    arc: "#9a5a2c",
+    glow: false,
+    atmosphere: null,
+    shade: null,
+    neatline: false,
+    decor: null,
+  },
+  // Noodle Bowl, experimental: the world in a bowl of broth (src/map/soup.ts). Globe view floats the globe in the broth
+  // with noodles, a spoon, an egg, seaweed, scallion rings and herbs laid round it; Map view is the broth in a wide pot.
+  // Land is noodle on the globe and tofu on the map, cut by the coastline alone. A drag or a zoom sets the broth
+  // swaying a little (`warp: "wobble"`). Dark green slice markers, chili red for fresh reports.
+  soup: {
+    id: "soup",
+    label: "Noodle Bowl",
+    experimental: true,
+    defaultView: "3d",
+    projection2d: geoEqualEarth,
+    surface: "soup",
+    warp: "wobble",
+    globeScale: 0.32,
+    ocean: "#c47a2a",
+    land: "#f6e0a0",
+    landTexture: "none",
+    pixel: 1,
+    dotShape: "slice",
+    textureInk: "rgba(0,0,0,0)",
+    coast: "#7a4417",
+    coastWidth: 1,
+    waterlines: 0,
+    waterline: "rgba(255,236,190,0.28)",
+    oceanHatch: null,
+    graticule: "rgba(255,236,190,0.14)",
+    graticuleDash: [],
+    river: "rgba(150,90,30,0.6)",
+    lake: "#d28a30",
+    ice: "#fffaf0",
+    relief: "rgba(0,0,0,0)",
+    dot: "#1c5a2c",
+    dotStroke: "#fff8e4",
+    fresh: "#e5251f",
+    tuned: "#4a1c0c",
+    arc: "rgba(255,244,214,0.9)",
     glow: false,
     atmosphere: null,
     shade: null,

@@ -47,6 +47,28 @@ describe("Departures", () => {
     expect(t.dotShape).toBe("square");
   });
 
+  it("has its own colours: no amber or yellow anywhere, which is Market Terminal's", () => {
+    // Hue 38 to 70 degrees at strong colour (the brass of the hall's hairlines is muted and stays under the line).
+    const hsl = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
+      const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+      if (!d) return { h: 0, s: 0, l };
+      const sat = d / (1 - Math.abs(2 * l - 1));
+      const hue = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      return { h: (hue * 60 + 360) % 360, s: sat, l };
+    };
+    const own = flapCss.slice(0, flapCss.indexOf("/* ---- Desktop 95"));
+    const hexes = [...own.matchAll(/#[0-9a-fA-F]{6}\b/g)].map((m) => m[0]);
+    const t = THEMES.flap;
+    for (const c of [...hexes, t.coast, t.dot, t.fresh, t.tuned, t.ocean, t.land]) {
+      if (!/^#[0-9a-fA-F]{6}$/.test(c)) continue;
+      const k = hsl(c);
+      expect(k.h >= 38 && k.h <= 70 && k.s > 0.6 && k.l > 0.25 && k.l < 0.85, `${c} is amber or yellow`).toBe(false);
+    }
+    expect(t.coast).not.toBe(THEMES.terminal.coast);
+    expect(t.ocean).not.toBe(THEMES.terminal.ocean);
+  });
+
   it("has a stylesheet section of its own", () => {
     expect(flapCss.length).toBeGreaterThan(1000);
     expect(flapCss).toContain(':root[data-theme="flap"]');
