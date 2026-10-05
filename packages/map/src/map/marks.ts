@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -44,6 +44,25 @@ export function cubeFaces(r: number): { top: string; right: string; edges: strin
     right: polygon([[0, 0], [c, -R / 2], [c, R / 2], [0, R]]),
     edges: `M0 0L0 ${f(R)}M0 0L${f(c)} ${f(-R / 2)}M0 0L${f(-c)} ${f(-R / 2)}`,
   };
+}
+
+// Tiramisu (experimental): a coffee bean seen from its flat side, an oval laid at a slant, with the crease down its
+// middle drawn over it (beanCrease). The oval alone is the mark, so hollow, filled and ringed read as in every shape.
+/** The bean's half length and half width as shares of r (it covers about as much as a circle of radius r), and its slant. */
+const BEAN_A = 1.2;
+const BEAN_B = 0.86;
+const BEAN_TURN = -0.45;
+
+/** A point in the bean's own frame (u along its length, v across it), turned to its slant, as SVG numbers. */
+function beanAt(u: number, v: number): string {
+  const c = Math.cos(BEAN_TURN), s = Math.sin(BEAN_TURN);
+  return `${f(u * c - v * s)} ${f(u * s + v * c)}`;
+}
+
+/** The crease down a bean's middle, a gentle S from end to end, as SVG path data centred on 0,0 (an open line). */
+export function beanCrease(r: number): string {
+  const a = r * BEAN_A, b = r * BEAN_B;
+  return `M${beanAt(-0.8 * a, 0.06 * b)}C${beanAt(-0.3 * a, 0.44 * b)} ${beanAt(0.3 * a, -0.44 * b)} ${beanAt(0.8 * a, -0.06 * b)}`;
 }
 
 /** The outline of a marker of radius r, as SVG path data. */
@@ -230,6 +249,14 @@ export function markPath(shape: MarkShape, r: number): string {
       const c = R * Math.cos(Math.PI / 6);
       return polygon([[0, -R], [c, -R / 2], [c, R / 2], [0, R], [-c, R / 2], [-c, -R / 2]]);
     }
+    case "bean": {
+      // An oval in four quarter curves (the usual 0.5523 handles), turned to the bean's slant.
+      const a = r * BEAN_A, b = r * BEAN_B, k = 0.5523;
+      return (
+        `M${beanAt(a, 0)}C${beanAt(a, k * b)} ${beanAt(k * a, b)} ${beanAt(0, b)}C${beanAt(-k * a, b)} ${beanAt(-a, k * b)} ${beanAt(-a, 0)}` +
+        `C${beanAt(-a, -k * b)} ${beanAt(-k * a, -b)} ${beanAt(0, -b)}C${beanAt(k * a, -b)} ${beanAt(a, -k * b)} ${beanAt(a, 0)}Z`
+      );
+    }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X
       // (markRing), since an X drawn larger would sit too close to read as a ring.
@@ -277,6 +304,20 @@ export function cubeFaces2D(r: number): { top: Path2D; right: Path2D; edges: Pat
     p = { top: new Path2D(d.top), right: new Path2D(d.right), edges: new Path2D(d.edges) };
     if (faceCache.size > 400) faceCache.clear();
     faceCache.set(q, p);
+  }
+  return p;
+}
+
+const creaseCache = new Map<number, Path2D>();
+
+/** beanCrease as a Path2D centred on 0,0, cached by size (to a quarter pixel). */
+export function beanCrease2D(r: number): Path2D {
+  const q = Math.round(r * 4) / 4;
+  let p = creaseCache.get(q);
+  if (!p) {
+    p = new Path2D(beanCrease(q));
+    if (creaseCache.size > 400) creaseCache.clear();
+    creaseCache.set(q, p);
   }
   return p;
 }

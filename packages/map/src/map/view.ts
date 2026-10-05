@@ -74,6 +74,9 @@ import { drawTowers, TowersCache } from "./towers.ts";
 import { DesktopCache, drawDesktop } from "./desktop.ts";
 // Herbarium (experimental).
 import { drawHerbarium, HerbariumCache } from "./herbarium.ts";
+// Tiramisu (experimental): the dish, the bowl and the coffee bean's crease.
+import { drawTiramisu, TiramisuCache } from "./tiramisu.ts";
+import { beanCrease2D } from "./marks.ts";
 import { CAP, dragRecord, drawVinyl, NEEDLE_LAT, recordProjection, recordScale, VinylCache } from "./vinyl.ts";
 import { drawWoodblock } from "./woodblock.ts";
 import { CoreCache, drawCore } from "./core.ts";
@@ -335,6 +338,8 @@ export class MapView {
   private desktop = new DesktopCache();
   /** Herbarium: its pencil water lines, the leaf grid's mountains and what lies round the globe. */
   private herbarium = new HerbariumCache();
+  /** Tiramisu: the dish or the bowl on its table, kept while the view holds still. */
+  private tiramisu = new TiramisuCache();
   /** Record Player: the tonearm and sleeve layers, and where the finger last was on the record (src/map/vinyl.ts). */
   private vinyl = new VinylCache();
   private recordAt: [number, number] | null = null;
@@ -1954,6 +1959,7 @@ export class MapView {
     if (t.surface === "towers") return drawTowers(f, this.towers);
     if (t.surface === "desktop") return drawDesktop(f, this.desktop);
     if (t.surface === "herbarium") return drawHerbarium(f, this.herbarium);
+    if (t.surface === "tiramisu") return drawTiramisu(f, this.tiramisu);
     if (t.surface === "vinyl") return drawVinyl(f, this.vinyl);
     if (t.surface === "woodblock") return drawWoodblock(f);
     if (t.surface === "core") return drawCore(f, this.core);
@@ -2659,6 +2665,22 @@ export class MapView {
         ctx.strokeStyle = t.dotStroke;
         ctx.globalAlpha = 0.55;
         ctx.stroke(c.edges);
+        ctx.restore();
+      }
+      if (t.dotShape === "bean") {
+        // Tiramisu's coffee bean: a roasted sheen on a filled bean, and the crease down its middle on every bean, pale
+        // on a filled one and in the ink on a hollow one, so the hollow outline still reads as a bean.
+        ctx.save();
+        ctx.shadowBlur = 0;
+        if (!hollow) shadeShape(x, y, r, [[0, "rgba(255,240,220,0.5)"], [0.4, "rgba(255,240,220,0)"], [1, "rgba(0,0,0,0.22)"]]);
+        if (r >= 2.5) {
+          ctx.translate(x, y);
+          ctx.lineWidth = Math.max(0.7, r * (hollow ? 0.13 : 0.17));
+          ctx.lineCap = "round";
+          ctx.strokeStyle = hollow ? ink : t.dotStroke;
+          ctx.globalAlpha = hollow ? 0.85 : 0.8;
+          ctx.stroke(beanCrease2D(r));
+        }
         ctx.restore();
       }
       if (t.dotShape === "diamond" && !hollow) {

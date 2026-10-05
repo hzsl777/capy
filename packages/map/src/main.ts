@@ -223,6 +223,10 @@ import { mountDial, moveDial } from "./ui/dial.ts";
 import { renderPostcard } from "./ui/postcard.ts";
 // Zine: chunky display capitals for the off-register name and word.
 import "@fontsource/bowlby-one/400.css";
+// Tiramisu (experimental): the coffee bean's crease in the Key, and Playfair Display's lighter italic for its menu card.
+import { beanCrease } from "./map/marks.ts";
+import "@fontsource/playfair-display/400-italic.css";
+import "@fontsource/playfair-display/600-italic.css";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h
@@ -791,6 +795,18 @@ function markSvg(draw: MarkDraw, size = 22): SVGSVGElement {
       ring.setAttribute("transform", "translate(1.2 1)");
       ring.classList.add("zine-plate");
       svg.append(ring);
+    }
+    // Tiramisu: the coffee bean's crease, as the map draws it (view.ts).
+    if (t.dotShape === "bean" && of === undefined && fill !== "none") {
+      const hollow = fill === t.dotStroke;
+      const crease = document.createElementNS(NS, "path");
+      crease.setAttribute("d", beanCrease(r));
+      crease.setAttribute("fill", "none");
+      crease.setAttribute("stroke", hollow ? stroke : t.dotStroke);
+      crease.setAttribute("stroke-width", String(Math.max(0.7, r * (hollow ? 0.13 : 0.17))));
+      crease.setAttribute("stroke-linecap", "round");
+      crease.setAttribute("opacity", "0.85");
+      svg.append(crease);
     }
   });
   return svg;

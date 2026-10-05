@@ -1,8 +1,8 @@
 // Every marker shape is one closed outline, sized like a circle of the same radius (decision 72).
 import { describe, expect, it } from "vitest";
-import { markPath, markRing, type MarkShape } from "../src/map/marks.ts";
+import { beanCrease, markPath, markRing, type MarkShape } from "../src/map/marks.ts";
 
-const SHAPES: MarkShape[] = ["circle", "square", "diamond", "bevel", "hex", "pad", "star4", "star5", "star6", "flower", "gumdrop", "shield", "block", "shell", "squircle", "house", "loop", "x", "pin", "ticket", "stub", "teacup", "nugget", "cube"];
+const SHAPES: MarkShape[] = ["circle", "square", "diamond", "bevel", "hex", "pad", "star4", "star5", "star6", "flower", "gumdrop", "shield", "block", "shell", "squircle", "house", "loop", "x", "pin", "ticket", "stub", "teacup", "nugget", "cube", "bean"];
 
 describe("marker shapes", () => {
   for (const s of SHAPES) {
@@ -24,5 +24,15 @@ describe("marker shapes", () => {
     expect(ring).toBeGreaterThanOrEqual(reach + 2.5);
     expect(markRing("circle", 6, 2.6)).toBe(markPath("circle", 8.6));
     expect(markRing("star4", 6, 2.6)).toBe(markPath("star4", 8.6));
+    expect(markRing("bean", 6, 2.6)).toBe(markPath("bean", 8.6));
+  });
+
+  it("draws the coffee bean's crease as one open line within the bean's length", () => {
+    const d = beanCrease(6);
+    expect(d.match(/M/g)).toHaveLength(1);
+    expect(d.endsWith("Z")).toBe(false);
+    const nums = (d.match(/-?\d+\.?\d*/g) ?? []).map(Number);
+    // Its ends and its curve's handles all lie short of the bean's half length, 1.2 r, so the curve does too.
+    for (let i = 0; i < nums.length; i += 2) expect(Math.hypot(nums[i]!, nums[i + 1]!)).toBeLessThan(6 * 1.2);
   });
 });
