@@ -6,7 +6,7 @@
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
 
-export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice";
+export type MarkShape = "circle" | "square" | "diamond" | "bevel" | "button" | "hex" | "pad" | "star4" | "star5" | "star6" | "flower" | "gumdrop" | "shield" | "block" | "shell" | "squircle" | "house" | "loop" | "x" | "pin" | "ticket" | "stub" | "teacup" | "nugget" | "cube" | "bean" | "slice" | "trilobe";
 
 const f = (n: number) => n.toFixed(2);
 
@@ -271,6 +271,26 @@ export function markPath(shape: MarkShape, r: number): string {
         d += `A${f(br)} ${f(br)} 0 0 1 ${f(x)} ${f(y)}`;
       }
       return `${d}Z`;
+    }
+    case "trilobe": {
+      // Three rounded lobes in one outline, like a small seed pod (Alien): circles of radius 0.58 r whose centres lie
+      // 0.5 r from the middle at 120 degrees, joined along the outer edge where neighbours cross.
+      const d = r * 0.5, rho = r * 0.58;
+      const a = (k: number) => -Math.PI / 2 + (k * 2 * Math.PI) / 3;
+      const half = Math.sqrt(rho * rho - (d * Math.sqrt(3)) ** 2 / 4);
+      // The crossing of lobes k and k+1 that lies farther from the middle, on the bisector between their centres.
+      const cross = (k: number): [number, number] => {
+        const m = a(k) + Math.PI / 3;
+        const o = d / 2 + half;
+        return [o * Math.cos(m), o * Math.sin(m)];
+      };
+      let path = "";
+      for (let k = 0; k < 3; k++) {
+        const [sx, sy] = cross((k + 2) % 3);
+        const [ex, ey] = cross(k);
+        path += `${k ? "" : `M${f(sx)} ${f(sy)}`}A${f(rho)} ${f(rho)} 0 1 1 ${f(ex)} ${f(ey)}`;
+      }
+      return `${path}Z`;
     }
     case "x": {
       // X marks the spot (Pirate): two crossed bars with square-cut ends. Its ring is a circle round the whole X

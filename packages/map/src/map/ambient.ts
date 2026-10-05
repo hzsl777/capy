@@ -8,9 +8,9 @@ import { offscreen, type SurfaceFrame } from "./surface.ts";
 
 /**
  * Milliseconds between frames a design's own motion asks for, by `surface`. About 12 and 5 frames a second; Green
- * Core's energy and tube light 8, which also carries its opening.
+ * Core's energy and tube light 8, which also carries its opening; Alien's slow lights and critters 10.
  */
-const AMBIENT_MS: Partial<Record<NonNullable<Theme["surface"]>, number>> = { aquarium: 80, lava: 200, core: 125 };
+const AMBIENT_MS: Partial<Record<NonNullable<Theme["surface"]>, number>> = { aquarium: 80, lava: 200, core: 125, alien: 100 };
 
 let reduce: MediaQueryList | null = null;
 

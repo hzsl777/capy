@@ -227,6 +227,10 @@ import "@fontsource/bowlby-one/400.css";
 import { beanCrease } from "./map/marks.ts";
 import "@fontsource/playfair-display/400-italic.css";
 import "@fontsource/playfair-display/600-italic.css";
+// Alien (experimental): Zen Dots for the name and the word, Lexend for reading.
+import "@fontsource/zen-dots/latin-400.css";
+import "@fontsource/lexend/400.css";
+import "@fontsource/lexend/600.css";
 
 const BASE = import.meta.env.BASE_URL;
 const SLOTS = 96; // quarter hours in 24h

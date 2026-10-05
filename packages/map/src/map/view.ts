@@ -70,6 +70,7 @@ import { drawChalk, ChalkCache } from "./chalk.ts";
 import { drawSketch, SketchCache } from "./sketch.ts";
 import { drawGloss, GlossCache } from "./gloss.ts";
 import { drawTowers, TowersCache } from "./towers.ts";
+import { AlienCache, drawAlien } from "./alien.ts";
 import { drawSoup, SoupCache } from "./soup.ts";
 // Desktop 95.
 import { DesktopCache, drawDesktop } from "./desktop.ts";
@@ -335,6 +336,8 @@ export class MapView {
   private gloss = new GlossCache();
   /** Crystal Towers: its floor, towers, drifting cubes and the world under them. */
   private towers = new TowersCache();
+  /** Alien: the hull, the viewport or scanner, the critters and the tractor beam's state. */
+  private alien = new AlienCache();
   /** Noodle Bowl: the bowl or pot, what is laid round the world, and how stirred the broth is. */
   private soup = new SoupCache();
   /** Desktop 95: the small canvas it snaps to sixteen colours. */
@@ -1840,7 +1843,7 @@ export class MapView {
 
     if (t.surface && map) {
       // Couch Potato sets its buttons inside the channel tile in Map view, so the page needs to know which is showing.
-      if (t.surface === "gloss" && this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
+      if ((t.surface === "gloss" || t.surface === "alien") && this.container.dataset.view !== this.mode) this.container.dataset.view = this.mode;
       // Night Drive, Cross Stitch and Rose Window draw land and sea their own way (decision 70). Places, arcs and
       // tuning are the same as in every design.
       const drawn = this.drawSurface(proj, cam, view, map, t);
@@ -2037,7 +2040,9 @@ export class MapView {
       time: this.still() ? 0 : performance.now(),
       trail: this.trail,
       anchors: this.anchors,
+      tuned: !!this.tuned,
     };
+    if (t.surface === "alien") return drawAlien(f, this.alien);
     if (t.surface === "radar") return drawRadar(f, this.radar);
     if (t.surface === "noir") return drawNoir(f, this.noir);
     if (t.surface === "arcade") return drawArcade(f, this.arcade);

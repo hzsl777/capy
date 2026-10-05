@@ -52,6 +52,8 @@ export interface SurfaceFrame {
   trail?: readonly { x: number; y: number; t: number }[];
   /** Every place ever shown, so drawn things keep clear of them (Toy Train Set's trees). Only grows. */
   anchors?: ReadonlyMap<string, [number, number]>;
+  /** Whether a place is under the reticle right now (Alien's tractor beam lowers onto it). */
+  tuned?: boolean;
 }
 
 /** A marker as the view places it this frame, for designs that light markers up (Radar Sweep's glow). */
