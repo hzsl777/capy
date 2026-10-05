@@ -58,12 +58,12 @@ const SIZES: [number, number][] = [
 ];
 
 describe("Lobster", () => {
-  it("is experimental, kept out of the menu and its groups, with a buoy mark and a fresh colour of its own", () => {
+  it("is in the Design menu, in one group and not featured, with a buoy mark and a fresh colour of its own (decision 138)", () => {
     const t = THEMES.lobster;
-    expect(t.experimental).toBe(true);
+    expect(t.experimental).toBeFalsy();
     expect(t.dotShape).toBe("buoy");
     expect(t.fresh).not.toBe(t.dot);
-    expect(DESIGN_GROUPS.some((g) => g.ids.includes("lobster"))).toBe(false);
+    expect(DESIGN_GROUPS.filter((g) => g.ids.includes("lobster"))).toHaveLength(1);
     expect(FEATURED).not.toContain("lobster");
   });
 

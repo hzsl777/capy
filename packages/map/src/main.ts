@@ -218,7 +218,7 @@ import "@fontsource/shippori-mincho/latin-700.css";
 // Desktop 95: the site as a desktop of windows.
 import { mountDesktop } from "./ui/desktop.ts";
 import { deckStopped, mountVinyl, replayStepMs, syncVinyl } from "./ui/vinyl.ts";
-// Lobster (experimental): the panel hauled up like a pot when a place is tuned.
+// Lobster: the panel hauled up like a pot when a place is tuned.
 import { haul } from "./ui/lobster.ts";
 import { mountPaper } from "./ui/paper.ts";
 import { mountDial, moveDial } from "./ui/dial.ts";
@@ -230,13 +230,13 @@ import "@fontsource/bowlby-one/400.css";
 import { beanCrease, buoyBand } from "./map/marks.ts";
 import "@fontsource/playfair-display/400-italic.css";
 import "@fontsource/playfair-display/600-italic.css";
-// Alien (experimental): Zen Dots for the name and the word, Lexend for reading.
+// Alien: Zen Dots for the name and the word, Lexend for reading.
 import "@fontsource/zen-dots/latin-400.css";
 import "@fontsource/lexend/400.css";
 import "@fontsource/lexend/600.css";
-// Burger Joint (experimental): the Topics menu's burger, built from the topics that are on.
+// Burger Joint: the Topics menu's burger, built from the topics that are on.
 import { syncBurger } from "./ui/burger.ts";
-// Bunny (experimental): Fraunces for the name, the word and the heads (Nunito, above, for reading).
+// Bunny: Fraunces for the name, the word and the heads (Nunito, above, for reading).
 import "@fontsource/fraunces/latin-700.css";
 import "@fontsource/fraunces/latin-800.css";
 
@@ -344,7 +344,7 @@ const map = new MapView($("map"), THEMES[state.theme], {
     if (!state.reader && !state.telegram && !state.event) renderPanel();
     syncUrl();
     refreshExtras();
-    // Lobster (experimental): the panel is a pot, hauled up when a place is tuned.
+    // Lobster: the panel is a pot, hauled up when a place is tuned.
     haul(state.theme, $("panel"), indices);
   },
   onMove: moveExtras,

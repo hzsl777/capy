@@ -1,4 +1,4 @@
-// Alien (id alien, experimental): friendly visitors from elsewhere, studying the Earth from their ship. Our own
+// Alien (id alien): friendly visitors from elsewhere, studying the Earth from their ship. Our own
 // drawings throughout, copied from no film, show, game or brand: no creature, craft, lettering or art of anyone's,
 // no real place, no text on the canvas.
 //

@@ -24739,7 +24739,7 @@ button.x-ch:focus-visible {
   }
 }
 
-/* ---- Alien (id alien, experimental): friendly visitors studying the Earth from their ship. Deep indigo hull, pearl and
+/* ---- Alien (id alien): friendly visitors studying the Earth from their ship. Deep indigo hull, pearl and
    aqua glass, pebble-shaped controls, Zen Dots for the name and the word and Lexend for reading. The viewport, the
    scanner, the beam and the critters on the map are drawn on the canvas (src/map/alien.ts); the small saucer by the
    name and the critter on the panel's top are our own drawings. None of it copies any film, show, game or brand. ------ */
@@ -25132,9 +25132,9 @@ button.x-ch:focus-visible {
   }
 }
 
-/* >>> lobster (experimental design, fenced so parallel designs merge) */
+/* >>> lobster (fenced so parallel designs merge) */
 /* ==========================================================================
-   Lobster (lobster, experimental): a seaside lobster shack and a lobster boat of our own, with no restaurant's, brand's,
+   Lobster (lobster): a seaside lobster shack and a lobster boat of our own, with no restaurant's, brand's,
    fishery's or state's name, logo or lettering. The page is the shack's weathered grey shingle wall; the masthead is a
    sea-green painted board under a rope, with a small lobster of our own by the name; the toolbar and the time bar are
    wooden rails; the map is a chart in a driftwood frame; the panel hangs from the rail on a rope, whitewashed, and is
@@ -25749,7 +25749,7 @@ button.x-ch:focus-visible {
 /* <<< lobster */
 
 /* ==========================================================================
-   Burger Joint (burger, experimental): a diner of our own, no restaurant's, chain's or maker's name, mark, lettering,
+   Burger Joint (burger): a diner of our own, no restaurant's, chain's or maker's name, mark, lettering,
    packaging or colour set. The masthead is a charcoal menu board with sign letters (Bungee) over a checkered trim; the
    toolbar is a steel counter with chunky cream buttons; the panel, the menus, the Key and the About dialog are order
    tickets in torn paper with a dashed rule; the zoom buttons are two bun halves round a patty; the time bar is a steel
@@ -26320,7 +26320,7 @@ button.x-ch:focus-visible {
 }
 
 /* ==========================================================================
-   Bunny (id bunny, experimental): a burrow and a meadow, every picture our own drawing (the canvas side is
+   Bunny (id bunny): a burrow and a meadow, every picture our own drawing (the canvas side is
    src/map/bunny.ts). The masthead is sky over a turf edge; under it the page is earth, and the controls run along a
    tunnel of cream in a wall of soft biscuit-brown. The panel, the menus, the Key and the About dialog are chambers: cream
    rooms in earth walls with a floor of hay. The name carries a pair of ears of our own, the word stands in an arched

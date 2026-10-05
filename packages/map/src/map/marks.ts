@@ -46,7 +46,7 @@ export function cubeFaces(r: number): { top: string; right: string; edges: strin
   };
 }
 
-// Tiramisu (experimental): a coffee bean seen from its flat side, an oval laid at a slant, with the crease down its
+// Tiramisu: a coffee bean seen from its flat side, an oval laid at a slant, with the crease down its
 // middle drawn over it (beanCrease). The oval alone is the mark, so hollow, filled and ringed read as in every shape.
 /** The bean's half length and half width as shares of r (it covers about as much as a circle of radius r), and its slant. */
 const BEAN_A = 1.2;
@@ -65,7 +65,7 @@ export function beanCrease(r: number): string {
   return `M${beanAt(-0.8 * a, 0.06 * b)}C${beanAt(-0.3 * a, 0.44 * b)} ${beanAt(0.3 * a, -0.44 * b)} ${beanAt(0.8 * a, -0.06 * b)}`;
 }
 
-// Lobster (experimental): a toggle buoy, a round float with a short neck on top, with a painted band across its belly
+// Lobster: a toggle buoy, a round float with a short neck on top, with a painted band across its belly
 // (buoyBand, over a filled mark only). The outline alone is the mark, so hollow, filled and ringed read as in every shape.
 /** The float's radius and centre height, and the neck's half width and top, as shares of r. */
 const BUOY_R = 0.95;
@@ -79,7 +79,7 @@ export function buoyBand(r: number): string {
   return `M${f(-x)} ${f(y)}H${f(x)}`;
 }
 
-// Burger Joint (experimental): a sesame seed, a teardrop with a sharp tip at one end and a round belly at the other,
+// Burger Joint: a sesame seed, a teardrop with a sharp tip at one end and a round belly at the other,
 // laid at a slant. The pointed end tells it from the bean's plain oval; the outline alone is the mark.
 const SEED_A = 1.35;
 const SEED_B = 0.86;
@@ -91,7 +91,7 @@ function seedAt(u: number, v: number): string {
   return `${f(u * c - v * s)} ${f(u * s + v * c)}`;
 }
 
-// Bunny (experimental): a carrot, our own drawing, turned so its leafy top points to the upper right. One closed outline
+// Bunny: a carrot, our own drawing, turned so its leafy top points to the upper right. One closed outline
 // (a tapered body with a rounded shoulder and three round leaves), so hollow, filled and ringed read as in every shape.
 const CARROT_TURN = -0.8;
 const CARROT_K = 0.8;

@@ -1,4 +1,4 @@
-// Lobster (id lobster, experimental): a seaside lobster shack and a lobster boat of our own. Nothing is copied from any
+// Lobster (id lobster): a seaside lobster shack and a lobster boat of our own. Nothing is copied from any
 // restaurant, brand, fishery or place: the lobster, the boat, the pots, the rope and the chart are our own drawings, and
 // nothing here carries a name, a logo or lettering.
 //
