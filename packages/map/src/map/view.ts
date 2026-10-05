@@ -354,7 +354,7 @@ export class MapView {
   private firstRender = new RenderCache();
   /** Departures: its lamp patterns and the clock's ring. */
   private flap = new FlapCache();
-  /** Paper Screen: the full drawing of the last still view, and the stipple tile. */
+  /** Notebook: the pen strokes of the last view drawn, so a redraw for a marker costs fills only. */
   private paper = new PaperCache();
   /** Postcards: the folded sheet's paper and the paper globe's light and shadow. */
   private postcard = new PostcardCache();

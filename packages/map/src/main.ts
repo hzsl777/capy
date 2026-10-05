@@ -1792,7 +1792,7 @@ async function start() {
     kmPerPixel: () => map.kmPerPixel(),
     level: () => map.level(),
   });
-  // Paper Screen's pages for the panel and the About dialog (experimental); idle in every other design.
+  // Notebook's pages for the panel and the About dialog (experimental); idle in every other design.
   mountPaper();
   // Shortwave's tuning dial under the map: it turns the world as a drag would (src/ui/dial.ts).
   mountDial({
