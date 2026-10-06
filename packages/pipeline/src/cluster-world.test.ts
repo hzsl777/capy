@@ -5,7 +5,7 @@ import { toRunDate, validMergeGroups, type Source } from "@2dayai/core";
 import { articles, eventArticles, events, loadMapView, sources, type Db } from "@2dayai/db";
 import { FakeLlm, type FakeAnswer } from "./llm/fake.js";
 import { LlmParseError } from "./llm/types.js";
-import { runClusterWorld, splitBatches } from "./stages/cluster.js";
+import { batchCodes, fromCodes, runClusterWorld, splitBatches, worldClusterUserContent } from "./stages/cluster.js";
 import { createTestDb } from "./test/db.js";
 import { testConfig } from "./test/config.js";
 
@@ -52,6 +52,9 @@ const clusterAnswer: FakeAnswer = ({ user }) => {
     skipped: [],
   };
 };
+
+/** The code the batch shows for the article titled `title`, read from the call's input (never its database id). */
+const codeIn = (user: string, title: string) => Number(new RegExp(`^\\[(\\d+)\\] ${title} \\(`, "m").exec(user)![1]);
 
 /** Keys of the batch events for one story, read from the merge call's input. */
 const keysFor = (user: string, story: string) => [...user.matchAll(/^\[(b\d+-e\d+)\] (.+)$/gm)].filter((m) => m[2] === titleOf(story)).map((m) => m[1]!);
@@ -285,14 +288,14 @@ describe("cluster world in batches", () => {
       )
       .returning({ id: articles.id });
     const llm = new FakeLlm({
-      "cluster-world": () => ({
+      "cluster-world": ({ user }) => ({
         events: [
           // A ruling by a judge in another country: no city, the country only.
-          { title: "A judge approves a merger settlement", articleIds: [a!.id, b!.id], importance: 2, importanceReason: "x", topic: "economy", where: null, country: "US" },
+          { title: "A judge approves a merger settlement", articleIds: [codeIn(user, "Item 0"), codeIn(user, "Item 1")], importance: 2, importanceReason: "x", topic: "economy", where: null, country: "US" },
           // News of the outlet's own country with no city: an ordinary unplaced story.
-          { title: "The cabinet meets", articleIds: [c!.id], importance: 2, importanceReason: "x", topic: "politics", where: null, country: "qa" },
+          { title: "The cabinet meets", articleIds: [codeIn(user, "Item 2")], importance: 2, importanceReason: "x", topic: "politics", where: null, country: "qa" },
           // A city that checks out: placed there, so not marked.
-          { title: "A ferry docks in New York", articleIds: [d!.id], importance: 2, importanceReason: "x", topic: "other", where: { city: "New York", country: "US", lat: 40.7, lon: -74 }, country: "US" },
+          { title: "A ferry docks in New York", articleIds: [codeIn(user, "Item 3")], importance: 2, importanceReason: "x", topic: "other", where: { city: "New York", country: "US", lat: 40.7, lon: -74 }, country: "US" },
         ],
         skipped: [],
       }),
@@ -316,20 +319,18 @@ describe("cluster world in batches", () => {
   it("places the model's towns at the town list's own point, never at a guess in the sea (decision 44)", async () => {
     const day = toRunDate("2026-09-30");
     await db.insert(sources).values({ id: "tn1", name: "Coast Herald", url: "https://tn1.example/feed.xml", topic: "world", tier: "general", desk: "world", placeName: "Tunis", lat: 36.81, lon: 10.18 });
-    const rows = await db
+    await db
       .insert(articles)
-      .values([0, 1, 2].map((i) => ({ sourceId: "tn1", url: `https://tn1.example/x${i}`, title: `Item ${i}`, lead: "A lead.", publishedAt: new Date(Date.UTC(2026, 8, 30, 10 + i)) })))
-      .returning({ id: articles.id });
-    const [a, b, c] = rows.map((r) => r.id);
+      .values([0, 1, 2].map((i) => ({ sourceId: "tn1", url: `https://tn1.example/x${i}`, title: `Item ${i}`, lead: "A lead.", publishedAt: new Date(Date.UTC(2026, 8, 30, 10 + i)) })));
     const llm = new FakeLlm({
-      "cluster-world": () => ({
+      "cluster-world": ({ user }) => ({
         events: [
           // A coastal town on the town list only, the model's point 22 km out in the Mediterranean.
-          { title: "A fishing boat is towed in at Tabarka", articleIds: [a], importance: 2, importanceReason: "x", topic: "other", where: { city: "Tabarka", country: "TN", lat: 37.15, lon: 8.7 }, country: "TN" },
+          { title: "A fishing boat is towed in at Tabarka", articleIds: [codeIn(user, "Item 0")], importance: 2, importanceReason: "x", topic: "other", where: { city: "Tabarka", country: "TN", lat: 37.15, lon: 8.7 }, country: "TN" },
           // A name found nowhere with a point in open sea: stays at the outlet.
-          { title: "A buoy breaks loose off Fictional Cove", articleIds: [b], importance: 2, importanceReason: "x", topic: "other", where: { city: "Fictional Cove", country: "TN", lat: 36, lon: 11.7 }, country: "TN" },
+          { title: "A buoy breaks loose off Fictional Cove", articleIds: [codeIn(user, "Item 1")], importance: 2, importanceReason: "x", topic: "other", where: { city: "Fictional Cove", country: "TN", lat: 36, lon: 11.7 }, country: "TN" },
           // A name two Italian towns share, with no point: ambiguous, stays at the outlet.
-          { title: "A bell is restored in Badia", articleIds: [c], importance: 2, importanceReason: "x", topic: "other", where: { city: "Badia", country: "IT" }, country: "IT" },
+          { title: "A bell is restored in Badia", articleIds: [codeIn(user, "Item 2")], importance: 2, importanceReason: "x", topic: "other", where: { city: "Badia", country: "IT" }, country: "IT" },
         ],
         skipped: [],
       }),
@@ -353,5 +354,35 @@ describe("cluster world in batches", () => {
     const report = await runClusterWorld(db, testConfig({ worldPerSource: 1 }), llm, date);
     expect(report).toMatchObject({ articles: 6, batches: 1, merged: 0 });
     expect(llm.calls).toHaveLength(1);
+  });
+});
+
+describe("the codes a batch shows the model", () => {
+  const row = (id: number) => ({ id, source: "Bay Herald", place: "Doha", title: "A lamp is lit", lead: "A lead.", lat: null, lon: null });
+
+  it("are four digits, all different, and far apart for neighbouring articles", () => {
+    const codes = batchCodes(400);
+    expect(new Set(codes).size).toBe(400);
+    for (const c of codes) expect(c >= 1000 && c <= 9999).toBe(true);
+    for (let i = 1; i < codes.length; i++) expect(Math.abs(codes[i]! - codes[i - 1]!)).toBeGreaterThan(50);
+  });
+
+  it("never show the database's ids", () => {
+    const rows = [row(36550), row(36551), row(36552)];
+    const user = worldClusterUserContent(rows);
+    for (const r of rows) expect(user).not.toContain(String(r.id));
+    for (const c of batchCodes(3)) expect(user).toContain(`[${c}] `);
+  });
+
+  it("map back to the batch's articles, and a code a digit off to no article", () => {
+    const rows = [row(36550), row(36551), row(36552)];
+    const [c0, c1, c2] = batchCodes(3) as [number, number, number];
+    const back = fromCodes(
+      { events: [{ title: "t", articleIds: [c0, c2, c1 + 1], importance: 2, importanceReason: "x", topic: "other" }], skipped: [{ articleId: c1, reason: "r" }, { articleId: 36551, reason: "r" }] },
+      rows,
+      batchCodes(3),
+    );
+    expect(back.events[0]!.articleIds).toEqual([36550, 36552, -1]);
+    expect(back.skipped.map((s) => s.articleId)).toEqual([36551, -1]);
   });
 });

@@ -126,9 +126,34 @@ type BatchEvent = { key: string; title: string; importance: number; importanceRe
 
 let gazetteer: Gazetteer | undefined;
 
-export function worldClusterUserContent(rows: WorldRow[]): string {
-  const lines = rows.map((r) => `[${r.id}] ${r.title} (${r.source})\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
+export function worldClusterUserContent(rows: WorldRow[], codes: readonly number[] = batchCodes(rows.length)): string {
+  const lines = rows.map((r, i) => `[${codes[i]}] ${r.title} (${r.source})\n${r.lead.slice(0, WORLD_CHARS_FOR_CLUSTERING)}`);
   return `World articles for today, ${rows.length} in total. Each starts with its id in brackets.\n\n${lines.join("\n\n")}`;
+}
+
+/** Steps between the codes of neighbouring articles: coprime with CODE_SPAN, so every code in a batch is different. */
+const CODE_STEP = 7919;
+const CODE_SPAN = 9000;
+
+/**
+ * The ids the model sees for a batch, in its order: four-digit codes that jump about, never the database's ids. Those
+ * are long and consecutive in the order articles arrive, and a model that wrote one a digit off put whatever arrived
+ * in the same minute into the event (a car crash and a basketball game in the Nobel prize's story at Stockholm,
+ * October 5). Neighbouring articles' codes are far apart, so a code a little off names no article and is dropped.
+ */
+export function batchCodes(n: number): number[] {
+  return Array.from({ length: n }, (_, i) => 1000 + ((i * CODE_STEP) % CODE_SPAN));
+}
+
+/** A batch's answer in database ids again; a code the batch never had becomes -1, which no article has. */
+export function fromCodes(result: WorldClusterResult, batch: WorldRow[], codes: readonly number[]): WorldClusterResult {
+  const idOf = new Map(codes.map((c, i) => [c, batch[i]!.id]));
+  const real = (c: number) => idOf.get(c) ?? -1;
+  return {
+    ...result,
+    events: result.events.map((ev) => ({ ...ev, articleIds: ev.articleIds.map(real) })),
+    skipped: result.skipped.map((x) => ({ ...x, articleId: real(x.articleId) })),
+  };
 }
 
 /** How many times a batch whose answer ran past the output limit is halved and asked again (decision 36). */
@@ -149,7 +174,7 @@ async function answerBatches(llm: Llm, config: Config, prompt: Prompt, batches: 
   const failures: string[] = [];
   for (const { id, batch } of batches) {
     const answer = answers.get(id);
-    if (answer?.ok) out.push({ batch, result: answer.value });
+    if (answer?.ok) out.push({ batch, result: fromCodes(answer.value, batch, batchCodes(batch.length)) });
     else if (answer && /max_tokens/.test(answer.error) && batch.length >= 2 && depth < MAX_SPLITS) {
       const half = Math.ceil(batch.length / 2);
       retry.push({ id: `${id}.1`, batch: batch.slice(0, half) }, { id: `${id}.2`, batch: batch.slice(half) });
