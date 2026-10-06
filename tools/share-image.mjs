@@ -26,7 +26,6 @@ const map = mapPath ? JSON.parse(readFileSync(mapPath, "utf8")) : null;
 const word = map?.telegram?.word ?? null;
 // A word is dated like a morning paper, the day after the day whose news it weighed (decision 127).
 const dateOf = (runDate) => new Date(Date.parse(`${runDate}T12:00:00Z`) + 86_400_000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
-const weekdayOf = (runDate) => new Date(`${runDate}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" });
 
 // The day's places, or every outlet's city. One dot per point, whatever it holds: dots are never ranked here.
 const points = map
@@ -58,7 +57,7 @@ ${dots.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${d
 </svg>`;
 
 const brand = word
-  ? `<h1 class="small">GlobalGist</h1><p class="tag small">One World. One Word.</p><div class="rule"></div><p class="date">${esc(dateOf(map.telegram.runDate))}</p><p class="word" style="font-size:${wordSize}px">${esc(word)}</p><p class="line">Chosen by AI from ${esc(weekdayOf(map.telegram.runDate))}'s news, good and bad.</p>`
+  ? `<h1 class="small">GlobalGist</h1><p class="tag small">One World. One Word.</p><div class="rule"></div><p class="date">${esc(dateOf(map.telegram.runDate))}</p><p class="word" style="font-size:${wordSize}px">${esc(word)}</p><p class="line">Chosen by AI from a full day of world news, good and bad.</p>`
   : `<h1>GlobalGist</h1><div class="rule"></div><p class="tag">One World. One Word.</p><p class="line">The day's news on a map, placed where it happened.</p>`;
 
 const html = `<!doctype html><meta charset="utf-8"><style>

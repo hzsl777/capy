@@ -1307,7 +1307,7 @@ function renderTelegramStrip() {
     // "Today's Word" while the word on show is the newest one; while the next is being chosen, or when a day had none,
     // the strip shows an older word and says so, so the label doesn't claim it is today's.
     h("div", { class: "telegram-center" }, h("span", { class: "telegram-kicker" }, status.note ? "Latest Word" : "Today's Word"), word),
-    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, `Chosen by AI from ${formatWeekday(status.date)}'s news, good and bad. `, how), statusLine, scale(t.band), importanceLegend()),
+    h("div", { class: "telegram-side" }, h("span", { class: "telegram-note" }, "Chosen by AI from a full day of world news, good and bad. ", how), statusLine, scale(t.band), importanceLegend()),
   );
 }
 
