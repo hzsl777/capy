@@ -742,32 +742,42 @@ const screenK = (f: SurfaceFrame) => clamp(Math.min(f.w, f.h) / 720, 0.8, 1.15);
  * broken: each ring is a wide stroke with a slightly narrower one rubbed out of it on a layer of its own, so only the
  * ring's outer edge is left. The land laid over it hides the half on land.
  */
+/**
+ * A layer of the frame's size at one pixel per CSS pixel, cleared. The shallows are soft bands and pale rings, the
+ * widest strokes on the page (up to 150 px), and at a phone's two or three device pixels per CSS pixel they cost
+ * 200 ms a frame while dragging; at one they look the same and cost a fourth to a ninth of that.
+ */
+function lowLayer(slot: { canvas: HTMLCanvasElement; g: CanvasRenderingContext2D } | undefined, w: number, h: number) {
+  const W = Math.max(1, Math.round(w)), H = Math.max(1, Math.round(h));
+  if (!slot || slot.canvas.width !== W || slot.canvas.height !== H) {
+    const [canvas, g] = offscreen(w, h, 1);
+    slot = { canvas, g };
+  }
+  slot.g.setTransform(1, 0, 0, 1, 0, 0);
+  slot.g.globalCompositeOperation = "source-over";
+  slot.g.clearRect(0, 0, slot.canvas.width, slot.canvas.height);
+  slot.g.lineJoin = "round";
+  slot.g.lineCap = "round";
+  return slot;
+}
+
 function shallows(f: SurfaceFrame, cache: HerbariumCache, g: CanvasRenderingContext2D, coast: Path2D) {
-  const { w, h, dpr } = f;
+  const { w, h } = f;
   const soft = wideCoast(f, coast);
   const k = clamp(0.85 + f.zoom * 0.15, 1, 1.8) * screenK(f);
-  g.lineJoin = "round";
-  g.lineCap = "round";
+  const bands = (cache.bands = lowLayer(cache.bands, w, h));
   for (const [d, a] of [
     [32, 0.22],
     [17, 0.28],
     [6, 0.42],
   ] as const) {
-    g.strokeStyle = `rgba(226,249,244,${a})`;
-    g.lineWidth = d * k * 2;
-    g.stroke(soft);
+    bands.g.strokeStyle = `rgba(226,249,244,${a})`;
+    bands.g.lineWidth = d * k * 2;
+    bands.g.stroke(soft);
   }
-  const W = Math.round(w * dpr), H = Math.round(h * dpr);
-  if (!cache.rings || cache.rings.canvas.width !== W || cache.rings.canvas.height !== H) {
-    const [canvas, rg] = offscreen(w, h, dpr);
-    cache.rings = { canvas, g: rg };
-  }
-  const { canvas, g: rg } = cache.rings;
-  rg.setTransform(1, 0, 0, 1, 0, 0);
-  rg.clearRect(0, 0, W, H);
-  rg.setTransform(dpr, 0, 0, dpr, 0, 0);
-  rg.lineJoin = "round";
-  rg.lineCap = "round";
+  g.drawImage(bands.canvas, 0, 0, w, h);
+  // The rings are cut out of their own layer, so the cut never reaches the bands.
+  const { canvas, g: rg } = (cache.rings = lowLayer(cache.rings, w, h));
   for (const [d, dash] of [
     [44, true],
     [28, false],
@@ -1846,6 +1856,7 @@ function sky(g: CanvasRenderingContext2D, w: number, h: number) {
 export class HerbariumCache {
   world = new StillLayer();
   rings?: { canvas: HTMLCanvasElement; g: CanvasRenderingContext2D };
+  bands?: { canvas: HTMLCanvasElement; g: CanvasRenderingContext2D };
   peaks?: { of: unknown; steps: Map<number, Set<number>> };
   around?: { key: string; items: Placed[]; stars: ReturnType<typeof starsFor> };
 }
