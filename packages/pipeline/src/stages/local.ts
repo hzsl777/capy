@@ -100,6 +100,33 @@ function decodeEntities(s: string): string {
 
 export type GkgArticle = { url: string; domain: string; title: string; lang: string | null; publishedAt: Date; town: { name: string; lat: number; lon: number } };
 
+/** How long before the window a link's own date may be: a feed dated in another time zone, or a story GDELT read late. */
+const URL_DATE_GRACE_MS = 3 * 86_400_000;
+
+/**
+ * The date a link carries in its path, when it has one: "/2021/06/08/", "/2021-06-08-", "/20210608/" at the end of a
+ * segment or, for a month alone, "/2021/06/" (read as the month's last day). GDELT dates an article by when it read it, and now and then it
+ * reads an old page again: a 2021 story about jets on the map of October 5, 2026. The separators must match, so a
+ * day written first ("05-10-2026") is never read as a year.
+ */
+export function urlDate(url: string): Date | null {
+  const path = url.replace(/^https?:\/\/[^/]+/, "");
+  const day =
+    /(?<![0-9A-Za-z])(20\d\d)([/_-])(0[1-9]|1[0-2])\2(0[1-9]|[12]\d|3[01])(?!\d)/.exec(path) ??
+    // Run together, only as the end of a path segment: a wire's id like "newsml-dpa-com-20090101-261005" is no date.
+    /(?<=[/-])(20\d\d)()(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?=[/?#]|$)/.exec(path);
+  if (day) return new Date(Date.UTC(+day[1]!, +day[3]! - 1, +day[4]!));
+  const month = /\/(20\d\d)\/(0[1-9]|1[0-2])\//.exec(path);
+  if (month) return new Date(Date.UTC(+month[1]!, +month[2]!, 0));
+  return null;
+}
+
+/** Whether a link's own date is days before the window, so the story is old whatever GDELT says (decision 142). */
+export function datedBefore(url: string, from: Date): boolean {
+  const d = urlDate(url);
+  return d !== null && d.getTime() < from.getTime() - URL_DATE_GRACE_MS;
+}
+
 /**
  * One row of a GDELT 2.1 GKG file (27 tab-separated columns), or null when it is not a web article with a title
  * and a town. The town is the city-level place the article names most, the earliest named on a tie. A country or
@@ -303,7 +330,7 @@ export async function runLocal(
   let articles = 0;
   const take = (a: GkgArticle) => {
     const print = fingerprint(a.url);
-    if (seen.has(print) || a.publishedAt < from || a.publishedAt >= to) return;
+    if (seen.has(print) || a.publishedAt < from || a.publishedAt >= to || datedBefore(a.url, from)) return;
     seen.add(print);
     const spot = spotOf(a.town);
     if (!spot) return;

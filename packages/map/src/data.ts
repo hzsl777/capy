@@ -183,8 +183,8 @@ export function formatWeekday(runDate: string): string {
 
 /**
  * The date a word is shown under: the day after the day it covers, as a morning paper is dated (decision 127). The
- * daily run builds a day just after it ends at midnight in New York, so the word on show carries today's date there,
- * and the strip says whose news it weighed ("Chosen by AI from Saturday's news").
+ * daily run builds a day just after it ends at midnight in New York, so the word on show carries today's date there.
+ * The strip says only that it weighed a full day of news (decision 142); the word's own view names that day.
  */
 export function editionDate(runDate: string): string {
   return new Date(Date.parse(`${runDate}T12:00:00Z`) + 86_400_000).toISOString().slice(0, 10);

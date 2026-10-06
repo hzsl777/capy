@@ -4,7 +4,7 @@ import { zipSync, strToU8 } from "fflate";
 import { ingestWindow, rollingWindow, splitLocal, toRunDate, withLocalStories, type LocalStory } from "@2dayai/core";
 import { articles, eventArticles, events, loadMapView, localBase, localStories, sources, type Db } from "@2dayai/db";
 import { gkgRow as row, gkgZip as zip } from "./fixtures/gdelt.js";
-import { forEachLine, gdeltFileUrls, parseGkgRow, pickLocal, runLocal, type LocalCandidate, type TownCandidates } from "./stages/local.js";
+import { datedBefore, forEachLine, gdeltFileUrls, parseGkgRow, pickLocal, runLocal, urlDate, type LocalCandidate, type TownCandidates } from "./stages/local.js";
 import { runPrune } from "./stages/prune.js";
 import { createTestDb } from "./test/db.js";
 
@@ -265,5 +265,36 @@ describe("choosing the day's local stories (decision 78)", () => {
     expect(capped.picked.map((p) => p.title)).toEqual(["a1 10", "a2 8", "b1 9"]);
     expect(capped.overMax).toBe(2);
     expect(pickLocal(towns(), limits(1)).picked).toHaveLength(3);
+  });
+});
+
+describe("a link's own date (decision 142)", () => {
+  const day = (iso: string) => new Date(`${iso}T00:00:00Z`);
+
+  it("reads the date a link carries in its path", () => {
+    expect(urlDate("https://www.defensenews.com/training-sim/2021/06/08/italian-british-f-35b-jets-train-together/")).toEqual(day("2021-06-08"));
+    expect(urlDate("http://www.miningmx.com/news/gold/2026-09-22-harmony-gold-prices/")).toEqual(day("2026-09-22"));
+    expect(urlDate("https://mainichi.jp/articles/20261002/k00/00m/310/149000c")).toEqual(day("2026-10-02"));
+    expect(urlDate("https://yle.fi/uutiset/lyhyesti/74-20250103")).toEqual(day("2025-01-03"));
+    expect(urlDate("https://www.sungazette.com/news/health/2026/09/4th-measles-death/")).toEqual(day("2026-09-30"));
+  });
+
+  it("finds no date in an id, a day written first, or a link with none", () => {
+    expect(urlDate("https://www.sueddeutsche.de/panorama/unfaelle-dpa.urn-newsml-dpa-com-20090101-261005-930-794363")).toBeNull();
+    expect(urlDate("https://jyllands-posten.dk/jpaarhus/ECE19650903/de-startede-i-1946/")).toBeNull();
+    expect(urlDate("https://tribunademinas.com.br/noticias/politica/eleicoes-2026/05-10-2026/tre-mg-investiga")).toBeNull();
+    expect(urlDate("https://www.2026-news.example/story/12345")).toBeNull();
+    expect(urlDate("https://ennapress.it/la-biennale-dello-stretto-2026-mutazioni/")).toBeNull();
+  });
+
+  it("drops a story whose link is dated days before the window, and keeps the rest", () => {
+    const from = new Date(Date.UTC(2026, 9, 5, 4));
+    expect(datedBefore("https://www.defensenews.com/training-sim/2021/06/08/jets/", from)).toBe(true);
+    expect(datedBefore("https://www.metroworldnews.com/noticias/2026/09/23/canada/", from)).toBe(true);
+    expect(datedBefore("https://yellowscene.com/2026/10/04/spotlight/", from)).toBe(false);
+    expect(datedBefore("https://yellowscene.com/2026/10/03/spotlight/", from)).toBe(false);
+    expect(datedBefore("https://www.sungazette.com/news/health/2026/10/measles/", from)).toBe(false);
+    expect(datedBefore("https://www.zazoom.it/2026-10-06/anziana-perseguita/19763181/", from)).toBe(false);
+    expect(datedBefore("https://example.org/story/12345", from)).toBe(false);
   });
 });
