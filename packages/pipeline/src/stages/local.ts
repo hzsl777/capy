@@ -7,7 +7,7 @@ import { Unzip, UnzipInflate } from "fflate";
 import { eq } from "drizzle-orm";
 import { ingestWindow, placeIdFor, type LocalStory, type RunDate } from "@2dayai/core";
 import { loadMapView, localStories, type Db } from "@2dayai/db";
-import { Gazetteer, km, type Located } from "../places.js";
+import { Gazetteer, km, NEAR_KM, type Located } from "../places.js";
 import { noControl } from "../text.js";
 import { HttpError, USER_AGENT } from "./ingest.js";
 
@@ -60,6 +60,14 @@ export type LocalReport = {
   stories: number;
   /** Stories left out by the day's limit, after every town had its first. */
   overMax: number;
+  /**
+   * GDELT towns of a country left out because no list names them and no listed city or town of that country lies
+   * within NEAR_KM of GDELT's point, the stories in the window at them, and how many of those towns have one within
+   * 50 km: what the 20 km rule costs, and what a looser one would add.
+   */
+  townsFar: number;
+  articlesFar: number;
+  townsFarWithin50: number;
   skipped?: string;
 };
 
@@ -280,7 +288,7 @@ export async function runLocal(
   /** Given, it receives the stories stored, so a refresh can publish them without reading them back (decision 124). */
   keep?: { stories?: LocalStory[] },
 ): Promise<LocalReport> {
-  const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0 };
+  const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0, townsFar: 0, articlesFar: 0, townsFarWithin50: 0 };
   if (limits.perTown === 0) {
     await db.delete(localStories).where(eq(localStories.runDate, date));
     return { ...empty, skipped: "GDELT_PER_TOWN is 0" };
@@ -302,6 +310,10 @@ export async function runLocal(
   // Where each GDELT town goes, worked out once per town: most of a day's articles name a town seen before.
   type Spot = { region: string; town: string; at: Located } | null;
   const spots = new Map<string, Spot>();
+  /** Towns turned away by the 20 km rule (keys as in `spots`), and how many of them have a listed place within 50 km. */
+  const far = new Set<string>();
+  let farWithin50 = 0;
+  let articlesFar = 0;
   const tagged = new Set<string>();
   const nearOutlets = new Set<string>();
   const spotOf = (t: GkgArticle["town"]): Spot => {
@@ -311,6 +323,10 @@ export async function runLocal(
     spot = null;
     const area = gaz.areaAt(t.lat, t.lon);
     const at = area ? gaz.locate({ city: t.name, country: area.country, lat: t.lat, lon: t.lon }, true) : null;
+    if (area && !at && !gaz.hasPlaceNear(t.lat, t.lon, NEAR_KM, area.country)) {
+      far.add(key);
+      if (gaz.hasPlaceNear(t.lat, t.lon, 50, area.country)) farWithin50 += 1;
+    }
     const town = at ? placeIdFor(at.lat, at.lon) : "";
     if (at) tagged.add(town);
     // A town an outlet's story already sits in keeps its outlets' stories alone.
@@ -333,7 +349,10 @@ export async function runLocal(
     if (seen.has(print) || a.publishedAt < from || a.publishedAt >= to || datedBefore(a.url, from)) return;
     seen.add(print);
     const spot = spotOf(a.town);
-    if (!spot) return;
+    if (!spot) {
+      if (far.has(`${a.town.name}|${a.town.lat}|${a.town.lon}`)) articlesFar += 1;
+      return;
+    }
     articles += 1;
     let seenTitles = titles.get(spot.region);
     if (!seenTitles) titles.set(spot.region, (seenTitles = new Map()));
@@ -418,5 +437,8 @@ export async function runLocal(
     towns: new Set(picked.map((p) => p.town)).size,
     stories: rows.length,
     overMax,
+    townsFar: far.size,
+    articlesFar,
+    townsFarWithin50: farWithin50,
   };
 }

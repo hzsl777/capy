@@ -279,6 +279,11 @@ export class Gazetteer {
    * point's row, and each row outward from the point's column, stopping once no cell further out can hold anything
    * closer than the best so far.
    */
+  /** Whether a listed city or town of `cc` lies within `km` of the point. */
+  hasPlaceNear(lat: number, lon: number, km: number, cc: string): boolean {
+    return this.nearest(lat, lon, km, (e) => e.cc === cc) !== null;
+  }
+
   private nearest(lat: number, lon: number, maxKm: number, ok: (e: Entry) => boolean = () => true): Entry | null {
     const [cy, cx] = [Math.floor(lat / CELL), Math.floor(lon / CELL)];
     let best: Entry | null = null;

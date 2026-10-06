@@ -268,6 +268,21 @@ describe("choosing the day's local stories (decision 78)", () => {
   });
 });
 
+describe("what the 20 km rule turns away", () => {
+  it("counts the towns and stories no list names with no listed place within 20 km, and those within 50 km", async () => {
+    // Two points in Kenya no list names: one far from every listed place, one with a listed place 20 to 50 km off.
+    const DESERT = { name: "Nowhere Camp, Marsabit, Kenya", lat: 2.9, lon: 37.6, id: "-1310" };
+    const COAST = { name: "Nowhere Bay, Kwale, Kenya", lat: -2.8, lon: 38.7, id: "-1311" };
+    const english = [
+      row({ url: "https://a.example/d1", title: "A long enough headline about a desert camp", when: "20260927050000", towns: [DESERT] }),
+      row({ url: "https://a.example/d2", title: "Another long headline about the desert camp", when: "20260927060000", towns: [DESERT] }),
+      row({ url: "https://a.example/c1", title: "A long enough headline about a small bay", when: "20260927050000", towns: [COAST] }),
+    ];
+    const report = await runLocal(db, date, limits(2), async (url) => (url.endsWith("20260927070000.gkg.csv.zip") ? zip(english) : null));
+    expect(report).toMatchObject({ townsFar: 2, articlesFar: 3, townsFarWithin50: 1 });
+  });
+});
+
 describe("a link's own date (decision 142)", () => {
   const day = (iso: string) => new Date(`${iso}T00:00:00Z`);
 
