@@ -126,6 +126,15 @@ const SNAP_RADIUS = 48;
 /** How high Polygon Kingdom's terrain stands: a height of 1 is this share of the projection's scale, in pixels. */
 const LIFT = 0.02;
 const MAX_ZOOM = 14;
+
+/** The dashes of a place with only GDELT's local stories, which no model rates (decision 146). */
+const UNRATED_DASH = [2.2, 1.6];
+/** A rated 2's middle dot, as a share of the mark's size. */
+const DOT_SHARE = 0.34;
+/** How far apart a mark's outer rings stand, in pixels. */
+const RING_STEP = 2.6;
+/** How many outer rings a place's top story rating gives it: one for 4, two for 5. */
+const ringsOf = (weight: number) => (weight >= 5 ? 2 : weight === 4 ? 1 : 0);
 /** Screen distance under which pins merge into one dot. */
 const MERGE_PX = 13;
 /** The cell places are kept in for the globe to pass over (degrees), and the most any point is from its middle (radians). */
@@ -2216,7 +2225,7 @@ export class MapView {
     // bits carry the place's position in `shown`.
     const order = new Float64Array(shown.length);
     shown.forEach((e, i) => {
-      order[i] = (((5 - clamp(e.d.weight, 1, 5)) * 1024 + (1023 - clamp(e.d.count, 0, 1023))) * 2 ** 21 + (e.d.index % 2 ** 21)) * 2 ** 17 + i;
+      order[i] = (((5 - clamp(e.d.weight, 0, 5)) * 1024 + (1023 - clamp(e.d.count, 0, 1023))) * 2 ** 21 + (e.d.index % 2 ** 21)) * 2 ** 17 + i;
     });
     order.sort();
     const spots: Spot[] = [];
@@ -2266,7 +2275,7 @@ export class MapView {
     const float = !!t.lowPoly;
     for (const s of spots) {
       s.indices.sort((a, b) => a - b);
-      s.r = Math.min(13, 1.4 + s.weight * 0.9 + Math.sqrt(s.count) * 0.8) * zoomK;
+      s.r = Math.min(13, 1.4 + Math.max(1, s.weight) * 0.9 + Math.sqrt(s.count) * 0.8) * zoomK;
       if (float) {
         // Polygon Kingdom's markers float just above the ground, over a round shadow, as objects did in those games.
         s.gx = s.x;
@@ -2338,13 +2347,14 @@ export class MapView {
       p.addPath(cur, new DOMMatrix([1, 0, 0, 1, ox, oy]));
       ctx.fill(p);
     };
-    // Three symbols by the place's most important story (decision 57), drawn least important first so the most
-    // important always sit on top: hollow for importance 1 and GDELT local stories, filled for 2 and 3, filled
-    // with an outer ring for 4 and 5. Colour still means only "reported in the last hour".
+    // A symbol for each step of the place's most important story (decisions 57 and 146), drawn least important first
+    // so the most important always sit on top: a dashed outline for GDELT's local stories, which no model rates
+    // (weight 0), an outline for 1, an outline with a dot in the middle for 2, filled for 3, filled with one outer ring
+    // for 4 and with two for 5. Colour still means only "reported in the last hour".
     for (const s of [...spots].reverse()) {
       const { x, y, r } = s;
       const ink = s.fresh ? t.fresh : t.dot;
-      const hollow = s.weight <= 1;
+      const hollow = s.weight <= 2;
       if (t.glow) ctx.shadowColor = ink;
       shape(x, y, r);
       ctx.fillStyle = hollow ? t.dotStroke : ink;
@@ -2473,7 +2483,17 @@ export class MapView {
       }
       ctx.lineWidth = hollow ? 1.6 : 1.2;
       ctx.strokeStyle = hollow ? ink : t.dotStroke;
+      if (s.weight === 0) ctx.setLineDash(UNRATED_DASH);
       strokeShape();
+      ctx.setLineDash([]);
+      if (s.weight === 2) {
+        // Rated 2: the outline with a round dot of the ink in its middle, round in every shape so it never hides
+        // where an X's arms cross or in a small carrot.
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(1, r * DOT_SHARE), 0, Math.PI * 2);
+        ctx.fillStyle = ink;
+        ctx.fill();
+      }
       if (t.surface === "zine" && kits.zine) {
         // Zine: the blue pass prints each mark's outline a little off register from its pink or yellow.
         const [dx, dy] = kits.zine.misregister(this.w, this.h);
@@ -2486,16 +2506,17 @@ export class MapView {
         strokeShape();
         ctx.restore();
       }
-      const ringGap = s.weight >= 4 ? 2.6 : 0;
-      if (s.weight >= 4) {
-        ringShape(x, y, r, ringGap);
+      const ringGap = ringsOf(s.weight) * RING_STEP;
+      for (let k = 1; k <= ringsOf(s.weight); k++) {
+        ringShape(x, y, r, k * RING_STEP);
         ctx.lineWidth = 1.3;
         ctx.strokeStyle = ink;
         strokeShape();
       }
       if (s.indices.length > 1) {
-        // Merged places: a thin inner ring, so a cluster reads differently from one busy city.
-        shape(x, y, Math.max(1.2, r * 0.45));
+        // Merged places: a thin inner ring, so a cluster reads differently from one busy city; round a rated 2's dot,
+        // a little wider, so the two never run together.
+        shape(x, y, Math.max(1.2, r * (s.weight === 2 ? 0.66 : 0.45)));
         ctx.lineWidth = 1;
         ctx.strokeStyle = hollow ? ink : t.dotStroke;
         strokeShape();

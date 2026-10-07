@@ -684,34 +684,37 @@ function renderPins() {
 }
 
 /**
- * The map's key, drawn in the current design's colours and dot shape so it matches the map (decision 57): three
- * symbols by the AI model's importance rating, the inner ring of merged places, and "reported in the last hour".
+ * The map's key, drawn in the current design's colours and dot shape so it matches the map (decisions 57 and 146): a
+ * symbol for each step of the AI model's rating and one for "not rated", the inner ring of merged places, and
+ * "reported in the last hour".
  */
-type MarkDraw = (add: (r: number, fill: string, stroke: string, width: number, dash?: string, of?: number) => void) => void;
+type MarkDraw = (add: (r: number, fill: string, stroke: string, width: number, dash?: string, of?: number, round?: boolean) => void) => void;
 
 /** One of the map's marks as the design draws it, on its own sea: for the Key and the legend under the scale. */
 function markSvg(draw: MarkDraw, size = 22): SVGSVGElement {
   const t = THEMES[state.theme];
   const NS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(NS, "svg");
-  svg.setAttribute("viewBox", "-13 -13 26 26");
+  // Room for a 5's two rings round the most pointed shapes (a four-point star reaches 1.45 times its size).
+  svg.setAttribute("viewBox", "-15 -15 30 30");
   svg.setAttribute("width", String(size));
   svg.setAttribute("height", String(size));
   svg.setAttribute("aria-hidden", "true");
   svg.style.background = t.ocean;
   svg.style.borderRadius = "4px";
-  draw((r, fill, stroke, width, dash, of) => {
+  draw((r, fill, stroke, width, dash, of, round) => {
     // The same outline the map draws (src/map/marks.ts), so the Key always matches it; with `of`, the ring of a
     // mark of that radius.
     const el = document.createElementNS(NS, "path");
-    el.setAttribute("d", of === undefined ? markPath(t.dotShape, r) : markRing(t.dotShape, of, r - of));
+    el.setAttribute("d", round ? markPath("circle", r) : of === undefined ? markPath(t.dotShape, r) : markRing(t.dotShape, of, r - of));
     el.setAttribute("fill", fill);
     el.setAttribute("stroke", stroke);
     el.setAttribute("stroke-width", String(width));
     if (dash) el.setAttribute("stroke-dasharray", dash);
     svg.append(el);
+    if (round) return;
     // Zine: the blue pass's outline, off register, as the map prints it (view.ts).
-    if (t.surface === "zine" && of === undefined && fill !== "none") {
+    if (t.surface === "zine" && of === undefined && fill !== "none" && r >= 3) {
       const ring = el.cloneNode() as SVGPathElement;
       ring.setAttribute("d", markPath(t.dotShape, fill === t.dotStroke ? r : r + 0.6));
       ring.setAttribute("fill", "none");
@@ -722,7 +725,7 @@ function markSvg(draw: MarkDraw, size = 22): SVGSVGElement {
       svg.append(ring);
     }
     // Tiramisu: the coffee bean's crease, as the map draws it (view.ts).
-    if (t.dotShape === "bean" && of === undefined && fill !== "none") {
+    if (t.dotShape === "bean" && of === undefined && fill !== "none" && r >= 3) {
       const hollow = fill === t.dotStroke;
       const crease = document.createElementNS(NS, "path");
       crease.setAttribute("d", beanCrease(r));
@@ -746,40 +749,63 @@ function markSvg(draw: MarkDraw, size = 22): SVGSVGElement {
   return svg;
 }
 
-/** The three importance marks: ringed for a top story rated 4 or 5, filled for 2 or 3, hollow for 1 (decision 57). */
-const RINGED: MarkDraw = (add) => {
-  const t = THEMES[state.theme];
-  add(6, t.dot, t.dotStroke, 1.2);
-  add(8.6, "none", t.dot, 1.3, undefined, 6);
-};
-const FILLED: MarkDraw = (add) => {
-  const t = THEMES[state.theme];
-  add(6, t.dot, t.dotStroke, 1.2);
-};
-const HOLLOW: MarkDraw = (add) => {
-  const t = THEMES[state.theme];
-  add(4.5, t.dotStroke, t.dot, 1.6);
+/**
+ * A mark for each step of a place's top story rating (decisions 57 and 146), as the map draws it (view.ts): a 5 filled
+ * with two outer rings, a 4 with one, a 3 filled, a 2 an outline with a dot in its middle, a 1 an outline, and a place
+ * with only GDELT's local stories, which no model rates, a dashed outline.
+ */
+const RATED: Record<0 | 1 | 2 | 3 | 4 | 5, MarkDraw> = {
+  5: (add) => {
+    const t = THEMES[state.theme];
+    add(5, t.dot, t.dotStroke, 1.2);
+    add(7.6, "none", t.dot, 1.3, undefined, 5);
+    add(10.2, "none", t.dot, 1.3, undefined, 5);
+  },
+  4: (add) => {
+    const t = THEMES[state.theme];
+    add(6, t.dot, t.dotStroke, 1.2);
+    add(8.6, "none", t.dot, 1.3, undefined, 6);
+  },
+  3: (add) => {
+    const t = THEMES[state.theme];
+    add(6, t.dot, t.dotStroke, 1.2);
+  },
+  2: (add) => {
+    const t = THEMES[state.theme];
+    add(5.5, t.dotStroke, t.dot, 1.6);
+    add(1.9, t.dot, "none", 0, undefined, undefined, true);
+  },
+  1: (add) => {
+    const t = THEMES[state.theme];
+    add(5.5, t.dotStroke, t.dot, 1.6);
+  },
+  0: (add) => {
+    const t = THEMES[state.theme];
+    add(5.5, t.dotStroke, t.dot, 1.6, "2.2 1.6");
+  },
 };
 
 /**
- * What the map's marks mean, in a row under the word's scale (decision 132): the three importance marks in the
- * design's own shape and colours, read from highest to lowest like the scale. The Key has the rest.
+ * What the map's marks mean, in a row under the word's scale (decision 132): the five rating marks in the design's own
+ * shape and colours, read from highest to lowest like the scale. The Key has the rest, the dashed "not rated" too.
  */
 function importanceLegend(): HTMLElement {
   const item = (draw: MarkDraw, label: string) => h("span", { class: "imp-step" }, markSvg(draw, 18) as unknown as Node, h("span", {}, label));
   return h(
     "div",
-    { class: "importance", role: "img", "aria-label": "Map marks show an AI model's rating of a place's top story: a ringed mark for 4 or 5, a filled mark for 2 or 3, a hollow mark for 1." },
+    {
+      class: "importance",
+      role: "img",
+      "aria-label": "Map marks show an AI model's 1 to 5 rating of a place's top story: two rings for 5, one ring for 4, filled for 3, an outline with a dot for 2, an outline for 1.",
+    },
     h("span", { class: "imp-label" }, "Story rating"),
-    item(RINGED, "4-5"),
-    item(FILLED, "2-3"),
-    item(HOLLOW, "1"),
+    ...([5, 4, 3, 2, 1] as const).map((n) => item(RATED[n], String(n))),
   );
 }
 
 function renderKey() {
   const t = THEMES[state.theme];
-  const mark = (draw: MarkDraw) => markSvg(draw);
+  const mark = (draw: MarkDraw) => markSvg(draw, 26);
   const row = (svg: SVGSVGElement, label: string) => h("li", {}, svg as unknown as Node, h("span", {}, label));
   const mono = t.fresh === t.dot;
   $("key-body").replaceChildren(
@@ -787,9 +813,8 @@ function renderKey() {
     h(
       "ul",
       {},
-      row(mark(RINGED), "Rated 4 or 5"),
-      row(mark(FILLED), "Rated 2 or 3"),
-      row(mark(HOLLOW), "Rated 1, or a local story from GDELT"),
+      ...([5, 4, 3, 2, 1] as const).map((n) => row(mark(RATED[n]), `Rated ${n}`)),
+      row(mark(RATED[0]), "Not rated: local stories from GDELT"),
       row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together (zoom in to separate)"),
       row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2", 5)) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
     ),

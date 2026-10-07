@@ -1,7 +1,8 @@
 /**
- * Marker shapes (decision 72). Each design picks one; the shape carries no meaning. The three symbols of decision
- * 57 (hollow, filled, filled with an outer ring) are drawn from the same outline in every shape, and the map and
- * the Key both draw from these paths, so the Key always shows exactly what the map shows.
+ * Marker shapes (decision 72). Each design picks one; the shape carries no meaning. The symbols of decisions 57 and
+ * 146 (an outline, an outline with a round dot, filled, filled with one or two outer rings, a dashed outline) are
+ * drawn from the same outline in every shape, and the map and the Key both draw from these paths, so the Key always
+ * shows exactly what the map shows.
  *
  * Every path is centred on 0,0 and sized so the shape covers about as much as a circle of radius r.
  */
