@@ -68,6 +68,11 @@ export type LocalReport = {
   townsFar: number;
   articlesFar: number;
   townsFarWithin50: number;
+  /**
+   * The 30 of those towns with the most stories, as "name (country) lat, lon: N stories, nearest listed place P at
+   * D km", so a reader of the log can see what the rule turns away (decision 145).
+   */
+  farSample: string[];
   skipped?: string;
 };
 
@@ -274,6 +279,18 @@ function nearAny(points: { lat: number; lon: number }[]): (lat: number, lon: num
   };
 }
 
+/** The turned-away towns with the most stories, most first, then by name, each with the nearest listed place. */
+function farSample(gaz: Gazetteer, towns: { name: string; cc: string; lat: number; lon: number; stories: number }[], n = 30): string[] {
+  return towns
+    .sort((a, b) => b.stories - a.stories || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+    .slice(0, n)
+    .map((t) => {
+      const near = gaz.nearestPlace(t.lat, t.lon, 200, t.cc);
+      const where = near ? `nearest listed place ${near.name} at ${Math.round(near.km)} km` : "no listed place within 200 km";
+      return `${t.name} (${t.cc}) ${t.lat.toFixed(2)}, ${t.lon.toFixed(2)}: ${t.stories} ${t.stories === 1 ? "story" : "stories"}, ${where}`;
+    });
+}
+
 /**
  * The run date's local stories, from its ingest window, or from `window` instead: the refresh during the day reads
  * the last 24 hours and replaces the day's local stories with them (decision 80).
@@ -288,7 +305,7 @@ export async function runLocal(
   /** Given, it receives the stories stored, so a refresh can publish them without reading them back (decision 124). */
   keep?: { stories?: LocalStory[] },
 ): Promise<LocalReport> {
-  const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0, townsFar: 0, articlesFar: 0, townsFarWithin50: 0 };
+  const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0, townsFar: 0, articlesFar: 0, townsFarWithin50: 0, farSample: [] };
   if (limits.perTown === 0) {
     await db.delete(localStories).where(eq(localStories.runDate, date));
     return { ...empty, skipped: "GDELT_PER_TOWN is 0" };
@@ -311,7 +328,7 @@ export async function runLocal(
   type Spot = { region: string; town: string; at: Located } | null;
   const spots = new Map<string, Spot>();
   /** Towns turned away by the 20 km rule (keys as in `spots`), and how many of them have a listed place within 50 km. */
-  const far = new Set<string>();
+  const far = new Map<string, { name: string; cc: string; lat: number; lon: number; stories: number }>();
   let farWithin50 = 0;
   let articlesFar = 0;
   const tagged = new Set<string>();
@@ -324,7 +341,7 @@ export async function runLocal(
     const area = gaz.areaAt(t.lat, t.lon);
     const at = area ? gaz.locate({ city: t.name, country: area.country, lat: t.lat, lon: t.lon }, true) : null;
     if (area && !at && !gaz.hasPlaceNear(t.lat, t.lon, NEAR_KM, area.country)) {
-      far.add(key);
+      far.set(key, { name: t.name, cc: area.country, lat: t.lat, lon: t.lon, stories: 0 });
       if (gaz.hasPlaceNear(t.lat, t.lon, 50, area.country)) farWithin50 += 1;
     }
     const town = at ? placeIdFor(at.lat, at.lon) : "";
@@ -350,7 +367,11 @@ export async function runLocal(
     seen.add(print);
     const spot = spotOf(a.town);
     if (!spot) {
-      if (far.has(`${a.town.name}|${a.town.lat}|${a.town.lon}`)) articlesFar += 1;
+      const f = far.get(`${a.town.name}|${a.town.lat}|${a.town.lon}`);
+      if (f) {
+        articlesFar += 1;
+        f.stories += 1;
+      }
       return;
     }
     articles += 1;
@@ -440,5 +461,6 @@ export async function runLocal(
     townsFar: far.size,
     articlesFar,
     townsFarWithin50: farWithin50,
+    farSample: farSample(gaz, [...far.values()]),
   };
 }

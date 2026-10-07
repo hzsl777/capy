@@ -280,6 +280,10 @@ describe("what the 20 km rule turns away", () => {
     ];
     const report = await runLocal(db, date, limits(2), async (url) => (url.endsWith("20260927070000.gkg.csv.zip") ? zip(english) : null));
     expect(report).toMatchObject({ townsFar: 2, articlesFar: 3, townsFarWithin50: 1 });
+    // The sample lists the town with more stories first, with the nearest listed place and how far it is.
+    expect(report.farSample).toHaveLength(2);
+    expect(report.farSample[0]).toMatch(/^Nowhere Camp \(KE\) 2\.90, 37\.60: 2 stories, (nearest listed place .+ at \d+ km|no listed place within 200 km)$/);
+    expect(report.farSample[1]).toMatch(/^Nowhere Bay \(KE\) -2\.80, 38\.70: 1 story, nearest listed place .+ at (2\d|3\d|4\d|50) km$/);
   });
 });
 

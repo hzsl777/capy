@@ -284,6 +284,12 @@ export class Gazetteer {
     return this.nearest(lat, lon, km, (e) => e.cc === cc) !== null;
   }
 
+  /** The nearest listed city or town of `cc` within `maxKm` of the point, with how far it is. */
+  nearestPlace(lat: number, lon: number, maxKm: number, cc: string): { name: string; km: number } | null {
+    const e = this.nearest(lat, lon, maxKm, (x) => x.cc === cc);
+    return e ? { name: e.name, km: km(lat, lon, e.lat, e.lon) } : null;
+  }
+
   private nearest(lat: number, lon: number, maxKm: number, ok: (e: Entry) => boolean = () => true): Entry | null {
     const [cy, cx] = [Math.floor(lat / CELL), Math.floor(lon / CELL)];
     let best: Entry | null = null;
