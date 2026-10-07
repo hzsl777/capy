@@ -183,11 +183,15 @@ switch (command) {
       }
     }
     const keep: { stories?: LocalStory[] } = {};
-    console.log(await recorded(d, latest, "refresh", () => runLocal(d, latest, config.local, undefined, undefined, rollingWindow(), keep)));
-    // With --out, the day's file and its tiles as well. Built from --in, the file already published, when it is this
-    // day's, so a refresh reads nothing back from the database (decision 124); otherwise exported as the daily run does.
+    // The file already published, when it is this day's: its outlet stories' places tell the local stage where the
+    // outlets are (decision 147), and its outlet stories are kept, so a refresh reads nothing back from the database.
+    const base = values.in && existsSync(values.in) ? (JSON.parse(readFileSync(values.in, "utf8")) as MapFile) : null;
+    const outletPlaces =
+      base && base.runDate === latest ? [...new Set(base.items.filter((i) => i.via !== "gdelt").map((i) => i.place))].flatMap((p) => (base.places[p] ? [base.places[p]] : [])) : undefined;
+    console.log(await recorded(d, latest, "refresh", () => runLocal(d, latest, config.local, undefined, undefined, rollingWindow(), keep, outletPlaces)));
+    // With --out, the day's file and its tiles as well. Built from the published file when it is this day's (decision
+    // 124); otherwise exported as the daily run does.
     if (values.out) {
-      const base = values.in && existsSync(values.in) ? (JSON.parse(readFileSync(values.in, "utf8")) as MapFile) : null;
       const fromBase = !!base && base.runDate === latest && !!keep.stories;
       const finished = fromBase ? withLocalStories(base, keep.stories!, new Date()) : await loadMapView(d, latest);
       const full = outlets ? withTodayStories(finished, await loadMapView(d, today, new Date(), { local: "index", noCarry: true }), new Date()) : finished;

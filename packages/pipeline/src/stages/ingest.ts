@@ -218,6 +218,9 @@ async function inPool<T>(items: T[], size: number, fn: (item: T) => Promise<void
   );
 }
 
+/** Articles a single insert statement carries. */
+const INSERT_CHUNK = 200;
+
 /**
  * Stage 6.1. Idempotent per date: re-running upserts by URL and inserts nothing twice. Keeps each source's
  * health (decision 36): a feed found behind a homepage is remembered, so later days fetch it directly, and a
@@ -266,12 +269,13 @@ export async function runIngest(db: Db, sources: Source[], date: RunDate, fetchF
       const broken = clean.length
         ? new Set((await db.select({ url: articles.url }).from(articles).where(and(inArray(articles.url, clean.map((a) => a.url)), like(articles.title, "%\uFFFD%")))).map((r) => r.url))
         : new Set<string>();
-      for (const a of found) {
-        if (broken.has(a.url)) {
-          await db.update(articles).set({ title: a.title, lead: a.lead, body: a.body }).where(eq(articles.url, a.url));
-          continue;
-        }
-        const r = await db.insert(articles).values(a).onConflictDoNothing({ target: articles.url }).returning({ id: articles.id });
+      for (const a of found.filter((x) => broken.has(x.url)))
+        await db.update(articles).set({ title: a.title, lead: a.lead, body: a.body }).where(eq(articles.url, a.url));
+      // One statement for a feed's articles, a few hundred at a time, not one each: a refresh reads tens of thousands
+      // of items it already has, and every round trip costs the database's network transfer (decision 147).
+      const fresh = found.filter((x) => !broken.has(x.url));
+      for (let i = 0; i < fresh.length; i += INSERT_CHUNK) {
+        const r = await db.insert(articles).values(fresh.slice(i, i + INSERT_CHUNK)).onConflictDoNothing({ target: articles.url }).returning({ id: articles.id });
         inserted += r.length;
       }
       const discovered = doc.feedUrl !== source.url;
