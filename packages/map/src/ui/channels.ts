@@ -158,22 +158,31 @@ function icon(kind: Icon): SVGElement {
   return s;
 }
 
-const KEY_ROWS: [label: string, kind: "hollow" | "filled" | "ringed" | "fresh"][] = [
-  ["Rated 4 or 5", "ringed"],
-  ["Rated 2 or 3", "filled"],
-  ["Rated 1, or a local story from GDELT", "hollow"],
+/** The Key's rows: each rating step's mark (decision 146), "not rated" for GDELT's local stories, and fresh. */
+const KEY_ROWS: [label: string, kind: 0 | 1 | 2 | 3 | 4 | 5 | "fresh"][] = [
+  ["Rated 5", 5],
+  ["Rated 4", 4],
+  ["Rated 3", 3],
+  ["Rated 2", 2],
+  ["Rated 1", 1],
+  ["Not rated: local stories from GDELT", 0],
   ["Reported in the last hour", "fresh"],
 ];
 
 /** One mark of the design on show, drawn from the same outline as the map and the Key (src/map/marks.ts). */
-function mark(kind: "hollow" | "filled" | "ringed" | "fresh", size = 32): SVGElement {
+function mark(kind: 0 | 1 | 2 | 3 | 4 | 5 | "fresh", size = 32): SVGElement {
   const t = THEMES[src.theme()];
   const s = svg("svg", { viewBox: "-16 -16 32 32", width: size, height: size, class: "x-ch-mark", "aria-hidden": "true" });
-  const path = (d: string, fill: string, stroke: string, width: number) => svg("path", { d, fill, stroke, "stroke-width": width });
-  if (kind === "hollow") s.append(path(markPath(t.dotShape, 5.5), t.dotStroke, t.dot, 1.8));
-  else if (kind === "fresh") s.append(path(markPath(t.dotShape, 7), t.fresh, t.dotStroke, 1.4));
-  else s.append(path(markPath(t.dotShape, 7), t.dot, t.dotStroke, 1.4));
-  if (kind === "ringed") s.append(path(markRing(t.dotShape, 7, 3), "none", t.dot, 1.6));
+  const path = (d: string, fill: string, stroke: string, width: number, dash?: string) => svg("path", { d, fill, stroke, "stroke-width": width, ...(dash ? { "stroke-dasharray": dash } : {}) });
+  if (kind === "fresh") s.append(path(markPath(t.dotShape, 7), t.fresh, t.dotStroke, 1.4));
+  else if (kind <= 2) {
+    s.append(path(markPath(t.dotShape, 6), t.dotStroke, t.dot, 1.8, kind === 0 ? "2.6 1.9" : undefined));
+    if (kind === 2) s.append(path(markPath("circle", 2.1), t.dot, "none", 0));
+  } else {
+    const r = kind === 5 ? 5.5 : 7;
+    s.append(path(markPath(t.dotShape, r), t.dot, t.dotStroke, 1.4));
+    for (let k = 1; k <= kind - 3; k++) s.append(path(markRing(t.dotShape, r, 2.6 * k), "none", t.dot, 1.6));
+  }
   return s;
 }
 

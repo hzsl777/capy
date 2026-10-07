@@ -103,9 +103,13 @@ export function tierOf(item: MapItem, tiered: boolean): number {
   return 3;
 }
 
-/** A place's weight for dot size: its most important story, 1 to 5 (decision 46). Reports on another country count as 1. */
+/**
+ * A place's weight for its mark: its most important story, 1 to 5 (decisions 46 and 146). Reports on another country
+ * count as 1. GDELT's local stories carry importance 1 but no model rated them, so a place with only those is 0, which
+ * the map draws as a dashed outline, "not rated".
+ */
 export function weightOf(items: MapItem[]): number {
-  return Math.max(1, ...items.map((it) => (it.abroad ? 1 : (it.importance ?? 1))));
+  return Math.max(0, ...items.map((it) => (it.via === "gdelt" ? 0 : it.abroad ? 1 : (it.importance ?? 1))));
 }
 
 export function hasTiers(file: MapFile): boolean {

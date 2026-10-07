@@ -68,6 +68,10 @@ describe("zoom tiers (decision 30)", () => {
   it("weighs a place by its most important story", () => {
     expect(weightOf([item(1, 2), item(1, 4)])).toBe(4);
     expect(weightOf([item()])).toBe(1);
+    // Every step has its own mark (decision 146); GDELT's local stories, which no model rated, are 0, "not rated".
+    for (const i of [1, 2, 3, 4, 5]) expect(weightOf([item(1, i)])).toBe(i);
+    expect(weightOf([{ ...item(1, 1), via: "gdelt" }])).toBe(0);
+    expect(weightOf([{ ...item(1, 1), via: "gdelt" }, item(1, 2)])).toBe(2);
   });
   it("shows everything at once when the file has no event data", () => {
     expect(tierOf(item(), false)).toBe(0);
