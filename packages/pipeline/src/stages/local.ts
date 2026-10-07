@@ -279,6 +279,12 @@ function nearAny(points: { lat: number; lon: number }[]): (lat: number, lon: num
   };
 }
 
+/** Where the day's outlet stories sit on its map, read from the database. */
+async function outletPlacesOf(db: Db, date: RunDate): Promise<{ lat: number; lon: number }[]> {
+  const map = await loadMapView(db, date, undefined, { local: "index", noCarry: true });
+  return [...new Set(map.items.map((i) => i.place))].flatMap((p) => (map.places[p] ? [map.places[p]] : []));
+}
+
 /** The turned-away towns with the most stories, most first, then by name, each with the nearest listed place. */
 function farSample(gaz: Gazetteer, towns: { name: string; cc: string; lat: number; lon: number; stories: number }[], n = 30): string[] {
   return towns
@@ -304,6 +310,11 @@ export async function runLocal(
   window: { from: Date; to: Date } = ingestWindow(date),
   /** Given, it receives the stories stored, so a refresh can publish them without reading them back (decision 124). */
   keep?: { stories?: LocalStory[] },
+  /**
+   * The places of the day's outlet stories, from the file already published, so a refresh does not read the whole
+   * day back from the database to find them (decision 147). Without it they come from the database.
+   */
+  outlets?: { lat: number; lon: number }[],
 ): Promise<LocalReport> {
   const empty = { files: 0, filesMissing: 0, filesFailed: 0, articles: 0, townsTagged: 0, townsNearOutlet: 0, regionsEmpty: 0, regionsFilled: 0, regionsAdded: 0, towns: 0, stories: 0, overMax: 0, townsFar: 0, articlesFar: 0, townsFarWithin50: 0, farSample: [] };
   if (limits.perTown === 0) {
@@ -314,8 +325,7 @@ export async function runLocal(
   // A region counts as reached when any outlet's story on the day's map sits in it, the way the coverage count sees
   // it. A country the list gives no regions counts as one. The day's local stories stay in the database (the index
   // only), so the old ones never count as outlets' places.
-  const map = await loadMapView(db, date, undefined, { local: "index", noCarry: true });
-  const outletPlaces = [...new Set(map.items.map((i) => i.place))].flatMap((p) => (map.places[p] ? [map.places[p]] : []));
+  const outletPlaces = outlets ?? (await outletPlacesOf(db, date));
   const regionOf = (lat: number, lon: number): string | null => {
     const area = gaz.areaAt(lat, lon);
     return area ? (area.region ?? `${area.country}/`) : null;

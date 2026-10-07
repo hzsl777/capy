@@ -287,6 +287,17 @@ describe("what the 20 km rule turns away", () => {
   });
 });
 
+describe("the outlets' places from the published file (decision 147)", () => {
+  it("keeps a town an outlet's story sits in for the outlets, with the places given instead of read back", async () => {
+    // No outlet article is at Nakuru in the database for this check to find; the places given put one there.
+    const english = [row({ url: "https://a.example/nk1", title: "Nakuru county assembly passes the budget", when: "20260927050000", towns: [NAKURU] })];
+    const report = await runLocal(db, date, limits(2), async (url) => (url.endsWith("20260927070000.gkg.csv.zip") ? zip(english) : null), undefined, undefined, undefined, [
+      { lat: NAKURU.lat, lon: NAKURU.lon },
+    ]);
+    expect(report).toMatchObject({ townsNearOutlet: 1, stories: 0 });
+  });
+});
+
 describe("a link's own date (decision 142)", () => {
   const day = (iso: string) => new Date(`${iso}T00:00:00Z`);
 
