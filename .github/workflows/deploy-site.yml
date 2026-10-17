@@ -3,15 +3,7 @@
 # so this runs only when code changes or by hand. Cloudflare's free plan hosts it; the repository can stay private.
 name: Deploy site
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - "packages/**"
-      - "package-lock.json"
-      - ".github/workflows/deploy-site.yml"
-  workflow_dispatch:
-
+on: []
 permissions:
   contents: read
 
