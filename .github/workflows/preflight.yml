@@ -2,8 +2,7 @@ name: Preflight
 # Manual. Run once after adding the secrets, before the first daily run (docs/RUNBOOK.md, "Launch").
 # It creates the tables, checks the model key and model ids with one tiny call each, and fetches every feed.
 # The results are on the run's summary page.
-on:
-  workflow_dispatch:
+on: []
 permissions:
   contents: read
 jobs:
