@@ -1,15 +1,7 @@
 name: Model eval
 # Manual only, so it costs Actions minutes only when started. Compares model setups on one day's world
 # articles (decision 28). Download the report from the run's artifacts.
-on:
-  workflow_dispatch:
-    inputs:
-      date:
-        description: Run date (YYYY-MM-DD). Defaults to today.
-        required: false
-      setups:
-        description: 'Setups split by ";". Empty runs the default comparison (docs/RUNBOOK.md, "Choose a model").'
-        required: false
+on: []
 permissions:
   contents: read
 jobs:
