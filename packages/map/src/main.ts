@@ -98,6 +98,11 @@ const state = {
   theme: urlTheme && THEME_IDS.includes(urlTheme) ? urlTheme : prefs<ThemeId>("theme", "morning", THEME_IDS, renamed),
   view: null as ViewMode | null,
   topics: new Set<TopicFilter>(FILTERS),
+  /**
+   * The story ratings the reader picked from the legend or the Key, to see only places whose top story has one of them
+   * (decision 148); empty shows every place. 0 is "not rated", GDELT's local stories.
+   */
+  ratings: new Set<number>(),
   slot: SLOTS,
   live: true,
   /** The language headlines are translated into, or null to show them as published (decision 97). */
@@ -219,10 +224,15 @@ function refreshDots() {
   const f = filters();
   state.byPlace = groupByPlace(state.file, f);
   const dots: Dot[] = [];
+  const picked = state.ratings.size > 0;
   for (const [index, items] of state.byPlace) {
     const p = state.file.places[index];
-    const tier = Math.min(...items.map((it) => tierOf(it, state.tiered)));
-    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, weight: weightOf(items), fresh: items[0].t >= f.to - 3600, tier });
+    const weight = weightOf(items);
+    if (picked && !state.ratings.has(weight)) continue;
+    // A rating the reader picked shows at every zoom, so picking 1 at the whole world is not an empty map. GDELT's towns
+    // still come only with their tiles, at the closest zoom (decision 78).
+    const tier = picked ? 0 : Math.min(...items.map((it) => tierOf(it, state.tiered)));
+    dots.push({ index, lon: p.lon, lat: p.lat, count: items.length, weight, fresh: items[0].t >= f.to - 3600, tier });
   }
   map.setDots(dots);
   map.setPinned(pinnedIndices());
@@ -419,6 +429,9 @@ function pickFound(p: PlaceEntry) {
     state.topics = new Set(FILTERS);
     setSlot(SLOTS, true);
   }
+  // So would ratings picked in the legend that the place's top story is not.
+  const items = index !== undefined ? state.byPlace.get(index) : undefined;
+  if (state.ratings.size && (!items || !state.ratings.has(weightOf(items)))) setRatings(new Set());
   map.stopSpin();
   map.flyTo(p.lon, p.lat, p.tier > 0 ? Math.max(map.zoom, map.levelZoom(p.tier)) : undefined);
   armIdleSpin();
@@ -790,17 +803,54 @@ const RATED: Record<0 | 1 | 2 | 3 | 4 | 5, MarkDraw> = {
  * shape and colours, read from highest to lowest like the scale. The Key has the rest, the dashed "not rated" too.
  */
 function importanceLegend(): HTMLElement {
-  const item = (draw: MarkDraw, label: string) => h("span", { class: "imp-step" }, markSvg(draw, 18) as unknown as Node, h("span", {}, label));
+  const item = (n: 0 | 1 | 2 | 3 | 4 | 5, label: string) => ratingToggle(h("span", { class: "imp-step" }, markSvg(RATED[n], 18) as unknown as Node, h("span", {}, label)), n);
   return h(
     "div",
     {
       class: "importance",
-      role: "img",
-      "aria-label": "Map marks show an AI model's 1 to 5 rating of a place's top story: two rings for 5, one ring for 4, filled for 3, an outline with a dot for 2, an outline for 1.",
+      role: "group",
+      "aria-label": "Map marks show an AI model's 1 to 5 rating of a place's top story: two rings for 5, one ring for 4, filled for 3, an outline with a dot for 2, an outline for 1. Choose one to show only those places.",
     },
     h("span", { class: "imp-label" }, "Story rating"),
-    ...([5, 4, 3, 2, 1] as const).map((n) => item(RATED[n], String(n))),
+    ...([5, 4, 3, 2, 1] as const).map((n) => item(n, String(n))),
   );
+}
+
+/**
+ * Makes `el` a toggle for one story rating (decision 148): pressing it shows only the places whose top story has the
+ * ratings picked, and pressing every picked one again shows all. A role on the design's own element, not a new
+ * button, so every design's legend and Key look as they did.
+ */
+function ratingToggle<T extends HTMLElement>(el: T, n: number): T {
+  el.dataset.rating = String(n);
+  el.setAttribute("role", "button");
+  el.tabIndex = 0;
+  el.setAttribute("aria-pressed", String(state.ratings.has(n)));
+  el.title = n === 0 ? "Show only places with local stories that are not rated" : `Show only places rated ${n}`;
+  const toggle = () => {
+    const next = new Set(state.ratings);
+    if (next.has(n)) next.delete(n);
+    else next.add(n);
+    setRatings(next.size === 6 ? new Set() : next);
+  };
+  el.addEventListener("click", toggle);
+  el.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    toggle();
+  });
+  return el;
+}
+
+/** Shows only the places whose top story has one of these ratings, or every place when empty, and marks the toggles. */
+function setRatings(next: Set<number>) {
+  state.ratings = next;
+  document.documentElement.classList.toggle("rating-picked", next.size > 0);
+  for (const el of document.querySelectorAll<HTMLElement>("[data-rating]")) el.setAttribute("aria-pressed", String(next.has(Number(el.dataset.rating))));
+  for (const el of document.querySelectorAll<HTMLElement>(".rating-all")) el.hidden = next.size === 0;
+  refreshDots();
+  renderTicker();
+  if (!state.reader && !state.telegram && !state.event && state.tuned === null) renderPanel();
 }
 
 function renderKey() {
@@ -809,16 +859,25 @@ function renderKey() {
   const row = (svg: SVGSVGElement, label: string) => h("li", {}, svg as unknown as Node, h("span", {}, label));
   const mono = t.fresh === t.dot;
   $("key-body").replaceChildren(
-    h("p", { class: "key-note" }, "Marks show an AI model's 1 to 5 rating of a place's top story. Bigger marks mean more reports."),
+    h("p", { class: "key-note" }, "Marks show an AI model's 1 to 5 rating of a place's top story. Bigger marks mean more reports. Choose a rating to see only those places."),
     h(
       "ul",
       {},
-      ...([5, 4, 3, 2, 1] as const).map((n) => row(mark(RATED[n]), `Rated ${n}`)),
-      row(mark(RATED[0]), "Not rated: local stories from GDELT"),
+      ...([5, 4, 3, 2, 1] as const).map((n) => ratingToggle(row(mark(RATED[n]), `Rated ${n}`), n)),
+      ratingToggle(row(mark(RATED[0]), "Not rated: local stories from GDELT"), 0),
       row(mark((add) => (add(6, t.dot, t.dotStroke, 1.2), add(2.7, "none", t.dotStroke, 1))), "Several places close together (zoom in to separate)"),
       row(mark((add) => (mono ? (add(5, t.dot, t.dotStroke, 1.2), add(8.6, "none", t.dot, 0.9, "2 2", 5)) : add(6, t.fresh, t.dotStroke, 1.2))), "Reported in the last hour"),
     ),
+    showAllRatings(),
   );
+}
+
+/** The Key's "Show all places", shown while ratings are picked. */
+function showAllRatings(): HTMLElement {
+  const b = h("button", { type: "button", class: "rating-all" }, "Show all places");
+  b.hidden = state.ratings.size === 0;
+  b.addEventListener("click", () => setRatings(new Set()));
+  return b;
 }
 
 function applyTheme() {
@@ -1046,16 +1105,22 @@ function openChannel(channel: Channel) {
   });
 }
 
+/** Each place's reports in the window, leaving out places whose rating the reader has not picked. */
+function shownLists(): Item[][] {
+  const lists = [...state.byPlace.values()];
+  return state.ratings.size ? lists.filter((list) => state.ratings.has(weightOf(list))) : lists;
+}
+
 /** The newest report in the window, the first one the idle list shows. */
 function newest(): Item | null {
   let best: Item | null = null;
-  for (const list of state.byPlace.values()) if (list[0] && (!best || list[0].t > best.t)) best = list[0];
+  for (const list of shownLists()) if (list[0] && (!best || list[0].t > best.t)) best = list[0];
   return best;
 }
 
 function renderIdle(panel: HTMLElement) {
   const now = state.file!.generatedAt;
-  const latest = [...state.byPlace.values()]
+  const latest = shownLists()
     .map((list) => list[0])
     .sort((a, b) => b.t - a.t)
     .slice(0, 12);
@@ -1599,7 +1664,7 @@ function renderTicker() {
     track.replaceChildren();
     return;
   }
-  const latest = [...state.byPlace.values()]
+  const latest = shownLists()
     .flat()
     .sort((a, b) => b.t - a.t)
     .slice(0, 30);
@@ -1730,7 +1795,7 @@ const MOUNTS: { [K in keyof UiKits]-?: (kit: NonNullable<UiKits[K]>) => void } =
       tuned: () => (state.file && state.tuned ? state.tuned.map((i) => state.file!.places[i]?.name ?? "") : null),
       center: () => map.center(),
       latest: () =>
-        [...state.byPlace.values()]
+        shownLists()
           .flat()
           .sort((a, b) => b.t - a.t)
           .slice(0, 5)
@@ -1789,7 +1854,7 @@ const MOUNTS: { [K in keyof UiKits]-?: (kit: NonNullable<UiKits[K]>) => void } =
       headlines: () => {
         const file = state.file;
         if (!file) return [];
-        return [...state.byPlace.values()]
+        return shownLists()
           .map((list) => list[0]!)
           .sort((a, b) => b.t - a.t)
           .slice(0, 8)
