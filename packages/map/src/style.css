@@ -854,6 +854,21 @@ summary {
 .importance svg {
   flex: none;
 }
+/* Each rating is a toggle (decision 148): picked ones show at full strength, the rest fade while any is picked, in
+   every design without touching its colours. */
+[data-rating] {
+  cursor: pointer;
+}
+[data-rating]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.rating-picked [data-rating][aria-pressed="false"] {
+  opacity: 0.4;
+}
+.rating-all {
+  margin-top: 8px;
+}
 .score-chip {
   display: inline-block;
   min-width: 2.2em;
