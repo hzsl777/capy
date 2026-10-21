@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { and, eq, lt, notInArray } from "drizzle-orm";
+import { and, eq, gt, lt, notInArray } from "drizzle-orm";
 import { allowedWords, dayBand, medianScores, MOOD_WORDS, scoreProblems, splitLocal, toRunDate, withTodayStories, WORD_REPEAT_DAYS, wordProblems } from "@2dayai/core";
 import { articles, events, loadLocalNames, loadLocalTile, loadMapView, latestMapDate, localBase, sources, telegrams, type Db } from "@2dayai/db";
 import { runDay } from "./day.js";
@@ -169,6 +169,22 @@ describe("the world desk on a real Postgres engine", () => {
     expect(user).not.toMatch(/Allowed words[^\n]*Unease/);
     await db.delete(telegrams).where(lt(telegrams.runDate, date));
     expect(await runTelegram(db, testConfig(), new FakeLlm(worldAnswers()), date)).toMatchObject({ word: "Unease" });
+  });
+
+  it("avoids the words of the week after as well, so a day built late never repeats a later day's word (decision 128)", async () => {
+    // Later days already have words, as when missed days are built after newer ones: the first two words are taken.
+    await db.insert(telegrams).values([
+      { runDate: "2026-09-28", scope: "world", word: "Unease", band: -1, promptVersion: "test" },
+      { runDate: "2026-10-03", scope: "world", word: "Strain", band: -1, promptVersion: "test" },
+      { runDate: "2026-10-09", scope: "world", word: "Worry", band: -1, promptVersion: "test" },
+    ]);
+    const llm = new FakeLlm(worldAnswers());
+    const report = await runTelegram(db, testConfig(), llm, date);
+    expect(report).toMatchObject({ written: true, band: -1 });
+    const user = llm.calls.find((c) => c.stage === "telegram-word")!.user;
+    expect(user).not.toMatch(/Allowed words[^\n]*(Unease|Strain)/);
+    expect(user).toMatch(/Allowed words[^\n]*Worry/);
+    await db.delete(telegrams).where(gt(telegrams.runDate, date));
   });
 
   it("drops a stale telegram when the world desk is re-clustered, and writes no word without explained events", async () => {
