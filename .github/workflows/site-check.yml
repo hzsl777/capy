@@ -3,7 +3,12 @@ name: Site check
 # and its headers, the day's map file and a tile, paths that must 404, and the page in a real browser at desktop and
 # phone width, with screenshots kept for a week. A failure emails the owner like any failed run. About a minute a
 # run, 30 a month. The address is the repository variable SITE_URL, or SITE_DOMAIN, or the workers.dev address.
-on: []
+on:
+  workflow_run:
+    workflows: ["Refresh local stories"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:

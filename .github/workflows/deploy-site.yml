@@ -3,7 +3,14 @@
 # so this runs only when code changes or by hand. Cloudflare's free plan hosts it; the repository can stay private.
 name: Deploy site
 
-on: []
+on:
+  # By hand only: Cloudflare's Git integration (Workers Builds) deploys each merge to main, and one deployer is enough
+  # (decision 38). To deploy from here instead, restore the push trigger:
+  #   push:
+  #     branches: [main]
+  #     paths: ["packages/**", "package-lock.json", ".github/workflows/deploy-site.yml"]
+  workflow_dispatch:
+
 permissions:
   contents: read
 
