@@ -1259,3 +1259,9 @@ Neon's usage page on October 7 read 4.7 GB of the free plan's 5 GB monthly netwo
 ## 148. A reader can show only places of chosen ratings (October 19, 2026)
 
 Davis asked to see each rating on its own by clicking it. The six marks in the Key (rated 5 to 1, and not rated for GDELT's local stories) and the five steps in the legend under the word's scale are now buttons. Choosing one shows only the places whose top story has that rating, at every zoom, since a reader asking for 1s wants all of them and not only the ones the zoom tiers would show. Choosing more adds them; choosing one again takes it away, and choosing all six or "Show all places" in the Key shows every place again. The latest reports in the idle panel and the ticker follow the choice. The choice is the reader's and lasts only for the visit: it is not saved and not put in the link. What the map ranks and how is unchanged (rule 3). With nothing chosen, which places show at each zoom is set by the tiers as before.
+
+## 149. A word avoids the week after as well as the week before (October 21, 2026)
+
+Decision 128 keeps a word from repeating within seven days by leaving off the words of the seven days before a day. That holds when days are built in order. After the database was over its quota from October 13 to 19, the missed days were built newest first, each seeing an empty week, and October 16 and 18 both took "Devastation". Davis found it unacceptable.
+
+The telegram stage now also leaves off the words of the seven days after the day. On a normal day there are none, so nothing changes. When a missed day is built late, or a day's word is chosen again after later days have theirs, no word repeats within a week of any other day's, whatever the order. If the two weeks together leave no word in the band, which the lists' length of twelve makes very unlikely, only the week before is kept, as before. Rebuilding the archive in date order is still the cleaner way to backfill.

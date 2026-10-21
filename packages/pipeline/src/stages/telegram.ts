@@ -8,7 +8,7 @@
 // Each call gets one retry with its problems spelled out. A score run that still breaks the rules is set aside
 // and another is asked, up to two more; if none passes, or the word fails twice, the day has no word (decision
 // 51). The checks themselves never loosen, and an outage or the spend ceiling still fails the stage.
-import { and, eq, gte, inArray, lt } from "drizzle-orm";
+import { and, eq, gte, inArray, lte } from "drizzle-orm";
 import {
   allowedWords,
   dayBand,
@@ -167,14 +167,19 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
   const scoredEvents: ScoredEvent[] = scored.value.scores.map((s) => ({ eventId: s.eventId, importance: importance.get(s.eventId) ?? 1, score: s.score }));
   const band = dayBand(scoredEvents)!;
 
-  // The past week's words, so no word repeats within it (decision 128): they are left off the allowed list.
-  const weekBefore = new Date(Date.parse(`${date}T12:00:00Z`) - WORD_REPEAT_DAYS * 86_400_000).toISOString().slice(0, 10);
-  const recent = (
-    await db
-      .select({ word: telegrams.word })
-      .from(telegrams)
-      .where(and(eq(telegrams.scope, TELEGRAM_SCOPE), lt(telegrams.runDate, date), gte(telegrams.runDate, weekBefore)))
-  ).map((r) => r.word);
+  // The words of the week before and the week after, so no word repeats within a week of another day's (decision 128).
+  // The week after is empty on a normal day. It holds words only when a missed day is built late, or a day's word is
+  // chosen again, after later days have theirs. If both weeks together leave no word in the band, only the week
+  // before is kept, as before.
+  const dayMs = 86_400_000;
+  const noon = Date.parse(`${date}T12:00:00Z`);
+  const weekBefore = new Date(noon - WORD_REPEAT_DAYS * dayMs).toISOString().slice(0, 10);
+  const weekAfter = new Date(noon + WORD_REPEAT_DAYS * dayMs).toISOString().slice(0, 10);
+  const wordsBetween = async (from: string, to: string) =>
+    (await db.select({ word: telegrams.word }).from(telegrams).where(and(eq(telegrams.scope, TELEGRAM_SCOPE), gte(telegrams.runDate, from), lte(telegrams.runDate, to)))).map((r) => r.word);
+  const before = await wordsBetween(weekBefore, new Date(noon - dayMs).toISOString().slice(0, 10));
+  const after = await wordsBetween(new Date(noon + dayMs).toISOString().slice(0, 10), weekAfter);
+  const recent = allowedWords(band, [...before, ...after]).length > 0 ? [...before, ...after] : before;
 
   const wordPrompt = loadPrompt("telegram-word", TELEGRAM_WORD_PROMPT_VERSION);
   let worded: { value: TelegramWord; retried: boolean };
