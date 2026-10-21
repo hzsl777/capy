@@ -21,6 +21,9 @@ on:
       if_missing:
         description: Only build the day if its map doesn't exist yet ("true"). The Worker's clock sets it.
         required: false
+      ceiling:
+        description: Spend ceiling in USD for this run only, in place of the repository variable, for finishing a day whose failed tries already spent most of it (decision 151).
+        required: false
 permissions:
   contents: read
 jobs:
@@ -42,7 +45,7 @@ jobs:
       LLM_BATCH: "true"
       # The first live day, 237 outlets and 1,303 articles grouped, cost $0.21. At 560 outlets (decisions 45, 48 and
       # 49) expect roughly $0.40 to $0.70. The ceiling stops a runaway day, not a normal one; watch the summary.
-      DAILY_SPEND_CEILING_USD: ${{ vars.DAILY_SPEND_CEILING_USD || '1.00' }}
+      DAILY_SPEND_CEILING_USD: ${{ inputs.ceiling || vars.DAILY_SPEND_CEILING_USD || '1.00' }}
       # The word's score call runs this many times and keeps each event's middle score (decision 36). 1 saves
       # about two cents a day.
       TELEGRAM_SCORE_RUNS: ${{ vars.TELEGRAM_SCORE_RUNS }}
