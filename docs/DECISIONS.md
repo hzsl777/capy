@@ -1277,3 +1277,14 @@ The OpenAI-format client now cleans the system and user text before it builds th
 The daily spend ceiling (decision 28's `DAILY_SPEND_CEILING_USD`, $1.00) counts every try at a date. Four failed tries at October 20, three of them mine, had spent $1.14 on its grouping, so a fifth try got through grouping and then had every explain request refused by the ceiling. Finishing a day like that needs a higher ceiling for one run, and a repository variable changed and changed back is easy to forget.
 
 The daily workflow now takes an optional `ceiling` input for a manual run. It applies to that run only, in place of the variable. Scheduled runs and the Worker's clock never set it, so the ceiling they see is unchanged.
+
+## 152. The refresh stops grouping the day's stories through the day (October 21, 2026)
+
+Decision 130 had the refresh read the outlets' feeds every three hours and have the model group the day's new articles into events, so the site showed outlet stories through the day. Davis asked for it after finding "basically no new news stories since yesterday".
+
+October's spend log (`npm run stage -- spend report`) showed what it cost. A normal day cost $0.72 to $0.93 against a $1.00 ceiling, of which $0.27 to $0.37 was the refresh's grouping during the day and the rest the daily run's, which groups the whole day again after midnight. One full pass for a heavy day (October 20, 17,474 articles) costs $0.245 with the current models, about $90 a year. Davis set a budget of $120 a year in total, with Neon at about $24 of it, and chose to stop the in-day grouping to fit it.
+
+1. **The refresh still reads the feeds and stores the day's new articles** (`refresh --outlets`), so the daily run loses none to a feed that holds only its newest items (decision 90). That costs no model money.
+2. **It no longer groups them.** `refresh` takes a new `--group` flag, which `refresh.yml` does not pass. With it, the grouping of decision 130 runs as before, so turning it back on is one word in the workflow.
+3. **What readers lose.** Through the day the site shows the finished day's stories, the word and GDELT's local stories, which still refresh every three hours. The day under way's outlet stories appear once the daily run builds the day after midnight, as before decision 130. The time bar's newest stories are the finished day's until then.
+4. **The expected saving** is the refresh's $0.27 to $0.37 a day, about $100 to $135 a year. The spend report will show the real change in a few days.
