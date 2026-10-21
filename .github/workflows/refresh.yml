@@ -7,7 +7,8 @@ name: Refresh local stories
 # runs for hours, and is no longer used here, so a run is never started twice.
 # It no longer follows each daily run: the daily run has just stored the same day's local stories, and each run reads
 # the whole map back from the database, whose free plan allows 5 GB of transfer a month (decision 124).
-on: []
+on:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
