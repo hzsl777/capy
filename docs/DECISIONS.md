@@ -1271,3 +1271,9 @@ The telegram stage now also leaves off the words of the seven days after the day
 On October 21 the grouping stage failed for October 20 twice, on the first try and on a second run, each time on one batch with OpenAI's "failed to parse JSON value", and no day was written. Something in that batch's articles made the request body unreadable to OpenAI. The likeliest causes are a lone surrogate half (a cut-off emoji), which `JSON.stringify` writes as an escape OpenAI refuses, and a NUL or other control character. Every retry sent the same text, so it failed every time.
 
 The OpenAI-format client now cleans the system and user text before it builds the body: lone surrogate halves become the replacement character, and control characters other than tab, newline and carriage return are dropped. Ordinary text is unchanged. If the next run of October 20 still fails the same way, the cause was something else and this entry is wrong about it.
+
+## 151. A manual daily run can take its own spend ceiling (October 21, 2026)
+
+The daily spend ceiling (decision 28's `DAILY_SPEND_CEILING_USD`, $1.00) counts every try at a date. Four failed tries at October 20, three of them mine, had spent $1.14 on its grouping, so a fifth try got through grouping and then had every explain request refused by the ceiling. Finishing a day like that needs a higher ceiling for one run, and a repository variable changed and changed back is easy to forget.
+
+The daily workflow now takes an optional `ceiling` input for a manual run. It applies to that run only, in place of the variable. Scheduled runs and the Worker's clock never set it, so the ceiling they see is unchanged.
