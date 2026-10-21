@@ -1265,3 +1265,9 @@ Davis asked to see each rating on its own by clicking it. The six marks in the K
 Decision 128 keeps a word from repeating within seven days by leaving off the words of the seven days before a day. That holds when days are built in order. After the database was over its quota from October 13 to 19, the missed days were built newest first, each seeing an empty week, and October 16 and 18 both took "Devastation". Davis found it unacceptable.
 
 The telegram stage now also leaves off the words of the seven days after the day. On a normal day there are none, so nothing changes. When a missed day is built late, or a day's word is chosen again after later days have theirs, no word repeats within a week of any other day's, whatever the order. If the two weeks together leave no word in the band, which the lists' length of twelve makes very unlikely, only the week before is kept, as before. Rebuilding the archive in date order is still the cleaner way to backfill.
+
+## 150. Text sent to a model is cleaned of broken characters first (October 21, 2026)
+
+On October 21 the grouping stage failed for October 20 twice, on the first try and on a second run, each time on one batch with OpenAI's "failed to parse JSON value", and no day was written. Something in that batch's articles made the request body unreadable to OpenAI. The likeliest causes are a lone surrogate half (a cut-off emoji), which `JSON.stringify` writes as an escape OpenAI refuses, and a NUL or other control character. Every retry sent the same text, so it failed every time.
+
+The OpenAI-format client now cleans the system and user text before it builds the body: lone surrogate halves become the replacement character, and control characters other than tab, newline and carriage return are dropped. Ordinary text is unchanged. If the next run of October 20 still fails the same way, the cause was something else and this entry is wrong about it.

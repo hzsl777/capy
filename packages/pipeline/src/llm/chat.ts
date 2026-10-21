@@ -54,6 +54,16 @@ export function usageOf(r: ChatResponse): Usage {
   return { input: prompt - cached, output: r.usage?.completion_tokens ?? 0, cacheRead: cached, cacheWrite: 0 };
 }
 
+/**
+ * Text a model provider will take in a JSON body. A lone surrogate half (a cut-off emoji in an article) is written
+ * by JSON.stringify as an escape OpenAI refuses to parse, and a NUL or other control character can be refused too,
+ * and either made a whole day's grouping fail with "failed to parse JSON value" on every retry.
+ */
+export function cleanText(s: string): string {
+  // eslint-disable-next-line no-control-regex
+  return s.toWellFormed().replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "");
+}
+
 export function systemWithSchema(system: string, schema: z.ZodType): string {
   const json = JSON.stringify(z.toJSONSchema(schema, { unrepresentable: "any" }));
   return `${system}\n\nReply with one JSON object and nothing else. It must match this JSON Schema:\n${json}`;
@@ -105,8 +115,8 @@ export function createChatLlm(
       [config.provider === "openai" ? "max_completion_tokens" : "max_tokens"]: MAX_OUTPUT[model] ?? DEFAULT_MAX_OUTPUT,
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: systemWithSchema(req.prompt.system, req.schema) },
-        { role: "user", content: req.user },
+        { role: "system", content: cleanText(systemWithSchema(req.prompt.system, req.schema)) },
+        { role: "user", content: cleanText(req.user) },
       ],
     };
     let response: ChatResponse;
