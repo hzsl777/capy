@@ -7,6 +7,11 @@ describe("costUsd", () => {
     expect(costUsd("claude-sonnet-5", usage)).toBeCloseTo(3, 6);
     expect(costUsd("claude-sonnet-5", usage, true)).toBeCloseTo(1.5, 6);
   });
+  it("prices the 5.5 models", () => {
+    const usage = { input: 1_000_000, output: 1_000_000, cacheRead: 0, cacheWrite: 0 };
+    expect(costUsd("claude-haiku-5-5", usage)).toBeCloseTo(0.6, 6);
+    expect(costUsd("claude-sonnet-5-5", usage)).toBeCloseTo(12, 6);
+  });
   it("refuses an unknown model rather than guessing", () => {
     expect(() => costUsd("claude-unknown", { input: 1, output: 1, cacheRead: 0, cacheWrite: 0 })).toThrow(/price table/);
   });
