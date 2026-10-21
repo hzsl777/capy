@@ -45,6 +45,11 @@ jobs:
           if [ -n "$DATE" ]; then args+=(--date "$DATE"); fi
           if [ -n "$SETUPS" ]; then args+=(--setups "$SETUPS"); fi
           npm run stage -- "${args[@]}"
+      # The report in the log too, so it can be read without downloading the artifact. It holds the setups' cost, the
+      # code checks and every score with its reason, never the articles.
+      - name: Print the report
+        if: always()
+        run: cat .eval/report-*.md || true
       # The report only. The snapshot holds the outlets' article text and stays on the runner.
       - uses: actions/upload-artifact@v4
         with:
