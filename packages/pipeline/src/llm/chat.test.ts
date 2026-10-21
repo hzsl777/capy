@@ -61,6 +61,12 @@ describe("the OpenAI-format client", () => {
     expect(Number(call!.costUsd)).toBeCloseTo(0.000302, 6);
   });
 
+  it("sends text the provider can parse: no lone surrogate halves, NULs or other control characters", async () => {
+    const client = llm([reply('{"word":"a"}')], { LLM_PROVIDER: "openai" });
+    await client.parse({ ...req("cluster-world"), user: "a\u0000b\ud83dc\u0007d\ne\tf" }, DATE);
+    expect(sent[0]!.body.messages[1]!.content).toBe("ab\ufffdcd\ne\tf");
+  });
+
   it("sends the telegram calls to MODEL_TELEGRAM and everything else to MODEL", async () => {
     const client = llm([reply('{"word":"a"}'), reply('{"word":"b"}')], { MODEL_TELEGRAM: "deepseek-v4-pro" });
     await client.parse(req("explain"), DATE);
