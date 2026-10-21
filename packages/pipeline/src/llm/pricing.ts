@@ -8,6 +8,9 @@ export const PRICES: Record<string, { input: number; output: number; cacheRead: 
   "claude-sonnet-5": { input: 2, output: 10, cacheRead: 0.2 },
   "claude-opus-5": { input: 5, output: 25, cacheRead: 0.5 },
   "claude-haiku-4-5": { input: 1, output: 5, cacheRead: 0.1 },
+  "claude-sonnet-5-5": { input: 2, output: 10, cacheRead: 0.2 },
+  // Haiku 5.5 bills $0.50 and $2.50 for a prompt over 100,000 tokens; this row is the rate below that, so it under-counts a larger one.
+  "claude-haiku-5-5": { input: 0.1, output: 0.5, cacheRead: 0.01 },
   // DeepSeek peak rates (01:00-04:00 and 06:00-10:00 UTC, weekdays). Off-peak is half, so this over-counts then.
   "deepseek-flash": { input: 0.3, output: 1.2, cacheRead: 0.006 },
   "deepseek-v4-pro": { input: 1.32, output: 3.96, cacheRead: 0.044 },
