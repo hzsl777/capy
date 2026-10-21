@@ -1,8 +1,8 @@
 name: Refresh local stories
 # Between daily runs, every three hours: the latest map's local stories become the last 24 hours' of GDELT (decision 80),
-# and the outlets' new stories of the day under way are read and grouped by the model and added beside the finished
-# day's (decision 130). The finished day's events and word stay the daily run's. The repository is public, so Actions
-# minutes are not counted.
+# and the outlets' new articles of the day under way are read and stored, so the daily run loses none to a feed that holds
+# only its newest items. The model no longer groups them into stories through the day (decision 130 ended by decision
+# 152); the daily run groups the whole day once it ends. The repository is public, so Actions minutes are not counted.
 # The Worker's cron trigger starts it every three hours at minute 41 (decision 91); GitHub's own schedule skipped
 # runs for hours, and is no longer used here, so a run is never started twice.
 # It no longer follows each daily run: the daily run has just stored the same day's local stories, and each run reads
@@ -23,8 +23,8 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       GDELT_PER_TOWN: ${{ vars.GDELT_PER_TOWN }}
-      # The model groups the day's new articles (decision 130), at the standard price so a run takes minutes, not the
-      # flex queue's wait; it stops at a quarter of the day's spend ceiling, leaving the rest for the daily run's word.
+      # Not used while grouping is off (decision 152). To group the day's new articles again (decision 130), add --group
+      # to the refresh command below; it runs at the standard price so a run takes minutes, not the flex queue's wait.
       LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       MODEL: ${{ vars.MODEL }}
