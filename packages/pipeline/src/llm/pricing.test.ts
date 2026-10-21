@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { costUsd } from "./pricing.js";
+import { spendReport } from "./spend.js";
 
 describe("costUsd", () => {
   it("prices Sonnet 5 and halves for batch", () => {
@@ -29,5 +30,16 @@ describe("costUsd for cheaper providers", () => {
   });
   it("uses the override for a model the table lacks", () => {
     expect(costUsd("some-new-model", { input: 1_000_000, output: 1_000_000, cacheRead: 0, cacheWrite: 0 }, false, { input: 0.1, output: 0.2 })).toBeCloseTo(0.3, 6);
+  });
+  it("reports spend by day, split at the day's end in New York, and by stage", () => {
+    // October 19's day ends at 04:00 UTC on October 20.
+    const text = spendReport([
+      { runDate: "2026-10-19", stage: "cluster-world", costUsd: 0.1, createdAt: new Date("2026-10-19T15:00:00Z") },
+      { runDate: "2026-10-19", stage: "cluster-world", costUsd: 0.2, createdAt: new Date("2026-10-20T05:00:00Z") },
+      { runDate: "2026-10-19", stage: "telegram-word", costUsd: 0.01, createdAt: new Date("2026-10-20T06:00:00Z") },
+    ]);
+    expect(text).toContain("2026-10-19          0.1000           0.2100   0.3100");
+    expect(text).toContain("1 days, 0.3100 USD in all, 0.3100 a day");
+    expect(text).toMatch(/cluster-world\s+0\.3000\n\s+telegram-word\s+0\.0100/);
   });
 });

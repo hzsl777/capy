@@ -8,7 +8,7 @@ import { loadConfig, requireDatabaseUrl } from "./config.js";
 import { mapCovers, runDay } from "./day.js";
 import { keyFor, parseSetups, renderReport, runEval, takeSnapshot, type Snapshot } from "./eval.js";
 import { createLlm } from "./llm/client.js";
-import { spentToday } from "./llm/spend.js";
+import { spendReport, spendRows, spentToday } from "./llm/spend.js";
 import { createResendSender } from "./mail.js";
 import { loadProfiles, syncReaders } from "./profiles.js";
 import { recorded } from "./runs.js";
@@ -97,6 +97,7 @@ const HELP = `Commands:
   day [--fixture]        ingest, enrich, readers sync, cluster, cluster world, explain, select, telegram
                          --if-missing skips when the date's map already exists
   spend                  model spend for the date
+  spend report           the 14 days up to the date: spend during each day and after it, and by stage
   llm check              one tiny call per configured model: key, model ids, flex tier (costs a fraction of a cent)
   prompt <name>          one call's system message, settings and a sample input, to paste into the OpenAI Playground
                          names: cluster-world, cluster-world-merge, explain, telegram-score, telegram-word, cluster, select
@@ -515,6 +516,10 @@ ${sample ?? ""}`);
     }
     await close();
     if (failed) process.exit(1);
+    break;
+  }
+  case "spend report": {
+    console.log(spendReport(await spendRows(db(), date)));
     break;
   }
   case "spend": {
