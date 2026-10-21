@@ -61,7 +61,7 @@ export function usageOf(r: ChatResponse): Usage {
  */
 export function cleanText(s: string): string {
   // eslint-disable-next-line no-control-regex
-  return s.toWellFormed().replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "");
+  return s.replace(/[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g, "\ufffd").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "");
 }
 
 export function systemWithSchema(system: string, schema: z.ZodType): string {
