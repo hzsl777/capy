@@ -1288,3 +1288,12 @@ October's spend log (`npm run stage -- spend report`) showed what it cost. A nor
 2. **It no longer groups them.** `refresh` takes a new `--group` flag, which `refresh.yml` does not pass. With it, the grouping of decision 130 runs as before, so turning it back on is one word in the workflow.
 3. **What readers lose.** Through the day the site shows the finished day's stories, the word and GDELT's local stories, which still refresh every three hours. The day under way's outlet stories appear once the daily run builds the day after midnight, as before decision 130. The time bar's newest stories are the finished day's until then.
 4. **The expected saving** is the refresh's $0.27 to $0.37 a day, about $100 to $135 a year. The spend report will show the real change in a few days.
+
+## 153. Rating buttons on the phone's map (October 26, 2026)
+
+Decision 148 made each rating a button, but on a phone the legend under the word is hidden (decision 132's phone layout), so the only way to pick a rating was the Key: rows 26 pixels tall that looked like plain labels, in a sheet that covers half the map, so the reader could not see what the choice did. Davis found the phone version needed both better feel and a way to click the 1 to 5 ratings.
+
+1. **A row of six buttons on the map's top edge, beside the Key** (`renderRatingBar` in `main.ts`, shown under 761 pixels wide and hidden above): 5, 4, 3, 2, 1 and "Local" for places with only GDELT's local stories, each 44 pixels square with the design's own mark for that rating. They are the same toggles as the legend's and the Key's (`ratingToggle`), so choosing in one shows in all, the picked ones are outlined in the design's accent and the rest keep a solid button with their contents faded. The map still shows only places of the picked ratings at every zoom, decision 148 unchanged.
+2. **The Key's rating rows are bigger on a phone,** at least 44 pixels tall with a border, and the picked rows outlined.
+3. **Taps act at once:** buttons, selects and summaries take `touch-action: manipulation`, so the phone does not wait for a double tap.
+4. **Nothing is ranked or reordered.** The buttons run from 5 to 1 as the legend does, and the lists are unchanged (rule 3).
