@@ -853,6 +853,21 @@ function setRatings(next: Set<number>) {
   if (!state.reader && !state.telegram && !state.event && state.tuned === null) renderPanel();
 }
 
+/**
+ * The phone's rating buttons (decision 153), on the map beside the Key: the legend under the word is hidden on a phone,
+ * and the Key's rows are small and behind a sheet that covers the map. One 44 pixel button for each rating, highest
+ * first, "Local" for the places with only GDELT's local stories. Hidden on wider screens, where the legend and the Key
+ * do this.
+ */
+function renderRatingBar() {
+  const chip = (n: 0 | 1 | 2 | 3 | 4 | 5) =>
+    ratingToggle(
+      h("button", { type: "button", class: "rating-chip" }, markSvg(RATED[n], 20) as unknown as Node, h("span", { class: "rating-num" }, n === 0 ? "Local" : String(n))),
+      n,
+    );
+  $("rating-bar").replaceChildren(...([5, 4, 3, 2, 1, 0] as const).map(chip));
+}
+
 function renderKey() {
   const t = THEMES[state.theme];
   const mark = (draw: MarkDraw) => markSvg(draw, 26);
@@ -884,6 +899,7 @@ function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   map.setTheme(THEMES[state.theme]);
   renderKey();
+  renderRatingBar();
   map.setMode(viewOf());
   renderMasthead();
   renderTelegramStrip();
@@ -1930,6 +1946,7 @@ async function start() {
   renderMasthead();
   renderToolbar();
   renderKey();
+  renderRatingBar();
   renderTelegramStrip();
   renderPanel();
   bindTimebar();

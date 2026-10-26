@@ -866,6 +866,68 @@ summary {
 .rating-picked [data-rating][aria-pressed="false"] {
   opacity: 0.4;
 }
+/* Taps act at once: no double-tap zoom or delay on the controls. */
+button,
+[role="button"],
+select,
+summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+/* The phone's rating buttons (decision 153): on the map beside the Key, hidden on wider screens. */
+.rating-bar {
+  display: none;
+}
+@media (max-width: 760px) {
+  .rating-bar {
+    position: absolute;
+    top: var(--gutter);
+    right: var(--gutter);
+    z-index: 3;
+    display: flex;
+    gap: 4px;
+  }
+  .rating-chip {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font: 600 10px/1 var(--font-ui);
+    letter-spacing: 0.02em;
+    font-variant-numeric: lining-nums;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--page);
+    color: var(--ink);
+  }
+  .rating-chip[aria-pressed="true"] {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  /* The button stays solid over the map while any rating is picked; only what is in it fades. */
+  .rating-picked .rating-chip[aria-pressed="false"] {
+    opacity: 1;
+  }
+  .rating-picked .rating-chip[aria-pressed="false"] > * {
+    opacity: 0.45;
+  }
+  /* The Key's rows are the same toggles: a comfortable tap, and a picked row you can see. */
+  .key-body li[data-rating] {
+    min-height: 44px;
+    padding: 0 8px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+  .key-body li[data-rating][aria-pressed="true"] {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+}
 .rating-all {
   margin-top: 8px;
 }
