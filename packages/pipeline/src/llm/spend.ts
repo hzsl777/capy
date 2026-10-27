@@ -42,6 +42,10 @@ export function spendReport(rows: readonly SpendRow[]): string {
   for (const d of days.values()) for (const [k, v] of d.stages) stages.set(k, (stages.get(k) ?? 0) + v);
   lines.push("", `${days.size} days, ${total.toFixed(4)} USD in all, ${days.size ? (total / days.size).toFixed(4) : "0.0000"} a day`, "", "by stage:");
   for (const [k, v] of [...stages].sort(([, a], [, b]) => b - a)) lines.push(`  ${k.padEnd(28)} ${v.toFixed(4)}`);
+  // Each day by stage, biggest stages first, so a clean day shows where its spend goes.
+  const order = [...stages].sort(([, a], [, b]) => b - a).map(([k]) => k);
+  lines.push("", "by day and stage:", `date        ${order.map((k) => k.padStart(12)).join(" ")}`);
+  for (const [date, d] of [...days].sort(([a], [b]) => a.localeCompare(b))) lines.push(`${date}  ${order.map((k) => (d.stages.get(k) ?? 0).toFixed(4).padStart(12)).join(" ")}`);
   return lines.join("\n");
 }
 

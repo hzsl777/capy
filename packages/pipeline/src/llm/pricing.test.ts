@@ -41,5 +41,7 @@ describe("costUsd for cheaper providers", () => {
     expect(text).toContain("2026-10-19          0.1000           0.2100   0.3100");
     expect(text).toContain("1 days, 0.3100 USD in all, 0.3100 a day");
     expect(text).toMatch(/cluster-world\s+0\.3000\n\s+telegram-word\s+0\.0100/);
+    expect(text).toContain("by day and stage:");
+    expect(text).toMatch(/2026-10-19\s+0\.3000\s+0\.0100/);
   });
 });
