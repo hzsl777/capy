@@ -1,7 +1,7 @@
 // The telegram (decision 26): one word for the emotion the day's world reporting evokes, on a fixed scale.
 // Model calls with code in between, so the model never sets the scale on its own:
 //   1. score: every explained world event gets -2 to 2 by what happened to people, citing one of its own
-//      verified sentences. Checked in code. The call runs TELEGRAM_SCORE_RUNS times (default 3) and each event
+//      verified sentences. Checked in code. The call runs TELEGRAM_SCORE_RUNS times (default 1 since decision 156, 3 before) and each event
 //      keeps its middle score, because repeat runs sometimes disagree (decision 36).
 //   2. dayBand (code): the worst significant event sets a bad day; an all-good day is the weighted average.
 //   3. word: the model picks from the band's fixed list and names the events that shaped the day. Checked in code.

@@ -33,7 +33,7 @@ afterAll(async () => {
 describe("the world desk on a real Postgres engine", () => {
   it("clusters with topics, explains within the cap, scores the day and writes the word after rejecting one outside the band", async () => {
     const llm = new FakeLlm(worldAnswers({ badWordFirst: "Joy" }));
-    const out = await runDay(db, testConfig(), llm, date, deps);
+    const out = await runDay(db, testConfig({ telegramScoreRuns: 3 }), llm, date, deps);
 
     expect(out["cluster"]).toEqual({ skipped: "no reader profiles" });
     expect(out["clusterWorld"]).toMatchObject({ articles: 16, events: 11, placed: 1, abroad: 1, unknownIds: 0, unassigned: 0, byTopic: { conflict: 3, environment: 1, other: 1 } });
@@ -148,7 +148,7 @@ describe("the world desk on a real Postgres engine", () => {
         return req.attempt === 2 ? { scores: answer.scores.map((x) => ({ ...x, score: -2 })) } : answer;
       },
     });
-    const report = await runTelegram(db, testConfig(), llm, date);
+    const report = await runTelegram(db, testConfig({ telegramScoreRuns: 3 }), llm, date);
     expect(llm.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(3);
     expect(report).toMatchObject({ word: "Unease", band: -1, scoreRuns: 3, split: 7 });
     const map = await loadMapView(db, date);
@@ -204,7 +204,7 @@ describe("the world desk on a real Postgres engine", () => {
     // rule, so the day has no word (decision 51).
     const inventedScores: FakeAnswer = ({ user }) => ({ scores: [...user.matchAll(/^\[event (\d+)\]/gm)].map((m) => ({ eventId: Number(m[1]), score: 0, because: "Nothing much happened." })) });
     const invented = new FakeLlm({ ...worldAnswers(), "telegram-score": inventedScores });
-    expect(await runTelegram(db, testConfig(), invented, date)).toMatchObject({ written: false, word: null, rejected: 5, reason: expect.stringMatching(/telegram-score: .*after one retry/) });
+    expect(await runTelegram(db, testConfig({ telegramScoreRuns: 3 }), invented, date)).toMatchObject({ written: false, word: null, rejected: 5, reason: expect.stringMatching(/telegram-score: .*after one retry/) });
     expect(invented.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(10);
     expect(await db.select().from(telegrams)).toHaveLength(0);
     // A word from another band twice: no word either.
@@ -281,7 +281,7 @@ describe("the world desk on a real Postgres engine", () => {
     const good = worldAnswers()["telegram-score"]!;
     // The first run and its retry invent a reason; the next three runs are fine.
     const llm = new FakeLlm({ ...worldAnswers(), "telegram-score": (req) => (req.attempt <= 2 ? { scores: [] } : good(req)) });
-    const report = await runTelegram(db, testConfig(), llm, date);
+    const report = await runTelegram(db, testConfig({ telegramScoreRuns: 3 }), llm, date);
     expect(report).toMatchObject({ written: true, band: -1, scoreRuns: 3, rejected: 1 });
     expect(llm.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(5);
   });
