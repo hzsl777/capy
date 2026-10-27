@@ -14,7 +14,7 @@ import type { z } from "zod";
 import type { Config } from "./config.js";
 import { runDay } from "./day.js";
 import { systemWithSchema, thinkingParams } from "./llm/chat.js";
-import { isJudgment, modelFor } from "./llm/models.js";
+import { modelFor, reasonsHard } from "./llm/models.js";
 import { loadPrompt, type PromptName } from "./prompts.js";
 import { CLUSTER_PROMPT_VERSION, CLUSTER_WORLD_MERGE_PROMPT_VERSION, CLUSTER_WORLD_PROMPT_VERSION } from "./stages/cluster.js";
 import { EXPLAIN_PROMPT_VERSION } from "./stages/explain.js";
@@ -41,7 +41,7 @@ export type PlaygroundView = { label: string; model: string; reasoningEffort: st
 export function playgroundView(config: Config, name: PromptName): PlaygroundView {
   const call = PROMPT_CALLS[name];
   const prompt = loadPrompt(name, call.version);
-  const think = config.thinking === "all" || (config.thinking === "telegram" && isJudgment(name));
+  const think = config.thinking === "all" || (config.thinking === "telegram" && reasonsHard(name));
   const effort = thinkingParams(config.provider, think)["reasoning_effort"];
   return { label: prompt.label, model: modelFor(config, name), reasoningEffort: typeof effort === "string" ? effort : undefined, system: systemWithSchema(prompt.system, call.schema) };
 }
