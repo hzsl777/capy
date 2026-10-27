@@ -903,7 +903,7 @@ summary {
     box-shadow: 0 -6px 14px rgba(0, 0, 0, 0.14);
   }
   html.sheet-peek.sheet-on .stage:not(:has(.panel.reading)):not(:has(.panel.framed)) {
-    grid-template-rows: minmax(0, 1fr) 76px;
+    grid-template-rows: minmax(0, 1fr) 88px;
   }
   html.sheet-peek.sheet-on .panel {
     overflow: hidden;

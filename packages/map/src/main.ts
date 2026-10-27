@@ -193,7 +193,7 @@ async function openingDesign() {
  * panel has most of the screen and the masthead's word steps aside, and the usual half is between. Designs whose phone
  * page is not the masthead, map and panel in one column keep their own layout.
  */
-const SHEET_OFF = new Set(["dual", "desktop", "cube", "paper", "postcard"]);
+const SHEET_OFF = new Set(["dual", "desktop", "cube", "paper", "postcard", "machine", "shortwave", "tactical", "vinyl"]);
 const SHEET_STEPS = ["peek", "half", "full"] as const;
 
 function sheetOn(): boolean {
