@@ -1297,3 +1297,15 @@ Decision 148 made each rating a button, but on a phone the legend under the word
 2. **The Key's rating rows are bigger on a phone,** at least 44 pixels tall with a border, and the picked rows outlined.
 3. **Taps act at once:** buttons, selects and summaries take `touch-action: manipulation`, so the phone does not wait for a double tap.
 4. **Nothing is ranked or reordered.** The buttons run from 5 to 1 as the legend does, and the lists are unchanged (rule 3).
+
+## 154. The second merge pass reasons at low effort (October 27, 2026)
+
+The spend report by day and stage (October 22 to 25, the clean days) showed `cluster-world-merge-top`, decision 108's second merge pass over the events of importance 3 or more, at $0.11 to $0.16 a day, a third of a clean day's $0.37 to $0.47. It runs on the word's model (gpt-5.4-mini) as a judgment stage, and judgment stages reason at high effort. On heavy days the reasoning also used up its output budget: on October 20 and in the model eval it stopped with "output hit max_tokens", the events stood as they were, and the failed tries still cost money. The model eval had missed this cost because that pass failed in it.
+
+Davis set a budget of $100 to $120 a year in total, with Neon at about $24 of it, which leaves the models about $0.26 a day.
+
+1. **The pass keeps the word's model and its job,** but `reasonsHard` (`packages/pipeline/src/llm/models.ts`) leaves it out of the stages that reason at high effort, so it runs at the bulk stages' low effort. The telegram's own calls and the rest are unchanged.
+2. **Expected saving:** about $0.10 a day, $35 a year, and no more max_tokens failures on heavy days. The spend report will show the real change.
+3. **The risk** is a missed merge of two top events that are one story, which decision 108 added the pass to catch. It costs a duplicate line in the word's list on a day it happens, never a wrong word. If it shows, the pass can go back to high effort by removing `reasonsHard`'s exception.
+
+The next steps toward the budget, each to be measured first, are scoring the word once instead of three times (decision 36) and capping the articles grouped per outlet (`WORLD_PER_SOURCE`, rule 6).

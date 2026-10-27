@@ -75,6 +75,17 @@ describe("the OpenAI-format client", () => {
     expect((sent[1]!.body as unknown as { reasoning_effort: unknown }).reasoning_effort).toBe("high");
   });
 
+  it("keeps the second merge pass on the word's model but reasons at low effort (decision 154)", async () => {
+    const client = llm([reply('{"word":"a"}'), reply('{"word":"b"}')], { LLM_PROVIDER: "openai" });
+    await client.parse(req("cluster-world-merge-top"), DATE);
+    await client.parse(req("telegram-word"), DATE);
+    const bodies = sent.map((s) => s.body as unknown as Record<string, unknown>);
+    expect(bodies.map((b) => [b["model"], b["reasoning_effort"]])).toEqual([
+      ["gpt-5.4-mini", "low"],
+      ["gpt-5.4-mini", "high"],
+    ]);
+  });
+
   it("defaults to OpenAI's nano for bulk and mini for the word, with max_completion_tokens", async () => {
     const client = llm([reply('{"word":"a"}'), reply('{"word":"b"}')], { LLM_PROVIDER: "openai" });
     await client.parse(req("cluster-world"), DATE);

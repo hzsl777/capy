@@ -8,7 +8,7 @@ import type { Config } from "../config.js";
 import { costUsd, type Usage } from "./pricing.js";
 import { assertUnderCeiling } from "./spend.js";
 import { LlmParseError, type Llm, type ParseOutcome, type ParseRequest } from "./types.js";
-import { isJudgment, modelFor } from "./models.js";
+import { modelFor, reasonsHard } from "./models.js";
 import { noControlDeep } from "../text.js";
 
 /**
@@ -107,7 +107,7 @@ export function createChatLlm(
   async function parse<T extends z.ZodType>(req: Omit<ParseRequest<T>, "id">, date: RunDate): Promise<z.infer<T>> {
     await assertUnderCeiling(db, date, config.dailySpendCeilingUsd);
     const model = modelFor(config, req.stage);
-    const think = config.thinking === "all" || (config.thinking === "telegram" && isJudgment(req.stage));
+    const think = config.thinking === "all" || (config.thinking === "telegram" && reasonsHard(req.stage));
     const body = {
       model,
       ...thinkingParams(config.provider, think),
