@@ -103,6 +103,8 @@ const state = {
    * (decision 148); empty shows every place. 0 is "not rated", GDELT's local stories.
    */
   ratings: new Set<number>(),
+  /** How much of a phone's screen the stories panel takes (decision 155): a peek, the usual half, or most of it. */
+  sheet: "half" as "peek" | "half" | "full",
   slot: SLOTS,
   live: true,
   /** The language headlines are translated into, or null to show them as published (decision 97). */
@@ -184,6 +186,74 @@ async function openingDesign() {
     console.warn("Design failed to load", state.theme, err);
     state.theme = "morning";
   }
+}
+
+/**
+ * The phone's stories panel as a bottom sheet (decision 155): pulled down to a peek the map has the room, pulled up the
+ * panel has most of the screen and the masthead's word steps aside, and the usual half is between. Designs whose phone
+ * page is not the masthead, map and panel in one column keep their own layout.
+ */
+const SHEET_OFF = new Set(["dual", "desktop", "cube", "paper", "postcard", "machine", "shortwave", "tactical", "vinyl"]);
+const SHEET_STEPS = ["peek", "half", "full"] as const;
+
+function sheetOn(): boolean {
+  return phone.matches && !SHEET_OFF.has(state.theme);
+}
+
+function applySheet() {
+  const root = document.documentElement;
+  const on = sheetOn();
+  root.classList.toggle("sheet-on", on);
+  for (const step of SHEET_STEPS) root.classList.toggle(`sheet-${step}`, on && state.sheet === step);
+  $("sheet-handle").setAttribute("aria-label", `Stories panel, ${state.sheet === "half" ? "half the screen" : state.sheet === "peek" ? "a peek" : "most of the screen"}. Drag or press to resize.`);
+}
+
+function setSheet(next: (typeof SHEET_STEPS)[number]) {
+  state.sheet = next;
+  applySheet();
+}
+
+function bindSheet() {
+  const handle = $("sheet-handle");
+  const step = (by: number) => SHEET_STEPS[Math.min(2, Math.max(0, SHEET_STEPS.indexOf(state.sheet) + by))]!;
+  let y0 = 0;
+  let dragged = false;
+  handle.addEventListener("pointerdown", (e) => {
+    y0 = e.clientY;
+    dragged = false;
+    handle.setPointerCapture(e.pointerId);
+  });
+  // A drag goes one step the way it was pulled. A tap is handled on its click, after it has finished: resizing on
+  // release moves the page under the finger, and the click that follows would land on whatever is there now.
+  handle.addEventListener("pointerup", (e) => {
+    const dy = e.clientY - y0;
+    if (Math.abs(dy) < 10) return;
+    dragged = true;
+    setSheet(step(dy < 0 ? 1 : -1));
+  });
+  // A tap goes one step up, and back to half from the top; Enter and Space on the handle click it too.
+  handle.addEventListener("click", () => {
+    if (dragged) {
+      dragged = false;
+      return;
+    }
+    setSheet(state.sheet === "full" ? "half" : step(1));
+  });
+  handle.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") setSheet(step(1));
+    else if (e.key === "ArrowDown") setSheet(step(-1));
+    else return;
+    e.preventDefault();
+  });
+  // A tap on the panel while it is only a peek opens it to the usual half, unless the tap was on a control.
+  $("panel").addEventListener("click", (e) => {
+    if (state.sheet === "peek" && sheetOn() && !(e.target as Element).closest("button, a, summary, input, select")) setSheet("half");
+  });
+  // Tapping the map while the sheet fills the screen gives the map its room back, once the tap is done (see above).
+  $("map").addEventListener("click", (e) => {
+    if (state.sheet === "full" && sheetOn() && !e.composedPath().includes(handle)) setSheet("half");
+  });
+  applySheet();
 }
 
 function createMap() {
@@ -898,6 +968,7 @@ function showAllRatings(): HTMLElement {
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   map.setTheme(THEMES[state.theme]);
+  applySheet();
   renderKey();
   renderRatingBar();
   map.setMode(viewOf());
@@ -1747,9 +1818,11 @@ function placeAbout() {
 
 function bindGlobal() {
   placeAbout();
+  bindSheet();
   phone.addEventListener("change", () => {
     placeAbout();
     renderToolbar();
+    applySheet();
   });
   $("zoom-in").addEventListener("click", () => map.zoomBy(1.6));
   $("zoom-out").addEventListener("click", () => map.zoomBy(1 / 1.6));
