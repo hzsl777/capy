@@ -866,6 +866,61 @@ summary {
 .rating-picked [data-rating][aria-pressed="false"] {
   opacity: 0.4;
 }
+/* The phone's stories panel as a bottom sheet (decision 155): a handle on the map's lower edge, the panel pulled down to a
+   peek or up over the map, and the masthead's word stepping aside while it fills the screen. Not for designs whose
+   phone page is not one column (SHEET_OFF in main.ts), and not while a story or the word's view has its own rows. */
+.sheet-handle {
+  display: none;
+}
+@media (max-width: 760px) {
+  html.sheet-on .sheet-handle {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    z-index: 3;
+    width: 112px;
+    height: 32px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+  }
+  html.sheet-on .sheet-handle::before {
+    content: "";
+    width: 44px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--ink);
+    opacity: 0.6;
+    box-shadow: 0 0 0 2px var(--page);
+  }
+  html.sheet-on .panel {
+    box-shadow: 0 -6px 14px rgba(0, 0, 0, 0.14);
+  }
+  html.sheet-peek.sheet-on .stage:not(:has(.panel.reading)):not(:has(.panel.framed)) {
+    grid-template-rows: minmax(0, 1fr) 76px;
+  }
+  html.sheet-peek.sheet-on .panel {
+    overflow: hidden;
+  }
+  html.sheet-full.sheet-on .stage:not(:has(.panel.reading)):not(:has(.panel.framed)) {
+    grid-template-rows: 88px minmax(0, 1fr);
+  }
+  /* The map's strip is too short for its controls while the sheet is up; they come back when it is pulled down. */
+  html.sheet-full.sheet-on .zoom,
+  html.sheet-full.sheet-on .rating-bar {
+    display: none;
+  }
+  html.sheet-full.sheet-on .masthead .telegram,
+  html.sheet-full.sheet-on .masthead .mast-tag {
+    display: none;
+  }
+}
 /* Taps act at once: no double-tap zoom or delay on the controls. */
 button,
 [role="button"],
