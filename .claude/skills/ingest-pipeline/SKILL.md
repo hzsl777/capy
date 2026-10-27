@@ -12,7 +12,7 @@ The daily run (`npm run stage -- day`, `.github/workflows/daily.yml`) is one pip
 ```
 config/sources.yaml (desk: world, with place)
   -> ingest, enrich                      shared with 2DayAI
-  -> cluster world   stages/cluster.ts   WORLD_PER_SOURCE (15) newest articles per source, newest first across sources,
+  -> cluster world   stages/cluster.ts   WORLD_PER_SOURCE (8, decision 156) newest articles per source, newest first across sources,
                                          in batches of at most WORLD_CLUSTER_BATCH (300): cluster-world.v4 per batch
                                          (parseMany, ids batch-1, batch-2, ...), a topic per event.
                                          More than one batch: one merge call (cluster-world-merge.v2) names batch

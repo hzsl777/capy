@@ -44,8 +44,8 @@ const EnvSchema = z.object({
   WORLD_EXPLAIN_MAX: z.coerce.number().int().min(0).default(25),
   /** Days of world-desk data the database keeps; older days are deleted after each run (decision 34). */
   WORLD_RETENTION_DAYS: z.coerce.number().int().min(3).default(30),
-  /** Newest articles kept per world source per day, so one prolific feed cannot crowd the day. */
-  WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(15),
+  /** Newest articles kept per world source per day, so one prolific feed cannot crowd the day (8 since decision 156, from 15). */
+  WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(8),
   /** Most articles in one cluster world call. A larger day is split into batches, then merged across them. */
   WORLD_CLUSTER_BATCH: z.coerce.number().int().min(1).default(300),
   /**
@@ -58,14 +58,14 @@ const EnvSchema = z.object({
    * 25,000 to 45,000 with two a town. They go into tiles the site loads when zoomed in, not the day's main file.
    */
   GDELT_MAX: z.coerce.number().int().min(0).max(250_000).default(80_000),
-  /** Times the telegram's score call runs; each event keeps its middle score (decision 36). Odd, so there is a middle. */
+  /** Times the telegram's score call runs; each event keeps its middle score (decision 36). Odd, so there is a middle. 1 since decision 156, from 3. */
   TELEGRAM_SCORE_RUNS: z.coerce
     .number()
     .int()
     .min(1)
     .max(5)
     .refine((n) => n % 2 === 1, "an odd number: 1, 3 or 5")
-    .default(3),
+    .default(1),
 });
 
 export type Effort = "low" | "medium" | "high";
