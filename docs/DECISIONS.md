@@ -1328,3 +1328,7 @@ Davis set the yearly cost, Neon included, at about $100 at most. Neon is about $
 2. **Grouping reads at most 8 articles per outlet a day** (`WORLD_PER_SOURCE` defaults to 8, from 15). Grouping is 45% of a clean day and scales with the articles sent, so this cuts it and the second merge, which sees fewer events. The cap is the same for every outlet and keeps each outlet's newest articles, so rule 6's balance is unchanged, but a busy outlet shows fewer of its day's stories and a quiet one, with under 8, none fewer. Setting the variable to 15 returns the old reach.
 
 The expected cost is about $0.20 a day with decision 154's saving, $74 a year, $98 with Neon. The spend report on October 29 and after will show the real figure; if it is still over, the second merge can go and the cap come down further.
+
+## 157. Morning Edition's phone masthead is tighter (October 27, 2026)
+
+The default masthead took 237 px of a 390 by 844 phone, 28% of the screen, before the toolbar and the map. On a phone only, Morning Edition now uses smaller gaps, a 24 px name (from 28), the dateline's rules closer to its text and the word capped at 54 px (from 72, still sized by its length so every word fits). The masthead is 194 px, 43 px more for the map. Nothing is removed: the name, tagline, date, "Today's Word", the word, "Chosen by AI" and "How it's chosen" all stay (decision 40). The other designs keep their spacing, and nothing about the sheet (decision 155) changes. Checked at 390 by 844 with no horizontal overflow.

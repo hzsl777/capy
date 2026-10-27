@@ -1748,6 +1748,29 @@ button.link {
     align-items: center;
     text-align: center;
   }
+  /* Morning Edition's masthead gives the map more of a phone's height: tighter gaps, a smaller word and the
+     dateline's rules closer to its text. Other designs keep their own spacing. */
+  :root[data-theme="morning"] .masthead {
+    padding-block: 8px 6px;
+    gap: 2px;
+  }
+  :root[data-theme="morning"] .mast-title {
+    font-size: 24px;
+    line-height: 24px;
+  }
+  :root[data-theme="morning"] .telegram {
+    row-gap: 2px;
+  }
+  :root[data-theme="morning"] .telegram-date {
+    padding: 2px 0;
+  }
+  :root[data-theme="morning"] .telegram-center {
+    margin-top: 2px;
+  }
+  :root[data-theme="morning"] .telegram-word {
+    font-size: min(54px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.8)));
+    line-height: 0.95;
+  }
 }
 @media (max-width: 760px) {
   :root:not([data-theme]) .toolbar,
