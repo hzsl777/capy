@@ -1332,3 +1332,7 @@ The expected cost is about $0.20 a day with decision 154's saving, $74 a year, $
 ## 157. Morning Edition's phone masthead is tighter (October 27, 2026)
 
 The default masthead took 237 px of a 390 by 844 phone, 28% of the screen, before the toolbar and the map. On a phone only, Morning Edition now uses smaller gaps, a 24 px name (from 28), the dateline's rules closer to its text and the word capped at 54 px (from 72, still sized by its length so every word fits). The masthead is 194 px, 43 px more for the map. Nothing is removed: the name, tagline, date, "Today's Word", the word, "Chosen by AI" and "How it's chosen" all stay (decision 40). The other designs keep their spacing, and nothing about the sheet (decision 155) changes. Checked at 390 by 844 with no horizontal overflow.
+
+## 158. A short phone drops Morning Edition's tagline (November 3, 2026)
+
+A phone with its browser bars showing is often about 630 px tall, not the 844 px decision 157 was measured at. There the masthead, toolbar and time bar took 308 px and left the map 193 px. Under 700 px of height, on a phone, Morning Edition now hides the tagline, sets the word at 42 px (from 54) and the "Chosen by AI" note at 11 px, and the title row keeps the 30 px the search and About buttons need. The masthead is 149 px (from 194) and the map 220 px at 630 px tall. The name, date, "Today's Word", the word, the note and "How it's chosen" all stay (decision 40). Taller phones and other designs are unchanged.

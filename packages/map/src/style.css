@@ -1772,6 +1772,26 @@ button.link {
     line-height: 0.95;
   }
 }
+/* A phone with its browser bars showing is often under 700 px tall, and the map was left about 190 px. Morning
+   Edition drops its tagline, shrinks the word again and sets the notes smaller, so the map keeps more. */
+@media (max-width: 760px) and (max-height: 700px) {
+  :root[data-theme="morning"] .mast-tag {
+    display: none;
+  }
+  /* The search and About buttons are 30 px tall in the corners: the title row keeps their height. */
+  :root[data-theme="morning"] .brand {
+    min-height: 30px;
+    justify-content: center;
+  }
+  :root[data-theme="morning"] .telegram-word {
+    font-size: min(42px, calc((100vw - 2 * var(--gutter)) / (var(--len, 8) * 0.8)));
+  }
+  :root[data-theme="morning"] .telegram-note,
+  :root[data-theme="morning"] .telegram-none {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+}
 @media (max-width: 760px) {
   :root:not([data-theme]) .toolbar,
   :root[data-theme="morning"] .toolbar {
