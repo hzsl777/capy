@@ -104,7 +104,7 @@ const state = {
    */
   ratings: new Set<number>(),
   /** How much of a phone's screen the stories panel takes (decision 155): a peek, the usual half, or most of it. */
-  sheet: "half" as "peek" | "half" | "full",
+  sheet: (matchMedia("(max-width: 760px) and (max-height: 760px)").matches ? "peek" : "half") as "peek" | "half" | "full",
   slot: SLOTS,
   live: true,
   /** The language headlines are translated into, or null to show them as published (decision 97). */
@@ -204,8 +204,21 @@ function applySheet() {
   const root = document.documentElement;
   const on = sheetOn();
   root.classList.toggle("sheet-on", on);
+  dockControls(on);
   for (const step of SHEET_STEPS) root.classList.toggle(`sheet-${step}`, on && state.sheet === step);
   $("sheet-handle").setAttribute("aria-label", `Stories panel, ${state.sheet === "half" ? "half the screen" : state.sheet === "peek" ? "a peek" : "most of the screen"}. Drag or press to resize.`);
+}
+
+/**
+ * While the sheet is on, the rating buttons sit in the strip above the stories, not over the map, so only the Key
+ * and zoom are drawn on the world. Designs that keep their own phone page get them back on the map.
+ */
+function dockControls(on: boolean) {
+  const head = $("sheet-head");
+  const mapEl = $("map");
+  const bar = $("rating-bar");
+  const to = on ? head : mapEl;
+  if (bar.parentElement !== to) to.append(bar);
 }
 
 function setSheet(next: (typeof SHEET_STEPS)[number]) {
