@@ -257,7 +257,7 @@ describe("cluster world in batches", () => {
         return { groups: [{ eventKeys: [key("a"), key("b")], title: "Story a and b are one story" }] };
       },
     });
-    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2 }), llm, date);
+    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2, worldMergeTop: true }), llm, date);
     // One batch, so no first merge; every event here is importance 3 or 4, so all of them go to the second pass.
     expect(report).toMatchObject({ batches: 1, merged: 0, mergedTop: 1 });
     const top = llm.calls.find((c) => c.stage === "cluster-world-merge-top")!;
@@ -269,9 +269,16 @@ describe("cluster world in batches", () => {
     expect(evs.some((e) => e.title === titleOf("a") || e.title === titleOf("b"))).toBe(false);
   });
 
+  it("does not ask the second merge question unless WORLD_MERGE_TOP is on (decision 160)", async () => {
+    const llm = new FakeLlm({ "cluster-world": clusterAnswer });
+    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2 }), llm, date);
+    expect(report).toMatchObject({ mergedTop: 0 });
+    expect(llm.calls.some((c) => c.stage === "cluster-world-merge-top")).toBe(false);
+  });
+
   it("keeps the events as they are when the second merge pass fails", async () => {
     const llm = new FakeLlm({ "cluster-world": clusterAnswer, "cluster-world-merge-top": () => ({ nonsense: true }) });
-    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2 }), llm, date);
+    const report = await runClusterWorld(db, testConfig({ worldPerSource: 2, worldMergeTop: true }), llm, date);
     expect(report).toMatchObject({ mergedTop: 0, events: 9 });
   });
 

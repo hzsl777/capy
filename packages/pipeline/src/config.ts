@@ -44,8 +44,13 @@ const EnvSchema = z.object({
   WORLD_EXPLAIN_MAX: z.coerce.number().int().min(0).default(25),
   /** Days of world-desk data the database keeps; older days are deleted after each run (decision 34). */
   WORLD_RETENTION_DAYS: z.coerce.number().int().min(3).default(30),
-  /** Newest articles kept per world source per day, so one prolific feed cannot crowd the day (8 since decision 156, from 15). */
-  WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(8),
+  /** Newest articles kept per world source per day, so one prolific feed cannot crowd the day (6 since decision 160, 8 under 156, 15 before). */
+  WORLD_PER_SOURCE: z.coerce.number().int().min(1).default(6),
+  /** Whether cluster world asks a second time about the events the word is made from (decision 108). Off since decision 160. */
+  WORLD_MERGE_TOP: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
   /** Most articles in one cluster world call. A larger day is split into batches, then merged across them. */
   WORLD_CLUSTER_BATCH: z.coerce.number().int().min(1).default(300),
   /**
@@ -106,6 +111,7 @@ export type Config = {
   worldExplainMax: number;
   worldRetentionDays: number;
   worldPerSource: number;
+  worldMergeTop: boolean;
   worldClusterBatch: number;
   telegramScoreRuns: number;
   /** GDELT local stories (decision 78): per town, and per day. */
@@ -141,6 +147,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     worldExplainMax: e.WORLD_EXPLAIN_MAX,
     worldRetentionDays: e.WORLD_RETENTION_DAYS,
     worldPerSource: e.WORLD_PER_SOURCE,
+    worldMergeTop: e.WORLD_MERGE_TOP,
     worldClusterBatch: e.WORLD_CLUSTER_BATCH,
     telegramScoreRuns: e.TELEGRAM_SCORE_RUNS,
     local: { perTown: e.GDELT_PER_TOWN, max: e.GDELT_MAX },

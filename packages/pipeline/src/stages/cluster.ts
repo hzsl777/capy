@@ -315,10 +315,11 @@ export async function runClusterWorld(db: Db, config: Config, llm: Llm, date: Ru
   }
 
   // The word is made from the events of importance 3 or more. In a long list the merge pass can miss two of them that
-  // are one story, so those few are asked about once more on their own. A failure here costs only this check.
+  // are one story, so those few are asked about once more on their own, when WORLD_MERGE_TOP is on (off since decision
+  // 160, to save its cost). A failure here costs only this check.
   let mergedTop = 0;
   const top = final.filter((e) => e.importance >= TOP_IMPORTANCE);
-  if (!opts.onlyNew && top.length > 1) {
+  if (config.worldMergeTop && !opts.onlyNew && top.length > 1) {
     const mergePrompt = loadPrompt("cluster-world-merge", CLUSTER_WORLD_MERGE_PROMPT_VERSION);
     const outletOf = new Map(rows.map((r) => [r.id, `${r.source} (${r.place})`]));
     try {
