@@ -12,13 +12,14 @@ The daily run (`npm run stage -- day`, `.github/workflows/daily.yml`) is one pip
 ```
 config/sources.yaml (desk: world, with place)
   -> ingest, enrich                      shared with 2DayAI
-  -> cluster world   stages/cluster.ts   WORLD_PER_SOURCE (8, decision 156) newest articles per source, newest first across sources,
+  -> cluster world   stages/cluster.ts   WORLD_PER_SOURCE (6, decision 160) newest articles per source, newest first across sources,
                                          in batches of at most WORLD_CLUSTER_BATCH (300): cluster-world.v4 per batch
                                          (parseMany, ids batch-1, batch-2, ...), a topic per event.
                                          More than one batch: one merge call (cluster-world-merge.v2) names batch
                                          events that are the same story; code checks the keys and joins them.
-                                         Then a second merge call (cluster-world-merge-top) over the events of
-                                         importance 3 or more only (decision 108). Events with no city that happened
+                                         With WORLD_MERGE_TOP on (off since decision 160), then a second merge call
+                                         (cluster-world-merge-top) over the events of importance 3 or more only
+                                         (decision 108). Events with no city that happened
                                          in another country than the outlet's are marked abroad (decision 107).
   -> explain         stages/explain.ts   world events of importance 3 or more, at most WORLD_EXPLAIN_MAX (25).
                                          every sentence's quoted passage checked against the article text
