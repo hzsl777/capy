@@ -1349,3 +1349,15 @@ The spend report for October 27 to November 2, the first days with decisions 154
 2. **The second merge pass (decision 108) is off** (`WORLD_MERGE_TOP` defaults to false). It looked again at the events of importance 3 or more for two that are one story, and saved the word from counting a story twice. Without it, a story a long list's first merge missed can count twice on a day, which can push the day's band toward a worse word. It cost about $0.014 a day, $5 a year. Setting `WORLD_MERGE_TOP` to true brings it back.
 
 Expected: about $0.24 a day, $87 a year in models, about $111 with Neon. That is still not $100. `daily.yml` now passes `WORLD_PER_SOURCE` and `WORLD_MERGE_TOP` from repository variables, so either can be changed without a code change (decision 156 said this of `WORLD_PER_SOURCE` and the workflow did not pass it; it does now). The next spend report will show the real figure.
+
+## 161. A stricter score for the worst day, and 24 words a band (November 5, 2026)
+
+Davis saw that the word was never positive and that the same few words kept coming back. The record: all 37 days from September 29 to November 4 were band -2, "Severe harm". Two causes. The formula (decision 26) lets the worst significant event set the day, and the score prompt gave -2 to any loss of life, so 7 to 11 of the day's 25 scored events were -2, among them a bombing with four bodies recovered. And band -2 had 12 words and the rule is only "none twice in 7 days" (decision 128), so each word came back every 8 to 12 days (Anguish on September 30, October 10, October 18 and November 3).
+
+Davis chose to tighten the scoring and widen the lists, keeping the worst-event rule:
+
+1. **`telegram-score.v2`** reserves -2 for harm on a large scale: 20 or more people reported killed in the event, thousands forced from their homes, or harm reaching most of a city's or country's people. Smaller numbers of deaths score -1. The same line applies in every place and for every side, and when the sentences give no scale the score is -1.
+2. **Each band has 24 words**, up from 12 (`MOOD_WORDS`, 12 new emotions a band, none in two bands, none a verdict on who is right). With the 7 day rule a word now comes back after about 17 days or more. Words already used stay valid.
+3. **`telegram dry`**, a stage that scores a date and the 7 days before it again and prints their bands and score counts, writing nothing, so a prompt change can be tested on published days (`runTelegram` takes `dry`). A dry run costs the score calls, about $0.03 a day.
+
+Result of the dry run on October 28 to November 4: -2 events fell to 2 to 5 a day (from 7 to 11) and -1 events rose to 7 to 15, but all eight days were still band -2. Any single event of 20 or more killed or thousands displaced sets the day, and every day had at least two. So the stricter prompt makes the scores more accurate and does not by itself make a day anything but -2. What would change the band is the formula, which is rule 5 in packages/map/AGENTS.md and decision 26. That is Davis's decision and is not changed here.

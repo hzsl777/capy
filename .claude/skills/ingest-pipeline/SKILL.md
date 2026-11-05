@@ -23,7 +23,7 @@ config/sources.yaml (desk: world, with place)
                                          in another country than the outlet's are marked abroad (decision 107).
   -> explain         stages/explain.ts   world events of importance 3 or more, at most WORLD_EXPLAIN_MAX (25).
                                          every sentence's quoted passage checked against the article text
-  -> telegram        stages/telegram.ts  score each event (telegram-score.v1, scoreProblems) TELEGRAM_SCORE_RUNS
+  -> telegram        stages/telegram.ts  score each event (telegram-score.v2, scoreProblems) TELEGRAM_SCORE_RUNS
                                          times and keep the middle (medianScores, decision 36), dayBand in code,
                                          word from MOOD_WORDS[band] (telegram-word.v1, wordProblems). Decision 26.
   -> local           stages/local.ts     no model. GDELT articles about every town it tags, placed by

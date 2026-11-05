@@ -97,16 +97,17 @@ export const MOOD_BAND_LABEL: Record<MoodBand, string> = { [-2]: "Severe harm", 
  * never verdicts about who is right. Changing a list is a decision (docs/DECISIONS.md), not a tweak.
  */
 export const MOOD_WORDS: Record<MoodBand, readonly string[]> = {
-  [-2]: ["Grief", "Mourning", "Sorrow", "Anguish", "Heartbreak", "Lament", "Desolation", "Distress", "Devastation", "Bereavement", "Woe", "Shock"],
-  [-1]: ["Unease", "Strain", "Worry", "Heaviness", "Concern", "Disquiet", "Apprehension", "Trouble", "Tension", "Gloom", "Burden", "Dismay"],
-  0: ["Watchful", "Uncertain", "Unsettled", "Wary", "Ambivalent", "Restless", "Guarded", "Pensive", "Cautious", "Waiting", "Hesitant", "Torn"],
-  1: ["Relief", "Hope", "Reassurance", "Encouragement", "Comfort", "Optimism", "Calm", "Respite", "Easing", "Renewal", "Steadiness", "Solace"],
-  2: ["Joy", "Gratitude", "Gladness", "Elation", "Delight", "Contentment", "Jubilation", "Wonder", "Cheer", "Warmth", "Euphoria", "Rejoicing"],
+  [-2]: ["Grief", "Mourning", "Sorrow", "Anguish", "Heartbreak", "Lament", "Desolation", "Distress", "Devastation", "Bereavement", "Woe", "Shock", "Agony", "Despair", "Horror", "Torment", "Ache", "Dread", "Pain", "Sadness", "Misery", "Numbness", "Helplessness", "Hurt"],
+  [-1]: ["Unease", "Strain", "Worry", "Heaviness", "Concern", "Disquiet", "Apprehension", "Trouble", "Tension", "Gloom", "Burden", "Dismay", "Anxiety", "Frustration", "Foreboding", "Weariness", "Doubt", "Melancholy", "Pressure", "Unrest", "Discouragement", "Fear", "Nerves", "Sombre"],
+  0: ["Watchful", "Uncertain", "Unsettled", "Wary", "Ambivalent", "Restless", "Guarded", "Pensive", "Cautious", "Waiting", "Hesitant", "Torn", "Subdued", "Thoughtful", "Reflective", "Measured", "Quiet", "Contemplative", "Detached", "Expectant", "Balanced", "Patient", "Mixed", "Curious"],
+  1: ["Relief", "Hope", "Reassurance", "Encouragement", "Comfort", "Optimism", "Calm", "Respite", "Easing", "Renewal", "Steadiness", "Solace", "Ease", "Lightness", "Reprieve", "Peace", "Healing", "Brightening", "Gentleness", "Heartened", "Consolation", "Mending", "Thaw", "Lift"],
+  2: ["Joy", "Gratitude", "Gladness", "Elation", "Delight", "Contentment", "Jubilation", "Wonder", "Cheer", "Warmth", "Euphoria", "Rejoicing", "Happiness", "Radiance", "Celebration", "Exultation", "Bliss", "Thankfulness", "Merriment", "Gaiety", "Glee", "Fulfilment", "Marvel", "Rapture"],
 };
 
 /**
  * No word is used twice within this many days (decision 128): Davis asked for a different word every day, and on most
- * days the worst event sets the same band. Each band's list is longer than this, so a word is always left.
+ * days the worst event sets the same band. Each band's list (24 words since decision 161) is longer than this, so a
+ * word is always left.
  */
 export const WORD_REPEAT_DAYS = 7;
 
