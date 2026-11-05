@@ -32,7 +32,7 @@ import type { Config } from "../config.js";
 import { LlmParseError, type Llm } from "../llm/types.js";
 import type { z } from "zod";
 
-export const TELEGRAM_SCORE_PROMPT_VERSION = 1;
+export const TELEGRAM_SCORE_PROMPT_VERSION = 2;
 export const TELEGRAM_WORD_PROMPT_VERSION = 1;
 export const TELEGRAM_SCOPE = "world";
 
@@ -46,6 +46,8 @@ export type TelegramReport = {
   scoreRuns: number;
   split: number;
   retried: { score: boolean; word: boolean };
+  /** Only on a dry run: how many events got each score. */
+  scoreCounts?: Record<number, number>;
   /** Score runs set aside because they still broke the rules after their retry (decision 51). */
   rejected: number;
   reason?: string;
@@ -98,8 +100,12 @@ async function checkedCall<T extends z.ZodType>(
   return { value, retried: true };
 }
 
-export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDate): Promise<TelegramReport> {
-  await db.delete(telegrams).where(and(eq(telegrams.runDate, date), eq(telegrams.scope, TELEGRAM_SCOPE)));
+/**
+ * `dry` scores the day and computes its band but writes nothing and leaves the day's word alone: to see what a change
+ * to the score prompt would do to the bands of days already published (decision 161). It still costs the score call.
+ */
+export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDate, opts: { dry?: boolean } = {}): Promise<TelegramReport> {
+  if (!opts.dry) await db.delete(telegrams).where(and(eq(telegrams.runDate, date), eq(telegrams.scope, TELEGRAM_SCOPE)));
 
   const rows = await db
     .select({ id: events.id, title: events.title, topic: events.topic, importance: events.importance, sentences: eventExplanations.sentences, usable: eventExplanations.usable, failed: eventExplanations.failed })
@@ -166,6 +172,11 @@ export async function runTelegram(db: Db, config: Config, llm: Llm, date: RunDat
   const importance = new Map(cands.map((c) => [c.id, c.importance]));
   const scoredEvents: ScoredEvent[] = scored.value.scores.map((s) => ({ eventId: s.eventId, importance: importance.get(s.eventId) ?? 1, score: s.score }));
   const band = dayBand(scoredEvents)!;
+  if (opts.dry) {
+    const scoreCounts: Record<number, number> = {};
+    for (const e of scoredEvents) scoreCounts[e.score] = (scoreCounts[e.score] ?? 0) + 1;
+    return { candidates: cands.length, written: false, word: null, band, events: 0, scoreRuns: runs.length, split: median.split, retried: { score: scored.retried, word: false }, rejected, scoreCounts };
+  }
 
   // The words of the week before and the week after, so no word repeats within a week of another day's (decision 128).
   // The week after is empty on a normal day. It holds words only when a missed day is built late, or a day's word is

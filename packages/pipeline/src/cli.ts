@@ -92,6 +92,7 @@ const HELP = `Commands:
                          and territories with none
   map headlines --in f   real headlines gathered by hand or search (JSON) into a demo map file, no model, no database
   demo [--out f]         the fictional world fixture through the real stages, in memory, into the map's sample data
+  telegram dry           score the date and the 7 days before it again and print their bands, writing nothing (decision 161)
   eval [--setups s]      compare models on one day's world articles: cost, the code checks, every score (decision 28)
                          --snapshot f reuses a saved day; --fixture uses the fictional day; --fake skips the model
   show [--reader r01]    print a reader's edition for the date
@@ -149,6 +150,18 @@ switch (command) {
   case "telegram": {
     const d = db();
     console.log(await recorded(d, date, "telegram", () => runTelegram(d, config, createLlm(config, d), date)));
+    break;
+  }
+  case "telegram dry": {
+    // The date and the seven days before it scored again, nothing written: what the score prompt would do to bands
+    // already published (decision 161).
+    const d = db();
+    const llm = createLlm(config, d);
+    for (let back = 0; back <= 7; back++) {
+      const day = toRunDate(new Date(Date.parse(`${date}T12:00:00Z`) - back * 86_400_000).toISOString().slice(0, 10));
+      const r = await runTelegram(d, config, llm, day, { dry: true });
+      console.log(`${day} band ${r.band} of ${r.candidates} events, scores ${JSON.stringify(r.scoreCounts ?? {})}`);
+    }
     break;
   }
   case "local": {
