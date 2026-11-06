@@ -40,7 +40,7 @@ describe("the world desk on a real Postgres engine", () => {
     // Importance 3 or more: three conflict stories, the floods, the port, the clinics and the rescue.
     expect(out["explain"]).toEqual({ events: 7, usable: 7, unusable: 0, failed: 0, sentencesDropped: 0 });
     expect(out["select"]).toMatchObject({ readers: 0 });
-    // Two significant events scored -1 and nothing lower, so the worst sets the day: band -1, a word from its list.
+    // The worst significant event scored -2 and the average is above zero, so the day sits one step above its floor: band -1, a word from its list (decision 162).
     expect(out["telegram"]).toEqual({ candidates: 7, written: true, word: MOOD_WORDS[-1][0], band: -1, events: 5, scoreRuns: 3, split: 0, retried: { score: false, word: true }, rejected: 0 });
     expect(llm.calls.filter((c) => c.stage === "telegram-word")).toHaveLength(2);
   });
@@ -89,7 +89,7 @@ describe("the world desk on a real Postgres engine", () => {
     expect(map.telegram!.items[0]!.eventId).toBe(talks.id);
     // Every explained event is scored, worst first, each with one of its own sentences as the reason.
     expect(map.telegram!.scores).toHaveLength(7);
-    expect(map.telegram!.scores[0]!.score).toBe(-1);
+    expect(map.telegram!.scores[0]!.score).toBe(-2);
     expect(map.telegram!.scores.at(-1)!.score).toBe(2);
     const talksScore = map.telegram!.scores.find((sc) => sc.eventId === talks.id)!;
     expect(talks.whatHappened.map((x) => x.text)).toContain(talksScore.because);
@@ -150,7 +150,7 @@ describe("the world desk on a real Postgres engine", () => {
     });
     const report = await runTelegram(db, testConfig({ telegramScoreRuns: 3 }), llm, date);
     expect(llm.calls.filter((c) => c.stage === "telegram-score")).toHaveLength(3);
-    expect(report).toMatchObject({ word: "Unease", band: -1, scoreRuns: 3, split: 7 });
+    expect(report).toMatchObject({ word: "Unease", band: -1, scoreRuns: 3, split: 6 });
     const map = await loadMapView(db, date);
     expect(map.telegram!.scores.at(-1)!.score).toBe(2);
     expect(await runTelegram(db, testConfig({ telegramScoreRuns: 1 }), new FakeLlm(worldAnswers()), date)).toMatchObject({ scoreRuns: 1, split: 0 });
@@ -327,13 +327,16 @@ describe("the world desk on a real Postgres engine", () => {
 
 describe("the mood formula", () => {
   const ev = (eventId: number, importance: number, score: number) => ({ eventId, importance, score });
-  it("lets the worst significant event set a bad day, however much good news there is", () => {
-    expect(dayBand([ev(1, 5, -2), ev(2, 4, 2), ev(3, 4, 2), ev(4, 3, 2)])).toBe(-2);
-    expect(dayBand([ev(1, 3, -1), ev(2, 5, 2)])).toBe(-1);
+  it("keeps a bad day within one step of its worst significant event, however much good news there is (decision 162)", () => {
+    expect(dayBand([ev(1, 5, -2), ev(2, 4, 2), ev(3, 4, 2), ev(4, 3, 2)])).toBe(-1); // average 0.75 would be 1, the floor holds it at -1
+    expect(dayBand([ev(1, 5, -2), ev(2, 5, -2), ev(3, 3, 1)])).toBe(-1); // average -1.3 rounds to -1, one step above the worst
+    expect(dayBand([ev(1, 5, -2), ev(2, 3, -2), ev(3, 3, -2)])).toBe(-2);
+    expect(dayBand([ev(1, 3, -1), ev(2, 5, 2)])).toBe(0);
+    expect(dayBand([ev(1, 5, -1), ev(2, 3, -1), ev(3, 3, 0)])).toBe(-1);
   });
   it("ignores minor events when a significant one exists, and uses all events when none is significant", () => {
     expect(dayBand([ev(1, 1, -2), ev(2, 4, 1)])).toBe(1);
-    expect(dayBand([ev(1, 2, -1), ev(2, 1, 2)])).toBe(-1);
+    expect(dayBand([ev(1, 2, -1), ev(2, 1, 2)])).toBe(0);
   });
   it("averages an all-good day by importance and rounds", () => {
     expect(dayBand([ev(1, 5, 2), ev(2, 5, 1)])).toBe(2); // 1.5 rounds up
@@ -360,7 +363,9 @@ describe("telegram checks", () => {
     expect(wordProblems({ word: "Unease", events: [{ eventId: 2, line: "Roads closed." }] }, -1, scored)).toEqual([]);
     expect(wordProblems({ word: "Relief", events: [{ eventId: 2, line: "x" }] }, -1, scored)[0]).toMatch(/not one of: Unease/);
     expect(wordProblems({ word: "Unease", events: [{ eventId: 1, line: "x" }] }, -1, scored)).toContain("include the event that set the day (one of: 2)");
-    expect(wordProblems({ word: "Hope", events: [{ eventId: 1, line: "x" }] }, 1, scored)).toEqual([]);
+    expect(wordProblems({ word: "Hope", events: [{ eventId: 1, line: "x" }] }, 1, [{ eventId: 1, importance: 5, score: 1 }])).toEqual([]);
+    // The average can lift a bad day one step above its worst event; the word still names that event (decision 162).
+    expect(wordProblems({ word: "Watchful", events: [{ eventId: 1, line: "x" }] }, 0, scored)).toContain("include the event that set the day (one of: 2)");
   });
   it("rejects a word from the past week whatever its band, and always leaves a word to choose (decision 128)", () => {
     const scored = [{ eventId: 2, importance: 4, score: -1 }];

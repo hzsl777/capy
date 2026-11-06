@@ -81,7 +81,8 @@ export function validMergeGroups(merge: WorldClusterMerge, known: ReadonlySet<st
  * 1. The model scores each explained event from -2 to 2 by what happened to people, citing one of the event's
  *    verified sentences as the reason. Harm counts as harm whichever side it falls on.
  * 2. Code, not the model, turns the scores into the day's band: if any significant event (importance 3 or more)
- *    scored below zero, the worst of them sets the day, so good news never averages a tragedy away. Otherwise
+ *    scored below zero, the worst of them is a floor and the day is at most one step above it (decision 162), so
+ *    good news never averages a tragedy away. Otherwise
  *    the day is the importance-weighted average, rounded.
  * 3. The model picks the word from that band's fixed list, and the events that shaped the day.
  */
@@ -141,16 +142,22 @@ export type TelegramWord = z.infer<typeof TelegramWordSchema>;
 
 export type ScoredEvent = { eventId: number; importance: number; score: number };
 
-/** The formula. Worst significant event decides a bad day; an all-good day is the weighted average. */
+/**
+ * The formula (decision 162). The day is the importance-weighted average of its significant events (all of them when
+ * none is significant), rounded, but if any of them scored below zero the day sits no more than one step above the
+ * worst: the worst event is a floor, so good news can lighten a bad day by one step and never cancel a tragedy.
+ */
 export function dayBand(scored: ScoredEvent[]): MoodBand | null {
   if (scored.length === 0) return null;
   const significant = scored.filter((e) => e.importance >= SIGNIFICANT_IMPORTANCE);
   const pool = significant.length ? significant : scored;
   const worst = Math.min(...pool.map((e) => e.score));
-  if (worst < 0) return worst as MoodBand;
   const weight = pool.reduce((sum, e) => sum + e.importance, 0);
   const avg = pool.reduce((sum, e) => sum + e.importance * e.score, 0) / weight;
-  return Math.max(0, Math.min(2, Math.round(avg))) as MoodBand;
+  const rounded = Math.round(avg);
+  // + 0 turns a rounded -0 into 0.
+  if (worst < 0) return (Math.max(worst, Math.min(worst + 1, rounded)) + 0) as MoodBand;
+  return (Math.max(0, Math.min(2, rounded)) + 0) as MoodBand;
 }
 
 /**
@@ -205,9 +212,13 @@ export function wordProblems(w: TelegramWord, band: MoodBand, scored: ScoredEven
     if (e.line.split(/\s+/).length > 25) problems.push(`line for event ${e.eventId} is over 25 words`);
     if (/\u2014/.test(e.line)) problems.push(`line for event ${e.eventId} has an em dash`);
   }
-  if (band < 0) {
-    const setters = scored.filter((e) => e.importance >= SIGNIFICANT_IMPORTANCE && e.score === band).map((e) => e.eventId);
-    const pool = setters.length ? setters : scored.filter((e) => e.score === band).map((e) => e.eventId);
+  // A day with any harm among its significant events (all of them when none is significant) names the worst one, even
+  // when the average lifts the band a step above it (decision 162).
+  const significant = scored.filter((e) => e.importance >= SIGNIFICANT_IMPORTANCE);
+  const pooled = significant.length ? significant : scored;
+  const worst = pooled.length ? Math.min(...pooled.map((e) => e.score)) : 0;
+  if (worst < 0) {
+    const pool = pooled.filter((e) => e.score === worst).map((e) => e.eventId);
     if (!w.events.some((e) => pool.includes(e.eventId))) problems.push(`include the event that set the day (one of: ${pool.join(", ")})`);
   }
   return problems;

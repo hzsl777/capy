@@ -3,7 +3,7 @@
 //   1. score: every explained world event gets -2 to 2 by what happened to people, citing one of its own
 //      verified sentences. Checked in code. The call runs TELEGRAM_SCORE_RUNS times (default 1 since decision 156, 3 before) and each event
 //      keeps its middle score, because repeat runs sometimes disagree (decision 36).
-//   2. dayBand (code): the worst significant event sets a bad day; an all-good day is the weighted average.
+//   2. dayBand (code): the weighted average, with the worst significant event as a floor: at most one step above it (decision 162).
 //   3. word: the model picks from the band's fixed list and names the events that shaped the day. Checked in code.
 // Each call gets one retry with its problems spelled out. A score run that still breaks the rules is set aside
 // and another is asked, up to two more; if none passes, or the word fails twice, the day has no word (decision

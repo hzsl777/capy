@@ -1562,7 +1562,7 @@ function renderTelegram(panel: HTMLElement) {
       h(
         "p",
         { class: "fine" },
-        "An AI model scored each event rated 3 or more from \u22122 to +2 by what happened to people, quoting a checked sentence each time. A fixed formula, not the model, sets the day. If any score is below zero, the lowest one sets it, so good news never cancels a tragedy. Otherwise the day is the average, weighted by importance.",
+        "An AI model scored each event rated 3 or more from \u22122 to +2 by what happened to people, quoting a checked sentence each time. A fixed formula, not the model, sets the day. The day is the average, weighted by importance, but if any score is below zero the day can be no more than one step above the lowest one, so good news never cancels a tragedy.",
       ),
       h("h3", { class: "rule-head" }, "What shaped the day"),
       h("ol", { class: "stories" }, ...t.items.flatMap((item) => eventButton(item.eventId, item.line, null))),

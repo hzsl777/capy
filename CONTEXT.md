@@ -46,7 +46,7 @@ September 27, 2026, later the same day (decision 25):
 September 28, 2026 (decision 26):
 
 - The word is the emotion the day's stories evoke, read from all world news, not only conflict.
-- A formula sets it. The model scores each event from -2 to 2 by what happened to people. The worst significant event decides a bad day (Davis: "we have to be very careful here"). The model then picks the word from a fixed list for that step on the scale from Severe harm to Resolution (renamed from Grave to Good in decision 59).
+- A formula sets it. The model scores each event from -2 to 2 by what happened to people. The worst significant event is a floor under the day, which is at most one step above it (decision 162; before that it decided a bad day alone; Davis: "we have to be very careful here"). The model then picks the word from a fixed list for that step on the scale from Severe harm to Resolution (renamed from Grave to Good in decision 59).
 - The public site is called GlobalGist (decision 27). The repository stays capy.
 
 September 28, 2026 (decision 28):
@@ -118,7 +118,7 @@ Milestones 0 through 3, three build commits plus a review round, merged onto cap
 - Deliver by the reader's local date and hour through Resend; every unsent edition considered, so evening hours in American time zones send after UTC midnight.
 - Worker: edition page, event page with numbered citations and quoted excerpts, feedback as a GET confirmation form and a POST write, scoped to the reader's own edition.
 - World desk (decision 25): world sources pinned at the city they publish from, `cluster world` with a topic per event, and explanations for events of importance 3 or more, up to a cap.
-- Telegram (decision 26): the model scores every explained event and quotes a reason. Code computes the day's band, where the worst significant event decides a bad day. The model picks the word from that band's fixed list. Code checks every step.
+- Telegram (decision 26): the model scores every explained event and quotes a reason. Code computes the day's band, where the worst significant event is a floor, at most one step below the average (decision 162). The model picks the word from that band's fixed list. Code checks every step.
 - The map site (packages/map): five designs, Map and Globe, zoom levels by reach or importance, an idle spin, and the word under the masthead (decisions 30 and 32). The drill-down goes from the word to its events, then to explanations with numbered citations to the quoted sources. The Worker serves the site and builds its data from the database (`/data/latest.json`).
 - CLI: sources check, ingest, enrich, readers sync, cluster [--force], cluster world, explain, select, telegram, show, deliver [--dry-run], day [--fixture], map export, demo, spend, feedback.
 - CI: boundaries, typecheck including the Worker and the map, tests, the map build, secret scan. Tests run whole days on PGlite (a real Postgres engine) with the real migrations and a scripted model, including the world desk, the telegram retry and the Worker's map endpoints. No network, no key.

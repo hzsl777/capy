@@ -69,7 +69,7 @@ export const WORLD_STORIES: Story[] = [
     importance: 4,
     title: "Families leave Oren highland villages after nearby shelling",
     line: "About 300 families left two villages in the Oren highlands as a precaution after overnight shelling nearby, officials said.",
-    score: -1,
+    score: -2,
     because: 0,
     articles: [
       { outlet: "indus-herald", hour: 9, headline: "Families leave Oren highland villages after shelling", body: "Local officials said about 300 families left two villages in the Oren highlands as a precaution after overnight shelling nearby. A school in the district town is being used as a shelter. Officials said they had asked for tents and water tanks." },
