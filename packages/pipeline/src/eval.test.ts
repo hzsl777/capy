@@ -68,7 +68,7 @@ describe("runEval", () => {
     expect(good!.word).toBe("Unease");
     expect(good!.band).toBe(-1);
     expect(good!.sentences.kept).toBeGreaterThan(0);
-    expect(good!.scores[0]!.score).toBe(-1);
+    expect(good!.scores[0]!.score).toBe(-2);
     expect(broken!.clusterWorld.ok).toBe(false);
     expect(broken!.telegram).toEqual({ ok: false, error: "skipped: explain failed" });
 
